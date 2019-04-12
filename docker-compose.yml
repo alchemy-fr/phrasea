@@ -1,0 +1,29 @@
+version: '3.4'
+
+networks:
+  internal:
+
+services:
+  api:
+    image: api
+    build:
+      context: .
+      target: upload_php
+    networks:
+      - internal
+    restart: always
+    volumes:
+      - .:/srv/app
+
+  nginx:
+    image: nginx
+    build:
+      context: .
+      target: upload_nginx
+    networks:
+      - internal
+    restart: always
+    volumes:
+      - .:/srv/app
+    ports:
+      - 80:80

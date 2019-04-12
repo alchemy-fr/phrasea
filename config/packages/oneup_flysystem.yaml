@@ -1,0 +1,9 @@
+# Read the documentation: https://github.com/1up-lab/OneupFlysystemBundle/tree/master/Resources/doc/index.md
+oneup_flysystem:
+    adapters:
+        upload:
+            local:
+                directory: '%env(UPLOAD_TEMP_DIR)%'
+    filesystems:
+        upload:
+            adapter: upload
