@@ -4,25 +4,21 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\HttpFoundation\File\File;
-use App\Controller\CreateAssetAction;
 
 /**
  * @ORM\Entity
  * @ApiResource(
- *     iri="http://schema.org/MediaObject",
  *     normalizationContext={
  *         "groups"={"asset_read"},
  *     },
  *     collectionOperations={
  *         "post"={
- *             "controller"=CreateAssetAction::class,
+ *             "controller"=DownloadUrlAction::class,
  *             "defaults"={
+ *                 "_api_receive"=false,
  *             },
  *             "validation_groups"={"Default", "asset_create"},
  *             "swagger_context"={
@@ -40,25 +36,11 @@ use App\Controller\CreateAssetAction;
  *             },
  *         },
  *     },
- *     itemOperations={"get"},
+ *     itemOperations={},
  * )
  */
-class Asset
+class DownloadUrl
 {
-    /**
-     * @ApiProperty(identifier=true)
-     * @Groups("asset_read")
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var File|null
-     *
-     * @Assert\NotNull(groups={"asset_create"})
-     */
-    private $file;
-
     /**
      * @var string
      */
@@ -66,21 +48,13 @@ class Asset
 
     /**
      * @var int
-     * @Groups("asset_read")
      */
     private $size;
 
     /**
      * @var string
-     * @ApiProperty(iri="http://schema.org/name")
-     * @Groups("asset_read")
      */
     private $originalName;
-
-    public function getId()
-    {
-        return $this->id;
-    }
 
     public function getFile(): ?File
     {
@@ -100,7 +74,6 @@ class Asset
     public function setPath(string $path): void
     {
         $this->path = $path;
-        $this->id = str_replace('.', '-', $path);
     }
 
     public function getSize(): int

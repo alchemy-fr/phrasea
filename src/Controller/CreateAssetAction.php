@@ -27,14 +27,13 @@ final class CreateAssetAction
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FilesystemInterface $filesystem
-    )
-    {
+    ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->filesystem = $filesystem;
     }
 
-    public function __invoke(Request $request): bool
+    public function __invoke(Request $request): Asset
     {
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
@@ -52,7 +51,7 @@ final class CreateAssetAction
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $uuid = Uuid::uuid4()->toString();
         $path = sprintf(
-            '%s/%s/%s.%s',
+            '%s/%s/%s-%s',
             substr($uuid, 0, 2),
             substr($uuid, 2, 2),
             $uuid,
@@ -63,14 +62,13 @@ final class CreateAssetAction
         $asset->setOriginalName($uploadedFile->getClientOriginalName());
         $asset->setSize($uploadedFile->getSize());
 
-
         $this->validate($asset, $request);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $this->filesystem->writeStream($asset->getPath(), $stream);
         fclose($stream);
 
-        return true;
+        return $asset;
     }
 
     private function validate(Asset $asset, Request $request): void
