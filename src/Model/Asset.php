@@ -48,6 +48,7 @@ class Asset
     /**
      * @ApiProperty(identifier=true)
      * @Groups("asset_read")
+     *
      * @var string
      */
     private $id;

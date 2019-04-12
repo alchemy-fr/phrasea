@@ -17,7 +17,7 @@ class AssetTest extends WebTestCase
     public function testUploadAsset(): void
     {
         $response = $this->request('POST', '/assets', null, [
-            'file' => new UploadedFile(__DIR__.'/fixtures/foo.jpg', 'foo.jpg', 'image/jpeg')
+            'file' => new UploadedFile(__DIR__.'/fixtures/foo.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
 
@@ -45,7 +45,7 @@ class AssetTest extends WebTestCase
     {
         $server = ['CONTENT_TYPE' => 'application/ld+json', 'HTTP_ACCEPT' => 'application/ld+json'];
         foreach ($headers as $key => $value) {
-            if (strtolower($key) === 'content-type') {
+            if ('content-type' === strtolower($key)) {
                 $server['CONTENT_TYPE'] = $value;
 
                 continue;
@@ -62,6 +62,7 @@ class AssetTest extends WebTestCase
 
         return $this->client->getResponse();
     }
+
     protected function setUp()
     {
         parent::setUp();
