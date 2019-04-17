@@ -18,6 +18,7 @@ final class CreateAssetAction
 {
     private $validator;
     private $resourceMetadataFactory;
+
     /**
      * @var FilesystemInterface
      */

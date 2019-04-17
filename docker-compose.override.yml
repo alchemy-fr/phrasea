@@ -12,6 +12,8 @@ services:
       - internal
     volumes:
       - ./client:/usr/src/app
+    environment:
+      - REACT_APP_UPLOAD_URI
     ports:
       - 3000:3000
 

@@ -37,6 +37,8 @@ services:
     build:
       context: ./client
       target: client_nginx
+    environment:
+      - REACT_APP_UPLOAD_URI
     networks:
       - internal
 

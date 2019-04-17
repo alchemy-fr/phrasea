@@ -1,60 +1,64 @@
 import React, {Component} from 'react';
 import '../scss/Upload.scss';
 import Dropzone from "react-dropzone";
-import AssetIcon from "./AssetIcon";
-import request from "superagent";
+import AssetUpload from "./AssetUpload";
 
 export default class Upload extends Component {
+    batchSize = 2;
+
     constructor(props) {
         super(props);
 
         this.state = {
             files: [],
             uploading: false,
+            currentFileUpload: null,
+            totalSize: null,
+            totalUploaded: null,
         };
 
+        this.fileRefs = {};
+        this.currentUpload = 0;
+
         this.onDrop = this.onDrop.bind(this);
-        this.submitFiles = this.submitFiles.bind(this);
+        this.startUpload = this.startUpload.bind(this);
+        this.onUploadComplete = this.onUploadComplete.bind(this);
+        this.onUploadProgress = this.onUploadProgress.bind(this);
     }
 
-    submitFiles() {
-        const {files} = this.state;
+    startUpload() {
+        this.setState({
+            totalUploaded: 0,
+            uploading: true,
+        }, () => {
+            const batchSize = this.batchSize > this.state.files.length ? this.state.files.length : this.batchSize
+            for (let i = 0; i < batchSize; i++) {
+                this.fileRefs[this.currentUpload].upload();
+                if ((i+1) < batchSize) {
+                    ++this.currentUpload;
+                }
+            }
+        });
+    }
+
+    onUploadComplete() {
+        ++this.currentUpload;
+        if (this.currentUpload >= this.state.files.length) {
+            return;
+        }
+        this.fileRefs[this.currentUpload].upload();
+    }
+
+    onUploadProgress() {
+        let totalUploaded = 0;
+        Object.keys(this.fileRefs).forEach((i) => {
+            const fileComp = this.fileRefs[i];
+            totalUploaded += fileComp.getBytesLoaded();
+        });
 
         this.setState({
-            uploading: true,
+            totalUploaded,
         });
-
-        const formData = new FormData();
-        files.forEach((file, i) => {
-            formData.append(i, file)
-        });
-
-        // TODO
-        const API_URL = 'http://localhost';
-
-        const req = request
-            .post(`${API_URL}/upload`);
-        const uploadParams = {};
-        const data = new FormData();
-        files.forEach((file) => {
-            data.append('file', file);
-        });
-        Object.keys(uploadParams).forEach(function (key) {
-            data.append(key, uploadParams[key]);
-        });
-
-        this.req = req
-            .on('progress', (e) => {
-                this.setState({
-                    progress: e.percent,
-                });
-            })
-            .send(data)
-            .end(() => {
-                this.setState({
-                    uploading: false,
-                });
-            });
     }
 
     onDrop(acceptedFiles) {
@@ -63,6 +67,7 @@ export default class Upload extends Component {
 
         this.setState({
             files: currentFiles,
+            totalSize: currentFiles.reduce((total, file) => total + file.size, 0)
         });
     }
 
@@ -71,22 +76,41 @@ export default class Upload extends Component {
 
         return <div className="file-collection">
             {files.map((file, index) => {
-                return <AssetIcon
+                return <AssetUpload
+                    ref={(ref) => this.fileRefs[index] = ref}
                     key={index}
                     file={file}
+                    onUploadComplete={this.onUploadComplete}
+                    onUploadProgress={this.onUploadProgress}
                 />
             })}
         </div>;
     }
 
-    render() {
-        const {files, uploading} = this.state;
+    renderProgressBar() {
+        const {
+            totalUploaded,
+            totalSize
+        } = this.state;
 
-        if (uploading) {
-            return <div>
-                {this.state.progress}%
-            </div>;
-        }
+        const progress = totalUploaded / totalSize * 100;
+
+        return <div className="progress">
+            <div className="progress-bar"
+                 role="progressbar"
+                 style={{width: progress+'%'}}
+                 aria-valuenow={progress}
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+            />
+        </div>;
+    }
+
+    render() {
+        const {
+            files,
+            uploading,
+        } = this.state;
 
         return (
             <div>
@@ -110,8 +134,11 @@ export default class Upload extends Component {
                     }}
                 </Dropzone>
 
+                {uploading ? this.renderProgressBar() : ''}
+
                 <button
-                    onClick={this.submitFiles}
+                    onClick={this.startUpload}
+                    disabled={uploading}
                 >
                     Next
                 </button>
