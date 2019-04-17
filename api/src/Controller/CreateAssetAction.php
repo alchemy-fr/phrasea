@@ -44,6 +44,9 @@ final class CreateAssetAction
         if (!$uploadedFile->isValid()) {
             throw new BadRequestHttpException('Invalid uploaded file');
         }
+        if (0 === $uploadedFile->getSize()) {
+            throw new BadRequestHttpException('Empty file');
+        }
 
         $asset = new Asset();
         $asset->setFile($uploadedFile);

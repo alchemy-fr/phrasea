@@ -14,10 +14,10 @@ class AssetTest extends WebTestCase
     /** @var Client */
     protected $client;
 
-    public function testUploadAsset(): void
+    public function testUploadAssetOK(): void
     {
         $response = $this->request('POST', '/assets', null, [
-            'file' => new UploadedFile(__DIR__.'/fixtures/foo.jpg', 'foo.jpg', 'image/jpeg'),
+            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
 
@@ -27,14 +27,22 @@ class AssetTest extends WebTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertRegExp('#^[a-z0-9]{2}/[0-9a-z]{2}/[a-z0-9\-]{36}\-jpg$#', $json['id']);
         $this->assertArrayHasKey('originalName', $json);
-        $this->assertSame('foo.jpg', $json['originalName']);
+        $this->assertSame('32x32.jpg', $json['originalName']);
         $this->assertArrayHasKey('size', $json);
-        $this->assertSame(0, $json['size']);
+        $this->assertSame(846, $json['size']);
     }
 
     public function testUploadAssetWithoutFileGenerates400(): void
     {
         $response = $this->request('POST', '/assets');
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    public function testUploadEmptyFileGenerates400(): void
+    {
+        $response = $this->request('POST', '/assets', null, [
+            'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
+        ]);
         $this->assertEquals(400, $response->getStatusCode());
     }
 

@@ -1,0 +1,20 @@
+@import "variables";
+@import "~bootstrap/scss/bootstrap";
+
+body, .App {
+  height: 100%;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+h1 {
+  color: $brand-primary;
+  font-size: 28px;
+}
+

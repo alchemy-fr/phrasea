@@ -1,0 +1,25 @@
+.Upload {
+  background: #41A688;
+
+  padding: 30px;
+  border: 1px solid #AAA;
+  border-radius: 30px;
+
+  &.drag-over {
+    background: yellow;
+  }
+}
+
+.file-collection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  flex-wrap: wrap;
+}
+
+.file-icon {
+  width: 150px;
+  height: 150px;
+  padding: 10px;
+}

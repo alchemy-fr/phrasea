@@ -1,3 +1,4 @@
 api_platform:
+    version: '1.0.0'
     mapping:
         paths: ['%kernel.project_dir%/src/Model']

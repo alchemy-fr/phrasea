@@ -4,26 +4,39 @@ networks:
   internal:
 
 services:
-  api:
+  api_php:
     image: api
     build:
-      context: .
+      context: ./api
       target: upload_php
     networks:
-      - internal
-    restart: always
+      internal:
+        aliases:
+          - api
+    environment:
+      - APP_ENV
     volumes:
-      - .:/srv/app
+      - ./api:/srv/app
 
-  nginx:
+  api_nginx:
     image: nginx
     build:
-      context: .
+      context: ./api
       target: upload_nginx
     networks:
       - internal
-    restart: always
     volumes:
-      - .:/srv/app
+      - ./api:/srv/app
     ports:
       - 80:80
+    depends_on:
+      - api_php
+
+  client:
+    image: nginx
+    build:
+      context: ./client
+      target: client_nginx
+    networks:
+      - internal
+

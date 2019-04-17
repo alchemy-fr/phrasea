@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  client:
+    command: ["/bin/sh", "-c", "exit"]
+
+  client_dev:
+    build:
+      context: ./client
+      target: client_build
+    networks:
+      - internal
+    volumes:
+      - ./client:/usr/src/app
+    ports:
+      - 3000:3000
+
