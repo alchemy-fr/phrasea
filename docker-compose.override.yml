@@ -17,3 +17,18 @@ services:
     ports:
       - 3000:3000
 
+  upload_php:
+    volumes:
+      - ./upload:/srv/app
+
+  upload_nginx:
+    volumes:
+      - ./upload:/srv/app
+
+  auth_php:
+    volumes:
+      - ./auth:/srv/app
+
+  auth_nginx:
+    volumes:
+      - ./auth:/srv/app

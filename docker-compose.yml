@@ -5,7 +5,7 @@ networks:
 
 services:
   upload_php:
-    image: upload_php
+    image: alchemy/upload_php
     build:
       context: upload
       target: upload_php
@@ -15,25 +15,21 @@ services:
           - upload
     environment:
       - APP_ENV
-    volumes:
-      - ./upload:/srv/app
 
   upload_nginx:
-    image: upload_nginx
+    image: alchemy/upload_nginx
     build:
       context: ./upload
       target: upload_nginx
     networks:
       - internal
-    volumes:
-      - ./upload:/srv/app
     ports:
       - 8080:80
     depends_on:
       - upload_php
 
   client:
-    image: client_nginx
+    image: alchemy/client_nginx
     build:
       args:
         - UPLOAD_BASE_URL=http://localhost:8080
@@ -45,7 +41,7 @@ services:
       - internal
 
   auth_php:
-    image: auth_php
+    image: alchemy/auth_php
     build:
       context: auth
       target: auth_php
@@ -59,23 +55,18 @@ services:
       - APP_ENV
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - ./auth:/srv/app
 
   auth_nginx:
-    image: auth_nginx
+    image: alchemy/auth_nginx
     build:
       context: ./auth
       target: auth_nginx
     networks:
       - internal
-    volumes:
-      - ./auth:/srv/app
     ports:
       - 8081:80
     depends_on:
       - auth_php
-      - db
 
   db:
     image: postgres:11.2-alpine

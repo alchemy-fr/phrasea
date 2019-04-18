@@ -1,4 +1,3 @@
-# NGINX
 FROM nginx:1.15.11-alpine AS auth_nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
@@ -39,12 +38,14 @@ RUN adduser -D -u 1000 app \
     && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 WORKDIR /srv/app
-CMD ["php-fpm"]
 
 COPY . .
 
-RUN chown -R app: .
+ENV APP_ENV=prod
 
 RUN mkdir -p var/cache var/logs var/sessions \
-    && composer install --prefer-dist --no-dev --no-scripts --no-progress --no-suggest --classmap-authoritative --no-interaction \
-    && composer clear-cache
+    && composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction \
+    && composer clear-cache \
+    && chown -R app: .
+
+CMD ["php-fpm"]
