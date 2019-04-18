@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import '../scss/Upload.scss';
+import '../../scss/Upload.scss';
 import Dropzone from "react-dropzone";
-import AssetUpload from "./AssetUpload";
+import AssetUpload from "../AssetUpload";
 
 export default class Upload extends Component {
     batchSize = 2;
@@ -34,7 +34,7 @@ export default class Upload extends Component {
             const batchSize = this.batchSize > this.state.files.length ? this.state.files.length : this.batchSize
             for (let i = 0; i < batchSize; i++) {
                 this.fileRefs[this.currentUpload].upload();
-                if ((i+1) < batchSize) {
+                if ((i + 1) < batchSize) {
                     ++this.currentUpload;
                 }
             }
@@ -98,7 +98,7 @@ export default class Upload extends Component {
         return <div className="progress">
             <div className="progress-bar"
                  role="progressbar"
-                 style={{width: progress+'%'}}
+                 style={{width: progress + '%'}}
                  aria-valuenow={progress}
                  aria-valuemin="0"
                  aria-valuemax="100"
@@ -113,35 +113,42 @@ export default class Upload extends Component {
         } = this.state;
 
         return (
-            <div>
-                <Dropzone
-                    onDrop={this.onDrop}
-                >
-                    {({getRootProps, getInputProps, isDragActive}) => {
-                        let classes = ['Upload'];
-                        if (isDragActive) {
-                            classes.push('drag-over');
-                        }
-                        return (
-                            <div {...getRootProps()} className={classes.join(' ')}>
-                                <input {...getInputProps()} />
-                                {files.length > 0 ?
-                                    this.renderFiles()
-                                    : <p>Drag 'n' drop some files here, or click to select files</p>
+            <div className="container">
+                <div className="App">
+                    <header>
+                        <h1>Uploader.</h1>
+                    </header>
+                    <div>
+                        <Dropzone
+                            onDrop={this.onDrop}
+                        >
+                            {({getRootProps, getInputProps, isDragActive}) => {
+                                let classes = ['Upload'];
+                                if (isDragActive) {
+                                    classes.push('drag-over');
                                 }
-                            </div>
-                        )
-                    }}
-                </Dropzone>
+                                return (
+                                    <div {...getRootProps()} className={classes.join(' ')}>
+                                        <input {...getInputProps()} />
+                                        {files.length > 0 ?
+                                            this.renderFiles()
+                                            : <p>Drag 'n' drop some files here, or click to select files</p>
+                                        }
+                                    </div>
+                                )
+                            }}
+                        </Dropzone>
 
-                {uploading ? this.renderProgressBar() : ''}
+                        {uploading ? this.renderProgressBar() : ''}
 
-                <button
-                    onClick={this.startUpload}
-                    disabled={uploading}
-                >
-                    Next
-                </button>
+                        <button
+                            onClick={this.startUpload}
+                            disabled={uploading}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }

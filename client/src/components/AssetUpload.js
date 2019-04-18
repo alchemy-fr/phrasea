@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
 import request from "superagent";
+import config from '../store/config'
 
 export default class AssetUpload extends Component {
     constructor(props) {
@@ -31,7 +32,7 @@ export default class AssetUpload extends Component {
         formData.append('file', this.props.file);
 
         request
-            .post(process.env.REACT_APP_UPLOAD_URI)
+            .post(config.getUploadBaseURL())
             .accept('json')
             .on('progress', (e) => {
                 if (e.direction !== 'upload') {

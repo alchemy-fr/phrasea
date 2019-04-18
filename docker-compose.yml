@@ -5,7 +5,7 @@ networks:
 
 services:
   api_php:
-    image: api
+    image: api_php
     build:
       context: ./api
       target: upload_php
@@ -19,7 +19,7 @@ services:
       - ./api:/srv/app
 
   api_nginx:
-    image: nginx
+    image: api_nginx
     build:
       context: ./api
       target: upload_nginx
@@ -33,12 +33,12 @@ services:
       - api_php
 
   client:
-    image: nginx
+    image: client_nginx
     build:
+      args:
+        - UPLOAD_BASE_URL=http://localhost:80/assets
       context: ./client
       target: client_nginx
-    environment:
-      - REACT_APP_UPLOAD_URI
     ports:
       - 8080:80
     networks:

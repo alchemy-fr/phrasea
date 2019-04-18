@@ -1,10 +1,16 @@
 FROM node:10 as client_build
 
+ARG UPLOAD_BASE_URL=http://localhost:80/assets
+ARG DEV_MODE=true
+
 RUN mkdir -p /usr/src/app
 
 COPY . /usr/src/app
 
 WORKDIR /usr/src/app
+
+ENV REACT_APP_UPLOAD_BASE_URL=$UPLOAD_BASE_URL
+ENV REACT_APP_DEV_MODE=$DEV_MODE
 
 RUN yarn install --silent \
     && yarn run build
