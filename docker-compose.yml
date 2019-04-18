@@ -4,43 +4,83 @@ networks:
   internal:
 
 services:
-  api_php:
-    image: api_php
+  upload_php:
+    image: upload_php
     build:
-      context: ./api
+      context: upload
       target: upload_php
     networks:
       internal:
         aliases:
-          - api
+          - upload
     environment:
       - APP_ENV
     volumes:
-      - ./api:/srv/app
+      - ./upload:/srv/app
 
-  api_nginx:
-    image: api_nginx
+  upload_nginx:
+    image: upload_nginx
     build:
-      context: ./api
+      context: ./upload
       target: upload_nginx
     networks:
       - internal
     volumes:
-      - ./api:/srv/app
+      - ./upload:/srv/app
     ports:
-      - 80:80
+      - 8080:80
     depends_on:
-      - api_php
+      - upload_php
 
   client:
     image: client_nginx
     build:
       args:
-        - UPLOAD_BASE_URL=http://localhost:80/assets
+        - UPLOAD_BASE_URL=http://localhost:8080
       context: ./client
       target: client_nginx
     ports:
-      - 8080:80
+      - 80:80
     networks:
       - internal
 
+  auth_php:
+    image: auth_php
+    build:
+      context: auth
+      target: auth_php
+    networks:
+      internal:
+        aliases:
+          - auth
+    depends_on:
+      - db
+    environment:
+      - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./auth:/srv/app
+
+  auth_nginx:
+    image: auth_nginx
+    build:
+      context: ./auth
+      target: auth_nginx
+    networks:
+      - internal
+    volumes:
+      - ./auth:/srv/app
+    ports:
+      - 8081:80
+    depends_on:
+      - auth_php
+      - db
+
+  db:
+    image: postgres:11.2-alpine
+    networks:
+      - internal
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD

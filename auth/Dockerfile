@@ -1,15 +1,17 @@
 # NGINX
-FROM nginx:1.15.11-alpine AS upload_nginx
+FROM nginx:1.15.11-alpine AS auth_nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
 COPY public /srv/app/public/
 
-FROM php:7.3.4-fpm-alpine AS upload_php
+FROM php:7.3.4-fpm-alpine AS auth_php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
+		postgresql-dev \
 		icu-libs \
-		zlib
+		zlib \
+		libzip
 
 ENV APCU_VERSION 5.1.12
 RUN set -eux \
@@ -20,6 +22,8 @@ RUN set -eux \
 		libzip-dev \
 	&& docker-php-ext-install \
 		intl \
+		pdo \
+		pdo_pgsql \
 		zip \
 	&& pecl install \
 		apcu-${APCU_VERSION} \

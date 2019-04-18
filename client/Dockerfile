@@ -1,6 +1,6 @@
 FROM node:10 as client_build
 
-ARG UPLOAD_BASE_URL=http://localhost:80/assets
+ARG UPLOAD_BASE_URL=http://localhost:8080
 ARG DEV_MODE=true
 
 RUN mkdir -p /usr/src/app

@@ -1,0 +1,4 @@
+App\Entity\User:
+    admin_user:
+      __factory: { '@App\Fixture\Factory\UserPasswordFactory::create': ['secret'] }
+      email: foo@bar.com

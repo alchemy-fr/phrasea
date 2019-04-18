@@ -1,0 +1,29 @@
+security:
+    always_authenticate_before_granting: true
+    encoders:
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 12
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        user_password:
+            entity:
+                class: App\Entity\User
+                property: email
+    firewalls:
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false # can be omitted as its default value
+
+    access_control:
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
