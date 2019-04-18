@@ -11,10 +11,17 @@ This repository contains many end projects:
 ## Setup
 
 ```bash
-docker-compose -f docker-compose.yml up
+bin/build.sh
+bin/install.sh
 ```
 
-Client web app is available at `http://localhost:8080`
+Then you can start the stack:
+
+```bash
+bin/start.sh
+```
+
+Client web app is available at `http://localhost`
 
 ## Development
 

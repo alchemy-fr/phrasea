@@ -3,39 +3,22 @@ jobs:
   build:
     environment:
       COMPOSE_PROJECT_NAME: circlecitest
-    docker:
-      - image: buildpack-deps:trusty
+    machine: true
     steps:
       - checkout
-      - run:
-          name: Install Docker Compose
-          command: |-
-            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
-      - setup_remote_docker:
-          version: 18.01.0-ce
-          docker_layer_caching: true
-      - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="17.03.0-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
       - run:
           name: Reset docker stack
           command: |-
             docker-compose down
-            docker volume rm "${COMPOSE_PROJECT_NAME}_alchemy_vol" || true
-            docker volume rm "${COMPOSE_PROJECT_NAME}_data_vol" || true
-            docker volume rm "${COMPOSE_PROJECT_NAME}_db_vol" || true
-            docker volume rm "${COMPOSE_PROJECT_NAME}_dev_vol" || true
-            docker volume rm "${COMPOSE_PROJECT_NAME}_elasticsearch_vol" || true
+#      - run:
+#          name: Build application images
+#          command: |-
+#            bin/build.sh
       - run:
-          name: Build application Docker image
+          name: Install applications
           command: |-
-            # Avoid volume creation with local binding (Docker is run on remote host on CircleCI):
-            docker volume create --name "${COMPOSE_PROJECT_NAME}_alchemy_vol"
             bin/install.sh
+      - run:
+          name: Run application tests
+          command: |-
+            bin/tests.sh
