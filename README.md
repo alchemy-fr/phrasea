@@ -7,8 +7,17 @@ This repository contains many end projects:
 - API (back end)
 - Uploader client (front end)
 
-## Installation
+## Setup
+
+```bash
+docker-compose -f docker-compose.yml up
+```
+
+Client web app is available at `http://localhost:8080`
+
+## Development
 
 ```bash
 docker-compose up
 ```
+

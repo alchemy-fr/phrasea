@@ -39,6 +39,8 @@ services:
       target: client_nginx
     environment:
       - REACT_APP_UPLOAD_URI
+    ports:
+      - 8080:80
     networks:
       - internal
 
