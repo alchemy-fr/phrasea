@@ -3,8 +3,6 @@
 namespace App\Security;
 
 use App\Entity\User;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -24,7 +22,7 @@ class UserManager implements UserProviderInterface
 
     public function __construct(EntityManagerInterface $em, EncoderFactoryInterface $encoderFactory)
     {
-        $this->em             = $em;
+        $this->em = $em;
         $this->encoderFactory = $encoderFactory;
     }
 
