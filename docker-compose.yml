@@ -24,7 +24,7 @@ services:
     networks:
       - internal
     ports:
-      - 8080:80
+      - ${UPLOAD_PORT}:80
     depends_on:
       - upload_php
 
@@ -36,7 +36,7 @@ services:
       context: ./client
       target: client_nginx
     ports:
-      - 80:80
+      - ${CLIENT_PORT}:80
     networks:
       - internal
 
@@ -64,7 +64,7 @@ services:
     networks:
       - internal
     ports:
-      - 8081:80
+      - ${AUTH_PORT}:80
     depends_on:
       - auth_php
 
