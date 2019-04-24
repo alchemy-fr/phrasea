@@ -56,7 +56,7 @@ class UserManager implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function loadUserByUsername($username)
     {
@@ -64,7 +64,7 @@ class UserManager implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function refreshUser(UserInterface $user)
     {
@@ -72,10 +72,10 @@ class UserManager implements UserProviderInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function supportsClass($class)
     {
-        return $class === User::class;
+        return User::class === $class;
     }
 }

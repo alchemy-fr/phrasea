@@ -3,28 +3,25 @@
 namespace App\Fixture\Factory;
 
 use App\Entity\User;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\User\UserManager;
 
 class UserPasswordFactory
 {
     /**
-     * @var UserPasswordEncoderInterface
+     * @var UserManager
      */
-    private $passwordEncoder;
+    private $userManager;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserManager $userManager)
     {
-        $this->passwordEncoder = $passwordEncoder;
+        $this->userManager = $userManager;
     }
 
     public function create(string $password): User
     {
-        $user = new User();
-
-        $salt = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
-        $user->setSalt($salt);
-        $password = $this->passwordEncoder->encodePassword($user, $password);
-        $user->setPassword($password);
+        $user = $this->userManager->createUser();
+        $user->setPlainPassword($password);
+        $this->userManager->encodePassword($user);
 
         return $user;
     }
