@@ -4,22 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Client;
-use Symfony\Component\HttpFoundation\Response;
-
-class OAuthTest extends WebTestCase
+class OAuthTest extends ApiTestCase
 {
-    use RefreshDatabaseTrait;
-    const CLIENT_ID = 'mobile-app_12356789abcdefghijklmnopqrstuvwx';
-    const CLIENT_SECRET = 'cli3nt_s3cr3t';
-
-    /**
-     * @var Client
-     */
-    protected $client;
-
     public function testAuthenticationOK(): void
     {
         $response = $this->request('POST', '/oauth/v2/token', [
@@ -93,19 +79,5 @@ class OAuthTest extends WebTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_client', $json['error']);
-    }
-
-    protected function request(string $method, string $uri, $params = [], array $files = [], array $headers = []): Response
-    {
-        $this->client->request($method, $uri, $params, $files);
-
-        return $this->client->getResponse();
-    }
-
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->client = static::createClient();
     }
 }

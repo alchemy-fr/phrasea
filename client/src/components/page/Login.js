@@ -1,0 +1,78 @@
+import React, {Component} from 'react';
+import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
+import { Login as LoginAction } from '../../actions/login';
+import {Redirect} from "react-router-dom";
+
+export default class Login extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            email: '',
+            password: '',
+            redirectToReferrer: false,
+        };
+    }
+
+    isFormValid() {
+        return this.state.email.length > 0 && this.state.password.length > 0;
+    }
+
+    handleSubmit = event => {
+        event.preventDefault();
+        LoginAction(this.state.email, this.state.password, () => {
+            this.setState({
+                redirectToReferrer: true,
+            });
+        });
+    };
+
+    handleChange = event => {
+        this.setState({
+            [event.target.id]: event.target.value
+        });
+    };
+
+    render() {
+        const {redirectToReferrer} = this.state;
+        const {from} = this.props.location.state || {from: {pathname: '/'}};
+
+        if (redirectToReferrer === true) {
+            return <Redirect to={from} />
+        }
+
+        return (
+            <div className="container">
+                <h1>Please sign in</h1>
+                <div className="login-form">
+                    <form onSubmit={this.handleSubmit}>
+                        <FormGroup controlId="email">
+                            <FormLabel>Email</FormLabel>
+                            <FormControl
+                                autoFocus
+                                type="email"
+                                value={this.state.email}
+                                onChange={this.handleChange}
+                            />
+                        </FormGroup>
+                        <FormGroup controlId="password">
+                            <FormLabel>Password</FormLabel>
+                            <FormControl
+                                value={this.state.password}
+                                onChange={this.handleChange}
+                                type="password"
+                            />
+                        </FormGroup>
+                        <Button
+                            block
+                            disabled={!this.isFormValid()}
+                            type="submit"
+                        >
+                            Login
+                        </Button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+}

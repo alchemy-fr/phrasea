@@ -32,3 +32,7 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
         tags: ['controller.service_arguments']
+
+    App\Http\RequestForwarder:
+        arguments:
+            $client: "@eight_points_guzzle.client.auth_client"

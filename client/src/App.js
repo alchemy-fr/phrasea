@@ -5,15 +5,31 @@ import Upload from "./components/page/Upload";
 import {slide as Menu} from 'react-burger-menu';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import Settings from "./components/page/Settings";
+import Login from "./components/page/Login";
 import About from "./components/page/About";
 import DevSettings from "./components/page/DevSettings";
 import config from './store/config';
+import auth from './store/auth';
+import PrivateRoute from "./components/PrivateRoute";
+import UserInfo from "./components/UserInfo";
+import {Authenticate} from "./actions/login";
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            menuOpen: false
+            menuOpen: false,
+            user: null,
+        }
+    }
+
+    componentDidMount() {
+        if (auth.hasAccessToken()) {
+            Authenticate((res) => {
+                this.setState({
+                    user: res,
+                });
+            });
         }
     }
 
@@ -25,6 +41,10 @@ class App extends Component {
         this.setState({menuOpen: false})
     }
 
+    logout() {
+        auth.setAccessToken(null);
+    }
+
     render() {
         return (
             <Router>
@@ -33,17 +53,22 @@ class App extends Component {
                     isOpen={this.state.menuOpen}
                     onStateChange={(state) => this.handleStateChange(state)}
                 >
+                    {this.state.user ? <UserInfo
+                        email={this.state.user.email}
+                    /> : ''}
                     <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
                     <Link onClick={() => this.closeMenu()} to="/about">About</Link>
                     <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
+                    <a onClick={() => this.logout()}>Logout</a>
                 </Menu>
                 <div id="page-wrap">
-                    <Route path="/" exact component={Upload}/>
+                    <PrivateRoute path="/" exact component={Upload}/>
+                    <Route path="/login" exact component={Login}/>
                     <Route path="/about" exact component={About}/>
-                    <Route path="/settings" exact component={Settings}/>
+                    <PrivateRoute path="/settings" exact component={Settings}/>
                     {config.devModeEnabled() ?
                         <Route path="/dev-settings" exact component={DevSettings}/>
                         : ''}

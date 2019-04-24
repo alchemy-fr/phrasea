@@ -1,0 +1,10 @@
+
+eight_points_guzzle:
+    clients:
+        auth_client:
+            base_url: "http://auth"
+            options:
+                timeout: 30
+                http_errors: false
+                headers:
+                    Accept: "application/json"

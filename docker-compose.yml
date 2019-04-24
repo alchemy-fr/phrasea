@@ -62,7 +62,9 @@ services:
       context: ./auth
       target: auth_nginx
     networks:
-      - internal
+      internal:
+        aliases:
+          - auth
     ports:
       - ${AUTH_PORT}:80
     depends_on:

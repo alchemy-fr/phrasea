@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface
 {
     /**
-     * @var string
+     * @var Uuid
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -48,7 +49,7 @@ class User implements UserInterface
 
     public function getId(): string
     {
-        return $this->id;
+        return $this->id->__toString();
     }
 
     public function getEmail(): string
