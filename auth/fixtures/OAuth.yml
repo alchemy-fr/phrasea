@@ -1,8 +1,8 @@
 App\Entity\OAuthClient:
     mobile_app:
-        id: mobile
-        randomId: app
-        secret: client_secret
+        id: mobile-app
+        randomId: 12356789abcdefghijklmnopqrstuvwx
+        secret: cli3nt_s3cr3t
         allowedGrantTypes:
             - password
             - refresh_token

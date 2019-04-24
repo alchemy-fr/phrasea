@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 class OAuthTest extends WebTestCase
 {
     use RefreshDatabaseTrait;
+    const CLIENT_ID = 'mobile-app_12356789abcdefghijklmnopqrstuvwx';
+    const CLIENT_SECRET = 'cli3nt_s3cr3t';
 
     /**
      * @var Client
@@ -24,8 +26,8 @@ class OAuthTest extends WebTestCase
             'username' => 'foo@bar.com',
             'password' => 'secret',
             'grant_type' => 'password',
-            'client_id' => 'mobile_app',
-            'client_secret' => 'client_secret',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -43,8 +45,8 @@ class OAuthTest extends WebTestCase
             'username' => 'foo@bar.com',
             'password' => 'invalid_secret',
             'grant_type' => 'password',
-            'client_id' => 'mobile_app',
-            'client_secret' => 'client_secret',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
@@ -61,6 +63,36 @@ class OAuthTest extends WebTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_request', $json['error']);
+    }
+
+    public function testInvalidClientSecret(): void
+    {
+        $response = $this->request('POST', '/oauth/v2/token', [
+            'username' => 'foo@bar.com',
+            'password' => 'invalid_secret',
+            'grant_type' => 'password',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => 'invalid_client_secret',
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('error', $json);
+        $this->assertEquals('invalid_client', $json['error']);
+    }
+
+    public function testInvalidClientId(): void
+    {
+        $response = $this->request('POST', '/oauth/v2/token', [
+            'username' => 'foo@bar.com',
+            'password' => 'invalid_secret',
+            'grant_type' => 'password',
+            'client_id' => 'invalid_client_id',
+            'client_secret' => self::CLIENT_SECRET,
+        ]);
+        $this->assertEquals(400, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('error', $json);
+        $this->assertEquals('invalid_client', $json['error']);
     }
 
     protected function request(string $method, string $uri, $params = [], array $files = [], array $headers = []): Response
