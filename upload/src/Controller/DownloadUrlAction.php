@@ -8,40 +8,38 @@ use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Util\RequestAttributesExtractor;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Model\DownloadUrl;
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 final class DownloadUrlAction
 {
     private $validator;
     private $resourceMetadataFactory;
+    /**
+     * @var ProducerInterface
+     */
+    private $downloadProducer;
 
     public function __construct(
         ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory
+        ResourceMetadataFactoryInterface $resourceMetadataFactory,
+        ProducerInterface $downloadProducer
     ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
+        $this->downloadProducer = $downloadProducer;
     }
 
-    public function __invoke(Request $request): bool
+    public function __invoke(DownloadUrl $data): Response
     {
-        $downloadUrl = new DownloadUrl();
-        // TODO
+        $message = \GuzzleHttp\json_encode([
+            'url' => $data->getUrl(),
+        ]);
 
-        return true;
-    }
+        $this->downloadProducer->publish($message);
 
-    private function validate(DownloadUrl $downloadUrl, Request $request): void
-    {
-        $attributes = RequestAttributesExtractor::extractAttributes($request);
-        $resourceMetadata = $this->resourceMetadataFactory->create(DownloadUrl::class);
-        $validationGroups = $resourceMetadata->getOperationAttribute(
-            $attributes,
-            'validation_groups',
-            null,
-            true
-        );
-
-        $this->validator->validate($downloadUrl, ['groups' => $validationGroups]);
+        return new JsonResponse(true);
     }
 }

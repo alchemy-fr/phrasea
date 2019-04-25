@@ -33,6 +33,11 @@ services:
             $filesystem: "@oneup_flysystem.upload_filesystem"
         tags: ['controller.service_arguments']
 
+    App\Controller\DownloadUrlAction:
+        arguments:
+            $downloadProducer: "@old_sound_rabbit_mq.download_producer"
+        tags: ['controller.service_arguments']
+
     App\Http\RequestForwarder:
         arguments:
             $client: "@eight_points_guzzle.client.auth_client"
@@ -40,3 +45,7 @@ services:
     App\Security\RemoteAuthAuthenticator:
         arguments:
             $client: "@eight_points_guzzle.client.auth_client"
+
+    App\Consumer\DownloadConsumer:
+        arguments:
+            $filesystem: "@oneup_flysystem.upload_filesystem"

@@ -1,0 +1,24 @@
+old_sound_rabbit_mq:
+    connections:
+        default:
+            host:     'rabbitmq'
+            port:     5672
+            user:     '%env(RABBITMQ_USER)%'
+            password: '%env(RABBITMQ_PASSWORD)%'
+            vhost:    '/'
+            lazy:     true
+            connection_timeout: 3
+            read_write_timeout: 3
+            keepalive: true
+            heartbeat: 0
+    producers:
+        # use 'old_sound_rabbit_mq.task_producer' service to send data.
+        download:
+            connection:       default
+            exchange_options: { name: 'download', type: direct }
+    consumers:
+        download:
+            connection:       default
+            exchange_options: { name: 'download', type: direct }
+            queue_options:    { name: 'download'}
+            callback:         App\Consumer\DownloadConsumer

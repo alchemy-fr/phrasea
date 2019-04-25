@@ -13,8 +13,26 @@ services:
       internal:
         aliases:
           - upload
+    depends_on:
+      - rabbitmq
     environment:
       - APP_ENV
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+
+  upload_worker:
+    image: alchemy/upload_worker
+    build:
+      context: upload
+      target: upload_worker
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+    environment:
+      - APP_ENV
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
   upload_nginx:
     image: alchemy/upload_nginx
@@ -24,7 +42,7 @@ services:
     networks:
       - internal
     ports:
-      - ${UPLOAD_PORT}:80
+      - 127.0.0.1:${UPLOAD_PORT}:80
     depends_on:
       - upload_php
 
@@ -36,7 +54,7 @@ services:
       context: ./client
       target: client_nginx
     ports:
-      - ${CLIENT_PORT}:80
+      - 127.0.0.1:${CLIENT_PORT}:80
     networks:
       - internal
 
@@ -66,7 +84,7 @@ services:
         aliases:
           - auth
     ports:
-      - ${AUTH_PORT}:80
+      - 127.0.0.1:${AUTH_PORT}:80
     depends_on:
       - auth_php
 
@@ -77,3 +95,13 @@ services:
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+
+  rabbitmq:
+    image: rabbitmq:3.7.14-management
+    networks:
+      - internal
+    environment:
+      - RABBITMQ_DEFAULT_USER
+      - RABBITMQ_DEFAULT_PASS
+    ports:
+      - 127.0.0.1:${RABBITMQ_MGT_PORT}:15672

@@ -29,6 +29,8 @@ Client web app is available at `http://localhost`
 docker-compose up
 ```
 
+You can change the services port by overriding the 
+
 ## Build for customer
 
 In development mode we can change the API URI but for some customer we may need to hard write the API target.
@@ -41,3 +43,7 @@ docker-compose -f docker-compose.yml build \
     --build-arg DEV_MODE=false \ 
     client
 ```
+
+## RabbitMQ Management
+
+Access `http://localhost:8082` (or you can change the port with env var `$RABBITMQ_MGT_PORT`).

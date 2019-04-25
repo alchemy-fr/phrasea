@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import Dropzone from "react-dropzone";
 import AssetUpload from "../AssetUpload";
+import Download from "../Download";
 
 export default class Upload extends Component {
     batchSize = 2;
@@ -147,6 +148,10 @@ export default class Upload extends Component {
                         >
                             Next
                         </button>
+                    </div>
+                    <div>
+                        <p>or just paste an URL to grab:</p>
+                        <Download />
                     </div>
                 </div>
             </div>

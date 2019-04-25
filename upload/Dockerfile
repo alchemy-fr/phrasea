@@ -23,6 +23,8 @@ RUN set -eux \
 	&& docker-php-ext-install \
 		intl \
 		zip \
+		sockets \
+		bcmath \
 	&& pecl install \
 		apcu-${APCU_VERSION} \
 	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
@@ -48,3 +50,16 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && chown -R app: .
 
 CMD ["php-fpm"]
+
+FROM upload_php as upload_worker
+
+RUN apk add --no-cache \
+        supervisor \
+    && mkdir -p /var/log/supervisor \
+    && chown -R app: /var/log/supervisor
+
+COPY docker/supervisor/* /etc/supervisor.d/
+
+ENTRYPOINT []
+
+CMD ["/usr/bin/supervisord", "-n"]
