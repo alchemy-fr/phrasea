@@ -36,3 +36,7 @@ services:
     App\Http\RequestForwarder:
         arguments:
             $client: "@eight_points_guzzle.client.auth_client"
+
+    App\Security\RemoteAuthAuthenticator:
+        arguments:
+            $client: "@eight_points_guzzle.client.auth_client"

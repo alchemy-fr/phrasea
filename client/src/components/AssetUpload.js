@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
 import request from "superagent";
 import config from '../store/config'
+import auth from '../store/auth'
 
 export default class AssetUpload extends Component {
     constructor(props) {
@@ -31,9 +32,12 @@ export default class AssetUpload extends Component {
         const formData = new FormData();
         formData.append('file', this.props.file);
 
+        const accessToken = auth.getAccessToken();
+
         request
-            .post(config.getUploadBaseURL())
+            .post(config.getUploadBaseURL() + '/assets')
             .accept('json')
+            .set('Authorization', `Bearer ${accessToken}`)
             .on('progress', (e) => {
                 if (e.direction !== 'upload') {
                     return;

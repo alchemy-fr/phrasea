@@ -10,11 +10,12 @@ use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Model\Asset;
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final class CreateAssetAction
+final class CreateAssetAction extends AbstractController
 {
     private $validator;
     private $resourceMetadataFactory;
@@ -28,7 +29,8 @@ final class CreateAssetAction
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FilesystemInterface $filesystem
-    ) {
+    )
+    {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->filesystem = $filesystem;
@@ -55,14 +57,13 @@ final class CreateAssetAction
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $uuid = Uuid::uuid4()->toString();
         $path = sprintf(
-            '%s/%s/%s-%s',
+            '%s/%s/%s.%s',
             substr($uuid, 0, 2),
             substr($uuid, 2, 2),
             $uuid,
             $extension
         );
         $asset->setPath($path);
-
         $asset->setOriginalName($uploadedFile->getClientOriginalName());
         $asset->setSize($uploadedFile->getSize());
 

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
-import { Login as LoginAction } from '../../actions/login';
 import {Redirect} from "react-router-dom";
+import auth from '../../store/auth';
 
 export default class Login extends Component {
     constructor(props) {
@@ -20,7 +20,7 @@ export default class Login extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        LoginAction(this.state.email, this.state.password, () => {
+        auth.login(this.state.email, this.state.password, () => {
             this.setState({
                 redirectToReferrer: true,
             });
@@ -37,7 +37,7 @@ export default class Login extends Component {
         const {redirectToReferrer} = this.state;
         const {from} = this.props.location.state || {from: {pathname: '/'}};
 
-        if (redirectToReferrer === true) {
+        if (auth.isAuthenticated() || redirectToReferrer === true) {
             return <Redirect to={from} />
         }
 

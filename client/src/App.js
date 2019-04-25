@@ -12,7 +12,6 @@ import config from './store/config';
 import auth from './store/auth';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
-import {Authenticate} from "./actions/login";
 
 class App extends Component {
     constructor(props) {
@@ -20,17 +19,26 @@ class App extends Component {
         this.state = {
             menuOpen: false,
             user: null,
-        }
+        };
+
+        auth.registerListener('authentication', (evt) => {
+            console.log('on auth', evt);
+            this.setState({
+                user: evt.user,
+            });
+        });
+        auth.registerListener('login', (evt) => {
+            auth.authenticate();
+        });
+        auth.registerListener('logout', (evt) => {
+            this.setState({
+                user: null,
+            });
+        });
     }
 
     componentDidMount() {
-        if (auth.hasAccessToken()) {
-            Authenticate((res) => {
-                this.setState({
-                    user: res,
-                });
-            });
-        }
+        auth.authenticate();
     }
 
     handleStateChange(state) {
@@ -42,10 +50,14 @@ class App extends Component {
     }
 
     logout() {
-        auth.setAccessToken(null);
+        auth.logout();
     }
 
     render() {
+        if (auth.hasAccessToken() && !auth.isAuthenticated()) {
+            return 'Loading...';
+        }
+
         return (
             <Router>
                 <Menu
@@ -62,7 +74,7 @@ class App extends Component {
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
-                    <a onClick={() => this.logout()}>Logout</a>
+                    <Link onClick={() => {this.logout(); this.closeMenu()}} to={'#'}>Logout</Link>
                 </Menu>
                 <div id="page-wrap">
                     <PrivateRoute path="/" exact component={Upload}/>

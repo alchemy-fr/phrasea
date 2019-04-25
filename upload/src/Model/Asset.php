@@ -101,7 +101,7 @@ class Asset
     public function setPath(string $path): void
     {
         $this->path = $path;
-        $this->id = str_replace('.', '-', $path);
+        $this->id = str_replace('.', '--', $path);
     }
 
     public function getSize(): int
