@@ -9,6 +9,8 @@ export APP_ENV=prod
 
 docker-compose -f docker-compose.yml up -d \
     && sleep 2 \
+    && docker-compose -f docker-compose.yml logs rabbitmq \
+    && docker-compose -f docker-compose.yml ps \
     && docker-compose -f docker-compose.yml run --rm upload_php /bin/sh -c \
         "bin/console rabbitmq:setup-fabric" \
     && docker-compose -f docker-compose.yml run --rm auth_php /bin/sh -c \
