@@ -34,6 +34,16 @@ class UserManager
         return $user;
     }
 
+    public function findUserByEmail(string $email): ?User
+    {
+        return $this
+            ->em
+            ->getRepository(User::class)
+            ->findOneBy([
+                'email' => $email,
+            ]);
+    }
+
     public function encodePassword(User $user): void
     {
         if (null === $user) {

@@ -21,15 +21,19 @@ Then you can start the stack:
 bin/start.sh
 ```
 
+If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `bin/start.sh` again.
+
 Client web app is available at `http://localhost`
 
 ## Development
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
-You can change the services port by overriding the 
+## Changing ports
+
+You can change the services port by overriding the environment variables (see `.env` file).
 
 ## Build for customer
 
@@ -41,6 +45,9 @@ docker-compose -f docker-compose.yml build \
     --build-arg UPLOAD_BASE_URL=https://upload.my-customer.com \
     # Disable the DEV mode  which is enabled by default (hide some settings in application)
     --build-arg DEV_MODE=false \ 
+    --build-arg UPLOAD_BASE_URL=<THE_UPLOAD_BASE_URL> \
+    --build-arg CLIENT_ID=<THE_CLIENT_PUBLIC_ID> \
+    --build-arg CLIENT_SECRET=<THE_CLIENT_SECRET> \ 
     client
 ```
 

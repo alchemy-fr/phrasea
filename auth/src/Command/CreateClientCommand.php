@@ -36,6 +36,20 @@ class CreateClientCommand extends Command
             ->setDescription('Creates a new OAuth client')
             ->addArgument('client-id', InputArgument::REQUIRED, 'The client ID')
             ->addOption(
+                'random-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Force the random suffix of public ID.',
+                null
+            )
+            ->addOption(
+                'secret',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Force the client secret.',
+                null
+            )
+            ->addOption(
                 'redirect-uri',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
@@ -66,15 +80,24 @@ EOT
         $io = new SymfonyStyle($input, $output);
 
         $io->title('Client Credentials');
+        $clientId = $input->getArgument('client-id');
 
         /** @var OAuthClient $client */
-        $client = $this->clientManager->createClient();
+        $client = $this->clientManager->findClientBy([
+            'id' => $clientId,
+        ]);
 
-        $client->setId($input->getArgument('client-id'));
-        $client->setRedirectUris($input->getOption('redirect-uri'));
-        $client->setAllowedGrantTypes($input->getOption('grant-type'));
+        if (null === $client) {
+            $client = $this->clientManager->createClient();
 
-        $this->clientManager->updateClient($client);
+            $client->setId($clientId);
+            $client->setRandomId($input->getOption('random-id'));
+            $client->setSecret($input->getOption('secret'));
+            $client->setRedirectUris($input->getOption('redirect-uri'));
+            $client->setAllowedGrantTypes($input->getOption('grant-type'));
+
+            $this->clientManager->updateClient($client);
+        }
 
         $headers = ['Client ID', 'Client Secret'];
         $rows = [

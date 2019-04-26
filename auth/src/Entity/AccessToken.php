@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use FOS\OAuthServerBundle\Entity\AccessToken as BaseAccessToken;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class AccessToken extends BaseAccessToken
 {
     /**
-     * @var string
+     * @var Uuid
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -37,4 +38,9 @@ class AccessToken extends BaseAccessToken
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
      */
     protected $user;
+
+    public function getId()
+    {
+        return $this->id->__toString();
+    }
 }

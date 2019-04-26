@@ -51,6 +51,8 @@ services:
     build:
       args:
         - UPLOAD_BASE_URL=http://localhost:8080
+        - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
+        - CLIENT_SECRET=${CLIENT_SECRET}
       context: ./client
       target: client_nginx
     ports:
@@ -95,6 +97,8 @@ services:
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+    volumes:
+      - db_vol:/var/lib/mysql
 
   rabbitmq:
     image: rabbitmq:3.7.14-management
@@ -105,3 +109,7 @@ services:
       - RABBITMQ_DEFAULT_PASS
     ports:
       - 127.0.0.1:${RABBITMQ_MGT_PORT}:15672
+
+
+volumes:
+  db_vol:
