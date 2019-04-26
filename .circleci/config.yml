@@ -34,10 +34,7 @@ jobs:
           command: |-
             bin/build.sh
       - run:
-          name: Install applications
+          name: Install applications and run tests
           command: |-
             bin/install.sh
-      - run:
-          name: Run application tests
-          command: |-
             bin/test.sh
