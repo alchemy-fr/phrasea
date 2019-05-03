@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\DownloadUrlAction;
 
 /**
- * @ORM\Entity
  * @ApiResource(
  *     shortName="download",
  *     collectionOperations={

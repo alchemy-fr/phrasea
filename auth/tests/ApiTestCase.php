@@ -27,6 +27,7 @@ abstract class ApiTestCase extends WebTestCase
 
         /** @var Response $response */
         $response = $this->client->getResponse();
+
         return $response;
     }
 

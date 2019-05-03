@@ -11,6 +11,8 @@ docker-compose -f docker-compose.yml up -d \
     && sleep 10 \
     && docker-compose -f docker-compose.yml run --rm upload_php /bin/sh -c \
         "bin/console rabbitmq:setup-fabric" \
+    && docker-compose -f docker-compose.yml run --rm upload_php /bin/sh -c \
+        "bin/console doctrine:database:create --if-not-exists; bin/console doctrine:schema:update -f" \
     && docker-compose -f docker-compose.yml run --rm auth_php /bin/sh -c \
         "bin/console doctrine:database:create --if-not-exists; bin/console doctrine:schema:update -f" \
     && docker-compose -f docker-compose.yml run --rm auth_php /bin/sh -c \

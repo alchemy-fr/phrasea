@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -49,9 +50,14 @@ class Asset
      * @ApiProperty(identifier=true)
      * @Groups("asset_read")
      *
-     * @var string
+     * @var Uuid
+     *
+     * @ORM\Id
+     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var File|null
@@ -62,25 +68,38 @@ class Asset
 
     /**
      * @var string
+     * @ORM\Column(type="string", length=255)
      */
     private $path;
 
     /**
      * @var int
      * @Groups("asset_read")
+     * @ORM\Column(type="integer")
      */
     private $size;
 
     /**
      * @var string
+     *
+     * @ORM\Column(type="string", length=255)
      * @ApiProperty(iri="http://schema.org/name")
      * @Groups("asset_read")
      */
     private $originalName;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=255)
+     * @ApiProperty()
+     * @Groups("asset_read")
+     */
+    private $mimeType;
+
     public function getId()
     {
-        return $this->id;
+        return $this->id->__toString();
     }
 
     public function getFile(): ?File
@@ -122,5 +141,15 @@ class Asset
     public function setOriginalName(string $originalName): void
     {
         $this->originalName = $originalName;
+    }
+
+    public function getMimeType(): string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(string $mimeType): void
+    {
+        $this->mimeType = $mimeType;
     }
 }

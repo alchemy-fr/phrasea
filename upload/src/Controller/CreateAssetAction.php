@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Util\RequestAttributesExtractor;
 use ApiPlatform\Core\Validator\ValidatorInterface;
-use App\Model\Asset;
+use App\Entity\Asset;
 use App\Storage\FileStorageManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,15 +23,21 @@ final class CreateAssetAction extends AbstractController
      * @var FileStorageManager
      */
     private $storageManager;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
 
     public function __construct(
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
-        FileStorageManager $storageManager
+        FileStorageManager $storageManager,
+        EntityManagerInterface $em
     ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->storageManager = $storageManager;
+        $this->em = $em;
     }
 
     public function __invoke(Request $request): Asset
@@ -55,29 +61,17 @@ final class CreateAssetAction extends AbstractController
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $path = $this->storageManager->generatePath($extension);
         $asset->setPath($path);
+        $asset->setMimeType($uploadedFile->getMimeType());
         $asset->setOriginalName($uploadedFile->getClientOriginalName());
         $asset->setSize($uploadedFile->getSize());
-
-        $this->validate($asset, $request);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
+        $this->em->persist($asset);
+        $this->em->flush();
+
         return $asset;
-    }
-
-    private function validate(Asset $asset, Request $request): void
-    {
-        $attributes = RequestAttributesExtractor::extractAttributes($request);
-        $resourceMetadata = $this->resourceMetadataFactory->create(Asset::class);
-        $validationGroups = $resourceMetadata->getOperationAttribute(
-            $attributes,
-            'validation_groups',
-            null,
-            true
-        );
-
-        $this->validator->validate($asset, ['groups' => $validationGroups]);
     }
 }

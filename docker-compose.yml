@@ -15,8 +15,11 @@ services:
           - upload
     depends_on:
       - rabbitmq
+      - db
     environment:
       - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
@@ -29,8 +32,11 @@ services:
       - internal
     depends_on:
       - rabbitmq
+      - db
     environment:
       - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
@@ -73,6 +79,8 @@ services:
       - APP_ENV
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - db
 
   auth_nginx:
     image: alchemy/auth_nginx

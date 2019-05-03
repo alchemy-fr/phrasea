@@ -23,9 +23,11 @@ RUN set -eux \
 		libzip-dev \
 	&& docker-php-ext-install \
 		intl \
+		zip \
+		sockets \
+		bcmath \
 		pdo \
 		pdo_pgsql \
-		zip \
 	&& pecl install \
 		apcu-${APCU_VERSION} \
 	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \

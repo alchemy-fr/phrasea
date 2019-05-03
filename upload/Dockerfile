@@ -9,6 +9,7 @@ FROM php:7.3.4-fpm-alpine AS upload_php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
+		postgresql-dev \
 		icu-libs \
 		zlib \
 		libzip
@@ -25,6 +26,8 @@ RUN set -eux \
 		zip \
 		sockets \
 		bcmath \
+		pdo \
+		pdo_pgsql \
 	&& pecl install \
 		apcu-${APCU_VERSION} \
 	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
