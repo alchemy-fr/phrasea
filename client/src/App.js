@@ -74,7 +74,10 @@ class App extends Component {
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
-                    <Link onClick={() => {this.logout(); this.closeMenu()}} to={'#'}>Logout</Link>
+                    {auth.isAuthenticated() ?
+                        <Link onClick={() => {this.logout(); this.closeMenu()}} to={'#'}>Logout</Link>
+                        : ''}
+
                 </Menu>
                 <div id="page-wrap">
                     <PrivateRoute path="/" exact component={Upload}/>

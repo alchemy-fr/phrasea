@@ -35,6 +35,11 @@
   }
 }
 
+.upload-ok {
+  box-sizing: border-box;
+  border: 1px solid green;
+}
+
 .file-progress {
   transition: width 0.6s ease;
   position:  absolute;

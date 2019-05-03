@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
-import request from "superagent";
-import config from '../store/config'
-import auth from '../store/auth'
 
 export default class AssetUpload extends Component {
     constructor(props) {
@@ -11,57 +8,20 @@ export default class AssetUpload extends Component {
 
         this.state = {
             src: null,
-            uploadProgress: null,
-            id: null,
+            uploadProgress: 0,
+            ok: false,
         };
+    }
+
+    setUploadProgress(progress, ok) {
+        this.setState({
+            uploadProgress: progress,
+            ok,
+        });
     }
 
     componentDidMount() {
         this.loadIcon();
-    }
-
-    getBytesLoaded() {
-        return this.state.uploadProgress / 100 * this.props.file.size;
-    }
-
-    upload() {
-        this.setState({
-            uploadProgress: 0,
-        });
-
-        const formData = new FormData();
-        formData.append('file', this.props.file);
-
-        const accessToken = auth.getAccessToken();
-
-        request
-            .post(config.getUploadBaseURL() + '/assets')
-            .accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .on('progress', (e) => {
-                if (e.direction !== 'upload') {
-                    return;
-                }
-                this.setState({
-                    uploadProgress: e.percent,
-                }, () => this.props.onUploadProgress());
-            })
-            .send(formData)
-            .end((err, res) => {
-                if (err) {
-                    console.error(err);
-                    this.props.onUploadComplete();
-                    return;
-
-                }
-
-                if (res.ok) {
-                    this.setState({
-                        id: res.body.id,
-                        uploadProgress: 100,
-                    }, () => this.props.onUploadComplete());
-                }
-            });
     }
 
     loadIcon() {
@@ -87,10 +47,15 @@ export default class AssetUpload extends Component {
 
     render() {
         const {file} = this.props;
-        const {uploadProgress} = this.state;
+        const {uploadProgress, ok} = this.state;
+
+        let classes = ['file-icon'];
+        if (ok) {
+            classes.push('upload-ok');
+        }
 
         return (
-            <div className="file-icon" title={file.name}>
+            <div className={classes.join(' ')} title={file.name}>
                 <div className="file-progress"
                      style={{width: (100 - uploadProgress) + '%'}}
                 />
@@ -106,6 +71,6 @@ export default class AssetUpload extends Component {
 
 AssetUpload.propTypes = {
     file: PropTypes.object.isRequired,
-    onUploadComplete: PropTypes.func.isRequired,
-    onUploadProgress: PropTypes.func.isRequired,
+    onUploadComplete: PropTypes.func,
+    onUploadProgress: PropTypes.func,
 };
