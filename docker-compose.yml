@@ -69,8 +69,6 @@ services:
       internal:
         aliases:
           - auth
-    depends_on:
-      - db
     environment:
       - APP_ENV
       - DB_USER=${POSTGRES_USER}
