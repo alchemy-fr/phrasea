@@ -4,22 +4,36 @@ declare(strict_types=1);
 
 namespace App\Consumer;
 
-use League\Flysystem\FilesystemInterface;
+use App\Storage\FileStorageManager;
+use GuzzleHttp\Client;
+use Mimey\MimeTypes;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
-use Ramsey\Uuid\Uuid;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class DownloadConsumer implements ConsumerInterface
 {
     /**
-     * @var FilesystemInterface
+     * @var Client
      */
-    private $filesystem;
+    private $client;
 
-    public function __construct(FilesystemInterface $filesystem)
+    /**
+     * @var FileStorageManager
+     */
+    private $storageManager;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(FileStorageManager $storageManager, Client $client, LoggerInterface $logger)
     {
-        $this->filesystem = $filesystem;
+        $this->client = $client;
+        $this->storageManager = $storageManager;
+        $this->logger = $logger;
     }
 
     public function execute(AMQPMessage $msg)
@@ -27,7 +41,8 @@ class DownloadConsumer implements ConsumerInterface
         try {
             $this->doExecute(json_decode($msg->getBody(), true));
         } catch (Throwable $e) {
-            var_dump($e->getMessage());
+            $this->logger->error($e->getMessage());
+
             return self::MSG_REJECT;
         }
 
@@ -36,19 +51,13 @@ class DownloadConsumer implements ConsumerInterface
 
     private function doExecute(array $msg): void
     {
-        $url = $msg['url'];
+        $response = $this->client->request('GET', $msg['url']);
+        $contentType = $response->getHeaders()['Content-Type'][0] ?? 'text/plain';
 
-        $uuid = Uuid::uuid4()->toString();
-        $path = sprintf(
-            '%s/%s/%s.%s',
-            substr($uuid, 0, 2),
-            substr($uuid, 2, 2),
-            $uuid,
-            'bin' // TODO guess extension from request
-        );
+        $mimes = new MimeTypes();
+        $extension = $mimes->getExtension($contentType);
+        $path = $this->storageManager->generatePath($extension);
 
-        $stream = fopen($url, 'r');
-        $this->filesystem->writeStream($path, $stream);
-        fclose($stream);
+        $this->storageManager->store($path, $response->getBody()->getContents());
     }
 }

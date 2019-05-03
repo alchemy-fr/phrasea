@@ -20,6 +20,7 @@ class MeAction extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+
         return new JsonResponse([
             'user_id' => $user->getId(),
             'email' => $user->getUsername(),

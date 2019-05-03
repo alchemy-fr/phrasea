@@ -1,10 +1,13 @@
 
 eight_points_guzzle:
     clients:
+        download_client:
+            options:
+                timeout: 30
         auth_client:
             base_url: "http://auth"
             options:
-                timeout: 30
+                timeout: 10
                 http_errors: false
                 headers:
                     Accept: "application/json"

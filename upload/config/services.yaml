@@ -28,10 +28,9 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Controller\CreateAssetAction:
+    App\Storage\FileStorageManager:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
-        tags: ['controller.service_arguments']
 
     App\Controller\DownloadUrlAction:
         arguments:
@@ -48,4 +47,4 @@ services:
 
     App\Consumer\DownloadConsumer:
         arguments:
-            $filesystem: "@oneup_flysystem.upload_filesystem"
+            $client: "@eight_points_guzzle.client.download_client"

@@ -8,8 +8,7 @@ use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Util\RequestAttributesExtractor;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Model\Asset;
-use League\Flysystem\FilesystemInterface;
-use Ramsey\Uuid\Uuid;
+use App\Storage\FileStorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,19 +20,18 @@ final class CreateAssetAction extends AbstractController
     private $resourceMetadataFactory;
 
     /**
-     * @var FilesystemInterface
+     * @var FileStorageManager
      */
-    private $filesystem;
+    private $storageManager;
 
     public function __construct(
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
-        FilesystemInterface $filesystem
-    )
-    {
+        FileStorageManager $storageManager
+    ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
-        $this->filesystem = $filesystem;
+        $this->storageManager = $storageManager;
     }
 
     public function __invoke(Request $request): Asset
@@ -55,14 +53,7 @@ final class CreateAssetAction extends AbstractController
         $asset->setFile($uploadedFile);
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $uuid = Uuid::uuid4()->toString();
-        $path = sprintf(
-            '%s/%s/%s.%s',
-            substr($uuid, 0, 2),
-            substr($uuid, 2, 2),
-            $uuid,
-            $extension
-        );
+        $path = $this->storageManager->generatePath($extension);
         $asset->setPath($path);
         $asset->setOriginalName($uploadedFile->getClientOriginalName());
         $asset->setSize($uploadedFile->getSize());
@@ -70,7 +61,7 @@ final class CreateAssetAction extends AbstractController
         $this->validate($asset, $request);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
-        $this->filesystem->writeStream($asset->getPath(), $stream);
+        $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
         return $asset;
