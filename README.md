@@ -47,9 +47,12 @@ docker-compose -f docker-compose.yml build \
     --build-arg DEV_MODE=false \ 
     --build-arg UPLOAD_BASE_URL=<THE_UPLOAD_BASE_URL> \
     --build-arg CLIENT_ID=<THE_CLIENT_PUBLIC_ID> \
-    --build-arg CLIENT_SECRET=<THE_CLIENT_SECRET> \ 
+    --build-arg CLIENT_SECRET=<THE_CLIENT_SECRET> \
+    --tag upload_for_client_name \
     client
 ```
+
+> `UPLOAD_BASE_URL` corresponds to the upload_php service which is bound to 8080 by default.
 
 ## RabbitMQ Management
 
