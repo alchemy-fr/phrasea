@@ -13,7 +13,9 @@ services:
     volumes:
       - ./client:/usr/src/app
     environment:
-      - REACT_APP_UPLOAD_BASE_URL=http://localhost:80/assets
+      - REACT_APP_UPLOAD_BASE_URL=http://localhost:${UPLOAD_PORT}
+      - REACT_APP_CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
+      - REACT_APP_CLIENT_SECRET=${CLIENT_SECRET}
     ports:
       - 127.0.0.1:3000:3000
 

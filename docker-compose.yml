@@ -42,7 +42,7 @@ services:
     networks:
       - internal
     ports:
-      - 127.0.0.1:${UPLOAD_PORT}:80
+      - ${UPLOAD_PORT}:80
     depends_on:
       - upload_php
 
@@ -56,7 +56,7 @@ services:
       context: ./client
       target: client_nginx
     ports:
-      - 127.0.0.1:${CLIENT_PORT}:80
+      - ${CLIENT_PORT}:80
     networks:
       - internal
 
@@ -84,7 +84,7 @@ services:
         aliases:
           - auth
     ports:
-      - 127.0.0.1:${AUTH_PORT}:80
+      - ${AUTH_PORT}:80
     depends_on:
       - auth_php
 
@@ -106,7 +106,7 @@ services:
       - RABBITMQ_DEFAULT_USER
       - RABBITMQ_DEFAULT_PASS
     ports:
-      - 127.0.0.1:${RABBITMQ_MGT_PORT}:15672
+      - ${RABBITMQ_MGT_PORT}:15672
 
 
 volumes:
