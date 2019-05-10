@@ -6,6 +6,7 @@ namespace App\Storage;
 
 use App\Entity\Asset;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager
 {
@@ -34,6 +35,16 @@ class AssetManager
 
         $this->em->persist($asset);
         $this->em->flush();
+
+        return $asset;
+    }
+
+    public function findAsset(string $id): Asset
+    {
+        $asset = $this->em->find(Asset::class, $id);
+        if (!$asset instanceof Asset) {
+            throw new NotFoundHttpException('Asset '.$id.' not found');
+        }
 
         return $asset;
     }

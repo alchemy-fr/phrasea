@@ -6,6 +6,7 @@ namespace App\Storage;
 
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 
 class FileStorageManager
 {
@@ -47,5 +48,15 @@ class FileStorageManager
     public function storeStream(string $path, $content): void
     {
         $this->filesystem->writeStream($path, $content);
+    }
+
+    public function getStream(string $path)
+    {
+        $resource = $this->filesystem->readStream($path);
+        if (false === $resource) {
+            throw new RuntimeException(sprintf('Cannot read at "%s"', $path));
+        }
+
+        return $resource;
     }
 }

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\CreateAssetAction;
+use App\Controller\DownloadAssetAction;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\HttpFoundation\File\File;
-use App\Controller\CreateAssetAction;
 
 /**
  * @ORM\Entity
@@ -18,6 +18,14 @@ use App\Controller\CreateAssetAction;
  *     iri="http://schema.org/MediaObject",
  *     normalizationContext={
  *         "groups"={"asset_read"},
+ *     },
+ *     itemOperations={
+ *         "get",
+ *         "download"={
+ *             "method"="GET",
+ *             "path"="/assets/{id}/download",
+ *             "controller"=DownloadAssetAction::class,
+ *         }
  *     },
  *     collectionOperations={
  *         "post"={
@@ -38,9 +46,8 @@ use App\Controller\CreateAssetAction;
  *                     },
  *                 },
  *             },
- *         },
- *     },
- *     itemOperations={"get"},
+ *         }
+ *     }
  * )
  */
 class Asset
