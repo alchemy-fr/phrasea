@@ -1,13 +1,12 @@
 #!/bin/bash
 
-ROOT_DIR="$( cd "$(dirname "$0")/.." && pwd )"
-. "${ROOT_DIR}/bin/env.sh"
+BASEDIR=$(dirname $0)
 
-set -ex
+. "$BASEDIR/load.env.sh"
 
 export APP_ENV=prod
-export DEFAULT_USER_EMAIL=${DEFAULT_USER_EMAIL:-admin@alchemy.fr}
-export DEFAULT_USER_PASSWORD=${DEFAULT_USER_PASSWORD:-password}
+
+set -ex
 
 docker-compose -f docker-compose.yml up -d \
     && sleep 10 \
