@@ -39,8 +39,7 @@ class DownloadConsumer implements ConsumerInterface
         Client $client,
         LoggerInterface $logger,
         AssetManager $assetManager
-    )
-    {
+    ) {
         $this->client = $client;
         $this->storageManager = $storageManager;
         $this->logger = $logger;

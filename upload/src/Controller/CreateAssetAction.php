@@ -9,7 +9,6 @@ use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;

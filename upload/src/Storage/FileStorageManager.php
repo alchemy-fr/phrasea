@@ -26,11 +26,11 @@ class FileStorageManager
         $path = implode(DIRECTORY_SEPARATOR, [
             substr($uuid, 0, 2),
             substr($uuid, 2, 2),
-            $uuid
+            $uuid,
         ]);
 
         if ($extension) {
-            $path.= '.' . $extension;
+            $path .= '.'.$extension;
         }
 
         return $path;

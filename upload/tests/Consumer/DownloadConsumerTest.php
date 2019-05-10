@@ -25,11 +25,9 @@ class DownloadConsumerTest extends TestCase
         Response $response,
         string $expectedMimeType,
         string $expectedExtension
-    ): void
-    {
+    ): void {
         $storageStub = $this->createMock(FileStorageManager::class);
         $loggerStub = $this->createMock(LoggerInterface::class);
-
 
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
