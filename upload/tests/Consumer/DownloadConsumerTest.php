@@ -24,7 +24,7 @@ class DownloadConsumerTest extends TestCase
         string $url,
         Response $response,
         string $expectedMimeType,
-        string $expectedExtension
+        ?string $expectedExtension
     ): void {
         $storageStub = $this->createMock(FileStorageManager::class);
         $loggerStub = $this->createMock(LoggerInterface::class);
@@ -36,7 +36,7 @@ class DownloadConsumerTest extends TestCase
             ->with(
                 $this->stringEndsWith('.'.$expectedExtension),
                 $expectedMimeType,
-                'baz.'.$expectedExtension,
+                'baz'.($expectedExtension ? '.'.$expectedExtension : ''),
                 6,
                 'id-test'
             );
@@ -92,6 +92,12 @@ class DownloadConsumerTest extends TestCase
                 new Response(200, [], 'foobar'),
                 'application/octet-stream',
                 'txt',
+            ],
+            [
+                'http://foo.bar/baz',
+                new Response(200, [], 'foobar'),
+                'application/octet-stream',
+                null,
             ],
         ];
     }

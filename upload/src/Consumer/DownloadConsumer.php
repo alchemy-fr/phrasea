@@ -77,7 +77,7 @@ class DownloadConsumer implements ConsumerInterface
 
         $extension = pathinfo($originalName, PATHINFO_EXTENSION);
         $extension = !empty($extension) ? $extension : null;
-        if (null === $extension) {
+        if (!$extension && 'application/octet-stream' !== $contentType) {
             $mimes = new MimeTypes();
             $extension = $mimes->getExtension($contentType);
             $originalName .= '.'.$extension;
