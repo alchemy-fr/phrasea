@@ -25,7 +25,7 @@ class AssetTest extends WebTestCase
         $this->assertEquals('application/ld+json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertRegExp('#^[a-z0-9]{2}/[0-9a-z]{2}/[a-z0-9\-]{36}\-\-jpg$#', $json['id']);
+        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
         $this->assertArrayHasKey('originalName', $json);
         $this->assertSame('32x32.jpg', $json['originalName']);
         $this->assertArrayHasKey('size', $json);

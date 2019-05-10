@@ -7,5 +7,5 @@ set -ex
 
 export APP_ENV=test
 
-docker-compose -f docker-compose.yml run --user app --rm upload_php /bin/sh -c "composer install --no-interaction && bin/phpunit"
-docker-compose -f docker-compose.yml run --user app --rm auth_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:create && bin/phpunit"
+docker-compose run --user app --rm upload_php /bin/sh -c "composer install --no-interaction && bin/phpunit"
+docker-compose run --user app --rm auth_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
