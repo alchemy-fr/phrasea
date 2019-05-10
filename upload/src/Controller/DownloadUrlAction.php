@@ -6,9 +6,9 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
+use App\Entity\Asset;
 use App\Model\DownloadUrl;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,12 +34,13 @@ final class DownloadUrlAction
 
     public function __invoke(DownloadUrl $data): Response
     {
-        $id = Uuid::uuid4();
-        $message = \GuzzleHttp\json_encode([
+        $provisionedAssetId = new Asset();
+        $id = $provisionedAssetId->getId();
+
+        $message = json_encode([
             'url' => $data->getUrl(),
             'id' => $id,
         ]);
-
         $this->downloadProducer->publish($message);
 
         return new JsonResponse([

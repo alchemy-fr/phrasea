@@ -19,16 +19,19 @@ class FileStorageManager
         $this->filesystem = $filesystem;
     }
 
-    public function generatePath(string $extension): string
+    public function generatePath(?string $extension): string
     {
         $uuid = Uuid::uuid4()->toString();
-        $path = sprintf(
-            '%s/%s/%s.%s',
+
+        $path = implode(DIRECTORY_SEPARATOR, [
             substr($uuid, 0, 2),
             substr($uuid, 2, 2),
-            $uuid,
-            $extension
-        );
+            $uuid
+        ]);
+
+        if ($extension) {
+            $path.= '.' . $extension;
+        }
 
         return $path;
     }

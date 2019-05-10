@@ -54,17 +54,8 @@ class Asset
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
     protected $id;
-
-    /**
-     * @var File|null
-     *
-     * @Assert\NotNull(groups={"asset_create"})
-     */
-    private $file;
 
     /**
      * @var string
@@ -97,19 +88,14 @@ class Asset
      */
     private $mimeType;
 
+    public function __construct(?string $id = null)
+    {
+        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
+    }
+
     public function getId()
     {
         return $this->id->__toString();
-    }
-
-    public function getFile(): ?File
-    {
-        return $this->file;
-    }
-
-    public function setFile(File $file): void
-    {
-        $this->file = $file;
     }
 
     public function getPath(): string
@@ -120,7 +106,6 @@ class Asset
     public function setPath(string $path): void
     {
         $this->path = $path;
-        $this->id = str_replace('.', '--', $path);
     }
 
     public function getSize(): int
