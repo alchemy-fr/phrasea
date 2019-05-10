@@ -2,13 +2,13 @@ import store from './store';
 
 class Config {
     getUploadBaseURL() {
-        return store.get('UPLOAD_BASE_URL') || process.env.REACT_APP_UPLOAD_BASE_URL;
+        return store.get('UPLOAD_BASE_URL') || window._env_.UPLOAD_BASE_URL;
     }
 
     getClientCredential() {
         return {
-            clientId: store.get('CLIENT_ID') || process.env.REACT_APP_CLIENT_ID,
-            clientSecret: store.get('CLIENT_SECRET') || process.env.REACT_APP_CLIENT_SECRET,
+            clientId: store.get('CLIENT_ID') || window._env_.CLIENT_ID,
+            clientSecret: store.get('CLIENT_SECRET') || window._env_.CLIENT_SECRET,
         };
     }
 
@@ -22,7 +22,7 @@ class Config {
     }
 
     devModeEnabled() {
-        return process.env.REACT_APP_DEV_MODE === 'true';
+        return window._env_.DEV_MODE === 'true';
     }
 }
 

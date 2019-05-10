@@ -13,9 +13,10 @@ services:
     volumes:
       - ./client:/usr/src/app
     environment:
-      - REACT_APP_UPLOAD_BASE_URL=http://localhost:${UPLOAD_PORT}
-      - REACT_APP_CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
-      - REACT_APP_CLIENT_SECRET=${CLIENT_SECRET}
+      - DEV_MODE
+      - UPLOAD_BASE_URL
+      - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
+      - CLIENT_SECRET
     ports:
       - 127.0.0.1:3000:3000
 
@@ -39,3 +40,13 @@ services:
   auth_nginx:
     volumes:
       - ./auth:/srv/app
+
+  pqadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 5050:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD
+    depends_on:
+      - db

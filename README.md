@@ -12,6 +12,23 @@ This repository contains many end projects:
 
 ```bash
 bin/build.sh
+```
+
+Override environment variables defined in `.env` file:
+
+```bash
+DEV_MODE=false
+CLIENT_ID=<THE_CLIENT_ID>
+CLIENT_RANDOM_ID=<A_RANDOM_HASH>
+CLIENT_SECRET=<A_SECRET>
+DEFAULT_USER_EMAIL=admin@alchemy.fr
+DEFAULT_USER_PASSWORD=<A_PASSWORD>
+```
+
+Then run:
+
+```bash
+bin/build.sh
 bin/install.sh
 ```
 
@@ -35,21 +52,16 @@ docker-compose up -d
 
 You can change the services port by overriding the environment variables (see `.env` file).
 
-## Build for customer
+## Run for customer
 
-In development mode we can change the API URI but for some customer we may need to hard write the API target.
-We need to build the image with the specific value as argument:
+In development mode we can change the API URI but for some customer we may need to change the API target.
+We need to define some environment variables:
 
 ```bash
-docker-compose -f docker-compose.yml build \
-    --build-arg UPLOAD_BASE_URL=https://upload.my-customer.com \
-    # Disable the DEV mode  which is enabled by default (hide some settings in application)
-    --build-arg DEV_MODE=false \ 
-    --build-arg UPLOAD_BASE_URL=<THE_UPLOAD_BASE_URL> \
-    --build-arg CLIENT_ID=<THE_CLIENT_PUBLIC_ID> \
-    --build-arg CLIENT_SECRET=<THE_CLIENT_SECRET> \
-    --tag upload_for_client_name \
-    client
+DEV_MODE=false
+UPLOAD_BASE_URL=<THE_UPLOAD_BASE_URL>
+CLIENT_ID=<THE_CLIENT_PUBLIC_ID>
+CLIENT_SECRET=<THE_CLIENT_SECRET>
 ```
 
 > `UPLOAD_BASE_URL` corresponds to the upload_php service which is bound to 8080 by default.

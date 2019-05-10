@@ -55,16 +55,17 @@ services:
   client:
     image: alchemy/client_nginx
     build:
-      args:
-        - UPLOAD_BASE_URL=http://localhost:8080
-        - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
-        - CLIENT_SECRET=${CLIENT_SECRET}
       context: ./client
       target: client_nginx
     ports:
       - ${CLIENT_PORT}:80
     networks:
       - internal
+    environment:
+      - DEV_MODE
+      - UPLOAD_BASE_URL
+      - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
+      - CLIENT_SECRET
 
   auth_php:
     image: alchemy/auth_php
@@ -98,13 +99,14 @@ services:
 
   db:
     image: postgres:11.2-alpine
+    hostname: postgres
     networks:
       - internal
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - db_vol:/var/lib/mysql
+      - db_vol:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3.7.14-management

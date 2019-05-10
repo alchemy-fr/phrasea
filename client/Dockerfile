@@ -1,29 +1,20 @@
 FROM node:10 as client_build
 
-ARG UPLOAD_BASE_URL=http://localhost:8080
-ARG DEV_MODE=true
-ARG CLIENT_ID
-ARG CLIENT_SECRET
-
 RUN mkdir -p /usr/src/app
 
 COPY . /usr/src/app
 
 WORKDIR /usr/src/app
 
-ENV REACT_APP_UPLOAD_BASE_URL=$UPLOAD_BASE_URL
-ENV REACT_APP_DEV_MODE=$DEV_MODE
-ENV REACT_APP_CLIENT_ID=$CLIENT_ID
-ENV REACT_APP_CLIENT_SECRET=$CLIENT_SECRET
-
 RUN yarn install --silent \
-    && yarn run build
+    && yarn run build \
+    && chmod +x ./docker/generate-env.sh
 
 USER node
 
 EXPOSE 3000
 
-CMD [ "yarn", "start" ]
+CMD ["/bin/bash", "-c", "./docker/generate-env.sh && mv env-config.js ./public/ && yarn start"]
 
 ############
 
@@ -31,9 +22,13 @@ FROM nginx:1.15-alpine as client_nginx
 
 COPY --from=client_build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d
+COPY docker/generate-env.sh /
 
-RUN rm /etc/nginx/conf.d/default.conf
+RUN chmod +x /generate-env.sh \
+    && rm /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /var/app
+
+CMD ["/bin/bash", "-c", "/generate-env.sh && nginx -g daemon off;"]
