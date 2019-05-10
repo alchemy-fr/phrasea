@@ -14,7 +14,7 @@ USER node
 
 EXPOSE 3000
 
-CMD ["/bin/bash", "-c", "./docker/generate-env.sh && mv env-config.js ./public/ && yarn start"]
+CMD ["/bin/sh", "-c", "./docker/generate-env.sh && mv env-config.js ./public/ && yarn start"]
 
 ############
 
@@ -31,4 +31,4 @@ EXPOSE 80
 
 WORKDIR /var/app
 
-CMD ["/bin/bash", "-c", "/generate-env.sh && nginx -g daemon off;"]
+CMD ["/bin/sh", "-c", "/generate-env.sh && nginx -g daemon off;"]

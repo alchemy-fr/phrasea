@@ -40,7 +40,7 @@ class Auth {
         this.listeners[type].forEach(func => func(event));
     }
 
-    login(email, password, callback) {
+    login(email, password, callback, errCallback) {
         const {clientId, clientSecret} = config.getClientCredential();
 
         request
@@ -55,7 +55,8 @@ class Auth {
             .set('accept', 'json')
             .end((err, res) => {
                 if (err) {
-                    throw new Error(err);
+                    errCallback(err, res);
+                    return;
                 }
 
                 this.setAccessToken(res.body.access_token);
