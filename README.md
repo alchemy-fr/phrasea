@@ -69,3 +69,14 @@ CLIENT_SECRET=<THE_CLIENT_SECRET>
 ## RabbitMQ Management
 
 Access `http://localhost:8082` (or you can change the port with env var `$RABBITMQ_MGT_PORT`).
+
+## Database Management
+
+Access PgAdmin4 at `http://localhost:5050`
+
+You can login with `admin@alchemy.fr` / `CxkngkeTRPkJOyniPHmZ` by default (see `.env` file).
+Then add the server by using:
+Connection > Host name: `db`
+Connection > Port: `5432`
+Connection > Username: `admin` # by default (see `.env` file)
+Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
