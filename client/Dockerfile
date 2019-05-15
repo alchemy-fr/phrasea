@@ -18,17 +18,18 @@ CMD ["/bin/sh", "-c", "./docker/generate-env.sh && mv env-config.js ./public/ &&
 
 ############
 
-FROM nginx:1.15-alpine as client_nginx
+FROM nginx:1.16.0 as client_nginx
 
 COPY --from=client_build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d
-COPY docker/generate-env.sh /
+COPY docker/generate-env.sh /var/docker/
+COPY .env /var/.env
 
-RUN chmod +x /generate-env.sh \
-    && rm /etc/nginx/conf.d/default.conf
+RUN rm /etc/nginx/conf.d/default.conf \
+    && chmod +x /var/docker/generate-env.sh
 
 EXPOSE 80
 
 WORKDIR /var/app
 
-CMD ["/bin/sh", "-c", "/generate-env.sh && nginx -g daemon off;"]
+CMD ["/bin/sh", "-c", "/var/docker/generate-env.sh && nginx -g 'daemon off;'"]
