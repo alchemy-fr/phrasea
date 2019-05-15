@@ -14,6 +14,7 @@ class UploadBatch
     progressListeners;
     fileCompleteListeners;
     completeListeners;
+    completeEvent;
 
     constructor() {
         this.reset();
@@ -21,14 +22,19 @@ class UploadBatch
 
     reset() {
         this.files = [];
-        this.formData = {};
+        this.formData = null;
         this.uploading = false;
         this.currentUpload = null;
         this.totalSize = 0;
+        this.progresses = {};
+        this.completeEvent = null;
+        this.resetListeners();
+    }
+
+    resetListeners() {
         this.progressListeners = [];
         this.fileCompleteListeners = [];
         this.completeListeners = [];
-        this.progresses = {};
     }
 
     addFiles(files) {
@@ -42,10 +48,22 @@ class UploadBatch
 
     registerFileCompletehandler(callback) {
         this.fileCompleteListeners.push(callback);
+
+        // Trigger for already uploaded files
+        this.files.forEach((file) => {
+            if (file.event) {
+                callback(file.event);
+            }
+        });
     }
 
-    registerCompletehandler(callback) {
+    registerCompleteHandler(callback) {
         this.completeListeners.push(callback);
+
+        // Trigger if all files have been uploaded
+        if (this.completeEvent) {
+            callback(this.completeEvent);
+        }
     }
 
     startUpload() {
@@ -59,6 +77,24 @@ class UploadBatch
                 ++this.currentUpload;
             }
         }
+    }
+
+    commit() {
+        const idCollection = this.files.map(file => file.id);
+
+        const formData = {
+            files: idCollection,
+            formData: this.formData,
+        };
+        const accessToken = auth.getAccessToken();
+
+        request
+            .post(config.getUploadBaseURL() + '/commit')
+            .accept('json')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send(formData)
+            .end((err, res) => {
+            });
     }
 
     uploadFile(index, file) {
@@ -85,13 +121,37 @@ class UploadBatch
 
     onFileComplete(err, res, index) {
         ++this.currentUpload;
+
+        const data = JSON.parse(res.text);
+        this.files[index].id = data.id;
+
         if (this.currentUpload >= this.files.length) {
             this.onComplete();
             return;
         }
 
+        let totalLoaded = 0;
+        Object.keys(this.progresses).forEach((i) => {
+            totalLoaded += this.progresses[i];
+        });
+
+        const e = {
+            totalLoaded,
+            totalSize: this.totalSize,
+            totalPercent: Math.round(totalLoaded / this.totalSize * 100),
+            fileSize: this.files[index].size,
+            fileLoaded: this.files[index].size,
+            filePercent: 100,
+            index,
+            err,
+            res
+        };
+
+        // Register event for future handlers
+        this.files[index].event = e;
+
         this.fileCompleteListeners.forEach((func) => {
-            func(err, res, index);
+            func(e);
         });
 
         this.uploadFile(this.currentUpload, this.files[this.currentUpload]);
@@ -100,8 +160,17 @@ class UploadBatch
     onComplete() {
         this.progressListeners = [];
         this.fileCompleteListeners = [];
+
+        const e = {
+            totalLoaded: this.totalSize,
+            totalSize: this.totalSize,
+            totalPercent: 100,
+        };
+
+        this.completeEvent = e;
+
         this.completeListeners.forEach((func) => {
-            func();
+            func(e);
         });
         this.completeListeners = [];
     }

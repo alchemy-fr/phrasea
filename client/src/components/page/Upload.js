@@ -21,6 +21,7 @@ export default class Upload extends Component {
         this.state = {
             step: SELECT_FILES,
             files: [],
+            formData: null,
         };
     }
 
@@ -61,6 +62,7 @@ export default class Upload extends Component {
 
     submit = () => {
         uploadBatch.addFiles(this.state.files);
+        uploadBatch.startUpload();
         this.onNext();
     };
 
@@ -72,6 +74,16 @@ export default class Upload extends Component {
         });
     };
 
+    onFormData = (formData) => {
+        uploadBatch.formData = formData;
+
+        this.setState((state) => {
+            return {
+                step: state.step + 1,
+            }
+        });
+    };
+
     render() {
         const {step, files} = this.state;
 
@@ -79,7 +91,7 @@ export default class Upload extends Component {
             case FILL_FORM:
                 return <UploadForm
                     files={files}
-                    onNext={this.onNext}
+                    onNext={this.onFormData}
                 />;
             case UPLOAD:
                 return <UploadProgress

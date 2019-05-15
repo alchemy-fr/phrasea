@@ -9,11 +9,8 @@ use App\Storage\FileStorageManager;
 use GuzzleHttp\Client;
 use Mimey\MimeTypes;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
-use Psr\Log\LoggerInterface;
-use Throwable;
 
-class DownloadConsumer implements ConsumerInterface
+class DownloadConsumer extends AbstractConsumer
 {
     /**
      * @var Client
@@ -26,10 +23,6 @@ class DownloadConsumer implements ConsumerInterface
     private $storageManager;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-    /**
      * @var AssetManager
      */
     private $assetManager;
@@ -37,32 +30,17 @@ class DownloadConsumer implements ConsumerInterface
     public function __construct(
         FileStorageManager $storageManager,
         Client $client,
-        LoggerInterface $logger,
         AssetManager $assetManager
     ) {
         $this->client = $client;
         $this->storageManager = $storageManager;
-        $this->logger = $logger;
         $this->assetManager = $assetManager;
     }
 
-    public function execute(AMQPMessage $msg)
+    protected function doExecute(array $message): int
     {
-        try {
-            $this->doExecute(json_decode($msg->getBody(), true));
-        } catch (Throwable $e) {
-            $this->logger->error($e->getMessage());
-
-            return self::MSG_REJECT;
-        }
-
-        return self::MSG_ACK;
-    }
-
-    private function doExecute(array $msg): void
-    {
-        $url = $msg['url'];
-        $id = $msg['id'];
+        $url = $message['url'];
+        $id = $message['id'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
@@ -94,5 +72,7 @@ class DownloadConsumer implements ConsumerInterface
             $response->getBody()->getSize(),
             $id
         );
+
+        return ConsumerInterface::MSG_ACK;
     }
 }

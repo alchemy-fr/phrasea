@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\WidgetResolverPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -23,6 +24,12 @@ class Kernel extends BaseKernel
                 yield new $class();
             }
         }
+    }
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new WidgetResolverPass());
     }
 
     public function getProjectDir(): string

@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\CreateAssetAction;
 use App\Controller\DownloadAssetAction;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -77,6 +78,13 @@ class Asset
     private $size;
 
     /**
+     * @var array|null
+     * @Groups("asset_read")
+     * @ORM\Column(type="json_array", nullable=true)
+     */
+    private $formData;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255)
@@ -94,8 +102,18 @@ class Asset
      */
     private $mimeType;
 
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime")
+     * @ApiProperty()
+     * @Groups("asset_read")
+     */
+    private $createdAt;
+
     public function __construct(?string $id = null)
     {
+        $this->createdAt = new DateTime();
         $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
 
@@ -142,5 +160,20 @@ class Asset
     public function setMimeType(string $mimeType): void
     {
         $this->mimeType = $mimeType;
+    }
+
+    public function getFormData(): ?array
+    {
+        return $this->formData;
+    }
+
+    public function setFormData(?array $formData): void
+    {
+        $this->formData = $formData;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
     }
 }

@@ -1,4 +1,6 @@
 import store from './store';
+import request from "superagent";
+import auth from "./auth";
 
 class Config {
     getUploadBaseURL() {
@@ -23,6 +25,18 @@ class Config {
 
     devModeEnabled() {
         return window._env_.DEV_MODE === 'true';
+    }
+
+    async getFormSchema() {
+        const accessToken = auth.getAccessToken();
+
+        let response = await request
+            .get(config.getUploadBaseURL() + '/form/schema')
+            .accept('json')
+            .set('Authorization', `Bearer ${accessToken}`)
+        ;
+
+        return response.body;
     }
 }
 

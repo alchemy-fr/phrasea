@@ -53,20 +53,24 @@ export default class UploadProgress extends Component {
 
             this.fileRefs[e.index].setUploadProgress(e.filePercent, false);
         });
-        uploadBatch.registerFileCompletehandler((err, res, index) => {
+        uploadBatch.registerFileCompletehandler(({totalPercent, index}) => {
             this.fileRefs[index].setUploadProgress(100, false);
             this.setState({
-                progress: 100,
+                progress: totalPercent,
             });
         });
-        uploadBatch.registerCompletehandler(() => {
+        uploadBatch.registerCompleteHandler(() => {
             this.setState({
                 progress: 100,
             }, () => {
+                uploadBatch.commit();
                 this.props.onNext();
             });
         });
-        uploadBatch.startUpload();
+    }
+
+    componentWillUnmount() {
+        uploadBatch.resetListeners();
     }
 
     render() {
@@ -95,5 +99,3 @@ UploadProgress.propTypes = {
     files: PropTypes.array.isRequired,
     onNext: PropTypes.func.isRequired,
 };
-
-

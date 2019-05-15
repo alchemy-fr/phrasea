@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": [
+    "title",
+    "checkbox"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "type": {
+      "enum": [
+        "One",
+        "Two"
+      ],
+      "type": "string",
+      "title": "Select a type"
+    },
+    "color": {
+      "type": "string",
+      "title": "In which color"
+    },
+    "checkbox": {
+      "type": "boolean",
+      "title": "I agree with your terms"
+    }
+  }
+}

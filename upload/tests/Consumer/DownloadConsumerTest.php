@@ -55,7 +55,8 @@ class DownloadConsumerTest extends TestCase
 
         $clientStub = $client = new Client(['handler' => $handler]);
 
-        $consumer = new DownloadConsumer($storageStub, $clientStub, $loggerStub, $assetManagerStub);
+        $consumer = new DownloadConsumer($storageStub, $clientStub, $assetManagerStub);
+        $consumer->setLogger($loggerStub);
 
         $message = new AMQPMessage(json_encode([
             'id' => 'id-test',

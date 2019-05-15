@@ -4,6 +4,10 @@ eight_points_guzzle:
         download_client:
             options:
                 timeout: 30
+        phraseanet_client:
+            base_url: "%env(PHRASEANET_BASE_URL)%"
+            options:
+                timeout: 30
         auth_client:
             base_url: "http://auth"
             options:

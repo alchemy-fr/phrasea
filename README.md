@@ -81,6 +81,7 @@ Connection > Port: `5432`
 Connection > Username: `admin` # by default (see `.env` file)
 Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 
-# Request between upload and Phraseanet
+# Further reading
 
-See [Request flow](./doc/request_flow.md)
+- [Request flow](./doc/request_flow.md)
+- [Form configuration](./doc/form_config.md)

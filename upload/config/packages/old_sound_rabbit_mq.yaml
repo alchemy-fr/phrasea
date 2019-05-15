@@ -16,9 +16,17 @@ old_sound_rabbit_mq:
         download:
             connection:       default
             exchange_options: { name: 'download', type: direct }
+        commit:
+            connection:       default
+            exchange_options: { name: 'commit', type: direct }
     consumers:
         download:
             connection:       default
             exchange_options: { name: 'download', type: direct }
             queue_options:    { name: 'download'}
             callback:         App\Consumer\DownloadConsumer
+        commit:
+            connection:       default
+            exchange_options: { name: 'commit', type: direct }
+            queue_options:    { name: 'commit'}
+            callback:         App\Consumer\CommitConsumer

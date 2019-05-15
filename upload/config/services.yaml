@@ -25,6 +25,10 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    _instanceof:
+        App\Form\Resolver\WidgetResolverInterface:
+            tags: ['widget_resolver']
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
@@ -35,6 +39,11 @@ services:
     App\Controller\DownloadUrlAction:
         arguments:
             $downloadProducer: "@old_sound_rabbit_mq.download_producer"
+        tags: ['controller.service_arguments']
+
+    App\Controller\CommitAction:
+        arguments:
+            $commitProducer: "@old_sound_rabbit_mq.commit_producer"
         tags: ['controller.service_arguments']
 
     App\Http\RequestForwarder:
@@ -48,3 +57,7 @@ services:
     App\Consumer\DownloadConsumer:
         arguments:
             $client: "@eight_points_guzzle.client.download_client"
+
+    App\Consumer\CommitConsumer:
+        arguments:
+            $client: "@eight_points_guzzle.client.phraseanet_client"

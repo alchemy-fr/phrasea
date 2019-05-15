@@ -22,7 +22,6 @@ class App extends Component {
         };
 
         auth.registerListener('authentication', (evt) => {
-            console.log('on auth', evt);
             this.setState({
                 user: evt.user,
             });

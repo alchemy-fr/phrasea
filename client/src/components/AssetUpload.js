@@ -11,6 +11,8 @@ export default class AssetUpload extends Component {
             uploadProgress: 0,
             ok: false,
         };
+
+        this.onload = null;
     }
 
     setUploadProgress(progress, ok) {
@@ -21,7 +23,16 @@ export default class AssetUpload extends Component {
     }
 
     componentDidMount() {
+        this.onload = (result) => {
+            this.setState({
+                src: result.target.result,
+            });
+        };
         this.loadIcon();
+    }
+
+    componentWillUnmount() {
+        this.onload = null;
     }
 
     loadIcon() {
@@ -33,9 +44,9 @@ export default class AssetUpload extends Component {
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
             reader.onload = (result) => {
-                this.setState({
-                    src: result.target.result,
-                });
+                if (this.onload) {
+                    this.onload(result);
+                }
             };
             reader.readAsDataURL(file);
         }
