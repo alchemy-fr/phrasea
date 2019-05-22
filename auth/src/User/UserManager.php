@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\User;
 
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserManager
+class UserManager implements UserProviderInterface
 {
     /**
      * @var EntityManagerInterface
@@ -56,7 +61,29 @@ class UserManager
 
     public function persistUser(User $user): void
     {
+        $user->setUpdatedAt(new DateTime());
         $this->em->persist($user);
         $this->em->flush();
+    }
+
+    public function loadUserByUsername($username)
+    {
+        $user = $this->findUserByEmail($username);
+
+        if (null === $user) {
+            throw new UsernameNotFoundException(sprintf('user "%s" not found', $username));
+        }
+
+        return $user;
+    }
+
+    public function refreshUser(UserInterface $user)
+    {
+        $this->em->refresh($user);
+    }
+
+    public function supportsClass($class)
+    {
+        return User::class === $class;
     }
 }

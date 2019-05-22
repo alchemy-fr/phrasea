@@ -82,6 +82,7 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
+      - rabbitmq
       - db
 
   auth_nginx:

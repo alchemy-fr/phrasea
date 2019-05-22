@@ -5,6 +5,6 @@ fos_oauth_server:
   refresh_token_class: App\Entity\RefreshToken
   auth_code_class: App\Entity\AuthCode
   service:
-    user_provider: App\Security\UserManager
+    user_provider: App\User\UserManager
     options:
       access_token_lifetime: 7776000
