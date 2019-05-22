@@ -7,9 +7,11 @@ namespace App\Controller;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
+use App\Entity\FormSchema;
 use App\Form\FormSchemaManager;
 use App\Form\LiFormToFormTransformer;
 use App\Model\Commit;
+use App\Model\Form;
 use App\Model\User;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final class FormSchemaAction extends AbstractController
+final class FormEditSchemaAction extends AbstractController
 {
     /**
      * @var FormSchemaManager
@@ -33,8 +35,10 @@ final class FormSchemaAction extends AbstractController
         $this->schemaLoader = $schemaLoader;
     }
 
-    public function __invoke()
+    public function __invoke(Form $data)
     {
-        return new JsonResponse($this->schemaLoader->loadSchema(null));
+        $this->schemaLoader->persistSchema(null, $data->getData());
+
+        return new JsonResponse(true);
     }
 }

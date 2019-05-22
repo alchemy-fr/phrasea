@@ -7,7 +7,7 @@ namespace App\Controller;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
-use App\Form\FormSchemaLoader;
+use App\Form\FormSchemaManager;
 use App\Form\LiFormToFormTransformer;
 use App\Model\Commit;
 use App\Model\Form;
@@ -29,13 +29,13 @@ final class ValidateFormAction extends AbstractController
      */
     private $formGenerator;
     /**
-     * @var FormSchemaLoader
+     * @var FormSchemaManager
      */
     private $schemaLoader;
 
     public function __construct(
         LiFormToFormTransformer $formGenerator,
-        FormSchemaLoader $schemaLoader
+        FormSchemaManager $schemaLoader
     )
     {
         $this->formGenerator = $formGenerator;

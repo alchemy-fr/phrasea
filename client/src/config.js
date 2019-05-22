@@ -36,7 +36,7 @@ class Config {
             .set('Authorization', `Bearer ${accessToken}`)
         ;
 
-        return response.body;
+        return JSON.parse(response.body);
     }
 }
 

@@ -7,6 +7,7 @@ namespace App\Model;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\ValidateFormAction;
 use App\Controller\FormSchemaAction;
+use App\Controller\FormEditSchemaAction;
 
 /**
  * @ApiResource(
@@ -24,22 +25,27 @@ use App\Controller\FormSchemaAction;
  *             "path"="/form/schema",
  *             "controller"=FormSchemaAction::class,
  *         },
+ *         "edit"={
+ *             "method"="POST",
+ *             "path"="/form/edit",
+ *             "controller"=FormEditSchemaAction::class,
+ *         },
  *     }
  * )
  */
 final class Form
 {
     /**
-     * @var array
+     * @var string
      */
     private $data;
 
-    public function getData(): array
+    public function getData(): string
     {
         return $this->data;
     }
 
-    public function setData(array $data): void
+    public function setData(string $data): void
     {
         $this->data = $data;
     }
