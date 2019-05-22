@@ -8,8 +8,7 @@ const BaseForm = props => {
     const { schema, handleSubmit, theme, error, submitting } = props;
     const disabled = submitting || error;
 
-    return (
-        <form onSubmit={handleSubmit}>
+    return <form onSubmit={handleSubmit}>
             {renderField(schema, null, theme || DefaultTheme)}
             <div>
                 {error && <strong>{error}</strong>}
@@ -19,22 +18,20 @@ const BaseForm = props => {
                 type="submit"
                 disabled={disabled}
             >Next</button>
-        </form>);
+        </form>;
 };
 
 const AssetForm = props => {
     const reducer = combineReducers({ form: formReducer });
     const store = createStore(reducer);
 
-    return (
-        <Provider store={store}>
+    return <Provider store={store}>
             <Liform
                 baseForm={BaseForm}
                 schema={props.schema}
                 onSubmit={props.onSubmit}
             />
-        </Provider>
-    )
+        </Provider>;
 };
 
 export default AssetForm;

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import AssetUpload from "../AssetUpload";
 import PropTypes from "prop-types";
-import uploadBatch from "../../store/upload";
+import uploadBatch from "../../upload";
 
 export default class UploadProgress extends Component {
     fileRefs = {};

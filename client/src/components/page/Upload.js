@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import Dropzone from "react-dropzone";
 import Download from "../Download";
-import uploadBatch from "../../store/upload";
+import uploadBatch from "../../upload";
 import UploadForm from "./UploadForm";
 import UploadProgress from "./UploadProgress";
 import AssetUpload from "../AssetUpload";

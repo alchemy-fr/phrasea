@@ -83,6 +83,7 @@ Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 
 # Further reading
 
+- [Dev with NGINX](./doc/dev-with-nginx.md)
 - [Request flow](./doc/request_flow.md)
 - [Form configuration](./doc/form_config.md)
-- [Dev with NGINX](./doc/dev-with-nginx.md)
+- [Form steps](./doc/form-steps.md)

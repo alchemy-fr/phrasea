@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import PropTypes from "prop-types";
 import AssetForm from "../AssetForm";
-import config from "../../store/config";
-import auth from "../../store/auth";
+import config from "../../config";
+import auth from "../../auth";
 import request from "superagent";
 
 export default class UploadForm extends Component {

@@ -8,8 +8,8 @@ import Settings from "./components/page/Settings";
 import Login from "./components/page/Login";
 import About from "./components/page/About";
 import DevSettings from "./components/page/DevSettings";
-import config from './store/config';
-import auth from './store/auth';
+import config from './config';
+import auth from './auth';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
 

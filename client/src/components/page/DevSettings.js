@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import config from '../../store/config';
+import config from '../../config';
 import {Form, Button} from "react-bootstrap";
 
 export default class DevSettings extends Component {

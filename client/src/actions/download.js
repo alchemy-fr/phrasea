@@ -1,7 +1,7 @@
 
 import request from "superagent";
-import config from "../store/config";
-import auth from "../store/auth";
+import config from "../config";
+import auth from "../auth";
 
 export function Download(url, callback, errCallback) {
     const accessToken = auth.getAccessToken();
