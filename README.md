@@ -78,10 +78,11 @@ You can login with `admin@alchemy.fr` / `CxkngkeTRPkJOyniPHmZ` by default (see `
 Then add the server by using:
 Connection > Host name: `db`
 Connection > Port: `5432`
-Connection > Username: `admin` # by default (see `.env` file)
+Connection > Username: `alchemy` # by default (see `.env` file)
 Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 
 # Further reading
 
 - [Request flow](./doc/request_flow.md)
 - [Form configuration](./doc/form_config.md)
+- [Dev with NGINX](./doc/dev-with-nginx.md)

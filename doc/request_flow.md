@@ -46,6 +46,8 @@ curl -X POST -H "Content-Type: application/json" https://<PHRASEANET_HOST>/api/v
 }'
 ```
 
+> In the last request example, 2 assets are ready to be downloaded with ID `4c097077-a26b-4af4-9a5d-b13fd4c77b3d` and `a134145e-9461-4f0a-8bd8-7025d31a6b8e`.
+
 Then, Phraseanet download each asset with provided ID:
 
 ```bash
