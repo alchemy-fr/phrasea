@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Client;
@@ -59,5 +60,33 @@ abstract class ApiTestCase extends WebTestCase
 
         $this->client = static::createClient();
         $this->client->disableReboot();
+    }
+
+    protected static function getEntityManager(): EntityManagerInterface
+    {
+        return self::$container->get(EntityManagerInterface::class);
+    }
+
+    protected function assertPasswordIsInvalid(string $email, string $password): void
+    {
+        $response = $this->requestToken($email, $password);
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    protected function assertPasswordIsValid(string $email, string $password): void
+    {
+        $response = $this->requestToken($email, $password);
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    private function requestToken(string $email, string $password): Response
+    {
+        return $this->request('POST', '/oauth/v2/token', [
+            'username' => $email,
+            'password' => $password,
+            'grant_type' => 'password',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
+        ]);
     }
 }

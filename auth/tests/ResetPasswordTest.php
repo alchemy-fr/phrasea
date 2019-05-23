@@ -4,38 +4,49 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use App\Entity\ResetPasswordRequest;
+use App\Entity\User;
+
 class ResetPasswordTest extends ApiTestCase
 {
-    public function testRequestResetPasswordWithExistingEmail(): void
+    public function testResetPasswordOK(): void
     {
-        $response = $this->request('POST', '/password/reset-request', [
+        $request = $this->createResetPasswordRequest('foo@bar.com');
+
+        $uri = sprintf(
+            '/password/reset/%s/%s',
+            $request->getId(),
+            $request->getToken()
+        );
+        $this->client->request('GET', $uri, [
             'email' => 'foo@bar.com',
         ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
-        $this->assertEquals(true, $json);
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        $this->client->submitForm('Reset password', [
+            'reset_password_form[new_password][first]' => 'new_secret',
+            'reset_password_form[new_password][second]' => 'new_secret',
+        ]);
+
+        $this->assertTrue(
+            $this->client->getResponse()->isRedirect('/password/reset/changed')
+        );
+
+        $this->assertPasswordIsInvalid('foo@bar.com', 'secret');
+        $this->assertPasswordIsValid('foo@bar.com', 'new_secret');
     }
 
-    public function testRequestResetPasswordWithNonExistingEmail(): void
+    private function createResetPasswordRequest(string $userEmail): ResetPasswordRequest
     {
-        $response = $this->request('POST', '/password/reset-request', [
-            'email' => 'baz@bar.com',
-        ]);
-        // Must return 200 otherwise it would allow attackers to scan emails in database.
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
-        $this->assertEquals(true, $json);
-    }
+        $em = self::getEntityManager();
 
-    public function testRequestResetPasswordWillSendEmail(): void
-    {
-        $response = $this->request('POST', '/password/reset-request', [
-            'email' => 'foo@bar.com',
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
-        $this->assertEquals(true, $json);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
 
+        $request = new ResetPasswordRequest($user, 'the_token');
 
+        $em->persist($request);
+        $em->flush();
+
+        return $request;
     }
 }

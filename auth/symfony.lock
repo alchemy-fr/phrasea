@@ -409,6 +409,19 @@
             "templates/base.html.twig"
         ]
     },
+    "symfony/validator": {
+        "version": "4.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.1",
+            "ref": "9a285e4ff3915c7cd086e9945f30591a926baf83"
+        },
+        "files": [
+            "config/packages/test/validator.yaml",
+            "config/packages/validator.yaml"
+        ]
+    },
     "symfony/var-exporter": {
         "version": "v4.2.5"
     },

@@ -1,0 +1,6 @@
+App\Entity\User:
+  properties:
+    plainPassword:
+      - Length:
+          min: 6
+          max: 255

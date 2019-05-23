@@ -23,23 +23,8 @@ class ChangePasswordTest extends ApiTestCase
         $response = $this->request('GET', '/me', [], [], [], $accessToken);
         $this->assertEquals(401, $response->getStatusCode());
 
-        $response = $this->request('POST', '/oauth/v2/token', [
-            'username' => 'foo@bar.com',
-            'password' => 'secret',
-            'grant_type' => 'password',
-            'client_id' => self::CLIENT_ID,
-            'client_secret' => self::CLIENT_SECRET,
-        ]);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        $response = $this->request('POST', '/oauth/v2/token', [
-            'username' => 'foo@bar.com',
-            'password' => 'secret2',
-            'grant_type' => 'password',
-            'client_id' => self::CLIENT_ID,
-            'client_secret' => self::CLIENT_SECRET,
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertPasswordIsInvalid('foo@bar.com', 'secret');
+        $this->assertPasswordIsValid('foo@bar.com', 'secret2');
     }
 
     public function testChangePasswordWithInvalidOldPassword(): void
@@ -55,5 +40,8 @@ class ChangePasswordTest extends ApiTestCase
         $json = json_decode($response->getContent(), true);
         unset($json['debug']);
         $this->assertEquals(['error' => 'bad_request', 'error_description' => 'Invalid old password'], $json);
+
+        $this->assertPasswordIsValid('foo@bar.com', 'secret');
+        $this->assertPasswordIsInvalid('foo@bar.com', 'secret2');
     }
 }

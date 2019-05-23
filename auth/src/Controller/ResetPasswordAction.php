@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\ResetPasswordForm;
+use App\Entity\User;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +34,9 @@ class ResetPasswordAction extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $newPassword = $form->get('new_password')->getData();
-            $this->resetPasswordManager->resetPassword($id, $token, $newPassword);
+            /** @var User $user */
+            $user = $form->getData();
+            $this->resetPasswordManager->resetPassword($id, $token, $user->getPlainPassword());
 
             return $this->redirectToRoute('reset_password_changed');
         }
