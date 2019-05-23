@@ -33,10 +33,6 @@ class ApiExceptionListener implements EventSubscriberInterface
 
     public function onKernelException(GetResponseForExceptionEvent $event): void
     {
-        if ($this->debug) {
-            return;
-        }
-
         $exception = $event->getException();
         $class = get_class($event->getException());
 
@@ -51,6 +47,13 @@ class ApiExceptionListener implements EventSubscriberInterface
             $data = [
                 'error' => self::DEFAULT_ERROR,
                 'error_description' => 'Something went wrong!',
+            ];
+        }
+
+        if ($this->debug) {
+            $data['debug'] = [
+                'exception_class' => get_class($exception),
+                'trace' => $exception->getTraceAsString(),
             ];
         }
 

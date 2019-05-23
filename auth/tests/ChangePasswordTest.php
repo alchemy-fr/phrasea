@@ -53,6 +53,7 @@ class ChangePasswordTest extends ApiTestCase
 
         $this->assertEquals(400, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
+        unset($json['debug']);
         $this->assertEquals(['error' => 'bad_request', 'error_description' => 'Invalid old password'], $json);
     }
 }
