@@ -22,19 +22,19 @@ class ResetPasswordRequest
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
-    protected $id;
+    private $id;
 
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User")
      */
-    protected $user;
+    private $user;
 
     /**
      * @var string
      * @ORM\Column(type="string", length=256)
      */
-    protected $token;
+    private $token;
 
     /**
      * @var DateTime
@@ -68,5 +68,10 @@ class ResetPasswordRequest
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
+    }
+
+    public function hasExpired(): bool
+    {
+        return $this->createdAt->getTimestamp() - 60 * 15 > time();
     }
 }

@@ -24,14 +24,14 @@ class ChangePasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/reset-password")
+     * @Route(path="/password/change", methods={"POST"})
      */
     public function __invoke(Request $request)
     {
         /** @var User $user */
         $user = $this->getUser();
 
-        $this->resetPasswordManager->changePassword($user, $request->request->get('password'));
+        $this->resetPasswordManager->changePassword($user, $request->request->get('password'), $request->request->get('new_password'));
 
         return new JsonResponse(true);
     }

@@ -23,11 +23,11 @@ class ResetPasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/reset-password")
+     * @Route(path="/password/reset", methods={"POST"})
      */
     public function __invoke(Request $request)
     {
-        $this->resetPasswordManager->requestPasswordResetForLogin($request->request->get('username'));
+        $this->resetPasswordManager->requestPasswordResetForLogin($request->request->get('email'));
 
         return new JsonResponse(true);
     }

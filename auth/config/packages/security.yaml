@@ -16,6 +16,9 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
+        anonymous:
+            pattern: /password/reset
+            security: false
         oauth_token:
             pattern:    ^/oauth/v2/token
             security:   false
@@ -23,7 +26,7 @@ security:
             pattern:    ^/
             fos_oauth:  true
             stateless:  true
-            anonymous:  false # can be omitted as its default value
+            anonymous:  false
 
     access_control:
         - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }

@@ -52,3 +52,10 @@ services:
       - PGADMIN_DEFAULT_PASSWORD
     depends_on:
       - db
+
+  mailhog:
+    image: mailhog/mailhog
+    networks:
+      - internal
+    ports:
+      - 8025:8025

@@ -28,3 +28,7 @@ services:
 
     App\Fixture\Factory\UserPasswordFactory:
         public: true
+
+    App\Mail\Mailer:
+        arguments:
+            $from: '%env(MAIL_FROM)%'

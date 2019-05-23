@@ -49,6 +49,11 @@ class UserManager implements UserProviderInterface
             ]);
     }
 
+    public function isPasswordValid(User $user, string $plainPassword): bool
+    {
+        return $this->passwordEncoder->isPasswordValid($user, $plainPassword);
+    }
+
     public function encodePassword(User $user): void
     {
         if (null === $user) {
