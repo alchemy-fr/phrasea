@@ -27,6 +27,10 @@ class Config {
         store.set('UPLOAD_BASE_URL', url);
     }
 
+    setAuthBaseURL(url) {
+        store.set('AUTH_BASE_URL', url);
+    }
+
     devModeEnabled() {
         return window._env_.DEV_MODE === 'true';
     }

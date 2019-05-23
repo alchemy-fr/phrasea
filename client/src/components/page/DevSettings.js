@@ -10,6 +10,7 @@ export default class DevSettings extends Component {
 
         this.state = {
             uploadBaseUrl: config.getUploadBaseURL() || '',
+            authBaseUrl: config.getAuthBaseURL() || '',
             clientId: clientId || '',
             clientSecret: clientSecret || '',
             saved: false,
@@ -27,6 +28,7 @@ export default class DevSettings extends Component {
         event.preventDefault();
 
         config.setUploadBaseURL(this.state.uploadBaseUrl);
+        config.setAuthBaseURL(this.state.authBaseUrl);
         config.setClientCredential({
             clientId: this.state.clientId,
             clientSecret: this.state.clientSecret,
@@ -54,6 +56,14 @@ export default class DevSettings extends Component {
                         <Form.Control
                             type="text"
                             value={this.state.uploadBaseUrl}
+                            onChange={this.handleChange}
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="authBaseUrl">
+                        <Form.Label>Auth Base URL</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={this.state.authBaseUrl}
                             onChange={this.handleChange}
                         />
                     </Form.Group>
