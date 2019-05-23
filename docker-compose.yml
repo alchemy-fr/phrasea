@@ -83,6 +83,7 @@ services:
       - AUTH_BASE_URL
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - MAILER_URL
     depends_on:
       - rabbitmq
       - db
