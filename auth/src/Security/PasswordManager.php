@@ -9,6 +9,7 @@ use App\Mail\Mailer;
 use App\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
@@ -62,8 +63,35 @@ class PasswordManager
         // TODO defer email
 
         $this->mailer->send($user->getEmail(), 'Reset password', 'mail/reset_password.html.twig', [
-            'url' => $token,
+            'id' => $request->getId(),
+            'token' => $request->getToken(),
         ]);
+    }
+
+    public function getResetRequest(string $requestId, string $token): ResetPasswordRequest
+    {
+        $request = $this->em
+            ->getRepository(ResetPasswordRequest::class)
+            ->findOneBy([
+                'id' => $requestId,
+                'token' => $token,
+            ]);
+
+        if (null === $request) {
+            throw new AccessDeniedHttpException('Invalid reset request');
+        }
+
+        if ($request->hasExpired()) {
+            throw new AccessDeniedHttpException('Request has expired');
+        }
+
+        return $request;
+    }
+
+    public function resetPassword(string $requestId, string $token, string $newPassword): void
+    {
+        $request = $this->getResetRequest($requestId, $token);
+        $this->doChangePassword($request->getUser(), $newPassword);
     }
 
     public function changePassword(User $user, string $oldPassword, string $newPassword): void
@@ -71,6 +99,12 @@ class PasswordManager
         if (!$this->userManager->isPasswordValid($user, $oldPassword)) {
             throw new BadRequestHttpException('Invalid old password');
         }
+
+        $this->doChangePassword($user, $newPassword);
+    }
+
+    private function doChangePassword(User $user, string $newPassword): void
+    {
 
         $user->setPlainPassword($newPassword);
         $this->userManager->encodePassword($user);

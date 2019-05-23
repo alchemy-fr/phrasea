@@ -15,6 +15,7 @@ services:
     environment:
       - DEV_MODE
       - UPLOAD_BASE_URL
+      - AUTH_BASE_URL
       - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
       - CLIENT_SECRET
     ports:

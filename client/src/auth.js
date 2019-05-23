@@ -44,7 +44,7 @@ class Auth {
         const {clientId, clientSecret} = config.getClientCredential();
 
         request
-            .post(config.getUploadBaseURL() + '/oauth/v2/token')
+            .post(config.getAuthBaseURL() + '/oauth/v2/token')
             .send({
                 username: email,
                 password,

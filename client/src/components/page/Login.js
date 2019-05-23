@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
-import {Redirect} from "react-router-dom";
+import {Redirect, Link} from "react-router-dom";
 import auth from '../../auth';
 
 export default class Login extends Component {
@@ -81,6 +81,10 @@ export default class Login extends Component {
                             Login
                         </Button>
                     </form>
+
+                    <p>
+                        <Link to="/forgot-password">Forgot password?</Link>
+                    </p>
                 </div>
             </div>
         );

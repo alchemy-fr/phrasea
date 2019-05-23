@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Form\ResetPasswordForm;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,12 +23,32 @@ class ResetPasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/password/reset", methods={"POST"})
+     * @Route(path="/password/reset/{id}/{token}", name="reset_password", methods={"GET", "POST"})
      */
-    public function __invoke(Request $request)
+    public function reset(string $id, string $token, Request $request)
     {
-        $this->resetPasswordManager->requestPasswordResetForLogin($request->request->get('email'));
+        $this->resetPasswordManager->getResetRequest($id, $token);
 
-        return new JsonResponse(true);
+        $form = $this->createForm(ResetPasswordForm::class);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('new_password')->getData();
+            $this->resetPasswordManager->resetPassword($id, $token, $newPassword);
+
+            return $this->redirectToRoute('reset_password_changed');
+        }
+
+        return $this->render('password/reset_password.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route(path="/password/reset/changed", name="reset_password_changed", methods={"GET"})
+     */
+    public function changed()
+    {
+        return $this->render('password/password_changed.html.twig');
     }
 }

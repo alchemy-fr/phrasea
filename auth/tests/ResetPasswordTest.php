@@ -6,9 +6,9 @@ namespace App\Tests;
 
 class ResetPasswordTest extends ApiTestCase
 {
-    public function testResetPasswordWithExistingEmail(): void
+    public function testRequestResetPasswordWithExistingEmail(): void
     {
-        $response = $this->request('POST', '/password/reset', [
+        $response = $this->request('POST', '/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
@@ -16,9 +16,9 @@ class ResetPasswordTest extends ApiTestCase
         $this->assertEquals(true, $json);
     }
 
-    public function testResetPasswordWithNonExistingEmail(): void
+    public function testRequestResetPasswordWithNonExistingEmail(): void
     {
-        $response = $this->request('POST', '/password/reset', [
+        $response = $this->request('POST', '/password/reset-request', [
             'email' => 'baz@bar.com',
         ]);
         // Must return 200 otherwise it would allow attackers to scan emails in database.
@@ -27,9 +27,9 @@ class ResetPasswordTest extends ApiTestCase
         $this->assertEquals(true, $json);
     }
 
-    public function testResetPasswordWillSendEmail(): void
+    public function testRequestResetPasswordWillSendEmail(): void
     {
-        $response = $this->request('POST', '/password/reset', [
+        $response = $this->request('POST', '/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());

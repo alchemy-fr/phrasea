@@ -13,6 +13,7 @@ import auth from './auth';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
 import FormEditor from "./components/page/FormEditor";
+import ResetPassword from "./components/page/ResetPassword";
 
 class App extends Component {
     constructor(props) {
@@ -83,6 +84,7 @@ class App extends Component {
                 <div id="page-wrap">
                     <PrivateRoute path="/" exact component={Upload}/>
                     <Route path="/login" exact component={Login}/>
+                    <Route path="/forgot-password" exact component={ResetPassword}/>
                     <Route path="/about" exact component={About}/>
                     <PrivateRoute path="/settings" exact component={Settings}/>
                     <PrivateRoute path="/form-editor" exact component={FormEditor}/>

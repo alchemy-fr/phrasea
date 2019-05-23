@@ -7,6 +7,10 @@ class Config {
         return store.get('UPLOAD_BASE_URL') || window._env_.UPLOAD_BASE_URL;
     }
 
+    getAuthBaseURL() {
+        return store.get('AUTH_BASE_URL') || window._env_.AUTH_BASE_URL;
+    }
+
     getClientCredential() {
         return {
             clientId: store.get('CLIENT_ID') || window._env_.CLIENT_ID,

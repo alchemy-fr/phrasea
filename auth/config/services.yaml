@@ -32,3 +32,11 @@ services:
     App\Mail\Mailer:
         arguments:
             $from: '%env(MAIL_FROM)%'
+
+    App\Listener\ApiExceptionListener:
+        arguments:
+            $debug: '%kernel.debug%'
+
+    App\Listener\RouterContextListener:
+        arguments:
+            $baseUrl: '%env(AUTH_BASE_URL)%'

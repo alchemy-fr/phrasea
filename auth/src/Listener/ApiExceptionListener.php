@@ -21,8 +21,22 @@ class ApiExceptionListener implements EventSubscriberInterface
 
     const DEFAULT_ERROR = 'internal_error';
 
+    /**
+     * @var bool
+     */
+    private $debug = false;
+
+    public function __construct(bool $debug)
+    {
+        $this->debug = $debug;
+    }
+
     public function onKernelException(GetResponseForExceptionEvent $event): void
     {
+        if ($this->debug) {
+            return;
+        }
+
         $exception = $event->getException();
         $class = get_class($event->getException());
 

@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -72,6 +73,10 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
                 'Authorization' => 'Bearer '.$apiToken,
             ],
         ]);
+
+        if ($response->getStatusCode() === 401) {
+            throw new AccessDeniedHttpException($response->getBody()->getContents());
+        }
 
         $content = $response->getBody()->getContents();
         $data = \GuzzleHttp\json_decode($content, true);

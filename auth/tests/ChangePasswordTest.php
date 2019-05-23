@@ -11,7 +11,7 @@ class ChangePasswordTest extends ApiTestCase
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
         $response = $this->request('POST', '/password/change', [
-            'password' => 'secret',
+            'old_password' => 'secret',
             'new_password' => 'secret2',
         ], [], [], $accessToken);
 
@@ -47,7 +47,7 @@ class ChangePasswordTest extends ApiTestCase
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
         $response = $this->request('POST', '/password/change', [
-            'password' => 'invalid_old_secret',
+            'old_password' => 'invalid_old_secret',
             'new_password' => 'secret2',
         ], [], [], $accessToken);
 
