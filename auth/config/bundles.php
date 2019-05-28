@@ -13,4 +13,6 @@ return [
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle::class => ['all' => true],
     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
+    Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
+    OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
 ];

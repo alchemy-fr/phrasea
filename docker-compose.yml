@@ -84,6 +84,8 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - MAILER_URL
+      - RABBITMQ_LOGIN=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
     depends_on:
       - rabbitmq
       - db

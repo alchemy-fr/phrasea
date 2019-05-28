@@ -22,14 +22,23 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected $client;
 
-    protected function request(string $method, string $uri, $params = [], array $files = [], array $server = [], ?string $accessToken = null): Response
+    protected function request(
+        string $method,
+        string $uri,
+        $params = [],
+        array $files = [],
+        array $server = [],
+        ?string $content = null,
+        ?string $accessToken = null
+    ): Response
     {
         if (null !== $accessToken) {
             $server['HTTP_AUTHORIZATION'] = 'Bearer '.$accessToken;
-            $server['CONTENT_TYPE'] = 'application/json';
         }
+        $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
+        $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';
 
-        $this->client->request($method, $uri, $params, $files, $server);
+        $this->client->request($method, $uri, $params, $files, $server, $content);
 
         /** @var Response $response */
         $response = $this->client->getResponse();
