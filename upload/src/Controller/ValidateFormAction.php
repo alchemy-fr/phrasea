@@ -42,12 +42,12 @@ final class ValidateFormAction extends AbstractController
         $this->schemaLoader = $schemaLoader;
     }
 
-    public function __invoke(Form $data)
+    public function __invoke(Form $data, Request $request)
     {
         $formData = $data->getData();
 
-        $schema = $this->schemaLoader->loadSchema();
-        $form = $this->formGenerator->createFormFromConfig($schema);
+        $schema = $this->schemaLoader->loadSchema($request->getLocale());
+        $form = $this->formGenerator->createFormFromConfig(json_decode($schema, true));
 
         $form->submit($formData);
         if ($form->isSubmitted() && $form->isValid()) {

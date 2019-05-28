@@ -1,29 +1,29 @@
 {
   "type": "object",
   "required": [
-    "title",
-    "checkbox"
+    "album",
+    "agreed"
   ],
   "properties": {
-    "title": {
+    "album": {
       "type": "string",
-      "title": "Title"
+      "title": "Album"
     },
-    "type": {
+    "dest": {
       "enum": [
         "One",
         "Two"
       ],
       "type": "string",
-      "title": "Select a type"
+      "title": "Choose a destination"
     },
-    "color": {
+    "description": {
       "type": "string",
-      "title": "In which color"
+      "title": "Description"
     },
-    "checkbox": {
+    "agreed": {
       "type": "boolean",
-      "title": "I agree with your terms"
+      "title": "I agree with the terms"
     }
   }
 }

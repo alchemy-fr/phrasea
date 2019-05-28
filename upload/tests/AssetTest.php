@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AssetTest extends WebTestCase
 {
-    /** @var Client */
+    /**
+     * @var Client
+     */
     protected $client;
 
     public function testUploadAssetOK(): void
