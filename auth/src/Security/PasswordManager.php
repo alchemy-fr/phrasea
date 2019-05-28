@@ -54,6 +54,11 @@ class PasswordManager
             return;
         }
 
+        $lastUserRequest = $this->em->getRepository(ResetPasswordRequest::class)->findLastUserRequest($user);
+        if (null !== $lastUserRequest && !$lastUserRequest->hasExpired()) {
+            return;
+        }
+
         $token = bin2hex(openssl_random_pseudo_bytes(128));
         $request = new ResetPasswordRequest($user, $token);
 

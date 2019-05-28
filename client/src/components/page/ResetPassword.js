@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
+import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
 
@@ -9,6 +9,7 @@ export default class ResetPassword extends Component {
 
         this.state = {
             email: '',
+            requested: false,
         };
     }
 
@@ -19,7 +20,9 @@ export default class ResetPassword extends Component {
     handleSubmit = async event => {
         event.preventDefault();
 
-        let response = await request
+        this.setState({requested: true});
+
+        await request
             .post(config.getAuthBaseURL() + '/password/reset-request')
             .set('accept', 'json')
             .send({
@@ -27,9 +30,6 @@ export default class ResetPassword extends Component {
             })
         ;
 
-        if (response) {
-
-        }
     };
 
     handleChange = event => {
@@ -39,28 +39,32 @@ export default class ResetPassword extends Component {
     };
 
     render() {
+        const {requested} = this.state;
+
         return (
             <div className="container">
                 <h1>Reset password</h1>
                 <div>
-                    <form onSubmit={this.handleSubmit}>
-                        <FormGroup controlId="email">
-                            <FormLabel>Email</FormLabel>
-                            <FormControl
-                                autoFocus
-                                type="email"
-                                value={this.state.email}
-                                onChange={this.handleChange}
-                            />
-                        </FormGroup>
-                        <Button
-                            block
-                            disabled={!this.isFormValid()}
-                            type="submit"
-                        >
-                            Request password reset
-                        </Button>
-                    </form>
+                    {requested ? 'You will receive an email to reset your password.' :
+                        <form onSubmit={this.handleSubmit}>
+                            <FormGroup controlId="email">
+                                <FormLabel>Email</FormLabel>
+                                <FormControl
+                                    autoFocus
+                                    type="email"
+                                    value={this.state.email}
+                                    onChange={this.handleChange}
+                                />
+                            </FormGroup>
+                            <Button
+                                block
+                                disabled={!this.isFormValid()}
+                                type="submit"
+                            >
+                                Request password reset
+                            </Button>
+                        </form>
+                    }
                 </div>
             </div>
         );

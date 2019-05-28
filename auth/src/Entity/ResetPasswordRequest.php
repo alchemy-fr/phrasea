@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Entity\ResetPasswordRequestRepository")
  * @ORM\Table
  */
 class ResetPasswordRequest
