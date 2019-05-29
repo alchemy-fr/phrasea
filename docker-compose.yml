@@ -41,6 +41,23 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
+  auth_worker:
+    image: alchemy/auth_worker
+    build:
+      context: auth
+      target: auth_worker
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+      - db
+    environment:
+      - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+
   upload_nginx:
     image: alchemy/upload_nginx
     build:
@@ -84,7 +101,7 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - MAILER_URL
-      - RABBITMQ_LOGIN=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
     depends_on:
       - rabbitmq

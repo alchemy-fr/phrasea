@@ -4,25 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1cecd4708f5b4fc6fcc55088adba4d32",
+    "content-hash": "44ed38c7628a06602c6639b898a2f102",
     "packages": [
         {
             "name": "arthem/rabbit-bundle",
-            "version": "0.0.1-alpha",
+            "version": "0.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "2eea3c9e59ddca9f8933712d925c4914d27dc0f8"
+                "reference": "2dcb338ab366efc6363f857ad4a3cec989459edb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/2eea3c9e59ddca9f8933712d925c4914d27dc0f8",
-                "reference": "2eea3c9e59ddca9f8933712d925c4914d27dc0f8",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/2dcb338ab366efc6363f857ad4a3cec989459edb",
+                "reference": "2dcb338ab366efc6363f857ad4a3cec989459edb",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.2",
+                "php": ">=7.1",
                 "php-amqplib/rabbitmq-bundle": "^1",
                 "psr/log": "^1",
                 "symfony/console": "^4.0",
@@ -45,7 +45,7 @@
                 "MIT"
             ],
             "description": "Simple RabbitMQ bundle",
-            "time": "2019-05-28T17:04:31+00:00"
+            "time": "2019-05-29T10:37:32+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -5954,6 +5954,82 @@
             "time": "2017-03-03T06:23:57+00:00"
         },
         {
+            "name": "symfony/var-dumper",
+            "version": "v4.2.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "3c4084cb1537c0e2ad41aad622bbf55a44a5c9ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/3c4084cb1537c0e2ad41aad622bbf55a44a5c9ce",
+                "reference": "3c4084cb1537c0e2ad41aad622bbf55a44a5c9ce",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/polyfill-mbstring": "~1.0",
+                "symfony/polyfill-php72": "~1.5"
+            },
+            "conflict": {
+                "phpunit/phpunit": "<4.8.35|<5.4.3,>=5.0",
+                "symfony/console": "<3.4"
+            },
+            "require-dev": {
+                "ext-iconv": "*",
+                "symfony/console": "~3.4|~4.0",
+                "symfony/process": "~3.4|~4.0",
+                "twig/twig": "~1.34|~2.4"
+            },
+            "suggest": {
+                "ext-iconv": "To convert non-UTF-8 strings to UTF-8 (or symfony/polyfill-iconv in case ext-iconv cannot be used).",
+                "ext-intl": "To show region name in time zone dump",
+                "symfony/console": "To use the ServerDumpCommand and/or the bin/var-dump-server script"
+            },
+            "bin": [
+                "Resources/bin/var-dump-server"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.2-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "Resources/functions/dump.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Component\\VarDumper\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony mechanism for exploring and dumping PHP variables",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "debug",
+                "dump"
+            ],
+            "time": "2019-05-01T12:55:36+00:00"
+        },
+        {
             "name": "theofidry/alice-data-fixtures",
             "version": "v1.1.1",
             "source": {
@@ -6035,9 +6111,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "arthem/rabbit-bundle": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

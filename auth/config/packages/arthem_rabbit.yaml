@@ -1,3 +1,6 @@
 
 arthem_rabbit:
-  failure: ~ # TODO configure failure
+  failure: ~
+  direct: false
+  queues:
+    request_reset_password:

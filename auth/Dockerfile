@@ -53,3 +53,16 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && chown -R app: .
 
 CMD ["php-fpm"]
+
+FROM auth_php as auth_worker
+
+RUN apk add --no-cache \
+        supervisor \
+    && mkdir -p /var/log/supervisor \
+    && chown -R app: /var/log/supervisor
+
+COPY docker/supervisor/* /etc/supervisor.d/
+
+ENTRYPOINT []
+
+CMD ["/usr/bin/supervisord", "-n"]

@@ -30,6 +30,11 @@ services:
       - ./upload:/srv/app
       - ./upload/docker/supervisor:/etc/supervisor.d
 
+  auth_worker:
+    volumes:
+      - ./auth:/srv/app
+      - ./auth/docker/supervisor:/etc/supervisor.d
+
   upload_nginx:
     volumes:
       - ./upload:/srv/app

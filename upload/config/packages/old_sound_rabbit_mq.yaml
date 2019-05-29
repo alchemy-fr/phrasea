@@ -5,7 +5,7 @@ old_sound_rabbit_mq:
             port:     5672
             user:     '%env(RABBITMQ_USER)%'
             password: '%env(RABBITMQ_PASSWORD)%'
-            vhost:    '/'
+            vhost:    '%env(RABBITMQ_VHOST)%'
             lazy:     true
             connection_timeout: 3
             read_write_timeout: 3
