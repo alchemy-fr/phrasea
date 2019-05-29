@@ -6,7 +6,6 @@ BASEDIR=$(dirname $0)
 
 set -ex
 
-export APP_ENV=prod
 CONF="-f docker-compose.yml"
 
 docker-compose ${CONF} up -d

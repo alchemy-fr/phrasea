@@ -1,1 +1,4 @@
 Dockerfile
+.dockerignore
+/var
+/vendor

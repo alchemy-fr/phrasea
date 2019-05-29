@@ -92,7 +92,6 @@ class PasswordManager
 
     private function doChangePassword(User $user, string $newPassword): void
     {
-
         $user->setPlainPassword($newPassword);
         $this->userManager->encodePassword($user);
         $this->userManager->persistUser($user);

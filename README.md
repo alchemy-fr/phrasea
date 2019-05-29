@@ -37,8 +37,10 @@ CLIENT_RANDOM_ID=<A_RANDOM_HASH>
 CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 DEFAULT_USER_EMAIL=admin@alchemy.fr
 DEFAULT_USER_PASSWORD=<A_PASSWORD>
+AUTH_BASE_URL=https://auth.uploader.com
 PHRASEANET_BASE_URL=https://alpha.preprod.alchemyasp.com
 PHRASEANET_ACCESS_TOKEN=<THE_TOKEN_GOT_FROM_PHRASEANET_APPLICATION>
+MAILER_URL=smtp://username:password@provider:25
 ```
 
 ### Installation (DB/RabbitMQ setup)
