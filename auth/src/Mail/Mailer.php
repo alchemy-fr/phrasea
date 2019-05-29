@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use Arthem\Bundle\RabbitBundle\Log\LoggableTrait;
+use Psr\Log\LoggerAwareInterface;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
-class Mailer
+class Mailer implements LoggerAwareInterface
 {
+    use LoggableTrait;
+
     /**
      * @var Swift_Mailer
      */
@@ -31,21 +35,20 @@ class Mailer
         $this->templating = $templating;
     }
 
-
     public function send(string $to, string $subject, string $template, array $parameters = []): void
     {
-        $message = (new \Swift_Message('Hello Email'))
-            ->setSubject($subject)
+        $message = (new \Swift_Message(
+            $subject,
+            $this->renderView(
+                $template,
+                $parameters
+            ),
+            'text/html'
+        ))
             ->setFrom($this->from)
-            ->setTo($to)
-            ->setBody(
-                $this->renderView(
-                    $template,
-                    $parameters
-                ),
-                'text/html'
-            );
+            ->setTo($to);
 
+        $this->logger->info(sprintf('Send mail "%s" to "%s"', $template, $to));
         $this->mailer->send($message);
     }
 

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "44ed38c7628a06602c6639b898a2f102",
+    "content-hash": "44b18a1e4cbbaedec816c451b34cc999",
     "packages": [
         {
             "name": "arthem/rabbit-bundle",
-            "version": "0.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "2dcb338ab366efc6363f857ad4a3cec989459edb"
+                "reference": "baae1ffed55feb155a56efc9026e5a241ad5bee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/2dcb338ab366efc6363f857ad4a3cec989459edb",
-                "reference": "2dcb338ab366efc6363f857ad4a3cec989459edb",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/baae1ffed55feb155a56efc9026e5a241ad5bee3",
+                "reference": "baae1ffed55feb155a56efc9026e5a241ad5bee3",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "MIT"
             ],
             "description": "Simple RabbitMQ bundle",
-            "time": "2019-05-29T10:37:32+00:00"
+            "time": "2019-05-29T14:17:54+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -6111,7 +6111,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "arthem/rabbit-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -22,13 +22,20 @@ class CommitConsumer extends AbstractConsumer
      */
     private $em;
 
+    /**
+     * @var string
+     */
+    private $phraseanetAccessToken;
+
     public function __construct(
         Client $client,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        string $phraseanetAccessToken
     )
     {
         $this->client = $client;
         $this->em = $em;
+        $this->phraseanetAccessToken = $phraseanetAccessToken;
     }
 
     protected function doExecute(array $message): int
@@ -45,6 +52,9 @@ class CommitConsumer extends AbstractConsumer
             ->execute();
 
         $this->client->post('/api/v1/upload/enqueue', [
+            'headers' => [
+                'Authorization' => 'Bearer '.$this->phraseanetAccessToken,
+            ],
             'json' => json_encode([
                 'assets' => $commit->getFiles(),
                 'publisher' => $commit->getUserId(),

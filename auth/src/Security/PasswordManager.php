@@ -2,16 +2,17 @@
 
 namespace App\Security;
 
-use App\Entity\AccessToken;
+use App\Consumer\Handler\PasswordChangedHandler;
+use App\Consumer\Handler\RequestResetPasswordHandler;
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
-use App\Mail\Mailer;
 use App\User\UserManager;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class PasswordManager
 {
@@ -28,49 +29,30 @@ class PasswordManager
      * @var AccessTokenManagerInterface
      */
     private $accessTokenManager;
+
     /**
-     * @var Mailer
+     * @var EventProducer
      */
-    private $mailer;
+    private $eventProducer;
 
     public function __construct(
         EntityManagerInterface $em,
         UserManager $userManager,
         AccessTokenManagerInterface $accessTokenManager,
-    Mailer $mailer
+        EventProducer $eventProducer
     )
     {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->accessTokenManager = $accessTokenManager;
-        $this->mailer = $mailer;
+        $this->eventProducer = $eventProducer;
     }
 
     public function requestPasswordResetForLogin(string $username): void
     {
-        try {
-            $user = $this->userManager->loadUserByUsername($username);
-        } catch (UsernameNotFoundException $e) {
-            return;
-        }
-
-        $lastUserRequest = $this->em->getRepository(ResetPasswordRequest::class)->findLastUserRequest($user);
-        if (null !== $lastUserRequest && !$lastUserRequest->hasExpired()) {
-            return;
-        }
-
-        $token = bin2hex(openssl_random_pseudo_bytes(128));
-        $request = new ResetPasswordRequest($user, $token);
-
-        $this->em->persist($request);
-        $this->em->flush();
-
-        // TODO defer email
-
-        $this->mailer->send($user->getEmail(), 'Reset password', 'mail/reset_password.html.twig', [
-            'id' => $request->getId(),
-            'token' => $request->getToken(),
-        ]);
+        $this->eventProducer->publish(new EventMessage(RequestResetPasswordHandler::EVENT, [
+            'username' => $username,
+        ]));
     }
 
     public function getResetRequest(string $requestId, string $token): ResetPasswordRequest
@@ -115,12 +97,8 @@ class PasswordManager
         $this->userManager->encodePassword($user);
         $this->userManager->persistUser($user);
 
-        // TODO defer revoke tokens in a consumer
-        $this
-            ->em
-            ->getRepository(AccessToken::class)
-            ->revokeTokens($user);
-
-        // TODO send email to notice user that the password has changed
+        $this->eventProducer->publish(new EventMessage(PasswordChangedHandler::EVENT, [
+            'id' => $user->getId(),
+        ]));
     }
 }

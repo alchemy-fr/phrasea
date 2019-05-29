@@ -10,29 +10,44 @@ This repository contains many end projects:
 
 ## Setup
 
+Pull this repository
+
+### Build
+
+If you need a fresh version of images, build all images:
 ```bash
 bin/build.sh
 ```
+
+### Create "uploader" application on Phraseanet
+
+- Create new application (i.e `uploader`) at https://<alpha.preprod.alchemyasp.com>/developers/application/new/
+- Generate a token
+
+> Note that the token will be link to your user account. Uploader will reach Phraseanet through your user.
+
+> **TODO:** Phraseanet should provide an API key instead of a user OAuth token.
 
 Override environment variables defined in `.env` file:
 
 ```bash
 DEV_MODE=false
-CLIENT_ID=<THE_CLIENT_ID>
+CLIENT_ID=<THE_CLIENT_ID> # NOT the client ID from Phraseanet
 CLIENT_RANDOM_ID=<A_RANDOM_HASH>
-CLIENT_SECRET=<A_SECRET>
+CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 DEFAULT_USER_EMAIL=admin@alchemy.fr
 DEFAULT_USER_PASSWORD=<A_PASSWORD>
+PHRASEANET_BASE_URL=https://alpha.preprod.alchemyasp.com
+PHRASEANET_ACCESS_TOKEN=<THE_TOKEN_GOT_FROM_PHRASEANET_APPLICATION>
 ```
 
-Then run:
+### Installation (DB/RabbitMQ setup)
 
 ```bash
-bin/build.sh
 bin/install.sh
 ```
 
-Then you can start the stack:
+## Start
 
 ```bash
 bin/start.sh
@@ -51,21 +66,6 @@ docker-compose up -d
 ## Changing ports
 
 You can change the services port by overriding the environment variables (see `.env` file).
-
-## Run for customer
-
-In development mode we can change the API URI but for some customer we may need to change the API target.
-We need to define some environment variables:
-
-```bash
-DEV_MODE=false
-UPLOAD_BASE_URL=<THE_UPLOAD_BASE_URL>
-AUTH_BASE_URL=<THE_AUTH_BASE_URL>
-CLIENT_ID=<THE_CLIENT_PUBLIC_ID>
-CLIENT_SECRET=<THE_CLIENT_SECRET>
-```
-
-> `UPLOAD_BASE_URL` corresponds to the upload_php service which is bound to 8080 by default.
 
 ## RabbitMQ Management
 

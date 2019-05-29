@@ -57,3 +57,4 @@ services:
     App\Consumer\CommitConsumer:
         arguments:
             $client: "@eight_points_guzzle.client.phraseanet_client"
+            $phraseanetAccessToken: '%env(PHRASEANET_ACCESS_TOKEN)%'

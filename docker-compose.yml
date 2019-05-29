@@ -19,6 +19,7 @@ services:
     environment:
       - APP_ENV
       - PHRASEANET_BASE_URL
+      - PHRASEANET_ACCESS_TOKEN
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -53,6 +54,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - AUTH_BASE_URL
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}

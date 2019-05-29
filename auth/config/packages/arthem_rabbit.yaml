@@ -2,5 +2,3 @@
 arthem_rabbit:
   failure: ~
   direct: false
-  queues:
-    request_reset_password:
