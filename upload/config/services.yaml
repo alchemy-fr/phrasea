@@ -46,10 +46,6 @@ services:
             $commitProducer: "@old_sound_rabbit_mq.commit_producer"
         tags: ['controller.service_arguments']
 
-    App\Http\RequestForwarder:
-        arguments:
-            $client: "@eight_points_guzzle.client.auth_client"
-
     App\Security\RemoteAuthAuthenticator:
         arguments:
             $client: "@eight_points_guzzle.client.auth_client"
