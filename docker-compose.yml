@@ -5,7 +5,7 @@ networks:
 
 services:
   upload_php:
-    image: alchemy/upload_php
+    image: ${REGISTRY_NAMESPACE}upload_php
     build:
       context: upload
       target: upload_php
@@ -25,7 +25,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
   upload_worker:
-    image: alchemy/upload_worker
+    image: ${REGISTRY_NAMESPACE}upload_worker
     build:
       context: upload
       target: upload_worker
@@ -42,7 +42,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
   auth_worker:
-    image: alchemy/auth_worker
+    image: ${REGISTRY_NAMESPACE}auth_worker
     build:
       context: auth
       target: auth_worker
@@ -59,7 +59,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
   upload_nginx:
-    image: alchemy/upload_nginx
+    image: ${REGISTRY_NAMESPACE}upload_nginx
     build:
       context: ./upload
       target: upload_nginx
@@ -71,7 +71,7 @@ services:
       - upload_php
 
   client:
-    image: alchemy/client_nginx
+    image: ${REGISTRY_NAMESPACE}client_nginx
     build:
       context: ./client
       target: client_nginx
@@ -87,7 +87,7 @@ services:
       - CLIENT_SECRET
 
   auth_php:
-    image: alchemy/auth_php
+    image: ${REGISTRY_NAMESPACE}auth_php
     build:
       context: auth
       target: auth_php
@@ -108,7 +108,7 @@ services:
       - db
 
   auth_nginx:
-    image: alchemy/auth_nginx
+    image: ${REGISTRY_NAMESPACE}auth_nginx
     build:
       context: ./auth
       target: auth_nginx
