@@ -18,6 +18,14 @@ class Auth {
         return store.set('ACCESS_TOKEN', accessToken);
     }
 
+    setUsername(username) {
+        return store.set('USERNAME', username);
+    }
+
+    getUsername() {
+        return store.get('USERNAME') || null;
+    }
+
     isAuthenticated() {
         return this.authenticated;
     }
@@ -41,6 +49,15 @@ class Auth {
     }
 
     login(email, password, callback, errCallback) {
+        this.setUsername(email);
+
+        this.doLogin(email, password, () => {
+            this.triggerEvent('login');
+            callback();
+        }, errCallback);
+    }
+
+    doLogin(email, password, callback, errCallback) {
         const {clientId, clientSecret} = config.getClientCredential();
 
         request
@@ -55,13 +72,16 @@ class Auth {
             })
             .end((err, res) => {
                 if (err) {
-                    errCallback(err, res);
+                    if (errCallback) {
+                        errCallback(err, res);
+                    }
                     return;
                 }
 
                 this.setAccessToken(res.body.access_token);
-                this.triggerEvent('login');
-                callback();
+                if (callback) {
+                    callback();
+                }
             });
     }
 

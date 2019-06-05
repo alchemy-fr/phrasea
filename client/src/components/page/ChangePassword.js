@@ -51,6 +51,8 @@ export default class ChangePassword extends Component {
                     return;
                 }
 
+                auth.doLogin(auth.getUsername(), newPassword);
+
                 this.setState({
                     changed: true,
                 });
