@@ -55,10 +55,10 @@ class CommitConsumer extends AbstractConsumer
             'headers' => [
                 'Authorization' => 'Bearer '.$this->phraseanetAccessToken,
             ],
-            'json' => json_encode([
+            'json' => [
                 'assets' => $commit->getFiles(),
                 'publisher' => $commit->getUserId(),
-            ]),
+            ],
         ]);
 
         return ConsumerInterface::MSG_ACK;
