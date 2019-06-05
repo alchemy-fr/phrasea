@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use App\Entity\ResetPasswordRequest;
-use App\Entity\User;
-
-class ResetPasswordTest extends ApiTestCase
+class ResetPasswordTest extends AbstractPasswordTest
 {
     public function testResetPasswordOK(): void
     {
@@ -34,19 +31,6 @@ class ResetPasswordTest extends ApiTestCase
 
         $this->assertPasswordIsInvalid('foo@bar.com', 'secret');
         $this->assertPasswordIsValid('foo@bar.com', 'new_secret');
-    }
-
-    private function createResetPasswordRequest(string $userEmail): ResetPasswordRequest
-    {
-        $em = self::getEntityManager();
-
-        $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
-
-        $request = new ResetPasswordRequest($user, 'the_token');
-
-        $em->persist($request);
-        $em->flush();
-
-        return $request;
+        $this->assertPasswordResetRequestCount(0);
     }
 }

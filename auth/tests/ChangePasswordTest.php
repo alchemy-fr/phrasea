@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class ChangePasswordTest extends ApiTestCase
+class ChangePasswordTest extends AbstractPasswordTest
 {
     public function testChangePasswordOK(): void
     {
@@ -25,6 +25,21 @@ class ChangePasswordTest extends ApiTestCase
 
         $this->assertPasswordIsInvalid('foo@bar.com', 'secret');
         $this->assertPasswordIsValid('foo@bar.com', 'secret2');
+    }
+
+    public function testChangePasswordWillInvalidResetPasswordRequests(): void
+    {
+        $this->createResetPasswordRequest('foo@bar.com');
+        $this->assertPasswordResetRequestCount(1);
+
+        $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
+
+        $this->request('POST', '/password/change', [
+            'old_password' => 'secret',
+            'new_password' => 'secret2',
+        ], [], [], null, $accessToken);
+
+        $this->assertPasswordResetRequestCount(0);
     }
 
     public function testChangePasswordWithInvalidOldPassword(): void

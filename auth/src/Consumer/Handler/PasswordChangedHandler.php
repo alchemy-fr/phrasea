@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Entity\AccessToken;
+use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
 use App\Mail\Mailer;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -39,6 +40,9 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
         $em
             ->getRepository(AccessToken::class)
             ->revokeTokens($user);
+        $em
+            ->getRepository(ResetPasswordRequest::class)
+            ->revokeRequests($user);
 
         $this->mailer->send(
             $user->getEmail(),

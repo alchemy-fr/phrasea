@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use App\Entity\ResetPasswordRequest;
-
-class RequestResetPasswordTest extends ApiTestCase
+class RequestResetPasswordTest extends AbstractPasswordTest
 {
     public function testRequestResetPasswordWithExistingEmail(): void
     {
@@ -52,14 +50,5 @@ class RequestResetPasswordTest extends ApiTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(true, $json);
-    }
-
-    private function assertPasswordResetRequestCount(int $count): void
-    {
-        $requests = self::getEntityManager()
-            ->getRepository(ResetPasswordRequest::class)
-            ->findAll();
-
-        $this->assertEquals($count, count($requests));
     }
 }

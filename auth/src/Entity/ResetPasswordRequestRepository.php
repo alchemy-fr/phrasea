@@ -17,4 +17,17 @@ class ResetPasswordRequestRepository extends EntityRepository
 
         return $request;
     }
+
+    public function revokeRequests(User $user): void
+    {
+        $this
+            ->createQueryBuilder('t')
+            ->delete()
+            ->andWhere('t.user = :user')
+            ->setParameters([
+                'user' => $user->getId(),
+            ])
+            ->getQuery()
+            ->execute();
+    }
 }
