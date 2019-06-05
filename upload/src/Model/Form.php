@@ -36,16 +36,16 @@ use App\Controller\FormEditSchemaAction;
 final class Form
 {
     /**
-     * @var string
+     * @var array
      */
     private $data;
 
-    public function getData(): string
+    public function getData(): array
     {
         return $this->data;
     }
 
-    public function setData(string $data): void
+    public function setData(array $data): void
     {
         $this->data = $data;
     }
