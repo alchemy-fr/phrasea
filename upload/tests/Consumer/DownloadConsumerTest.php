@@ -11,11 +11,9 @@ use GuzzleHttp\Client;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use Psr\Log\Test\TestLogger;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 
 class DownloadConsumerTest extends TestCase
 {

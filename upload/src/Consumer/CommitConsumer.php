@@ -42,18 +42,14 @@ class CommitConsumer extends AbstractConsumer
     {
         $commit = Commit::fromArray($message);
 
-        $this->em->createQueryBuilder()
-            ->update(Asset::class, 'a')
-            ->set('a.formData', ':data')
-            ->andWhere('a.id IN (:ids)')
-            ->setParameter('data', json_encode($commit->getFormData()))
-            ->setParameter('ids', $commit->getFiles())
-            ->getQuery()
-            ->execute();
+        $this
+            ->em
+            ->getRepository(Asset::class)
+            ->attachFormData($commit->getFiles(), $commit->getFormData());
 
         $this->client->post('/api/v1/upload/enqueue/', [
             'headers' => [
-                'Authorization' => 'Bearer '.$this->phraseanetAccessToken,
+                'Authorization' => 'OAuth '.$this->phraseanetAccessToken,
             ],
             'json' => [
                 'assets' => $commit->getFiles(),

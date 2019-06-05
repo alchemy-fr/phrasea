@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ApiResource(
  *     iri="http://schema.org/MediaObject",
  *     normalizationContext={
