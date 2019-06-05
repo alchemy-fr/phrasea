@@ -51,7 +51,7 @@ class CommitConsumer extends AbstractConsumer
             ->getQuery()
             ->execute();
 
-        $this->client->post('/api/v1/upload/enqueue', [
+        $this->client->post('/api/v1/upload/enqueue/', [
             'headers' => [
                 'Authorization' => 'Bearer '.$this->phraseanetAccessToken,
             ],
