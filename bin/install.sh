@@ -6,6 +6,8 @@ BASEDIR=$(dirname $0)
 
 set -ex
 
+export APP_ENV=prod
+
 CONF="-f docker-compose.yml"
 
 docker-compose ${CONF} up -d
@@ -15,7 +17,7 @@ sleep 10
 docker-compose ${CONF} exec rabbitmq /bin/sh -c \
     "rabbitmqctl add_vhost auth; rabbitmqctl add_vhost upload; rabbitmqctl set_permissions -p auth ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'; rabbitmqctl set_permissions -p upload ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
 docker-compose ${CONF} exec upload_php /bin/sh -c \
-    "bin/console rabbitmq:setup-fabric"
+    "bin/console rabbitmq:setup-fabric; chown -R app: /var/data/upload"
 docker-compose ${CONF} exec auth_php /bin/sh -c \
     "bin/console rabbitmq:setup-fabric"
 docker-compose ${CONF} exec upload_php /bin/sh -c \
