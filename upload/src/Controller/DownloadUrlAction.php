@@ -6,13 +6,14 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
-use App\Entity\Asset;
 use App\Model\DownloadUrl;
+use App\Model\User;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-final class DownloadUrlAction
+final class DownloadUrlAction extends AbstractController
 {
     private $validator;
     private $resourceMetadataFactory;
@@ -34,17 +35,15 @@ final class DownloadUrlAction
 
     public function __invoke(DownloadUrl $data): Response
     {
-        $provisionedAssetId = new Asset();
-        $id = $provisionedAssetId->getId();
-
+        /** @var User $user */
+        $user = $this->getUser();
         $message = json_encode([
             'url' => $data->getUrl(),
-            'id' => $id,
+            'form_data' => $data->getFormData(),
+            'user_id' => $user->getId(),
         ]);
         $this->downloadProducer->publish($message);
 
-        return new JsonResponse([
-            'id' => $id,
-        ]);
+        return new JsonResponse(true);
     }
 }

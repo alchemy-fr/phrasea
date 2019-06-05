@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Consumer;
 
+use App\Model\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use GuzzleHttp\Client;
 use Mimey\MimeTypes;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 
 class DownloadConsumer extends AbstractConsumer
 {
@@ -27,20 +29,28 @@ class DownloadConsumer extends AbstractConsumer
      */
     private $assetManager;
 
+    /**
+     * @var ProducerInterface
+     */
+    private $commitProducer;
+
     public function __construct(
         FileStorageManager $storageManager,
         Client $client,
-        AssetManager $assetManager
+        AssetManager $assetManager,
+        ProducerInterface $commitProducer
     ) {
         $this->client = $client;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
+        $this->commitProducer = $commitProducer;
     }
 
     protected function doExecute(array $message): int
     {
         $url = $message['url'];
-        $id = $message['id'];
+        $userId = $message['user_id'];
+        $formData = $message['form_data'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
@@ -65,13 +75,19 @@ class DownloadConsumer extends AbstractConsumer
 
         $this->storageManager->store($path, $response->getBody()->getContents());
 
-        $this->assetManager->createAsset(
+        $asset = $this->assetManager->createAsset(
             $path,
             $contentType,
             $originalName,
-            $response->getBody()->getSize(),
-            $id
+            $response->getBody()->getSize()
         );
+
+        $commit = new Commit();
+        $commit->setFormData($formData);
+        $commit->setUserId($userId);
+        $commit->setFiles([$asset->getId()]);
+        $message = json_encode($commit->toArray());
+        $this->commitProducer->publish($message);
 
         return ConsumerInterface::MSG_ACK;
     }

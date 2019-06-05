@@ -28,7 +28,7 @@ class EmailWidgetResolver implements WidgetResolverInterface
                 'string',
             ], true)
             && in_array($widget, [
-                'text', 'email', 'tel', 'password'
+                'text', 'email', 'tel', 'password',
             ], true);
     }
 }

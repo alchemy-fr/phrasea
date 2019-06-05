@@ -24,12 +24,12 @@ final class Commit
     /**
      * @var array
      */
-    private $files;
+    private $files = [];
 
     /**
      * @var array
      */
-    private $formData;
+    private $formData = [];
 
     /**
      * @var string

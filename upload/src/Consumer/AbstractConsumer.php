@@ -30,6 +30,7 @@ abstract class AbstractConsumer implements ConsumerInterface
             return $this->doExecute(json_decode($msg->getBody(), true));
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage());
+            throw $e;
 
             return self::MSG_REJECT;
         }

@@ -12,7 +12,7 @@ class ValidateTest extends ApiTestCase
             'data' => [
                 'album' => 'Foo',
                 'agreed' => true,
-            ]
+            ],
         ]));
         $json = json_decode($response->getContent(), true);
 
@@ -26,7 +26,7 @@ class ValidateTest extends ApiTestCase
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
         $response = $this->request('POST', '/form/validate', [], [], [], json_encode([
-            'data' => $data
+            'data' => $data,
         ]));
         $json = json_decode($response->getContent(), true);
 

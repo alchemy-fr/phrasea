@@ -3,6 +3,7 @@ import '../../scss/Upload.scss';
 import AssetUpload from "../AssetUpload";
 import PropTypes from "prop-types";
 import uploadBatch from "../../upload";
+import Container from "../Container";
 
 export default class UploadProgress extends Component {
     fileRefs = {};
@@ -76,22 +77,15 @@ export default class UploadProgress extends Component {
     render() {
         const {files} = this.props;
 
-        return (
-            <div className="container">
-                <div className="App">
-                    <header>
-                        <h1>Uploader.</h1>
-                    </header>
-                    <p>
-                        {files.length} selected files.
-                    </p>
-                    <div>
-                    {this.renderFiles()}
-                    {this.renderProgressBar()}
-                    </div>
-                </div>
+        return <Container>
+            <p>
+                {files.length} selected files.
+            </p>
+            <div>
+                {this.renderFiles()}
+                {this.renderProgressBar()}
             </div>
-        );
+        </Container>;
     }
 }
 

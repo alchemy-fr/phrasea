@@ -25,6 +25,11 @@ class DownloadUrl
      */
     private $url;
 
+    /**
+     * @var array
+     */
+    private $formData = [];
+
     public function getUrl(): string
     {
         return $this->url;
@@ -33,5 +38,15 @@ class DownloadUrl
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getFormData(): array
+    {
+        return $this->formData;
+    }
+
+    public function setFormData(array $formData): void
+    {
+        $this->formData = $formData;
     }
 }

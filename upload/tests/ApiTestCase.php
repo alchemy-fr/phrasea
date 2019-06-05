@@ -24,8 +24,7 @@ abstract class ApiTestCase extends WebTestCase
         array $server = [],
         ?string $content = null,
         ?string $accessToken = null
-    ): Response
-    {
+    ): Response {
         if (null !== $accessToken) {
             $server['HTTP_AUTHORIZATION'] = 'Bearer '.$accessToken;
         }

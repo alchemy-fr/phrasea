@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\DownloadConsumer;
+use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use GuzzleHttp\Client;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
@@ -26,6 +28,14 @@ class DownloadConsumerTest extends TestCase
         string $expectedMimeType,
         ?string $expectedExtension
     ): void {
+        $producerStub = $this->createMock(ProducerInterface::class);
+        $producerStub
+            ->expects($this->once())
+            ->method('publish')
+            ->with(
+                $this->matchesRegularExpression('#^\{"files":\[".+"\],"form":\{"foo":"bar"\},"user_id":".+"\}$#')
+            );
+
         $storageStub = $this->createMock(FileStorageManager::class);
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
@@ -35,9 +45,10 @@ class DownloadConsumerTest extends TestCase
                 $this->stringEndsWith('.'.$expectedExtension),
                 $expectedMimeType,
                 'baz'.($expectedExtension ? '.'.$expectedExtension : ''),
-                6,
-                'id-test'
-            );
+                6
+            )
+            ->willReturn(new Asset())
+        ;
 
         $storageStub
             ->expects($this->once())
@@ -53,14 +64,20 @@ class DownloadConsumerTest extends TestCase
 
         $clientStub = $client = new Client(['handler' => $handler]);
 
-        $consumer = new DownloadConsumer($storageStub, $clientStub, $assetManagerStub);
+        $consumer = new DownloadConsumer(
+            $storageStub,
+            $clientStub,
+            $assetManagerStub,
+            $producerStub
+        );
 
         $logger = new TestLogger();
         $consumer->setLogger($logger);
 
         $message = new AMQPMessage(json_encode([
-            'id' => 'id-test',
             'url' => $url,
+            'user_id' => 'USER_ID',
+            'form_data' => ['foo' => 'bar'],
         ]));
         $result = $consumer->execute($message);
 

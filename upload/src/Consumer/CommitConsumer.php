@@ -31,8 +31,7 @@ class CommitConsumer extends AbstractConsumer
         Client $client,
         EntityManagerInterface $em,
         string $phraseanetAccessToken
-    )
-    {
+    ) {
         $this->client = $client;
         $this->em = $em;
         $this->phraseanetAccessToken = $phraseanetAccessToken;

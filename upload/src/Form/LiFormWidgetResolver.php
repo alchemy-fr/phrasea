@@ -6,7 +6,6 @@ namespace App\Form;
 
 use App\Form\Resolver\WidgetResolverInterface;
 use InvalidArgumentException;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LiFormWidgetResolver

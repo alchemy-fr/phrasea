@@ -40,8 +40,7 @@ class PasswordManager
         UserManager $userManager,
         AccessTokenManagerInterface $accessTokenManager,
         EventProducer $eventProducer
-    )
-    {
+    ) {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->accessTokenManager = $accessTokenManager;

@@ -24,10 +24,9 @@ class AssetManager
         string $path,
         string $mimeType,
         string $originalName,
-        int $size,
-        string $id = null
+        int $size
     ): Asset {
-        $asset = new Asset($id);
+        $asset = new Asset();
         $asset->setPath($path);
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);

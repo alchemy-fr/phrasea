@@ -23,5 +23,4 @@ class WidgetResolverPass implements CompilerPassInterface
             $definition->addMethodCall('addResolver', [new Reference($id)]);
         }
     }
-
 }

@@ -68,5 +68,4 @@ class ApiExceptionListener implements EventSubscriberInterface
             KernelEvents::EXCEPTION => 'onKernelException',
         ];
     }
-
 }

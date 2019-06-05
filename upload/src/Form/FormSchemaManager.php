@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FormSchemaManager
 {
-    const FALLBACK_SCHEMA_FILE = __DIR__ . '/../../config/liform-schema.json';
+    const FALLBACK_SCHEMA_FILE = __DIR__.'/../../config/liform-schema.json';
 
     /**
      * @var EntityManagerInterface

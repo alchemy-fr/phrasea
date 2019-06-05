@@ -26,8 +26,7 @@ final class ValidateFormAction extends AbstractController
     public function __construct(
         LiFormToFormTransformer $formGenerator,
         FormSchemaManager $schemaLoader
-    )
-    {
+    ) {
         $this->formGenerator = $formGenerator;
         $this->schemaLoader = $schemaLoader;
     }
@@ -44,7 +43,6 @@ final class ValidateFormAction extends AbstractController
             return new JsonResponse(['errors' => []]);
         }
 
-
         return new JsonResponse(['errors' => $this->getFormErrors($form)]);
     }
 
@@ -58,7 +56,7 @@ final class ValidateFormAction extends AbstractController
         }
 
         // Fields
-        foreach ($form as $child/** @var FormInterface $child */) {
+        foreach ($form as $child/* @var FormInterface $child */) {
             if (!$child->isValid()) {
                 foreach ($child->getErrors() as $error) {
                     $errors[$child->getName()][] = $error->getMessage();

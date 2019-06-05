@@ -52,5 +52,4 @@ class RouterContextListener implements EventSubscriberInterface
             ConsoleEvents::COMMAND => 'setContext',
         ];
     }
-
 }

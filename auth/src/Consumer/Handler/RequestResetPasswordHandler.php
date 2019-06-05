@@ -38,6 +38,7 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
             $user = $this->userManager->loadUserByUsername($username);
         } catch (UsernameNotFoundException $e) {
             $this->logger->notice(sprintf('Request reset password: Username "%s" not found', $username));
+
             return;
         }
 
@@ -49,6 +50,7 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
                 $username,
                 $lastUserRequest->getCreatedAt()->format('Y-m-d H:i:s')
             ));
+
             return;
         }
 

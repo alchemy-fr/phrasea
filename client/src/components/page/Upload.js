@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import Dropzone from "react-dropzone";
-import Download from "../Download";
 import uploadBatch from "../../upload";
 import UploadForm from "./UploadForm";
 import UploadProgress from "./UploadProgress";
 import AssetUpload from "../AssetUpload";
 import {Button} from "react-bootstrap";
 import UploadDone from "./UploadDone";
+import Container from "../Container";
+import {Link} from "react-router-dom";
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -99,50 +100,43 @@ export default class Upload extends Component {
                     onNext={this.onNext}
                 />;
             case UPLOAD_DONE:
-                return <UploadDone goHome={this.reset} />;
+                return <UploadDone goHome={this.reset}/>;
             case SELECT_FILES:
             default:
-                return (
-                    <div className="container">
-                        <div className="App">
-                            <header>
-                                <h1>Uploader.</h1>
-                            </header>
-                            <div>
-                                <Dropzone
-                                    onDrop={this.onDrop}
-                                >
-                                    {({getRootProps, getInputProps, isDragActive}) => {
-                                        let classes = ['Upload'];
-                                        if (isDragActive) {
-                                            classes.push('drag-over');
-                                        }
-                                        return (
-                                            <div {...getRootProps()} className={classes.join(' ')}>
-                                                <input {...getInputProps()} />
-                                                {files.length > 0 ?
-                                                    this.renderFiles()
-                                                    : <p>Drag 'n' drop some files here, or click to select files</p>
-                                                }
-                                            </div>
-                                        )
-                                    }}
-                                </Dropzone>
+                return <Container>
+                    <Dropzone
+                        onDrop={this.onDrop}
+                    >
+                        {({getRootProps, getInputProps, isDragActive}) => {
+                            let classes = ['Upload'];
+                            if (isDragActive) {
+                                classes.push('drag-over');
+                            }
+                            return (
+                                <div {...getRootProps()} className={classes.join(' ')}>
+                                    <input {...getInputProps()} />
+                                    {files.length > 0 ?
+                                        this.renderFiles()
+                                        : <p>Drag 'n' drop some files here, or click to select files</p>
+                                    }
+                                </div>
+                            )
+                        }}
+                    </Dropzone>
 
-                                <Button
-                                    onClick={this.submit}
-                                    disabled={this.state.files.length === 0}
-                                >
-                                    Next
-                                </Button>
-                            </div>
-                            <div>
-                                <p>or just paste an URL to grab:</p>
-                                <Download/>
-                            </div>
-                        </div>
-                    </div>
-                );
+                    <Button
+                        onClick={this.submit}
+                        disabled={this.state.files.length === 0}
+                    >
+                        Next
+                    </Button>
+
+                    <hr/>
+                    <p>
+                        or just{' '}
+                        <Link to="/download">download</Link> URLs.
+                    </p>
+                </Container>;
         }
     }
 }

@@ -74,7 +74,7 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
             ],
         ]);
 
-        if ($response->getStatusCode() === 401) {
+        if (401 === $response->getStatusCode()) {
             throw new UnauthorizedHttpException($response->getBody()->getContents());
         }
 

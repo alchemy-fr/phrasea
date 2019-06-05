@@ -111,10 +111,10 @@ class Asset
      */
     private $createdAt;
 
-    public function __construct(?string $id = null)
+    public function __construct()
     {
         $this->createdAt = new DateTime();
-        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
+        $this->id = Uuid::uuid4();
     }
 
     public function getId()

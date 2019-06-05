@@ -53,6 +53,7 @@ services:
     App\Consumer\DownloadConsumer:
         arguments:
             $client: "@eight_points_guzzle.client.download_client"
+            $commitProducer: "@old_sound_rabbit_mq.commit_producer"
 
     App\Consumer\CommitConsumer:
         arguments:

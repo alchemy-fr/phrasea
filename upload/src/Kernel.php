@@ -25,6 +25,7 @@ class Kernel extends BaseKernel
             }
         }
     }
+
     public function build(ContainerBuilder $container)
     {
         parent::build($container);

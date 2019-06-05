@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import AssetForm from "./AssetForm";
 import PropTypes from "prop-types";
+import AssetLiForm from "./AssetLiForm";
 
 export default class FormPreview extends Component {
     constructor(props) {
@@ -27,7 +27,7 @@ export default class FormPreview extends Component {
         if (null === error) {
             try {
                 const schemaConfig = JSON.parse(this.props.schema);
-                schema = <AssetForm
+                schema = <AssetLiForm
                     onSubmit={(data) => alert('Form submitted with values: '+JSON.stringify(data, true, 2))}
                     schema={schemaConfig}
                 />;
