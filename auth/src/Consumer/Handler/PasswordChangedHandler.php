@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use App\Entity\AccessToken;
 use App\Entity\User;
 use App\Mail\Mailer;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;

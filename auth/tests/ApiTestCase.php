@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    use RefreshDatabaseTrait;
+    use ReloadDatabaseTrait;
 
     const CLIENT_ID = 'mobile-app_12356789abcdefghijklmnopqrstuvwx';
     const CLIENT_SECRET = 'cli3nt_s3cr3t';
