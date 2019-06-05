@@ -46,7 +46,7 @@ class UploadBatch
         this.progressListeners.push(callback);
     }
 
-    registerFileCompletehandler(callback) {
+    registerFileCompleteHandler(callback) {
         this.fileCompleteListeners.push(callback);
 
         // Trigger for already uploaded files
@@ -60,7 +60,7 @@ class UploadBatch
     registerCompleteHandler(callback) {
         this.completeListeners.push(callback);
 
-        // Trigger if all files have been uploaded
+        // Trigger if all files have already been uploaded
         if (this.completeEvent) {
             callback(this.completeEvent);
         }
@@ -72,7 +72,7 @@ class UploadBatch
 
         const batchSize = this.batchSize > this.files.length ? this.files.length : this.batchSize;
         for (let i = 0; i < batchSize; i++) {
-            this.uploadFile(this.currentUpload, this.files[this.currentUpload]);
+            this.uploadFile(this.currentUpload);
             if ((i + 1) < batchSize) {
                 ++this.currentUpload;
             }
@@ -80,7 +80,9 @@ class UploadBatch
     }
 
     commit() {
-        const idCollection = this.files.map(file => file.id);
+        const idCollection = this.files.map(file => {
+            return file.id;
+        });
 
         const formData = {
             files: idCollection,
@@ -98,7 +100,8 @@ class UploadBatch
             });
     }
 
-    uploadFile(index, file) {
+    uploadFile(index) {
+        const file = this.files[index];
         const formData = new FormData();
         formData.append('file', file);
 
@@ -125,15 +128,8 @@ class UploadBatch
     }
 
     onFileComplete(err, res, index) {
-        ++this.currentUpload;
-
         const data = JSON.parse(res.text);
         this.files[index].id = data.id;
-
-        if (this.currentUpload >= this.files.length) {
-            this.onComplete();
-            return;
-        }
 
         let totalLoaded = 0;
         Object.keys(this.progresses).forEach((i) => {
@@ -159,7 +155,22 @@ class UploadBatch
             func(e);
         });
 
-        this.uploadFile(this.currentUpload, this.files[this.currentUpload]);
+        ++this.currentUpload;
+        if (this.currentUpload < this.files.length) {
+            this.uploadFile(this.currentUpload);
+        } else if (this.everyFilesCompleted()) {
+            this.onComplete();
+        }
+    }
+
+    everyFilesCompleted() {
+        for (let i = 0; i < this.files.length; i++) {
+            if (!this.files[i].event) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     onComplete() {

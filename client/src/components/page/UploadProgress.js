@@ -53,7 +53,7 @@ export default class UploadProgress extends Component {
 
             this.fileRefs[e.index].setUploadProgress(e.filePercent, false);
         });
-        uploadBatch.registerFileCompletehandler(({totalPercent, index}) => {
+        uploadBatch.registerFileCompleteHandler(({totalPercent, index}) => {
             this.fileRefs[index].setUploadProgress(100, false);
             this.setState({
                 progress: totalPercent,
