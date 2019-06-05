@@ -4,23 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
-use App\Entity\Asset;
 use App\Form\FormSchemaManager;
 use App\Form\LiFormToFormTransformer;
-use App\Model\Commit;
-use App\Model\Form;
-use App\Model\User;
-use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
-use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
+use App\Model\FormData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class ValidateFormAction extends AbstractController
 {
@@ -42,12 +32,12 @@ final class ValidateFormAction extends AbstractController
         $this->schemaLoader = $schemaLoader;
     }
 
-    public function __invoke(Form $data, Request $request)
+    public function __invoke(FormData $data, Request $request)
     {
         $formData = $data->getData();
 
         $schema = $this->schemaLoader->loadSchema($request->getLocale());
-        $form = $this->formGenerator->createFormFromConfig(json_decode($schema, true));
+        $form = $this->formGenerator->createFormFromConfig($schema);
 
         $form->submit($formData);
         if ($form->isSubmitted() && $form->isValid()) {

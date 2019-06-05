@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use Psr\Log\Test\TestLogger;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 
 class DownloadConsumerTest extends TestCase
 {
@@ -27,8 +29,6 @@ class DownloadConsumerTest extends TestCase
         ?string $expectedExtension
     ): void {
         $storageStub = $this->createMock(FileStorageManager::class);
-        $loggerStub = $this->createMock(LoggerInterface::class);
-
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
             ->expects($this->once())
@@ -56,7 +56,9 @@ class DownloadConsumerTest extends TestCase
         $clientStub = $client = new Client(['handler' => $handler]);
 
         $consumer = new DownloadConsumer($storageStub, $clientStub, $assetManagerStub);
-        $consumer->setLogger($loggerStub);
+
+        $logger = new TestLogger();
+        $consumer->setLogger($logger);
 
         $message = new AMQPMessage(json_encode([
             'id' => 'id-test',

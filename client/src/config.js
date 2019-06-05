@@ -39,12 +39,12 @@ class Config {
         const accessToken = auth.getAccessToken();
 
         let response = await request
-            .get(config.getUploadBaseURL() + '/form/schema')
+            .get(config.getUploadBaseURL() + '/form-schema')
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
         ;
 
-        return JSON.parse(response.body);
+        return response.body;
     }
 }
 

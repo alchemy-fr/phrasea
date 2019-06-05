@@ -21,7 +21,7 @@ class FormSchemaManager
         $this->em = $em;
     }
 
-    public function loadSchema(?string $locale): string
+    public function loadSchema(?string $locale): array
     {
         $formSchema = $this
             ->em
@@ -29,13 +29,13 @@ class FormSchemaManager
             ->getSchemaForLocale($locale);
 
         if (null === $formSchema) {
-            return file_get_contents(self::FALLBACK_SCHEMA_FILE);
+            return json_decode(file_get_contents(self::FALLBACK_SCHEMA_FILE), true);
         }
 
         return $formSchema->getData();
     }
 
-    public function persistSchema(?string $locale, string $schema): void
+    public function persistSchema(?string $locale, array $schema): void
     {
         $this
             ->em

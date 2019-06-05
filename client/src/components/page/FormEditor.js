@@ -35,10 +35,10 @@ export default class FormEditor extends Component {
         const accessToken = auth.getAccessToken();
 
         request
-            .post(config.getUploadBaseURL() + '/form/edit')
+            .post(config.getUploadBaseURL() + '/form-schema/edit')
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
-            .send({data: JSON.stringify(JSON.parse(this.state.schema))})
+            .send({schema: JSON.parse(this.state.schema)})
             .end()
         ;
 

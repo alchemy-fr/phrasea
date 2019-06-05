@@ -21,14 +21,14 @@ class FormSchemaRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
-    public function persistSchema(?string $locale, string $jsonData): void
+    public function persistSchema(?string $locale, array $jsonData): void
     {
         if (null === $schema = $this->getSchemaForLocale($locale)) {
             $schema = new FormSchema();
             $schema->setLocale($locale);
         }
 
-        $schema->setData($jsonData);
+        $schema->setData(json_encode($jsonData));
         $schema->setUpdatedAt(new DateTime());
 
         $this->_em->persist($schema);

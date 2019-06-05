@@ -4,3 +4,13 @@ api_platform:
         paths:
             - '%kernel.project_dir%/src/Model'
             - '%kernel.project_dir%/src/Entity'
+    formats:
+        jsonld:   ['application/ld+json']
+        jsonhal:  ['application/hal+json']
+        jsonapi:  ['application/vnd.api+json']
+        json:     ['application/json']
+        xml:      ['application/xml', 'text/xml']
+        yaml:     ['application/x-yaml']
+        csv:      ['text/csv']
+        html:     ['text/html']
+        multipart: ['multipart/form-data']

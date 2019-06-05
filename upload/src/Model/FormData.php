@@ -6,12 +6,9 @@ namespace App\Model;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\ValidateFormAction;
-use App\Controller\FormSchemaAction;
-use App\Controller\FormEditSchemaAction;
 
 /**
  * @ApiResource(
- *     shortName="form",
  *     itemOperations={},
  *     collectionOperations={
  *         "validate"={
@@ -19,21 +16,11 @@ use App\Controller\FormEditSchemaAction;
  *             "path"="/form/validate",
  *             "controller"=ValidateFormAction::class,
  *             "description"="Retrieve form schema"
- *         },
- *         "schema"={
- *             "method"="GET",
- *             "path"="/form/schema",
- *             "controller"=FormSchemaAction::class,
- *         },
- *         "edit"={
- *             "method"="POST",
- *             "path"="/form/edit",
- *             "controller"=FormEditSchemaAction::class,
- *         },
+ *         }
  *     }
  * )
  */
-final class Form
+final class FormData
 {
     /**
      * @var array

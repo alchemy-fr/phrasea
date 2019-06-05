@@ -68,9 +68,9 @@ class FormSchema
         $this->locale = $locale;
     }
 
-    public function getData(): string
+    public function getData(): array
     {
-        return $this->data;
+        return json_decode($this->data, true);
     }
 
     public function setData(string $data): void
