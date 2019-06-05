@@ -35,16 +35,22 @@ class Config {
         return window._env_.DEV_MODE === 'true';
     }
 
-    async getFormSchema() {
+    getFormSchema() {
         const accessToken = auth.getAccessToken();
 
-        let response = await request
-            .get(config.getUploadBaseURL() + '/form-schema')
-            .accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-        ;
+        return new Promise((resolve, reject) => {
+            request
+                .get(config.getUploadBaseURL() + '/form-schema')
+                .accept('json')
+                .set('Authorization', `Bearer ${accessToken}`)
+                .end((err, res) => {
+                    if (!auth.isResponseValid(err, res)) {
+                        reject(err);
+                    }
 
-        return response.body;
+                    resolve(res.body);
+                });
+        });
     }
 }
 

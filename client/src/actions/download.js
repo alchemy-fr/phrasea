@@ -15,7 +15,7 @@ export function Download(url, callback, errCallback) {
             url,
         })
         .end((err, res) => {
-            if (err) {
+            if (!auth.isResponseValid(err, res) || err) {
                 errCallback && errCallback();
                 console.error(err);
                 return;

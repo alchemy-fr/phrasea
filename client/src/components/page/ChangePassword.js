@@ -1,44 +1,61 @@
 import React, {Component} from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
+import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
 import auth from "../../auth";
 
 export default class ChangePassword extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            oldPassword: '',
-            newPassword: '',
-            repeatPassword: '',
-        };
-    }
+    state = {
+        oldPassword: '',
+        newPassword: '',
+        repeatPassword: '',
+        changed: false,
+        error: null,
+    };
 
     isFormValid() {
-        return this.state.oldPassword.length > 0
-            && this.state.newPassword.length > 0
-            && this.state.repeatPassword.length > 0
-            && this.state.newPassword === this.state.repeatPassword
+        const {
+            repeatPassword,
+            newPassword,
+            oldPassword,
+        } = this.state;
+
+        return oldPassword.length > 0
+            && newPassword.length > 0
+            && repeatPassword.length > 0
+            && newPassword === repeatPassword
             ;
     }
 
-    handleSubmit = async event => {
+    handleSubmit = event => {
         event.preventDefault();
 
-        let response = await request
+        const {
+            newPassword,
+            oldPassword,
+        } = this.state;
+
+        request
             .post(config.getAuthBaseURL() + '/password/change')
-            .set('accept', 'json')
+            .accept('json')
             .set('Authorization', 'Bearer ' + auth.getAccessToken())
             .send({
-                old_password: this.state.oldPassword,
-                new_password: this.state.newPassword,
+                old_password: oldPassword,
+                new_password: newPassword,
             })
-        ;
+            .end((err, res) => {
+                if (!auth.isResponseValid(err, res)) {
+                    if (res.body.error_description) {
+                        this.setState({error: res.body.error_description})
+                    }
+                    return;
+                }
 
-        if (response) {
+                this.setState({
+                    changed: true,
+                });
+            });
 
-        }
     };
 
     handleChange = event => {
@@ -58,53 +75,65 @@ export default class ChangePassword extends Component {
     render() {
         let errors = [];
 
-        if (this.state.repeatPassword && this.state.newPassword
-        && this.state.newPassword !== this.state.repeatPassword) {
+        const {
+            repeatPassword,
+            newPassword,
+            oldPassword,
+            error,
+            changed,
+        } = this.state;
+
+        if (repeatPassword && newPassword
+            && newPassword !== repeatPassword) {
             errors.push('Passwords mismatch');
+        }
+        if (error) {
+            errors.push(error);
         }
 
         return (
             <div>
                 <h2>Change password</h2>
                 <div>
-                    <form onSubmit={this.handleSubmit}>
-                        <FormGroup controlId="oldPassword">
-                            <FormLabel>Old password</FormLabel>
-                            <FormControl
-                                autoFocus
-                                type="password"
-                                value={this.state.oldPassword}
-                                onChange={this.handleChange}
-                            />
-                        </FormGroup>
-                        <FormGroup controlId="newPassword">
-                            <FormLabel>New password</FormLabel>
-                            <FormControl
-                                autoFocus
-                                type="password"
-                                value={this.state.newPassword}
-                                onChange={this.handleChange}
-                            />
-                        </FormGroup>
-                        <FormGroup controlId="repeatPassword">
-                            <FormLabel>Retype new password</FormLabel>
-                            <FormControl
-                                autoFocus
-                                type="password"
-                                value={this.state.repeatPassword}
-                                onChange={this.handleChange}
-                            />
-                        </FormGroup>
-                        {errors.length > 0 ? this.renderErrors(errors) : ''}
+                    {!changed ?
+                        <form onSubmit={this.handleSubmit}>
+                            <FormGroup controlId="oldPassword">
+                                <FormLabel>Old password</FormLabel>
+                                <FormControl
+                                    autoFocus
+                                    type="password"
+                                    value={oldPassword}
+                                    onChange={this.handleChange}
+                                />
+                            </FormGroup>
+                            <FormGroup controlId="newPassword">
+                                <FormLabel>New password</FormLabel>
+                                <FormControl
+                                    autoFocus
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={this.handleChange}
+                                />
+                            </FormGroup>
+                            <FormGroup controlId="repeatPassword">
+                                <FormLabel>Retype new password</FormLabel>
+                                <FormControl
+                                    autoFocus
+                                    type="password"
+                                    value={repeatPassword}
+                                    onChange={this.handleChange}
+                                />
+                            </FormGroup>
+                            {errors.length > 0 ? this.renderErrors(errors) : ''}
 
-                        <Button
-                            block
-                            disabled={!this.isFormValid()}
-                            type="submit"
-                        >
-                            Change password
-                        </Button>
-                    </form>
+                            <Button
+                                block
+                                disabled={!this.isFormValid()}
+                                type="submit"
+                            >
+                                Change password
+                            </Button>
+                        </form> : 'Password changed'}
                 </div>
             </div>
         );

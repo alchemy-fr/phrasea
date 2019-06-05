@@ -39,7 +39,9 @@ export default class FormEditor extends Component {
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({schema: JSON.parse(this.state.schema)})
-            .end()
+            .end((err, res) => {
+                auth.isResponseValid(err, res);
+            })
         ;
 
         this.setState({

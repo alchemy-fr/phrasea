@@ -24,7 +24,7 @@ export default class ResetPassword extends Component {
 
         await request
             .post(config.getAuthBaseURL() + '/password/reset-request')
-            .set('accept', 'json')
+            .accept('json')
             .send({
                 email: this.state.email,
             })

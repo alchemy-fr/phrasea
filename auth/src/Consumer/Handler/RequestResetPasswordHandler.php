@@ -44,7 +44,11 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $lastUserRequest = $em->getRepository(ResetPasswordRequest::class)->findLastUserRequest($user);
         if (null !== $lastUserRequest && !$lastUserRequest->hasExpired()) {
-            $this->logger->notice(sprintf('Request reset password: already requested for "%s"', $username));
+            $this->logger->notice(sprintf(
+                'Request reset password: already requested for "%s" (created at: %s)',
+                $username,
+                $lastUserRequest->getCreatedAt()->format('Y-m-d H:i:s')
+            ));
             return;
         }
 

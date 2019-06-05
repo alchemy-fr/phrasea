@@ -72,6 +72,6 @@ class ResetPasswordRequest
 
     public function hasExpired(): bool
     {
-        return $this->createdAt->getTimestamp() - 60 * 15 > time();
+        return $this->createdAt->getTimestamp() < time() - 60 * 15;
     }
 }

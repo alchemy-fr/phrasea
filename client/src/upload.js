@@ -94,6 +94,7 @@ class UploadBatch
             .set('Authorization', `Bearer ${accessToken}`)
             .send(formData)
             .end((err, res) => {
+                auth.isResponseValid(err, res);
             });
     }
 
@@ -115,6 +116,10 @@ class UploadBatch
             })
             .send(formData)
             .end((err, res) => {
+                if (!auth.isResponseValid(err, res)) {
+                    return;
+                }
+
                 this.onFileComplete(err, res, index);
             });
     }

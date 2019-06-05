@@ -45,6 +45,7 @@ class Auth {
 
         request
             .post(config.getAuthBaseURL() + '/oauth/v2/token')
+            .accept('json')
             .send({
                 username: email,
                 password,
@@ -52,7 +53,6 @@ class Auth {
                 client_id: clientId,
                 client_secret: clientSecret,
             })
-            .set('accept', 'json')
             .end((err, res) => {
                 if (err) {
                     errCallback(err, res);
@@ -72,18 +72,30 @@ class Auth {
 
         request
             .get(config.getUploadBaseURL() + '/me')
+            .accept('json')
             .set('Authorization', 'Bearer ' + auth.getAccessToken())
-            .set('accept', 'json')
             .end((err, res) => {
-                if (err) {
-                    this.logout();
-                    throw new Error(err);
+                if (!this.isResponseValid(err, res)) {
+                    return;
                 }
 
                 this.authenticated = true;
                 this.triggerEvent('authentication', {user: res.body});
                 callback && callback(res.body);
             });
+    }
+
+    isResponseValid(err, res) {
+        if (err) {
+            console.debug(err);
+            console.debug(res);
+            if (res.statusCode === 401) {
+                auth.logout();
+            }
+            return false;
+        }
+
+        return true;
     }
 }
 

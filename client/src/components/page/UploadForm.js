@@ -23,24 +23,28 @@ export default class UploadForm extends Component {
         });
     }
 
-    onSubmit = async (data) => {
+    onSubmit = (data) => {
         console.debug('data', data);
 
         const accessToken = auth.getAccessToken();
 
-        let response = await request
+        request
             .post(config.getUploadBaseURL() + '/form/validate')
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({data})
-        ;
+            .end((err, res) => {
+                if (!auth.isResponseValid(err, res)) {
+                    return;
+                }
 
-        if (Object.keys(response.body.errors).length > 0) {
-            alert(JSON.stringify(response.body.errors));
-            return;
-        }
+                if (Object.keys(res.body.errors).length > 0) {
+                    alert(JSON.stringify(res.body.errors));
+                    return;
+                }
 
-        this.props.onNext(data);
+                this.props.onNext(data);
+            });
     };
 
     render() {
