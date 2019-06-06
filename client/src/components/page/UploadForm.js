@@ -24,6 +24,7 @@ export default class UploadForm extends Component {
             </p>
 
             <AssetForm
+                validateForm={true}
                 onComplete={this.onComplete}
             />
         </Container>;

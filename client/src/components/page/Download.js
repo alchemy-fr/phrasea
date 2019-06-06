@@ -6,16 +6,26 @@ import AssetForm from "../AssetForm";
 import request from "superagent";
 import config from "../../config";
 import auth from "../../auth";
-import URLInput from "../URLInput";
 
 export default class Download extends Component {
     state = {
-        url: '',
         done: false,
     };
 
+    baseSchema = {
+        "required": [
+            "url",
+        ],
+        "properties": {
+            "url": {
+                'title': 'Asset URL',
+                'type': 'string',
+                'widget': 'url'
+            }
+        }
+    };
+
     onComplete = (formData) => {
-        let {url} = this.state;
         const accessToken = auth.getAccessToken();
 
         request
@@ -23,7 +33,6 @@ export default class Download extends Component {
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
-                url,
                 formData,
             })
             .end((err, res) => {
@@ -34,9 +43,10 @@ export default class Download extends Component {
             });
     };
 
-    handleChange = (url) => {
+    handleChange = (url, isURLValid) => {
         this.setState({
             url,
+            isURLValid
         });
     };
 
@@ -50,14 +60,12 @@ export default class Download extends Component {
                 </div>
 
                 {done ? <h3>Your file will be downloaded!</h3> :
-                    <div className="form-container">
-                        <URLInput
-                            onChange={this.handleChange}
-                        />
-                        <AssetForm
-                            onComplete={this.onComplete}
-                        />
-                    </div>
+                    <AssetForm
+                        validateForm={true}
+                        baseSchema={this.baseSchema}
+                        onComplete={this.onComplete}
+                        submitDisabled={!this.state.isURLValid}
+                    />
                 }
             </Container>
         );
