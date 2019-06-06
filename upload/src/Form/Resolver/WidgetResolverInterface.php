@@ -6,9 +6,9 @@ namespace App\Form\Resolver;
 
 interface WidgetResolverInterface
 {
-    public function supports(array $options): bool;
+    public function supports(array $config): bool;
 
-    public function getFormType(array $options): string;
+    public function getFormType(array $config): string;
 
-    public function getFormOptions(array $options): array;
+    public function getFormOptions(array $config): array;
 }

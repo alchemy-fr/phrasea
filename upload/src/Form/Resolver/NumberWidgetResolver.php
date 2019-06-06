@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Form\Resolver;
 
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
-class EmailWidgetResolver implements WidgetResolverInterface
+class NumberWidgetResolver implements WidgetResolverInterface
 {
     public function getFormType(array $config): string
     {
-        return EmailType::class;
+        return NumberType::class;
     }
 
     public function getFormOptions(array $config): array
@@ -20,6 +20,6 @@ class EmailWidgetResolver implements WidgetResolverInterface
 
     public function supports(array $config): bool
     {
-        return 'email' === $config['format'] || 'email' === $config['widget'];
+        return 'number' === $config['format'] || 'number' === $config['widget'];
     }
 }

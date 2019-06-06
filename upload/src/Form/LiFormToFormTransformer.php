@@ -19,9 +19,9 @@ class LiFormToFormTransformer
         $this->formFactory = $formFactory;
     }
 
-    public function createFormFromConfig(array $schema, ?array $data = null): FormInterface
+    public function createFormFromSchema(array $schema, ?array $data = null): FormInterface
     {
-        return $this->formFactory->create(LiFormFromConfigFormType::class, $data, [
+        return $this->formFactory->create(LiFormFromSchemaFormType::class, $data, [
             'schema' => $schema,
         ]);
     }

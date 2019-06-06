@@ -8,7 +8,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LiFormFromConfigFormType extends AbstractType
+class LiFormFromSchemaFormType extends AbstractType
 {
     /**
      * @var LiFormWidgetResolver

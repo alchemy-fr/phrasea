@@ -36,7 +36,7 @@ final class ValidateFormAction extends AbstractController
         $formData = $data->getData();
 
         $schema = $this->schemaLoader->loadSchema($request->getLocale());
-        $form = $this->formGenerator->createFormFromConfig($schema);
+        $form = $this->formGenerator->createFormFromSchema($schema);
 
         $form->submit($formData);
         if ($form->isSubmitted() && $form->isValid()) {

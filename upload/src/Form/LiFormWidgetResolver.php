@@ -56,9 +56,19 @@ class LiFormWidgetResolver
     private function getSupportedResolvers(array $fieldConfig): iterable
     {
         foreach ($this->resolvers as $resolver) {
+            $fieldConfig = $this->normalizeConfig($fieldConfig);
             if ($resolver->supports($fieldConfig)) {
                 yield $resolver;
             }
         }
+    }
+
+    private function normalizeConfig(array $config): array
+    {
+        $config['type'] = $config['type'] ?? 'string';
+        $config['widget'] = $config['widget'] ?? 'text';
+        $config['format'] = $config['format'] ?? null;
+
+        return $config;
     }
 }

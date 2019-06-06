@@ -37,9 +37,15 @@ final class DownloadUrlAction extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+
+
+        $formData = $data->getFormData();
+        $url = $formData['url'];
+        unset($formData['url']);
+
         $message = json_encode([
-            'url' => $data->getUrl(),
-            'form_data' => $data->getFormData(),
+            'url' => $url,
+            'form_data' => $formData,
             'user_id' => $user->getId(),
         ]);
         $this->downloadProducer->publish($message);
