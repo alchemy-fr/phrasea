@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "connected-react-router": "^5.0",
     "liform-react": "^0.9.0",
     "react": "^16.8.6",
     "react-burger-menu": "^2.6.8",
     "react-dom": "^16.8.6",
+    "react-redux": "^5.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
     "redux": "^4.0.1",
-    "redux-form": "^7.4.2",
-    "react-redux": "^5.1",
-    "connected-react-router": "^5.0"
+    "redux-form": "^7.4.2"
   },
   "scripts": {
     "start": "react-scripts start",
