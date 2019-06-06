@@ -9,16 +9,20 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FormSchemaManager
 {
-    const FALLBACK_SCHEMA_FILE = __DIR__.'/../../config/liform-schema.json';
-
     /**
      * @var EntityManagerInterface
      */
     private $em;
 
-    public function __construct(EntityManagerInterface $em)
+    /**
+     * @var string
+     */
+    private $defaultSchemaFile;
+
+    public function __construct(EntityManagerInterface $em, string $defaultSchemaFile)
     {
         $this->em = $em;
+        $this->defaultSchemaFile = $defaultSchemaFile;
     }
 
     public function loadSchema(?string $locale): array
@@ -29,7 +33,7 @@ class FormSchemaManager
             ->getSchemaForLocale($locale);
 
         if (null === $formSchema) {
-            return json_decode(file_get_contents(self::FALLBACK_SCHEMA_FILE), true);
+            return json_decode(file_get_contents($this->defaultSchemaFile), true);
         }
 
         return $formSchema->getData();

@@ -6,6 +6,7 @@
 parameters:
     locale: 'en'
     env(UPLOAD_TEMP_DIR): "%kernel.cache_dir%/upload"
+    app.liform.default_schema.src: "%kernel.root_dir%/config/liform-scdhema.json"
 
 services:
     # default configuration for services in *this* file
@@ -59,3 +60,6 @@ services:
         arguments:
             $client: "@eight_points_guzzle.client.phraseanet_client"
             $phraseanetAccessToken: '%env(PHRASEANET_ACCESS_TOKEN)%'
+
+    App\Form\FormSchemaManager:
+        $defaultSchemaFile: "%app.liform.default_schema.src%"
