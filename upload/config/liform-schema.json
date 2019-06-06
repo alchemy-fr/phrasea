@@ -1,29 +1,31 @@
 {
   "type": "object",
   "required": [
-    "album",
-    "agreed"
+    "collection_destination",
+    "metadata-25"
   ],
   "properties": {
-    "album": {
-      "type": "string",
-      "title": "Album"
-    },
-    "dest": {
+    "collection_destination": {
       "enum": [
-        "One",
-        "Two"
+        "1",
+        "2",
+        "3"
+      ],
+      "enum_titles": [
+        "Collection #1",
+        "Collection #2",
+        "Collection #3"
       ],
       "type": "string",
-      "title": "Choose a destination"
+      "title": "Collection"
     },
-    "description": {
+    "metadata-25": {
+      "type": "string",
+      "title": "Title"
+    },
+    "metadata-42": {
       "type": "string",
       "title": "Description"
-    },
-    "agreed": {
-      "type": "boolean",
-      "title": "I agree with the terms"
     }
   }
 }
