@@ -96,7 +96,11 @@ class UploadBatch
             .set('Authorization', `Bearer ${accessToken}`)
             .send(formData)
             .end((err, res) => {
-                auth.isResponseValid(err, res);
+                if (!auth.isResponseValid(err, res)) {
+                    alert('Failed to commit assets');
+                    console.log(res);
+                    throw err;
+                }
             });
     }
 

@@ -28,7 +28,7 @@ class DownloadUrl
     /**
      * @var array
      */
-    private $formData = [];
+    private $data = [];
 
     public function getUrl(): string
     {
@@ -40,13 +40,13 @@ class DownloadUrl
         $this->url = $url;
     }
 
-    public function getFormData(): array
+    public function getData(): array
     {
-        return $this->formData;
+        return $this->data;
     }
 
-    public function setFormData(array $formData): void
+    public function setData(array $data): void
     {
-        $this->formData = $formData;
+        $this->data = $data;
     }
 }

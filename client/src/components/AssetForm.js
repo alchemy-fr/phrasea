@@ -5,12 +5,13 @@ import config from "../config";
 import auth from "../auth";
 import request from "superagent";
 import AssetLiForm from "./AssetLiForm";
+import { SubmissionError } from 'redux-form';
 
 export default class AssetForm extends Component {
     static propTypes = {
-        onComplete: PropTypes.func.isRequired,
+        onComplete: PropTypes.func,
         baseSchema: PropTypes.object,
-        validateForm: PropTypes.bool,
+        submitPath: PropTypes.string.isRequired,
     };
 
     state = {
@@ -43,30 +44,54 @@ export default class AssetForm extends Component {
         });
     }
 
-    onSubmit = (data) => {
+    onSubmit = async (reduxFormData) => {
+        let formData = {...reduxFormData};
         const accessToken = auth.getAccessToken();
+        const {baseSchema, submitPath, onComplete} = this.props;
 
-        if (this.props.validateForm) {
+        // Extract base fields out from form data
+        let data = {};
+        if (baseSchema && baseSchema.properties) {
+            Object.keys(baseSchema.properties).forEach(key => {
+                if (formData.hasOwnProperty(key)) {
+                    data[key] = formData[key];
+                    delete formData[key];
+                }
+            });
+        }
+        data = {
+            ...data,
+            data: formData,
+        };
+
+        return new Promise((resolve, reject) => {
             request
-                .post(config.getUploadBaseURL() + '/form/validate')
+                .post(config.getUploadBaseURL() + submitPath)
                 .accept('json')
                 .set('Authorization', `Bearer ${accessToken}`)
-                .send({data})
+                .send(data)
                 .end((err, res) => {
                     if (!auth.isResponseValid(err, res)) {
                         return;
                     }
 
-                    if (Object.keys(res.body.errors).length > 0) {
-                        alert(JSON.stringify(res.body.errors));
+                    if (res.body.errors && Object.keys(res.body.errors).length > 0) {
+                        const {errors} = res.body;
+                        const errs = {};
+
+                        Object.keys(errors).forEach((i) => {
+                            errs[i] = errors[i].join("\n");
+                        });
+
+                        reject(new SubmissionError(errs));
                         return;
                     }
 
-                    this.props.onComplete(data);
+                    onComplete && onComplete(formData);
+                    resolve();
                 });
-        } else {
-            this.props.onComplete(data);
-        }
+
+        });
     };
 
     render() {

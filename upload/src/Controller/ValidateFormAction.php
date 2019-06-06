@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\FormSchemaManager;
+use App\Form\FormValidator;
 use App\Form\LiFormToFormTransformer;
 use App\Model\FormData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,55 +16,19 @@ use Symfony\Component\HttpFoundation\Request;
 final class ValidateFormAction extends AbstractController
 {
     /**
-     * @var LiFormToFormTransformer
+     * @var FormValidator
      */
-    private $formGenerator;
-    /**
-     * @var FormSchemaManager
-     */
-    private $schemaLoader;
+    private $formValidator;
 
-    public function __construct(
-        LiFormToFormTransformer $formGenerator,
-        FormSchemaManager $schemaLoader
-    ) {
-        $this->formGenerator = $formGenerator;
-        $this->schemaLoader = $schemaLoader;
+    public function __construct(FormValidator $formValidator)
+    {
+        $this->formValidator = $formValidator;
     }
 
     public function __invoke(FormData $data, Request $request)
     {
-        $formData = $data->getData();
+        $errors = $this->formValidator->validateForm($data->getData(), $request);
 
-        $schema = $this->schemaLoader->loadSchema($request->getLocale());
-        $form = $this->formGenerator->createFormFromSchema($schema);
-
-        $form->submit($formData);
-        if ($form->isSubmitted() && $form->isValid()) {
-            return new JsonResponse(['errors' => []]);
-        }
-
-        return new JsonResponse(['errors' => $this->getFormErrors($form)]);
-    }
-
-    protected function getFormErrors(FormInterface $form): array
-    {
-        $errors = [];
-
-        // Global
-        foreach ($form->getErrors() as $error) {
-            $errors['_form'][] = $error->getMessage();
-        }
-
-        // Fields
-        foreach ($form as $child/* @var FormInterface $child */) {
-            if (!$child->isValid()) {
-                foreach ($child->getErrors() as $error) {
-                    $errors[$child->getName()][] = $error->getMessage();
-                }
-            }
-        }
-
-        return $errors;
+        return new JsonResponse(['errors' => $errors]);
     }
 }

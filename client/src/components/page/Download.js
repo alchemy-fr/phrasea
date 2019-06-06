@@ -3,9 +3,6 @@ import '../../scss/Upload.scss';
 import Container from "../Container";
 import {Link} from "react-router-dom";
 import AssetForm from "../AssetForm";
-import request from "superagent";
-import config from "../../config";
-import auth from "../../auth";
 
 export default class Download extends Component {
     state = {
@@ -25,28 +22,9 @@ export default class Download extends Component {
         }
     };
 
-    onComplete = (formData) => {
-        const accessToken = auth.getAccessToken();
-
-        request
-            .post(config.getUploadBaseURL() + '/downloads')
-            .accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send({
-                formData,
-            })
-            .end((err, res) => {
-                auth.isResponseValid(err, res);
-                this.setState({
-                    done: true,
-                })
-            });
-    };
-
-    handleChange = (url, isURLValid) => {
+    onComplete = () => {
         this.setState({
-            url,
-            isURLValid
+            done: true,
         });
     };
 
@@ -61,10 +39,9 @@ export default class Download extends Component {
 
                 {done ? <h3>Your file will be downloaded!</h3> :
                     <AssetForm
-                        validateForm={true}
+                        submitPath={'/downloads'}
                         baseSchema={this.baseSchema}
                         onComplete={this.onComplete}
-                        submitDisabled={!this.state.isURLValid}
                     />
                 }
             </Container>

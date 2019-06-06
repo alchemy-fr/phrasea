@@ -125,6 +125,7 @@ export default class Upload extends Component {
                     </Dropzone>
 
                     <Button
+                        size="lg"
                         onClick={this.submit}
                         disabled={this.state.files.length === 0}
                     >

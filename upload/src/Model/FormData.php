@@ -27,6 +27,13 @@ final class FormData
      */
     private $data;
 
+    public function __construct(array $data = null)
+    {
+        if (null !== $data) {
+            $this->setData($data);
+        }
+    }
+
     public function getData(): array
     {
         return $this->data;
