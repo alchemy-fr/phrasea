@@ -4,20 +4,21 @@ Form are based on LiForm format.
 
 See [LiForm documentation](https://limenius.github.io/liform-react/#/)
 
-## Hard coded form data
+## Hard coded form data (Bulk data)
 
 Uploader can define custom form data for a specific client.
-To do so we've extended the LiForm schema with a `contextData` node:
+In the Bulk data section of the upload (you must be an admin), you can edit the data JSON that will be applied to every assets:
 
 ```json
 {
-  "contextData": {
-    "key": "value",
-    "key_2": 42
-  },
-  "properties": {
-    "...": {}
-  },
-  "required":["..."]
+  "my-key": "my-value",
+  "key2": 1.5,
+  "key-array": [
+    "item1",
+    "item2"
+  ],
+  "key-object": {
+    "foo": "bar"
+  }
 }
 ```
