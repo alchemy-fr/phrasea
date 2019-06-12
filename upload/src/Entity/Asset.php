@@ -32,6 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "post"={
  *             "controller"=CreateAssetAction::class,
  *             "defaults"={
+ *                  "_api_receive"=false
  *             },
  *             "validation_groups"={"Default", "asset_create"},
  *             "swagger_context"={
