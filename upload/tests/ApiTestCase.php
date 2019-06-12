@@ -20,13 +20,13 @@ abstract class ApiTestCase extends WebTestCase
     protected $client;
 
     protected function request(
+        ?string $accessToken,
         string $method,
         string $uri,
         $params = [],
         array $files = [],
         array $server = [],
-        ?string $content = null,
-        ?string $accessToken = null
+        ?string $content = null
     ): Response {
         if (null !== $accessToken) {
             $server['HTTP_AUTHORIZATION'] = 'Bearer '.$accessToken;

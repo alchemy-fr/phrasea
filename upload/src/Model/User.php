@@ -8,6 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class User implements UserInterface
 {
+    const ADMIN_USER = 'admin@alchemy.fr';
+
     /**
      * @var string
      */
@@ -30,7 +32,14 @@ class User implements UserInterface
 
     public function getRoles()
     {
-        return ['ROLE_USER'];
+        $roles = ['ROLE_USER'];
+
+        // TODO tmp: should be provided by Identity Provider
+        if (self::ADMIN_USER === $this->username) {
+            $roles[] = 'ROLE_SUPER_ADMIN';
+        }
+
+        return $roles;
     }
 
     public function getPassword()

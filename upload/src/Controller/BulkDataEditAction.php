@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\BulkData;
 use App\Model\BulkDataModel;
 use App\Entity\BulkDataRepository;
+use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,6 +26,8 @@ final class BulkDataEditAction extends AbstractController
 
     public function __invoke(BulkDataModel $data)
     {
+        $this->denyAccessUnlessGranted(FormDataEditorVoter::EDIT_BULK_DATA);
+
         $this->repository->persistBulkData($data->getData());
 
         return new JsonResponse(true);

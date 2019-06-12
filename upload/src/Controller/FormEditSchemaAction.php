@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Form\FormSchemaManager;
 use App\Model\FormSchema;
+use App\Security\Voter\FormDataEditorVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -23,6 +24,8 @@ final class FormEditSchemaAction extends AbstractController
 
     public function __invoke(FormSchema $data)
     {
+        $this->denyAccessUnlessGranted(FormDataEditorVoter::EDIT_FORM_SCHEMA);
+
         $this->schemaLoader->persistSchema(null, $data->getSchema());
 
         return new JsonResponse(true);

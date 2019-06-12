@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Model\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Response;
 
 class AssetTest extends ApiTestCase
 {
     public function testUploadAssetOK(): void
     {
-        $response = $this->request('POST', '/assets', [], [
-            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+        $response = $this->request(User::ADMIN_USER, 'POST', '/assets', [], [
+            'file' => new UploadedFile(__DIR__ . '/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
 
@@ -29,16 +27,24 @@ class AssetTest extends ApiTestCase
         $this->assertSame(846, $json['size']);
     }
 
+    public function testUploadAssetWithAnonymousUser(): void
+    {
+        $response = $this->request(null, 'POST', '/assets', [], [
+            'file' => new UploadedFile(__DIR__ . '/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
     public function testUploadAssetWithoutFileGenerates400(): void
     {
-        $response = $this->request('POST', '/assets');
+        $response = $this->request(User::ADMIN_USER, 'POST', '/assets');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testUploadEmptyFileGenerates400(): void
     {
-        $response = $this->request('POST', '/assets', [], [
-            'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
+        $response = $this->request(User::ADMIN_USER, 'POST', '/assets', [], [
+            'file' => new UploadedFile(__DIR__ . '/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());
     }
