@@ -27,9 +27,9 @@ class FormDataEditorVoter extends Voter
     protected function supports($attribute, $subject)
     {
         return in_array($attribute, [
-            self::EDIT_FORM_SCHEMA,
-            self::EDIT_BULK_DATA,
-            ]) && $subject === null;
+                self::EDIT_FORM_SCHEMA,
+                self::EDIT_BULK_DATA,
+            ], true) && $subject === null;
     }
 
 
@@ -45,7 +45,10 @@ class FormDataEditorVoter extends Voter
             case self::EDIT_FORM_SCHEMA:
             case self::EDIT_BULK_DATA:
                 return $this->canEdit();
+            default:
+                return false;
         }
+
     }
 
     private function canEdit(): bool

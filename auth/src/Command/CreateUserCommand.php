@@ -48,6 +48,13 @@ class CreateUserCommand extends Command
                 InputOption::VALUE_NONE,
                 'If user email already exists, just update the password.',
                 null
+            )
+            ->addOption(
+                'roles',
+                null,
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                'User roles',
+                null
             );
     }
 
@@ -73,6 +80,10 @@ class CreateUserCommand extends Command
             $password = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
         }
         $user->setPlainPassword($password);
+
+        if (null !== $roles = $input->getOption('roles')) {
+            $user->setRoles($roles);
+        }
 
         $headers = ['Email', 'Plain password'];
         $rows = [

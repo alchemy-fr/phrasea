@@ -80,7 +80,7 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
 
         $content = $response->getBody()->getContents();
         $data = \GuzzleHttp\json_decode($content, true);
-        $user = new User($data['user_id'], $data['email']);
+        $user = new User($data['user_id'], $data['email'], $data['roles']);
 
         return $user;
     }

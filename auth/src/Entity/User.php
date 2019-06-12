@@ -38,6 +38,12 @@ class User implements UserInterface
     protected $salt;
 
     /**
+     * @var array
+     * @ORM\Column(type="json_array")
+     */
+    protected $roles = [];
+
+    /**
      * @var string
      * @ORM\Column(type="string", length=255)
      */
@@ -82,9 +88,14 @@ class User implements UserInterface
         $this->email = $email;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 
     public function getPassword()

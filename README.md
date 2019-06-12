@@ -49,6 +49,23 @@ MAILER_URL=smtp://username:password@provider:25
 bin/install.sh
 ```
 
+### User management
+
+Create user:
+```bash
+bin/console app:create-user user@alchemy.fr -p s3cr3t --roles ROLE_SUPER_ADMIN
+```
+
+Grant user roles:
+```bash
+bin/console app:user:set-roles user@alchemy.fr "ROLE_SUPER_ADMIN,ROLE_EDITOR"
+```
+
+Revoke user roles:
+```bash
+bin/console app:user:set-roles user@alchemy.fr ""
+```
+
 ## Start
 
 ```bash

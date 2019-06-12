@@ -14,15 +14,22 @@ class User implements UserInterface
      * @var string
      */
     private $username;
+
     /**
      * @var string
      */
     private $id;
 
-    public function __construct(string $id, string $username)
+    /**
+     * @var array
+     */
+    private $roles;
+
+    public function __construct(string $id, string $username, array $roles = null)
     {
         $this->username = $username;
         $this->id = $id;
+        $this->roles = $roles;
     }
 
     public function getId(): string
@@ -32,14 +39,7 @@ class User implements UserInterface
 
     public function getRoles()
     {
-        $roles = ['ROLE_USER'];
-
-        // TODO tmp: should be provided by Identity Provider
-        if (self::ADMIN_USER === $this->username) {
-            $roles[] = 'ROLE_SUPER_ADMIN';
-        }
-
-        return $roles;
+        return $this->roles;
     }
 
     public function getPassword()
