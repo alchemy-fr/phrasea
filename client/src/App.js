@@ -15,6 +15,7 @@ import UserInfo from "./components/UserInfo";
 import FormEditor from "./components/page/FormEditor";
 import ResetPassword from "./components/page/ResetPassword";
 import Download from "./components/page/Download";
+import BulkDataEditor from "./components/page/BulkDataEditor";
 
 class App extends Component {
     constructor(props) {
@@ -74,6 +75,7 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/about">About</Link>
                     <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
                     <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link>
+                    <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link>
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
@@ -90,6 +92,7 @@ class App extends Component {
                     <Route path="/about" exact component={About}/>
                     <PrivateRoute path="/settings" exact component={Settings}/>
                     <PrivateRoute path="/form-editor" exact component={FormEditor}/>
+                    <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/>
                     {config.devModeEnabled() ?
                         <Route path="/dev-settings" exact component={DevSettings}/>
                         : ''}

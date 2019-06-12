@@ -25,7 +25,7 @@ abstract class ApiTestCase extends WebTestCase
     protected function request(
         string $method,
         string $uri,
-        $params = [],
+        array $params = [],
         array $files = [],
         array $server = [],
         ?string $content = null,
@@ -36,6 +36,10 @@ abstract class ApiTestCase extends WebTestCase
         }
         $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
         $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';
+
+        if (empty($content) && !empty($params) && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
+            $content = json_encode($params);
+        }
 
         $this->client->request($method, $uri, $params, $files, $server, $content);
 

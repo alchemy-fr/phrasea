@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\CommitConsumer;
+use App\Entity\Asset;
 use App\Entity\AssetRepository;
+use App\Entity\BulkData;
+use App\Entity\BulkDataRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -24,11 +27,17 @@ class CommitConsumerTest extends TestCase
         $assetRepo = $this->createMock(AssetRepository::class);
         $assetRepo->expects($this->once())
             ->method('attachFormData');
+        $bulkRepo = $this->createMock(BulkDataRepository::class);
+        $bulkRepo->expects($this->once())
+            ->method('getBulkDataArray')
+            ->willReturn([]);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->any())
-            ->method('getRepository')
-            ->willReturn($assetRepo);
+        $em->method('getRepository')
+            ->will($this->returnValueMap([
+                [Asset::class, $assetRepo],
+                [BulkData::class, $bulkRepo],
+            ]));
 
         $phraseanetResponse = new Response(200, [
             'Content-Type' => 'application/json',

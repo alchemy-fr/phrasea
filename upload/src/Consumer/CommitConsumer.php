@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer;
 
 use App\Entity\Asset;
+use App\Entity\BulkData;
 use App\Model\Commit;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
@@ -41,10 +42,17 @@ class CommitConsumer extends AbstractConsumer
     {
         $commit = Commit::fromArray($message);
 
+        $bulkData = $this
+            ->em
+            ->getRepository(BulkData::class)
+            ->getBulkDataArray();
+
+        $formData = array_merge($commit->getFormData(), $bulkData);
+
         $this
             ->em
             ->getRepository(Asset::class)
-            ->attachFormData($commit->getFiles(), $commit->getFormData());
+            ->attachFormData($commit->getFiles(), $formData);
 
         $this->client->post('/api/v1/upload/enqueue/', [
             'headers' => [

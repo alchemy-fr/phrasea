@@ -9,9 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\FormSchemaRepository")
+ * @ORM\Entity(repositoryClass="App\Entity\BulkDataRepository")
  */
-class FormSchema
+class BulkData
 {
     /**
      * @var Uuid
@@ -22,16 +22,10 @@ class FormSchema
     protected $id;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string", length=5, nullable=true, unique=true)
+     * @var array
+     * @ORM\Column(type="json_array")
      */
-    private $locale;
-
-    /**
-     * @var string
-     * @ORM\Column(type="text")
-     */
-    private $data;
+    private $data = [];
 
     /**
      * @var DateTime
@@ -47,10 +41,10 @@ class FormSchema
      */
     private $updatedAt;
 
-    public function __construct(?string $id = null)
+    public function __construct()
     {
         $this->createdAt = new DateTime();
-        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
+        $this->id = Uuid::uuid4();
     }
 
     public function getId()
@@ -58,24 +52,14 @@ class FormSchema
         return $this->id->__toString();
     }
 
-    public function getLocale(): ?string
-    {
-        return $this->locale;
-    }
-
-    public function setLocale(?string $locale): void
-    {
-        $this->locale = $locale;
-    }
-
     public function getData(): array
     {
-        return json_decode($this->data, true);
+        return $this->data;
     }
 
     public function setData(array $data): void
     {
-        $this->data = json_encode($data);
+        $this->data = $data;
     }
 
     public function getCreatedAt(): DateTime

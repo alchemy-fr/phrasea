@@ -37,9 +37,11 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "hautelook/alice-bundle": "^2.5",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/profiler-pack": "*",
+        "symfony/var-dumper": "4.2.*",
         "symfony/test-pack": "^1.0",
         "symfony/web-server-bundle": "4.2.*"
     },

@@ -52,6 +52,24 @@ class Config {
                 });
         });
     }
+
+    getBulkData() {
+        const accessToken = auth.getAccessToken();
+
+        return new Promise((resolve, reject) => {
+            request
+                .get(config.getUploadBaseURL() + '/bulk-data')
+                .accept('json')
+                .set('Authorization', `Bearer ${accessToken}`)
+                .end((err, res) => {
+                    if (!auth.isResponseValid(err, res)) {
+                        reject(err);
+                    }
+
+                    resolve(res.body);
+                });
+        });
+    }
 }
 
 const config = new Config();

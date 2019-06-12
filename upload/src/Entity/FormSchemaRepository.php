@@ -28,7 +28,7 @@ class FormSchemaRepository extends EntityRepository
             $schema->setLocale($locale);
         }
 
-        $schema->setData(json_encode($jsonData));
+        $schema->setData($jsonData);
         $schema->setUpdatedAt(new DateTime());
 
         $this->_em->persist($schema);
