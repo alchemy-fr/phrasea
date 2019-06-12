@@ -18,12 +18,13 @@ import Download from "./components/page/Download";
 import BulkDataEditor from "./components/page/BulkDataEditor";
 
 class App extends Component {
+    state = {
+        menuOpen: false,
+        user: null,
+    };
+
     constructor(props) {
         super(props);
-        this.state = {
-            menuOpen: false,
-            user: null,
-        };
 
         auth.registerListener('authentication', (evt) => {
             this.setState({
@@ -61,6 +62,8 @@ class App extends Component {
             return 'Loading...';
         }
 
+        const {user} = this.state;
+
         return (
             <Router>
                 <Menu
@@ -74,13 +77,18 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
                     <Link onClick={() => this.closeMenu()} to="/about">About</Link>
                     <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
-                    <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link>
-                    <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link>
+                    {user && user.is_admin ? <React.Fragment>
+                        <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link>
+                        <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link>
+                    </React.Fragment> : ''}
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
                     {auth.isAuthenticated() ?
-                        <Link onClick={() => {this.logout(); this.closeMenu()}} to={'#'}>Logout</Link>
+                        <Link onClick={() => {
+                            this.logout();
+                            this.closeMenu()
+                        }} to={'#'}>Logout</Link>
                         : ''}
 
                 </Menu>
@@ -91,8 +99,10 @@ class App extends Component {
                     <Route path="/forgot-password" exact component={ResetPassword}/>
                     <Route path="/about" exact component={About}/>
                     <PrivateRoute path="/settings" exact component={Settings}/>
-                    <PrivateRoute path="/form-editor" exact component={FormEditor}/>
-                    <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/>
+                    {user && user.is_admin ? <React.Fragment>
+                        <PrivateRoute path="/form-editor" exact component={FormEditor}/>
+                        <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/>
+                    </React.Fragment> : ''}
                     {config.devModeEnabled() ?
                         <Route path="/dev-settings" exact component={DevSettings}/>
                         : ''}
