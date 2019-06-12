@@ -79,7 +79,7 @@ final class Commit
     {
         $instance = new self();
         $instance->setFiles($data['files']);
-        $instance->setFormData($data['form']);
+        $instance->setFormData($data['form'] ?? []);
         $instance->setUserId($data['user_id']);
 
         return $instance;

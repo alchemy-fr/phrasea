@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Consumer\Handler\CommitHandler;
 use App\Form\FormValidator;
 use App\Model\Commit;
 use App\Model\User;
 use App\Storage\AssetManager;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,10 +23,12 @@ final class CommitAction extends AbstractController
      * @var AssetManager
      */
     private $assetManager;
+
     /**
-     * @var ProducerInterface
+     * @var EventProducer
      */
-    private $commitProducer;
+    private $eventProducer;
+
     /**
      * @var FormValidator
      */
@@ -31,11 +36,11 @@ final class CommitAction extends AbstractController
 
     public function __construct(
         AssetManager $assetManager,
-        ProducerInterface $commitProducer,
+        EventProducer $eventProducer,
         FormValidator $formValidator
     ) {
         $this->assetManager = $assetManager;
-        $this->commitProducer = $commitProducer;
+        $this->eventProducer = $eventProducer;
         $this->formValidator = $formValidator;
     }
 
@@ -50,8 +55,7 @@ final class CommitAction extends AbstractController
         $user = $this->getUser();
         $data->setUserId($user->getId());
 
-        $message = json_encode($data->toArray());
-        $this->commitProducer->publish($message);
+        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $data->toArray()));
 
         return new JsonResponse(true);
     }

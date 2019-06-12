@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Consumer;
 
-use App\Consumer\DownloadConsumer;
+use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
@@ -17,7 +19,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use Psr\Log\Test\TestLogger;
 
-class DownloadConsumerTest extends TestCase
+class DownloadHandlerTest extends TestCase
 {
     /**
      * @dataProvider downloadProvider
@@ -28,12 +30,17 @@ class DownloadConsumerTest extends TestCase
         string $expectedMimeType,
         ?string $expectedExtension
     ): void {
-        $producerStub = $this->createMock(ProducerInterface::class);
+        $producerStub = $this->createMock(EventProducer::class);
         $producerStub
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->matchesRegularExpression('#^\{"files":\[".+"\],"form":\{"foo":"bar"\},"user_id":".+"\}$#')
+                $this->callback(function($subject){
+                    return $subject instanceof EventMessage
+                        && is_array($subject->getPayload()['files'])
+                        && is_string($subject->getPayload()['user_id'])
+                        && $subject->getPayload()['form'] === ['foo'=>'bar'];
+                })
             );
 
         $storageStub = $this->createMock(FileStorageManager::class);
@@ -64,7 +71,7 @@ class DownloadConsumerTest extends TestCase
 
         $clientStub = $client = new Client(['handler' => $handler]);
 
-        $consumer = new DownloadConsumer(
+        $consumer = new DownloadHandler(
             $storageStub,
             $clientStub,
             $assetManagerStub,
@@ -74,14 +81,12 @@ class DownloadConsumerTest extends TestCase
         $logger = new TestLogger();
         $consumer->setLogger($logger);
 
-        $message = new AMQPMessage(json_encode([
+        $message = new EventMessage($consumer::EVENT, [
             'url' => $url,
             'user_id' => 'USER_ID',
             'form_data' => ['foo' => 'bar'],
-        ]));
-        $result = $consumer->execute($message);
-
-        $this->assertEquals(ConsumerInterface::MSG_ACK, $result);
+        ]);
+        $consumer->handle($message);
     }
 
     public function downloadProvider(): array

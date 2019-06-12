@@ -65,6 +65,8 @@ Client web app is available at `http://localhost`
 docker-compose up -d
 ```
 
+In order to avoid Phraseanet enqueue request, you can set the `PHRASEANET_ACCESS_TOKEN` env to `avoid`.
+
 ## Changing ports
 
 You can change the services port by overriding the environment variables (see `.env` file).

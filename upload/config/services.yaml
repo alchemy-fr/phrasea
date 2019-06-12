@@ -29,6 +29,8 @@ services:
     _instanceof:
         App\Form\Resolver\WidgetResolverInterface:
             tags: ['widget_resolver']
+        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
+            tags: ['arthem_rabbit.event_handler']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -37,26 +39,15 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
 
-    App\Controller\DownloadUrlAction:
-        arguments:
-            $downloadProducer: "@old_sound_rabbit_mq.download_producer"
-        tags: ['controller.service_arguments']
-
-    App\Controller\CommitAction:
-        arguments:
-            $commitProducer: "@old_sound_rabbit_mq.commit_producer"
-        tags: ['controller.service_arguments']
-
     App\Security\RemoteAuthAuthenticator:
         arguments:
             $client: "@eight_points_guzzle.client.auth_client"
 
-    App\Consumer\DownloadConsumer:
+    App\Consumer\Handler\DownloadHandler:
         arguments:
             $client: "@eight_points_guzzle.client.download_client"
-            $commitProducer: "@old_sound_rabbit_mq.commit_producer"
 
-    App\Consumer\CommitConsumer:
+    App\Consumer\Handler\PhraseanetEnqueueHandler:
         arguments:
             $client: "@eight_points_guzzle.client.phraseanet_client"
             $phraseanetAccessToken: '%env(PHRASEANET_ACCESS_TOKEN)%'

@@ -1,0 +1,8 @@
+
+arthem_rabbit:
+  failure: ~
+  direct: false
+  queues:
+    bulk_commit: ~
+    download_url: ~
+    enqueue_phraseanet: ~

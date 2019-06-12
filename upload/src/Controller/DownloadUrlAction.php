@@ -6,10 +6,14 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
+use App\Consumer\Handler\CommitHandler;
+use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
 use App\Model\FormData;
 use App\Model\User;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,9 +26,10 @@ final class DownloadUrlAction extends AbstractController
     private $resourceMetadataFactory;
 
     /**
-     * @var ProducerInterface
+     * @var EventProducer
      */
-    private $downloadProducer;
+    private $eventProducer;
+
     /**
      * @var FormValidator
      */
@@ -33,12 +38,12 @@ final class DownloadUrlAction extends AbstractController
     public function __construct(
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
-        ProducerInterface $downloadProducer,
+        EventProducer $eventProducer,
         FormValidator $formValidator
     ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
-        $this->downloadProducer = $downloadProducer;
+        $this->eventProducer = $eventProducer;
         $this->formValidator = $formValidator;
     }
 
@@ -52,12 +57,11 @@ final class DownloadUrlAction extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $message = json_encode([
+        $this->eventProducer->publish(new EventMessage(DownloadHandler::EVENT, [
             'url' => $data->getUrl(),
             'form_data' => $data->getData(),
             'user_id' => $user->getId(),
-        ]);
-        $this->downloadProducer->publish($message);
+        ]));
 
         return new JsonResponse(true);
     }

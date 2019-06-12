@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Consumer;
+namespace App\Consumer\Handler;
 
 use App\Model\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
 use Mimey\MimeTypes;
-use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 
-class DownloadConsumer extends AbstractConsumer
+class DownloadHandler extends AbstractEntityManagerHandler
 {
+    const EVENT = 'download';
+
     /**
      * @var Client
      */
@@ -30,27 +33,28 @@ class DownloadConsumer extends AbstractConsumer
     private $assetManager;
 
     /**
-     * @var ProducerInterface
+     * @var EventProducer
      */
-    private $commitProducer;
+    private $eventProducer;
 
     public function __construct(
         FileStorageManager $storageManager,
         Client $client,
         AssetManager $assetManager,
-        ProducerInterface $commitProducer
+        EventProducer $eventProducer
     ) {
         $this->client = $client;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
-        $this->commitProducer = $commitProducer;
+        $this->eventProducer = $eventProducer;
     }
 
-    protected function doExecute(array $message): int
+    public function handle(EventMessage $message): void
     {
-        $url = $message['url'];
-        $userId = $message['user_id'];
-        $formData = $message['form_data'];
+        $payload = $message->getPayload();
+        $url = $payload['url'];
+        $userId = $payload['user_id'];
+        $formData = $payload['form_data'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
@@ -86,9 +90,16 @@ class DownloadConsumer extends AbstractConsumer
         $commit->setFormData($formData);
         $commit->setUserId($userId);
         $commit->setFiles([$asset->getId()]);
-        $message = json_encode($commit->toArray());
-        $this->commitProducer->publish($message);
+        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $commit->toArray()));
+    }
 
-        return ConsumerInterface::MSG_ACK;
+    public static function getHandledEvents(): array
+    {
+        return [self::EVENT];
+    }
+
+    public static function getQueueName(): string
+    {
+        return 'download_url';
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "abe8de560236335450e1d3b9397a73fa",
+    "content-hash": "ff23e74bcca01fc381ba8b048a14df8c",
     "packages": [
         {
             "name": "api-platform/api-pack",
@@ -183,6 +183,47 @@
                 "swagger"
             ],
             "time": "2019-03-28T20:16:27+00:00"
+        },
+        {
+            "name": "arthem/rabbit-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/4rthem/rabbit-bundle.git",
+                "reference": "4d4e3b04ea7de35ad7bf77c4f819bb108ef00324"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/4d4e3b04ea7de35ad7bf77c4f819bb108ef00324",
+                "reference": "4d4e3b04ea7de35ad7bf77c4f819bb108ef00324",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.1",
+                "php-amqplib/rabbitmq-bundle": "^1",
+                "psr/log": "^1",
+                "symfony/console": "^4.0",
+                "symfony/framework-bundle": "^4.0"
+            },
+            "require-dev": {
+                "symfony/process": "^4.0"
+            },
+            "suggest": {
+                "doctrine/orm": "^2.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Arthem\\Bundle\\RabbitBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Simple RabbitMQ bundle",
+            "time": "2019-06-12T14:30:09+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -8461,7 +8502,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "arthem/rabbit-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
