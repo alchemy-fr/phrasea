@@ -45,7 +45,7 @@ class CommitHandler extends AbstractEntityManagerHandler
             ->getRepository(Asset::class)
             ->attachFormData($commit->getFiles(), $formData);
 
-        $this->eventProducer->publish(new EventMessage(PhraseanetEnqueueHandler::EVENT, [
+        $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
             'files' => $commit->getFiles(),
             'user_id' => $commit->getUserId(),
         ]));

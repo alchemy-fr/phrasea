@@ -18,11 +18,18 @@ class RemoteAuthenticatorClientMock extends Client
 
     private function getJsonBody(string $uri, array $options): array
     {
+        $accessToken = explode(' ', $options['headers']['Authorization'], 2)[1];
+        $roles = ['ROLE_USER'];
+        if ($accessToken === 'admin@alchemy.fr') {
+            $roles[] = 'ROLE_SUPER_ADMIN';
+        }
+
         switch ($uri) {
             case '/me':
                 return [
                     'user_id' => '123',
-                    'email' => explode(' ', $options['headers']['Authorization'], 2)[1],
+                    'email' => $accessToken,
+                    'roles' => $roles,
                 ];
         }
     }

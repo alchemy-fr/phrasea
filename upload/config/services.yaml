@@ -41,16 +41,17 @@ services:
 
     App\Security\RemoteAuthAuthenticator:
         arguments:
-            $client: "@eight_points_guzzle.client.auth_client"
+            $client: "@eight_points_guzzle.client.auth"
 
     App\Consumer\Handler\DownloadHandler:
         arguments:
-            $client: "@eight_points_guzzle.client.download_client"
+            $client: "@eight_points_guzzle.client.download"
 
-    App\Consumer\Handler\PhraseanetEnqueueHandler:
+    App\Consumer\Handler\AssetConsumerNotifyHandler:
         arguments:
-            $client: "@eight_points_guzzle.client.phraseanet_client"
-            $phraseanetAccessToken: '%env(PHRASEANET_ACCESS_TOKEN)%'
+            $client: "@eight_points_guzzle.client.consumer_notify"
+            $targetUri: '%env(ASSET_CONSUMER_COMMIT_URI)%'
+            $targetAccessToken: '%env(ASSET_CONSUMER_ACCESS_TOKEN)%'
 
     App\Form\FormSchemaManager:
         $defaultSchemaFile: "%app.liform.default_schema.src%"

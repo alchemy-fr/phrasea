@@ -1,14 +1,13 @@
 
 eight_points_guzzle:
     clients:
-        download_client:
+        download:
             options:
                 timeout: 30
-        phraseanet_client:
-            base_url: "%env(PHRASEANET_BASE_URL)%"
+        consumer_notify:
             options:
-                timeout: 30
-        auth_client:
+                timeout: 20
+        auth:
             base_url: "http://auth"
             options:
                 timeout: 10

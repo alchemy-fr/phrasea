@@ -8,9 +8,9 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use GuzzleHttp\Client;
 
-class PhraseanetEnqueueHandler extends AbstractLogHandler
+class AssetConsumerNotifyHandler extends AbstractLogHandler
 {
-    const EVENT = 'enqueue_phraseanet';
+    const EVENT = 'asset_consumer_notify';
 
     /**
      * @var Client
@@ -20,27 +20,34 @@ class PhraseanetEnqueueHandler extends AbstractLogHandler
     /**
      * @var string
      */
-    private $phraseanetAccessToken;
+    private $targetUri;
+
+    /**
+     * @var string
+     */
+    private $targetAccessToken;
 
     public function __construct(
         Client $client,
-        string $phraseanetAccessToken
+        string $targetUri,
+        string $targetAccessToken
     ) {
         $this->client = $client;
-        $this->phraseanetAccessToken = $phraseanetAccessToken;
+        $this->targetUri = $targetUri;
+        $this->targetAccessToken = $targetAccessToken;
     }
 
     public function handle(EventMessage $message): void
     {
-        if ('avoid' === $this->phraseanetAccessToken) {
+        if ('avoid' === $this->targetAccessToken) {
             return;
         }
 
         $payload = $message->getPayload();
 
-        $this->client->post('/api/v1/upload/enqueue/', [
+        $this->client->post($this->targetUri, [
             'headers' => [
-                'Authorization' => 'OAuth '.$this->phraseanetAccessToken,
+                'Authorization' => 'OAuth '.$this->targetAccessToken,
             ],
             'json' => [
                 'assets' => $payload['files'],
@@ -49,8 +56,6 @@ class PhraseanetEnqueueHandler extends AbstractLogHandler
         ]);
     }
 
-
-
     public static function getHandledEvents(): array
     {
         return [self::EVENT];
@@ -58,6 +63,6 @@ class PhraseanetEnqueueHandler extends AbstractLogHandler
 
     public static function getQueueName(): string
     {
-        return 'enqueue_phraseanet';
+        return 'asset_consumer_notify';
     }
 }

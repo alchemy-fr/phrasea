@@ -38,8 +38,8 @@ CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 DEFAULT_USER_EMAIL=admin@alchemy.fr
 DEFAULT_USER_PASSWORD=<A_PASSWORD>
 AUTH_BASE_URL=https://auth.uploader.com
-PHRASEANET_BASE_URL=https://alpha.preprod.alchemyasp.com
-PHRASEANET_ACCESS_TOKEN=<THE_TOKEN_GOT_FROM_PHRASEANET_APPLICATION>
+ASSET_CONSUMER_COMMIT_URI=https://alpha.preprod.alchemyasp.com/api/v1/upload/enqueue/
+ASSET_CONSUMER_ACCESS_TOKEN=<THE_TOKEN_GOT_FROM_PHRASEANET_APPLICATION>
 MAILER_URL=smtp://username:password@provider:25
 ```
 
@@ -82,7 +82,7 @@ Client web app is available at `http://localhost`
 docker-compose up -d
 ```
 
-In order to avoid Phraseanet enqueue request, you can set the `PHRASEANET_ACCESS_TOKEN` env to `avoid`.
+In order to avoid commit request to consumer target, you can define `ASSET_CONSUMER_ACCESS_TOKEN=avoid`.
 
 ## Changing ports
 
