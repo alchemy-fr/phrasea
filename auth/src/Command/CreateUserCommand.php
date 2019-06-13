@@ -32,7 +32,7 @@ class CreateUserCommand extends Command
         parent::configure();
 
         $this
-            ->setName('app:create-user')
+            ->setName('app:user:create')
             ->setDescription('Creates a user')
             ->addArgument('email', InputArgument::REQUIRED, 'The user email (used a login)')
             ->addOption(

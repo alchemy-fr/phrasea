@@ -70,6 +70,12 @@ class UserManager implements UserProviderInterface
         $this->em->flush();
     }
 
+    public function removeUser(User $user): void
+    {
+        $this->em->remove($user);
+        $this->em->flush();
+    }
+
     public function loadUserByUsername($username)
     {
         $user = $this->findUserByEmail($username);
