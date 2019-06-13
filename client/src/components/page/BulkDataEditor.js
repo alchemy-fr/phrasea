@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Form, Button} from "react-bootstrap";
-import FormPreview from "../FormPreview";
 import config from "../../config";
 import request from "superagent";
 import auth from "../../auth";
@@ -9,6 +8,7 @@ export default class BulkDataEditor extends Component {
     state = {
         bulkData: [],
         saved: false,
+        error: null,
     };
 
     async componentWillMount() {
@@ -19,10 +19,25 @@ export default class BulkDataEditor extends Component {
         });
     }
 
+    isObject = (value) => {
+        return value && typeof value === 'object' && value.constructor === Object;
+    };
+
     handleChange = event => {
+        let error = null;
+        try {
+            const object = JSON.parse(event.target.value);
+            if (!this.isObject(object)) {
+                error = 'JSON should be a valid object (i.e. {"foo":"bar"})';
+            }
+        } catch (e) {
+            error = e.toString();
+        }
+
         this.setState({
             bulkData: event.target.value,
             saved: false,
+            error,
         });
     };
 
@@ -51,7 +66,7 @@ export default class BulkDataEditor extends Component {
     };
 
     render() {
-        const {saved, bulkData} = this.state;
+        const {saved, bulkData, error} = this.state;
 
         const loading = null === bulkData;
 
@@ -70,7 +85,11 @@ export default class BulkDataEditor extends Component {
                             onChange={this.handleChange}
                         />
                     </Form.Group>
+                    {error ? <div className="form-error">
+                        {error}
+                    </div>: ''}
                     <Button
+                        disabled={null !== error}
                         block
                         type="submit"
                     >
