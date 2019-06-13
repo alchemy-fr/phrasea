@@ -128,6 +128,7 @@ class UserManager implements UserProviderInterface
         }
 
         $user->setEnabled(true);
+        $user->setEmailVerified(true);
         $user->setSecurityToken(null);
         $this->persistUser($user);
     }

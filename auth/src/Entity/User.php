@@ -35,6 +35,12 @@ class User implements UserInterface
      * @var bool
      * @ORM\Column(type="boolean")
      */
+    protected $emailVerified = false;
+
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     */
     protected $enabled;
 
     /**
@@ -183,5 +189,15 @@ class User implements UserInterface
     public function setSecurityToken(?string $securityToken): void
     {
         $this->securityToken = $securityToken;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
+
+    public function setEmailVerified(bool $emailVerified): void
+    {
+        $this->emailVerified = $emailVerified;
     }
 }
