@@ -57,6 +57,14 @@ class RegistrationController extends AbstractController
     {
         $userManager->confirmEmail($id, $token);
 
+        return $this->redirectToRoute('registration_confirmed');
+    }
+
+    /**
+     * @Route(path="/register/confirmed", name="confirmed", methods={"GET"})
+     */
+    public function registerConfirmedAction()
+    {
         return $this->render('registration/confirmed.html.twig', []);
     }
 }

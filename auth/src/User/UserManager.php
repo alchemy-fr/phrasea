@@ -6,6 +6,7 @@ namespace App\User;
 
 use App\Entity\User;
 use DateTime;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -112,7 +113,11 @@ class UserManager implements UserProviderInterface
 
     public function confirmEmail(string $userId, string $token): void
     {
-        $user = $this->em->find(User::class, $userId);
+        try {
+            $user = $this->em->find(User::class, $userId);
+        } catch (ConversionException $e) {
+            throw new BadRequestHttpException('Invalid ID', $e);
+        }
         if (null === $user) {
             throw new BadRequestHttpException('User not found');
         }
