@@ -4,7 +4,7 @@ import config from "./config";
 
 class UploadBatch
 {
-    files;
+    files = [];
     uploading;
     batchSize = 2;
     currentUpload;
@@ -21,6 +21,7 @@ class UploadBatch
     }
 
     reset() {
+        this.abort();
         this.files = [];
         this.formData = null;
         this.uploading = false;
@@ -31,6 +32,16 @@ class UploadBatch
         this.resetListeners();
     }
 
+    abort() {
+        this.files.forEach((file) => {
+            console.log(file);
+            if (file.request) {
+            console.log('abort');
+                file.request.abort();
+            }
+        });
+    }
+
     resetListeners() {
         this.progressListeners = [];
         this.fileCompleteListeners = [];
@@ -38,7 +49,12 @@ class UploadBatch
     }
 
     addFiles(files) {
-        this.files = this.files.concat(files);
+        this.files = this.files.concat(files.map(file => {
+            return {
+                file,
+                request: null
+            };
+        }));
         this.totalSize += files.reduce((total, file) => total + file.size, 0)
     }
 
@@ -107,11 +123,11 @@ class UploadBatch
     uploadFile(index) {
         const file = this.files[index];
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', file.file);
 
         const accessToken = auth.getAccessToken();
 
-        request
+        const req = request
             .post(config.getUploadBaseURL() + '/assets')
             .accept('json')
             .set('Authorization', `Bearer ${accessToken}`)
@@ -121,7 +137,9 @@ class UploadBatch
                 }
                 this.onUploadProgress(e, index);
             })
-            .send(formData)
+            .send(formData);
+
+        req
             .end((err, res) => {
                 if (!auth.isResponseValid(err, res)) {
                     return;
@@ -129,6 +147,8 @@ class UploadBatch
 
                 this.onFileComplete(err, res, index);
             });
+
+        file.request = req;
     }
 
     onFileComplete(err, res, index) {
@@ -140,12 +160,13 @@ class UploadBatch
             totalLoaded += this.progresses[i];
         });
 
+        const fileSize = this.files[index].file.size;
         const e = {
             totalLoaded,
             totalSize: this.totalSize,
             totalPercent: Math.round(totalLoaded / this.totalSize * 100),
-            fileSize: this.files[index].size,
-            fileLoaded: this.files[index].size,
+            fileSize,
+            fileLoaded: fileSize,
             filePercent: 100,
             index,
             err,
@@ -203,13 +224,14 @@ class UploadBatch
             totalLoaded += this.progresses[i];
         });
 
+        const fileSize = this.files[index].file.size;
         const e = {
             totalLoaded,
             totalSize: this.totalSize,
             totalPercent: Math.round(totalLoaded / this.totalSize * 100),
-            fileSize: this.files[index].size,
+            fileSize,
             fileLoaded: event.loaded,
-            filePercent: Math.round(event.loaded / this.files[index].size * 100),
+            filePercent: Math.round(event.loaded / fileSize * 100),
             index,
         };
 

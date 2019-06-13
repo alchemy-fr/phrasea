@@ -16,15 +16,10 @@ const UPLOAD = 2;
 const UPLOAD_DONE = 3;
 
 export default class Upload extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            step: SELECT_FILES,
-            files: [],
-            formData: null,
-        };
-    }
+    state = {
+        step: SELECT_FILES,
+        files: [],
+    };
 
     removeFile = (index) => {
         this.setState((prevState) => {
@@ -54,6 +49,12 @@ export default class Upload extends Component {
             step: SELECT_FILES,
             files: [],
         });
+    };
+
+    onCancel = () => {
+        if (window.confirm('Are you sure you want to cancel current upload?')) {
+            this.reset();
+        }
     };
 
     onDrop = (acceptedFiles) => {
@@ -93,11 +94,13 @@ export default class Upload extends Component {
                 return <UploadForm
                     files={files}
                     onNext={this.onFormData}
+                    onCancel={this.onCancel}
                 />;
             case UPLOAD:
                 return <UploadProgress
                     files={files}
                     onNext={this.onNext}
+                    onCancel={this.onCancel}
                 />;
             case UPLOAD_DONE:
                 return <UploadDone goHome={this.reset}/>;

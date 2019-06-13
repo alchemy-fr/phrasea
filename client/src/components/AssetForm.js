@@ -5,11 +5,12 @@ import config from "../config";
 import auth from "../auth";
 import request from "superagent";
 import AssetLiForm from "./AssetLiForm";
-import { SubmissionError } from 'redux-form';
+import {SubmissionError} from 'redux-form';
 
 export default class AssetForm extends Component {
     static propTypes = {
         onComplete: PropTypes.func,
+        onCancel: PropTypes.func,
         baseSchema: PropTypes.object,
         submitPath: PropTypes.string.isRequired,
     };
@@ -105,6 +106,7 @@ export default class AssetForm extends Component {
             <AssetLiForm
                 schema={schema}
                 onSubmit={this.onSubmit}
+                onCancel={this.props.onCancel || null}
             />
         </div>;
     }

@@ -3,17 +3,13 @@ import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
 
 export default class AssetUpload extends Component {
-    constructor(props) {
-        super(props);
+    state = {
+        src: null,
+        uploadProgress: 0,
+        ok: false,
+    };
 
-        this.state = {
-            src: null,
-            uploadProgress: 0,
-            ok: false,
-        };
-
-        this.onload = null;
-    }
+    onload = null;
 
     setUploadProgress(progress, ok) {
         this.setState({

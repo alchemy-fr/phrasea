@@ -28,6 +28,10 @@ export default class Download extends Component {
         });
     };
 
+    onCancel = () => {
+        this.props.history.push('/');
+    };
+
     render() {
         const {done} = this.state;
 
@@ -42,6 +46,7 @@ export default class Download extends Component {
                         submitPath={'/downloads'}
                         baseSchema={this.baseSchema}
                         onComplete={this.onComplete}
+                        onCancel={this.onCancel}
                     />
                 }
             </Container>

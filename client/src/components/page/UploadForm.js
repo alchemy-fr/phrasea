@@ -8,6 +8,7 @@ export default class UploadForm extends Component {
     static propTypes = {
         files: PropTypes.array.isRequired,
         onNext: PropTypes.func.isRequired,
+        onCancel: PropTypes.func,
     };
 
     onComplete = (data) => {
@@ -26,6 +27,7 @@ export default class UploadForm extends Component {
             <AssetForm
                 submitPath={'/form/validate'}
                 onComplete={this.onComplete}
+                onCancel={this.props.onCancel}
             />
         </Container>;
     }

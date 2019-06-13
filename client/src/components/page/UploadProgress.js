@@ -8,13 +8,15 @@ import Container from "../Container";
 export default class UploadProgress extends Component {
     fileRefs = {};
 
-    constructor(props) {
-        super(props);
+    static propTypes = {
+        files: PropTypes.array.isRequired,
+        onNext: PropTypes.func.isRequired,
+        onCancel: PropTypes.func,
+    };
 
-        this.state = {
-            progress: 0,
-        }
-    }
+    state = {
+        progress: 0,
+    };
 
     renderProgressBar() {
         const {
@@ -75,7 +77,7 @@ export default class UploadProgress extends Component {
     }
 
     render() {
-        const {files} = this.props;
+        const {files, onCancel} = this.props;
 
         return <Container>
             <p>
@@ -85,11 +87,13 @@ export default class UploadProgress extends Component {
                 {this.renderFiles()}
                 {this.renderProgressBar()}
             </div>
+            {onCancel ? <div>
+                <button
+                    className="btn btn-default"
+                    type="button"
+                    onClick={onCancel}
+                >Cancel</button>
+            </div> : ''}
         </Container>;
     }
 }
-
-UploadProgress.propTypes = {
-    files: PropTypes.array.isRequired,
-    onNext: PropTypes.func.isRequired,
-};
