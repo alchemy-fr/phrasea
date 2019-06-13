@@ -63,6 +63,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
+      - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -92,6 +93,7 @@ services:
     environment:
       - DEV_MODE
       - UPLOAD_BASE_URL
+      - SIGN_UP_URL
       - AUTH_BASE_URL
       - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
       - CLIENT_SECRET
@@ -108,6 +110,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
+      - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - MAILER_URL

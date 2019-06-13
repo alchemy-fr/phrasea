@@ -32,6 +32,18 @@ class User implements UserInterface
     protected $email;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     */
+    protected $enabled;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $securityToken;
+
+    /**
      * @var string
      * @ORM\Column(type="string", length=255)
      */
@@ -78,7 +90,7 @@ class User implements UserInterface
         return $this->id->__toString();
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -151,5 +163,25 @@ class User implements UserInterface
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    public function getSecurityToken(): ?string
+    {
+        return $this->securityToken;
+    }
+
+    public function setSecurityToken(?string $securityToken): void
+    {
+        $this->securityToken = $securityToken;
     }
 }

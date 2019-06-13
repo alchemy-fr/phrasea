@@ -4,11 +4,15 @@ BASEDIR=$(dirname $0)
 
 . "$BASEDIR/load.env.sh"
 
+
+APP_ENV=${APP_ENV:-"prod"}
+
+CONF=""
+if [ ${APP_ENV} == "prod" ]; then
+    CONF="-f docker-compose.yml"
+fi
+
 set -ex
-
-export APP_ENV=prod
-
-CONF="-f docker-compose.yml"
 
 docker-compose ${CONF} up -d
 

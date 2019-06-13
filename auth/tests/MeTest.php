@@ -33,4 +33,14 @@ class MeTest extends ApiTestCase
         $response = $this->request('GET', '/me');
         $this->assertEquals(401, $response->getStatusCode());
     }
+
+    public function testMeGenerates401WithADisabledAccount(): void
+    {
+        $accessToken = $this->authenticateUser('disabled@bar.com', 'secret');
+
+        $response = $this->request('GET', '/me', [
+            'access_token' => $accessToken,
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
+    }
 }

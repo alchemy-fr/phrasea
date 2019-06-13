@@ -17,7 +17,7 @@ security:
                 property: email
     firewalls:
         anonymous:
-            pattern: /password/reset
+            pattern: (/register|/password/reset)
             security: false
         oauth_token:
             pattern:    ^/oauth/v2/token
@@ -27,6 +27,7 @@ security:
             fos_oauth:  true
             stateless:  true
             anonymous:  false
+            user_checker: App\Security\UserChecker
 
     access_control:
         - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }

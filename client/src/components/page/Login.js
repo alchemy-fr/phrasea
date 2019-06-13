@@ -1,19 +1,16 @@
 import React, {Component} from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
+import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import {Redirect, Link} from "react-router-dom";
 import auth from '../../auth';
+import config from '../../config';
 
 export default class Login extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            email: '',
-            password: '',
-            redirectToReferrer: false,
-            error: null,
-        };
-    }
+    state = {
+        email: '',
+        password: '',
+        redirectToReferrer: false,
+        error: null,
+    };
 
     isFormValid() {
         return this.state.email.length > 0 && this.state.password.length > 0;
@@ -48,7 +45,7 @@ export default class Login extends Component {
         const {from} = this.props.location.state || {from: {pathname: '/'}};
 
         if (auth.isAuthenticated() || redirectToReferrer === true) {
-            return <Redirect to={from} />
+            return <Redirect to={from}/>
         }
 
         return (
@@ -86,6 +83,12 @@ export default class Login extends Component {
                     <p>
                         <Link to="/forgot-password">Forgot password?</Link>
                     </p>
+                    {config.getSignUpURL() ?
+                        <p>
+                            Not registered yet? <a target="_new" href={config.getSignUpURL()}>
+                                Sign up
+                            </a>
+                        </p> : ''}
                 </div>
             </div>
         );

@@ -76,6 +76,8 @@ class CreateUserCommand extends Command
             throw new Exception(sprintf('User with email "%s" already exists', $email));
         }
 
+        $user->setEnabled(true);
+
         if (null === $password = $input->getOption('password')) {
             $password = rtrim(str_replace('+', '.', base64_encode(random_bytes(32))), '=');
         }

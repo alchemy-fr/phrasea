@@ -33,6 +33,13 @@ class ApiExceptionListener implements EventSubscriberInterface
 
     public function onKernelException(GetResponseForExceptionEvent $event): void
     {
+        $request = $event->getRequest();
+
+        if (!(!empty($request->getAcceptableContentTypes())
+            && 'application/json' === $request->getAcceptableContentTypes()[0])) {
+            return;
+        }
+
         $exception = $event->getException();
         $class = get_class($event->getException());
 

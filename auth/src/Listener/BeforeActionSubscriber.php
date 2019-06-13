@@ -23,7 +23,7 @@ class BeforeActionSubscriber implements EventSubscriberInterface
     public function convertJsonStringToArray(FilterControllerEvent $event)
     {
         $request = $event->getRequest();
-        if ('json' != $request->getContentType() || !$request->getContent()) {
+        if ('json' !== $request->getContentType() || !$request->getContent()) {
             return;
         }
         $data = json_decode($request->getContent(), true);

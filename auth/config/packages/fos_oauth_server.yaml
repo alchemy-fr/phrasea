@@ -8,3 +8,7 @@ fos_oauth_server:
     user_provider: App\User\UserManager
     options:
       access_token_lifetime: 7776000
+
+services:
+  security.user_checker:
+    alias: "App\\Security\\UserChecker"

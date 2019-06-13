@@ -49,33 +49,6 @@ MAILER_URL=smtp://username:password@provider:25
 bin/install.sh
 ```
 
-### User management
-
-Create user:
-```bash
-bin/console app:user:create user@alchemy.fr -p s3cr3t --roles ROLE_SUPER_ADMIN
-```
-
-Edit user's password:
-```bash
-bin/console app:user:create user@alchemy.fr -p s3cr3t_2 --update-if-exist
-```
-
-Grant user roles:
-```bash
-bin/console app:user:set-roles user@alchemy.fr "ROLE_SUPER_ADMIN,ROLE_EDITOR"
-```
-
-Revoke user roles:
-```bash
-bin/console app:user:set-roles user@alchemy.fr ""
-```
-
-Remove user:
-```bash
-bin/console app:user:remove user@alchemy.fr
-```
-
 ## Start
 
 ```bash
@@ -85,6 +58,16 @@ bin/start.sh
 If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `bin/start.sh` again.
 
 Client web app is available at `http://localhost`
+
+## User management
+
+Go to the auth_php container:
+
+```bash
+docker-compose exec --user app auth_php /bin/sh
+```
+
+Then refer to the Auth service [documentation](./auth/README.md)
 
 ## Development
 
