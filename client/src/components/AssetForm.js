@@ -73,6 +73,8 @@ export default class AssetForm extends Component {
                 .send(data)
                 .end((err, res) => {
                     if (!auth.isResponseValid(err, res)) {
+                        console.log(err);
+                        reject(new SubmissionError({_error: err.toString()}));
                         return;
                     }
 

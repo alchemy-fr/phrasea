@@ -8,3 +8,11 @@ ul.list-inline {
     @extend .list-inline-item;
   }
 }
+
+.has-error .help-block, .form-error {
+  color: red;
+}
+
+.form-error {
+  margin-bottom: 15px;
+}

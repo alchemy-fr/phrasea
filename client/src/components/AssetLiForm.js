@@ -11,7 +11,7 @@ const BaseForm = props => {
     return <form onSubmit={handleSubmit}>
         {renderField(schema, null, theme || DefaultTheme)}
         <div>
-            {error && <strong>{error}</strong>}
+            {error && <div className="form-error">{error}</div>}
         </div>
         {onCancel ?
             <button
