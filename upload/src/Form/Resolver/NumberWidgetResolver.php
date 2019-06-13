@@ -20,6 +20,9 @@ class NumberWidgetResolver implements WidgetResolverInterface
 
     public function supports(array $config): bool
     {
-        return 'number' === $config['format'] || 'number' === $config['widget'];
+        return 'number' === $config['type']
+            || 'number' === $config['format']
+            || 'number' === $config['widget']
+            ;
     }
 }
