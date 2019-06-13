@@ -63,6 +63,8 @@ class App extends Component {
         }
 
         const {user} = this.state;
+        const isAdmin = user && user.is_admin;
+
 
         return (
             <Router>
@@ -77,10 +79,8 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
                     <Link onClick={() => this.closeMenu()} to="/about">About</Link>
                     <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
-                    {user && user.is_admin ? <React.Fragment>
-                        <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link>
-                        <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link>
-                    </React.Fragment> : ''}
+                    {isAdmin ? <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
+                    {isAdmin ? <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link> : ''}
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}
