@@ -107,39 +107,41 @@ export default class Upload extends Component {
             case SELECT_FILES:
             default:
                 return <Container>
-                    <Dropzone
-                        onDrop={this.onDrop}
-                    >
-                        {({getRootProps, getInputProps, isDragActive}) => {
-                            let classes = ['Upload'];
-                            if (isDragActive) {
-                                classes.push('drag-over');
-                            }
-                            return (
-                                <div {...getRootProps()} className={classes.join(' ')}>
-                                    <input {...getInputProps()} />
-                                    {files.length > 0 ?
-                                        this.renderFiles()
-                                        : <p>Drag 'n' drop some files here, or click to select files</p>
-                                    }
-                                </div>
-                            )
-                        }}
-                    </Dropzone>
+                    <div className="upload-container">
+                        <Dropzone
+                            onDrop={this.onDrop}
+                        >
+                            {({getRootProps, getInputProps, isDragActive}) => {
+                                let classes = ['Upload'];
+                                if (isDragActive) {
+                                    classes.push('drag-over');
+                                }
+                                return (
+                                    <div {...getRootProps()} className={classes.join(' ')}>
+                                        <input {...getInputProps()} />
+                                        {files.length > 0 ?
+                                            this.renderFiles()
+                                            : <p>Drag 'n' drop some files here, or click to select files</p>
+                                        }
+                                    </div>
+                                )
+                            }}
+                        </Dropzone>
 
-                    <Button
-                        size="lg"
-                        onClick={this.submit}
-                        disabled={this.state.files.length === 0}
-                    >
-                        Next
-                    </Button>
+                        <Button
+                            size="lg"
+                            onClick={this.submit}
+                            disabled={this.state.files.length === 0}
+                        >
+                            Next
+                        </Button>
 
-                    <hr/>
-                    <p>
-                        or just{' '}
-                        <Link to="/download">download</Link> URLs.
-                    </p>
+                        <hr/>
+                        <p>
+                            or just{' '}
+                            <Link to="/download">download</Link> URLs.
+                        </p>
+                    </div>
                 </Container>;
         }
     }

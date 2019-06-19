@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
+import Container from "../Container";
 
 export default class About extends Component {
     render() {
         return (
-            <div className="container">
-                <h1>About</h1>
-
+            <Container title="About">
                 <p>Alchemy &copy;</p>
-            </div>
+            </Container>
         );
     }
 }

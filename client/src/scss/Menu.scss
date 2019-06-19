@@ -3,9 +3,16 @@
   position: fixed;
   width: 36px;
   height: 30px;
-  left: 36px;
-  top: 36px;
+  left: 25px;
+  top: 25px;
+
+  @include media-breakpoint-down(xs) {
+    left: 10px;
+    top: 10px;
+  }
 }
+
+
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {

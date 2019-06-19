@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
+import Container from "../Container";
 
 export default class ResetPassword extends Component {
     constructor(props) {
@@ -42,8 +43,7 @@ export default class ResetPassword extends Component {
         const {requested} = this.state;
 
         return (
-            <div className="container">
-                <h1>Reset password</h1>
+            <Container title="Reset password">
                 <div>
                     {requested ? 'You will receive an email to reset your password.' :
                         <form onSubmit={this.handleSubmit}>
@@ -66,7 +66,7 @@ export default class ResetPassword extends Component {
                         </form>
                     }
                 </div>
-            </div>
+            </Container>
         );
     }
 }

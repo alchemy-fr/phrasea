@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import './scss/App.scss';
-import './scss/Menu.scss';
 import Upload from "./components/page/Upload";
 import {slide as Menu} from 'react-burger-menu';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
@@ -31,10 +30,10 @@ class App extends Component {
                 user: evt.user,
             });
         });
-        auth.registerListener('login', (evt) => {
+        auth.registerListener('login', () => {
             auth.authenticate();
         });
-        auth.registerListener('logout', (evt) => {
+        auth.registerListener('logout', () => {
             this.setState({
                 user: null,
             });

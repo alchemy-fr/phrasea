@@ -4,6 +4,7 @@ import FormPreview from "../FormPreview";
 import config from "../../config";
 import request from "superagent";
 import auth from "../../auth";
+import Container from "../Container";
 
 export default class FormEditor extends Component {
     constructor(props) {
@@ -59,9 +60,7 @@ export default class FormEditor extends Component {
         const loading = null === schema;
 
         return (
-            <div className="container">
-                <h1>Form editor</h1>
-
+            <Container title="Form editor">
                 <div className="row">
                     <div className="col">
                         <Form onSubmit={this.handleSubmit}>
@@ -95,7 +94,7 @@ export default class FormEditor extends Component {
                             />}
                     </div>
                 </div>
-            </div>
+            </Container>
         );
     }
 }

@@ -3,6 +3,7 @@ import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import {Redirect, Link} from "react-router-dom";
 import auth from '../../auth';
 import config from '../../config';
+import Container from "../Container";
 
 export default class Login extends Component {
     state = {
@@ -49,9 +50,8 @@ export default class Login extends Component {
         }
 
         return (
-            <div className="container">
-                <h1>Please sign in</h1>
-                <div className="login-form">
+            <Container title="Please sign in">
+                <div className="form-container login-form">
                     <form onSubmit={this.handleSubmit}>
                         <FormGroup controlId="email">
                             <FormLabel>Email</FormLabel>
@@ -90,7 +90,7 @@ export default class Login extends Component {
                             </a>
                         </p> : ''}
                 </div>
-            </div>
+            </Container>
         );
     }
 }

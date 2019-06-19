@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import config from '../../config';
 import {Form, Button} from "react-bootstrap";
+import Container from "../Container";
 
 export default class DevSettings extends Component {
     constructor(props) {
@@ -47,9 +48,7 @@ export default class DevSettings extends Component {
         const {saved} = this.state;
 
         return (
-            <div className="container">
-                <h1>DEV Settings</h1>
-
+            <Container title="DEV Settings">
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group controlId="uploadBaseUrl">
                         <Form.Label>Upload Base URL</Form.Label>
@@ -95,7 +94,7 @@ export default class DevSettings extends Component {
                         </span>
                     ) : ''}
                 </Form>
-            </div>
+            </Container>
         );
     }
 }

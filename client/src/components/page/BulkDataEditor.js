@@ -3,6 +3,7 @@ import {Form, Button} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
 import auth from "../../auth";
+import Container from "../Container";
 
 export default class BulkDataEditor extends Component {
     state = {
@@ -71,9 +72,7 @@ export default class BulkDataEditor extends Component {
         const loading = null === bulkData;
 
         return (
-            <div className="container">
-                <h1>Bulk data editor</h1>
-
+            <Container title="Bulk data editor">
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group controlId="json">
                         <Form.Label>JSON Data</Form.Label>
@@ -101,7 +100,7 @@ export default class BulkDataEditor extends Component {
                 </span>
                     ) : ''}
                 </Form>
-            </div>
+            </Container>
         );
     }
 }

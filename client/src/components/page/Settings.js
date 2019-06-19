@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import ChangePassword from "./ChangePassword";
+import Container from "../Container";
 
 export default class Settings extends Component {
     render() {
         return (
-            <div className="container">
-                <h1>Settings</h1>
+            <Container title="Settings">
                 <ChangePassword />
-            </div>
+            </Container>
         );
     }
 }
