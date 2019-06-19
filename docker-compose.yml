@@ -97,6 +97,9 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
       - CLIENT_SECRET
+      - CLIENT_LOGO_SRC
+      - CLIENT_LOGO_X_MARGIN
+      - CLIENT_LOGO_Y_MARGIN
 
   auth_php:
     image: ${REGISTRY_NAMESPACE}auth_php

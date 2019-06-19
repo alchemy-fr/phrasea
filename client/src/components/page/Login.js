@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
-import {Redirect, Link} from "react-router-dom";
+import {Button, FormControl, FormGroup, FormLabel} from "react-bootstrap";
+import {Link, Redirect} from "react-router-dom";
 import auth from '../../auth';
 import config from '../../config';
 import Container from "../Container";
+import Logo from "../Logo";
 
 export default class Login extends Component {
     state = {
@@ -50,47 +51,50 @@ export default class Login extends Component {
         }
 
         return (
-            <Container title="Please sign in">
-                <div className="form-container login-form">
-                    <form onSubmit={this.handleSubmit}>
-                        <FormGroup controlId="email">
-                            <FormLabel>Email</FormLabel>
-                            <FormControl
-                                autoFocus
-                                type="email"
-                                value={this.state.email}
-                                onChange={this.handleChange}
-                            />
-                        </FormGroup>
-                        <FormGroup controlId="password">
-                            <FormLabel>Password</FormLabel>
-                            <FormControl
-                                value={this.state.password}
-                                onChange={this.handleChange}
-                                type="password"
-                            />
-                        </FormGroup>
-                        {error ? <div className="error text-danger">{error}</div> : ''}
-                        <Button
-                            block
-                            disabled={!this.isFormValid()}
-                            type="submit"
-                        >
-                            Login
-                        </Button>
-                    </form>
+            <>
+                <Logo />
+                <Container title="Please sign in">
+                    <div className="form-container login-form">
+                        <form onSubmit={this.handleSubmit}>
+                            <FormGroup controlId="email">
+                                <FormLabel>Email</FormLabel>
+                                <FormControl
+                                    autoFocus
+                                    type="email"
+                                    value={this.state.email}
+                                    onChange={this.handleChange}
+                                />
+                            </FormGroup>
+                            <FormGroup controlId="password">
+                                <FormLabel>Password</FormLabel>
+                                <FormControl
+                                    value={this.state.password}
+                                    onChange={this.handleChange}
+                                    type="password"
+                                />
+                            </FormGroup>
+                            {error ? <div className="error text-danger">{error}</div> : ''}
+                            <Button
+                                block
+                                disabled={!this.isFormValid()}
+                                type="submit"
+                            >
+                                Login
+                            </Button>
+                        </form>
 
-                    <p>
-                        <Link to="/forgot-password">Forgot password?</Link>
-                    </p>
-                    {config.getSignUpURL() ?
                         <p>
-                            Not registered yet? <a target="_new" href={config.getSignUpURL()}>
+                            <Link to="/forgot-password">Forgot password?</Link>
+                        </p>
+                        {config.getSignUpURL() ?
+                            <p>
+                                Not registered yet? <a target="_new" href={config.getSignUpURL()}>
                                 Sign up
                             </a>
-                        </p> : ''}
-                </div>
-            </Container>
+                            </p> : ''}
+                    </div>
+                </Container>
+            </>
         );
     }
 }

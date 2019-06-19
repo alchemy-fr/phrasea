@@ -19,6 +19,9 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
       - CLIENT_SECRET
+      - CLIENT_LOGO_SRC
+      - CLIENT_LOGO_X_MARGIN
+      - CLIENT_LOGO_Y_MARGIN
     ports:
       - 127.0.0.1:3001:3000
 
