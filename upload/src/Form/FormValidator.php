@@ -40,7 +40,6 @@ class FormValidator
         return $this->getFormErrors($form);
     }
 
-
     private function getFormErrors(FormInterface $form): array
     {
         $errors = [];

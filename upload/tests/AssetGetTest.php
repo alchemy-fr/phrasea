@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AssetGetTest extends ApiTestCase
 {
-    const SAMPLE_FILE = __DIR__ . '/fixtures/32x32.jpg';
+    const SAMPLE_FILE = __DIR__.'/fixtures/32x32.jpg';
     private $assetId;
 
     public function testAssetGetOK(): void

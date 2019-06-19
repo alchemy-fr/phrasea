@@ -24,7 +24,7 @@ class TextWidgetResolver implements WidgetResolverInterface
                 'string',
             ], true)
             && in_array($config['widget'], [
-                'text'
+                'text',
             ], true);
     }
 }

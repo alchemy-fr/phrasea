@@ -10,7 +10,6 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -37,8 +36,7 @@ class UserManager implements UserProviderInterface
         EntityManagerInterface $em,
         UserPasswordEncoderInterface $passwordEncoder,
         bool $validateEmail
-    )
-    {
+    ) {
         $this->em = $em;
         $this->passwordEncoder = $passwordEncoder;
         $this->validateEmail = $validateEmail;
@@ -56,10 +54,11 @@ class UserManager implements UserProviderInterface
         return $user;
     }
 
-    private function generateToken(int $length):string
+    private function generateToken(int $length): string
     {
         $length = ($length < 4) ? 4 : $length;
-        return bin2hex(random_bytes(($length-($length%2))/2));
+
+        return bin2hex(random_bytes(($length - ($length % 2)) / 2));
     }
 
     public function findUserByEmail(string $email): ?User

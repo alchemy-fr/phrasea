@@ -6,15 +6,12 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
-use App\Consumer\Handler\CommitHandler;
 use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
-use App\Model\FormData;
 use App\Model\User;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

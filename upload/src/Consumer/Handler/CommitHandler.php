@@ -8,12 +8,8 @@ use App\Entity\Asset;
 use App\Entity\BulkData;
 use App\Model\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
-use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 
 class CommitHandler extends AbstractEntityManagerHandler
 {

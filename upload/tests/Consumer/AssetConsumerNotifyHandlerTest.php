@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Consumer;
 
-use App\Consumer\Handler\CommitHandler;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
-use App\Entity\Asset;
-use App\Entity\AssetRepository;
-use App\Entity\BulkData;
-use App\Entity\BulkDataRepository;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
-use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 use GuzzleHttp\Psr7\Response;
@@ -52,7 +43,6 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         ]);
         $handler->handle($message);
 
-        $this->assertEquals('/api/v1/upload/enqueue/', $clientHandler->getLastRequest()->getUri()->getPath());
         $this->assertEquals('/api/v1/upload/enqueue/', $clientHandler->getLastRequest()->getUri()->getPath());
         $this->assertEquals(0, $clientHandler->count());
     }

@@ -27,6 +27,6 @@ final class BulkDataAction extends AbstractController
     {
         $bulkData = $this->repository->getBulkData();
 
-        return new JsonResponse(null !== $bulkData ? $bulkData->getData() : new stdClass);
+        return new JsonResponse(null !== $bulkData ? $bulkData->getData() : new stdClass());
     }
 }

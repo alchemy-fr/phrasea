@@ -11,9 +11,6 @@ use App\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
-use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
@@ -35,11 +32,11 @@ class DownloadHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function($subject){
+                $this->callback(function ($subject) {
                     return $subject instanceof EventMessage
                         && is_array($subject->getPayload()['files'])
                         && is_string($subject->getPayload()['user_id'])
-                        && $subject->getPayload()['form'] === ['foo'=>'bar'];
+                        && $subject->getPayload()['form'] === ['foo' => 'bar'];
                 })
             );
 

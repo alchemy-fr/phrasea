@@ -29,9 +29,8 @@ class FormDataEditorVoter extends Voter
         return in_array($attribute, [
                 self::EDIT_FORM_SCHEMA,
                 self::EDIT_BULK_DATA,
-            ], true) && $subject === null;
+            ], true) && null === $subject;
     }
-
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
@@ -48,7 +47,6 @@ class FormDataEditorVoter extends Voter
             default:
                 return false;
         }
-
     }
 
     private function canEdit(): bool

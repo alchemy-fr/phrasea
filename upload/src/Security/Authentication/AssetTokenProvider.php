@@ -18,5 +18,4 @@ class AssetTokenProvider implements AuthenticationProviderInterface
     {
         return $token instanceof AssetToken;
     }
-
 }

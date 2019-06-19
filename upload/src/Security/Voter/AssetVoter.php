@@ -32,7 +32,7 @@ class AssetVoter extends Voter
 
     /**
      * @param AssetToken $token
-     * @param Asset $subject
+     * @param Asset      $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {

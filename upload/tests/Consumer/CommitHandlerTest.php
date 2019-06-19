@@ -12,13 +12,8 @@ use App\Entity\BulkDataRepository;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
-use GuzzleHttp\Psr7\Response;
 
 class CommitHandlerTest extends TestCase
 {
@@ -44,7 +39,7 @@ class CommitHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function($subject){
+                $this->callback(function ($subject) {
                     return $subject instanceof EventMessage
                         && is_array($subject->getPayload()['files'])
                         && !array_key_exists('form', $subject->getPayload())

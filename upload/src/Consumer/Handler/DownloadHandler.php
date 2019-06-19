@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Entity\Asset;
 use App\Model\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;

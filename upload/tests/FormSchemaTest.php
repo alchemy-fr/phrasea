@@ -38,7 +38,6 @@ class FormSchemaTest extends ApiTestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-
     public function testFormSchemaEditWithAnonymousUser(): void
     {
         $response = $this->request(null, 'POST', '/form-schema/edit', [

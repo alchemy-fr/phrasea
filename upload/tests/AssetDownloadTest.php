@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AssetDownloadTest extends ApiTestCase
 {
-    const SAMPLE_FILE = __DIR__ . '/fixtures/32x32.jpg';
+    const SAMPLE_FILE = __DIR__.'/fixtures/32x32.jpg';
     private $assetId;
 
     public function testAssetDownloadOK(): void

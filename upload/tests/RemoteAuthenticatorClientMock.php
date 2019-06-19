@@ -13,7 +13,7 @@ class RemoteAuthenticatorClientMock extends Client
     {
         $accessToken = explode(' ', $options['headers']['Authorization'], 2)[1];
         $roles = ['ROLE_USER'];
-        if ($accessToken === 'admin@alchemy.fr') {
+        if ('admin@alchemy.fr' === $accessToken) {
             $roles[] = 'ROLE_SUPER_ADMIN';
         }
 
