@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "groups"={"asset_read"},
  *     },
  *     itemOperations={
- *         "get",
+ *         "get"={"access_control"="is_granted('read_meta', object)"},
  *         "download"={
  *             "method"="GET",
  *             "path"="/assets/{id}/download",
@@ -104,6 +104,14 @@ class Asset
     private $mimeType;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ApiProperty()
+     */
+    private $token;
+
+    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -176,5 +184,15 @@ class Asset
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): void
+    {
+        $this->token = $token;
     }
 }

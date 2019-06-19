@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use App\Entity\Asset;
 use App\Model\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -90,6 +91,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $commit->setFormData($formData);
         $commit->setUserId($userId);
         $commit->setFiles([$asset->getId()]);
+        $commit->generateToken();
         $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $commit->toArray()));
     }
 

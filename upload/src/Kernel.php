@@ -3,6 +3,7 @@
 namespace App;
 
 use App\DependencyInjection\Compiler\WidgetResolverPass;
+use App\Security\Factory\AssetTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -29,6 +30,9 @@ class Kernel extends BaseKernel
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
+
+        $extension = $container->getExtension('security');
+        $extension->addSecurityListenerFactory(new AssetTokenFactory());
 
         $container->addCompilerPass(new WidgetResolverPass());
     }

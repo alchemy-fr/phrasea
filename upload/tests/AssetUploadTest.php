@@ -7,7 +7,7 @@ namespace App\Tests;
 use App\Model\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class AssetTest extends ApiTestCase
+class AssetUploadTest extends ApiTestCase
 {
     public function testUploadAssetOK(): void
     {
@@ -30,6 +30,14 @@ class AssetTest extends ApiTestCase
     public function testUploadAssetWithAnonymousUser(): void
     {
         $response = $this->request(null, 'POST', '/assets', [], [
+            'file' => new UploadedFile(__DIR__ . '/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testUploadAssetWithInvalidToken(): void
+    {
+        $response = $this->request('invalid_token', 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__ . '/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(401, $response->getStatusCode());

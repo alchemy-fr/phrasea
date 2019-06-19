@@ -8,11 +8,12 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
         main:
-            anonymous: false
-            logout: ~
+            anonymous: ~
             stateless: true
+            asset: true
             guard:
                 authenticators:
-                - App\Security\RemoteAuthAuthenticator
+                    - App\Security\RemoteAuthAuthenticator
+    access_control:
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

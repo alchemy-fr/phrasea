@@ -52,6 +52,7 @@ class AssetConsumerNotifyHandler extends AbstractLogHandler
             'json' => [
                 'assets' => $payload['files'],
                 'publisher' => $payload['user_id'],
+                'token' => $payload['token'],
             ],
         ]);
     }

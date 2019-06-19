@@ -33,6 +33,8 @@ class CommitHandler extends AbstractEntityManagerHandler
     public function handle(EventMessage $message): void
     {
         $commit = Commit::fromArray($message->getPayload());
+        $commit->generateToken();
+
         $em = $this->getEntityManager();
 
         $bulkData = $em
@@ -43,11 +45,12 @@ class CommitHandler extends AbstractEntityManagerHandler
 
         $em
             ->getRepository(Asset::class)
-            ->attachFormData($commit->getFiles(), $formData);
+            ->attachFormDataAndToken($commit->getFiles(), $formData, $commit->getToken());
 
         $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
             'files' => $commit->getFiles(),
             'user_id' => $commit->getUserId(),
+            'token' => $commit->getToken(),
         ]));
     }
 

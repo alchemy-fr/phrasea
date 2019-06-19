@@ -19,8 +19,11 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected $client;
 
+    /**
+     * @param string|array|null $accessToken
+     */
     protected function request(
-        ?string $accessToken,
+        $accessToken,
         string $method,
         string $uri,
         $params = [],
@@ -29,7 +32,12 @@ abstract class ApiTestCase extends WebTestCase
         ?string $content = null
     ): Response {
         if (null !== $accessToken) {
-            $server['HTTP_AUTHORIZATION'] = 'Bearer '.$accessToken;
+            if (is_array($accessToken)) {
+                [$authType, $accessToken] = $accessToken;
+            } else {
+                $authType = 'Bearer';
+            }
+            $server['HTTP_AUTHORIZATION'] = $authType.' '.$accessToken;
         }
         $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
         $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';

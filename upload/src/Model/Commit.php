@@ -36,6 +36,11 @@ final class Commit
      */
     private $userId;
 
+    /**
+     * @var string
+     */
+    private $token;
+
     public function getFiles(): array
     {
         return $this->files;
@@ -66,13 +71,34 @@ final class Commit
         $this->userId = $userId;
     }
 
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): void
+    {
+        $this->token = $token;
+    }
+
+    public function generateToken(): void
+    {
+        $this->token = bin2hex(random_bytes(21));
+    }
+
     public function toArray(): array
     {
-        return [
-            'files' => $this->getFiles(),
-            'form' => $this->getFormData(),
-            'user_id' => $this->getUserId(),
+        $data = [
+            'files' => $this->files,
+            'form' => $this->formData,
+            'user_id' => $this->userId,
         ];
+
+        if ($this->token) {
+            $data['token'] = $this->token;
+        }
+
+        return $data;
     }
 
     public static function fromArray(array $data): self

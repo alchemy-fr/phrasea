@@ -26,7 +26,7 @@ class CommitHandlerTest extends TestCase
     {
         $assetRepo = $this->createMock(AssetRepository::class);
         $assetRepo->expects($this->once())
-            ->method('attachFormData');
+            ->method('attachFormDataAndToken');
         $bulkRepo = $this->createMock(BulkDataRepository::class);
         $bulkRepo->expects($this->once())
             ->method('getBulkDataArray')
@@ -48,7 +48,9 @@ class CommitHandlerTest extends TestCase
                     return $subject instanceof EventMessage
                         && is_array($subject->getPayload()['files'])
                         && !array_key_exists('form', $subject->getPayload())
-                        && is_string($subject->getPayload()['user_id']);
+                        && is_string($subject->getPayload()['user_id'])
+                        && is_string($subject->getPayload()['token'])
+                        ;
                 })
             );
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,8 @@ final class DownloadAssetAction extends AbstractController
     public function __invoke(string $id)
     {
         $asset = $this->assetManager->findAsset($id);
+        $this->denyAccessUnlessGranted(AssetVoter::DOWNLOAD, $asset);
+
         $stream = $this->storageManager->getStream($asset->getPath());
 
         return new StreamedResponse(function () use ($stream) {

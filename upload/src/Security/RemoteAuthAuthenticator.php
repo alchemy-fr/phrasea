@@ -35,8 +35,9 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request)
     {
-        return $request->headers->has('Authorization')
-            || null !== $request->get('access_token');
+        $accessToken = RequestHelper::getAccessTokenFromRequest($request);
+
+        return null !== $accessToken;
     }
 
     /**
@@ -45,11 +46,7 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        if (null !== $accessToken = $request->headers->get('Authorization')) {
-            $accessToken = preg_replace('#Bearer\s+#', '', $accessToken);
-        } else {
-            $accessToken = $request->get('access_token');
-        }
+        $accessToken = RequestHelper::getAccessTokenFromRequest($request);
 
         if (null === $accessToken) {
             return null;
@@ -62,15 +59,15 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        $apiToken = $credentials['token'];
+        $token = $credentials['token'];
 
-        if (null === $apiToken) {
+        if (empty($token)) {
             return null;
         }
 
         $response = $this->client->request('GET', '/me', [
             'headers' => [
-                'Authorization' => 'Bearer '.$apiToken,
+                'Authorization' => 'Bearer '.$token,
             ],
         ]);
 

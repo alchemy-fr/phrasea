@@ -43,11 +43,16 @@ class FileStorageManager
     }
 
     /**
-     * @var resource
+     * @param $content resource
      */
     public function storeStream(string $path, $content): void
     {
         $this->filesystem->writeStream($path, $content);
+    }
+
+    public function delete(string $path): void
+    {
+        $this->filesystem->delete($path);
     }
 
     public function getStream(string $path)
