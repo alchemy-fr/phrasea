@@ -4,7 +4,7 @@ import auth from "./auth";
 
 class Config {
     get(key) {
-        return store.get(key) || window._env_[key];
+        return store.get(key) || window.config._env_[key];
     }
 
     set(key, value) {
@@ -44,7 +44,7 @@ class Config {
     }
 
     devModeEnabled() {
-        return window._env_.DEV_MODE === 'true';
+        return window.config._env_.DEV_MODE === 'true';
     }
 
     getFormSchema() {

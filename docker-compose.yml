@@ -86,6 +86,8 @@ services:
     build:
       context: ./client
       target: client_nginx
+    volumes:
+      - ./configs/client-ui.json:/configs/client-ui.json
     ports:
       - ${CLIENT_PORT}:80
     networks:

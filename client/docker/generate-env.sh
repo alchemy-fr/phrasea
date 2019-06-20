@@ -1,16 +1,20 @@
 #!/bin/bash
 
 BASEDIR=$(dirname $0)
+INDEX_DIR=$1
 
-# Recreate config file
-rm -rf ./env-config.js
-touch ./env-config.js
+ENV_CONFIG=/configs/__env.json
+ENV_FILE=./env-config.js
 
+rm -rf ${ENV_CONFIG}
+touch ${ENV_CONFIG}
 # Add assignment
-echo "window._env_ = {" >> ./env-config.js
+echo '{"_env_":{' >> ${ENV_CONFIG}
 
 # Read each line in .env file
 # Each line represents key=value pairs
+N=0
+
 while read -r line || [[ -n "$line" ]];
 do
   # Split env variables by character `=`
@@ -24,8 +28,26 @@ do
   # Otherwise use value from .env file
   [[ -z $value ]] && value=${varvalue}
 
+  if [ $N -gt 0 ]; then
+    echo "," >> ${ENV_CONFIG}
+  fi
+  N=$(( $N + 1 ))
+
   # Append configuration property to JS file
-  echo "  $varname: \"$value\"," >> ./env-config.js
+  echo -n "  \"$varname\": \"$value\"" >> ${ENV_CONFIG}
 done < "$BASEDIR/../.env"
 
-echo "};" >> ./env-config.js
+echo "}}" >> ${ENV_CONFIG}
+
+# Recreate config file
+rm -rf ${ENV_FILE}
+touch ${ENV_FILE}
+echo -n "window.config = " >> ${ENV_FILE}
+jq -s 'reduce .[] as $item ({}; . * $item)' /configs/*.json >> ${ENV_FILE}
+
+HASH=`md5sum ${ENV_FILE} | awk '{ print $1 }'`
+ENV_FILE_HASHED=./env-config.${HASH}.js
+mv ${ENV_FILE} ${ENV_FILE_HASHED}
+
+cp ${INDEX_DIR}/index.tpl.html ${INDEX_DIR}/index.html
+sed -i -e "s/__TPL_HASH__/${HASH}/g" ${INDEX_DIR}/index.html
