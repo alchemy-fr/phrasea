@@ -15,4 +15,5 @@ return [
     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
     OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
+    Http\HttplugBundle\HttplugBundle::class => ['all' => true],
 ];

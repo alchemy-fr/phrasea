@@ -6,3 +6,4 @@ App\Entity\OAuthClient:
         allowedGrantTypes:
             - password
             - refresh_token
+            - authorization_code

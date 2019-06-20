@@ -5,6 +5,7 @@ import auth from '../../auth';
 import config from '../../config';
 import Container from "../Container";
 import Logo from "../Logo";
+import OAuthProviders from "../oauth/OAuthProviders";
 
 export default class Login extends Component {
     state = {
@@ -93,6 +94,9 @@ export default class Login extends Component {
                             </a>
                             </p> : ''}
                     </div>
+
+                    <hr/>
+                    <OAuthProviders />
                 </Container>
             </>
         );

@@ -62,8 +62,8 @@ class User implements UserInterface
     protected $roles = [];
 
     /**
-     * @var string
-     * @ORM\Column(type="string", length=255)
+     * @var string|null
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $password;
 

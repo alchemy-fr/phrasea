@@ -49,3 +49,19 @@ services:
     App\User\UserManager:
         arguments:
             $validateEmail: '%env(bool:REGISTRATION_VALIDATE_EMAIL)%'
+
+    Http\Client\Common\HttpMethodsClient:
+        arguments:
+            $httpClient: "@httplug.client.default"
+
+    HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface:
+        alias: App\OAuth\BlackHoleOAuthStorage
+
+    App\OAuth\OAuthProviderFactory:
+        arguments:
+            $resourceOwners:
+                phraseanet: App\OAuth\ResourceOwner\PhraseanetResourceOwner
+
+    App\Controller\OAuthController:
+        arguments:
+            $oAuth2Server: "@fos_oauth_server.server"

@@ -15,6 +15,7 @@ import FormEditor from "./components/page/FormEditor";
 import ResetPassword from "./components/page/ResetPassword";
 import Download from "./components/page/Download";
 import BulkDataEditor from "./components/page/BulkDataEditor";
+import OAuthRedirect from "./components/page/OAuthRedirect";
 
 class App extends Component {
     state = {
@@ -67,6 +68,7 @@ class App extends Component {
 
         return (
             <Router>
+                <Route path="/auth/:provider" component={OAuthRedirect}/>
                 <Menu
                     pageWrapId="page-wrap"
                     isOpen={this.state.menuOpen}

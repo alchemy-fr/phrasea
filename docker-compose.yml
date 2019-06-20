@@ -87,7 +87,7 @@ services:
       context: ./client
       target: client_nginx
     volumes:
-      - ./configs/client-ui.json:/configs/client-ui.json
+      - ./configs:/configs
     ports:
       - ${CLIENT_PORT}:80
     networks:
@@ -121,6 +121,8 @@ services:
       - MAILER_URL
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ./configs:/configs
     depends_on:
       - rabbitmq
       - db
