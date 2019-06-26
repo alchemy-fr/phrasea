@@ -37,8 +37,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && rm /etc/nginx/conf.d/default.conf \
     && chmod +x /var/docker/generate-env.sh \
-    && mkdir -p /usr/src/app /configs \
-    && chown -R node: /configs
+    && mkdir -p /usr/src/app /configs
 
 EXPOSE 80
 
