@@ -44,6 +44,7 @@ rm -rf ${ENV_FILE}
 touch ${ENV_FILE}
 echo -n "window.config = " >> ${ENV_FILE}
 jq -s 'reduce .[] as $item ({}; . * $item)' /configs/*.json >> ${ENV_FILE}
+echo ";" >> ${ENV_FILE}
 
 HASH=`md5sum ${ENV_FILE} | awk '{ print $1 }'`
 ENV_FILE_HASHED=./env-config.${HASH}.js

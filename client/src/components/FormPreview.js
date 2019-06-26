@@ -3,12 +3,13 @@ import PropTypes from "prop-types";
 import AssetLiForm from "./AssetLiForm";
 
 export default class FormPreview extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            error: null,
-        }
-    }
+    static propTypes = {
+        schema: PropTypes.string.isRequired,
+    };
+
+    state = {
+        error: null,
+    };
 
     componentWillReceiveProps(nextProps, nextContext) {
         if (nextProps.schema !== this.props.schema) {
@@ -42,7 +43,3 @@ export default class FormPreview extends Component {
         </div>;
     }
 }
-
-FormPreview.propTypes = {
-    schema: PropTypes.string.isRequired,
-};

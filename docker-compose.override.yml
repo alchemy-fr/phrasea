@@ -12,7 +12,7 @@ services:
       - internal
     volumes:
       - ./client:/usr/src/app
-      - ./configs/client-ui.json:/configs/client-ui.json
+      - ./configs:/configs
     environment:
       - DEV_MODE
       - UPLOAD_BASE_URL

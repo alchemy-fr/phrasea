@@ -33,6 +33,7 @@ class Auth {
     logout() {
         this.authenticated = false;
         this.setAccessToken('');
+        this.setUsername('');
         this.triggerEvent('logout');
     }
 
@@ -49,8 +50,6 @@ class Auth {
     }
 
     login(email, password, callback, errCallback) {
-        this.setUsername(email);
-
         this.doLogin(email, password, () => {
             this.triggerEvent('login');
             callback();
@@ -85,6 +84,35 @@ class Auth {
             });
     }
 
+    getAccessTokenFromAuthCode(code, redirectUri, callback, errCallback) {
+        const {clientId, clientSecret} = config.getClientCredential();
+
+        request
+            .post(config.getAuthBaseURL() + '/oauth/v2/token')
+            .accept('json')
+            .send({
+                code,
+                grant_type: 'authorization_code',
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uri: redirectUri,
+            })
+            .end((err, res) => {
+                if (err) {
+                    if (errCallback) {
+                        errCallback(err, res);
+                    }
+                    return;
+                }
+
+                this.setAccessToken(res.body.access_token);
+                this.triggerEvent('login');
+                if (callback) {
+                    callback();
+                }
+            });
+    }
+
     authenticate(callback) {
         if (!this.hasAccessToken()) {
             return;
@@ -100,6 +128,7 @@ class Auth {
                 }
 
                 this.authenticated = true;
+                this.setUsername(res.body.email);
                 this.triggerEvent('authentication', {user: res.body});
                 callback && callback(res.body);
             });

@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\OAuth\ResourceOwner;
+
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\GenericOAuth2ResourceOwner;
+use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
+use HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner
+{
+    /**
+     * {@inheritdoc}
+     */
+    protected $paths = array(
+        'identifier' => 'response.user.id',
+        'nickname' => 'response.user.email',
+        'realname' => 'response.user.email',
+        'email' => 'response.user.email',
+    );
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+
+        $resolver->setRequired(['base_url']);
+
+        $resolver->setDefaults(array(
+            'authorization_url' => function (Options $options) {
+                return $options['base_url'].'/oauthv2/authorize';
+            },
+            'access_token_url' => function (Options $options) {
+                return $options['base_url'].'/oauthv2/token';
+            },
+            'infos_url' => function (Options $options) {
+                return $options['base_url'].'/v1/me';
+            },
+        ));
+    }
+
+    /**
+     * Dropbox API v2 requires a POST request to simply get user info!
+     *
+     * @param array $accessToken
+     * @param array $extraParameters
+     *
+     * @return UserResponseInterface
+     */
+    public function getUserInformation(
+        array $accessToken,
+        array $extraParameters = array()
+    ) {
+        $content = $this->httpRequest(
+            $this->normalizeUrl($this->options['infos_url'],
+                $extraParameters),
+            'null',
+            array(
+                'Authorization' => 'OAuth'.' '.$accessToken['access_token'],
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json; charset=utf-8',
+            ), 'GET');
+
+        $response = $this->getUserResponse();
+
+        $response->setData($content instanceof ResponseInterface ? (string) $content->getBody() : $content);
+        $response->setResourceOwner($this);
+        $response->setOAuthToken(new OAuthToken($accessToken));
+
+        return $response;
+    }
+}

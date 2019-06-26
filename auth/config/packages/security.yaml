@@ -17,7 +17,7 @@ security:
                 property: email
     firewalls:
         anonymous:
-            pattern: (/register|/password/reset)
+            pattern: (/register|/password/reset|^/oauth/)
             security: false
         oauth_token:
             pattern:    ^/oauth/v2/token
