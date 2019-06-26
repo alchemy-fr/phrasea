@@ -13,6 +13,7 @@ WORKDIR /usr/src/app
 
 RUN yarn install --silent \
     && cp public/index.tpl.html public/index.html \
+    && rm public/index.tpl.html \
     && yarn run build \
     && chmod +x ./docker/generate-env.sh
 
