@@ -38,7 +38,9 @@ final class DownloadAssetAction extends AbstractController
         $stream = $this->storageManager->getStream($asset->getPath());
 
         return new StreamedResponse(function () use ($stream) {
+            ob_end_flush();
             fpassthru($stream);
+            fclose($stream);
         }, 200, [
             'Content-Type' => $asset->getMimeType(),
             'Content-Disposition' => sprintf('attachment; filename="%s"', $asset->getOriginalName()),
