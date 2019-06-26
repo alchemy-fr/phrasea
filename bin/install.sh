@@ -29,4 +29,4 @@ docker-compose ${CONF} exec upload_php /bin/sh -c \
 docker-compose ${CONF} exec auth_php /bin/sh -c \
     "bin/console doctrine:database:create --if-not-exists; bin/console doctrine:schema:update -f"
 docker-compose ${CONF} exec auth_php /bin/sh -c \
-    "bin/console app:create-client ${CLIENT_ID} --random-id=${CLIENT_RANDOM_ID} --secret=${CLIENT_SECRET} --grant-type password; bin/console app:user:create --update-if-exist ${DEFAULT_USER_EMAIL} -p ${DEFAULT_USER_PASSWORD} --roles ROLE_SUPER_ADMIN"
+    "bin/console app:create-client ${CLIENT_ID} --random-id=${CLIENT_RANDOM_ID} --secret=${CLIENT_SECRET} --grant-type password --grant-type authorization_code; bin/console app:user:create --update-if-exist ${DEFAULT_USER_EMAIL} -p ${DEFAULT_USER_PASSWORD} --roles ROLE_SUPER_ADMIN"
