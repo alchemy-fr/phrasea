@@ -4,6 +4,8 @@ BASEDIR=$(dirname $0)
 
 . "$BASEDIR/load.env.sh"
 
+"$BASEDIR/update-config.sh"
+
 
 APP_ENV=${APP_ENV:-"prod"}
 

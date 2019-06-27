@@ -42,7 +42,7 @@ class OAuthProviderFactory
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface
     {
-        $config = json_decode(file_get_contents('/configs/auth.json'), true);
+        $config = json_decode(file_get_contents('/configs/config.json'), true);
         $providerConfig = array_filter($config['auth']['oauth_providers'], function (array $node) use ($providerName) {
             return $node['name'] === $providerName;
         })[0];
