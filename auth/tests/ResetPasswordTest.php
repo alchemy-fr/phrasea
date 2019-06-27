@@ -8,6 +8,8 @@ class ResetPasswordTest extends AbstractPasswordTest
 {
     public function testResetPasswordOK(): void
     {
+        $client = static::createClient();
+        $client->disableReboot();
         $request = $this->createResetPasswordRequest('foo@bar.com');
 
         $uri = sprintf(
@@ -15,18 +17,18 @@ class ResetPasswordTest extends AbstractPasswordTest
             $request->getId(),
             $request->getToken()
         );
-        $this->client->request('GET', $uri, [
+        $client->request('GET', $uri, [
             'email' => 'foo@bar.com',
         ]);
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
-        $this->client->submitForm('Reset password', [
+        $client->submitForm('Reset password', [
             'reset_password_form[new_password][first]' => 'new_secret',
             'reset_password_form[new_password][second]' => 'new_secret',
         ]);
 
         $this->assertTrue(
-            $this->client->getResponse()->isRedirect('/password/reset/changed')
+            $client->getResponse()->isRedirect('/password/reset/changed')
         );
 
         $this->assertPasswordIsInvalid('foo@bar.com', 'secret');

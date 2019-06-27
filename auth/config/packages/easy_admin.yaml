@@ -1,0 +1,33 @@
+easy_admin:
+  site_name: 'Auth admin'
+  formats:
+    date:     'd/m/Y'
+    time:     'H:i'
+    datetime: 'd/m/Y H:i:s'
+  show:
+    max_results: 100
+  user:
+    display_name: true
+    display_avatar: false
+    name_property_path: 'email'
+  entities:
+    User:
+      class: App\Entity\User
+      list:
+        filters:
+        - { property: 'enabled' }
+        sort: [createdAt, DESC]
+        fields:
+          - email
+          - enabled
+          - roles
+          - createdAt
+      search:
+        sort: ['email', 'ASC']
+        fields:
+          - email
+      form:
+        fields:
+          - { property: 'email' }
+          - { property: 'roles', type: App\Form\RoleChoiceType }
+          - { property: 'enabled' }

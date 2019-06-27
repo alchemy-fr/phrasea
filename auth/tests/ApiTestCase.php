@@ -46,6 +46,8 @@ abstract class ApiTestCase extends WebTestCase
         /** @var Response $response */
         $response = $this->client->getResponse();
 
+        $this->assertNoCookie($response);
+
         return $response;
     }
 
@@ -100,5 +102,10 @@ abstract class ApiTestCase extends WebTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
+    }
+
+    protected function assertNoCookie(Response $response): void
+    {
+        $this->assertNull($response->headers->get('Set-Cookie'));
     }
 }

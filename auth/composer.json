@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "arthem/rabbit-bundle": "@dev",
+        "easycorp/easyadmin-bundle": "^2.2",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hwi/oauth-bundle": "^0.6.3",
         "nelmio/cors-bundle": "^1.5",

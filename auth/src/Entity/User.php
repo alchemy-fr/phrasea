@@ -93,6 +93,9 @@ class User implements UserInterface
 
     public function getId(): string
     {
+        if (null === $this->id) {
+            return '';
+        }
         return $this->id->__toString();
     }
 
