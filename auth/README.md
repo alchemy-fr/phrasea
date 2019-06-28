@@ -27,7 +27,7 @@ Then copy credential given by the output.
 
 > Note that client ID has been suffixed by a random hash for security.
 
-### User management
+### User management with bin/console
 
 Create user:
 ```bash

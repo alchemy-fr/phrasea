@@ -12,8 +12,12 @@ easy_admin:
     name_property_path: 'email'
   entities:
     User:
+      templates:
+        list: 'admin/User/list.html.twig'
       class: App\Entity\User
       list:
+        batch_actions:
+          - delete
         actions:
           - invite
         filters:

@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Consumer\Handler\PasswordChangedHandler;
 use App\Consumer\Handler\UserInviteHandler;
 use App\Entity\User;
+use App\Form\ImportUsersForm;
+use App\User\Import\UserImporter;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AdminController extends EasyAdminController
 {
@@ -18,15 +21,22 @@ class AdminController extends EasyAdminController
      * @var UserManager
      */
     private $userManager;
+
     /**
      * @var EventProducer
      */
     private $eventProducer;
 
-    public function __construct(UserManager $userManager, EventProducer $eventProducer)
+    /**
+     * @var UserImporter
+     */
+    private $userImporter;
+
+    public function __construct(UserManager $userManager, EventProducer $eventProducer, UserImporter $userImporter)
     {
         $this->userManager = $userManager;
         $this->eventProducer = $eventProducer;
+        $this->userImporter = $userImporter;
     }
 
     public function createNewUserEntity()
@@ -59,5 +69,40 @@ class AdminController extends EasyAdminController
             'action' => 'list',
             'entity' => $this->request->query->get('entity'),
         ));
+    }
+
+    public function importAction()
+    {
+        $request = $this->request;
+        $form = $this->createForm(ImportUsersForm::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $fileField = $form->get('file');
+            $inviteUsers = (bool) $form->get('invite')->getData();
+            /** @var UploadedFile $file */
+            $file = $fileField->getData();
+            $violations = [];
+            $count = $this->userImporter->import(fopen($file->getRealPath(), 'r'), $inviteUsers, $violations);
+
+            if (!empty($violations)) {
+                $limit = 0;
+                $maxErrors = 10;
+                foreach ($violations as $violation) {
+                    if ($limit++ >= $maxErrors) {
+                        $fileField->addError(new FormError(sprintf('You have more than %d errors', $maxErrors)));
+                        break;
+                    }
+                    $fileField->addError(new FormError($violation));
+                }
+            } else {
+                $this->addFlash('success', sprintf('%d users have been imported', $count));
+
+                return $this->redirectToReferrer();
+            }
+        }
+
+        return $this->render('admin/User/import.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 }
