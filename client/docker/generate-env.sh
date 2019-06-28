@@ -52,7 +52,10 @@ mv ${ENV_FILE} ${ENV_FILE_HASHED}
 
 if [ ${INDEX_DIR} == "./" ]; then
     # for production build only
-    cp ${INDEX_DIR}/index.html ${INDEX_DIR}/index.tpl.html
+    if [ ! -f "${INDEX_DIR}/index.html.bk" ]; then
+        cp ${INDEX_DIR}/index.html ${INDEX_DIR}/index.html.bk
+    fi
+    cp ${INDEX_DIR}/index.html.bk ${INDEX_DIR}/index.tpl.html
 fi
 
 cp ${INDEX_DIR}/index.tpl.html ${INDEX_DIR}/index.html
