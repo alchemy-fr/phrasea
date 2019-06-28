@@ -1,10 +1,3 @@
-FROM nginx:1.15.11-alpine AS upload_nginx
-
-COPY docker/nginx/conf.d /etc/nginx/conf.d/
-COPY public /srv/app/public/
-
-EXPOSE 80
-
 FROM php:7.3.4-fpm-alpine AS upload_php
 
 RUN apk add --no-cache --virtual .persistent-deps \
@@ -53,6 +46,13 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && chown -R app: .
 
 CMD ["php-fpm"]
+
+FROM nginx:1.15.11-alpine AS upload_nginx
+
+COPY docker/nginx/conf.d /etc/nginx/conf.d/
+COPY --from=upload_php /srv/app/public /srv/app/public
+
+EXPOSE 80
 
 FROM upload_php as upload_worker
 
