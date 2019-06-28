@@ -14,12 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(name="registration_")
+ * @Route(path="/register", name="registration_")
  */
 class RegistrationController extends AbstractController
 {
     /**
-     * @Route(path="/register", name="register")
+     * @Route(name="register")
      */
     public function registerAction(Request $request, UserManager $userManager, EventProducer $eventProducer)
     {
@@ -43,7 +43,7 @@ class RegistrationController extends AbstractController
     }
 
     /**
-     * @Route(path="/register/unconfirmed", name="unconfirmed", methods={"GET"})
+     * @Route(path="/unconfirmed", name="unconfirmed", methods={"GET"})
      */
     public function unconfirmedAction()
     {
@@ -51,17 +51,18 @@ class RegistrationController extends AbstractController
     }
 
     /**
-     * @Route(path="/register/confirm/{id}/{token}", name="confirm", methods={"GET"})
+     * @Route(path="/confirm/{id}/{token}", name="confirm", methods={"GET"})
      */
     public function registerConfirmAction(string $id, string $token, UserManager $userManager)
     {
-        $userManager->confirmEmail($id, $token);
+        $user = $userManager->getUserByIdAndToken($id, $token);
+        $userManager->confirmEmail($user);
 
         return $this->redirectToRoute('registration_confirmed');
     }
 
     /**
-     * @Route(path="/register/confirmed", name="confirmed", methods={"GET"})
+     * @Route(path="/confirmed", name="confirmed", methods={"GET"})
      */
     public function registerConfirmedAction()
     {

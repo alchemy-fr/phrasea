@@ -89,6 +89,11 @@ class PasswordManager
         $this->doChangePassword($user, $newPassword);
     }
 
+    public function definePassword(User $user, string $password): void
+    {
+        $this->doChangePassword($user, $password);
+    }
+
     private function doChangePassword(User $user, string $newPassword): void
     {
         $user->setPlainPassword($newPassword);

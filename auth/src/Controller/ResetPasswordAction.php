@@ -16,11 +16,11 @@ class ResetPasswordAction extends AbstractController
     /**
      * @var PasswordManager
      */
-    private $resetPasswordManager;
+    private $passwordManager;
 
-    public function __construct(PasswordManager $resetPasswordManager)
+    public function __construct(PasswordManager $passwordManager)
     {
-        $this->resetPasswordManager = $resetPasswordManager;
+        $this->passwordManager = $passwordManager;
     }
 
     /**
@@ -28,7 +28,7 @@ class ResetPasswordAction extends AbstractController
      */
     public function reset(string $id, string $token, Request $request)
     {
-        $this->resetPasswordManager->getResetRequest($id, $token);
+        $this->passwordManager->getResetRequest($id, $token);
 
         $form = $this->createForm(ResetPasswordForm::class);
 
@@ -36,7 +36,7 @@ class ResetPasswordAction extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var User $user */
             $user = $form->getData();
-            $this->resetPasswordManager->resetPassword($id, $token, $user->getPlainPassword());
+            $this->passwordManager->resetPassword($id, $token, $user->getPlainPassword());
 
             return $this->redirectToRoute('reset_password_changed');
         }

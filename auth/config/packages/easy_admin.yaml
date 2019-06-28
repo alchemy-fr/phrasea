@@ -14,6 +14,8 @@ easy_admin:
     User:
       class: App\Entity\User
       list:
+        actions:
+          - invite
         filters:
         - { property: 'enabled' }
         sort: [createdAt, DESC]
@@ -31,3 +33,6 @@ easy_admin:
           - { property: 'email' }
           - { property: 'roles', type: App\Form\RoleChoiceType }
           - { property: 'enabled' }
+      new:
+        fields:
+          - { property: inviteByEmail, type: Symfony\Component\Form\Extension\Core\Type\CheckboxType }

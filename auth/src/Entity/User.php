@@ -10,7 +10,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="UserRepository")
  * @ORM\Table(name="`user`")
  */
 class User implements UserInterface
@@ -86,6 +86,13 @@ class User implements UserInterface
      */
     private $updatedAt;
 
+    /**
+     * Not mapped.
+     *
+     * @var bool
+     */
+    protected $inviteByEmail = false;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -122,6 +129,11 @@ class User implements UserInterface
     public function getPassword()
     {
         return $this->password;
+    }
+
+    public function hasPassword(): bool
+    {
+        return null !== $this->password;
     }
 
     public function getSalt()
@@ -202,5 +214,15 @@ class User implements UserInterface
     public function setEmailVerified(bool $emailVerified): void
     {
         $this->emailVerified = $emailVerified;
+    }
+
+    public function isInviteByEmail(): bool
+    {
+        return $this->inviteByEmail;
+    }
+
+    public function setInviteByEmail(bool $inviteByEmail): void
+    {
+        $this->inviteByEmail = $inviteByEmail;
     }
 }

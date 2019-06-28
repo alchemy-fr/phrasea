@@ -95,8 +95,7 @@ class UserManager implements UserProviderInterface
 
     public function removeUser(User $user): void
     {
-        $this->em->remove($user);
-        $this->em->flush();
+        $this->em->getRepository(User::class)->deleteUserCascade($user);
     }
 
     public function loadUserByUsername($username)
@@ -110,7 +109,7 @@ class UserManager implements UserProviderInterface
         return $user;
     }
 
-    public function confirmEmail(string $userId, string $token): void
+    public function getUserByIdAndToken(string $userId, string $token): User
     {
         try {
             $user = $this->em->find(User::class, $userId);
@@ -122,10 +121,15 @@ class UserManager implements UserProviderInterface
         }
 
         if (null === $user->getSecurityToken()
-        || $user->getSecurityToken() !== $token) {
+            || $user->getSecurityToken() !== $token) {
             throw new BadRequestHttpException('Invalid confirmation token');
         }
 
+        return $user;
+    }
+
+    public function confirmEmail(User $user): void
+    {
         $user->setEnabled(true);
         $user->setEmailVerified(true);
         $user->setSecurityToken(null);
