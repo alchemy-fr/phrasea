@@ -33,7 +33,7 @@ class CsvImportLoader implements UserImportLoaderInterface
         }
         $columnReaders = $this->getColumnReaders($header);
 
-        while (($data = fgetcsv($resource, 1000, ',')) !== false) {
+        while (false !== ($data = fgetcsv($resource, 1000, ','))) {
             $user = $createUser();
             foreach ($columnReaders as $i => $transformer) {
                 if (null !== $transformer) {

@@ -13,7 +13,7 @@ use League\Flysystem\FileExistsException;
 
 abstract class AbstractAssetTest extends ApiTestCase
 {
-    const SAMPLE_FILE = __DIR__ . '/../fixtures/32x32.jpg';
+    const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
     protected $assetId;
 
     protected function commitAsset(string $token = 'secret_token')

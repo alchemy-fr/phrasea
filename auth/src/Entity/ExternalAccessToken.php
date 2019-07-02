@@ -7,7 +7,6 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity

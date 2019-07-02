@@ -94,10 +94,10 @@ class AdminController extends EasyAdminController
             $this->addFlash('success', sprintf('User will be invited by email at %s', $entity->getEmail()));
         }
 
-        return $this->redirectToRoute('easyadmin', array(
+        return $this->redirectToRoute('easyadmin', [
             'action' => 'list',
             'entity' => $this->request->query->get('entity'),
-        ));
+        ]);
     }
 
     public function importAction()

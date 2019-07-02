@@ -103,6 +103,7 @@ class User implements UserInterface
         if (null === $this->id) {
             return '';
         }
+
         return $this->id->__toString();
     }
 

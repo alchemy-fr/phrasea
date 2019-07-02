@@ -8,7 +8,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Client;
-use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractStateFullTestCase extends WebTestCase
 {

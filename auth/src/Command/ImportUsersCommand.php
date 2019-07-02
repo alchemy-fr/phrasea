@@ -47,7 +47,7 @@ class ImportUsersCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $src = $input->getArgument('src');
-        $inviteUsers = !!$input->getOption('invite');
+        $inviteUsers = (bool) $input->getOption('invite');
 
         $count = $this->userImporter->import($src, $inviteUsers, $violations);
 

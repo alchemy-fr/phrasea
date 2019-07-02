@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\User\UserManager;
-use Exception;
 use FOS\OAuthServerBundle\Model\ClientManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

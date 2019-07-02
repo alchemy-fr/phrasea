@@ -13,7 +13,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -29,13 +28,11 @@ class LoginController extends AbstractController
     public function login(
         AuthenticationUtils $authenticationUtils,
         OAuthProviderFactory $OAuthProviderFactory
-    ): Response
-    {
+    ): Response {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
-
 
         return $this->render('admin/login.html.twig', [
             'last_username' => $lastUsername,
@@ -58,7 +55,7 @@ class LoginController extends AbstractController
     private function getRedirectUrl(string $provider): string
     {
         return $this->generateUrl('admin_oauth_check', [
-            'provider' => $provider
+            'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
@@ -96,7 +93,7 @@ class LoginController extends AbstractController
         $session->save();
 
         $event = new InteractiveLoginEvent($request, $token);
-        $dispatcher->dispatch("security.interactive_login", $event);
+        $dispatcher->dispatch('security.interactive_login', $event);
 
         return $this->redirectToRoute('easyadmin');
     }

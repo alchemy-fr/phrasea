@@ -11,11 +11,9 @@ class BlackHoleOAuthStorage implements RequestDataStorageInterface
 {
     public function fetch(ResourceOwnerInterface $resourceOwner, $key, $type = 'token')
     {
-
     }
 
     public function save(ResourceOwnerInterface $resourceOwner, $value, $type = 'token')
     {
-
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
-use App\Entity\AssetRepository;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;

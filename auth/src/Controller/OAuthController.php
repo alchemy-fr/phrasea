@@ -6,15 +6,10 @@ namespace App\Controller;
 
 use App\OAuth\OAuthProviderFactory;
 use App\Security\OAuthUserProvider;
-use FOS\OAuthServerBundle\Event\OAuthEvent;
-use FOS\OAuthServerBundle\Model\ClientInterface;
-use FOS\OAuthServerBundle\Model\ClientManagerInterface;
 use OAuth2\OAuth2;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -53,8 +48,7 @@ class OAuthController extends AbstractController
         string $provider,
         string $redirectUri,
         string $clientId
-    ): array
-    {
+    ): array {
         return [
             'provider' => $provider,
             'r' => $redirectUri,
@@ -70,8 +64,7 @@ class OAuthController extends AbstractController
         Request $request,
         OAuthProviderFactory $OAuthFactory,
         OAuthUserProvider $OAuthUserProvider
-    )
-    {
+    ) {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
 
         $finalRedirectUri = $request->get('r');

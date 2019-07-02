@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
-
 class AssetDownloadTest extends AbstractAssetTest
 {
     public function testAssetDownloadOK(): void

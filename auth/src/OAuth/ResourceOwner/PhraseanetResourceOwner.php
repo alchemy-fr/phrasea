@@ -16,12 +16,12 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
     /**
      * {@inheritdoc}
      */
-    protected $paths = array(
+    protected $paths = [
         'identifier' => 'response.user.id',
         'nickname' => 'response.user.email',
         'realname' => 'response.user.email',
         'email' => 'response.user.email',
-    );
+    ];
 
     public static function getTypeName(): string
     {
@@ -37,7 +37,7 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
 
         $resolver->setRequired(['base_url']);
 
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'authorization_url' => function (Options $options) {
                 return $options['base_url'].'/oauthv2/authorize';
             },
@@ -47,7 +47,7 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
             'infos_url' => function (Options $options) {
                 return $options['base_url'].'/v1/me';
             },
-        ));
+        ]);
     }
 
     /**
@@ -60,17 +60,17 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
      */
     public function getUserInformation(
         array $accessToken,
-        array $extraParameters = array()
+        array $extraParameters = []
     ) {
         $content = $this->httpRequest(
             $this->normalizeUrl($this->options['infos_url'],
                 $extraParameters),
             'null',
-            array(
+            [
                 'Authorization' => 'OAuth'.' '.$accessToken['access_token'],
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json; charset=utf-8',
-            ), 'GET');
+            ], 'GET');
 
         $response = $this->getUserResponse();
 

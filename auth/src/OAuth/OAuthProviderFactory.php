@@ -63,7 +63,7 @@ class OAuthProviderFactory
                 'title' => $provider['title'],
                 'entrypoint' => $this->urlGenerator->generate('admin_oauth_authorize', [
                     'provider' => $provider['name'],
-                ])
+                ]),
             ];
         }, $this->oAuthProviders);
     }

@@ -51,7 +51,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         }
         if (null !== $response->getExpiresIn()) {
             $expiresAt = new \DateTime();
-            $expiresAt->setTimestamp(time() + (int)$response->getExpiresIn());
+            $expiresAt->setTimestamp(time() + (int) $response->getExpiresIn());
             $accessToken->setExpiresAt($expiresAt);
         }
         $this->em->persist($accessToken);

@@ -54,8 +54,7 @@ class UserImporter
         ValidatorInterface $validator,
         EventProducer $eventProducer,
         int $batchSize = 20
-    )
-    {
+    ) {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->userImporter = $userImporter;
@@ -94,14 +93,14 @@ class UserImporter
                 $userViolations = $this->validator->validate($user);
                 if ($userViolations->count() > 0) {
                     foreach ($userViolations as $userViolation) {
-                        $violations[] = sprintf('Error at row #%d: %s', $i+2, $userViolation->getMessage());
+                        $violations[] = sprintf('Error at row #%d: %s', $i + 2, $userViolation->getMessage());
                     }
                     continue;
                 }
 
                 $this->em->persist($user);
 
-                if ($i > 0 && $i % $this->batchSize === 0) {
+                if ($i > 0 && 0 === $i % $this->batchSize) {
                     $this->em->flush();
                     $this->em->clear();
                 }
@@ -109,6 +108,7 @@ class UserImporter
 
             if (!empty($violations)) {
                 $this->em->rollback();
+
                 return 0;
             }
 
