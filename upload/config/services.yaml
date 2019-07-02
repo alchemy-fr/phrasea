@@ -6,6 +6,7 @@
 parameters:
     locale: 'en'
     env(UPLOAD_TEMP_DIR): "%kernel.cache_dir%/upload"
+    env(ASSET_DAYS_RETENTION): 31
     app.liform.default_schema.src: "%kernel.project_dir%/config/liform-schema.json"
 
 services:
@@ -55,3 +56,7 @@ services:
 
     App\Form\FormSchemaManager:
         $defaultSchemaFile: "%app.liform.default_schema.src%"
+
+    App\Storage\AssetManager:
+        arguments:
+            $assetDaysRetention: '%env(int:ASSET_DAYS_RETENTION)%'

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateInterval;
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 class AssetRepository extends EntityRepository
@@ -20,5 +22,21 @@ class AssetRepository extends EntityRepository
             ->setParameter('ids', $files)
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @return Asset[]
+     */
+    public function findExpiredAssets(int $maxDaysRetention): iterable
+    {
+        $expirationDate = new DateTime();
+        $expirationDate->sub(new DateInterval('P'.$maxDaysRetention.'D'));
+
+        return $this->createQueryBuilder('a')
+            ->select('a')
+            ->andWhere('a.createdAt < :expiration_date')
+            ->setParameter('expiration_date', $expirationDate)
+            ->getQuery()
+            ->getResult();
     }
 }
