@@ -57,11 +57,6 @@ services:
     HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface:
         alias: App\OAuth\BlackHoleOAuthStorage
 
-    App\OAuth\OAuthProviderFactory:
-        arguments:
-            $resourceOwners:
-                phraseanet: App\OAuth\ResourceOwner\PhraseanetResourceOwner
-
     App\Controller\OAuthController:
         arguments:
             $oAuth2Server: "@fos_oauth_server.server"

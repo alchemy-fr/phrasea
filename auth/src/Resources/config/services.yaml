@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\OAuth\OAuthProviderFactory:
+    arguments:
+      $resourceOwners:
+        phraseanet: App\OAuth\ResourceOwner\PhraseanetResourceOwner

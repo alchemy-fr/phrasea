@@ -1,5 +1,5 @@
 easy_admin:
-  site_name: 'Auth admin'
+  site_name: '%easy_admin.site_name%'
   formats:
     date:     'd/m/Y'
     time:     'H:i'
@@ -26,7 +26,7 @@ easy_admin:
         fields:
           - email
           - enabled
-          - roles
+          - { property: roles, sortable: false }
           - createdAt
       search:
         sort: ['email', 'ASC']

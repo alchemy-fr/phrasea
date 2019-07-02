@@ -27,23 +27,28 @@ class OAuthProviderFactory
      * @var RequestDataStorageInterface
      */
     private $storage;
+    /**
+     * @var array
+     */
+    private $oAuthProviders;
 
     public function __construct(
         HttpMethodsClient $httpClient,
         HttpUtils $httpUtils,
         RequestDataStorageInterface $storage,
-        array $resourceOwners
+        array $resourceOwners,
+        array $oAuthProviders
     ) {
         $this->httpClient = $httpClient;
         $this->httpUtils = $httpUtils;
         $this->storage = $storage;
         $this->resourceOwners = $resourceOwners;
+        $this->oAuthProviders = $oAuthProviders;
     }
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface
     {
-        $config = json_decode(file_get_contents('/configs/config.json'), true);
-        $providerConfig = array_filter($config['auth']['oauth_providers'], function (array $node) use ($providerName) {
+        $providerConfig = array_filter($this->oAuthProviders, function (array $node) use ($providerName) {
             return $node['name'] === $providerName;
         })[0];
 
