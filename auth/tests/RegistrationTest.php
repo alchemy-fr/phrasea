@@ -43,7 +43,7 @@ class RegistrationTest extends WebTestCase
         $client->submit($form);
 
         $this->assertContains(
-            'This value is already used.',
+            'Email is already used',
             $client->getResponse()->getContent()
         );
     }

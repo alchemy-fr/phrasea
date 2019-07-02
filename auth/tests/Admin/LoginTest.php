@@ -22,7 +22,7 @@ class LoginTest extends AbstractStateFullTestCase
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertContains(
-            'Auth admin',
+            '<meta name="generator" content="EasyAdmin"',
             $client->getResponse()->getContent()
         );
     }

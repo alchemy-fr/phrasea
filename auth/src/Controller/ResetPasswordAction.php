@@ -28,9 +28,9 @@ class ResetPasswordAction extends AbstractController
      */
     public function reset(string $id, string $token, Request $request)
     {
-        $this->passwordManager->getResetRequest($id, $token);
+        $passwordRequest = $this->passwordManager->getResetRequest($id, $token);
 
-        $form = $this->createForm(ResetPasswordForm::class);
+        $form = $this->createForm(ResetPasswordForm::class, $passwordRequest->getUser());
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
