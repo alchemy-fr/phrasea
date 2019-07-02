@@ -44,7 +44,7 @@ easy_admin:
     OAuthClient:
       class: App\Entity\OAuthClient
       list:
-        sort: [id, ASC]
+        sort: [createdAt, DESC]
         batch_actions:
           - delete
         fields:
