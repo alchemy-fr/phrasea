@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\ImportUsersForm;
 use App\Form\RoleChoiceType;
 use App\User\Import\UserImporter;
+use App\User\InviteManager;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -32,12 +33,21 @@ class AdminController extends EasyAdminController
      * @var UserImporter
      */
     private $userImporter;
+    /**
+     * @var InviteManager
+     */
+    private $inviteManager;
 
-    public function __construct(UserManager $userManager, EventProducer $eventProducer, UserImporter $userImporter)
-    {
+    public function __construct(
+        UserManager $userManager,
+        EventProducer $eventProducer,
+        UserImporter $userImporter,
+        InviteManager $inviteManager
+    ) {
         $this->userManager = $userManager;
         $this->eventProducer = $eventProducer;
         $this->userImporter = $userImporter;
+        $this->inviteManager = $inviteManager;
     }
 
     public function createNewUserEntity()
@@ -86,6 +96,12 @@ class AdminController extends EasyAdminController
 
         if ($entity->isEmailVerified()) {
             $this->addFlash('warning', sprintf('User %s has already joined', $entity->getEmail()));
+        } elseif (!$this->inviteManager->userCanBeInvited($entity)) {
+            $this->addFlash('warning', sprintf(
+                'User %s has already been invited less than %d seconds ago',
+                $entity->getEmail(),
+                $this->inviteManager->getAllowedInviteDelay()
+            ));
         } else {
             $this->eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
                 'id' => $entity->getId(),

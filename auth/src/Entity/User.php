@@ -80,6 +80,13 @@ class User implements UserInterface
     private $createdAt;
 
     /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastInviteAt;
+
+    /**
      * @var DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true)
@@ -225,5 +232,21 @@ class User implements UserInterface
     public function setInviteByEmail(bool $inviteByEmail): void
     {
         $this->inviteByEmail = $inviteByEmail;
+    }
+
+    public function getLastInviteAt(): DateTime
+    {
+        return $this->lastInviteAt;
+    }
+
+    public function setLastInviteAt(DateTime $lastInviteAt): void
+    {
+        $this->lastInviteAt = $lastInviteAt;
+    }
+
+    public function canBeInvited(int $allowedDelay): bool
+    {
+        return null === $this->lastInviteAt
+            || $this->lastInviteAt->getTimestamp() < time() - $allowedDelay;
     }
 }

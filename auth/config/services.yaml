@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    app.allowed_invite_delay: 3600
 
 services:
     # default configuration for services in *this* file
@@ -62,3 +63,7 @@ services:
     App\Controller\OAuthController:
         arguments:
             $oAuth2Server: "@fos_oauth_server.server"
+
+    App\User\InviteManager:
+        arguments:
+            $allowedInviteDelay: '%app.allowed_invite_delay%'
