@@ -11,6 +11,7 @@ class AssetDownloadTest extends AbstractAssetTest
     {
         $this->commitAsset();
         [$response, $contents] = $this->requestDownload('secret_token');
+        ob_start();
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('image/jpeg', $response->headers->get('Content-Type'));
@@ -42,6 +43,7 @@ class AssetDownloadTest extends AbstractAssetTest
     {
         $this->commitAsset();
         [$response] = $this->requestDownload('admin@alchemy.fr', 'Bearer');
+        ob_start();
         $this->assertEquals(200, $response->getStatusCode());
     }
 
