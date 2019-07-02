@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
+use App\Entity\AssetRepository;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AssetConsumerNotifyHandlerTest extends TestCase
 {
@@ -27,7 +29,17 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         ]);
         $clientStub = $client = new Client(['handler' => $clientHandler]);
 
-        $handler = new AssetConsumerNotifyHandler($clientStub, 'http://localhost/api/v1/upload/enqueue/', $accessToken);
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects($this->once())
+            ->method('generate')
+            ->willReturn('http://localhost/');
+
+        $handler = new AssetConsumerNotifyHandler(
+            $clientStub,
+            'http://localhost/api/v1/upload/enqueue/',
+            $accessToken,
+            $urlGenerator
+        );
 
         $logger = new TestLogger();
         $handler->setLogger($logger);
@@ -44,6 +56,13 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         $handler->handle($message);
 
         $this->assertEquals('/api/v1/upload/enqueue/', $clientHandler->getLastRequest()->getUri()->getPath());
+
+        $postBody = json_decode($clientHandler->getLastRequest()->getBody()->getContents(), true);
+        $this->assertArrayHasKey('assets', $postBody);
+        $this->assertCount(2, $postBody['assets']);
+        $this->assertEquals('a_token', $postBody['token']);
+        $this->assertEquals('http://localhost', $postBody['base_url']);
+
         $this->assertEquals(0, $clientHandler->count());
     }
 }

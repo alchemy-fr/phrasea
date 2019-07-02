@@ -7,6 +7,7 @@ namespace App\Consumer\Handler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use GuzzleHttp\Client;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AssetConsumerNotifyHandler extends AbstractLogHandler
 {
@@ -26,15 +27,21 @@ class AssetConsumerNotifyHandler extends AbstractLogHandler
      * @var string
      */
     private $targetAccessToken;
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
 
     public function __construct(
         Client $client,
         string $targetUri,
-        string $targetAccessToken
+        string $targetAccessToken,
+        UrlGeneratorInterface $urlGenerator
     ) {
         $this->client = $client;
         $this->targetUri = $targetUri;
         $this->targetAccessToken = $targetAccessToken;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function handle(EventMessage $message): void
@@ -53,8 +60,14 @@ class AssetConsumerNotifyHandler extends AbstractLogHandler
                 'assets' => $payload['files'],
                 'publisher' => $payload['user_id'],
                 'token' => $payload['token'],
+                'base_url' => $this->getBaseUrl(),
             ],
         ]);
+    }
+
+    private function getBaseUrl(): string
+    {
+        return rtrim($this->urlGenerator->generate('app_index', [], UrlGeneratorInterface::ABSOLUTE_URL), '/');
     }
 
     public static function getHandledEvents(): array
