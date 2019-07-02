@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Consumer\Handler\UserInviteHandler;
 use App\Entity\User;
 use App\Form\ImportUsersForm;
+use App\Form\RoleChoiceType;
 use App\User\Import\UserImporter;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -42,6 +43,34 @@ class AdminController extends EasyAdminController
     public function createNewUserEntity()
     {
         return $this->userManager->createUser();
+    }
+
+    /**
+     * @param User $entity
+     */
+    public function persistUserEntity($entity)
+    {
+        $this->persistEntity($entity);
+
+        if ($entity->isInviteByEmail()) {
+            $this->eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
+                'id' => $entity->getId(),
+            ]));
+        }
+    }
+
+    protected function createUserEntityFormBuilder($entity, $view)
+    {
+        $formBuilder = $this->createEntityFormBuilder($entity, $view);
+
+        if ($entity === $this->getUser()) {
+            $formBuilder->remove('roles');
+            $formBuilder->add('roles', RoleChoiceType::class, [
+                'disabled' => true,
+            ]);
+        }
+
+        return $formBuilder;
     }
 
     protected function removeUserEntity($entity)
