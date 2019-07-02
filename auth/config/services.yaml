@@ -16,11 +16,13 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,OAuth/OAuthProviderFactory.php}'
 
     _instanceof:
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
             tags: ['arthem_rabbit.event_handler']
+        HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface:
+            tags: ['app.resource_owner']
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class

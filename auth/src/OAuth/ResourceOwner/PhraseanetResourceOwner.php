@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner
+class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements ResourceOwnerInterface
 {
     /**
      * {@inheritdoc}
@@ -22,6 +22,11 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner
         'realname' => 'response.user.email',
         'email' => 'response.user.email',
     );
+
+    public static function getTypeName(): string
+    {
+        return 'phraseanet';
+    }
 
     /**
      * {@inheritdoc}

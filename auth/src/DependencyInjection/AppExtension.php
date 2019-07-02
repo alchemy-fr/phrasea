@@ -5,34 +5,36 @@ declare(strict_types=1);
 namespace App\DependencyInjection;
 
 use App\OAuth\OAuthProviderFactory;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class AppExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
         $jsonConfigSrc = '/configs/config.json';
-        $config = json_decode(file_get_contents($jsonConfigSrc), true);
+        if (file_exists($jsonConfigSrc)) {
+            $config = json_decode(file_get_contents($jsonConfigSrc), true);
+            // Add for fresh cache
+            $container->addResource(new FileResource($jsonConfigSrc));
+        } else {
+            $config = [];
+        }
 
-        // Add for fresh cache
-        $container->addResource(new FileResource($jsonConfigSrc));
+        $def = new Definition(OAuthProviderFactory::class);
+        $def->setAutowired(true);
+        $def->setAutoconfigured(true);
+        $providers = $config['auth']['oauth_providers'] ?? [];
+        $def->setArgument('$oAuthProviders', $providers);
+        $container->setDefinition($def->getClass(), $def);
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yaml');
-
-        $def = $container->getDefinition(OAuthProviderFactory::class);
-        $def->setArgument('$oAuthProviders', $config['auth']['oauth_providers']);
-
-        $logo = $config['admin']['logo'];
-        if (isset($logo['src'])) {
+        if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
                 '<img src="%s" width="%s" />',
-                $logo['src'],
-                $logo['with']
+                $config['admin']['logo']['src'],
+                $config['admin']['logo']['with']
             );
         } else {
             $siteName = 'Auth Admin';

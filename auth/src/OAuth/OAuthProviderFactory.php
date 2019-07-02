@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\OAuth;
 
+use App\OAuth\ResourceOwner\ResourceOwnerInterface;
 use Http\Client\Common\HttpMethodsClient;
 use HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface;
-use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
 class OAuthProviderFactory
@@ -28,6 +29,10 @@ class OAuthProviderFactory
      */
     private $storage;
     /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
+    /**
      * @var array
      */
     private $oAuthProviders;
@@ -36,14 +41,31 @@ class OAuthProviderFactory
         HttpMethodsClient $httpClient,
         HttpUtils $httpUtils,
         RequestDataStorageInterface $storage,
-        array $resourceOwners,
+        UrlGeneratorInterface $urlGenerator,
         array $oAuthProviders
     ) {
         $this->httpClient = $httpClient;
         $this->httpUtils = $httpUtils;
         $this->storage = $storage;
-        $this->resourceOwners = $resourceOwners;
+        $this->urlGenerator = $urlGenerator;
         $this->oAuthProviders = $oAuthProviders;
+    }
+
+    public function addResourceOwner(string $key, string $resourceOwnerClass): void
+    {
+        $this->resourceOwners[$key] = $resourceOwnerClass;
+    }
+
+    public function getViewProviders(): array
+    {
+        return array_map(function (array $provider) {
+            return [
+                'title' => $provider['title'],
+                'entrypoint' => $this->urlGenerator->generate('admin_oauth_authorize', [
+                    'provider' => $provider['name'],
+                ])
+            ];
+        }, $this->oAuthProviders);
     }
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface

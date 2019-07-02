@@ -69,9 +69,7 @@ class OAuthController extends AbstractController
         string $provider,
         Request $request,
         OAuthProviderFactory $OAuthFactory,
-        OAuthUserProvider $OAuthUserProvider,
-        EventDispatcherInterface $eventDispatcher,
-        ClientManagerInterface $clientManager
+        OAuthUserProvider $OAuthUserProvider
     )
     {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);

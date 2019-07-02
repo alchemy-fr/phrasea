@@ -21,7 +21,7 @@ export default class OAuthProviders extends Component {
                     return <div
                         key={provider.name}
                     >
-                        <a href={authorizeUrl}>Connect to {provider.title}</a>
+                        <a href={authorizeUrl}>Connect with {provider.title}</a>
                     </div>
                 })}
             </div>
