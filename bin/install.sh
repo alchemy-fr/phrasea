@@ -18,7 +18,7 @@ set -ex
 
 docker-compose ${CONF} up -d
 
-sleep 10
+docker-compose ${CONF} run --rm dockerize
 
 docker-compose ${CONF} exec rabbitmq /bin/sh -c \
     "rabbitmqctl add_vhost auth; rabbitmqctl add_vhost upload; rabbitmqctl set_permissions -p auth ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'; rabbitmqctl set_permissions -p upload ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
