@@ -45,6 +45,10 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache \
     && chown -R app: .
 
+
+ENTRYPOINT ["docker-php-entrypoint"]
+ENTRYPOINT ["/srv/app/docker/app/docker-entrypoint.sh"]
+
 CMD ["php-fpm"]
 
 FROM nginx:1.15.11-alpine AS auth_nginx
@@ -63,6 +67,6 @@ RUN apk add --no-cache \
 
 COPY docker/supervisor/* /etc/supervisor.d/
 
-ENTRYPOINT []
+ENTRYPOINT ["/srv/app/docker/app/docker-entrypoint.sh"]
 
 CMD ["/usr/bin/supervisord", "-n"]
