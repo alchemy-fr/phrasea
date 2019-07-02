@@ -45,7 +45,7 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache \
     && chown -R app: .
 
-CMD ["/bin/sh", "-c", "bin/console cache:clear && php-fpm"]
+CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && php-fpm"]
 
 FROM nginx:1.15.11-alpine AS auth_nginx
 
@@ -65,4 +65,4 @@ COPY docker/supervisor/* /etc/supervisor.d/
 
 ENTRYPOINT []
 
-CMD ["/bin/sh", "-c", "bin/console cache:clear && /usr/bin/supervisord -n"]
+CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && /usr/bin/supervisord -n"]
