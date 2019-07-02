@@ -18,6 +18,7 @@ set -ex
 
 docker-compose ${CONF} up -d
 
+# Wait for services to be ready
 docker-compose ${CONF} run --rm dockerize
 
 docker-compose ${CONF} exec rabbitmq /bin/sh -c \
