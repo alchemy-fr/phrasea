@@ -40,3 +40,21 @@ easy_admin:
       new:
         fields:
           - { property: inviteByEmail, type: Symfony\Component\Form\Extension\Core\Type\CheckboxType }
+
+    OAuthClient:
+      class: App\Entity\OAuthClient
+      list:
+        sort: [id, ASC]
+        batch_actions:
+          - delete
+        fields:
+          - publicId
+          - allowedGrantTypes
+          - redirectUris
+      form:
+        fields:
+          - { property: 'id', label: 'Client name' }
+          - randomId
+          - secret
+          - allowedGrantTypes
+          - redirectUris

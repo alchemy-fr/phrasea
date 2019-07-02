@@ -5,8 +5,17 @@ App\Entity\User:
         message: Email is already used
   properties:
     email:
+      - NotBlank: ~
       - Email: ~
     plainPassword:
       - Length:
           min: 6
           max: 255
+
+App\Entity\OAuthClient:
+  properties:
+    id:
+      - NotBlank: ~
+      - Regex:
+          pattern: '/^[a-z0-9]+[a-z0-9_-]*$/'
+          message: "Invalid client name. Must be lower case and must match ^[a-z0-9]+[a-z0-9_-]*$"
