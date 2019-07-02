@@ -45,7 +45,6 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache \
     && chown -R app: .
 
-
 ENTRYPOINT ["docker-php-entrypoint"]
 ENTRYPOINT ["/srv/app/docker/app/docker-entrypoint.sh"]
 

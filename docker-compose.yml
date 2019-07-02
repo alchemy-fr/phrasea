@@ -166,7 +166,7 @@ services:
     image: jwilder/dockerize
     networks:
       - internal
-    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "--", "echo", "ready"]
+    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "50s", "--", "echo", "ready"]
 
 volumes:
   db_vol:
