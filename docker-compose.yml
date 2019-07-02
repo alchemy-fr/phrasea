@@ -124,6 +124,7 @@ services:
     volumes:
       - ./configs:/configs
     depends_on:
+      - redis
       - rabbitmq
       - db
 
@@ -140,6 +141,13 @@ services:
       - ${AUTH_PORT}:80
     depends_on:
       - auth_php
+
+  redis:
+    image: redis:5.0.5-alpine
+    networks:
+      - internal
+    volumes:
+      - redis_vol:/data
 
   db:
     image: postgres:11.2-alpine
@@ -170,4 +178,5 @@ services:
 
 volumes:
   db_vol:
+  redis_vol:
   upload_vol:
