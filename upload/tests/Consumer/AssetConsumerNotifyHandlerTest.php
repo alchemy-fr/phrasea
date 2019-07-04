@@ -11,13 +11,13 @@ use GuzzleHttp\Handler\MockHandler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 use GuzzleHttp\Psr7\Response;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AssetConsumerNotifyHandlerTest extends TestCase
 {
     public function testAssetConsumerNotify(): void
     {
         $accessToken = 'secret_token';
+        $uploadBaseUrl = 'http://localhost:8080';
 
         $consumerResponse = new Response(200, [
             'Content-Type' => 'application/json',
@@ -28,16 +28,11 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         ]);
         $clientStub = $client = new Client(['handler' => $clientHandler]);
 
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects($this->once())
-            ->method('generate')
-            ->willReturn('http://localhost/');
-
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
             'http://localhost/api/v1/upload/enqueue/',
             $accessToken,
-            $urlGenerator
+            $uploadBaseUrl
         );
 
         $logger = new TestLogger();
@@ -60,7 +55,7 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         $this->assertArrayHasKey('assets', $postBody);
         $this->assertCount(2, $postBody['assets']);
         $this->assertEquals('a_token', $postBody['token']);
-        $this->assertEquals('http://localhost', $postBody['base_url']);
+        $this->assertEquals('http://localhost:8080', $postBody['base_url']);
 
         $this->assertEquals(0, $clientHandler->count());
     }
