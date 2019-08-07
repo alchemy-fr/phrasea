@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\OAuth\OAuthProviderFactory;
 use App\Security\OAuthUserProvider;
 use OAuth2\OAuth2;
+use OAuth2\OAuth2ServerException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -94,6 +95,10 @@ class OAuthController extends AbstractController
         $subRequest->query->set('redirect_uri', $finalRedirectUri);
         $subRequest->query->set('response_type', 'code');
 
-        return $this->oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
+        try {
+            return $this->oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
+        } catch (OAuth2ServerException $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
     }
 }
