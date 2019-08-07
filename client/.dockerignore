@@ -1,4 +1,5 @@
 /node_modules
 Dockerfile
+/README.md
 .dockerignore
 /public/env-config.js

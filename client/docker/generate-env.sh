@@ -47,6 +47,7 @@ jq -s 'reduce .[] as $item ({}; . * $item)' /configs/*.json >> ${ENV_FILE}
 echo ";" >> ${ENV_FILE}
 
 HASH=`md5sum ${ENV_FILE} | awk '{ print $1 }'`
+rm -f ./env-config.*.js
 ENV_FILE_HASHED=./env-config.${HASH}.js
 mv ${ENV_FILE} ${ENV_FILE_HASHED}
 
