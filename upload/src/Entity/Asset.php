@@ -79,13 +79,6 @@ class Asset
     private $size;
 
     /**
-     * @var array|null
-     * @Groups("asset_read")
-     * @ORM\Column(type="json_array", nullable=true)
-     */
-    private $formData;
-
-    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255)
@@ -104,12 +97,11 @@ class Asset
     private $mimeType;
 
     /**
-     * @var string|null
+     * @var Commit|null
      *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @ApiProperty()
+     * @ORM\ManyToOne(targetEntity="App\Entity\Commit", inversedBy="assets")
      */
-    private $token;
+    private $commit;
 
     /**
      * @var DateTime
@@ -119,6 +111,12 @@ class Asset
      * @Groups("asset_read")
      */
     private $createdAt;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=255)
+     */
+    private $userId;
 
     public function __construct()
     {
@@ -171,14 +169,35 @@ class Asset
         $this->mimeType = $mimeType;
     }
 
-    public function getFormData(): ?array
+    public function isCommitted(): bool
     {
-        return $this->formData;
+        return null !== $this->commit;
     }
 
-    public function setFormData(?array $formData): void
+    /**
+     * @Groups("asset_read")
+     */
+    public function getFormData(): ?array
     {
-        $this->formData = $formData;
+        return $this->commit ? $this->commit->getFormData() : null;
+    }
+
+    /**
+     * @ApiProperty()
+     */
+    public function getToken(): ?string
+    {
+        return $this->commit ? $this->commit->getToken() : null;
+    }
+
+    public function getCommit(): ?Commit
+    {
+        return $this->commit;
+    }
+
+    public function setCommit(?Commit $commit): void
+    {
+        $this->commit = $commit;
     }
 
     public function getCreatedAt(): DateTime
@@ -186,13 +205,13 @@ class Asset
         return $this->createdAt;
     }
 
-    public function getToken(): ?string
+    public function getUserId(): string
     {
-        return $this->token;
+        return $this->userId;
     }
 
-    public function setToken(?string $token): void
+    public function setUserId(string $userId): void
     {
-        $this->token = $token;
+        $this->userId = $userId;
     }
 }

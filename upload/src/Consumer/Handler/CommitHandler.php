@@ -6,10 +6,11 @@ namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
 use App\Entity\BulkData;
-use App\Model\Commit;
+use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Throwable;
 
 class CommitHandler extends AbstractEntityManagerHandler
 {
@@ -20,9 +21,8 @@ class CommitHandler extends AbstractEntityManagerHandler
      */
     private $eventProducer;
 
-    public function __construct(
-        EventProducer $eventProducer
-    ) {
+    public function __construct(EventProducer $eventProducer)
+    {
         $this->eventProducer = $eventProducer;
     }
 
@@ -38,15 +38,24 @@ class CommitHandler extends AbstractEntityManagerHandler
             ->getBulkDataArray();
 
         $formData = array_merge($commit->getFormData(), $bulkData);
+        $commit->setFormData($formData);
 
-        $em
-            ->getRepository(Asset::class)
-            ->attachFormDataAndToken($commit->getFiles(), $formData, $commit->getToken());
+        $em->beginTransaction();
+        try {
+            $em->persist($commit);
+            $em->flush();
+            $em
+                ->getRepository(Asset::class)
+                ->attachCommit($commit->getFiles(), $commit->getId());
+
+            $em->commit();
+        } catch (Throwable $e) {
+            $em->rollback();
+            throw $e;
+        }
 
         $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
-            'files' => $commit->getFiles(),
-            'user_id' => $commit->getUserId(),
-            'token' => $commit->getToken(),
+            'id' => $commit->getId(),
         ]));
     }
 

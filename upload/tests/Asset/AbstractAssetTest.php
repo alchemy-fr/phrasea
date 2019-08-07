@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Asset;
 
 use App\Entity\Asset;
+use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use App\Tests\ApiTestCase;
@@ -18,11 +19,18 @@ abstract class AbstractAssetTest extends ApiTestCase
 
     protected function commitAsset(string $token = 'secret_token')
     {
+        $commit = new Commit();
+        $commit->setToken($token);
+        $commit->setUserId('a_user_id');
+        $commit->setFormData(['foo' => 'bar']);
+
         /** @var EntityManagerInterface $em */
         $em = self::$container->get(EntityManagerInterface::class);
+        $em->persist($commit);
+        $em->flush();
         $em
             ->getRepository(Asset::class)
-            ->attachFormDataAndToken([$this->assetId], ['foo' => 'bar'], $token);
+            ->attachCommit([$this->assetId], $commit->getId());
 
         $asset = $em->find(Asset::class, $this->assetId);
         $em->refresh($asset);
@@ -35,7 +43,7 @@ abstract class AbstractAssetTest extends ApiTestCase
         $storageManager = self::$container->get(FileStorageManager::class);
         $realPath = self::SAMPLE_FILE;
         $path = 'test/foo.jpg';
-        $asset = $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846);
+        $asset = $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');
 
         $stream = fopen($realPath, 'r+');
         try {

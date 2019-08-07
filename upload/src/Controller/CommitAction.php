@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use App\Consumer\Handler\CommitHandler;
 use App\Form\FormValidator;
-use App\Model\Commit;
+use App\Entity\Commit;
 use App\Model\User;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;

@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
+use App\Entity\Asset;
+use App\Entity\Commit;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Client;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class AssetConsumerNotifyHandler extends AbstractLogHandler
+/**
+ * Notify remote consumer that there is a new batch available.
+ */
+class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'asset_consumer_notify';
 
@@ -50,16 +56,23 @@ class AssetConsumerNotifyHandler extends AbstractLogHandler
             return;
         }
 
-        $payload = $message->getPayload();
+        $id = $message->getPayload()['id'];
+        $em = $this->getEntityManager();
+        $commit = $em->find(Commit::class, $id);
+        if (!$commit instanceof Commit) {
+            throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
+        }
 
         $this->client->post($this->targetUri, [
             'headers' => [
                 'Authorization' => 'OAuth '.$this->targetAccessToken,
             ],
             'json' => [
-                'assets' => $payload['files'],
-                'publisher' => $payload['user_id'],
-                'token' => $payload['token'],
+                'assets' => array_map(function (Asset $asset): string {
+                    return $asset->getId();
+                }, $commit->getAssets()->toArray()),
+                'publisher' => $commit->getUserId(),
+                'token' => $commit->getToken(),
                 'base_url' => $this->getBaseUrl(),
             ],
         ]);

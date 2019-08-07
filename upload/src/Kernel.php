@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\WidgetResolverPass;
 use App\Security\Factory\AssetTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -33,8 +32,6 @@ class Kernel extends BaseKernel
 
         $extension = $container->getExtension('security');
         $extension->addSecurityListenerFactory(new AssetTokenFactory());
-
-        $container->addCompilerPass(new WidgetResolverPass());
     }
 
     public function getProjectDir(): string

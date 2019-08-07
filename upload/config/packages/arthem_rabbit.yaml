@@ -6,3 +6,4 @@ arthem_rabbit:
     bulk_commit: ~
     download_url: ~
     asset_consumer_notify: ~
+    fast_events: ~

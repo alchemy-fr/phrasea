@@ -10,15 +10,13 @@ use Doctrine\ORM\EntityRepository;
 
 class AssetRepository extends EntityRepository
 {
-    public function attachFormDataAndToken(array $files, array $formData, string $token): void
+    public function attachCommit(array $files, string $commitId): void
     {
         $this->createQueryBuilder('a')
             ->update(Asset::class, 'a')
-            ->set('a.formData', ':data')
-            ->set('a.token', ':token')
+            ->set('a.commit', ':commit')
             ->andWhere('a.id IN (:ids)')
-            ->setParameter('data', json_encode($formData))
-            ->setParameter('token', $token)
+            ->setParameter('commit', $commitId)
             ->setParameter('ids', $files)
             ->getQuery()
             ->execute();

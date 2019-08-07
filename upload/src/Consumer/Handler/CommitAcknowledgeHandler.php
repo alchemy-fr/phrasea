@@ -1,0 +1,61 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Consumer\Handler;
+
+use App\Entity\Asset;
+use App\Entity\BulkData;
+use App\Entity\Commit;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Throwable;
+
+class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
+{
+    const EVENT = 'commit_ack';
+
+    /**
+     * @var EventProducer
+     */
+    private $eventProducer;
+
+    public function __construct(EventProducer $eventProducer)
+    {
+        $this->eventProducer = $eventProducer;
+    }
+
+    public function handle(EventMessage $message): void
+    {
+        $payload = $message->getPayload();
+        $id = $payload['id'];
+
+        $em = $this->getEntityManager();
+        $commit = $em->find(Commit::class, $id);
+        if (!$commit instanceof Commit) {
+            throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
+        }
+
+        $commit->setAcknowledged(true);
+        $em->persist($commit);
+        $em->flush();
+
+        foreach ($commit->getAssets() as $asset) {
+            $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
+                'path' => $asset->getPath(),
+            ]));
+        }
+    }
+
+    public static function getHandledEvents(): array
+    {
+        return [self::EVENT];
+    }
+
+    public static function getQueueName(): string
+    {
+        return 'fast_events';
+    }
+}

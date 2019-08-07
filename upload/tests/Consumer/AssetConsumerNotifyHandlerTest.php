@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
+use App\Entity\Asset;
+use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use PHPUnit\Framework\TestCase;
@@ -33,24 +36,33 @@ class AssetConsumerNotifyHandlerTest extends TestCase
             ->method('generate')
             ->willReturn('http://localhost/');
 
+        $em = $this->createMock(EntityManagerInterface::class);
+
+        $commit = Commit::fromArray([
+            'form' => ['foo' => 'bar'],
+            'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
+        ]);
+        $commit->getAssets()->add(new Asset());
+        $commit->getAssets()->add(new Asset());
+        $commit->setToken('a_token');
+
+        $em->expects($this->once())
+            ->method('find')
+            ->willReturn($commit);
+
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
             'http://localhost/api/v1/upload/enqueue/',
             $accessToken,
             $urlGenerator
         );
+        $handler->setEntityManager($em);
 
         $logger = new TestLogger();
         $handler->setLogger($logger);
 
         $message = new EventMessage($handler::EVENT, [
-            'files' => [
-                '4c097077-a26b-4af4-9a5d-b13fd4c77b3d',
-                'a134145e-9461-4f0a-8bd8-7025d31a6b8e',
-            ],
-            'form' => ['foo' => 'bar'],
-            'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
-            'token' => 'a_token',
+            'id' => 'an_ID',
         ]);
         $handler->handle($message);
 

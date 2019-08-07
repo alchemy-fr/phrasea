@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Model\Commit;
+use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -83,7 +83,8 @@ class DownloadHandler extends AbstractEntityManagerHandler
             $path,
             $contentType,
             $originalName,
-            $response->getBody()->getSize()
+            $response->getBody()->getSize(),
+            $userId
         );
 
         $commit = new Commit();
@@ -91,7 +92,12 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $commit->setUserId($userId);
         $commit->setFiles([$asset->getId()]);
         $commit->generateToken();
-        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $commit->toArray()));
+
+        $em = $this->getEntityManager();
+        $em->persist($commit);
+        $em->flush();
+
+        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, ['id' => $commit->getId()]));
     }
 
     public static function getHandledEvents(): array

@@ -1,0 +1,12 @@
+{% extends '@EasyAdmin/default/list.html.twig' %}
+
+{% block global_actions %}
+    {{ parent() }}
+
+    <div class="button-action">
+        <a class="btn btn-default" href="{{ path('easyadmin', _request_parameters|merge({ action: 'import', referer_action: app.request.get('action') })) }}">
+            <i class="fa fa-fw fa-file"></i>
+            Import
+        </a>
+    </div>
+{% endblock %}

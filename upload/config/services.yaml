@@ -28,6 +28,8 @@ services:
         tags: ['controller.service_arguments']
 
     _instanceof:
+        Doctrine\Common\EventSubscriber:
+            tags: ['doctrine.event_subscriber']
         App\Form\Resolver\WidgetResolverInterface:
             tags: ['widget_resolver']
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
@@ -40,7 +42,11 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
 
-    App\Security\RemoteAuthAuthenticator:
+    App\Consumer\Handler\DeleteAssetFileHandler:
+        arguments:
+            $filesystem: "@oneup_flysystem.upload_filesystem"
+
+    App\Security\RemoteUserProvider:
         arguments:
             $client: "@eight_points_guzzle.client.auth"
 
@@ -60,3 +66,9 @@ services:
     App\Storage\AssetManager:
         arguments:
             $assetDaysRetention: '%env(int:ASSET_DAYS_RETENTION)%'
+
+    App\Security\LoginFormAuthenticator:
+        arguments:
+            $client: "@eight_points_guzzle.client.auth"
+            $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
+            $clientSecret: '%env(AUTH_CLIENT_SECRET)%'

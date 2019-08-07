@@ -113,6 +113,19 @@
             "config/packages/dev/easy_log_handler.yaml"
         ]
     },
+    "easycorp/easyadmin-bundle": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "0a51040a43c6f2172a3a0135cd15daf2043905d7"
+        },
+        "files": [
+            "config/packages/easy_admin.yaml",
+            "config/routes/easy_admin.yaml"
+        ]
+    },
     "egulias/email-validator": {
         "version": "2.1.7"
     },
@@ -226,6 +239,9 @@
         "files": [
             "config/packages/oneup_flysystem.yaml"
         ]
+    },
+    "pagerfanta/pagerfanta": {
+        "version": "v2.1.3"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.9.2"
@@ -678,6 +694,18 @@
             "version": "1.0",
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
+    },
+    "twig/extensions": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "a86723ee8d8b2f9437c8ce60a5546a1c267da5ed"
+        },
+        "files": [
+            "config/packages/twig_extensions.yaml"
+        ]
     },
     "twig/twig": {
         "version": "v2.7.4"

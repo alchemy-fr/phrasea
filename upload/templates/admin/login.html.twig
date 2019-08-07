@@ -8,7 +8,7 @@
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
 
-        <h1 class="h3 mb-3 font-weight-normal">Auth admin</h1>
+        <h1 class="h3 mb-3 font-weight-normal">Upload admin</h1>
         <h2 class="h4 mb-4 font-weight-normal">Please sign in</h2>
 
         <div class="form-group">
@@ -43,13 +43,5 @@
                 Sign in
             </button>
         </div>
-
-        <hr>
-
-        {% for provider in providers %}
-            <a href="{{ provider.entrypoint }}" class="btn btn-secondary">
-                Connect with {{ provider.title }}
-            </a>
-        {% endfor %}
     </form>
 {% endblock %}

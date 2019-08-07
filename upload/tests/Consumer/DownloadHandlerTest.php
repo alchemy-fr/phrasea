@@ -10,6 +10,7 @@ use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
@@ -34,9 +35,7 @@ class DownloadHandlerTest extends TestCase
             ->with(
                 $this->callback(function ($subject) {
                     return $subject instanceof EventMessage
-                        && is_array($subject->getPayload()['files'])
-                        && is_string($subject->getPayload()['user_id'])
-                        && $subject->getPayload()['form'] === ['foo' => 'bar'];
+                        && is_string($subject->getPayload()['id']);
                 })
             );
 
@@ -68,12 +67,15 @@ class DownloadHandlerTest extends TestCase
 
         $clientStub = $client = new Client(['handler' => $handler]);
 
+        $em = $this->createMock(EntityManagerInterface::class);
+
         $consumer = new DownloadHandler(
             $storageStub,
             $clientStub,
             $assetManagerStub,
             $producerStub
         );
+        $consumer->setEntityManager($em);
 
         $logger = new TestLogger();
         $consumer->setLogger($logger);

@@ -19,16 +19,6 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
 {
     /**
-     * @var Client
-     */
-    private $client;
-
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
-    }
-
-    /**
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning false will cause this authenticator
      * to be skipped.
@@ -57,6 +47,9 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
         ];
     }
 
+    /**
+     * @param RemoteUserProvider $userProvider
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = $credentials['token'];
@@ -65,21 +58,7 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
             return null;
         }
 
-        $response = $this->client->request('GET', '/me', [
-            'headers' => [
-                'Authorization' => 'Bearer '.$token,
-            ],
-        ]);
-
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedHttpException($response->getBody()->getContents());
-        }
-
-        $content = $response->getBody()->getContents();
-        $data = \GuzzleHttp\json_decode($content, true);
-        $user = new User($data['user_id'], $data['email'], $data['roles']);
-
-        return $user;
+        return $userProvider->loadUserFromAccessToken($token);
     }
 
     public function checkCredentials($credentials, UserInterface $user)

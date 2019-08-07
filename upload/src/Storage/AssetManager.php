@@ -38,9 +38,11 @@ class AssetManager
         string $path,
         string $mimeType,
         string $originalName,
-        int $size
+        int $size,
+        string $userId
     ): Asset {
         $asset = new Asset();
+        $asset->setUserId($userId);
         $asset->setPath($path);
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);

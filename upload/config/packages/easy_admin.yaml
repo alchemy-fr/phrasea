@@ -1,0 +1,40 @@
+easy_admin:
+  site_name: '%easy_admin.site_name%'
+  formats:
+    date:     'd/m/Y'
+    time:     'H:i'
+    datetime: 'd/m/Y H:i:s'
+  show:
+    max_results: 100
+  user:
+    display_name: true
+    display_avatar: false
+    name_property_path: 'username'
+  entities:
+    Commit:
+      disabled_actions:
+        - new
+        - edit
+      class: App\Entity\Commit
+      list:
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - userId
+          - assetCount
+          - token
+          - acknowledged
+          - createdAt
+    Asset:
+      class: App\Entity\Asset
+      disabled_actions:
+        - new
+        - edit
+      list:
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - originalName
+          - userId
+          - { property: committed, type: boolean }
+          - createdAt
