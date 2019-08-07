@@ -2,7 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\OAuth\OAuthProviderFactory;
 use App\Security\OAuthUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

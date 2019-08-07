@@ -50,7 +50,8 @@ class Commit
 
     /**
      * @var Asset[]|Collection
-     * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit")
+     * TODO make async cascade remove
+     * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
      */
     private $assets;
 

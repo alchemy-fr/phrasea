@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\DependencyInjection;
 
-use App\OAuth\OAuthProviderFactory;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
 class AppExtension extends Extension

@@ -19,19 +19,13 @@ class AssetManager
      * @var int
      */
     private $assetDaysRetention;
-    /**
-     * @var FileStorageManager
-     */
-    private $storageManager;
 
     public function __construct(
         EntityManagerInterface $em,
-        int $assetDaysRetention,
-        FileStorageManager $storageManager
+        int $assetDaysRetention
     ) {
         $this->em = $em;
         $this->assetDaysRetention = $assetDaysRetention;
-        $this->storageManager = $storageManager;
     }
 
     public function createAsset(
@@ -69,12 +63,8 @@ class AssetManager
         $assets = $this->em->getRepository(Asset::class)->findExpiredAssets($assetDaysRetention ?? $this->assetDaysRetention);
 
         foreach ($assets as $asset) {
-            try {
-                $this->storageManager->delete($asset->getPath());
-            } catch (FileNotFoundException $e) {
-            }
             $this->em->remove($asset);
-            $this->em->flush();
         }
+        $this->em->flush();
     }
 }

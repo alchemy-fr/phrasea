@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -111,7 +109,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
                 'grant_type' => 'password',
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
-            ]
+            ],
         ]);
 
         $content = $response->getBody()->getContents();

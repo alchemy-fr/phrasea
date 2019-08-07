@@ -42,5 +42,4 @@ class AssetListener implements EventSubscriber
             Events::postRemove,
         ];
     }
-
 }

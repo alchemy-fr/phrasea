@@ -4,33 +4,33 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Entity\Asset;
-use App\Entity\BulkData;
-use App\Entity\Commit;
+use App\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use League\Flysystem\FilesystemInterface;
-use Throwable;
+use League\Flysystem\FileNotFoundException;
 
 class DeleteAssetFileHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'delete_asset_file';
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
 
-    public function __construct(FilesystemInterface $filesystem)
+    /**
+     * @var FileStorageManager
+     */
+    private $storageManager;
+
+    public function __construct(FileStorageManager $storageManager)
     {
-        $this->filesystem = $filesystem;
+        $this->storageManager = $storageManager;
     }
 
     public function handle(EventMessage $message): void
     {
         $path = $message->getPayload()['path'];
 
-        $this->filesystem->delete($path);
+        try {
+            $this->storageManager->delete($path);
+        } catch (FileNotFoundException $e) {
+        }
     }
 
     public static function getHandledEvents(): array

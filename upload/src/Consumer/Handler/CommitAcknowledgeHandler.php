@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Entity\Asset;
-use App\Entity\BulkData;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Throwable;
 
 class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
 {

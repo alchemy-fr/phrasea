@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Security\Authentication\AssetToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -32,7 +31,7 @@ class CommitVoter extends Voter
 
     /**
      * @param AssetToken $token
-     * @param Commit      $subject
+     * @param Commit     $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {

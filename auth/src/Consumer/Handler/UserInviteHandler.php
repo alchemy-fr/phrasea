@@ -56,6 +56,7 @@ class UserInviteHandler extends AbstractEntityManagerHandler
 
             if (!$this->inviteManager->userCanBeInvited($user)) {
                 $em->rollback();
+
                 return;
             }
 

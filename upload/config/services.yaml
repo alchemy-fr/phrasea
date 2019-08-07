@@ -42,10 +42,6 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
 
-    App\Consumer\Handler\DeleteAssetFileHandler:
-        arguments:
-            $filesystem: "@oneup_flysystem.upload_filesystem"
-
     App\Security\RemoteUserProvider:
         arguments:
             $client: "@eight_points_guzzle.client.auth"
