@@ -10,7 +10,6 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Client;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Notify remote consumer that there is a new batch available.
@@ -34,20 +33,20 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
      */
     private $targetAccessToken;
     /**
-     * @var UrlGeneratorInterface
+     * @var string
      */
-    private $urlGenerator;
+    private $uploadBaseUrl;
 
     public function __construct(
         Client $client,
         string $targetUri,
         string $targetAccessToken,
-        UrlGeneratorInterface $urlGenerator
+        string $uploadBaseUrl
     ) {
         $this->client = $client;
         $this->targetUri = $targetUri;
         $this->targetAccessToken = $targetAccessToken;
-        $this->urlGenerator = $urlGenerator;
+        $this->uploadBaseUrl = $uploadBaseUrl;
     }
 
     public function handle(EventMessage $message): void
@@ -73,14 +72,9 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
                 }, $commit->getAssets()->toArray()),
                 'publisher' => $commit->getUserId(),
                 'token' => $commit->getToken(),
-                'base_url' => $this->getBaseUrl(),
+                'base_url' => $this->uploadBaseUrl,
             ],
         ]);
-    }
-
-    private function getBaseUrl(): string
-    {
-        return rtrim($this->urlGenerator->generate('app_index', [], UrlGeneratorInterface::ABSOLUTE_URL), '/');
     }
 
     public static function getHandledEvents(): array
