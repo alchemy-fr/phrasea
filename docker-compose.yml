@@ -24,6 +24,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - UPLOAD_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
     volumes:
       - upload_vol:/var/data/upload
@@ -46,6 +47,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - UPLOAD_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
     volumes:
       - upload_vol:/var/data/upload
