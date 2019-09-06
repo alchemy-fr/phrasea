@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Tests are run directly in the container without mounted volumes
-# expect if you run `bin/test.sh 1`
+# except if you run `bin/test.sh 1`
 # A build is required after any modification.
 
 set -ex
