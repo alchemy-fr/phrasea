@@ -13,5 +13,5 @@ if [[ -z "$1" ]]; then
     FILE=" -f docker-compose.yml"
 fi
 
-docker-compose$FILE run --user app --rm upload_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
-docker-compose$FILE run --user app --rm auth_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+docker-compose$FILE run -T --user app --rm upload_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+docker-compose$FILE run -T run --user app --rm auth_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
