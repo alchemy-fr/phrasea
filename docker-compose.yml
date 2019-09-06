@@ -5,7 +5,7 @@ networks:
 
 services:
   upload_php:
-    image: ${REGISTRY_NAMESPACE}upload_php
+    image: ${REGISTRY_NAMESPACE}upload_php:$DOCKER_TAG
     build:
       context: upload
       target: upload_php
@@ -33,7 +33,7 @@ services:
       - upload_vol:/var/data/upload
 
   upload_worker:
-    image: ${REGISTRY_NAMESPACE}upload_worker
+    image: ${REGISTRY_NAMESPACE}upload_worker:$DOCKER_TAG
     build:
       context: upload
       target: upload_worker
@@ -56,7 +56,7 @@ services:
       - upload_vol:/var/data/upload
 
   auth_worker:
-    image: ${REGISTRY_NAMESPACE}auth_worker
+    image: ${REGISTRY_NAMESPACE}auth_worker:$DOCKER_TAG
     build:
       context: auth
       target: auth_worker
@@ -75,7 +75,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
   upload_nginx:
-    image: ${REGISTRY_NAMESPACE}upload_nginx
+    image: ${REGISTRY_NAMESPACE}upload_nginx:$DOCKER_TAG
     build:
       context: ./upload
       target: upload_nginx
@@ -87,7 +87,7 @@ services:
       - upload_php
 
   client:
-    image: ${REGISTRY_NAMESPACE}client_nginx
+    image: ${REGISTRY_NAMESPACE}client_nginx:$DOCKER_TAG
     build:
       context: ./client
       target: client_nginx
@@ -109,7 +109,7 @@ services:
       - CLIENT_LOGO_Y_MARGIN
 
   auth_php:
-    image: ${REGISTRY_NAMESPACE}auth_php
+    image: ${REGISTRY_NAMESPACE}auth_php:$DOCKER_TAG
     build:
       context: auth
       target: auth_php
@@ -134,7 +134,7 @@ services:
       - db
 
   auth_nginx:
-    image: ${REGISTRY_NAMESPACE}auth_nginx
+    image: ${REGISTRY_NAMESPACE}auth_nginx:$DOCKER_TAG
     build:
       context: ./auth
       target: auth_nginx
