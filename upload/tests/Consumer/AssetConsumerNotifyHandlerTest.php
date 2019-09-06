@@ -65,8 +65,10 @@ class AssetConsumerNotifyHandlerTest extends TestCase
 
         $postBody = json_decode($clientHandler->getLastRequest()->getBody()->getContents(), true);
         $this->assertArrayHasKey('assets', $postBody);
+        $this->assertArrayHasKey('commit_id', $postBody);
         $this->assertCount(2, $postBody['assets']);
         $this->assertEquals('a_token', $postBody['token']);
+        $this->assertRegExp('/^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$/', $postBody['commit_id']);
         $this->assertEquals('http://localhost:8080', $postBody['base_url']);
 
         $this->assertEquals(0, $clientHandler->count());
