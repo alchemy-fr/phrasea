@@ -71,6 +71,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
                     return $asset->getId();
                 }, $commit->getAssets()->toArray()),
                 'publisher' => $commit->getUserId(),
+                'commit_id' => $commit->getId(),
                 'token' => $commit->getToken(),
                 'base_url' => $this->uploadBaseUrl,
             ],
