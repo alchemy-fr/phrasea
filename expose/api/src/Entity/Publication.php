@@ -6,14 +6,11 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\CreateAssetAction;
-use App\Controller\DownloadAssetAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -38,7 +35,7 @@ class Publication
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    protected $id;
+    private $id;
 
     /**
      * @ApiProperty()
@@ -47,7 +44,7 @@ class Publication
      *
      * @ORM\Column(type="string", length=255)
      */
-    protected $name;
+    private $name;
 
     /**
      * @var Asset[]|Collection
@@ -60,7 +57,7 @@ class Publication
      * @var bool
      *
      * @ApiProperty()
-     * @ORM\OneToMany(targetEntity="Asset", mappedBy="publication")
+     * @ORM\Column(type="boolean")
      */
     private $enabled = false;
 
@@ -71,7 +68,6 @@ class Publication
      * @ApiProperty()
      */
     private $createdAt;
-
 
     public function __construct()
     {

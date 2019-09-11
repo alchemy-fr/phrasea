@@ -40,5 +40,5 @@ services:
                 cname_is_bucket: false
                 endpoint: 'http://minio:9000'
                 credentials:
-                    key: '%env(STORAGE_ACCESS_KEY)%'
-                    secret: '%env(STORAGE_SECRET_KEY)%'
+                    key: '%env(S3_STORAGE_ACCESS_KEY)%'
+                    secret: '%env(S3_STORAGE_SECRET_KEY)%'
