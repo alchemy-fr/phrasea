@@ -12,7 +12,7 @@ class Config {
     }
 
     getUploadBaseURL() {
-        return this.get('UPLOAD_BASE_URL');
+        return this.get('UPLOADER_BASE_URL');
     }
 
     getSignUpURL() {
@@ -36,7 +36,7 @@ class Config {
     }
 
     setUploadBaseURL(url) {
-        this.set('UPLOAD_BASE_URL', url);
+        this.set('UPLOADER_BASE_URL', url);
     }
 
     setAuthBaseURL(url) {

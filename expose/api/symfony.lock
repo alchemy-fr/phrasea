@@ -1,4 +1,7 @@
 {
+    "alchemy/remote-auth-bundle": {
+        "version": "dev-master"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },

@@ -7,10 +7,3 @@ eight_points_guzzle:
         consumer_notify:
             options:
                 timeout: 20
-        auth:
-            base_url: "http://auth"
-            options:
-                timeout: 10
-                http_errors: false
-                headers:
-                    Accept: "application/json"

@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace Alchemy\RemoteAuthBundle\Model;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class User implements UserInterface
+class RemoteUser implements UserInterface
 {
-    const ADMIN_USER = 'admin@alchemy.fr';
-
     /**
      * @var string
      */

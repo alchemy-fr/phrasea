@@ -1,4 +1,7 @@
 {
+    "alchemy/remote-auth-bundle": {
+        "version": "dev-master"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },
@@ -140,9 +143,6 @@
         "files": [
             "config/packages/eight_points_guzzle.yaml"
         ]
-    },
-    "facebook/webdriver": {
-        "version": "1.6.0"
     },
     "fig/link-util": {
         "version": "1.0.0"
@@ -447,9 +447,6 @@
             "src/Kernel.php"
         ]
     },
-    "symfony/http-client": {
-        "version": "v4.3.0"
-    },
     "symfony/http-foundation": {
         "version": "v4.2.5"
     },
@@ -494,9 +491,6 @@
     "symfony/orm-pack": {
         "version": "v1.0.6"
     },
-    "symfony/panther": {
-        "version": "v0.3.0"
-    },
     "symfony/phpunit-bridge": {
         "version": "4.1",
         "recipe": {
@@ -523,9 +517,6 @@
         "version": "v1.11.0"
     },
     "symfony/polyfill-php72": {
-        "version": "v1.11.0"
-    },
-    "symfony/polyfill-php73": {
         "version": "v1.11.0"
     },
     "symfony/process": {

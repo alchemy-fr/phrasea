@@ -15,11 +15,11 @@ services:
       - ./configs:/configs
     environment:
       - DEV_MODE
-      - UPLOAD_BASE_URL
+      - UPLOADER_BASE_URL
       - SIGN_UP_URL
       - AUTH_BASE_URL
-      - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
-      - CLIENT_SECRET
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - CLIENT_LOGO_SRC
       - CLIENT_LOGO_X_MARGIN
       - CLIENT_LOGO_Y_MARGIN

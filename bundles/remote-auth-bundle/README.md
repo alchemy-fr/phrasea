@@ -1,3 +1,9 @@
+# Remote auth
+
+This bundle provides a Guard authenticator for micro services using a SSO.
+
+Example of configuration:
+```yaml
 security:
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
@@ -6,14 +12,6 @@ security:
         remote_users:
             id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-
-        api_doc:
-            pattern: ^/$
-            security: false
-
         admin:
             pattern:    ^/admin
             stateless:  false
@@ -32,9 +30,4 @@ security:
             guard:
                 authenticators:
                     - Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator
-
-    access_control:
-        - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/oauth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+```

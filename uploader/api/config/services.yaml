@@ -42,10 +42,6 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
 
-    App\Security\RemoteUserProvider:
-        arguments:
-            $client: "@eight_points_guzzle.client.auth"
-
     App\Consumer\Handler\DownloadHandler:
         arguments:
             $client: "@eight_points_guzzle.client.download"
@@ -55,7 +51,7 @@ services:
             $client: "@eight_points_guzzle.client.consumer_notify"
             $targetUri: '%env(ASSET_CONSUMER_COMMIT_URI)%'
             $targetAccessToken: '%env(ASSET_CONSUMER_ACCESS_TOKEN)%'
-            $uploadBaseUrl: '%env(UPLOAD_BASE_URL)%'
+            $uploadBaseUrl: '%env(UPLOADER_BASE_URL)%'
 
     App\Form\FormSchemaManager:
         $defaultSchemaFile: "%app.liform.default_schema.src%"
@@ -63,9 +59,3 @@ services:
     App\Storage\AssetManager:
         arguments:
             $assetDaysRetention: '%env(int:ASSET_DAYS_RETENTION)%'
-
-    App\Security\LoginFormAuthenticator:
-        arguments:
-            $client: "@eight_points_guzzle.client.auth"
-            $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-            $clientSecret: '%env(AUTH_CLIENT_SECRET)%'

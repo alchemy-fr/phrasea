@@ -24,11 +24,11 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-      - UPLOAD_BASE_URL
+      - UPLOADER_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
-      - AUTH_CLIENT_ID=${UPLOAD_ADMIN_CLIENT_ID}
-      - AUTH_CLIENT_RANDOM_ID=${UPLOAD_ADMIN_CLIENT_RANDOM_ID}
-      - AUTH_CLIENT_SECRET=${UPLOAD_ADMIN_CLIENT_SECRET}
+      - AUTH_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
+      - AUTH_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
+      - AUTH_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
     volumes:
       - uploader_vol:/var/data/upload
 
@@ -50,7 +50,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-      - UPLOAD_BASE_URL
+      - UPLOADER_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
     volumes:
       - uploader_vol:/var/data/upload
@@ -63,7 +63,7 @@ services:
     networks:
       - internal
     ports:
-      - ${UPLOAD_PORT}:80
+      - ${UPLOADER_PORT}:80
     depends_on:
       - uploader_api_php
 
@@ -80,11 +80,11 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - UPLOAD_BASE_URL
+      - UPLOADER_BASE_URL
       - SIGN_UP_URL
       - AUTH_BASE_URL
-      - CLIENT_ID=${CLIENT_ID}_${CLIENT_RANDOM_ID}
-      - CLIENT_SECRET
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - CLIENT_LOGO_SRC
       - CLIENT_LOGO_X_MARGIN
       - CLIENT_LOGO_Y_MARGIN
@@ -116,7 +116,7 @@ services:
     networks:
       internal:
         aliases:
-          - auth_api
+          - auth_api_php
     environment:
       - APP_ENV
       - AUTH_BASE_URL
@@ -141,7 +141,7 @@ services:
     networks:
       internal:
         aliases:
-          - auth
+          - auth_api
     ports:
       - ${AUTH_PORT}:80
     depends_on:
@@ -189,7 +189,7 @@ services:
     networks:
       internal:
         aliases:
-          - expose
+          - expose_api
     depends_on:
       - rabbitmq
       - db

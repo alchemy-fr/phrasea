@@ -24,4 +24,5 @@ return [
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
+    Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
 ];

@@ -17,3 +17,5 @@
 ###< symfony/web-server-bundle ###
 
 .php_cs.cache
+
+/__bundles

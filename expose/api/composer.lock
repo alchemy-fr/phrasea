@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16e3534eab6a0a5bf13dbaaf523a248b",
+    "content-hash": "c1ecebfc833be0eda6e010f88bc90b14",
     "packages": [
+        {
+            "name": "alchemy/remote-auth-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__bundles/remote-auth-bundle",
+                "reference": "57eeaff08abbbcb608cb768753a954f50b2ce0b5"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3",
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\RemoteAuthBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony remote auth bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "User Security"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "api-platform/api-pack",
             "version": "v1.2.0",
@@ -187,16 +227,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.110.10",
+            "version": "3.111.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "705fc1ffe05747e6789b19480764ebcd06995911"
+                "reference": "08d3993286be11009809295e0ebfc7b909294dcc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/705fc1ffe05747e6789b19480764ebcd06995911",
-                "reference": "705fc1ffe05747e6789b19480764ebcd06995911",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/08d3993286be11009809295e0ebfc7b909294dcc",
+                "reference": "08d3993286be11009809295e0ebfc7b909294dcc",
                 "shasum": ""
             },
             "require": {
@@ -266,7 +306,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2019-09-05T18:11:21+00:00"
+            "time": "2019-09-10T18:12:46+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -483,16 +523,16 @@
         },
         {
             "name": "doctrine/common",
-            "version": "v2.10.0",
+            "version": "v2.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/common.git",
-                "reference": "30e33f60f64deec87df728c02b107f82cdafad9d"
+                "reference": "b8ca1dcf6b0dc8a2af7a09baac8d0c48345df4ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/common/zipball/30e33f60f64deec87df728c02b107f82cdafad9d",
-                "reference": "30e33f60f64deec87df728c02b107f82cdafad9d",
+                "url": "https://api.github.com/repos/doctrine/common/zipball/b8ca1dcf6b0dc8a2af7a09baac8d0c48345df4ff",
+                "reference": "b8ca1dcf6b0dc8a2af7a09baac8d0c48345df4ff",
                 "shasum": ""
             },
             "require": {
@@ -508,14 +548,16 @@
             },
             "require-dev": {
                 "doctrine/coding-standard": "^1.0",
-                "phpunit/phpunit": "^6.3",
+                "phpstan/phpstan": "^0.11",
+                "phpstan/phpstan-phpunit": "^0.11",
+                "phpunit/phpunit": "^7.0",
                 "squizlabs/php_codesniffer": "^3.0",
                 "symfony/phpunit-bridge": "^4.0.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.10.x-dev"
+                    "dev-master": "2.11.x-dev"
                 }
             },
             "autoload": {
@@ -529,16 +571,16 @@
             ],
             "authors": [
                 {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
                     "name": "Roman Borschel",
                     "email": "roman@code-factory.org"
                 },
                 {
                     "name": "Benjamin Eberlei",
                     "email": "kontakt@beberlei.de"
-                },
-                {
-                    "name": "Guilherme Blanco",
-                    "email": "guilhermeblanco@gmail.com"
                 },
                 {
                     "name": "Jonathan Wage",
@@ -560,7 +602,7 @@
                 "doctrine",
                 "php"
             ],
-            "time": "2018-11-21T01:24:55+00:00"
+            "time": "2019-09-10T10:10:14+00:00"
         },
         {
             "name": "doctrine/dbal",
@@ -6928,9 +6970,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": [],
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.1.3",
