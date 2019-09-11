@@ -1,17 +1,17 @@
 version: '3.4'
 
 services:
-  client:
+  uploader_client:
     command: ["/bin/sh", "-c", "exit"]
 
-  client_dev:
+  uploader_client_dev:
     build:
-      context: ./client
-      target: client_build
+      context: ./uploader/client
+      target: uploader_client_build
     networks:
       - internal
     volumes:
-      - ./client:/usr/src/app
+      - ./uploader/client:/usr/src/app
       - ./configs:/configs
     environment:
       - DEV_MODE
@@ -26,36 +26,36 @@ services:
     ports:
       - 127.0.0.1:3001:3000
 
-  upload_php:
+  uploader_api_php:
     volumes:
-      - ./upload:/srv/app
+      - ./uploader/api:/srv/app
 
-  upload_worker:
+  uploader_worker:
     volumes:
-      - ./upload:/srv/app
-      - ./upload/docker/supervisor:/etc/supervisor.d
+      - ./uploader/api:/srv/app
+      - ./uploader/api/docker/supervisor:/etc/supervisor.d
+
+  uploader_api_nginx:
+    volumes:
+      - ./uploader/api:/srv/app
 
   auth_worker:
     volumes:
-      - ./auth:/srv/app
-      - ./auth/docker/supervisor:/etc/supervisor.d
+      - ./auth/api:/srv/app
+      - ./auth/api/docker/supervisor:/etc/supervisor.d
 
-  upload_nginx:
+  auth_api_php:
     volumes:
-      - ./upload:/srv/app
+      - ./auth/api:/srv/app
 
-  auth_php:
+  auth_api_nginx:
     volumes:
-      - ./auth:/srv/app
-
-  auth_nginx:
-    volumes:
-      - ./auth:/srv/app
+      - ./auth/api:/srv/app
 
   pgadmin:
     image: dpage/pgadmin4
     ports:
-      - 5050:80
+      - ${PGADMIN_PORT}:80
     networks:
       - internal
     environment:
@@ -70,3 +70,20 @@ services:
       - internal
     ports:
       - 8025:8025
+
+  expose_api_php:
+    volumes:
+      - ./expose/api:/srv/app
+
+  expose_api_nginx:
+    volumes:
+      - ./expose/api:/srv/app
+
+  expose_worker:
+    volumes:
+      - ./expose/api:/srv/app
+      - ./expose/api/docker/supervisor:/etc/supervisor.d
+
+  minio:
+    ports:
+      - 127.0.0.1:${MINIO_PORT}:9000

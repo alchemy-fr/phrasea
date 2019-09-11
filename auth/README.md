@@ -1,65 +1,31 @@
 # Auth service
 
-## Installation
+Auth service is part of the Alchemy ecosystem.
+Its role is to share authentication across services (SSO).
 
-Install dependencies:
+Service wraps the following end projects:
+- Auth API (back end)
 
-```bash
-composer install
-```
+## Setup
 
-Create database and schema:
-
-```bash
-bin/console doctrine:database:create \
-    && bin/console doctrine:schema:create
-```
-
-Create the OAuth client:
+### Env variables
 
 ```bash
-bin/console doctrine:schema:create mobile
+DEFAULT_USER_EMAIL=admin@alchemy.fr
+DEFAULT_USER_PASSWORD=<A_PASSWORD>
+AUTH_BASE_URL=https://alchemy-auth.com
 ```
 
-> Replace `mobile` by your client logical name.
+### User management
 
-Then copy credential given by the output.
+Go to the auth_api_php container:
 
-> Note that client ID has been suffixed by a random hash for security.
-
-### User management with bin/console
-
-Create user:
 ```bash
-bin/console app:user:create user@alchemy.fr -p s3cr3t --roles ROLE_SUPER_ADMIN
+docker-compose exec --user app auth_php /bin/sh
 ```
 
-Edit user's password:
-```bash
-bin/console app:user:create user@alchemy.fr -p s3cr3t_2 --update-if-exist
-```
+Then refer to the Auth API [documentation](./api/README.md)
 
-Grant user roles:
-```bash
-bin/console app:user:set-roles user@alchemy.fr "ROLE_SUPER_ADMIN,ROLE_EDITOR"
-```
+# Further reading
 
-Revoke user roles:
-```bash
-bin/console app:user:set-roles user@alchemy.fr ""
-```
-
-Remove user:
-```bash
-bin/console app:user:remove user@alchemy.fr
-```
-
-Enable user:
-```bash
-bin/console app:user:enable user@alchemy.fr
-```
-
-Disable user:
-```bash
-bin/console app:user:enable --disable user@alchemy.fr
-```
+- [User import](./doc/user-import.md)

@@ -2,9 +2,9 @@
 
 BASEDIR="$(dirname $0)/../configs"
 
-if [ ! -f ${BASEDIR}/config.json ]; then
+if [ ! -f "${BASEDIR}/config.json" ]; then
     echo "Creating default config"
-    echo "{}" > ${BASEDIR}/config.json
+    echo "{}" > "${BASEDIR}/config.json"
 fi
 
 RESULT=$(docker run \
@@ -15,5 +15,5 @@ RESULT=$(docker run \
 
 if [ "$?" == "0" ]; then
     echo "Merge your configuration with dist"
-    echo "${RESULT}" > ${BASEDIR}/config.json
+    echo "${RESULT}" > "${BASEDIR}/config.json"
 fi
