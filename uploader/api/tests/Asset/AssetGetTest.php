@@ -63,7 +63,7 @@ class AssetGetTest extends AbstractAssetTest
 
     public function testUnCommittedAssetGet(): void
     {
-        $response = $this->requestGet(RemoteAuthenticatorClientTestMock::ADMIN_TOKENtestRequestResetPasswordWithExistingEmail, 'Bearer');
+        $response = $this->requestGet(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
