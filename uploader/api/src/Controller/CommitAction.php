@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Consumer\Handler\CommitHandler;
 use App\Form\FormValidator;
 use App\Entity\Commit;
-use App\Model\User;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -50,9 +50,16 @@ final class CommitAction extends AbstractController
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors)));
         }
 
-        /** @var User $user */
+        /** @var RemoteUser $user */
         $user = $this->getUser();
         $data->setUserId($user->getId());
+
+        $formData = $data->getFormData();
+        $notifyEmailField = '__notify_email';
+        if (isset($formData[$notifyEmailField]) && true === $formData[$notifyEmailField]) {
+            $data->setNotifyEmail($user->getEmail());
+        }
+        $data->setFormData(FormValidator::cleanExtraFields($formData));
 
         $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $data->toArray()));
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\NotifyBundle\Notify\Notifier;
 use App\Entity\AccessToken;
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
-use App\Mail\Mailer;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -17,13 +17,13 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
     const EVENT = 'password_changed';
 
     /**
-     * @var Mailer
+     * @var Notifier
      */
-    private $mailer;
+    private $notifier;
 
-    public function __construct(Mailer $mailer)
+    public function __construct(Notifier $notifier)
     {
-        $this->mailer = $mailer;
+        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -44,10 +44,9 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
             ->getRepository(ResetPasswordRequest::class)
             ->revokeRequests($user);
 
-        $this->mailer->send(
-            $user->getEmail(),
-            'Password changed',
-            'mail/password_changed.html.twig'
+        $this->notifier->notifyUser(
+            $user->getId(),
+            'auth/password_changed'
         );
     }
 

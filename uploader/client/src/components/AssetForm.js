@@ -40,9 +40,17 @@ export default class AssetForm extends Component {
             }
         }
 
-        this.setState({
-            schema
-        });
+        schema.properties = {
+            ...schema.properties,
+            ...{
+                __notify_email: {
+                    title: 'Notify me when done!',
+                    type: 'boolean',
+                }
+            },
+        };
+
+        this.setState({schema});
     }
 
     onSubmit = async (reduxFormData) => {

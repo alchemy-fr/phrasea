@@ -1,0 +1,11 @@
+{% extends 'mail/auth/base.html.twig' %}
+
+{% block body %}
+    <p>
+        Hello,
+    </p>
+    <p>
+        Please verify your email by following the link below:
+    </p>
+    <a class="btn-primary" href="{{ confirm_url }}">Validate email</a>
+{% endblock %}

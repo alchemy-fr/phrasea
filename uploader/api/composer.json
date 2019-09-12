@@ -8,6 +8,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__bundles/notify-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -19,6 +26,7 @@
         "api-platform/api-pack": "^1.2",
         "api-platform/core": "2.4.2",
         "alchemy/remote-auth-bundle": "*",
+        "alchemy/notify-bundle": "*",
         "arthem/rabbit-bundle": "@dev",
         "easycorp/easyadmin-bundle": "^2.2",
         "eightpoints/guzzle-bundle": "^7.5",
@@ -42,7 +50,6 @@
         "symfony/psr-http-message-bridge": "^1.2",
         "symfony/security-bundle": "4.2.*",
         "symfony/serializer-pack": "*",
-        "symfony/swiftmailer-bundle": "^3.1",
         "symfony/translation": "4.2.*",
         "symfony/twig-bundle": "4.2.*",
         "symfony/validator": "4.2.*",

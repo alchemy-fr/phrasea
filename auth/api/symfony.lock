@@ -1,4 +1,7 @@
 {
+    "alchemy/notify-bundle": {
+        "version": "dev-master"
+    },
     "arthem/rabbit-bundle": {
         "version": "dev-master"
     },
@@ -99,12 +102,6 @@
             "config/packages/easy_admin.yaml",
             "config/routes/easy_admin.yaml"
         ]
-    },
-    "egulias/email-validator": {
-        "version": "2.1.8"
-    },
-    "facebook/webdriver": {
-        "version": "1.6.0"
     },
     "friendsofsymfony/oauth-server-bundle": {
         "version": "1.6.2"
@@ -262,9 +259,6 @@
             "config/packages/snc_redis.yaml"
         ]
     },
-    "swiftmailer/swiftmailer": {
-        "version": "v6.2.1"
-    },
     "symfony/asset": {
         "version": "v4.2.10"
     },
@@ -357,9 +351,6 @@
             "src/Kernel.php"
         ]
     },
-    "symfony/http-client": {
-        "version": "v4.3.1"
-    },
     "symfony/http-foundation": {
         "version": "v4.2.5"
     },
@@ -377,9 +368,6 @@
     },
     "symfony/orm-pack": {
         "version": "v1.0.6"
-    },
-    "symfony/panther": {
-        "version": "v0.3.0"
     },
     "symfony/phpunit-bridge": {
         "version": "4.1",
@@ -400,20 +388,14 @@
     "symfony/polyfill-intl-icu": {
         "version": "v1.11.0"
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.11.0"
-    },
     "symfony/polyfill-mbstring": {
         "version": "v1.11.0"
     },
     "symfony/polyfill-php72": {
         "version": "v1.11.0"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.11.0"
-    },
     "symfony/process": {
-        "version": "v4.2.7"
+        "version": "v4.2.11"
     },
     "symfony/property-access": {
         "version": "v4.2.7"
@@ -459,20 +441,6 @@
     },
     "symfony/stopwatch": {
         "version": "v4.2.7"
-    },
-    "symfony/swiftmailer-bundle": {
-        "version": "2.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.5",
-            "ref": "3db029c03e452b4a23f7fc45cec7c922c2247eb8"
-        },
-        "files": [
-            "config/packages/dev/swiftmailer.yaml",
-            "config/packages/swiftmailer.yaml",
-            "config/packages/test/swiftmailer.yaml"
-        ]
     },
     "symfony/templating": {
         "version": "v4.2.7"

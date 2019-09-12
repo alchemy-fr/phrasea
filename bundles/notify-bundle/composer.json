@@ -1,0 +1,31 @@
+{
+  "name": "alchemy/notify-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony notify bundle",
+  "keywords": [
+    "Notification email"
+  ],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.3",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+    "guzzlehttp/guzzle": "^6.3"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\NotifyBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\NotifyBundle\\Tests\\": "/Tests/"
+    }
+  }
+}

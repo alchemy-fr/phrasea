@@ -16,3 +16,4 @@ fi
 docker-compose$FILE run -T --user app --rm uploader_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
 docker-compose$FILE run -T --user app --rm auth_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
 docker-compose$FILE run -T --user app --rm expose_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+docker-compose$FILE run -T --user app --rm notify_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"

@@ -189,7 +189,7 @@ services:
     networks:
       internal:
         aliases:
-          - expose_api
+          - expose_api_php
     depends_on:
       - rabbitmq
       - db
@@ -229,11 +229,59 @@ services:
       context: ./expose/api
       target: expose_api_nginx
     networks:
-      - internal
+      internal:
+        aliases:
+          - expose_api
     ports:
       - ${EXPOSE_PORT}:80
     depends_on:
       - expose_api_php
+
+  notify_api_php:
+    image: ${REGISTRY_NAMESPACE}notify_api_php:$DOCKER_TAG
+    build:
+      context: ./notify/api
+      target: notify_api_php
+    networks:
+      internal:
+        aliases:
+          - notify_api_php
+    depends_on:
+      - rabbitmq
+    environment:
+      - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+
+  notify_worker:
+    image: ${REGISTRY_NAMESPACE}notify_worker:$DOCKER_TAG
+    build:
+      context: ./notify/api
+      target: notify_worker
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+    environment:
+      - APP_ENV
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+
+  notify_api_nginx:
+    image: ${REGISTRY_NAMESPACE}notify_api_nginx:$DOCKER_TAG
+    build:
+      context: ./notify/api
+      target: notify_api_nginx
+    networks:
+      internal:
+        aliases:
+          - notify_api
+    depends_on:
+      - notify_api_php
 
   minio:
     image: minio/minio

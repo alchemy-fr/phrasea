@@ -7,6 +7,8 @@ BASEDIR=$(dirname $0)/..
 SYMFONY_PROJECTS="
 expose/api
 uploader/api
+auth/api
+notify/api
 "
 
 for f in ${SYMFONY_PROJECTS}; do

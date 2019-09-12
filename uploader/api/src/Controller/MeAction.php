@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Model\User;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +18,7 @@ class MeAction extends AbstractController
      */
     public function __invoke(Request $request): Response
     {
-        /** @var User $user */
+        /** @var RemoteUser $user */
         $user = $this->getUser();
 
         return new JsonResponse([

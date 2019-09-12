@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use App\Model\User;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 class PublicationTest extends ApiTestCase
 {
     public function testCreatePublicationOK(): void

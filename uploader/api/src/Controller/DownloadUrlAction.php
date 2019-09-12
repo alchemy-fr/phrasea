@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
-use App\Model\User;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,7 +51,7 @@ final class DownloadUrlAction extends AbstractController
             return new JsonResponse(['errors' => $errors]);
         }
 
-        /** @var User $user */
+        /** @var RemoteUser $user */
         $user = $this->getUser();
 
         $this->eventProducer->publish(new EventMessage(DownloadHandler::EVENT, [

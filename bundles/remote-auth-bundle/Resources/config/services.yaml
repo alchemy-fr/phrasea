@@ -1,5 +1,5 @@
 parameters:
-  env(AUTH_BASE_URL): 'http://auth_api'
+  auth_base_url_internal: 'http://auth_api'
 
 services:
   _defaults:
@@ -10,7 +10,7 @@ services:
     class: GuzzleHttp\Client
     arguments:
     -
-      base_uri: "%env(AUTH_BASE_URL)%"
+      base_uri: "%auth_base_url_internal%"
       options:
         timeout: 10
         http_errors: false

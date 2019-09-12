@@ -114,7 +114,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        $response = $this->client->post('http://auth/oauth/v2/token', [
+        $response = $this->client->post('oauth/v2/token', [
             'json' => [
                 'username' => $credentials['email'],
                 'password' => $credentials['password'],

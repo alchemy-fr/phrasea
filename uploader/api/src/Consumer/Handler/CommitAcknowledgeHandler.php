@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\NotifyBundle\Notify\Notifier;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -18,10 +19,15 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
      * @var EventProducer
      */
     private $eventProducer;
+    /**
+     * @var Notifier
+     */
+    private $notifier;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(EventProducer $eventProducer, Notifier $notifier)
     {
         $this->eventProducer = $eventProducer;
+        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -35,6 +41,10 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
         }
 
+        if ($commit->isAcknowledged()) {
+            return;
+        }
+
         $commit->setAcknowledged(true);
         $em->persist($commit);
         $em->flush();
@@ -43,6 +53,12 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
             $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
                 'path' => $asset->getPath(),
             ]));
+        }
+
+        if ($commit->getNotifyEmail()) {
+            $this->notifier->sendEmail($commit->getNotifyEmail(), 'uploader/commit_acknowledged', [
+                'asset_count' => $commit->getAssets()->count(),
+            ]);
         }
     }
 

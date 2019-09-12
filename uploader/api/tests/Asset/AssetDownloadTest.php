@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+
 class AssetDownloadTest extends AbstractAssetTest
 {
     public function testAssetDownloadOK(): void
@@ -34,14 +36,14 @@ class AssetDownloadTest extends AbstractAssetTest
     public function testAssetDownloadWithValidBearerToken(): void
     {
         $this->commitAsset();
-        [$response] = $this->requestDownload('user@alchemy.fr', 'Bearer');
+        [$response] = $this->requestDownload(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testAssetDownloadWithAdminBearerToken(): void
     {
         $this->commitAsset();
-        [$response] = $this->requestDownload('admin@alchemy.fr', 'Bearer');
+        [$response] = $this->requestDownload(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'Bearer');
         ob_start();
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -55,7 +57,7 @@ class AssetDownloadTest extends AbstractAssetTest
 
     public function testUnCommittedAssetDownload(): void
     {
-        [$response] = $this->requestDownload('admin@alchemy.fr', 'Bearer');
+        [$response] = $this->requestDownload(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 

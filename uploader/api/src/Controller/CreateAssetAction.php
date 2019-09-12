@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
-use App\Model\User;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,7 +64,7 @@ final class CreateAssetAction extends AbstractController
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
-        /** @var User $user */
+        /** @var RemoteUser $user */
         $user = $this->getUser();
 
         $asset = $this->assetManager->createAsset(

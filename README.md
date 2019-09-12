@@ -19,6 +19,7 @@ bin/install.sh
 
 * Read group of services documentation to customize environment variables:
     * [auth](./auth/README.md)
+    * [notify](./notify/README.md)
     * [uploader](./uploader/README.md)
     * [expose](./expose/README.md)
 
@@ -36,6 +37,18 @@ In development, we need to use it so run:
 ```bash
 docker-compose up -d
 ```
+
+### Shared bundles
+
+Back applications share some bundles (stored in this repository).
+Because symlinking does not work outside a Docker container, we need to copy the bundles in the volume of the container.
+When modifying a local bundle, we need to keep it synced with:
+
+```bash
+bin/update-libs.sh
+```
+
+This will copy all bundles (`./bundles/*`) in all Symfony application in a sub folder `__bundles`.
 
 ## Changing ports
 

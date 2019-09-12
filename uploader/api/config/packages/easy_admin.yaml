@@ -17,6 +17,8 @@ easy_admin:
         - edit
       class: App\Entity\Commit
       list:
+        batch_actions:
+          - delete
         sort: [createdAt, DESC]
         fields:
           - id
@@ -24,6 +26,7 @@ easy_admin:
           - assetCount
           - token
           - acknowledged
+          - notifyEmail
           - createdAt
     Asset:
       class: App\Entity\Asset
@@ -31,6 +34,8 @@ easy_admin:
         - new
         - edit
       list:
+        batch_actions:
+          - delete
         sort: [createdAt, DESC]
         fields:
           - id

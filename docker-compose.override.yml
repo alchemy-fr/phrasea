@@ -84,6 +84,42 @@ services:
       - ./expose/api:/srv/app
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
+  notify_api_php:
+    volumes:
+      - ./notify/api:/srv/app
+
+  notify_api_nginx:
+    volumes:
+      - ./notify/api:/srv/app
+    ports:
+      - 8031:80
+
+  notify_worker:
+    volumes:
+      - ./notify/api:/srv/app
+      - ./notify/api/docker/supervisor:/etc/supervisor.d
+
   minio:
     ports:
       - 127.0.0.1:${MINIO_PORT}:9000
+
+  dev:
+    build: infra/docker/dev
+    networks:
+      - internal
+    stdin_open: true
+    tty: true
+    hostname: local
+    environment:
+      - APP_ENV
+      - SSH_AUTH_SOCK=/ssh-auth-sock
+    working_dir: /var/workspace
+    volumes:
+      - ./:/var/workspace
+      - ${SSH_AUTH_SOCK}:/ssh-auth-sock
+      - ${HOME}/.ssh:/home/app/.ssh
+      - dev_vol:/home/app
+
+volumes:
+  dev_vol:
+    driver: local

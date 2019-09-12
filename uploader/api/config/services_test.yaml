@@ -1,20 +1,2 @@
 parameters:
     app.liform.default_schema.src: "%kernel.project_dir%/tests/fixtures/liform-schema.json"
-
-services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    App\Tests\RemoteAuthenticatorClientMock: ~
-
-    App\Security\RemoteUserProvider:
-        arguments:
-            $client: "@App\\Tests\\RemoteAuthenticatorClientMock"
-
-    App\Security\LoginFormAuthenticator:
-        arguments:
-            $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-            $clientSecret: '%env(AUTH_CLIENT_SECRET)%'
-            $client: "@App\\Tests\\RemoteAuthenticatorClientMock"

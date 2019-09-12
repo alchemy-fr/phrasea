@@ -23,7 +23,7 @@ class RemoteUser implements UserInterface
      */
     private $roles;
 
-    public function __construct(string $id, string $username, array $roles = null)
+    public function __construct(string $id, string $username, array $roles = [])
     {
         $this->username = $username;
         $this->id = $id;
@@ -51,6 +51,11 @@ class RemoteUser implements UserInterface
     }
 
     public function getUsername()
+    {
+        return $this->username;
+    }
+
+    public function getEmail(): string
     {
         return $this->username;
     }

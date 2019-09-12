@@ -14,6 +14,8 @@ abstract class ApiTestCase extends WebTestCase
 {
     use ReloadDatabaseTrait;
 
+    const ADMIN_USER = 'admin@alchemy.fr';
+
     /**
      * @var Client
      */

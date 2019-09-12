@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\NotifyBundle\Notify\Notifier;
 use App\Entity\ResetPasswordRequest;
-use App\Mail\Mailer;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -14,20 +14,20 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 class RequestResetPasswordHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'request_reset_password';
-    /**
-     * @var Mailer
-     */
-    private $mailer;
 
     /**
      * @var UserManager
      */
     private $userManager;
+    /**
+     * @var Notifier
+     */
+    private $notifier;
 
-    public function __construct(UserManager $userManager, Mailer $mailer)
+    public function __construct(UserManager $userManager, Notifier $notifier)
     {
-        $this->mailer = $mailer;
         $this->userManager = $userManager;
+        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -60,7 +60,9 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
         $em->persist($request);
         $em->flush();
 
-        $this->mailer->send($user->getEmail(), 'Reset password', 'mail/reset_password.html.twig', [
+        $this->notifier->notifyUser(
+            $user->getId(),
+            'auth/reset_password', [
             'id' => $request->getId(),
             'token' => $request->getToken(),
         ]);

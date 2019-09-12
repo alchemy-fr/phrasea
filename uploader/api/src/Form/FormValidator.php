@@ -31,6 +31,7 @@ class FormValidator
         $schema = $this->schemaLoader->loadSchema($request->getLocale());
         $form = $this->formGenerator->createFormFromSchema($schema);
 
+        $data = self::cleanExtraFields($data);
         $form->submit($data);
         $errors = [];
         if ($form->isSubmitted() && $form->isValid()) {
@@ -38,6 +39,17 @@ class FormValidator
         }
 
         return $this->getFormErrors($form);
+    }
+
+    public static function cleanExtraFields(array $data): array
+    {
+        foreach ($data as $key => $v) {
+            if (strpos($key, '__') === 0) {
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
     }
 
     private function getFormErrors(FormInterface $form): array

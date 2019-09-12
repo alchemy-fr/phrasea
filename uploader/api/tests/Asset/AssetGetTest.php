@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssetGetTest extends AbstractAssetTest
@@ -42,14 +43,14 @@ class AssetGetTest extends AbstractAssetTest
     public function testAssetGetWithValidBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet('user@alchemy.fr', 'Bearer');
+        $response = $this->requestGet(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testAssetGetWithAdminBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet('admin@alchemy.fr', 'Bearer');
+        $response = $this->requestGet(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'Bearer');
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -62,7 +63,7 @@ class AssetGetTest extends AbstractAssetTest
 
     public function testUnCommittedAssetGet(): void
     {
-        $response = $this->requestGet('admin@alchemy.fr', 'Bearer');
+        $response = $this->requestGet(RemoteAuthenticatorClientTestMock::ADMIN_TOKENtestRequestResetPasswordWithExistingEmail, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 

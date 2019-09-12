@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\NotifyBundle\Notify\Notifier;
 use App\Entity\User;
-use App\Mail\Mailer;
 use App\User\InviteManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -21,11 +21,6 @@ class UserInviteHandler extends AbstractEntityManagerHandler
     const EVENT = 'user_invite';
 
     /**
-     * @var Mailer
-     */
-    private $mailer;
-
-    /**
      * @var UrlGeneratorInterface
      */
     private $router;
@@ -33,12 +28,16 @@ class UserInviteHandler extends AbstractEntityManagerHandler
      * @var InviteManager
      */
     private $inviteManager;
+    /**
+     * @var Notifier
+     */
+    private $notifier;
 
-    public function __construct(Mailer $mailer, UrlGeneratorInterface $router, InviteManager $inviteManager)
+    public function __construct(Notifier $notifier, UrlGeneratorInterface $router, InviteManager $inviteManager)
     {
-        $this->mailer = $mailer;
         $this->router = $router;
         $this->inviteManager = $inviteManager;
+        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -69,15 +68,17 @@ class UserInviteHandler extends AbstractEntityManagerHandler
             throw $e;
         }
 
-        $this->mailer->send(
-            $user->getEmail(),
-            'You\'re invited to Uploader!',
-            'mail/user_invite.html.twig',
+        $this->notifier->notifyUser(
+            $user->getId(),
+            'auth/user_invite',
             [
                 'url' => $this->router->generate('invite_confirm', [
                     'id' => $user->getId(),
                     'token' => $user->getSecurityToken(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
+            ],
+            [
+                'email' => $user->getEmail(),
             ]
         );
     }

@@ -27,8 +27,10 @@ function exec_container() {
 exec_container rabbitmq "\
     rabbitmqctl add_vhost auth \
     && rabbitmqctl add_vhost upload \
+    && rabbitmqctl add_vhost notify \
     && rabbitmqctl set_permissions -p auth ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*' \
     && rabbitmqctl set_permissions -p upload ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*' \
+    && rabbitmqctl set_permissions -p notify ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*' \
 "
 
 exec_container uploader_api_php "\
@@ -39,6 +41,11 @@ exec_container uploader_api_php "\
 "
 
 exec_container expose_api_php "\
+    bin/console doctrine:database:create --if-not-exists \
+    && bin/console doctrine:schema:update -f \
+"
+
+exec_container notify_api_php "\
     bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
 "

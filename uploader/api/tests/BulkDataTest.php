@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use App\Model\User;
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
 
 class BulkDataTest extends ApiTestCase
 {
     public function testBulkDataEditOK(): void
     {
-        $response = $this->request(User::ADMIN_USER, 'GET', '/bulk-data');
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('{}', $response->getContent());
 
-        $response = $this->request(User::ADMIN_USER, 'POST', '/bulk-data/edit', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/bulk-data/edit', [
             'data' => [
                 'foo' => 'bar',
             ],
@@ -23,14 +23,14 @@ class BulkDataTest extends ApiTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(true, $json);
 
-        $response = $this->request(User::ADMIN_USER, 'GET', '/bulk-data');
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('{"foo":"bar"}', $response->getContent());
     }
 
     public function testBulkDataEditWithANonAdminUser(): void
     {
-        $response = $this->request('foo@bar.com', 'POST', '/bulk-data/edit', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'POST', '/bulk-data/edit', [
             'data' => [
                 'foo' => 'bar',
             ],

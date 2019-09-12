@@ -3,6 +3,7 @@
 namespace Alchemy\RemoteAuthBundle\DependencyInjection;
 
 use Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator;
+use Alchemy\RemoteAuthBundle\Security\RemoteUserProvider;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -25,6 +26,10 @@ class AlchemyRemoteAuthExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        if ($container->getParameter("kernel.environment") === 'test') {
+            $loader->load('services_test.yaml');
+        }
 
         $def = $container->getDefinition(LoginFormAuthenticator::class);
         $def->setArgument('$routeName', $config['login_form']['route_name']);

@@ -80,6 +80,14 @@ class Commit
     private $acknowledged = false;
 
     /**
+     * If set, this email will be notified when asset consumer acknowledges the commit.
+     *
+     * @var string|null
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $notifyEmail;
+
+    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -171,6 +179,7 @@ class Commit
             'files' => $this->files,
             'form' => $this->formData,
             'user_id' => $this->userId,
+            'notify_email' => $this->notifyEmail,
         ];
 
         if ($this->token) {
@@ -188,6 +197,7 @@ class Commit
         }
         $instance->setFormData($data['form'] ?? []);
         $instance->setUserId($data['user_id']);
+        $instance->setNotifyEmail($data['notify_email'] ?? null);
 
         return $instance;
     }
@@ -205,5 +215,15 @@ class Commit
     public function setAcknowledged(bool $acknowledged): void
     {
         $this->acknowledged = $acknowledged;
+    }
+
+    public function getNotifyEmail(): ?string
+    {
+        return $this->notifyEmail;
+    }
+
+    public function setNotifyEmail(?string $notifyEmail): void
+    {
+        $this->notifyEmail = $notifyEmail;
     }
 }
