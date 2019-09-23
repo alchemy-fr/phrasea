@@ -1,1 +1,9 @@
-{}
+form:
+  register:
+    submit: S'inscrire
+    email: E-mail
+    password:
+      first: Choisissez un mot de passe
+      second: Confirmez le mot de passe
+registration:
+  sign_up: Inscription
