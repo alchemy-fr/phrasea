@@ -1,0 +1,9 @@
+registration:
+  sign_up: Sign up
+form:
+  register:
+    email: Email
+    password:
+      first: Choose a password
+      second: Confirm password
+    submit: Sign up

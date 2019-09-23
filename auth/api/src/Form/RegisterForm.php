@@ -19,16 +19,10 @@ class RegisterForm extends AbstractType
     {
         $builder
             ->add('email', EmailType::class)
-
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'property_path' => 'plainPassword',
-                'first_options' => [
-                    'label' => 'Choose password',
-                ],
-                'second_options' => [
-                    'label' => 'Confirm new password',
-                ],
+                'label_format' => 'form.register.password.%name%',
             ])
             ->add('submit', SubmitType::class);
     }
@@ -38,6 +32,7 @@ class RegisterForm extends AbstractType
         $resolver->setDefaults([
             'validation_groups' => ['Default', 'Registration'],
             'data_class' => User::class,
+            'label_format' => 'form.register.%name%',
         ]);
     }
 }
