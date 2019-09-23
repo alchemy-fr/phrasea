@@ -72,9 +72,9 @@ class Asset
     private $path;
 
     /**
-     * @var int
+     * @var string
      * @Groups("asset_read")
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private $size;
 
@@ -141,7 +141,7 @@ class Asset
 
     public function getSize(): int
     {
-        return $this->size;
+        return (int) $this->size;
     }
 
     public function setSize(int $size): void
