@@ -1,0 +1,19 @@
+{
+  "form": {
+    "email": {
+      "label": "Email"
+    },
+    "password": {
+      "label": "Password"
+    },
+    "submit_button": "Login"
+  },
+  "login": {
+    "forgot_password": "Forgot password?",
+    "not_registered_yet": "Not registered yet?",
+    "sign_up_link": "Sign up"
+  },
+  "layout": {
+    "loading_form": "Loading form..."
+  }
+}
