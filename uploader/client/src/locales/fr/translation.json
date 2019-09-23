@@ -1,16 +1,19 @@
 {
-  "form": {
-    "email": {
-      "label": "E-mail"
+    "form": {
+        "email": {
+            "label": "E-mail"
+        },
+        "password": {
+            "label": "Mot de passe"
+        },
+        "submit_button": "Login"
     },
-    "password": {
-      "label": "Mot de passe"
+    "login": {
+        "forgot_password": "Mot de passe oublié ?",
+        "not_registered_yet": "Pas encore de compte ?",
+        "sign_up_link": "Inscrivez-vous"
     },
-    "submit_button": "Login"
-  },
-  "login": {
-    "forgot_password": "Mot de passe oublié ?",
-    "not_registered_yet": "Pas encore de compte ?",
-    "sign_up_link": "Inscrivez-vous"
-  }
+    "layout": {
+        "loading_form": "Chargement du formulaire..."
+    }
 }
