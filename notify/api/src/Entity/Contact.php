@@ -42,6 +42,13 @@ class Contact
      */
     protected $phone;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=5, nullable=true)
+     */
+    protected $locale;
+
     public function __construct(string $userId)
     {
         $this->userId = $userId;
@@ -70,5 +77,15 @@ class Contact
     public function setPhone(?string $phone): void
     {
         $this->phone = $phone;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): void
+    {
+        $this->locale = $locale;
     }
 }

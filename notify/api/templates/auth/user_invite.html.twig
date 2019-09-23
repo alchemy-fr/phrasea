@@ -1,0 +1,14 @@
+{% extends 'auth/base.html.twig' %}
+
+{% block body %}
+    <p>
+        {{ 'common.greeting.mail'|trans }}
+    </p>
+    <p>
+        {{ 'auth.user_invite.mail.p1'|trans }}
+
+        <a class="btn-primary" href="{{ url }}">
+            {{ 'auth.user_invite.mail.go_button'|trans }}
+        </a>
+    </p>
+{% endblock %}

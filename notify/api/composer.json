@@ -16,6 +16,7 @@
         "symfony/mailer": "4.3.*",
         "symfony/orm-pack": "^1.0",
         "symfony/process": "4.3.*",
+        "symfony/translation": "4.3.*",
         "symfony/twig-bundle": "4.3.*",
         "symfony/yaml": "4.3.*"
     },

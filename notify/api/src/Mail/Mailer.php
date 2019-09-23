@@ -31,23 +31,34 @@ class Mailer implements LoggerAwareInterface
      * @var Environment
      */
     private $templating;
+    /**
+     * @var RenderingContext
+     */
+    private $renderingContext;
 
-    public function __construct(Environment $templating, MailerInterface $mailer, string $from)
-    {
+    public function __construct(
+        Environment $templating,
+        MailerInterface $mailer,
+        RenderingContext $renderingContext,
+        string $from
+    ) {
         $this->mailer = $mailer;
         $this->from = $from;
         $this->templating = $templating;
+        $this->renderingContext = $renderingContext;
     }
 
-    public function send(string $to, string $template, array $parameters): void
+    public function send(string $to, string $template, array $parameters, ?string $locale = null): void
     {
+        $this->renderingContext->setLocale($locale);
+
         $email = (new Email())
             ->from($this->from)
             ->to($to)
             ->subject($this->renderSubject($template, $parameters))
             ->html($this->renderView($template, $parameters));
 
-        $this->logger->info(sprintf('Send mail "%s" to "%s"', $template, $to));
+        $this->logger->info(sprintf('Send mail "%s" to "%s" in "%s"', $template, $to, $locale));
         $this->mailer->send($email);
     }
 
@@ -63,7 +74,7 @@ class Mailer implements LoggerAwareInterface
 
     private function renderFile(string $file, array $parameters): string
     {
-        return $this->templating->render('mail/'.$file.'.html.twig', $parameters);
+        return $this->templating->render($file.'.html.twig', $parameters);
     }
 
     public function validateParameters(string $template, array $parameters): void

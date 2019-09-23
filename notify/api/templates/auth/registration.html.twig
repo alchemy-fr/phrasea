@@ -1,0 +1,13 @@
+{% extends 'auth/base.html.twig' %}
+
+{% block body %}
+    <p>
+        {{ 'common.greeting.mail'|trans }}
+    </p>
+    <p>
+        {{ 'auth.registration.mail.p1'|trans|nl2br }}
+    </p>
+    <a class="btn-primary" href="{{ confirm_url }}">
+        {{ 'auth.registration.mail.go_button'|trans }}
+    </a>
+{% endblock %}

@@ -31,7 +31,8 @@ class SendEmailHandler extends AbstractLogHandler
         $this->mailer->send(
             $payload['email'],
             $payload['template'],
-            $payload['parameters']
+            $payload['parameters'],
+            $payload['locale']
         );
     }
 

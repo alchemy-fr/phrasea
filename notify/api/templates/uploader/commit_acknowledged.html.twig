@@ -1,0 +1,10 @@
+{% extends 'uploader/base.html.twig' %}
+
+{% block body %}
+    <p>
+        {{ 'common.greeting.mail'|trans }}
+    </p>
+    <p>
+        {{ 'uploader.commit_acknowledge.mail.p1'|trans({'%asset_count%': asset_count}) }}
+    </p>
+{% endblock %}

@@ -1,0 +1,40 @@
+common:
+  greeting:
+    mail: 'Hello,'
+
+uploader:
+  commit_acknowledge:
+    mail:
+      subject: '[Uploader] Assets treated'
+      p1: |
+        Your %asset_count% assets have been treated.
+    sms: Your %asset_count% assets have been treated.
+
+auth:
+  user_invite:
+    mail:
+      subject: You're invited to Phraseanet!
+      p1: You are invited to Uploader.
+      go_button: GO
+
+  reset_password:
+    mail:
+      subject: Reset password
+      p1: |
+        You requested to reset your password.
+        Please use the following code:
+      go_button: Reset password
+
+  password_changed:
+    mail:
+      subject: Password changed
+      p1: |
+        I just want to notice you that your password has been changed.
+        If it was not you, please contact us!
+
+  registration:
+    mail:
+      subject: Registration
+      p1: |
+        Please verify your email by following the link below:
+      go_button: Validate email
