@@ -20,4 +20,5 @@ return [
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
+    Arthem\Bundle\LocaleBundle\ArthemLocaleBundle::class => ['all' => true],
 ];

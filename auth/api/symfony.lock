@@ -2,6 +2,9 @@
     "alchemy/notify-bundle": {
         "version": "dev-master"
     },
+    "arthem/locale-bundle": {
+        "version": "dev-master"
+    },
     "arthem/rabbit-bundle": {
         "version": "dev-master"
     },

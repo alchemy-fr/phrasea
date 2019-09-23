@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ad839e0b79f6c4c1a43f9397f40d6ee",
+    "content-hash": "8e92657aef872c4573cdab966aeff387",
     "packages": [
         {
             "name": "alchemy/notify-bundle",
@@ -44,6 +44,41 @@
             "transport-options": {
                 "symlink": true
             }
+        },
+        {
+            "name": "arthem/locale-bundle",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/4rthem/locale-bundle.git",
+                "reference": "48b97452902c3a207b427b699543c9c92bd009fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/4rthem/locale-bundle/zipball/48b97452902c3a207b427b699543c9c92bd009fd",
+                "reference": "48b97452902c3a207b427b699543c9c92bd009fd",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.1",
+                "symfony/framework-bundle": "^4.0",
+                "symfony/security-bundle": "^4.0",
+                "symfony/translation": "^4.0",
+                "twig/twig": "^2.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Arthem\\Bundle\\LocaleBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Arthem Locale bundle",
+            "time": "2019-09-23T14:56:13+00:00"
         },
         {
             "name": "arthem/rabbit-bundle",
