@@ -67,3 +67,17 @@
 .progress {
   margin-bottom: 30px;
 }
+
+.remove-file-btn {
+  background: none;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 10;
+  cursor: pointer;
+
+  img {
+    max-width: 20px;
+    max-height: 20px;
+  }
+}

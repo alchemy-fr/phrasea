@@ -1,8 +1,16 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
+import deleteImg from '../images/delete-button.svg';
 
 export default class AssetUpload extends Component {
+    static propTypes = {
+        file: PropTypes.object.isRequired,
+        onUploadComplete: PropTypes.func,
+        onUploadProgress: PropTypes.func,
+        onRemove: PropTypes.func,
+    };
+
     state = {
         src: null,
         uploadProgress: 0,
@@ -52,8 +60,15 @@ export default class AssetUpload extends Component {
         });
     }
 
+    removeAsset = (e) => {
+        e.stopPropagation();
+        if (window.confirm('Delete?')) {
+            this.props.onRemove && this.props.onRemove();
+        }
+    };
+
     render() {
-        const {file} = this.props;
+        const {file, onRemove} = this.props;
         const {uploadProgress, ok} = this.state;
 
         let classes = ['file-icon'];
@@ -63,6 +78,14 @@ export default class AssetUpload extends Component {
 
         return (
             <div className={classes.join(' ')} title={file.name}>
+                {onRemove ?
+                    <div
+                        title={'Remove'}
+                        onClick={this.removeAsset}
+                        className={'remove-file-btn'}
+                    >
+                        <img src={deleteImg} alt="Remove"/>
+                    </div> : ''}
                 <div className="file-progress"
                      style={{width: (100 - uploadProgress) + '%'}}
                 />
@@ -75,9 +98,3 @@ export default class AssetUpload extends Component {
         );
     }
 }
-
-AssetUpload.propTypes = {
-    file: PropTypes.object.isRequired,
-    onUploadComplete: PropTypes.func,
-    onUploadProgress: PropTypes.func,
-};

@@ -35,7 +35,7 @@ export default class Upload extends Component {
         return <div className="file-collection">
             {files.map((file, index) => {
                 return <AssetUpload
-                    key={index}
+                    key={file.id}
                     onRemove={() => this.removeFile(index)}
                     file={file}
                 />
@@ -58,7 +58,12 @@ export default class Upload extends Component {
     };
 
     onDrop = (acceptedFiles) => {
-        const currentFiles = [...this.state.files, ...acceptedFiles];
+        const newFiles = acceptedFiles.map(f => {
+            f.id = '_' + Math.random().toString(36).substr(2, 9);
+            return f;
+        });
+
+        const currentFiles = [...this.state.files, ...newFiles];
         this.setState({files: currentFiles});
     };
 
