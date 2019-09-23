@@ -6,6 +6,7 @@ import config from '../../config';
 import Container from "../Container";
 import Logo from "../Logo";
 import OAuthProviders from "../oauth/OAuthProviders";
+import {Translation} from "react-i18next";
 
 export default class Login extends Component {
     state = {
@@ -51,14 +52,16 @@ export default class Login extends Component {
             return <Redirect to={from}/>
         }
 
-        return (
-            <>
-                <Logo />
+        return <Translation>
+            {t => <>
+                <Logo/>
                 <Container title="Please sign in">
                     <div className="form-container login-form">
                         <form onSubmit={this.handleSubmit}>
                             <FormGroup controlId="email">
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>
+                                    {t('form.email.label')}
+                                </FormLabel>
                                 <FormControl
                                     autoFocus
                                     type="email"
@@ -67,7 +70,7 @@ export default class Login extends Component {
                                 />
                             </FormGroup>
                             <FormGroup controlId="password">
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t('form.password.label')}</FormLabel>
                                 <FormControl
                                     value={this.state.password}
                                     onChange={this.handleChange}
@@ -80,25 +83,26 @@ export default class Login extends Component {
                                 disabled={!this.isFormValid()}
                                 type="submit"
                             >
-                                Login
+                                {t('form.submit_button')}
                             </Button>
                         </form>
 
                         <p>
-                            <Link to="/forgot-password">Forgot password?</Link>
+                            <Link to="/forgot-password">{t('login.forgot_password')}</Link>
                         </p>
                         {config.getSignUpURL() ?
                             <p>
-                                Not registered yet? <a target="_new" href={config.getSignUpURL()}>
-                                Sign up
+                                {t('login.not_registered_yet')} <a target="_new" href={config.getSignUpURL()}>
+                                {t('login.sign_up_link')}
                             </a>
                             </p> : ''}
                     </div>
 
                     <hr/>
-                    <OAuthProviders />
+                    <OAuthProviders/>
                 </Container>
             </>
-        );
+            }
+        </Translation>;
     }
 }

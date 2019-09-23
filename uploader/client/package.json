@@ -4,10 +4,13 @@
   "private": true,
   "dependencies": {
     "connected-react-router": "^5.0",
+    "i18next-browser-languagedetector": "^3.0.3",
+    "i18next-xhr-backend": "^3.1.2",
     "liform-react": "alchemy-fr/liform-react",
     "react": "^16.8.6",
     "react-burger-menu": "^2.6.8",
     "react-dom": "^16.8.6",
+    "react-i18next": "^10.12.5",
     "react-redux": "^5.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
@@ -19,7 +22,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "cd node_modules/liform-react && yarn add babel && yarn run build"
+    "prepare": "cd node_modules/liform-react && yarn add babel && yarn run build",
+    "translations-scan": "i18next-scanner --config i18next-scanner.config.js src/**/*.{js,jsx}"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -32,6 +36,7 @@
   ],
   "devDependencies": {
     "bootstrap": "^4.3.1",
+    "i18next-scanner": "^2.10.2",
     "node-sass": "^4.11.0",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^1.0.0-beta.8",

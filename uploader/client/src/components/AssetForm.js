@@ -6,6 +6,7 @@ import auth from "../auth";
 import request from "superagent";
 import AssetLiForm from "./AssetLiForm";
 import {SubmissionError} from 'redux-form';
+import {Translation} from "react-i18next";
 
 export default class AssetForm extends Component {
     static propTypes = {
@@ -109,7 +110,9 @@ export default class AssetForm extends Component {
         const {schema} = this.state;
 
         if (!schema) {
-            return 'Loading form...';
+            return <Translation>
+                {t => t('layout.loading_form')}
+            </Translation>;
         }
 
         return <div className="form-container">

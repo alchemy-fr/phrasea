@@ -16,6 +16,8 @@ import ResetPassword from "./components/page/ResetPassword";
 import Download from "./components/page/Download";
 import BulkDataEditor from "./components/page/BulkDataEditor";
 import OAuthRedirect from "./components/page/OAuthRedirect";
+import Languages from "./components/Languages";
+import { withTranslation } from 'react-i18next';
 
 class App extends Component {
     state = {
@@ -91,7 +93,7 @@ class App extends Component {
                             this.closeMenu()
                         }} to={'#'}>Logout</Link>
                         : ''}
-
+                    <Languages />
                 </Menu>
                 <div id="page-wrap">
                     <PrivateRoute path="/" exact component={Upload}/>
@@ -113,4 +115,4 @@ class App extends Component {
     }
 }
 
-export default App;
+export default withTranslation()(App);

@@ -1,0 +1,16 @@
+{
+  "form": {
+    "email": {
+      "label": "E-mail"
+    },
+    "password": {
+      "label": "Mot de passe"
+    },
+    "submit_button": "Login"
+  },
+  "login": {
+    "forgot_password": "Mot de passe oublié ?",
+    "not_registered_yet": "Pas encore de compte ?",
+    "sign_up_link": "Inscrivez-vous"
+  }
+}
