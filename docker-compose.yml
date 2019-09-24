@@ -306,7 +306,7 @@ services:
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
   weblate:
-    image: weblate/weblate
+    image: weblate/weblate:3.8-4
     volumes:
       - weblate_vol:/app/data
     networks:

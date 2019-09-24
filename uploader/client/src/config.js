@@ -16,6 +16,10 @@ class Config {
         return this.get('UPLOADER_BASE_URL');
     }
 
+    getAvailableLocales() {
+        return window.config.available_locales;
+    }
+
     getSignUpURL() {
         return `${this.getAuthBaseURL()}/${i18n.language}/register`;
     }

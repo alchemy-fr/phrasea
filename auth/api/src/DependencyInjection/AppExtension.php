@@ -39,6 +39,8 @@ class AppExtension extends Extension
         } else {
             $siteName = 'Auth Admin';
         }
+
         $container->setParameter('easy_admin.site_name', $siteName);
+        $container->setParameter('available_locales', $config['available_locales']);
     }
 }
