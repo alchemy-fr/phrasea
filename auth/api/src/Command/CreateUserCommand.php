@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Consumer\Handler\RegisterUserToNotifierHandler;
 use App\User\UserManager;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,12 +19,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class CreateUserCommand extends Command
 {
     private $userManager;
+    /**
+     * @var EventProducer
+     */
+    private $eventProducer;
 
-    public function __construct(UserManager $userManager)
+    public function __construct(UserManager $userManager, EventProducer $eventProducer)
     {
         parent::__construct();
 
         $this->userManager = $userManager;
+        $this->eventProducer = $eventProducer;
     }
 
     /**
@@ -95,6 +103,10 @@ class CreateUserCommand extends Command
         $this->userManager->encodePassword($user);
         $this->userManager->persistUser($user);
         $user->eraseCredentials();
+
+        $this->eventProducer->publish(new EventMessage(RegisterUserToNotifierHandler::EVENT, [
+            'id' => $user->getId(),
+        ]));
 
         $io->table($headers, $rows);
 

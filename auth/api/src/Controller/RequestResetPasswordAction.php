@@ -27,7 +27,10 @@ class RequestResetPasswordAction extends AbstractController
      */
     public function __invoke(Request $request)
     {
-        $this->resetPasswordManager->requestPasswordResetForLogin($request->request->get('email'));
+        $this->resetPasswordManager->requestPasswordResetForLogin(
+            $request->request->get('email'),
+            $request->getLocale() ?? $request->getDefaultLocale() ?? 'en'
+        );
 
         return new JsonResponse(true);
     }

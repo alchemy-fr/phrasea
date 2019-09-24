@@ -17,3 +17,5 @@ services:
   Alchemy\NotifyBundle\Notify\Notifier:
     arguments:
       $client: "@alchemy.notify_client"
+    calls:
+      - ['setLogger', ['@logger']]

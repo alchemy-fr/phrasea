@@ -15,4 +15,6 @@ interface NotifierInterface
         array $parameters = [],
         array $contactInfo = null
     ): void;
+
+    public function registerUser(string $userId, array $contactInfo): void;
 }

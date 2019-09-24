@@ -34,5 +34,15 @@ class ApiController extends AbstractController
 
         return new JsonResponse(true);
     }
+
+    /**
+     * @Route("/register-user")
+     */
+    public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    {
+        $mailerRabbitProxy->registerUser($request);
+
+        return new JsonResponse(true);
+    }
 }
 

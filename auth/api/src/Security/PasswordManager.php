@@ -47,10 +47,11 @@ class PasswordManager
         $this->eventProducer = $eventProducer;
     }
 
-    public function requestPasswordResetForLogin(string $username): void
+    public function requestPasswordResetForLogin(string $username, string $locale): void
     {
         $this->eventProducer->publish(new EventMessage(RequestResetPasswordHandler::EVENT, [
             'username' => $username,
+            'locale' => $locale,
         ]));
     }
 

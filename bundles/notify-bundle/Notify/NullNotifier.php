@@ -18,4 +18,8 @@ class NullNotifier implements NotifierInterface
     ): void
     {
     }
+
+    public function registerUser(string $userId, array $contactInfo): void
+    {
+    }
 }

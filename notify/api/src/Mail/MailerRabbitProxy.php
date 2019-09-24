@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Consumer\Handler\NotifyUserHandler;
+use App\Consumer\Handler\RegisterUserHandler;
 use App\Consumer\Handler\SendEmailHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -84,6 +85,26 @@ class MailerRabbitProxy
             'user_id' => $userId,
             'template' => $template,
             'parameters' => $parameters,
+            'contact_info' => $contactInfo,
+        ]));
+    }
+
+    public function registerUser(Request $request)
+    {
+        $userId = $request->request->get('user_id');
+        if (!$userId) {
+            throw new BadRequestHttpException('Missing user_id');
+        }
+        $contactInfo = $request->request->get('contact_info');
+        if (!$contactInfo) {
+            throw new BadRequestHttpException('Missing contact_info');
+        }
+        if (!is_array($contactInfo)) {
+            throw new BadRequestHttpException('contact_info must be an array');
+        }
+
+        $this->eventProducer->publish(new EventMessage(RegisterUserHandler::EVENT, [
+            'user_id' => $userId,
             'contact_info' => $contactInfo,
         ]));
     }

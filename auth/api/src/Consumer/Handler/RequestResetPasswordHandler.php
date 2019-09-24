@@ -9,6 +9,7 @@ use App\Entity\ResetPasswordRequest;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class RequestResetPasswordHandler extends AbstractEntityManagerHandler
@@ -23,16 +24,26 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
      * @var NotifierInterface
      */
     private $notifier;
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
 
-    public function __construct(UserManager $userManager, NotifierInterface $notifier)
-    {
+    public function __construct(
+        UserManager $userManager,
+        NotifierInterface $notifier,
+        UrlGeneratorInterface $urlGenerator
+    ) {
         $this->userManager = $userManager;
         $this->notifier = $notifier;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function handle(EventMessage $message): void
     {
-        $username = $message->getPayload()['username'];
+        $payload = $message->getPayload();
+        $username = $payload['username'];
+        $locale = $payload['locale'];
 
         try {
             $user = $this->userManager->loadUserByUsername($username);
@@ -63,9 +74,13 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
         $this->notifier->notifyUser(
             $user->getId(),
             'auth/reset_password', [
-            'id' => $request->getId(),
-            'token' => $request->getToken(),
-        ]);
+                'reset_url' => $this->urlGenerator->generate('reset_password', [
+                    '_locale' => $locale,
+                    'id' => $request->getId(),
+                    'token' => $request->getToken(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL),
+            ]
+        );
     }
 
     public static function getHandledEvents(): array

@@ -9,24 +9,18 @@ use App\Entity\User;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class RegistrationHandler extends AbstractEntityManagerHandler
+class RegisterUserToNotifierHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'registration';
+    const EVENT = 'register_user_to_notifier';
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
     /**
      * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $urlGenerator)
+    public function __construct(NotifierInterface $notifier)
     {
-        $this->urlGenerator = $urlGenerator;
         $this->notifier = $notifier;
     }
 
@@ -41,16 +35,8 @@ class RegistrationHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(User::class, $userId, __CLASS__);
         }
 
-        $this->notifier->notifyUser(
+        $this->notifier->registerUser(
             $user->getId(),
-            'auth/registration',
-            [
-                'confirm_url' => $this->urlGenerator->generate('registration_confirm', [
-                    '_locale' => $user->getLocale(),
-                    'id' => $user->getId(),
-                    'token' => $user->getSecurityToken(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL),
-            ],
             [
                 'email' => $user->getEmail(),
                 'locale' => $user->getLocale(),
