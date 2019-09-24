@@ -55,6 +55,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $url = $payload['url'];
         $userId = $payload['user_id'];
         $formData = $payload['form_data'];
+        $locale = $payload['locale'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
@@ -88,6 +89,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         );
 
         $commit = new Commit();
+        $commit->setLocale($locale);
         $commit->setFormData($formData);
         $commit->setUserId($userId);
         $commit->setFiles([$asset->getId()]);

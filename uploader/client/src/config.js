@@ -1,6 +1,7 @@
 import store from './store';
 import request from "superagent";
 import auth from "./auth";
+import i18n from "./locales/i18n";
 
 class Config {
     get(key) {
@@ -16,7 +17,7 @@ class Config {
     }
 
     getSignUpURL() {
-        return this.get('SIGN_UP_URL');
+        return `${this.getAuthBaseURL()}/${i18n.language}/register`;
     }
 
     getAuthBaseURL() {

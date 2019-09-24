@@ -8,9 +8,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 {
     public function testRequestResetPasswordWithExistingEmail(): void
     {
-        $this->markTestSkipped('TODO disable notifier in test env');
-        // TODO disable notifier in test env
-        $response = $this->request('POST', '/password/reset-request', [
+        $response = $this->request('POST', '/en/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
@@ -22,10 +20,10 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 
     public function testMultipleRequestsWillGenerateOnlyOneRequest(): void
     {
-        $this->request('POST', '/password/reset-request', [
+        $this->request('POST', '/en/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
-        $this->request('POST', '/password/reset-request', [
+        $this->request('POST', '/en/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
         $this->assertPasswordResetRequestCount(1);
@@ -33,7 +31,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 
     public function testRequestResetPasswordWithNonExistingEmail(): void
     {
-        $response = $this->request('POST', '/password/reset-request', [
+        $response = $this->request('POST', '/en/password/reset-request', [
             'email' => 'baz@bar.com',
         ]);
         // Must return 200 otherwise it would allow attackers to scan emails in database.
@@ -46,9 +44,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 
     public function testRequestResetPasswordWillSendEmail(): void
     {
-        $this->markTestSkipped('TODO disable notifier in test env');
-        // TODO disable notifier in test env
-        $response = $this->request('POST', '/password/reset-request', [
+        $response = $this->request('POST', '/en/password/reset-request', [
             'email' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());

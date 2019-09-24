@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity(repositoryClass="UserRepository")
  * @ORM\Table(name="`user`")
  */
-class User implements UserInterface
+class User implements UserInterface, UserLocaleInterface
 {
     /**
      * @var Uuid
@@ -66,6 +67,12 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $password;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=5, nullable=true)
+     */
+    protected $locale;
 
     /**
      * @var string
@@ -248,5 +255,15 @@ class User implements UserInterface
     {
         return null === $this->lastInviteAt
             || $this->lastInviteAt->getTimestamp() < time() - $allowedDelay;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): void
+    {
+        $this->locale = $locale;
     }
 }

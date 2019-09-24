@@ -88,6 +88,12 @@ class Commit
     private $notifyEmail;
 
     /**
+     * @var string|null
+     * @ORM\Column(type="string", length=5, nullable=true)
+     */
+    private $locale;
+
+    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -180,6 +186,7 @@ class Commit
             'form' => $this->formData,
             'user_id' => $this->userId,
             'notify_email' => $this->notifyEmail,
+            'locale' => $this->locale,
         ];
 
         if ($this->token) {
@@ -198,6 +205,7 @@ class Commit
         $instance->setFormData($data['form'] ?? []);
         $instance->setUserId($data['user_id']);
         $instance->setNotifyEmail($data['notify_email'] ?? null);
+        $instance->setLocale($data['locale'] ?? null);
 
         return $instance;
     }
@@ -225,5 +233,15 @@ class Commit
     public function setNotifyEmail(?string $notifyEmail): void
     {
         $this->notifyEmail = $notifyEmail;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(?string $locale): void
+    {
+        $this->locale = $locale;
     }
 }

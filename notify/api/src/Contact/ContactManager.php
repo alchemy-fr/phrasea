@@ -43,6 +43,7 @@ class ContactManager
     {
         $contact->setEmail($data['email'] ?? null);
         $contact->setPhone($data['phone'] ?? null);
+        $contact->setLocale($data['locale'] ?? null);
 
         $this->em->persist($contact);
         $this->em->flush();

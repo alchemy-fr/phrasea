@@ -58,6 +58,7 @@ final class DownloadUrlAction extends AbstractController
             'url' => $data->getUrl(),
             'form_data' => $data->getData(),
             'user_id' => $user->getId(),
+            'locale' => $request->getLocale() ?? $request->getDefaultLocale(),
         ]));
 
         return new JsonResponse(true);

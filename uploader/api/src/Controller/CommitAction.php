@@ -53,6 +53,7 @@ final class CommitAction extends AbstractController
         /** @var RemoteUser $user */
         $user = $this->getUser();
         $data->setUserId($user->getId());
+        $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());
 
         $formData = $data->getFormData();
         $notifyEmailField = '__notify_email';

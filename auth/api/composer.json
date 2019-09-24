@@ -17,7 +17,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "arthem/rabbit-bundle": "@dev",
-        "arthem/locale-bundle": "^0.0.1",
+        "arthem/locale-bundle": "^0",
         "alchemy/notify-bundle": "*",
         "easycorp/easyadmin-bundle": "^2.2",
         "friendsofsymfony/oauth-server-bundle": "^1.6",

@@ -24,6 +24,7 @@ class RegistrationController extends AbstractController
     public function registerAction(Request $request, UserManager $userManager, EventProducer $eventProducer)
     {
         $user = $userManager->createUser();
+        $user->setLocale($request->getLocale() ?? $request->getDefaultLocale() ?? 'en');
         $form = $this->createForm(RegisterForm::class, $user);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

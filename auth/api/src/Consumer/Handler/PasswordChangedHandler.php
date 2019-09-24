@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\NotifyBundle\Notify\Notifier;
+use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\AccessToken;
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
@@ -17,11 +17,11 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
     const EVENT = 'password_changed';
 
     /**
-     * @var Notifier
+     * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(Notifier $notifier)
+    public function __construct(NotifierInterface $notifier)
     {
         $this->notifier = $notifier;
     }

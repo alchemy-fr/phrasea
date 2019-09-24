@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(path="/register/invite", name="invite_")
+ * @Route(path="/{_locale}/register/invite", name="invite_")
  */
 class InviteController extends AbstractController
 {

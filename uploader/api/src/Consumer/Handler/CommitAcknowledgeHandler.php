@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\NotifyBundle\Notify\Notifier;
+use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -20,11 +20,11 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
      */
     private $eventProducer;
     /**
-     * @var Notifier
+     * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(EventProducer $eventProducer, Notifier $notifier)
+    public function __construct(EventProducer $eventProducer, NotifierInterface $notifier)
     {
         $this->eventProducer = $eventProducer;
         $this->notifier = $notifier;
@@ -56,7 +56,11 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
         }
 
         if ($commit->getNotifyEmail()) {
-            $this->notifier->sendEmail($commit->getNotifyEmail(), 'uploader/commit_acknowledged', [
+            $this->notifier->sendEmail(
+                $commit->getNotifyEmail(),
+                'uploader/commit_acknowledged',
+                $commit->getLocale() ?? 'en',
+                [
                 'asset_count' => $commit->getAssets()->count(),
             ]);
         }

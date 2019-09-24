@@ -13,7 +13,7 @@ class ResetPasswordTest extends AbstractPasswordTest
         $request = $this->createResetPasswordRequest('foo@bar.com');
 
         $uri = sprintf(
-            '/password/reset/%s/%s',
+            '/en/password/reset/%s/%s',
             $request->getId(),
             $request->getToken()
         );
@@ -28,7 +28,7 @@ class ResetPasswordTest extends AbstractPasswordTest
         ]);
 
         $this->assertTrue(
-            $client->getResponse()->isRedirect('/password/reset/changed')
+            $client->getResponse()->isRedirect('/en/password/reset/changed')
         );
 
         $this->assertPasswordIsInvalid('foo@bar.com', 'secret');

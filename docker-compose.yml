@@ -12,7 +12,7 @@ services:
     networks:
       internal:
         aliases:
-          - uploader_api
+          - uploader_api_php
     depends_on:
       - rabbitmq
       - db
@@ -81,7 +81,6 @@ services:
     environment:
       - DEV_MODE
       - UPLOADER_BASE_URL
-      - SIGN_UP_URL
       - AUTH_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}

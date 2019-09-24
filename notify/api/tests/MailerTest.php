@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use App\Mail\Mailer;
+use App\Mail\RenderingContext;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -18,8 +19,8 @@ class MailerTest extends WebTestCase
     {
         $renderTwig = function ($tpl): string {
             $contents = [
-                'mail/tpl_subject.html.twig' => 'Subject content',
-                'mail/tpl.html.twig' => 'Body content',
+                'tpl_subject.html.twig' => 'Subject content',
+                'tpl.html.twig' => 'Body content',
             ];
 
             return $contents[$tpl];
@@ -47,9 +48,13 @@ class MailerTest extends WebTestCase
             ->with($this->equalTo($email))
         ;
 
+        /** @var RenderingContext|MockObject $renderingContext */
+        $renderingContext = $this->createMock(RenderingContext::class);
+
         $mailer = new Mailer(
             $templating,
             $symfonyMailer,
+            $renderingContext,
             'noreply@test'
         );
         $mailer->setLogger(new NullLogger());

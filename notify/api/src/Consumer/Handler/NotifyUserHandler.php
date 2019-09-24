@@ -52,6 +52,7 @@ class NotifyUserHandler extends AbstractLogHandler
                 'email' => $contact->getEmail(),
                 'template' => $payload['template'],
                 'parameters' => $payload['parameters'] ?? [],
+                'locale' => $contact->getLocale() ?? 'en',
             ]));
         }
     }

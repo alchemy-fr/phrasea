@@ -3,6 +3,7 @@ import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
 import Container from "../Container";
+import i18n from "../../locales/i18n";
 
 export default class ResetPassword extends Component {
     constructor(props) {
@@ -24,7 +25,7 @@ export default class ResetPassword extends Component {
         this.setState({requested: true});
 
         await request
-            .post(config.getAuthBaseURL() + '/password/reset-request')
+            .post(`${config.getAuthBaseURL()}/${i18n.language}/password/reset-request`)
             .accept('json')
             .send({
                 email: this.state.email,

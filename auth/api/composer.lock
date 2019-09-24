@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e92657aef872c4573cdab966aeff387",
+    "content-hash": "ecd7a3a75a8e975b74eb9fc3c0d2b0bc",
     "packages": [
         {
             "name": "alchemy/notify-bundle",
@@ -47,16 +47,16 @@
         },
         {
             "name": "arthem/locale-bundle",
-            "version": "0.0.1",
+            "version": "0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/locale-bundle.git",
-                "reference": "48b97452902c3a207b427b699543c9c92bd009fd"
+                "reference": "cef5d055a6f3b7b6180b3599787f27c5bc9e752b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/locale-bundle/zipball/48b97452902c3a207b427b699543c9c92bd009fd",
-                "reference": "48b97452902c3a207b427b699543c9c92bd009fd",
+                "url": "https://api.github.com/repos/4rthem/locale-bundle/zipball/cef5d055a6f3b7b6180b3599787f27c5bc9e752b",
+                "reference": "cef5d055a6f3b7b6180b3599787f27c5bc9e752b",
                 "shasum": ""
             },
             "require": {
@@ -78,7 +78,7 @@
                 "MIT"
             ],
             "description": "Arthem Locale bundle",
-            "time": "2019-09-23T14:56:13+00:00"
+            "time": "2019-09-24T09:24:50+00:00"
         },
         {
             "name": "arthem/rabbit-bundle",

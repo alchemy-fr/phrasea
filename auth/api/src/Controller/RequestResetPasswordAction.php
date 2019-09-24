@@ -23,7 +23,7 @@ class RequestResetPasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/password/reset-request", methods={"POST"})
+     * @Route(path="/{_locale}/password/reset-request", methods={"POST"})
      */
     public function __invoke(Request $request)
     {

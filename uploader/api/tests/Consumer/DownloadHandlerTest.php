@@ -12,6 +12,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
@@ -28,6 +29,7 @@ class DownloadHandlerTest extends TestCase
         string $expectedMimeType,
         ?string $expectedExtension
     ): void {
+        /** @var EventProducer|MockObject $producerStub */
         $producerStub = $this->createMock(EventProducer::class);
         $producerStub
             ->expects($this->once())
@@ -39,7 +41,9 @@ class DownloadHandlerTest extends TestCase
                 })
             );
 
+        /** @var FileStorageManager|MockObject $storageStub */
         $storageStub = $this->createMock(FileStorageManager::class);
+        /** @var AssetManager|MockObject $assetManagerStub */
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
             ->expects($this->once())
@@ -67,6 +71,7 @@ class DownloadHandlerTest extends TestCase
 
         $clientStub = $client = new Client(['handler' => $handler]);
 
+        /** @var EntityManagerInterface|MockObject $em */
         $em = $this->createMock(EntityManagerInterface::class);
 
         $consumer = new DownloadHandler(
@@ -84,6 +89,7 @@ class DownloadHandlerTest extends TestCase
             'url' => $url,
             'user_id' => 'USER_ID',
             'form_data' => ['foo' => 'bar'],
+            'locale' => 'en',
         ]);
         $consumer->handle($message);
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\NotifyBundle\Notify\Notifier;
+use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\User;
 use App\User\InviteManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -29,11 +29,11 @@ class UserInviteHandler extends AbstractEntityManagerHandler
      */
     private $inviteManager;
     /**
-     * @var Notifier
+     * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(Notifier $notifier, UrlGeneratorInterface $router, InviteManager $inviteManager)
+    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $router, InviteManager $inviteManager)
     {
         $this->router = $router;
         $this->inviteManager = $inviteManager;

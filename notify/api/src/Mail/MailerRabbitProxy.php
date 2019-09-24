@@ -38,6 +38,10 @@ class MailerRabbitProxy
         if (!$template) {
             throw new BadRequestHttpException('Missing template');
         }
+        $locale = $request->request->get('locale');
+        if (!$template) {
+            throw new BadRequestHttpException('Missing locale');
+        }
         $parameters = $request->request->get('parameters', []);
         if (!is_array($parameters)) {
             throw new BadRequestHttpException('parameters must be an array');
@@ -49,6 +53,7 @@ class MailerRabbitProxy
             'email' => $email,
             'template' => $template,
             'parameters' => $parameters,
+            'locale' => $locale,
         ]));
     }
 

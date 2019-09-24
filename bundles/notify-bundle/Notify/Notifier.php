@@ -6,7 +6,7 @@ namespace Alchemy\NotifyBundle\Notify;
 
 use GuzzleHttp\Client;
 
-class Notifier
+class Notifier implements NotifierInterface
 {
     /**
      * @var Client
@@ -18,20 +18,21 @@ class Notifier
         $this->client = $client;
     }
 
-    public function sendEmail(string $email, string $template, array $parameters = []): void
+    public function sendEmail(string $email, string $template, string $locale, array $parameters = []): void
     {
         $this->client->request('GET', '/send-email', [
             'json' => [
                 'email' => $email,
                 'template' => $template,
                 'parameters' => $parameters,
+                'locale' => $locale,
             ],
         ]);
     }
 
     public function notifyUser(
-        string $userId, string
-        $template,
+        string $userId,
+        string $template,
         array $parameters = [],
         array $contactInfo = null
     ): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\NotifyBundle\Notify\Notifier;
+use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\User;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -20,11 +20,11 @@ class RegistrationHandler extends AbstractEntityManagerHandler
      */
     private $urlGenerator;
     /**
-     * @var Notifier
+     * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(Notifier $notifier, UrlGeneratorInterface $urlGenerator)
+    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
         $this->notifier = $notifier;
@@ -47,12 +47,14 @@ class RegistrationHandler extends AbstractEntityManagerHandler
             'auth/registration',
             [
                 'confirm_url' => $this->urlGenerator->generate('registration_confirm', [
+                    '_locale' => $user->getLocale(),
                     'id' => $user->getId(),
                     'token' => $user->getSecurityToken(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
             ],
             [
                 'email' => $user->getEmail(),
+                'locale' => $user->getLocale(),
             ]
         );
     }

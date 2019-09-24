@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Alchemy\NotifyBundle\Notify\Notifier;
+use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\ResetPasswordRequest;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -20,11 +20,11 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
      */
     private $userManager;
     /**
-     * @var Notifier
+     * @var NotifierInterface
      */
     private $notifier;
 
-    public function __construct(UserManager $userManager, Notifier $notifier)
+    public function __construct(UserManager $userManager, NotifierInterface $notifier)
     {
         $this->userManager = $userManager;
         $this->notifier = $notifier;
