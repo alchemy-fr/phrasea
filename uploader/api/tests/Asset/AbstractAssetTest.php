@@ -23,6 +23,7 @@ abstract class AbstractAssetTest extends ApiTestCase
         $commit->setToken($token);
         $commit->setUserId('a_user_id');
         $commit->setFormData(['foo' => 'bar']);
+        $commit->setTotalSize(42);
 
         /** @var EntityManagerInterface $em */
         $em = self::$container->get(EntityManagerInterface::class);

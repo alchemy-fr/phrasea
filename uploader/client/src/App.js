@@ -23,6 +23,7 @@ class App extends Component {
     state = {
         menuOpen: false,
         user: null,
+        authenticating: false,
     };
 
     constructor(props) {
@@ -34,7 +35,11 @@ class App extends Component {
             });
         });
         auth.registerListener('login', () => {
-            auth.authenticate();
+            this.setState({authenticating: true}, () => {
+                auth.authenticate(() => {
+                    this.setState({authenticating: false});
+                });
+            });
         });
         auth.registerListener('logout', () => {
             this.setState({

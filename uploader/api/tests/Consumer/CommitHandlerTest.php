@@ -9,6 +9,7 @@ use App\Entity\Asset;
 use App\Entity\AssetRepository;
 use App\Entity\BulkData;
 use App\Entity\BulkDataRepository;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,7 +47,13 @@ class CommitHandlerTest extends TestCase
                 })
             );
 
-        $handler = new CommitHandler($producerStub);
+        $assetManager = $this->createMock(AssetManager::class);
+        $assetManager
+            ->expects($this->once())
+            ->method('getTotalSize')
+            ->willReturn(42);
+
+        $handler = new CommitHandler($producerStub, $assetManager);
         $handler->setEntityManager($em);
 
         $logger = new TestLogger();
