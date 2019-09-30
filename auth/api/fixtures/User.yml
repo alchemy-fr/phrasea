@@ -3,14 +3,17 @@ App\Entity\User:
       __factory: { '@App\Fixture\Factory\UserPasswordFactory::create': ['secret'] }
       email: foo@bar.com
       enabled: true
+      locale: en
       roles:
         - ROLE_ADMIN
 
     enabled_user:
       __factory: { '@App\Fixture\Factory\UserPasswordFactory::create': ['secret'] }
       email: enabled@bar.com
+      locale: en
       enabled: true
 
     disabled_user:
       __factory: { '@App\Fixture\Factory\UserPasswordFactory::create': ['secret'] }
       email: disabled@bar.com
+      locale: en

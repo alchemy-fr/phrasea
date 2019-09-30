@@ -7,7 +7,6 @@ namespace App\Storage;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use Doctrine\ORM\EntityManagerInterface;
-use League\Flysystem\FileNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager

@@ -42,7 +42,6 @@ security:
             user_checker: App\Security\UserChecker
 
     access_control:
-        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/oauth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }

@@ -36,10 +36,19 @@ class OAuthController extends AbstractController
     {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
 
+        $clientId = $request->get('client_id');
+        if (!$clientId) {
+            throw new BadRequestHttpException('Missing client_id parameter');
+        }
+        $lastRedirectUri = $request->get('redirect_uri');
+        if (!$lastRedirectUri) {
+            throw new BadRequestHttpException('Missing redirect_uri parameter');
+        }
+
         $redirectUri = $this->generateUrl('oauth_check', $this->getRedirectParams(
             $provider,
-            $request->get('redirect_uri'),
-            $request->get('client_id')
+            $lastRedirectUri,
+            $clientId
         ), UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri));

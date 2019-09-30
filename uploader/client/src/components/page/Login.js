@@ -27,12 +27,12 @@ export default class Login extends Component {
                 redirectToReferrer: true,
             });
         }, (err, res) => {
-            if (res.body.error_description) {
+            if (err) {
+                throw err;
+            } else if (res.body.error_description) {
                 this.setState({
                     error: res.body.error_description,
                 });
-            } else {
-                throw err;
             }
         });
     };

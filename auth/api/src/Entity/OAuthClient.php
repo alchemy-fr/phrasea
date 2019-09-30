@@ -28,6 +28,13 @@ class OAuthClient extends BaseClient
      */
     private $createdAt;
 
+    /**
+     * @var array
+     *
+     * @ORM\Column(type="json_array")
+     */
+    private $authorizations = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -42,5 +49,20 @@ class OAuthClient extends BaseClient
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
+    }
+
+    public function getAuthorizations(): array
+    {
+        return $this->authorizations;
+    }
+
+    public function hasAuthorization(string $authorization): bool
+    {
+        return in_array($authorization, $this->authorizations, true);
+    }
+
+    public function setAuthorizations(array $authorizations): void
+    {
+        $this->authorizations = $authorizations;
     }
 }

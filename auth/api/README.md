@@ -63,3 +63,18 @@ Disable user:
 ```bash
 bin/console app:user:enable --disable user@alchemy.fr
 ```
+
+## API
+
+### Get user
+
+Client consuming `/users/{ID}` must have the `READ_USERS` authorization et should obtain its access token
+with the `client_credentials` grant type:
+
+```json
+{
+	"client_id": "uploader-app_12356789abcdefghijklmnopqrstuvwx",
+	"client_secret": "cli3nt_s3cr3t",
+	"grant_type": "client_credentials"
+}
+```

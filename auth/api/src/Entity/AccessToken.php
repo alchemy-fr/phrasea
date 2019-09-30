@@ -33,10 +33,10 @@ class AccessToken extends BaseAccessToken
     protected $client;
 
     /**
-     * @var User
+     * @var User|null
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", nullable=false)
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $user;
 

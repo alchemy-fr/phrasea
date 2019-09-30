@@ -49,6 +49,7 @@ easy_admin:
           - delete
         fields:
           - publicId
+          - authorizations
           - allowedGrantTypes
           - redirectUris
       form:
@@ -57,4 +58,5 @@ easy_admin:
           - randomId
           - secret
           - allowedGrantTypes
+          - { property: 'authorizations', label: 'Authorization', type: App\Form\AuthorizationChoiceType }
           - redirectUris
