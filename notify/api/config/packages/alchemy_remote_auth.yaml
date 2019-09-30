@@ -1,0 +1,5 @@
+
+alchemy_remote_auth:
+  login_form:
+    route_name: admin_login
+    default_target_path: /admin

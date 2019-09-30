@@ -36,6 +36,16 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Route("/notify-topic/{topic}")
+     */
+    public function notifyTopic(string $topic, Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    {
+        $mailerRabbitProxy->notifyTopic($topic, $request);
+
+        return new JsonResponse(true);
+    }
+
+    /**
      * @Route("/register-user")
      */
     public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)

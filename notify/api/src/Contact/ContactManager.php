@@ -28,7 +28,8 @@ class ContactManager
 
     public function createContact(string $userId, array $data): Contact
     {
-        $contact = new Contact($userId);
+        $contact = new Contact();
+        $contact->setUserId($userId);
         $this->persistContact($contact, $data);
 
         return $contact;

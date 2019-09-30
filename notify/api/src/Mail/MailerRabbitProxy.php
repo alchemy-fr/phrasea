@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Consumer\Handler\NotifyTopicHandler;
 use App\Consumer\Handler\NotifyUserHandler;
 use App\Consumer\Handler\RegisterUserHandler;
 use App\Consumer\Handler\SendEmailHandler;
@@ -86,6 +87,27 @@ class MailerRabbitProxy
             'template' => $template,
             'parameters' => $parameters,
             'contact_info' => $contactInfo,
+        ]));
+    }
+
+    public function notifyTopic(string $topic, Request $request)
+    {
+        $template = $request->request->get('template');
+        if (!$template) {
+            throw new BadRequestHttpException('Missing template');
+        }
+
+        $parameters = $request->request->get('parameters', []);
+        if (!is_array($parameters)) {
+            throw new BadRequestHttpException('parameters must be an array');
+        }
+
+        $this->mailer->validateParameters($template, $parameters);
+
+        $this->eventProducer->publish(new EventMessage(NotifyTopicHandler::EVENT, [
+            'topic' => $topic,
+            'template' => $template,
+            'parameters' => $parameters,
         ]));
     }
 

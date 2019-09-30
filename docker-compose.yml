@@ -246,6 +246,8 @@ services:
       internal:
         aliases:
           - notify_api_php
+    volumes:
+      - ./configs:/configs
     depends_on:
       - rabbitmq
     environment:
@@ -254,6 +256,9 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - AUTH_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
+      - AUTH_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
+      - AUTH_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
 
   notify_worker:
     image: ${REGISTRY_NAMESPACE}notify_worker:$DOCKER_TAG
@@ -280,6 +285,8 @@ services:
       internal:
         aliases:
           - notify_api
+    ports:
+      - ${NOTIFY_PORT}:80
     depends_on:
       - notify_api_php
 

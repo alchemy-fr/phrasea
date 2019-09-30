@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity
@@ -49,14 +51,32 @@ class Contact
      */
     protected $locale;
 
-    public function __construct(string $userId)
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    public function __construct()
+    {
+        $this->createdAt = new DateTime();
+        $this->id = Uuid::uuid4();
+    }
+
+    public function getId(): string
+    {
+        return (string) $this->id;
+    }
+
+    public function setUserId(string $userId): void
     {
         $this->userId = $userId;
     }
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
-        return $this->userId;
+        return (string) $this->userId;
     }
 
     public function getEmail(): ?string
@@ -87,5 +107,15 @@ class Contact
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function __toString()
+    {
+        return sprintf('%s %s', $this->getEmail(), $this->getUserId());
     }
 }
