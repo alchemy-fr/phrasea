@@ -26,6 +26,7 @@ easy_admin:
           - assetCount
           - token
           - acknowledged
+          - { property: totalSize, template: 'admin/file_size.html.twig' }
           - notifyEmail
           - createdAt
     Asset:
@@ -40,6 +41,7 @@ easy_admin:
         fields:
           - id
           - originalName
+          - { property: size, template: 'admin/file_size.html.twig' }
           - userId
           - { property: committed, type: boolean }
           - createdAt

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
 import deleteImg from '../images/delete-button.svg';
+import filesize from 'filesize';
 
 export default class AssetUpload extends Component {
     static propTypes = {
@@ -86,6 +87,7 @@ export default class AssetUpload extends Component {
                     >
                         <img src={deleteImg} alt="Remove"/>
                     </div> : ''}
+                    <div className="size">{filesize(file.size)}</div>
                 <div className="file-progress"
                      style={{width: (100 - uploadProgress) + '%'}}
                 />

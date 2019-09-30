@@ -9,11 +9,17 @@ import {Button} from "react-bootstrap";
 import UploadDone from "./UploadDone";
 import Container from "../Container";
 import {Link} from "react-router-dom";
+import filesize from 'filesize';
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
 const UPLOAD = 2;
 const UPLOAD_DONE = 3;
+
+const uploaderConfig = window.config.uploader;
+const maxFileSize = uploaderConfig.max_upload_file_size || undefined;
+const maxCommitSize = uploaderConfig.max_upload_commit_size || undefined;
+const maxFileCount = uploaderConfig.max_upload_file_count || undefined;
 
 export default class Upload extends Component {
     state = {
@@ -52,22 +58,32 @@ export default class Upload extends Component {
     };
 
     onCancel = () => {
-        if (window.confirm('Are you sure you want to cancel current upload?')) {
+        if (window.confirm(`Are you sure you want to cancel current upload?`)) {
             this.reset();
         }
     };
 
     onDrop = (acceptedFiles) => {
-        const newFiles = acceptedFiles.map(f => {
+        let newFiles = acceptedFiles.map(f => {
             f.id = '_' + Math.random().toString(36).substr(2, 9);
-            return f;
-        });
 
-        const currentFiles = [...this.state.files, ...newFiles];
+            if (maxFileSize && f.size > maxFileSize) {
+                alert(`Size of ${f.name} is higher than ${filesize(maxFileSize)} (${filesize(f.size)})`);
+                return null;
+            }
+
+            return f;
+        }).filter(f => null !== f);
+
+        const currentFiles = maxFileCount === 1 ? newFiles : [...this.state.files, ...newFiles];
+
         this.setState({files: currentFiles});
     };
 
     submit = () => {
+        if (!this.canSubmit()) {
+            return;
+        }
         uploadBatch.addFiles(this.state.files);
         uploadBatch.startUpload();
         this.onNext();
@@ -111,10 +127,15 @@ export default class Upload extends Component {
                 return <UploadDone goHome={this.reset}/>;
             case SELECT_FILES:
             default:
+                const errors = [];
+                const canSubmit = this.canSubmit(errors);
+
+
                 return <Container>
                     <div className="upload-container">
                         <Dropzone
                             onDrop={this.onDrop}
+                            multiple={maxFileCount !== 1}
                         >
                             {({getRootProps, getInputProps, isDragActive}) => {
                                 let classes = ['Upload'];
@@ -133,10 +154,23 @@ export default class Upload extends Component {
                             }}
                         </Dropzone>
 
+                        <ul className="specs">
+                            <li>
+                                {`Files: ${this.state.files.length}`}
+                                {maxFileCount ? ` / ${maxFileCount}` : ''}
+                            </li>
+                            <li>
+                                {`Total size: ${filesize(this.getTotalSize())}`}
+                                {maxCommitSize ? ` / ${filesize(maxCommitSize)}` : ''}
+                            </li>
+                            {maxFileSize ? <li>{`Max file size: ${filesize(maxFileSize)}`}</li> : ''}
+                        </ul>
+
+                        {this.renderErrors(errors)}
                         <Button
                             size="lg"
                             onClick={this.submit}
-                            disabled={this.state.files.length === 0}
+                            disabled={!canSubmit}
                         >
                             Next
                         </Button>
@@ -149,5 +183,53 @@ export default class Upload extends Component {
                     </div>
                 </Container>;
         }
+    }
+
+    renderErrors(errors) {
+        if (errors.length === 0) {
+            return '';
+        }
+
+        return <ul className="errors">
+            {errors.map(e => <li
+                key={e}
+            >
+                {e}
+            </li>)}
+        </ul>
+    }
+
+    getTotalSize = () => {
+        const {files} = this.state;
+
+        return files.length > 0
+            ? files.reduce((total, f) => total + f.size, 0)
+            : 0;
+    };
+
+    canSubmit = (errors) => {
+        if (this.state.files.length === 0) {
+            return false;
+        }
+
+        if (maxCommitSize) {
+            const totalSize = this.getTotalSize();
+            if (totalSize > maxCommitSize) {
+                errors.push(`Total max file size exceeded (${filesize(totalSize)} > ${filesize(maxCommitSize)})`);
+
+                return false;
+            }
+        }
+
+        if (maxFileCount) {
+            const fileCount = this.state.files.length;
+            if (fileCount > maxFileCount) {
+                errors.push(`Total max file count exceeded (${fileCount} > ${maxFileCount})`);
+
+                return false;
+            }
+        }
+
+        return true;
     }
 }

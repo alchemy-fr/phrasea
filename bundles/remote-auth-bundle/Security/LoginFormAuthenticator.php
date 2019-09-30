@@ -6,6 +6,7 @@ namespace Alchemy\RemoteAuthBundle\Security;
 
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -114,15 +115,23 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        $response = $this->client->post('oauth/v2/token', [
-            'json' => [
-                'username' => $credentials['email'],
-                'password' => $credentials['password'],
-                'grant_type' => 'password',
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-            ],
-        ]);
+        try {
+            $response = $this->client->post('oauth/v2/token', [
+                'json' => [
+                    'username' => $credentials['email'],
+                    'password' => $credentials['password'],
+                    'grant_type' => 'password',
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                ],
+            ]);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+            if ($response->getStatusCode() === 401) {
+                $json = \GuzzleHttp\json_decode($response);
+                throw new CustomUserMessageAuthenticationException($json['error_description']);
+            }
+        }
 
         $content = $response->getBody()->getContents();
         $data = \GuzzleHttp\json_decode($content, true);

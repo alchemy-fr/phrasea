@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "405b0aa51ca8c92257e6d1f1d7e6721f",
+    "content-hash": "a8f374f3a2735df6716102236e1b5fa7",
     "packages": [
         {
             "name": "alchemy/notify-bundle",

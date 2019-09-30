@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-const config = window.config.client.logo;
+const config = window.config.uploader.client.logo;
 
 export default class Logo extends Component {
     render() {

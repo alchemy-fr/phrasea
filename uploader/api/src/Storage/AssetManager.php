@@ -48,6 +48,13 @@ class AssetManager
         return $asset;
     }
 
+    public function getTotalSize(array $assetIds): int
+    {
+        return $this->em
+            ->getRepository(Asset::class)
+            ->getAssetsTotalSize($assetIds);
+    }
+
     public function findAsset(string $id): Asset
     {
         $asset = $this->em->find(Asset::class, $id);

@@ -21,15 +21,20 @@ class AppExtension extends Extension
             $config = [];
         }
 
-        if (isset($config['upload_admin']['logo']['src'])) {
+        $config = $config['uploader'] ?? [];
+
+        if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
                 '<img src="%s" width="%s" />',
-                $config['upload_admin']['logo']['src'],
-                $config['upload_admin']['logo']['with']
+                $config['admin']['logo']['src'],
+                $config['admin']['logo']['with']
             );
         } else {
             $siteName = 'Upload Admin';
         }
         $container->setParameter('easy_admin.site_name', $siteName);
+        $container->setParameter('app.upload.max_file_size', $config['max_upload_file_size'] ?? null);
+        $container->setParameter('app.upload.max_commit_size', $config['max_upload_commit_size'] ?? null);
+        $container->setParameter('app.upload.max_file_count', $config['max_upload_file_count'] ?? null);
     }
 }

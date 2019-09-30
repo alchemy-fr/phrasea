@@ -12,7 +12,8 @@ class AssetRepository extends EntityRepository
 {
     public function attachCommit(array $files, string $commitId): void
     {
-        $this->createQueryBuilder('a')
+        $this
+            ->createQueryBuilder('a')
             ->update(Asset::class, 'a')
             ->set('a.commit', ':commit')
             ->andWhere('a.id IN (:ids)')
@@ -30,11 +31,24 @@ class AssetRepository extends EntityRepository
         $expirationDate = new DateTime();
         $expirationDate->sub(new DateInterval('P'.$maxDaysRetention.'D'));
 
-        return $this->createQueryBuilder('a')
+        return $this
+            ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.createdAt < :expiration_date')
             ->setParameter('expiration_date', $expirationDate)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getAssetsTotalSize(array $ids): int
+    {
+        return (int) $this
+            ->createQueryBuilder('a')
+            ->select('SUM(a.size) as total')
+            ->andWhere('a.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

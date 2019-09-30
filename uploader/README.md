@@ -35,6 +35,7 @@ In order to avoid commit request to consumer target, you can define `ASSET_CONSU
 
 # Further reading
 
+- [Upload configuration](./doc/configuration.md)
 - [Request flow](./doc/request_flow.md)
 - [Form configuration](./doc/form_config.md)
 - [Form steps](./doc/form-steps.md)

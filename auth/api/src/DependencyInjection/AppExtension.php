@@ -41,6 +41,6 @@ class AppExtension extends Extension
         }
 
         $container->setParameter('easy_admin.site_name', $siteName);
-        $container->setParameter('available_locales', $config['available_locales']);
+        $container->setParameter('available_locales', $config['available_locales'] ?? ['en']);
     }
 }

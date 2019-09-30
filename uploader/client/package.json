@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "connected-react-router": "^5.0",
+    "filesize": "^4.2.1",
     "i18next-browser-languagedetector": "^3.0.3",
     "i18next-xhr-backend": "^3.1.2",
     "liform-react": "alchemy-fr/liform-react",

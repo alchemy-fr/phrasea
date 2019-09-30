@@ -3,6 +3,22 @@
   height: 100%;
 }
 
+.errors {
+  list-style: none;
+  padding-left: 0;
+
+  > li {
+    border-radius: 5px;
+    color: red;
+  }
+}
+
+.specs {
+  padding-left: 0;
+  font-size: 12px;
+  list-style: none;
+}
+
 .upload-container {
   text-align: center;
   align-content: center;
@@ -80,4 +96,14 @@
     max-width: 20px;
     max-height: 20px;
   }
+}
+
+.size {
+  font-size: 11px;
+  background: none;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  z-index: 10;
+  cursor: pointer;
 }

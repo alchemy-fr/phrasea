@@ -56,6 +56,13 @@ class Commit
     private $assets;
 
     /**
+     * @var string
+     * @Groups("asset_read")
+     * @ORM\Column(type="bigint", options={"unsigned"=true})
+     */
+    private $totalSize;
+
+    /**
      * @var array
      * @ORM\Column(type="json_array")
      */
@@ -243,5 +250,15 @@ class Commit
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getTotalSize(): int
+    {
+        return (int) $this->totalSize;
+    }
+
+    public function setTotalSize(int $totalSize): void
+    {
+        $this->totalSize = $totalSize;
     }
 }

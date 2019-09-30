@@ -9,6 +9,7 @@ use App\Consumer\Handler\CommitHandler;
 use App\Form\FormValidator;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
+use App\Validation\CommitValidator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,15 +33,21 @@ final class CommitAction extends AbstractController
      * @var FormValidator
      */
     private $formValidator;
+    /**
+     * @var CommitValidator
+     */
+    private $commitValidator;
 
     public function __construct(
         AssetManager $assetManager,
         EventProducer $eventProducer,
-        FormValidator $formValidator
+        FormValidator $formValidator,
+        CommitValidator $commitValidator
     ) {
         $this->assetManager = $assetManager;
         $this->eventProducer = $eventProducer;
         $this->formValidator = $formValidator;
+        $this->commitValidator = $commitValidator;
     }
 
     public function __invoke(Commit $data, Request $request)
@@ -49,6 +56,11 @@ final class CommitAction extends AbstractController
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors)));
         }
+
+        $totalSize = $this->assetManager->getTotalSize($data->getFiles());
+        $data->setTotalSize($totalSize);
+
+        $this->commitValidator->validate($data);
 
         /** @var RemoteUser $user */
         $user = $this->getUser();

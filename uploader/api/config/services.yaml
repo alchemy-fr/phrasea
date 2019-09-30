@@ -59,3 +59,8 @@ services:
     App\Storage\AssetManager:
         arguments:
             $assetDaysRetention: '%env(int:ASSET_DAYS_RETENTION)%'
+
+    App\Validation\CommitValidator:
+        arguments:
+            $maxCommitSize: "%app.upload.max_commit_size%"
+            $maxFileCount: "%app.upload.max_file_count%"

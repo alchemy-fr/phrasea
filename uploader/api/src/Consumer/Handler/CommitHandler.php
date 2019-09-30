@@ -7,6 +7,7 @@ namespace App\Consumer\Handler;
 use App\Entity\Asset;
 use App\Entity\BulkData;
 use App\Entity\Commit;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -20,16 +21,24 @@ class CommitHandler extends AbstractEntityManagerHandler
      * @var EventProducer
      */
     private $eventProducer;
+    /**
+     * @var AssetManager
+     */
+    private $assetManager;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(EventProducer $eventProducer, AssetManager $assetManager)
     {
         $this->eventProducer = $eventProducer;
+        $this->assetManager = $assetManager;
     }
 
     public function handle(EventMessage $message): void
     {
         $commit = Commit::fromArray($message->getPayload());
         $commit->generateToken();
+
+        $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
+        $commit->setTotalSize($totalSize);
 
         $em = $this->getEntityManager();
 
