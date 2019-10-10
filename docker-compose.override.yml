@@ -110,6 +110,11 @@ services:
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
+      - UPLOADER_BASE_URL
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

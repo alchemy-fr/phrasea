@@ -24,7 +24,7 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
 
     public function sendEmail(string $email, string $template, string $locale, array $parameters = []): void
     {
-        $this->logger->debug(sprintf('Send email to"%s" with template "%s"', $email, $template));
+        $this->logger->debug(sprintf('Send email to "%s" with template "%s"', $email, $template));
 
         $this->client->request('GET', '/send-email', [
             'json' => [
@@ -32,6 +32,18 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
                 'template' => $template,
                 'parameters' => $parameters,
                 'locale' => $locale,
+            ],
+        ]);
+    }
+
+    public function notifyTopic(string $topic, string $template, array $parameters = []): void
+    {
+        $this->logger->debug(sprintf('Send email topic "%s" with template "%s"', $topic, $template));
+
+        $this->client->request('GET', '/notify-topic/'.$topic, [
+            'json' => [
+                'template' => $template,
+                'parameters' => $parameters,
             ],
         ]);
     }

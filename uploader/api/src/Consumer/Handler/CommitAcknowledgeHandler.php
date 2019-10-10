@@ -64,6 +64,14 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
                 'asset_count' => $commit->getAssets()->count(),
             ]);
         }
+
+        $this->notifier->notifyTopic(
+            'upload_commit_acknowledged',
+            'uploader/commit_acknowledged',
+            [
+                'asset_count' => $commit->getAssets()->count(),
+            ]
+        );
     }
 
     public static function getHandledEvents(): array
