@@ -18,7 +18,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - userId
+          - { property: userId, type: string }
           - email
           - phone
           - createdAt
