@@ -220,9 +220,6 @@
     "psr/log": {
         "version": "1.1.0"
     },
-    "psr/simple-cache": {
-        "version": "1.0.1"
-    },
     "ramsey/uuid": {
         "version": "3.8.0"
     },
@@ -271,6 +268,9 @@
     "symfony/cache": {
         "version": "v4.2.5"
     },
+    "symfony/cache-contracts": {
+        "version": "v1.1.7"
+    },
     "symfony/config": {
         "version": "v4.2.5"
     },
@@ -286,9 +286,6 @@
             "bin/console",
             "config/bootstrap.php"
         ]
-    },
-    "symfony/contracts": {
-        "version": "v1.0.2"
     },
     "symfony/css-selector": {
         "version": "v4.2.7"
@@ -310,6 +307,9 @@
     },
     "symfony/event-dispatcher": {
         "version": "v4.2.5"
+    },
+    "symfony/event-dispatcher-contracts": {
+        "version": "v1.1.7"
     },
     "symfony/expression-language": {
         "version": "v4.2.10"
@@ -366,6 +366,9 @@
     "symfony/intl": {
         "version": "v4.2.7"
     },
+    "symfony/mime": {
+        "version": "v4.3.5"
+    },
     "symfony/options-resolver": {
         "version": "v4.2.7"
     },
@@ -391,11 +394,17 @@
     "symfony/polyfill-intl-icu": {
         "version": "v1.11.0"
     },
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.12.0"
+    },
     "symfony/polyfill-mbstring": {
         "version": "v1.11.0"
     },
     "symfony/polyfill-php72": {
         "version": "v1.11.0"
+    },
+    "symfony/polyfill-php73": {
+        "version": "v1.12.0"
     },
     "symfony/process": {
         "version": "v4.2.11"
@@ -445,6 +454,9 @@
     "symfony/security-http": {
         "version": "v4.2.7"
     },
+    "symfony/service-contracts": {
+        "version": "v1.1.7"
+    },
     "symfony/stopwatch": {
         "version": "v4.2.7"
     },
@@ -466,6 +478,9 @@
             "config/packages/translation.yaml",
             "translations/.gitignore"
         ]
+    },
+    "symfony/translation-contracts": {
+        "version": "v1.1.7"
     },
     "symfony/twig-bridge": {
         "version": "v4.2.7"
