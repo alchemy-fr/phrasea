@@ -1,38 +1,48 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace Alchemy\AdminBundle\Controller;
 
-use App\Security\OAuthUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
-/**
- * @Route("/admin", name="admin_")
- */
 class LoginController extends AbstractController
 {
     /**
+     * @var string
+     */
+    private $siteTitle;
+    /**
+     * @var string|null
+     */
+    private $siteLogo;
+
+    public function __construct(string $siteTitle, ?string $siteLogo)
+    {
+        $this->siteTitle = $siteTitle;
+        $this->siteLogo = $siteLogo;
+    }
+
+    /**
      * @Route("/login", name="login")
      */
-    public function login(
-        AuthenticationUtils $authenticationUtils
-    ): Response {
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('admin/login.html.twig', [
+        return $this->render('@AlchemyAdmin/login.html.twig', [
+            'providers' => [], // TODO implement
+            'site_title' => $this->siteTitle,
+            'site_logo' => $this->siteLogo,
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
@@ -51,7 +61,7 @@ class LoginController extends AbstractController
 
     private function getRedirectUrl(string $provider): string
     {
-        return $this->generateUrl('admin_oauth_check', [
+        return $this->generateUrl('alchemy_admin_oauth_check', [
             'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }

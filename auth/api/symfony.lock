@@ -1,5 +1,11 @@
 {
+    "alchemy/admin-bundle": {
+        "version": "dev-master"
+    },
     "alchemy/notify-bundle": {
+        "version": "dev-master"
+    },
+    "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
     "arthem/locale-bundle": {

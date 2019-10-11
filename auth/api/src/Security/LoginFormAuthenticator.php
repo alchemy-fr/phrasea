@@ -40,7 +40,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function supports(Request $request)
     {
-        return 'admin_login' === $request->attributes->get('_route')
+        return 'alchemy_admin_login' === $request->attributes->get('_route')
             && $request->isMethod('POST');
     }
 
@@ -92,6 +92,6 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     protected function getLoginUrl()
     {
-        return $this->router->generate('admin_login');
+        return $this->router->generate('alchemy_admin_login');
     }
 }

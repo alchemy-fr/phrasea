@@ -5,7 +5,9 @@ namespace Alchemy\RemoteAuthBundle\DependencyInjection;
 use Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator;
 use Alchemy\RemoteAuthBundle\Security\RemoteUserProvider;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -31,8 +33,14 @@ class AlchemyRemoteAuthExtension extends Extension
             $loader->load('services_test.yaml');
         }
 
-        $def = $container->getDefinition(LoginFormAuthenticator::class);
-        $def->setArgument('$routeName', $config['login_form']['route_name']);
-        $def->setArgument('$defaultTargetPath', $config['login_form']['default_target_path']);
+        foreach ($config['login_forms'] as $name => $loginForm) {
+            $def = new ChildDefinition(LoginFormAuthenticator::class);
+            $def->setArgument('$routeName', $loginForm['route_name']);
+            $def->setAbstract(false);
+            $def->setPublic(true);
+            $def->setArgument('$defaultTargetPath', $loginForm['default_target_path']);
+            $container->setDefinition('alchemy_remote.login_form.'.$name, $def);
+        }
+
     }
 }

@@ -142,6 +142,7 @@ services:
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
       - dev_vol:/home/app
+      - ./configs:/configs
 
 volumes:
   dev_vol:

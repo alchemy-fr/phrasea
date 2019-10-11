@@ -22,6 +22,7 @@ services:
       $client: "@alchemy.remote_client"
 
   Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator:
+    abstract: true
     arguments:
       $client: "@alchemy.remote_client"
       $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'

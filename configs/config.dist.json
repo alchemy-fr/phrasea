@@ -14,7 +14,7 @@
         "options": {
           "client_id": "phraseanet",
           "client_secret": "xxx",
-          "base_url": "https://elastic.preprod.alchemyasp.com"
+          "base_url": "https://alpha.preprod.alchemyasp.com"
         }
       }
     ]
@@ -36,7 +36,15 @@
       }
     }
   },
-  "notifier": {
+  "notify": {
+    "admin": {
+      "logo": {
+        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
+        "with": "80px"
+      }
+    }
+  },
+  "expose": {
     "admin": {
       "logo": {
         "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",

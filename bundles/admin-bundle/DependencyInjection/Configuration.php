@@ -1,6 +1,6 @@
 <?php
 
-namespace Alchemy\RemoteAuthBundle\DependencyInjection;
+namespace Alchemy\AdminBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -18,16 +18,18 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('alchemy_remote_auth');
+        $rootNode = $treeBuilder->root('alchemy_admin');
 
         $rootNode
             ->children()
-                ->arrayNode('login_forms')
-                    ->useAttributeAsKey('name')
-                    ->arrayPrototype()
-                        ->children()
-                            ->scalarNode('route_name')->defaultValue('login')->end()
-                            ->scalarNode('default_target_path')->defaultValue('/')->end()
+                ->arrayNode('service')
+                    ->isRequired()
+                    ->children()
+                        ->scalarNode('title')->end()
+                        ->scalarNode('name')
+                            ->isRequired()
+                            ->example('expose')
+                            ->info('The name of the service hosting the admin (in order to access the config node)')
                         ->end()
                     ->end()
                 ->end()

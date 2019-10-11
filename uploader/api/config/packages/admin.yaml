@@ -1,15 +1,9 @@
+alchemy_admin:
+  service:
+    title: Uploader
+    name: uploader
+
 easy_admin:
-  site_name: '%easy_admin.site_name%'
-  formats:
-    date:     'd/m/Y'
-    time:     'H:i'
-    datetime: 'd/m/Y H:i:s'
-  show:
-    max_results: 100
-  user:
-    display_name: true
-    display_avatar: false
-    name_property_path: 'username'
   entities:
     Commit:
       disabled_actions:
@@ -26,7 +20,7 @@ easy_admin:
           - assetCount
           - token
           - acknowledged
-          - { property: totalSize, template: 'admin/file_size.html.twig' }
+          - { property: totalSize, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - notifyEmail
           - createdAt
     Asset:
@@ -41,7 +35,7 @@ easy_admin:
         fields:
           - id
           - originalName
-          - { property: size, template: 'admin/file_size.html.twig' }
+          - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - userId
           - { property: committed, type: boolean }
           - createdAt

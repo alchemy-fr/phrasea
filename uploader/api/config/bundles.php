@@ -22,6 +22,7 @@ return [
     App\AppBundle::class => ['all' => true],
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
+    Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],

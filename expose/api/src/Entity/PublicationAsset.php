@@ -8,14 +8,13 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\CreateAssetAction;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_direct_url", columns={"publication_id", "direct_url_path"})})
  * @ApiResource(
  *     iri="http://schema.org/MediaObject",
  *     normalizationContext={
@@ -48,7 +47,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class Asset
+class PublicationAsset
 {
     /**
      * @ApiProperty(identifier=true)
@@ -62,60 +61,32 @@ class Asset
     protected $id;
 
     /**
-     * @ApiProperty()
-     * @Groups("asset_read")
-     *
-     * @var string|null
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    protected $assetId;
-
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=255)
-     */
-    private $path;
-
-    /**
-     * @var int
-     * @Groups("asset_read")
-     * @ORM\Column(type="integer")
-     */
-    private $size;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty(iri="http://schema.org/name")
-     * @Groups("asset_read")
-     */
-    private $originalName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty()
-     * @Groups("asset_read")
-     */
-    private $mimeType;
-
-    /**
-     * @var PublicationAsset[]|Collection
+     * @var Publication
      *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationAsset",
+     *             "$ref"="#/definitions/Publication",
      *         }
      *     }
      * )
-     * @Groups("asset_read")
-     * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
+     * @ORM\ManyToOne(targetEntity="Publication", inversedBy="assets")
      */
-    private $publications;
+    private $publication;
+
+    /**
+     * @var Asset
+     *
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Asset",
+     *         }
+     *     }
+     * )
+     * @ORM\ManyToOne(targetEntity="Asset", inversedBy="publications")
+     */
+    private $asset;
 
     /**
      * Direct access to asset
@@ -141,7 +112,6 @@ class Asset
     public function __construct()
     {
         $this->createdAt = new DateTime();
-        $this->publications = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
 
@@ -150,72 +120,24 @@ class Asset
         return $this->id->__toString();
     }
 
-    public function getAssetId(): ?string
+    public function getPublication(): Publication
     {
-        return $this->assetId;
+        return $this->publication;
     }
 
-    public function setAssetId(?string $assetId): void
+    public function setPublication(Publication $publication): void
     {
-        $this->assetId = $assetId;
+        $this->publication = $publication;
     }
 
-    public function getPath(): string
+    public function getAsset(): Asset
     {
-        return $this->path;
+        return $this->asset;
     }
 
-    public function setPath(string $path): void
+    public function setAsset(Asset $asset): void
     {
-        $this->path = $path;
-    }
-
-    public function getSize(): int
-    {
-        return $this->size;
-    }
-
-    public function setSize(int $size): void
-    {
-        $this->size = $size;
-    }
-
-    public function getOriginalName(): string
-    {
-        return $this->originalName;
-    }
-
-    public function setOriginalName(string $originalName): void
-    {
-        $this->originalName = $originalName;
-    }
-
-    public function getMimeType(): string
-    {
-        return $this->mimeType;
-    }
-
-    public function setMimeType(string $mimeType): void
-    {
-        $this->mimeType = $mimeType;
-    }
-
-    /**
-     * @return Publication[]|Collection
-     */
-    public function getPublications(): Collection
-    {
-        return $this->publications;
-    }
-
-    public function addPublication(PublicationAsset $publication): void
-    {
-        $this->publications->add($publication);
-    }
-
-    public function removePublication(PublicationAsset $publication): void
-    {
-        $this->publications->removeElement($publication);
+        $this->asset = $asset;
     }
 
     public function getCreatedAt(): DateTime

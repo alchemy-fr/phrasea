@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f91a589b762b71d5c6f6b4b3205c7cb",
+    "content-hash": "6118e0986046e1855fc1e51bf4dc994a",
     "packages": [
+        {
+            "name": "alchemy/admin-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__bundles/admin-bundle",
+                "reference": "00759d088c36429a40e7da45340d070a1b4d6f43"
+            },
+            "require": {
+                "alchemy/remote-auth-bundle": "@dev",
+                "easycorp/easyadmin-bundle": "^2.3",
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony admin bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "Admin"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/notify-bundle",
             "version": "dev-master",

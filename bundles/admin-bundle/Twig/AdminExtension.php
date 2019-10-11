@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Twig;
+namespace Alchemy\AdminBundle\Twig;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-class AppExtension extends AbstractExtension
+class AdminExtension extends AbstractExtension
 {
     public function getFilters()
     {

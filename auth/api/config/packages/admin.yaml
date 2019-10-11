@@ -1,15 +1,9 @@
+alchemy_admin:
+  service:
+    title: Auth
+    name: auth
+
 easy_admin:
-  site_name: '%easy_admin.site_name%'
-  formats:
-    date:     'd/m/Y'
-    time:     'H:i'
-    datetime: 'd/m/Y H:i:s'
-  show:
-    max_results: 100
-  user:
-    display_name: true
-    display_avatar: false
-    name_property_path: 'email'
   entities:
     User:
       templates:

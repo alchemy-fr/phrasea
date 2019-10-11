@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ffc0b4f96b539810a6809dff5d5cfd81",
+    "content-hash": "6a2037bba4c0d0e18c62938f8a2fa53c",
     "packages": [
+        {
+            "name": "alchemy/admin-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__bundles/admin-bundle",
+                "reference": "00759d088c36429a40e7da45340d070a1b4d6f43"
+            },
+            "require": {
+                "alchemy/remote-auth-bundle": "@dev",
+                "easycorp/easyadmin-bundle": "^2.3",
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony admin bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "Admin"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/remote-auth-bundle",
             "version": "dev-master",
@@ -6064,8 +6104,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alchemy/remote-auth-bundle": 20,
-        "arthem/rabbit-bundle": 20
+        "arthem/rabbit-bundle": 20,
+        "alchemy/admin-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

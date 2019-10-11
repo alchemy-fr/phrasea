@@ -10,6 +10,7 @@ class PublicationTest extends ApiTestCase
     {
         $response = $this->request('POST', '/publications', [
             'name' => 'Foo',
+            'layout' => 'download',
         ]);
         $json = json_decode($response->getContent(), true);
 

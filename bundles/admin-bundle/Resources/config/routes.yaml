@@ -1,0 +1,11 @@
+easy_admin_bundle:
+  resource: '@EasyAdminBundle/Controller/EasyAdminController.php'
+  type: annotation
+
+alchemy_admin_logout:
+  path: /logout
+  methods: GET
+
+alchemy_admin_login:
+  name_prefix: alchemy_admin_
+  resource: 'Alchemy\AdminBundle\Controller\LoginController'

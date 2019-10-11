@@ -1,6 +1,6 @@
-{% extends 'base.html.twig' %}
+{% extends '@AlchemyAdmin/base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}{{ site_title }} Admin | Log in{% endblock %}
 
 {% block body %}
     <form method="post">
@@ -8,7 +8,15 @@
             <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
 
-        <h1 class="h3 mb-3 font-weight-normal">Upload admin</h1>
+        <h1 class="h3 mb-3 font-weight-normal text-center">
+            {% if site_logo %}
+                {{ site_logo|raw }}
+            {% endif %}
+            <div>
+                {{ site_title }} Admin
+            </div>
+        </h1>
+
         <h2 class="h4 mb-4 font-weight-normal">Please sign in</h2>
 
         <div class="form-group">
@@ -43,5 +51,15 @@
                 Sign in
             </button>
         </div>
+
+        {% if providers|length > 0 %}
+            <hr>
+
+            {% for provider in providers %}
+                <a href="{{ provider.entrypoint }}" class="btn btn-secondary">
+                    Connect with {{ provider.title }}
+                </a>
+            {% endfor %}
+        {% endif %}
     </form>
 {% endblock %}

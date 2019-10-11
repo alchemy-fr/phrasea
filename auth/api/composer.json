@@ -8,6 +8,20 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__bundles/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__bundles/admin-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -19,7 +33,7 @@
         "arthem/rabbit-bundle": "@dev",
         "arthem/locale-bundle": "^0",
         "alchemy/notify-bundle": "*",
-        "easycorp/easyadmin-bundle": "^2.2",
+        "alchemy/admin-bundle": "*",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hwi/oauth-bundle": "^0.6.3",
         "nelmio/cors-bundle": "^1.5",

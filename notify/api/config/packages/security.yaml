@@ -15,11 +15,11 @@ security:
             stateless:  false
             anonymous:  ~
             logout:
-                path: admin_logout
+                path: alchemy_admin_logout
                 target: easyadmin
             guard:
                 authenticators:
-                    - Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator
+                    - 'alchemy_remote.login_form.admin'
 
     access_control:
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

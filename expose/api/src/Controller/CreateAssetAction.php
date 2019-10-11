@@ -43,15 +43,6 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
-        $publicationId = $request->request->get('publication_id');
-        if (!$publicationId) {
-            throw new BadRequestHttpException('Missing publication_id');
-        }
-        $assetId = $request->request->get('asset_id');
-        if (!$publicationId) {
-            throw new BadRequestHttpException('Missing asset_id');
-        }
-
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
 
@@ -73,7 +64,6 @@ final class CreateAssetAction extends AbstractController
         fclose($stream);
 
         $asset = $this->assetManager->createAsset(
-            $publicationId,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),

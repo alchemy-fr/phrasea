@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Alchemy\AdminBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class AppBundle extends Bundle
+class AlchemyAdminBundle extends Bundle
 {
 }

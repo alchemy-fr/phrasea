@@ -64,6 +64,7 @@ abstract class ApiTestCase extends WebTestCase
         $em = self::$container->get(EntityManagerInterface::class);
 
         $publication = new Publication();
+        $publication->setLayout('gallery');
         $publication->setName('Foo');
         $em->persist($publication);
         $em->flush();

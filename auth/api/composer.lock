@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aaf5bd934efbac6feda77d33a02cbdfd",
+    "content-hash": "3979d0ba23379af314dd77f211fe7da8",
     "packages": [
+        {
+            "name": "alchemy/admin-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__bundles/admin-bundle",
+                "reference": "00759d088c36429a40e7da45340d070a1b4d6f43"
+            },
+            "require": {
+                "alchemy/remote-auth-bundle": "@dev",
+                "easycorp/easyadmin-bundle": "^2.3",
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony admin bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "Admin"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/notify-bundle",
             "version": "dev-master",
@@ -40,6 +80,46 @@
             "homepage": "https://www.alchemy.fr/",
             "keywords": [
                 "Notification email"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
+            "name": "alchemy/remote-auth-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__bundles/remote-auth-bundle",
+                "reference": "57eeaff08abbbcb608cb768753a954f50b2ce0b5"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3",
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\RemoteAuthBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony remote auth bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "User Security"
             ],
             "transport-options": {
                 "symlink": true

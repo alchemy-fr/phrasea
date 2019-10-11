@@ -56,12 +56,12 @@ class OAuthProviderFactory
         $this->resourceOwners[$key] = $resourceOwnerClass;
     }
 
-    public function getViewProviders(): array
+    public function getViewProviders(string $routePrefix = null): array
     {
-        return array_map(function (array $provider) {
+        return array_map(function (array $provider) use ($routePrefix) {
             return [
                 'title' => $provider['title'],
-                'entrypoint' => $this->urlGenerator->generate('admin_oauth_authorize', [
+                'entrypoint' => $this->urlGenerator->generate($routePrefix.'oauth_authorize', [
                     'provider' => $provider['name'],
                 ]),
             ];

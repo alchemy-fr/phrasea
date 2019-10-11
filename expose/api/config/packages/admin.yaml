@@ -1,0 +1,35 @@
+alchemy_admin:
+  service:
+    title: Expose
+    name: expose
+
+easy_admin:
+  entities:
+    Publication:
+      disabled_actions:
+        - new
+        - edit
+      class: App\Entity\Publication
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - name
+          - layout
+          - createdAt
+    Asset:
+      class: App\Entity\Asset
+      disabled_actions:
+        - new
+        - edit
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - originalName
+          - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
+          - createdAt

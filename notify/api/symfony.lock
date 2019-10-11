@@ -1,4 +1,7 @@
 {
+    "alchemy/admin-bundle": {
+        "version": "dev-master"
+    },
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },

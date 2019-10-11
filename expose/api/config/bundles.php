@@ -15,4 +15,6 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
+    Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
+    EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
 ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Admin;
 
 use App\OAuth\OAuthProviderFactory;
 use App\Security\OAuthUserProvider;
@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 /**
- * @Route("/admin", name="admin_")
+ * @Route("/admin")
  */
 class LoginController extends AbstractController
 {
@@ -34,10 +34,12 @@ class LoginController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('admin/login.html.twig', [
+        return $this->render('@AlchemyAdmin/login.html.twig', [
+            'site_title' => 'Auth',
+            'site_logo' => null,
             'last_username' => $lastUsername,
             'error' => $error,
-            'providers' => $OAuthProviderFactory->getViewProviders(),
+            'providers' => $OAuthProviderFactory->getViewProviders('alchemy_admin_'),
         ]);
     }
 
@@ -54,7 +56,7 @@ class LoginController extends AbstractController
 
     private function getRedirectUrl(string $provider): string
     {
-        return $this->generateUrl('admin_oauth_check', [
+        return $this->generateUrl('alchemy_admin_oauth_check', [
             'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }

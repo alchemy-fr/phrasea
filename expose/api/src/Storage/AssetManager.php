@@ -6,6 +6,7 @@ namespace App\Storage;
 
 use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Entity\PublicationAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -22,7 +23,6 @@ class AssetManager
     }
 
     public function createAsset(
-        string $publicationId,
         string $path,
         string $mimeType,
         string $originalName,
@@ -30,7 +30,6 @@ class AssetManager
         array $options = []
     ): Asset {
         $asset = new Asset();
-        $asset->setPublication($this->getPublication($publicationId));
         $asset->setPath($path);
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
@@ -41,6 +40,14 @@ class AssetManager
         }
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
+        }
+        if (isset($options['publication_id'])) {
+            $publication = $this->getPublication($options['publication_id']);
+            $publicationAsset = new PublicationAsset();
+            $publicationAsset->setPublication($publication);
+            $publicationAsset->setAsset($asset);
+            $asset->addPublication($publicationAsset);
+            $this->em->persist($publicationAsset);
         }
 
         $this->em->persist($asset);

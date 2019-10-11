@@ -47,9 +47,16 @@ class Publication
     private $name;
 
     /**
-     * @var Asset[]|Collection
+     * @var PublicationAsset[]|Collection
      *
-     * @ORM\OneToMany(targetEntity="Asset", mappedBy="publication")
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/PublicationAsset",
+     *         }
+     *     }
+     * )
+     * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
      */
     private $assets;
 
@@ -60,6 +67,30 @@ class Publication
      * @ORM\Column(type="boolean")
      */
     private $enabled = false;
+
+    /**
+     * @var string
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="string", length=20)
+     */
+    private $layout;
+
+    /**
+     * @var DateTime|null
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $beginsAt;
+
+    /**
+     * @var DateTime|null
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $expiresAt;
 
     /**
      * @var DateTime
@@ -112,6 +143,48 @@ class Publication
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function addAsset(Asset $asset): void
+    {
+        $asset->getPublications()->add($this);
+        $this->assets->add($asset);
+    }
+
+    public function removeAsset(Asset $asset): void
+    {
+        $asset->getPublications()->removeElement($this);
+        $this->assets->removeElement($asset);
+    }
+
+    public function getLayout(): string
+    {
+        return $this->layout;
+    }
+
+    public function setLayout(string $layout): void
+    {
+        $this->layout = $layout;
+    }
+
+    public function getBeginsAt(): ?DateTime
+    {
+        return $this->beginsAt;
+    }
+
+    public function setBeginsAt(?DateTime $beginsAt): void
+    {
+        $this->beginsAt = $beginsAt;
+    }
+
+    public function getExpiresAt(): ?DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(?DateTime $expiresAt): void
+    {
+        $this->expiresAt = $expiresAt;
     }
 }
 

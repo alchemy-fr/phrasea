@@ -1,4 +1,7 @@
 {
+    "alchemy/admin-bundle": {
+        "version": "dev-master"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-master"
     },

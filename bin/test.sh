@@ -13,7 +13,14 @@ if [[ -z "$1" ]]; then
     FILE=" -f docker-compose.yml"
 fi
 
-docker-compose$FILE run -T --user app --rm uploader_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
-docker-compose$FILE run -T --user app --rm auth_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
-docker-compose$FILE run -T --user app --rm expose_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
-docker-compose$FILE run -T --user app --rm notify_api_php /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+
+SERVICES="
+uploader_api_php
+auth_api_php
+expose_api_php
+notify_api_php
+"
+
+for s in ${SERVICES}; do
+    docker-compose$FILE run -T --user app --rm ${s} /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+done

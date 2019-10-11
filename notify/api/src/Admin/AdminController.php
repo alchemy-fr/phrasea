@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Admin;
+namespace App\Admin;
 
 use App\Entity\TopicSubscriber;
 use App\Topic\TopicManager;

@@ -29,7 +29,7 @@ security:
             anonymous:  ~
             user_checker: App\Security\UserChecker
             logout:
-                path: admin_logout
+                path: alchemy_admin_logout
                 target: easyadmin
             guard:
                 authenticators:
