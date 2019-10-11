@@ -40,6 +40,22 @@ Then front (React) application will display the according authentication method 
 In this example we access the publication at:
 `https://client-url.com/gallery/123`
 
+### Sequence
+
+![Sequence](doc/sequence.png "Request sequence")
+
+​```sequence
+title Expose loading
+
+note over Browser: User wants to access the publication
+Browser->React: GET https://expose.com/123
+React->Browser: Return static page with JS
+note over Browser: React app boots
+Browser->API: GET https://api.expose.com/publications/123
+API->Browser: Returns publication payload {"id": "123", ...}
+note over Browser: React displays the layout
+​```
+
 ## Definitions
 
 At the top level, we have *layouts*:
@@ -50,6 +66,20 @@ At the top level, we have *layouts*:
 At the second level, we have *themes*.
 Themes are declined graphical versions of layouts.
 A theme should be implemented for each layout.
+
+## Direct URL access
+
+We can define a unique URL path for an asset:
+
+```json
+{
+  "id": "123",
+  "assetId": "my-unique-id",
+  "alternateUrl": "a/b/c"
+}
+```
+
+Asset will be accessible at `https://client-url.com/direct/{alternateUrl}`.
 
 
 ## Setup
