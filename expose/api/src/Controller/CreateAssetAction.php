@@ -47,6 +47,10 @@ final class CreateAssetAction extends AbstractController
         if (!$publicationId) {
             throw new BadRequestHttpException('Missing publication_id');
         }
+        $assetId = $request->request->get('asset_id');
+        if (!$publicationId) {
+            throw new BadRequestHttpException('Missing asset_id');
+        }
 
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
@@ -73,7 +77,8 @@ final class CreateAssetAction extends AbstractController
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
-            $uploadedFile->getSize()
+            $uploadedFile->getSize(),
+            $request->request->all()
         );
 
         return $asset;

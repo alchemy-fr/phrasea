@@ -115,6 +115,9 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

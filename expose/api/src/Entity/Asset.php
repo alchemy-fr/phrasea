@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_direct_url", columns={"publication_id", "direct_url_path"})})
  * @ApiResource(
  *     iri="http://schema.org/MediaObject",
  *     normalizationContext={
@@ -60,6 +61,16 @@ class Asset
     protected $id;
 
     /**
+     * @ApiProperty()
+     * @Groups("asset_read")
+     *
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $assetId;
+
+    /**
      * @var string
      * @ORM\Column(type="string", length=255)
      */
@@ -98,6 +109,18 @@ class Asset
     private $publication;
 
     /**
+     * Direct access to asset
+     *
+     * @ApiProperty()
+     * @Groups("asset_read")
+     *
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $directUrlPath;
+
+    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -115,6 +138,16 @@ class Asset
     public function getId()
     {
         return $this->id->__toString();
+    }
+
+    public function getAssetId(): ?string
+    {
+        return $this->assetId;
+    }
+
+    public function setAssetId(?string $assetId): void
+    {
+        $this->assetId = $assetId;
     }
 
     public function getPath(): string
@@ -170,5 +203,15 @@ class Asset
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
+    }
+
+    public function getDirectUrlPath(): ?string
+    {
+        return $this->directUrlPath;
+    }
+
+    public function setDirectUrlPath(?string $directUrlPath): void
+    {
+        $this->directUrlPath = $directUrlPath;
     }
 }

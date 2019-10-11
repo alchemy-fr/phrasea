@@ -14,6 +14,7 @@ class AssetUploadTest extends ApiTestCase
 
         $response = $this->request('POST', '/assets', [
             'publication_id' => $id,
+            'asset_id' => '123',
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);

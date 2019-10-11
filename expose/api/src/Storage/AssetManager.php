@@ -26,7 +26,8 @@ class AssetManager
         string $path,
         string $mimeType,
         string $originalName,
-        int $size
+        int $size,
+        array $options = []
     ): Asset {
         $asset = new Asset();
         $asset->setPublication($this->getPublication($publicationId));
@@ -34,6 +35,13 @@ class AssetManager
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
+
+        if (isset($options['direct_url_path'])) {
+            $asset->setDirectUrlPath($options['direct_url_path']);
+        }
+        if (isset($options['asset_id'])) {
+            $asset->setAssetId($options['asset_id']);
+        }
 
         $this->em->persist($asset);
         $this->em->flush();
