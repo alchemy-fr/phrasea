@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @ORM\Entity(repositoryClass="UserRepository")
  * @ORM\Table(name="`user`")
+ * @ORM\EntityListeners({"App\Doctrine\Listener\UserDeleteListener"})
  */
 class User implements UserInterface, UserLocaleInterface
 {

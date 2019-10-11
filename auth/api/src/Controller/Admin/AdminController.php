@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use App\Consumer\Handler\UserInviteHandler;
 use App\Entity\User;
 use App\Form\ImportUsersForm;
@@ -64,6 +65,10 @@ class AdminController extends EasyAdminController
 
         if ($entity->isInviteByEmail()) {
             $this->eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
+                'id' => $entity->getId(),
+            ]));
+        } else {
+            $this->eventProducer->publish(new EventMessage(RegisterUserToNotifierHandler::EVENT, [
                 'id' => $entity->getId(),
             ]));
         }

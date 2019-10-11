@@ -23,6 +23,10 @@ class NullNotifier implements NotifierInterface
     {
     }
 
+    public function deleteUser(string $userId): void
+    {
+    }
+
     public function notifyTopic(string $topic, string $template, array $parameters = []): void
     {
     }

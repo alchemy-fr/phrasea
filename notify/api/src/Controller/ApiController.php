@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/")
+ * @Route("/", methods={"POST"})
  */
 class ApiController extends AbstractController
 {
@@ -51,6 +51,16 @@ class ApiController extends AbstractController
     public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
     {
         $mailerRabbitProxy->registerUser($request);
+
+        return new JsonResponse(true);
+    }
+
+    /**
+     * @Route("/delete-user")
+     */
+    public function deleteUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    {
+        $mailerRabbitProxy->deleteUser($request);
 
         return new JsonResponse(true);
     }

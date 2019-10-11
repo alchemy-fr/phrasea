@@ -45,6 +45,10 @@ services:
         arguments:
             $baseUrl: '%env(AUTH_BASE_URL)%'
 
+    App\Doctrine\Listener\UserDeleteListener:
+        tags:
+            - { name: doctrine.orm.entity_listener }
+
     App\User\UserManager:
         arguments:
             $validateEmail: '%env(bool:REGISTRATION_VALIDATE_EMAIL)%'

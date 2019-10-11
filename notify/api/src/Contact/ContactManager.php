@@ -40,6 +40,12 @@ class ContactManager
         $this->persistContact($contact, $data);
     }
 
+    public function deleteContact(Contact $contact): void
+    {
+        $this->em->remove($contact);
+        $this->em->flush();
+    }
+
     private function persistContact(Contact $contact, array $data): void
     {
         $contact->setEmail($data['email'] ?? null);

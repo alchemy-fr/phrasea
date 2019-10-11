@@ -18,5 +18,7 @@ interface NotifierInterface
 
     public function registerUser(string $userId, array $contactInfo): void;
 
+    public function deleteUser(string $userId): void;
+
     public function notifyTopic(string $topic, string $template, array $parameters = []): void;
 }

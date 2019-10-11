@@ -40,7 +40,7 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
     {
         $this->logger->debug(sprintf('Send email topic "%s" with template "%s"', $topic, $template));
 
-        $this->client->request('GET', '/notify-topic/'.$topic, [
+        $this->client->request('POST', '/notify-topic/'.$topic, [
             'json' => [
                 'template' => $template,
                 'parameters' => $parameters,
@@ -66,7 +66,7 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
 
         $this->logger->debug(sprintf('Notify user "%s" with template "%s"', $userId, $template));
 
-        $this->client->request('GET', '/notify-user', [
+        $this->client->request('POST', '/notify-user', [
             'json' => $data,
         ]);
     }
@@ -80,7 +80,20 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
 
         $this->logger->debug(sprintf('Register user "%s" to notifier', $userId));
 
-        $this->client->request('GET', '/register-user', [
+        $this->client->request('POST', '/register-user', [
+            'json' => $data,
+        ]);
+    }
+
+    public function deleteUser(string $userId): void
+    {
+        $data = [
+            'user_id' => $userId,
+        ];
+
+        $this->logger->debug(sprintf('Delete user "%s" on notifier', $userId));
+
+        $this->client->request('POST', '/delete-user', [
             'json' => $data,
         ]);
     }

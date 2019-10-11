@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Consumer\Handler;
+namespace App\Consumer\Handler\Notify;
 
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\User;

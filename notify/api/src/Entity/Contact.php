@@ -26,7 +26,7 @@ class Contact
     /**
      * @var string
      *
-     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\Column(type="string", length=128, unique=true, nullable=true)
      */
     protected $userId;
 
@@ -69,14 +69,14 @@ class Contact
         return (string) $this->id;
     }
 
-    public function setUserId(string $userId): void
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }
 
     public function getUserId(): ?string
     {
-        return (string) $this->userId;
+        return $this->userId;
     }
 
     public function getEmail(): ?string

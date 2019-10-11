@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Consumer\Handler\RegisterUserToNotifierHandler;
+use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
