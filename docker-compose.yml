@@ -63,7 +63,7 @@ services:
     networks:
       - internal
     ports:
-      - ${UPLOADER_PORT}:80
+      - ${UPLOADER_API_PORT}:80
     depends_on:
       - uploader_api_php
 
@@ -75,7 +75,7 @@ services:
     volumes:
       - ./configs:/configs
     ports:
-      - ${CLIENT_PORT}:80
+      - ${UPLOADER_CLIENT_PORT}:80
     networks:
       - internal
     environment:
@@ -84,9 +84,6 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - CLIENT_LOGO_SRC
-      - CLIENT_LOGO_X_MARGIN
-      - CLIENT_LOGO_Y_MARGIN
 
   auth_worker:
     image: ${REGISTRY_NAMESPACE}auth_worker:$DOCKER_TAG
@@ -233,9 +230,27 @@ services:
         aliases:
           - expose_api
     ports:
-      - ${EXPOSE_PORT}:80
+      - ${EXPOSE_API_PORT}:80
     depends_on:
       - expose_api_php
+
+  expose_front:
+    image: ${REGISTRY_NAMESPACE}expose_front:$DOCKER_TAG
+    build:
+      context: ./expose/front
+      target: expose_front_nginx
+    volumes:
+      - ./configs:/configs
+    ports:
+      - ${EXPOSE_FRONT_PORT}:80
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - EXPOSE_BASE_URL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
 
   notify_api_php:
     image: ${REGISTRY_NAMESPACE}notify_api_php:$DOCKER_TAG

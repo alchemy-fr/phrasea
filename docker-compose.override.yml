@@ -4,6 +4,9 @@ services:
   uploader_client:
     command: ["/bin/sh", "-c", "exit"]
 
+  expose_front:
+    command: ["/bin/sh", "-c", "exit"]
+
   uploader_client_dev:
     build:
       context: ./uploader/client
@@ -19,11 +22,26 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - CLIENT_LOGO_SRC
-      - CLIENT_LOGO_X_MARGIN
-      - CLIENT_LOGO_Y_MARGIN
     ports:
       - 127.0.0.1:3001:3000
+
+  expose_front_dev:
+    build:
+      context: ./expose/front
+      target: expose_front_build
+    networks:
+      - internal
+    volumes:
+      - ./expose/front:/usr/src/app
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - EXPOSE_BASE_URL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+    ports:
+      - 127.0.0.1:3002:3000
 
   uploader_api_php:
     volumes:
