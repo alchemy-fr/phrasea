@@ -25,7 +25,7 @@ Upload->Phraseanet: Notify there is a new asset
 note left of Phraseanet: POST /api/v1/upload/enqueue
 Phraseanet->RabbitMQ: Produce message
 note over RabbitMQ
-    [ {"publisher_id", "hash": "..."},
+    [ {"publisher", "id": "..."},
     {"id": ..., "hash": "..."},
     {"id": ..., "hash": "..."}]
 end note
@@ -57,10 +57,10 @@ note over Upload: Media is locally stored
 User->Upload: Commit
 note over Upload: Send all the ID
 Phraseanet->Upload: fetch new commit assets
-note left of Phraseanet: GET /commits/
+note left of Phraseanet: GET /commits
 Phraseanet->RabbitMQ: Produce message
 note over RabbitMQ
-    [ {"publisher_id", "hash": "..."},
+    [ {"publisher", "id": "..."},
     {"id": ..., "hash": "..."},
     {"id": ..., "hash": "..."}]
 end note
