@@ -128,7 +128,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         } catch (ClientException $e) {
             $response = $e->getResponse();
             if ($response->getStatusCode() === 401) {
-                $json = \GuzzleHttp\json_decode($response);
+                $json = \GuzzleHttp\json_decode($response->getBody()->getContents());
                 throw new CustomUserMessageAuthenticationException($json['error_description']);
             }
         }

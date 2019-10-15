@@ -29,6 +29,9 @@ class RemoteUserProvider implements UserProviderInterface
         throw new Exception('Not implemented');
     }
 
+    /**
+     * @return RemoteUser
+     */
     public function loadUserFromAccessToken(string $accessToken): ?UserInterface
     {
         try {

@@ -2,14 +2,15 @@
 
 namespace Alchemy\AdminBundle\Controller;
 
+use Alchemy\AdminBundle\OAuth\OAuthClient;
+use Alchemy\AdminBundle\OAuth\OAuthRegistry;
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
+use Alchemy\RemoteAuthBundle\Security\RemoteUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractController
@@ -32,7 +33,7 @@ class LoginController extends AbstractController
     /**
      * @Route("/login", name="login")
      */
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, OAuthRegistry $authRegistry): Response
     {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -40,7 +41,7 @@ class LoginController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('@AlchemyAdmin/login.html.twig', [
-            'providers' => [], // TODO implement
+            'providers' => $authRegistry->getViewProviders($this->getRedirectUri()),
             'site_title' => $this->siteTitle,
             'site_logo' => $this->siteLogo,
             'last_username' => $lastUsername,
@@ -48,58 +49,28 @@ class LoginController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/oauth/{provider}/authorize", name="oauth_authorize")
-     */
-    public function authorize(string $provider)
+    private function getRedirectUri(): string
     {
-//        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-//        $redirectUri = $this->getRedirectUrl($provider);
-//
-//        return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri));
-    }
-
-    private function getRedirectUrl(string $provider): string
-    {
-        return $this->generateUrl('alchemy_admin_oauth_check', [
-            'provider' => $provider,
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->generateUrl('alchemy_admin_oauth_check', [], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**
-     * @Route(path="/oauth/{provider}/check", name="oauth_check")
+     * @Route("/oauth/check", name="oauth_check")
      */
-    public function check(
-        string $provider,
+    public function oauthCheck(
         Request $request,
-        TokenStorageInterface $tokenStorage,
-        SessionInterface $session,
-        EventDispatcherInterface $dispatcher
-    ) {
-        // TODO
-//        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-//
-//        $redirectUri = $this->getRedirectUrl($provider);
-//
-//        if ($resourceOwner->handles($request)) {
-//            $accessToken = $resourceOwner->getAccessToken(
-//                $request,
-//                $redirectUri
-//            );
-//        } else {
-//            throw new BadRequestHttpException('Unsupported request');
-//        }
-//
-//        $userInformation = $resourceOwner->getUserInformation($accessToken);
-//        $user = $OAuthUserProvider->loadUserByOAuthUserResponse($userInformation);
-//
-//        $token = new PostAuthenticationGuardToken($user, 'admin', $user->getRoles());
-//        $tokenStorage->setToken($token);
-//        $session->set('_security_admin', serialize($token));
-//        $session->save();
-//
-//        $event = new InteractiveLoginEvent($request, $token);
-//        $dispatcher->dispatch('security.interactive_login', $event);
+        OAuthClient $oauthClient,
+        RemoteUserProvider $userProvider,
+        RemoteAuthAuthenticator $authenticator
+    ): Response
+    {
+        $accessToken = $oauthClient->getAccessTokenFromAuthorizationCode(
+            $request->get('code'),
+            $this->getRedirectUri()
+        );
+
+        $user = $userProvider->loadUserFromAccessToken($accessToken);
+        $authenticator->authenticateUser($request, $user, 'admin');
 
         return $this->redirectToRoute('easyadmin');
     }

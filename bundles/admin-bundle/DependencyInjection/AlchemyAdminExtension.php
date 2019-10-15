@@ -5,11 +5,11 @@ namespace Alchemy\AdminBundle\DependencyInjection;
 use Alchemy\AdminBundle\Admin\Notifier;
 use Alchemy\AdminBundle\Admin\NotifierInterface;
 use Alchemy\AdminBundle\Admin\NullNotifier;
+use Alchemy\AdminBundle\OAuth\OAuthRegistry;
 use Alchemy\AdminBundle\Security\LoginFormAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
@@ -41,15 +41,15 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
     {
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {
-            $config = json_decode(file_get_contents($jsonConfigSrc), true);
+            $rootConfig = json_decode(file_get_contents($jsonConfigSrc), true);
             // Add for fresh cache
             $container->addResource(new FileResource($jsonConfigSrc));
         } else {
-            $config = [];
+            $rootConfig = [];
         }
 
         $serviceName = $serviceConfig['name'];
-        $config = $config[$serviceName] ?? [];
+        $config = $rootConfig[$serviceName] ?? [];
 
         if (isset($config['admin']['logo']['src'])) {
             $siteLogo = sprintf(
@@ -76,6 +76,19 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
 
         }
         $container->setParameter('easy_admin.site_title', $adminSiteTitle);
+
+        if (!empty($rootConfig['auth']['oauth_providers'])) {
+            $this->loadOAuthProviders($container, $rootConfig['auth']['oauth_providers']);
+        }
+    }
+
+    private function loadOAuthProviders(ContainerBuilder $container, array $oauthProviders): void
+    {
+        $def = $container->getDefinition(OAuthRegistry::class);
+        $def->setAbstract(false);
+        $def->setAutowired(true);
+        $def->setAutoconfigured(true);
+        $def->setArgument('$oAuthProviders', $oauthProviders);
     }
 
     public function prepend(ContainerBuilder $container)

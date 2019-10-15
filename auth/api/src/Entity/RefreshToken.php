@@ -26,7 +26,7 @@ class RefreshToken extends BaseRefreshToken
      * @var OAuthClient
      *
      * @ORM\ManyToOne(targetEntity="OAuthClient")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $client;
 

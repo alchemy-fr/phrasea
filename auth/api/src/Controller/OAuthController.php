@@ -107,7 +107,7 @@ class OAuthController extends AbstractController
         try {
             return $this->oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
         } catch (OAuth2ServerException $e) {
-            throw new BadRequestHttpException($e->getMessage());
+            throw new BadRequestHttpException($e->getMessage(), $e);
         }
     }
 }

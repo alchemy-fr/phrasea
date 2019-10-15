@@ -4,17 +4,47 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
 {
+    /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        TokenStorageInterface $tokenStorage,
+        SessionInterface $session,
+        EventDispatcherInterface $eventDispatcher
+    )
+    {
+        $this->tokenStorage = $tokenStorage;
+        $this->session = $session;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     /**
      * Called on every request to decide if this authenticator should be
      * used for the request. Returning false will cause this authenticator
@@ -56,6 +86,17 @@ class RemoteAuthAuthenticator extends AbstractGuardAuthenticator
         }
 
         return $userProvider->loadUserFromAccessToken($token);
+    }
+
+    public function authenticateUser(Request $request, RemoteUser $user, string $providerKey): void
+    {
+        $token = $this->createAuthenticatedToken($user, $providerKey);
+        $this->tokenStorage->setToken($token);
+
+        $this->session->set('_security_'.$providerKey, serialize($token));
+
+        $event = new InteractiveLoginEvent($request, $token);
+        $this->eventDispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $event);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
