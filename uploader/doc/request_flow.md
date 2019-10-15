@@ -1,14 +1,19 @@
 # Request flow
 
+Push Mode
 When an asset is uploaded to the upload service, the upload service notifies Phraseanet that there is a new asset to grab.
 Then Phraseanet download the media through the upload service.
 
-## Flow
+Pull Mode
+When an asset is uploaded to the upload service, the upload service don't notifies
+Phraseanet fetch commit within timing interval
+
+## Flow Push Mode
 
 ![Sequence](sequence.png "Request sequence")
 
-​```sequence
-title Upload request flow
+​``` sequence
+title Upload request flow, Push Mode
 
 User->Upload: Upload asset
 note over Upload: Media is locally stored
@@ -20,20 +25,60 @@ Upload->Phraseanet: Notify there is a new asset
 note left of Phraseanet: POST /api/v1/upload/enqueue
 Phraseanet->RabbitMQ: Produce message
 note over RabbitMQ
-    [{"id": ..., "hash": "..."},
-      {"id": ..., "hash": "..."}]
+    [ {"publisher_id", "hash": "..."},
+    {"id": ..., "hash": "..."},
+    {"id": ..., "hash": "..."}]
 end note
-
 RabbitMQ->Phraseanet: Consume message
-Phraseanet->Upload: Download assets #0
+Phraseanet->Auth_service: Get publisher info (User email, Name ...) 
+note over Auth_service: Get users/info/id#0
+
+Phraseanet->Upload: Download asset #0
 note left of Phraseanet: GET /assets/ID#0/download
 Upload->Phraseanet: Get contents
-Phraseanet->Upload: Download assets #1
+Phraseanet->Upload: Download asset #1
 note left of Phraseanet: GET /assets/ID#1/download
 Upload->Phraseanet: Get contents
+Phraseanet->Upload: Acknowledge of upload commit
+note left of Phraseanet: POST /commits/COMMIT_ID/ack
 ​```
 
-### Phraseanet entrypoint
+## Flow Pull mode
+
+![Sequence](upload_sequence_Phraseanet_pull_mode.png "Request sequence Pull mode")
+
+```
+title Upload request flow, Pull Mode
+
+User->Upload: Upload asset
+note over Upload: Media is locally stored
+User->Upload: Upload asset
+note over Upload: Media is locally stored
+User->Upload: Commit
+note over Upload: Send all the ID
+Phraseanet->Upload: fetch new commit assets
+note left of Phraseanet: GET /commits/
+Phraseanet->RabbitMQ: Produce message
+note over RabbitMQ
+    [ {"publisher_id", "hash": "..."},
+    {"id": ..., "hash": "..."},
+    {"id": ..., "hash": "..."}]
+end note
+RabbitMQ->Phraseanet: Consume message
+Phraseanet->Auth_service: Get publisher info (User email, Name ...) 
+note over Auth_service: Get users/info/id#0
+
+Phraseanet->Upload: Download asset #0
+note left of Phraseanet: GET /assets/ID#0/download
+Upload->Phraseanet: Get contents
+Phraseanet->Upload: Download asset #1
+note left of Phraseanet: GET /assets/ID#1/download
+Upload->Phraseanet: Get contents
+Phraseanet->Upload: Acknowledge of upload commit
+note left of Phraseanet: POST /commits/COMMIT_ID/ack
+```
+
+## Phraseanet entrypoint
 
 In order to let Phraseanet know there are new asset to grab, Upload service must notify it.
 
