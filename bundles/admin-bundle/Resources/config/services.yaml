@@ -1,3 +1,6 @@
+parameters:
+  alchemy_admin.auth_base_url: '%env(AUTH_BASE_URL)%'
+
 services:
   _defaults:
     autowire: true
@@ -15,7 +18,7 @@ services:
   Alchemy\AdminBundle\OAuth\OAuthRegistry:
     abstract: true
     arguments:
-      $authBaseUrl: '%env(AUTH_BASE_URL)%'
+      $authBaseUrl: '%alchemy_admin.auth_base_url%'
       $authClientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
 
   Alchemy\AdminBundle\Twig\AdminExtension:

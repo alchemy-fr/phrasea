@@ -86,8 +86,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
     {
         $def = $container->getDefinition(OAuthRegistry::class);
         $def->setAbstract(false);
-        $def->setAutowired(true);
-        $def->setAutoconfigured(true);
         $def->setArgument('$oAuthProviders', $oauthProviders);
     }
 
