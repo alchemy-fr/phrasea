@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Security;
 class CommitVoter extends Voter
 {
     const ACK = 'ack';
+    const READ = 'read';
 
     /**
      * @var Security
@@ -45,10 +46,17 @@ class CommitVoter extends Voter
 
         if ($token instanceof AssetToken) {
             switch ($attribute) {
+                case self::READ:
+                    // TODO support client_credential
+                    if ($token->getAccessToken() === $subject->getToken()) {
+                        return true;
+                    }
+                    break;
                 case self::ACK:
                     if ($token->getAccessToken() === $subject->getToken()) {
                         return true;
                     }
+                    break;
             }
         }
 

@@ -24,9 +24,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "post"={
  *             "path"="/commit",
  *             "controller"=CommitAction::class,
- *         }
+ *         },
+ *         "get",
  *     },
  *     itemOperations={
+ *         "get"={"access_control"="is_granted('read', object)"},
  *         "ack"={
  *             "method"="POST",
  *             "path"="/commits/{id}/ack",

@@ -12,11 +12,12 @@
             "dist": {
                 "type": "path",
                 "url": "./__bundles/admin-bundle",
-                "reference": "00759d088c36429a40e7da45340d070a1b4d6f43"
+                "reference": "18cd1ee77c6b80c7ef823e24fdb83695b289a364"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^2.3",
+                "guzzlehttp/guzzle": "^6.3",
                 "php": "^7.3",
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
             },
@@ -1987,16 +1988,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.55",
+            "version": "1.0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6"
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/33c91155537c6dc899eacdc54a13ac6303f156e6",
-                "reference": "33c91155537c6dc899eacdc54a13ac6303f156e6",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/90e3f83cb10ef6b058d70f95267030e7a6236518",
+                "reference": "90e3f83cb10ef6b058d70f95267030e7a6236518",
                 "shasum": ""
             },
             "require": {
@@ -2067,7 +2068,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-08-24T11:17:19+00:00"
+            "time": "2019-10-12T13:05:59+00:00"
         },
         {
             "name": "nelmio/cors-bundle",
