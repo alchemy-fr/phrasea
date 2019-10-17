@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Security\Voter\ClientAuthorizations;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class AllowedScopesChoiceType extends AbstractType
 {

@@ -22,7 +22,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
     {
         $overriddenRequest = clone $request;
 
-        if (empty(trim($overriddenRequest->get('scope', '')))) {
+        if (empty(trim($overriddenRequest->request->get('scope', '')))) {
             // Because we don't we do grant all scopes
             $overriddenRequest->request->set('scope', self::NO_SCOPE_PROVIDED);
         }
@@ -54,7 +54,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
                 return $scope !== self::NO_SCOPE_PROVIDED;
             });
 
-            if (!empty($scopes) && $client instanceof OAuthClient && !empty($client->getAllowedScopes())) {
+            if (!empty($scopes) && $client instanceof OAuthClient) {
                 $this->validateClientAllowedScopes($client, $scopes);
             }
 
