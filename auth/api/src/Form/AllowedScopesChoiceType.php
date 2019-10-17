@@ -10,23 +10,23 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class AuthorizationChoiceType extends AbstractType
+class AllowedScopesChoiceType extends AbstractType
 {
     /**
-     * @var AuthorizationCheckerInterface
+     * @var array
      */
-    private $authorizationChecker;
+    private $scopes;
 
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(string $scopes)
     {
-        $this->authorizationChecker = $authorizationChecker;
+        $this->scopes = explode(' ', $scopes);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $choices = [];
-        foreach (ClientAuthorizations::getList() as $authorization) {
-            $choices[$authorization] = $authorization;
+        foreach ($this->scopes as $scope) {
+            $choices[$scope] = $scope;
         }
 
         $resolver->setDefaults([

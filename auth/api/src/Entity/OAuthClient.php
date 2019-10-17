@@ -33,7 +33,7 @@ class OAuthClient extends BaseClient
      *
      * @ORM\Column(type="json_array")
      */
-    private $authorizations = [];
+    private $allowedScopes = [];
 
     public function __construct()
     {
@@ -51,18 +51,18 @@ class OAuthClient extends BaseClient
         return $this->createdAt;
     }
 
-    public function getAuthorizations(): array
+    public function getAllowedScopes(): array
     {
-        return $this->authorizations;
+        return $this->allowedScopes;
     }
 
     public function hasAuthorization(string $authorization): bool
     {
-        return in_array($authorization, $this->authorizations, true);
+        return in_array($authorization, $this->allowedScopes, true);
     }
 
-    public function setAuthorizations(array $authorizations): void
+    public function setAllowedScopes(array $allowedScopes): void
     {
-        $this->authorizations = $authorizations;
+        $this->allowedScopes = $allowedScopes;
     }
 }

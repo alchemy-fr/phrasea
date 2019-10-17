@@ -43,7 +43,7 @@ easy_admin:
           - delete
         fields:
           - publicId
-          - authorizations
+          - allowedScopes
           - allowedGrantTypes
           - redirectUris
       form:
@@ -52,5 +52,5 @@ easy_admin:
           - randomId
           - secret
           - allowedGrantTypes
-          - { property: 'authorizations', label: 'Authorization', type: App\Form\AuthorizationChoiceType }
+          - { property: 'allowedScopes', label: 'Allowed scopes', type: App\Form\AllowedScopesChoiceType }
           - redirectUris

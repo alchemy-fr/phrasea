@@ -67,3 +67,7 @@ services:
     App\User\InviteManager:
         arguments:
             $allowedInviteDelay: '%app.allowed_invite_delay%'
+
+    App\Form\AllowedScopesChoiceType:
+        arguments:
+            $scopes: '%oauth.allowed_scopes%'

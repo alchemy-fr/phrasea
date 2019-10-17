@@ -1,3 +1,6 @@
+parameters:
+  oauth.allowed_scopes: 'uploader:commit_list auth:user_read'
+
 fos_oauth_server:
   db_driver: orm
   client_class: App\Entity\OAuthClient
@@ -8,6 +11,7 @@ fos_oauth_server:
     user_provider: App\User\UserManager
     options:
       access_token_lifetime: 7776000
+      supported_scopes: '%oauth.allowed_scopes%'
 
 services:
   security.user_checker:
