@@ -72,3 +72,4 @@ Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 # Further reading
 
 - [Dev with NGINX](./doc/dev-with-nginx.md)
+- [Private/public networks](./doc/networks.md)
