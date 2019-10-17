@@ -11,9 +11,6 @@ security:
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
         ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
-    providers:
-        remote_users:
-            id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

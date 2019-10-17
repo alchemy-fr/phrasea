@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\RemoteAuthBundle\Security;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -15,11 +16,11 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class RemoteUserProvider implements UserProviderInterface
 {
     /**
-     * @var Client
+     * @var RemoteClient
      */
     private $client;
 
-    public function __construct(Client $client)
+    public function __construct(RemoteClient $client)
     {
         $this->client = $client;
     }
@@ -35,25 +36,15 @@ class RemoteUserProvider implements UserProviderInterface
     public function loadUserFromAccessToken(string $accessToken): ?UserInterface
     {
         try {
-            $response = $this->client->request('GET', '/me', [
+            $data = $this->client->request('GET', '/me', [
                 'headers' => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
             ]);
-        } catch (ClientException $e) {
-            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 401) {
-                throw new UnauthorizedHttpException($e->getResponse()->getBody()->getContents());
-            }
-
-            throw $e;
+        } catch (InvalidResponseException $e) {
+            throw new UnauthorizedHttpException($e->getMessage());
         }
 
-        if (401 === $response->getStatusCode()) {
-            throw new UnauthorizedHttpException($response->getBody()->getContents());
-        }
-
-        $content = $response->getBody()->getContents();
-        $data = \GuzzleHttp\json_decode($content, true);
         $user = new RemoteUser($data['user_id'], $data['email'], $data['roles']);
 
         return $user;

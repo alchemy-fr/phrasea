@@ -71,3 +71,7 @@ services:
     App\Form\AllowedScopesChoiceType:
         arguments:
             $scopes: '%oauth.allowed_scopes%'
+
+    App\Controller\TokenInfoAction:
+        arguments:
+            $tokenManager: "@fos_oauth_server.access_token_manager.default"

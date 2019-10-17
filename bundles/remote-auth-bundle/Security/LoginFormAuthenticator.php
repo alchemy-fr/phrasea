@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
+use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -33,7 +36,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $passwordEncoder;
 
     /**
-     * @var Client
+     * @var RemoteClient
      */
     private $client;
     /**
@@ -49,7 +52,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
      */
     private $session;
     /**
-     * @var RemoteUserProvider
+     * @var RemoteAuthProvider
      */
     private $userProvider;
     /**
@@ -66,13 +69,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         RouterInterface $router,
         CsrfTokenManagerInterface $csrfTokenManager,
         UserPasswordEncoderInterface $passwordEncoder,
-        Client $client,
+        RemoteClient $client,
         string $clientId,
         string $clientSecret,
         string $routeName,
         string $defaultTargetPath,
         SessionInterface $session,
-        UserProviderInterface $userProvider
+        RemoteAuthProvider $userProvider
     ) {
         $this->entityManager = $entityManager;
         $this->router = $router;
@@ -142,7 +145,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $accessToken = $data['access_token'];
         $this->session->set('access_token', $data['access_token']);
 
-        return $this->userProvider->loadUserFromAccessToken($accessToken);
+        $tokenInfo = $this->userProvider->getTokenInfo($accessToken);
+
+        return $this->userProvider->getUserFromToken($tokenInfo);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
