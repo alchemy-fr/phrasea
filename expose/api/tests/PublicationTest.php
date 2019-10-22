@@ -19,7 +19,6 @@ class PublicationTest extends ApiTestCase
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
-        $this->assertArrayHasKey('createdAt', $json);
         $this->assertEquals('Foo', $json['name']);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
     }
@@ -40,6 +39,5 @@ class PublicationTest extends ApiTestCase
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
-        $this->assertArrayHasKey('createdAt', $json);
     }
 }

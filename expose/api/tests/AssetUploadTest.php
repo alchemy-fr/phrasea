@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends ApiTestCase
@@ -25,10 +26,20 @@ class AssetUploadTest extends ApiTestCase
 
         $this->assertArrayHasKey('id', $json);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
-        $this->assertArrayHasKey('originalName', $json);
-        $this->assertSame('32x32.jpg', $json['originalName']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
+        $this->assertSame('toto', $json['url']);
+
+        /** @var EntityManagerInterface $em */
+        $em = self::$container->get(EntityManagerInterface::class);
+        $em->clear();
+
+        // Test the asset is added to the publication
+        $response = $this->request('GET', '/publications/'.$id);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        var_dump($json);
     }
 
     public function testUploadAssetWithoutFileGenerates400(): void
