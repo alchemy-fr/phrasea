@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\RemoteAuthBundle\Security\Token;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
-use Symfony\Component\Security\Guard\Token\GuardTokenInterface;
 
-class RemoteAuthToken extends AbstractToken implements GuardTokenInterface
+class RemoteAuthToken extends AbstractToken
 {
     /**
      * @var string

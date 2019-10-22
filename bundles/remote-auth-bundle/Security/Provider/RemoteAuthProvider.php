@@ -44,7 +44,7 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
             $roles = $user->getRoles();
         }
 
-        $authenticatedToken = new RemoteAuthToken($token->getAccessToken(), $roles);
+        $authenticatedToken = new RemoteAuthToken($token->getProviderKey(), $token->getAccessToken(), $roles);
         $authenticatedToken->setScopes($tokenInfo['scopes']);
         $authenticatedToken->setAuthenticated(true);
         if ($user instanceof RemoteUser) {
@@ -58,8 +58,8 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
     {
         if (isset($tokenInfo['user'])) {
             $userData = $tokenInfo['user'];
-            $roles = $userData['roles'];
-            return new RemoteUser($userData['id'], $userData['email'], $roles);
+
+            return new RemoteUser($userData['id'], $userData['email'], $userData['roles']);
         }
 
         return null;

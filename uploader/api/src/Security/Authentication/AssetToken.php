@@ -13,12 +13,12 @@ class AssetToken extends AbstractToken
      */
     private $accessToken;
 
-    public function __construct(?string $accessAccessToken)
+    public function __construct(?string $accessToken)
     {
         parent::__construct();
-        $this->accessToken = $accessAccessToken;
+        $this->accessToken = $accessToken;
 
-        $this->setAuthenticated(!empty($accessAccessToken));
+        $this->setAuthenticated(!empty($accessToken));
     }
 
     public function getCredentials()

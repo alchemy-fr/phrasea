@@ -46,7 +46,7 @@ class RemoteAuthenticatorClientTestMock extends Client
                 return $this->createResponse(200, [
                     'scopes' => [],
                     'user' => [
-                        'user_id' => '123',
+                        'id' => '123',
                         'email' => $accessToken,
                         'roles' => $roles,
                     ],
