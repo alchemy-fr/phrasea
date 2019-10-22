@@ -84,7 +84,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
     private function loadOAuthProviders(ContainerBuilder $container, array $oauthProviders): void
     {
         $def = $container->getDefinition(OAuthRegistry::class);
-        $def->setAbstract(false);
         $def->setArgument('$oAuthProviders', $oauthProviders);
     }
 

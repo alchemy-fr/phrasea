@@ -16,7 +16,6 @@ services:
       $siteLogo: '%alchemy_admin.site_logo%'
 
   Alchemy\AdminBundle\OAuth\OAuthRegistry:
-    abstract: true
     arguments:
       $authBaseUrl: '%alchemy_admin.auth_base_url%'
       $authClientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
