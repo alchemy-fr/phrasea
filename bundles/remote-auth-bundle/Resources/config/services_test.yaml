@@ -5,12 +5,8 @@ services:
 
     Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock: ~
 
-    Alchemy\RemoteAuthBundle\Security\RemoteUserProvider:
+    Alchemy\RemoteAuthBundle\Security\Client\RemoteClient:
         arguments:
             $client: "@Alchemy\\RemoteAuthBundle\\Security\\RemoteAuthenticatorClientTestMock"
 
-    Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator:
-        arguments:
-            $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-            $clientSecret: '%env(AUTH_CLIENT_SECRET)%'
-            $client: "@Alchemy\\RemoteAuthBundle\\Security\\RemoteAuthenticatorClientTestMock"
+    Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~

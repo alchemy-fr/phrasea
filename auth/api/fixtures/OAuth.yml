@@ -7,3 +7,7 @@ App\Entity\OAuthClient:
             - password
             - refresh_token
             - authorization_code
+            - client_credentials
+        allowedScopes:
+            - scope1
+            - scope3

@@ -34,7 +34,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $loader->load('services.yaml');
 
         $this->loadExternalConfig($container, $config['service']);
-
     }
 
     private function loadExternalConfig(ContainerBuilder $container, array $serviceConfig): void
@@ -114,14 +113,17 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 ]
             ]
         );
-        $container->prependExtensionConfig('alchemy_remote_auth', [
-                'login_forms' => [
-                    'admin' => [
-                        'route_name' => 'alchemy_admin_login',
-                        'default_target_path' => '/admin',
+
+        if (isset($bundles['AlchemyRemoteAuthBundle'])) {
+            $container->prependExtensionConfig('alchemy_remote_auth', [
+                    'login_forms' => [
+                        'admin' => [
+                            'route_name' => 'alchemy_admin_login',
+                            'default_target_path' => '/admin',
+                        ]
                     ]
                 ]
-            ]
-        );
+            );
+        }
     }
 }

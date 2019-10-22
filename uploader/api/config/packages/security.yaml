@@ -29,9 +29,7 @@ security:
             anonymous: ~
             stateless: true
             asset: true
-            guard:
-                authenticators:
-                    - Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator
+            remote_auth: true
 
     access_control:
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

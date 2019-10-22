@@ -13,6 +13,7 @@ class AccessTokenRepository extends EntityRepository
         foreach ([
                      AccessToken::class,
                      RefreshToken::class,
+                     AuthCode::class,
                  ] as $class) {
             $this
                 ->_em

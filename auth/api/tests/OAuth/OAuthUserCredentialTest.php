@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class OAuthTest extends ApiTestCase
+class OAuthUserCredentialTest extends ApiTestCase
 {
     public function testAuthenticationOK(): void
     {

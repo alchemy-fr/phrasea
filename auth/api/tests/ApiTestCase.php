@@ -108,4 +108,15 @@ abstract class ApiTestCase extends WebTestCase
     {
         $this->assertNull($response->headers->get('Set-Cookie'));
     }
+
+    protected function assertResponseToken(array $json, bool $refreshTokenExpected = true)
+    {
+        $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['access_token']);
+        $this->assertArrayHasKey('scope', $json);
+        $this->assertEquals('7776000', $json['expires_in']);
+        $this->assertEquals('bearer', $json['token_type']);
+        if ($refreshTokenExpected) {
+            $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['refresh_token']);
+        }
+    }
 }

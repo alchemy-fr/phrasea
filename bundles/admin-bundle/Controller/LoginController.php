@@ -4,8 +4,8 @@ namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\OAuth\OAuthClient;
 use Alchemy\AdminBundle\OAuth\OAuthRegistry;
+use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
-use Alchemy\RemoteAuthBundle\Security\RemoteUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,7 +60,7 @@ class LoginController extends AbstractController
     public function oauthCheck(
         Request $request,
         OAuthClient $oauthClient,
-        RemoteUserProvider $userProvider,
+        RemoteAuthProvider $userProvider,
         RemoteAuthAuthenticator $authenticator
     ): Response
     {
@@ -69,7 +69,7 @@ class LoginController extends AbstractController
             $this->getRedirectUri()
         );
 
-        $user = $userProvider->loadUserFromAccessToken($accessToken);
+        $user = $userProvider->getTokenInfo($accessToken);
         $authenticator->authenticateUser($request, $user, 'admin');
 
         return $this->redirectToRoute('easyadmin');

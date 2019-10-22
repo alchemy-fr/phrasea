@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\AccessToken;
-use App\Entity\OAuthClient;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-use FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Security;
 
 class UserVoter extends Voter
 {
     /**
-     * @var EntityManagerInterface
+     * @var Security
      */
-    private $em;
+    private $security;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(Security $security)
     {
-        $this->em = $em;
+        $this->security = $security;
     }
 
     protected function supports($attribute, $subject)
@@ -31,17 +28,8 @@ class UserVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($token instanceof OAuthToken && null === $token->getUser()) {
-            $accessToken = $this->em->getRepository(AccessToken::class)->findOneBy([
-                'token' => $token->getToken(),
-            ]);
-
-            /** @var OAuthClient $client */
-            $client = $accessToken->getClient();
-
-            if ($client->hasAuthorization(ClientAuthorizations::READ_USERS)) {
-                return true;
-            }
+        if ($this->security->isGranted('ROLE_AUTH:USER_READ')) {
+            return true;
         }
 
         if ($token->getUser() instanceof User && $token->getUser() === $subject) {
