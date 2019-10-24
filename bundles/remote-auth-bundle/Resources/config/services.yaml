@@ -32,3 +32,4 @@ services:
 
   Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
+  Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator: ~

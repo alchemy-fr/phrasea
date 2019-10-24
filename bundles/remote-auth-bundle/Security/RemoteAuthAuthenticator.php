@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,13 +39,24 @@ class RemoteAuthAuthenticator
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function authenticateUser(Request $request, RemoteAuthToken $token, string $providerKey): void
+    public function authenticateUser(
+        Request $request,
+        string  $accessToken,
+        array $tokenInfo,
+        RemoteUser $user,
+        string $providerKey
+    ): void
     {
-        $this->tokenStorage->setToken($token);
+        $securityToken = new RemoteAuthToken($accessToken, $user->getRoles());
+        $securityToken->setScopes($tokenInfo['scopes']);
+        $securityToken->setAuthenticated(true);
+        $securityToken->setUser($user);
 
-        $this->session->set('_security_'.$providerKey, serialize($token));
+        $this->tokenStorage->setToken($securityToken);
 
-        $event = new InteractiveLoginEvent($request, $token);
+        $this->session->set('_security_'.$providerKey, serialize($securityToken));
+
+        $event = new InteractiveLoginEvent($request, $securityToken);
         $this->eventDispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $event);
     }
 }

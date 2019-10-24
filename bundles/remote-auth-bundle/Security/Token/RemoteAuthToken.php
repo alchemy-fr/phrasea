@@ -17,16 +17,11 @@ class RemoteAuthToken extends AbstractToken
      * @var array
      */
     private $scopes = [];
-    /**
-     * @var string
-     */
-    private $providerKey;
 
-    public function __construct(string $providerKey, string $accessToken, array $roles = [])
+    public function __construct(string $accessToken, array $roles = [])
     {
         parent::__construct($roles);
         $this->accessToken = $accessToken;
-        $this->providerKey = $providerKey;
     }
 
     public function getAccessToken()
@@ -52,10 +47,5 @@ class RemoteAuthToken extends AbstractToken
     public function hasScope(string $scope): bool
     {
         return in_array($scope, $this->scopes);
-    }
-
-    public function getProviderKey(): string
-    {
-        return $this->providerKey;
     }
 }

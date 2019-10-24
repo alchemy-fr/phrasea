@@ -13,15 +13,13 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class RemoteAuthListener
 {
-    protected $providerKey;
     protected $tokenStorage;
     protected $authenticationManager;
 
-    public function __construct(string $providerKey, TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager)
+    public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager)
     {
         $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
-        $this->providerKey = $providerKey;
     }
 
     public function __invoke(RequestEvent $event)
@@ -33,7 +31,7 @@ class RemoteAuthListener
             return;
         }
 
-        $token = new RemoteAuthToken($this->providerKey, $accessToken);
+        $token = new RemoteAuthToken($accessToken);
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);
@@ -42,7 +40,7 @@ class RemoteAuthListener
             return;
         } catch (AuthenticationException $failed) {
             $token = $this->tokenStorage->getToken();
-            if ($token instanceof RemoteAuthToken && $this->providerKey === $token->getProviderKey()) {
+            if ($token instanceof RemoteAuthToken) {
                 $this->tokenStorage->setToken(null);
             }
             return;

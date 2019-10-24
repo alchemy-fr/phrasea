@@ -69,8 +69,10 @@ class LoginController extends AbstractController
             $this->getRedirectUri()
         );
 
-        $user = $userProvider->getTokenInfo($accessToken);
-        $authenticator->authenticateUser($request, $user, 'admin');
+        $tokenInfo = $userProvider->getTokenInfo($accessToken);
+        $user = $userProvider->getUserFromToken($tokenInfo);
+
+        $authenticator->authenticateUser($request, $accessToken, $tokenInfo, $user, 'admin');
 
         return $this->redirectToRoute('easyadmin');
     }

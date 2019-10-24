@@ -23,8 +23,7 @@ class RemoteAuthFactory implements SecurityFactoryInterface
 
         $listenerId = 'security.authentication.listener.remote_auth.'.$id;
         $container
-            ->setDefinition($listenerId, new ChildDefinition(RemoteAuthListener::class))
-            ->setArgument('$providerKey', $id);
+            ->setDefinition($listenerId, new ChildDefinition(RemoteAuthListener::class));
 
         return [$providerId, $listenerId, $defaultEntryPoint];
     }

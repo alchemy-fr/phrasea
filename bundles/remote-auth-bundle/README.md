@@ -17,17 +17,14 @@ security:
             stateless:  false
             anonymous:  ~
             logout:
-                path: admin_logout
+                path: alchemy_admin_logout
                 target: easyadmin
             guard:
                 authenticators:
-                    - Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator
+                    - 'alchemy_remote.login_form.admin'
 
         api:
             anonymous: ~
             stateless: true
             asset: true
-            guard:
-                authenticators:
-                    - Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator
-```
+            remote_auth: true
