@@ -2,6 +2,9 @@
     "alchemy/admin-bundle": {
         "version": "dev-master"
     },
+    "alchemy/api-test": {
+        "version": "dev-expose"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-master"
     },

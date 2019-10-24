@@ -6,7 +6,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
 
-class BulkDataTest extends ApiTestCase
+class BulkDataTest extends AbstractTestCase
 {
     public function testBulkDataEditOK(): void
     {

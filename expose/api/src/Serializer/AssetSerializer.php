@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Entity\Asset;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
@@ -13,14 +14,19 @@ use Symfony\Component\Serializer\SerializerInterface;
 class AssetSerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
 {
     private $decorated;
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
 
-    public function __construct(NormalizerInterface $decorated)
+    public function __construct(NormalizerInterface $decorated, UrlGeneratorInterface $urlGenerator)
     {
         if (!$decorated instanceof DenormalizerInterface) {
             throw new \InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
         }
 
         $this->decorated = $decorated;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -28,11 +34,15 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        // TODO
-        //$object->setUrl('toto');
-        //$object->setThumbUrl('t_toto');
+        $object->setUrl($this->generateUrl('asset_open', $object));
+        $object->setThumbUrl($this->generateUrl('asset_open', $object));
 
         return $this->decorated->normalize($object, $format, $context);
+    }
+
+    private function generateUrl(string $route, Asset $asset): string
+    {
+        return $this->urlGenerator->generate($route, ['id' => $asset->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     public function supportsNormalization($data, $format = null)

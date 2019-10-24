@@ -8,9 +8,9 @@ use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
-use App\Tests\ApiTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FileExistsException;
+use Alchemy\ApiTest\ApiTestCase;
 
 abstract class AbstractAssetTest extends ApiTestCase
 {

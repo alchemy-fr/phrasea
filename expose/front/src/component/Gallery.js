@@ -28,7 +28,8 @@ class Gallery extends React.Component {
 
         return <ImageGallery
             items={assets.map(a => ({
-                original: a.
+                original: a.url,
+                thumbnail: a.thumbUrl,
             }))}
         />;
     }

@@ -9,6 +9,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/api-test",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -18,6 +25,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/api-test": "@dev",
         "api-platform/api-pack": "^1.2",
         "league/flysystem-aws-s3-v3": "^1.0",
         "oneup/flysystem-bundle": "^3.1",

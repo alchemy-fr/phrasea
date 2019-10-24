@@ -44,7 +44,7 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
             $roles = $user->getRoles();
         }
 
-        $authenticatedToken = new RemoteAuthToken($token->getProviderKey(), $token->getAccessToken(), $roles);
+        $authenticatedToken = new RemoteAuthToken($token->getAccessToken(), $roles);
         $authenticatedToken->setScopes($tokenInfo['scopes']);
         $authenticatedToken->setAuthenticated(true);
         if ($user instanceof RemoteUser) {

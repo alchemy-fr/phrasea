@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ec3f48c10864f51e6dd59b3bd8f7f76",
+    "content-hash": "8f2eb2c08762a25cfd05eb66dd78345c",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
@@ -41,6 +41,43 @@
             "homepage": "https://www.alchemy.fr/",
             "keywords": [
                 "Admin"
+            ],
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
+            "name": "alchemy/api-test",
+            "version": "dev-expose",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/api-test",
+                "reference": "a8452176b73ec8b76fc371127e4e286f477da80a"
+            },
+            "require": {
+                "php": "^7.3",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\ApiTest\\": "src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\ApiTest\\Tests\\": "tests"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Test helper for API calls",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "API",
+                "test"
             ],
             "transport-options": {
                 "symlink": true
@@ -7514,7 +7551,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alchemy/admin-bundle": 20
+        "alchemy/admin-bundle": 20,
+        "alchemy/api-test": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

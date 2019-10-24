@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class PublicationTest extends ApiTestCase
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+
+class PublicationTest extends AbstractTestCase
 {
     public function testCreatePublicationOK(): void
     {
-        $response = $this->request('POST', '/publications', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
             'name' => 'Foo',
             'layout' => 'download',
         ]);
@@ -25,14 +27,14 @@ class PublicationTest extends ApiTestCase
 
     public function testCreatePublicationWithoutNameWillGenerate400(): void
     {
-        $response = $this->request('POST', '/publications', []);
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetPublication(): void
     {
         $id = $this->createPublication();
-        $response = $this->request('GET', '/publications/'.$id);
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));

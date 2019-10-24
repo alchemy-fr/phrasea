@@ -10,17 +10,17 @@ class ChangePasswordTest extends AbstractPasswordTest
     {
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
-        $response = $this->request('POST', '/password/change', [
+        $response = $this->request($accessToken, 'POST', '/password/change', [
             'old_password' => 'secret',
             'new_password' => 'secret2',
-        ], [], [], null, $accessToken);
+        ]);
 
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(true, $json);
 
         // Access token should be invalidated
-        $response = $this->request('GET', '/me', [], [], [], null, $accessToken);
+        $response = $this->request($accessToken, 'GET', '/me');
         $this->assertEquals(401, $response->getStatusCode());
 
         $this->assertPasswordIsInvalid('foo@bar.com', 'secret');
@@ -34,10 +34,10 @@ class ChangePasswordTest extends AbstractPasswordTest
 
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
-        $this->request('POST', '/password/change', [
+        $this->request($accessToken, 'POST', '/password/change', [
             'old_password' => 'secret',
             'new_password' => 'secret2',
-        ], [], [], null, $accessToken);
+        ]);
 
         $this->assertPasswordResetRequestCount(0);
     }
@@ -46,10 +46,10 @@ class ChangePasswordTest extends AbstractPasswordTest
     {
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
-        $response = $this->request('POST', '/password/change', [
+        $response = $this->request($accessToken, 'POST', '/password/change', [
             'old_password' => 'invalid_old_secret',
             'new_password' => 'secret2',
-        ], [], [], null, $accessToken);
+        ]);
 
         $this->assertEquals(400, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);

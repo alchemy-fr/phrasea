@@ -22,6 +22,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/api-test",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -67,6 +74,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "alchemy/api-test": "@dev",
         "hautelook/alice-bundle": "^2.5",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",

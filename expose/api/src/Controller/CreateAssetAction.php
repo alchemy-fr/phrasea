@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -16,9 +14,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private $validator;
-    private $resourceMetadataFactory;
-
     /**
      * @var FileStorageManager
      */
@@ -30,13 +25,9 @@ final class CreateAssetAction extends AbstractController
     private $assetManager;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FileStorageManager $storageManager,
         AssetManager $assetManager
     ) {
-        $this->validator = $validator;
-        $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
     }

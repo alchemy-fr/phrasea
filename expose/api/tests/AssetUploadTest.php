@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class AssetUploadTest extends ApiTestCase
+class AssetUploadTest extends AbstractTestCase
 {
     public function testUploadAssetOK(): void
     {
         $id = $this->createPublication();
 
-        $response = $this->request('POST', '/assets', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [
             'publication_id' => $id,
             'asset_id' => '123',
         ], [
@@ -28,25 +29,27 @@ class AssetUploadTest extends ApiTestCase
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
-        $this->assertSame('toto', $json['url']);
+        $this->assertRegExp('#^http://localhost#', $json['url']);
 
         /** @var EntityManagerInterface $em */
         $em = self::$container->get(EntityManagerInterface::class);
         $em->clear();
 
         // Test the asset is added to the publication
-        $response = $this->request('GET', '/publications/'.$id);
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
-        var_dump($json);
+        $this->assertEquals('Foo', $json['name']);
+        $this->assertEquals(1, count($json['assets']));
+        $this->assertEquals('image/jpeg', $json['assets'][0]['asset']['mimeType']);
     }
 
     public function testUploadAssetWithoutFileGenerates400(): void
     {
         $id = $this->createPublication();
 
-        $response = $this->request('POST', '/assets', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [
             'publication_id' => $id,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
@@ -56,7 +59,7 @@ class AssetUploadTest extends ApiTestCase
     {
         $id = $this->createPublication();
 
-        $response = $this->request('POST', '/assets', [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [
             'publication_id' => $id,
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
@@ -66,7 +69,7 @@ class AssetUploadTest extends ApiTestCase
 
     public function testUploadWithoutPublicationIdGenerates400(): void
     {
-        $response = $this->request('POST', '/assets', [], [
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());

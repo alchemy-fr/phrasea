@@ -2,18 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace Alchemy\ApiTest;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    use ReloadDatabaseTrait;
-
     const ADMIN_USER = 'admin@alchemy.fr';
 
     /**
