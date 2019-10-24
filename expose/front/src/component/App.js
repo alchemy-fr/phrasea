@@ -4,7 +4,9 @@ import Gallery from "./Gallery";
 function App() {
   return (
     <div className={'container'}>
-      <Gallery />
+      <Gallery
+        assets={[]}
+      />
     </div>
   );
 }
