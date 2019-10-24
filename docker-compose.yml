@@ -97,6 +97,8 @@ services:
     depends_on:
       - rabbitmq
       - db
+    volumes:
+      - ./configs:/configs
     environment:
       - APP_ENV
       - AUTH_BASE_URL
@@ -218,6 +220,8 @@ services:
       target: expose_worker
     networks:
       - internal
+    volumes:
+      - ./configs:/configs
     depends_on:
       - rabbitmq
       - db
@@ -374,5 +378,5 @@ volumes:
   weblate_vol:
   db_vol:
   redis_vol:
-  uploader_vol:
+  uploader_vol: # rw-many
   s3_vol:

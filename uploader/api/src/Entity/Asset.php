@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ApiResource(
- *     iri="http://schema.org/MediaObject",
+ *     iri="http://alchemy.fr/Asset",
  *     normalizationContext={
  *         "groups"={"asset_read"},
  *     },

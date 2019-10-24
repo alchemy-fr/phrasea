@@ -17,10 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ApiResource(
- *     iri="http://schema.org/MediaObject",
- *     normalizationContext={
- *         "groups"={"asset_read"},
- *     },
+ *     normalizationContext={"groups"={"asset:read"}},
  *     itemOperations={
  *         "get"={"access_control"="is_granted('read_meta', object)"},
  *     },
@@ -52,7 +49,7 @@ class Asset
 {
     /**
      * @ApiProperty(identifier=true)
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "publication:read"})
      *
      * @var Uuid
      *
@@ -63,10 +60,10 @@ class Asset
 
     /**
      * @ApiProperty()
-     * @Groups("asset_read")
      *
      * @var string|null
      *
+     * @Groups({"asset:read"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $assetId;
@@ -79,7 +76,7 @@ class Asset
 
     /**
      * @var int
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "publication:read"})
      * @ORM\Column(type="integer")
      */
     private $size;
@@ -89,7 +86,7 @@ class Asset
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(iri="http://schema.org/name")
-     * @Groups("asset_read")
+     * @Groups({"asset:read"})
      */
     private $originalName;
 
@@ -98,7 +95,7 @@ class Asset
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "publication:read"})
      */
     private $mimeType;
 
@@ -112,31 +109,33 @@ class Asset
      *         }
      *     }
      * )
-     * @Groups("asset_read")
+     * @Groups({"asset:read"})
      * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
      */
     private $publications;
-
-    /**
-     * Direct access to asset
-     *
-     * @ApiProperty()
-     * @Groups("asset_read")
-     *
-     * @var string|null
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    protected $directUrlPath;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
      * @ApiProperty()
-     * @Groups("asset_read")
+     * @Groups({"asset:read"})
      */
     private $createdAt;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"asset:read", "publication:read"})
+     * @var string
+     */
+    private $url;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"asset:read", "publication:read"})
+     * @var string
+     */
+    private $thumbUrl;
 
     public function __construct()
     {
@@ -223,13 +222,23 @@ class Asset
         return $this->createdAt;
     }
 
-    public function getDirectUrlPath(): ?string
+    public function getUrl(): ?string
     {
-        return $this->directUrlPath;
+        return $this->url;
     }
 
-    public function setDirectUrlPath(?string $directUrlPath): void
+    public function setUrl(?string $url): void
     {
-        $this->directUrlPath = $directUrlPath;
+        $this->url = $url;
+    }
+
+    public function getThumbUrl(): ?string
+    {
+        return $this->thumbUrl;
+    }
+
+    public function setThumbUrl(?string $thumbUrl): void
+    {
+        $this->thumbUrl = $thumbUrl;
     }
 }

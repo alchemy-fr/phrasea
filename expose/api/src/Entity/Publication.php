@@ -11,11 +11,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
  * @ApiResource(
- *     iri="http://schema.org/MediaObject",
+ *     normalizationContext={"groups"={"publication:read"}},
  *     itemOperations={
  *         "get"={},
  *     },
@@ -29,6 +30,7 @@ class Publication
 {
     /**
      * @ApiProperty(identifier=true)
+     * @Groups({"publication:read", "asset:read"})
      *
      * @var Uuid
      *
@@ -43,6 +45,7 @@ class Publication
      * @var string
      *
      * @ORM\Column(type="string", length=255)
+     * @Groups({"publication:read"})
      */
     private $name;
 
@@ -56,6 +59,7 @@ class Publication
      *         }
      *     }
      * )
+     * @Groups({"publication:read"})
      * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
      */
     private $assets;
@@ -65,6 +69,7 @@ class Publication
      *
      * @ApiProperty()
      * @ORM\Column(type="boolean")
+     * @Groups({"publication:read"})
      */
     private $enabled = false;
 
@@ -72,6 +77,7 @@ class Publication
      * @var string
      *
      * @ApiProperty()
+     * @Groups({"publication:read"})
      * @ORM\Column(type="string", length=20)
      */
     private $layout;
@@ -80,6 +86,7 @@ class Publication
      * @var DateTime|null
      *
      * @ApiProperty()
+     * @Groups({"publication:read"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $beginsAt;
@@ -88,6 +95,7 @@ class Publication
      * @var DateTime|null
      *
      * @ApiProperty()
+     * @Groups({"publication:read"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $expiresAt;
@@ -96,7 +104,7 @@ class Publication
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
-     * @ApiProperty()
+     * @Groups({"publication:read"})
      */
     private $createdAt;
 

@@ -20,9 +20,10 @@ Payload, defines the publication (draft):
     "required_roles": []
   },
   "download_url": "https://site.com/package.zip",
-  "files": [
+  "assets": [
     {
       "id": "123",
+      "assetId": "asset-unique-id",
       "date": "2019-01-011T00:00:00Z",
       "type": "image/jpeg",
       "download_url": "https://host/foo.jpg",

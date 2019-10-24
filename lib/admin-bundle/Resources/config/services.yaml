@@ -1,0 +1,42 @@
+parameters:
+  alchemy_admin.auth_base_url: '%env(AUTH_BASE_URL)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Alchemy\AdminBundle\Controller\:
+    resource: '../../Controller'
+    tags: ['controller.service_arguments']
+
+  Alchemy\AdminBundle\Controller\LoginController:
+    arguments:
+      $siteTitle: '%alchemy_admin.site_title%'
+      $siteLogo: '%alchemy_admin.site_logo%'
+
+  Alchemy\AdminBundle\OAuth\OAuthRegistry:
+    arguments:
+      $authBaseUrl: '%alchemy_admin.auth_base_url%'
+      $authClientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
+
+  Alchemy\AdminBundle\Twig\AdminExtension:
+    tags:
+      - { name: twig.extension }
+
+  alchemy_admin.http_client:
+    class: GuzzleHttp\Client
+    arguments:
+      -
+        base_uri: "%auth_base_url_internal%"
+        options:
+          timeout: 10
+          http_errors: false
+          headers:
+            Accept: "application/json"
+
+  Alchemy\AdminBundle\OAuth\OAuthClient:
+    arguments:
+      $client: "@alchemy_admin.http_client"
+      $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
+      $clientSecret: '%env(AUTH_CLIENT_SECRET)%'

@@ -6,8 +6,9 @@ namespace App\Tests;
 
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
+use Symfony\Component\HttpFoundation\Response;
 
-abstract class AbstractPasswordTest extends ApiTestCase
+abstract class AbstractPasswordTest extends AbstractTestCase
 {
     protected function assertPasswordResetRequestCount(int $count): void
     {
@@ -30,5 +31,28 @@ abstract class AbstractPasswordTest extends ApiTestCase
         $em->flush();
 
         return $request;
+    }
+
+    protected function assertPasswordIsInvalid(string $email, string $password): void
+    {
+        $response = $this->requestToken($email, $password);
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    protected function assertPasswordIsValid(string $email, string $password): void
+    {
+        $response = $this->requestToken($email, $password);
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    private function requestToken(string $email, string $password): Response
+    {
+        return $this->request(null, 'POST', '/oauth/v2/token', [
+            'username' => $email,
+            'password' => $password,
+            'grant_type' => 'password',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
+        ]);
     }
 }

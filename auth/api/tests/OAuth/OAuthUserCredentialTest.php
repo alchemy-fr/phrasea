@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class OAuthUserCredentialTest extends ApiTestCase
+class OAuthUserCredentialTest extends AbstractTestCase
 {
     public function testAuthenticationOK(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'username' => 'foo@bar.com',
             'password' => 'secret',
             'grant_type' => 'password',
@@ -27,7 +27,7 @@ class OAuthUserCredentialTest extends ApiTestCase
 
     public function testAuthenticationInvalidPassword(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'username' => 'foo@bar.com',
             'password' => 'invalid_secret',
             'grant_type' => 'password',
@@ -42,7 +42,7 @@ class OAuthUserCredentialTest extends ApiTestCase
 
     public function testAuthenticationInvalidGrantType(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'foo',
         ]);
         $this->assertEquals(400, $response->getStatusCode());
@@ -53,7 +53,7 @@ class OAuthUserCredentialTest extends ApiTestCase
 
     public function testInvalidClientSecret(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'username' => 'foo@bar.com',
             'password' => 'invalid_secret',
             'grant_type' => 'password',
@@ -68,7 +68,7 @@ class OAuthUserCredentialTest extends ApiTestCase
 
     public function testInvalidClientId(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'username' => 'foo@bar.com',
             'password' => 'invalid_secret',
             'grant_type' => 'password',

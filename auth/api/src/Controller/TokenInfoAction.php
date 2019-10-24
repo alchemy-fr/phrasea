@@ -47,7 +47,7 @@ class TokenInfoAction extends AbstractController
         $user = $accessToken->getUser();
 
         $data = [
-            'scopes' => array_filter(explode(' ', trim($accessToken->getScope()))),
+            'scopes' => $accessToken->getScope() ? array_filter(explode(' ', trim($accessToken->getScope()))) : [],
         ];
 
         if (null !== $user) {

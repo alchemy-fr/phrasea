@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class MeTest extends ApiTestCase
+class MeTest extends AbstractTestCase
 {
     public function testMeOK(): void
     {
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
-        $response = $this->request('GET', '/me', [
-            'access_token' => $accessToken,
-        ]);
+        $response = $this->request($accessToken, 'GET', '/me');
         $this->assertEquals(200, $response->getStatusCode());
 
         $json = json_decode($response->getContent(), true);
@@ -22,15 +20,13 @@ class MeTest extends ApiTestCase
 
     public function testMeGenerates401WithInvalidAccessToken(): void
     {
-        $response = $this->request('GET', '/me', [
-            'access_token' => 'invalid_token',
-        ]);
+        $response = $this->request('invalid_token', 'GET', '/me');
         $this->assertEquals(401, $response->getStatusCode());
     }
 
     public function testMeGenerates401WithNoProvidedAccessToken(): void
     {
-        $response = $this->request('GET', '/me');
+        $response = $this->request(null, 'GET', '/me');
         $this->assertEquals(401, $response->getStatusCode());
     }
 
@@ -38,9 +34,7 @@ class MeTest extends ApiTestCase
     {
         $accessToken = $this->authenticateUser('disabled@bar.com', 'secret');
 
-        $response = $this->request('GET', '/me', [
-            'access_token' => $accessToken,
-        ]);
+        $response = $this->request($accessToken, 'GET', '/me');
         $this->assertEquals(401, $response->getStatusCode());
     }
 }

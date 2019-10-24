@@ -1,0 +1,35 @@
+parameters:
+  auth_base_url_internal: 'http://auth_api'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  alchemy.remote_client:
+    class: GuzzleHttp\Client
+    arguments:
+    -
+      base_uri: "%auth_base_url_internal%"
+      options:
+        timeout: 10
+        http_errors: false
+        headers:
+          Accept: "application/json"
+
+  Alchemy\RemoteAuthBundle\Security\Client\RemoteClient:
+    arguments:
+      $client: "@alchemy.remote_client"
+
+  Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator:
+    abstract: true
+    arguments:
+      $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
+      $clientSecret: '%env(AUTH_CLIENT_SECRET)%'
+
+  Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener: ~
+
+  Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~
+  Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
+  Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator: ~

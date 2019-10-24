@@ -1,0 +1,42 @@
+{
+  "name": "alchemy/admin-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony admin bundle",
+  "keywords": [
+    "Admin"
+  ],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "./__lib/remote-auth-bundle",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
+  "require": {
+    "php": "^7.3",
+    "alchemy/remote-auth-bundle": "@dev",
+    "easycorp/easyadmin-bundle": "^2.3",
+    "guzzlehttp/guzzle": "^6.3",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\AdminBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
+    }
+  }
+}

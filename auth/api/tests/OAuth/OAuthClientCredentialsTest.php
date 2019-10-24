@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-class OAuthClientCredentialsTest extends ApiTestCase
+class OAuthClientCredentialsTest extends AbstractTestCase
 {
     public function testClientCredentialAccessTokenOK(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
@@ -21,7 +21,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testAllowedSingleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'scope1',
             'client_id' => self::CLIENT_ID,
@@ -35,7 +35,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testUnsupportedSingleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'invalid_scope',
             'client_id' => self::CLIENT_ID,
@@ -49,7 +49,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testNotAllowedSingleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'scope2',
             'client_id' => self::CLIENT_ID,
@@ -64,7 +64,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testAllowedMultipleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'scope1 scope3',
             'client_id' => self::CLIENT_ID,
@@ -78,7 +78,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testUnsupportedMultipleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'scope1 invalid_scope',
             'client_id' => self::CLIENT_ID,
@@ -92,7 +92,7 @@ class OAuthClientCredentialsTest extends ApiTestCase
 
     public function testNotAllowedMultipleScope(): void
     {
-        $response = $this->request('POST', '/oauth/v2/token', [
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
             'grant_type' => 'client_credentials',
             'scope' => 'scope1 scope2',
             'client_id' => self::CLIENT_ID,
