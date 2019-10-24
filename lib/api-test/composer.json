@@ -1,0 +1,29 @@
+{
+  "name": "alchemy/api-test",
+  "type": "library",
+  "description": "Test helper for API calls",
+  "keywords": [
+    "API",
+    "test"
+  ],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.3",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\ApiTest\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\ApiTest\\Tests\\": "tests"
+    }
+  }
+}

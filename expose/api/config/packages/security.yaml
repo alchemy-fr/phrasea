@@ -10,6 +10,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        api_doc:
+            pattern: ^/$
+            security: false
+
         admin:
             pattern:    ^/admin
             stateless:  false
@@ -20,6 +24,11 @@ security:
             guard:
                 authenticators:
                     - 'alchemy_remote.login_form.admin'
+
+        api:
+            anonymous: ~
+            stateless: true
+            remote_auth: true
 
     access_control:
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

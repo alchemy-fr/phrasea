@@ -14,4 +14,4 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-/__bundles
+/__lib

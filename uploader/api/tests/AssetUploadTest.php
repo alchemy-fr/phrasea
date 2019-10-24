@@ -7,7 +7,7 @@ namespace App\Tests;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class AssetUploadTest extends ApiTestCase
+class AssetUploadTest extends AbstractTestCase
 {
     public function testUploadAssetOK(): void
     {

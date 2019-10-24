@@ -7,6 +7,7 @@ namespace App\OAuth;
 use App\OAuth\ResourceOwner\ResourceOwnerInterface;
 use Http\Client\Common\HttpMethodsClient;
 use HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface;
+use InvalidArgumentException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
@@ -70,10 +71,15 @@ class OAuthProviderFactory
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface
     {
-        $providerConfig = array_filter($this->oAuthProviders, function (array $node) use ($providerName) {
+        $providers = array_filter($this->oAuthProviders, function (array $node) use ($providerName) {
             return $node['name'] === $providerName;
-        })[0];
+        });
 
+        if (!isset($providers[0])) {
+            throw new InvalidArgumentException(sprintf('Provider "%s" does not exist in Auth service', $providerName));
+        }
+
+        $providerConfig = $providers[0];
         $class = $this->resourceOwners[$providerConfig['type']];
         $options = $providerConfig['options'];
 

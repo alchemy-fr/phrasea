@@ -16,12 +16,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_direct_url", columns={"publication_id", "direct_url_path"})})
  * @ApiResource(
- *     iri="http://schema.org/MediaObject",
- *     normalizationContext={
- *         "groups"={"asset_read"},
- *     },
+ *     iri="http://alchemy.fr/PublicationAsset",
  *     itemOperations={
- *         "get"={"access_control"="is_granted('read_meta', object)"},
+ *         "get",
  *     },
  *     collectionOperations={
  *         "post"={
@@ -51,7 +48,6 @@ class PublicationAsset
 {
     /**
      * @ApiProperty(identifier=true)
-     * @Groups("asset_read")
      *
      * @var Uuid
      *
@@ -62,6 +58,7 @@ class PublicationAsset
 
     /**
      * @var Publication
+     * @Groups({"asset:read"})
      *
      * @ApiProperty(
      *     attributes={
@@ -84,6 +81,7 @@ class PublicationAsset
      *         }
      *     }
      * )
+     * @Groups({"publication:read"})
      * @ORM\ManyToOne(targetEntity="Asset", inversedBy="publications")
      */
     private $asset;
@@ -92,8 +90,7 @@ class PublicationAsset
      * Direct access to asset
      *
      * @ApiProperty()
-     * @Groups("asset_read")
-     *
+     * @Groups({"publication:read", "asset:read"})
      * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -105,7 +102,6 @@ class PublicationAsset
      *
      * @ORM\Column(type="datetime")
      * @ApiProperty()
-     * @Groups("asset_read")
      */
     private $createdAt;
 

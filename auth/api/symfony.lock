@@ -2,6 +2,9 @@
     "alchemy/admin-bundle": {
         "version": "dev-master"
     },
+    "alchemy/api-test": {
+        "version": "dev-expose"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-master"
     },
@@ -549,18 +552,6 @@
             "version": "1.0",
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
-    },
-    "twig/extensions": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "ddb2e0a77773b7fd75d8d649545f174e664500ab"
-        },
-        "files": [
-            "config/packages/twig_extensions.yaml"
-        ]
     },
     "twig/twig": {
         "version": "v2.8.1"
