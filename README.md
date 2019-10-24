@@ -48,7 +48,7 @@ When modifying a local bundle, we need to keep it synced with:
 bin/update-libs.sh
 ```
 
-This will copy all bundles (`./bundles/*`) in all Symfony application in a sub folder `__bundles`.
+This will copy all bundles (`./bundles/*`) in all Symfony application in a sub folder `__lib`.
 
 ## Changing ports
 

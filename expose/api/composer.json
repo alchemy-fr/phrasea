@@ -5,7 +5,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "./__bundles/admin-bundle",
+            "url": "./__lib/admin-bundle",
             "options": {
                 "symlink": true
             }

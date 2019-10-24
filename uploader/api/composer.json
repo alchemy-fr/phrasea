@@ -4,21 +4,21 @@
     "repositories": [
         {
             "type": "path",
-            "url": "./__bundles/admin-bundle",
+            "url": "./__lib/admin-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__bundles/remote-auth-bundle",
+            "url": "./__lib/remote-auth-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__bundles/notify-bundle",
+            "url": "./__lib/notify-bundle",
             "options": {
                 "symlink": true
             }

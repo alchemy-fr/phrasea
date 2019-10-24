@@ -10,7 +10,7 @@
   "repositories": [
     {
       "type": "path",
-      "url": "./__bundles/remote-auth-bundle",
+      "url": "./__lib/remote-auth-bundle",
       "options": {
         "symlink": true
       }

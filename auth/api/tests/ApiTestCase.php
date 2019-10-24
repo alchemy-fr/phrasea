@@ -81,18 +81,6 @@ abstract class ApiTestCase extends WebTestCase
         return self::$container->get(EntityManagerInterface::class);
     }
 
-    protected function assertPasswordIsInvalid(string $email, string $password): void
-    {
-        $response = $this->requestToken($email, $password);
-        $this->assertEquals(400, $response->getStatusCode());
-    }
-
-    protected function assertPasswordIsValid(string $email, string $password): void
-    {
-        $response = $this->requestToken($email, $password);
-        $this->assertEquals(200, $response->getStatusCode());
-    }
-
     private function requestToken(string $email, string $password): Response
     {
         return $this->request('POST', '/oauth/v2/token', [

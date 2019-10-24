@@ -18,4 +18,4 @@
 
 .php_cs.cache
 
-/__bundles
+/__lib
