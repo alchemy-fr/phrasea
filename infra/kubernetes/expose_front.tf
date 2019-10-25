@@ -1,4 +1,4 @@
-resource "kubernetes_service" "expose-front" {
+resource "kubernetes_service" "expose_front" {
   metadata {
     name = "expose-front"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "expose-front" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "expose-front"
+      tier = "expose_front"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "expose-front" {
   }
 }
 
-resource "kubernetes_deployment" "expose-front" {
+resource "kubernetes_deployment" "expose_front" {
   metadata {
     name = "phraseanet-service-expose-front"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "expose-front" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "expose-front"
+        tier = "expose_front"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "expose-front" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "expose-front"
+          tier = "expose_front"
         }
       }
 
@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "expose-front" {
         }
 
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose-front:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}expose_front:${var.DOCKER_TAG}"
           name              = "expose-front"
           image_pull_policy = "Always"
 

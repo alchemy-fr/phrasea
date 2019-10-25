@@ -6,7 +6,7 @@ resource "kubernetes_service" "phraseanet-service-expose-api_php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "expose-api-php"
+      tier = "expose_api_php"
     }
 
     port {
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "phraseanet-service-expose-api_php" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "expose-api-php"
+        tier = "expose_api_php"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "phraseanet-service-expose-api_php" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "expose-api-php"
+          tier = "expose_api_php"
         }
       }
 
@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "phraseanet-service-expose-api_php" {
         }
 
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose-api-php:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}expose_api_php:${var.DOCKER_TAG}"
           name              = "expose-api-php"
           image_pull_policy = "Always"
 

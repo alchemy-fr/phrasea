@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "uploader-worker" {
+resource "kubernetes_deployment" "uploader_worker" {
   metadata {
     name = "uploader-worker"
   }
@@ -9,7 +9,7 @@ resource "kubernetes_deployment" "uploader-worker" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "uploader-worker"
+        tier = "uploader_worker"
       }
     }
 
@@ -17,13 +17,13 @@ resource "kubernetes_deployment" "uploader-worker" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "uploader-worker"
+          tier = "uploader_worker"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}uploader-worker:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}uploader_worker:${var.DOCKER_TAG}"
           name              = "uploader-worker"
           image_pull_policy = "Always"
 
