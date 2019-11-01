@@ -40,7 +40,7 @@ class AssetUploadTest extends AbstractTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
-        $this->assertEquals('Foo', $json['name']);
+        $this->assertEquals('Foo', $json['title']);
         $this->assertEquals(1, count($json['assets']));
         $this->assertEquals('image/jpeg', $json['assets'][0]['asset']['mimeType']);
     }

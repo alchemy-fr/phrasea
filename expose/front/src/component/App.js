@@ -1,14 +1,11 @@
 import React from 'react';
-import Gallery from "./Gallery";
+import {Route, BrowserRouter as Router} from "react-router-dom";
+import PublicationRoute from "./routes/PublicationRoute";
 
 function App() {
-  return (
-    <div className={'container'}>
-      <Gallery
-        assets={[]}
-      />
-    </div>
-  );
+    return <Router>
+        <Route path="/p/:id" exact component={PublicationRoute} />
+    </Router>
 }
 
 export default App;

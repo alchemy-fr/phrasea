@@ -36,6 +36,7 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
     {
         $object->setUrl($this->generateUrl('asset_open', $object));
         $object->setThumbUrl($this->generateUrl('asset_open', $object));
+        $object->setDownloadUrl($this->generateUrl('asset_download', $object));
 
         return $this->decorated->normalize($object, $format, $context);
     }

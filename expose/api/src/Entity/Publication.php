@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     normalizationContext={"groups"={"publication:read"}},
  *     itemOperations={
- *         "get"={},
+ *         "get"={"security"="is_granted('ROLE_ADMIN') or object.isEnabled()"},
  *     },
  *     collectionOperations={
  *         "post"={
@@ -47,7 +47,7 @@ class Publication
      * @ORM\Column(type="string", length=255)
      * @Groups({"publication:read"})
      */
-    private $name;
+    private $title;
 
     /**
      * @var PublicationAsset[]|Collection
@@ -81,6 +81,15 @@ class Publication
      * @ORM\Column(type="string", length=20)
      */
     private $layout;
+
+    /**
+     * @var string|null
+     *
+     * @ApiProperty()
+     * @Groups({"publication:read"})
+     * @ORM\Column(type="string", length=30, nullable=true)
+     */
+    private $theme;
 
     /**
      * @var DateTime|null
@@ -128,14 +137,14 @@ class Publication
         return $this->assets;
     }
 
-    public function getName(): string
+    public function getTitle(): ?string
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName(string $name): void
+    public function setTitle(string $title): void
     {
-        $this->name = $name;
+        $this->title = $title;
     }
 
     public function getCreatedAt(): DateTime
@@ -165,7 +174,7 @@ class Publication
         $this->assets->removeElement($asset);
     }
 
-    public function getLayout(): string
+    public function getLayout(): ?string
     {
         return $this->layout;
     }
@@ -193,6 +202,16 @@ class Publication
     public function setExpiresAt(?DateTime $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
+    }
+
+    public function getTheme(): ?string
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(?string $theme): void
+    {
+        $this->theme = $theme;
     }
 }
 

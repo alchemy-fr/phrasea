@@ -46,3 +46,15 @@ services:
     App\Serializer\AssetSerializer:
         decorates: 'api_platform.jsonld.normalizer.item'
         arguments: [ '@App\Serializer\AssetSerializer.inner' ]
+
+    App\Form\ThemeChoiceType:
+        arguments:
+            $choices:
+                light: Light
+                dark: Dark
+
+    App\Form\LayoutChoiceType:
+        arguments:
+            $choices:
+                gallery: Gallery
+                download: Download

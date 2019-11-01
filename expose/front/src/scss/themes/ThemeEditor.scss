@@ -1,0 +1,20 @@
+.theme-editor {
+  color: #000;
+  font-family: "Open Sans", sans-serif;
+  padding: 10px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #FFF;
+  border-top: 1px solid #CCC;
+  border-left: 1px solid #CCC;
+  border-radius: 5px 5px 0 0;
+
+  h1 {
+    font-size: 15px;
+  }
+
+  label {
+    margin-right: 10px;
+  }
+}

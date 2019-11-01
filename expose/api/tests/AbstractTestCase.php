@@ -19,7 +19,7 @@ abstract class AbstractTestCase extends ApiTestCase
 
         $publication = new Publication();
         $publication->setLayout('gallery');
-        $publication->setName('Foo');
+        $publication->setTitle('Foo');
         $em->persist($publication);
         $em->flush();
 

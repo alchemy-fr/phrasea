@@ -86,7 +86,7 @@ class Asset
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(iri="http://schema.org/name")
-     * @Groups({"asset:read"})
+     * @Groups({"asset:read", "publication:read"})
      */
     private $originalName;
 
@@ -129,6 +129,13 @@ class Asset
      * @var string
      */
     private $url;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"asset:read", "publication:read"})
+     * @var string
+     */
+    private $downloadUrl;
 
     /**
      * @ApiProperty()
@@ -240,5 +247,15 @@ class Asset
     public function setThumbUrl(?string $thumbUrl): void
     {
         $this->thumbUrl = $thumbUrl;
+    }
+
+    public function getDownloadUrl(): string
+    {
+        return $this->downloadUrl;
+    }
+
+    public function setDownloadUrl(string $downloadUrl): void
+    {
+        $this->downloadUrl = $downloadUrl;
     }
 }

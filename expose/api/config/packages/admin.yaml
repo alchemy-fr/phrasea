@@ -6,9 +6,6 @@ alchemy_admin:
 easy_admin:
   entities:
     Publication:
-      disabled_actions:
-        - new
-        - edit
       class: App\Entity\Publication
       list:
         batch_actions:
@@ -16,9 +13,17 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - id
-          - name
+          - title
           - layout
+          - enabled
           - createdAt
+      form:
+        fields:
+          - { property: 'title' }
+          - { property: 'layout', type: App\Form\LayoutChoiceType }
+          - { property: 'theme', type: App\Form\ThemeChoiceType }
+          - { property: 'enabled' }
+
     Asset:
       class: App\Entity\Asset
       disabled_actions:
