@@ -7,7 +7,9 @@ namespace App\Storage;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
+use App\Entity\SubDefinition;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager
@@ -56,6 +58,34 @@ class AssetManager
         return $asset;
     }
 
+
+    public function createSubDefinition(
+        string $name,
+        string $path,
+        string $mimeType,
+        int $size,
+        Asset $asset
+    ): SubDefinition {
+
+        $existingSubDef = $this->em->getRepository(SubDefinition::class)
+            ->findSubDefinitionByType($asset->getId(), $name);
+        if ($existingSubDef instanceof SubDefinition) {
+            throw new BadRequestHttpException(sprintf('Sub definition named "%s" already exists for this asset', $name));
+        }
+
+        $subDefinition = new SubDefinition();
+        $subDefinition->setName($name);
+        $subDefinition->setPath($path);
+        $subDefinition->setMimeType($mimeType);
+        $subDefinition->setSize($size);
+        $subDefinition->setAsset($asset);
+
+        $this->em->persist($subDefinition);
+        $this->em->flush();
+
+        return $subDefinition;
+    }
+
     private function getPublication(string $id): Publication
     {
         /** @var Publication $publication */
@@ -75,5 +105,17 @@ class AssetManager
         }
 
         return $asset;
+    }
+
+    public function findAssetSubDefinition(string $assetId, string $subDefType): SubDefinition
+    {
+        $subDef = $this->em
+            ->getRepository(SubDefinition::class)
+            ->findSubDefinitionByType($assetId, $subDefType);
+        if (!$subDef instanceof SubDefinition) {
+            throw new NotFoundHttpException('SubDefinition '.$assetId.'/'.$subDefType.' not found');
+        }
+
+        return $subDef;
     }
 }

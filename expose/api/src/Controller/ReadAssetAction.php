@@ -54,6 +54,26 @@ final class ReadAssetAction extends AbstractController
     }
 
     /**
+     * @Route("/{id}/sub-definitions/{type}/open", name="subdef_open")
+     */
+    public function subDefinitionOpen(string $id, string $type): Response
+    {
+        $subDefinition = $this->assetManager->findAssetSubDefinition($id, $type);
+
+        $stream = $this->storageManager->getStream($subDefinition->getPath());
+        fclose($stream);
+
+        $stream = $this->storageManager->getStream($subDefinition->getPath());
+
+        return new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $subDefinition->getMimeType(),
+        ]);
+    }
+
+    /**
      * @Route("/{id}/download", name="download")
      */
     public function downloadAsset(string $id): Response

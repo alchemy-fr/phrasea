@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Entity\Asset;
+use App\Entity\SubDefinition;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -34,21 +35,30 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        $object->setUrl($this->generateUrl('asset_open', $object));
-        $object->setThumbUrl($this->generateUrl('asset_open', $object));
-        $object->setDownloadUrl($this->generateUrl('asset_download', $object));
+        if ($object instanceof Asset) {
+
+        $object->setUrl($this->generateAssetUrl('asset_open', $object));
+        $object->setThumbUrl($this->generateAssetUrl('asset_open', $object));
+        $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
+
+        } elseif ($object instanceof SubDefinition) {
+            $object->setUrl($this->urlGenerator->generate('asset_subdef_open', [
+                'id' => $object->getAsset()->getId(),
+                'type' => $object->getName(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL));
+        }
 
         return $this->decorated->normalize($object, $format, $context);
     }
 
-    private function generateUrl(string $route, Asset $asset): string
+    private function generateAssetUrl(string $route, Asset $asset): string
     {
         return $this->urlGenerator->generate($route, ['id' => $asset->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof Asset;
+        return $data instanceof Asset || $data instanceof SubDefinition;
     }
 
     public function supportsDenormalization($data, $type, $format = null)

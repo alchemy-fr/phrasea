@@ -1,0 +1,10 @@
+App\Entity\Publication:
+  properties:
+    title:
+      - NotBlank: ~
+
+App\Entity\SubDefinition:
+  properties:
+    name:
+      - NotNull: ~
+      - NotBlank: ~

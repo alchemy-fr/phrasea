@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\CreateAssetAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ApiResource(
- *     normalizationContext={"groups"={"asset:read"}},
+ *     normalizationContext=Asset::API_READ,
  *     itemOperations={
  *         "get"={"access_control"="is_granted('read_meta', object)"},
  *     },
@@ -29,6 +30,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             },
  *             "validation_groups"={"Default", "asset_create"},
  *             "swagger_context"={
+ *                 "summary"="Upload asset",
  *                 "consumes"={
  *                     "multipart/form-data",
  *                 },
@@ -37,9 +39,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "in"="formData",
  *                         "name"="file",
  *                         "type"="file",
+ *                         "required"=true,
  *                         "description"="The file to upload",
  *                     },
- *                 },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="publication_id",
+ *                         "type"="string",
+ *                         "description"="Attach asset to a publication (optional)",
+ *                     },
+*                      {
+*                          "in"="body",
+*                          "name"="asset",
+*                      },
+ *                 }
  *             },
  *         }
  *     }
@@ -47,6 +60,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Asset
 {
+    const API_READ = [
+        'groups' => ['asset:read'],
+        'swagger_definition_name' => 'Read',
+    ];
+
     /**
      * @ApiProperty(identifier=true)
      * @Groups({"asset:read", "publication:read"})
@@ -115,6 +133,15 @@ class Asset
     private $publications;
 
     /**
+     * @var SubDefinition[]|Collection
+     *
+     * @ApiSubresource()
+     * @Groups({"asset:read", "publication:read"})
+     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset")
+     */
+    private $subDefinitions;
+
+    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -148,6 +175,7 @@ class Asset
     {
         $this->createdAt = new DateTime();
         $this->publications = new ArrayCollection();
+        $this->subDefinitions = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
 
@@ -257,5 +285,13 @@ class Asset
     public function setDownloadUrl(string $downloadUrl): void
     {
         $this->downloadUrl = $downloadUrl;
+    }
+
+    /**
+     * @return SubDefinition[]|Collection
+     */
+    public function getSubDefinitions(): Collection
+    {
+        return $this->subDefinitions;
     }
 }

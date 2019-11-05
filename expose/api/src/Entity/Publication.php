@@ -16,18 +16,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ApiResource(
- *     normalizationContext={"groups"={"publication:read"}},
+ *     normalizationContext=Publication::API_READ,
  *     itemOperations={
  *         "get"={"security"="is_granted('ROLE_ADMIN') or object.isEnabled()"},
  *     },
  *     collectionOperations={
- *         "post"={
- *         }
+ *         "get"={},
+ *         "post"={}
  *     }
  * )
  */
 class Publication
 {
+    const API_READ = [
+        'groups' => ['publication:read'],
+        'swagger_definition_name' => 'Read',
+    ];
+
     /**
      * @ApiProperty(identifier=true)
      * @Groups({"publication:read", "asset:read"})
@@ -48,6 +53,16 @@ class Publication
      * @Groups({"publication:read"})
      */
     private $title;
+
+    /**
+     * @ApiProperty()
+     *
+     * @var string|null
+     *
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"publication:read"})
+     */
+    private $description;
 
     /**
      * @var PublicationAsset[]|Collection
@@ -72,6 +87,15 @@ class Publication
      * @Groups({"publication:read"})
      */
     private $enabled = false;
+
+    /**
+     * @var bool
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="boolean")
+     * @Groups({"publication:read"})
+     */
+    private $publiclyListed = false;
 
     /**
      * @var string
@@ -212,6 +236,26 @@ class Publication
     public function setTheme(?string $theme): void
     {
         $this->theme = $theme;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function isPubliclyListed(): bool
+    {
+        return $this->publiclyListed;
+    }
+
+    public function setPubliclyListed(bool $publiclyListed): void
+    {
+        $this->publiclyListed = $publiclyListed;
     }
 }
 

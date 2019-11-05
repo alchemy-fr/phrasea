@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "defaults"={
  *                  "_api_receive"=false
  *             },
- *             "validation_groups"={"Default", "asset_create"},
+ *             "validation_groups"={"Default", "publication_create"},
  *             "swagger_context"={
  *                 "consumes"={
  *                     "multipart/form-data",

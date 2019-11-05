@@ -1,5 +1,5 @@
 parameters:
-  oauth.allowed_scopes: 'uploader:commit_list auth:user_read'
+  oauth.allowed_scopes: 'uploader:commit_list auth:user_read expose:publish'
 
 fos_oauth_server:
   db_driver: orm

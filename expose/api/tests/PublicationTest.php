@@ -25,7 +25,7 @@ class PublicationTest extends AbstractTestCase
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
-    public function testCreatePublicationWithoutNameWillGenerate400(): void
+    public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
         $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
         $this->assertEquals(400, $response->getStatusCode());

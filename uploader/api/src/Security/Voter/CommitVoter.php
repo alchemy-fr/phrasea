@@ -32,7 +32,7 @@ class CommitVoter extends Voter
 
     /**
      * @param AssetToken $token
-     * @param Commit     $subject
+     * @param Commit $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
@@ -44,21 +44,21 @@ class CommitVoter extends Voter
             return true;
         }
 
-            switch ($attribute) {
-                case self::READ:
-                    if ($this->security->isGranted('ROLE_UPLOADER:COMMIT_LIST')) {
-                        return true;
-                    }
-                    if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
-                        return true;
-                    }
-                    break;
-                case self::ACK:
-                    if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
-                        return true;
-                    }
-                    break;
-            }
+        switch ($attribute) {
+            case self::READ:
+                if ($this->security->isGranted('ROLE_UPLOADER:COMMIT_LIST')) {
+                    return true;
+                }
+                if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
+                    return true;
+                }
+                break;
+            case self::ACK:
+                if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
+                    return true;
+                }
+                break;
+        }
 
         return false;
     }
