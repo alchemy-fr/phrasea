@@ -44,21 +44,21 @@ class CommitVoter extends Voter
             return true;
         }
 
-        if ($token instanceof AssetToken) {
             switch ($attribute) {
                 case self::READ:
-                    // TODO support client_credential
-                    if ($token->getAccessToken() === $subject->getToken()) {
+                    if ($this->security->isGranted('ROLE_UPLOADER:COMMIT_LIST')) {
+                        return true;
+                    }
+                    if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
                         return true;
                     }
                     break;
                 case self::ACK:
-                    if ($token->getAccessToken() === $subject->getToken()) {
+                    if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {
                         return true;
                     }
                     break;
             }
-        }
 
         return false;
     }
