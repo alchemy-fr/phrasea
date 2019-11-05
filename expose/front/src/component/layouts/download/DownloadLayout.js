@@ -1,5 +1,6 @@
 import React from 'react';
-import {dataShape} from "../props/dataShape";
+import {dataShape} from "../../props/dataShape";
+import DownloadAsset from "./DownloadAsset";
 
 class DownloadLayout extends React.Component {
     static propTypes = {
@@ -18,14 +19,12 @@ class DownloadLayout extends React.Component {
                 <h2>Download</h2>
                 <ul className={'file-list'}>
                     {assets.map(a => {
-                        const {downloadUrl, thumbUrl, originalName, mimeType, id} = a.asset;
                         return <li
-                            key={id}
+                            key={a.asset.id}
                         >
-                            <a href={downloadUrl}>
-                                <img src={thumbUrl} alt={originalName} />
-                                {originalName} - {mimeType}
-                            </a>
+                            <DownloadAsset
+                                data={a.asset}
+                            />
                         </li>
                     })}
                 </ul>

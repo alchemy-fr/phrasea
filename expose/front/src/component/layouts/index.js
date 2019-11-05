@@ -1,5 +1,5 @@
 import GalleryLayout from "./GalleryLayout";
-import DownloadLayout from "./Download";
+import DownloadLayout from "./download/DownloadLayout";
 
 export const layouts = {
     gallery: GalleryLayout,

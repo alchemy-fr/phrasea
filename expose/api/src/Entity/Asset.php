@@ -58,7 +58,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class Asset
+class Asset implements MediaInterface
 {
     const API_READ = [
         'groups' => ['asset:read'],
@@ -140,6 +140,20 @@ class Asset
      * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset")
      */
     private $subDefinitions;
+
+    /**
+     * @var SubDefinition|null
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
+     */
+    private $previewDefinition;
+
+    /**
+     * @var SubDefinition|null
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
+     */
+    private $thumbnailDefinition;
 
     /**
      * @var DateTime
@@ -293,5 +307,25 @@ class Asset
     public function getSubDefinitions(): Collection
     {
         return $this->subDefinitions;
+    }
+
+    public function getPreviewDefinition(): ?SubDefinition
+    {
+        return $this->previewDefinition;
+    }
+
+    public function setPreviewDefinition(?SubDefinition $previewDefinition): void
+    {
+        $this->previewDefinition = $previewDefinition;
+    }
+
+    public function getThumbnailDefinition(): ?SubDefinition
+    {
+        return $this->thumbnailDefinition;
+    }
+
+    public function setThumbnailDefinition(?SubDefinition $thumbnailDefinition): void
+    {
+        $this->thumbnailDefinition = $thumbnailDefinition;
     }
 }

@@ -76,7 +76,8 @@ final class CreateSubDefinitionAction extends AbstractController
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getSize(),
-            $asset
+            $asset,
+            $request->request->all()
         );
 
         return $subDefinition;

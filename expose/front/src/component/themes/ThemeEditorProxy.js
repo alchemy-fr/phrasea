@@ -8,17 +8,13 @@ class ThemeEditorProxy extends PureComponent {
         render: PropTypes.func.isRequired,
     };
 
-    state = {};
+    constructor(props) {
+        super(props);
 
-    static getDerivedStateFromProps(props, state) {
-        if (!state.theme) {
-            return {
-                theme: props.data.theme,
-                layout: props.data.layout,
-            }
-        }
-
-        return null;
+        this.state = {
+            theme: props.data.theme,
+            layout: props.data.layout,
+        };
     }
 
     render() {
@@ -45,8 +41,9 @@ class ThemeEditorProxy extends PureComponent {
                         <select
                             className={'form-control'}
                             onChange={e => this.setState({theme: e.target.value})}
-                            value={theme}
+                            value={theme || ''}
                         >
+                            <option value="">None</option>
                             <option value="dark">Dark</option>
                             <option value="light">Light</option>
                         </select>

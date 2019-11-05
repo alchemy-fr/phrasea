@@ -55,6 +55,18 @@ use App\Controller\CreateSubDefinitionAction;
  *                         "description"="The sub definition name",
  *                     },
  *                     {
+ *                         "in"="formData",
+ *                         "name"="use_as_preview",
+ *                         "type"="bool",
+ *                         "description"="The sub definition will be used as a gallery preview",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="use_as_thumbnail",
+ *                         "type"="bool",
+ *                         "description"="The sub definition will be used as a thumbnail",
+ *                     },
+ *                     {
  *                         "in"="body",
  *                     },
  *                 },
@@ -63,7 +75,7 @@ use App\Controller\CreateSubDefinitionAction;
  *     }
  *  )
  */
-class SubDefinition
+class SubDefinition implements MediaInterface
 {
     const API_READ = [
         'groups' => ['subdef:read'],
@@ -135,6 +147,13 @@ class SubDefinition
      */
     private $url;
 
+    /**
+     * @ApiProperty()
+     * @Groups({"subdef:read", "asset:read", "publication:read"})
+     * @var string
+     */
+    private $downloadUrl;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -189,6 +208,16 @@ class SubDefinition
     public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getDownloadUrl(): string
+    {
+        return $this->downloadUrl;
+    }
+
+    public function setDownloadUrl(string $downloadUrl): void
+    {
+        $this->downloadUrl = $downloadUrl;
     }
 
     public function getAsset(): Asset

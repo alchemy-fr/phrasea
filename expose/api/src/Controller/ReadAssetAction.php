@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\MediaInterface;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
+use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -35,34 +37,43 @@ final class ReadAssetAction extends AbstractController
     }
 
     /**
-     * @Route("/{id}/open", name="open")
+     * @Route("/{id}/preview", name="preview")
      */
-    public function readAsset(string $id): Response
+    public function assetPreview(string $id): Response
     {
         $asset = $this->assetManager->findAsset($id);
-        $stream = $this->storageManager->getStream($asset->getPath());
-        fclose($stream);
 
-        $stream = $this->storageManager->getStream($asset->getPath());
+        return $this->getMediaStream($asset->getPreviewDefinition() ?? $asset);
+    }
+
+    /**
+     * @Route("/{id}/thumbnail", name="thumbnail")
+     */
+    public function assetThumbnail(string $id): Response
+    {
+        $asset = $this->assetManager->findAsset($id);
+
+        return $this->getMediaStream($asset->getThumbnailDefinition() ?? $asset);
+    }
+
+    private function getMediaStream(MediaInterface $media): StreamedResponse
+    {
+        $stream = $this->storageManager->getStream($media->getPath());
 
         return new StreamedResponse(function () use ($stream) {
             fpassthru($stream);
             fclose($stream);
         }, 200, [
-            'Content-Type' => $asset->getMimeType(),
+            'Content-Type' => $media->getMimeType(),
         ]);
     }
 
     /**
-     * @Route("/{id}/sub-definitions/{type}/open", name="subdef_open")
+     * @Route("/{id}/sub-definitions/{type}", name="subdef_open")
      */
     public function subDefinitionOpen(string $id, string $type): Response
     {
         $subDefinition = $this->assetManager->findAssetSubDefinition($id, $type);
-
-        $stream = $this->storageManager->getStream($subDefinition->getPath());
-        fclose($stream);
-
         $stream = $this->storageManager->getStream($subDefinition->getPath());
 
         return new StreamedResponse(function () use ($stream) {
@@ -70,6 +81,27 @@ final class ReadAssetAction extends AbstractController
             fclose($stream);
         }, 200, [
             'Content-Type' => $subDefinition->getMimeType(),
+        ]);
+    }
+
+    /**
+     * @Route("/{id}/sub-definitions/{type}/download", name="subdef_download")
+     */
+    public function subDefinitionDownload(string $id, string $type): Response
+    {
+        $subDefinition = $this->assetManager->findAssetSubDefinition($id, $type);
+        $stream = $this->storageManager->getStream($subDefinition->getPath());
+
+        $mimes = new MimeTypes();
+        $extension = $mimes->getExtension($subDefinition->getMimeType());
+
+        return new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, [
+            'Content-Type' => $subDefinition->getMimeType(),
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $subDefinition->getName().'.'.$extension),
+            'Content-Size' => $subDefinition->getSize(),
         ]);
     }
 

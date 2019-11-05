@@ -64,7 +64,8 @@ class AssetManager
         string $path,
         string $mimeType,
         int $size,
-        Asset $asset
+        Asset $asset,
+        array $options = []
     ): SubDefinition {
 
         $existingSubDef = $this->em->getRepository(SubDefinition::class)
@@ -79,6 +80,13 @@ class AssetManager
         $subDefinition->setMimeType($mimeType);
         $subDefinition->setSize($size);
         $subDefinition->setAsset($asset);
+
+        if ($options['use_as_preview'] ?? false) {
+            $asset->setPreviewDefinition($subDefinition);
+        }
+        if ($options['use_as_thumbnail'] ?? false) {
+            $asset->setThumbnailDefinition($subDefinition);
+        }
 
         $this->em->persist($subDefinition);
         $this->em->flush();

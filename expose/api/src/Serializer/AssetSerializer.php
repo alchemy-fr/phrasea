@@ -36,16 +36,12 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
     public function normalize($object, $format = null, array $context = [])
     {
         if ($object instanceof Asset) {
-
-        $object->setUrl($this->generateAssetUrl('asset_open', $object));
-        $object->setThumbUrl($this->generateAssetUrl('asset_open', $object));
-        $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
-
+            $object->setUrl($this->generateAssetUrl('asset_preview', $object));
+            $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $object));
+            $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
         } elseif ($object instanceof SubDefinition) {
-            $object->setUrl($this->urlGenerator->generate('asset_subdef_open', [
-                'id' => $object->getAsset()->getId(),
-                'type' => $object->getName(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL));
+            $object->setUrl($this->generateSubDefinitionUrl('asset_subdef_open', $object));
+            $object->setDownloadUrl($this->generateSubDefinitionUrl('asset_subdef_download', $object));
         }
 
         return $this->decorated->normalize($object, $format, $context);
@@ -54,6 +50,14 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
     private function generateAssetUrl(string $route, Asset $asset): string
     {
         return $this->urlGenerator->generate($route, ['id' => $asset->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+    }
+
+    private function generateSubDefinitionUrl(string $route, SubDefinition $subDefinition): string
+    {
+        return $this->urlGenerator->generate($route, [
+            'id' => $subDefinition->getAsset()->getId(),
+            'type' => $subDefinition->getName(),
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     public function supportsNormalization($data, $format = null)
