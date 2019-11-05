@@ -38,9 +38,9 @@ In development, we need to use it so run:
 docker-compose up -d
 ```
 
-### Shared bundles
+### Shared libraries
 
-Back applications share some bundles (stored in this repository).
+Back applications share some librairies/bundles (stored in this repository).
 Because symlinking does not work outside a Docker container, we need to copy the bundles in the volume of the container.
 When modifying a local bundle, we need to keep it synced with:
 
@@ -48,7 +48,7 @@ When modifying a local bundle, we need to keep it synced with:
 bin/update-libs.sh
 ```
 
-This will copy all bundles (`./bundles/*`) in all Symfony application in a sub folder `__lib`.
+This will copy all librairies/bundles (`./lib/*`) in all Symfony application in a sub folder `__lib`.
 
 ## Changing ports
 
