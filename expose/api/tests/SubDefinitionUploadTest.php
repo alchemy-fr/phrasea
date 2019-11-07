@@ -43,6 +43,6 @@ class SubDefinitionUploadTest extends AbstractTestCase
 
         $this->assertEquals(1, count($json));
         $this->assertEquals('thumb', $json[0]['name']);
-        $this->assertRegExp('#^http://localhost/assets/[^/]+/sub-definitions/thumb/open#', $json[0]['url']);
+        $this->assertRegExp('#^http://localhost/assets/[^/]+/sub-definitions/thumb#', $json[0]['url']);
     }
 }
