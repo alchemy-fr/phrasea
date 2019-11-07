@@ -68,6 +68,7 @@ class PublicationAsset
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="assets")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $publication;
 
@@ -83,6 +84,7 @@ class PublicationAsset
      * )
      * @Groups({"publication:read"})
      * @ORM\ManyToOne(targetEntity="Asset", inversedBy="publications")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $asset;
 

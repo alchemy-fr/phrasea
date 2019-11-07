@@ -100,6 +100,24 @@ class Asset implements MediaInterface
     private $size;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ApiProperty()
+     * @Groups({"asset:read", "publication:read"})
+     */
+    private $title;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="text", nullable=true)
+     * @ApiProperty()
+     * @Groups({"asset:read", "publication:read"})
+     */
+    private $description;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string", length=255)
@@ -113,7 +131,7 @@ class Asset implements MediaInterface
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"asset:read", "publication:read", "publication:list"})
      */
     private $mimeType;
 
@@ -173,14 +191,14 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"asset:read", "publication:read", "publication:list"})
      * @var string
      */
     private $downloadUrl;
 
     /**
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"asset:read", "publication:read", "publication:list"})
      * @var string
      */
     private $thumbUrl;
@@ -206,6 +224,26 @@ class Asset implements MediaInterface
     public function setAssetId(?string $assetId): void
     {
         $this->assetId = $assetId;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getPath(): string

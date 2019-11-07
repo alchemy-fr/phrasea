@@ -19,9 +19,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext=Publication::API_READ,
  *     itemOperations={
  *         "get"={"security"="is_granted('ROLE_ADMIN') or object.isEnabled()"},
+ *         "put"={}
  *     },
  *     collectionOperations={
- *         "get"={},
+ *         "get"={
+ *              "normalization_context"=Publication::API_LIST,
+ *          },
  *         "post"={}
  *     }
  * )
@@ -32,10 +35,14 @@ class Publication
         'groups' => ['publication:read'],
         'swagger_definition_name' => 'Read',
     ];
+    const API_LIST = [
+        'groups' => ['publication:list'],
+        'swagger_definition_name' => 'List',
+    ];
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"publication:read", "asset:read"})
+     * @Groups({"publication:list", "publication:read", "asset:read"})
      *
      * @var Uuid
      *
@@ -50,7 +57,7 @@ class Publication
      * @var string
      *
      * @ORM\Column(type="string", length=255)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:list", "publication:read"})
      */
     private $title;
 
@@ -60,7 +67,7 @@ class Publication
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:list", "publication:read"})
      */
     private $description;
 
@@ -78,6 +85,21 @@ class Publication
      * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
      */
     private $assets;
+
+    /**
+     * @var Asset|null
+     *
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Asset",
+     *         }
+     *     }
+     * )
+     * @Groups({"publication:read", "publication:list"})
+     * @ORM\ManyToOne(targetEntity="Asset")
+     */
+    private $cover;
 
     /**
      * @var bool
@@ -256,6 +278,16 @@ class Publication
     public function setPubliclyListed(bool $publiclyListed): void
     {
         $this->publiclyListed = $publiclyListed;
+    }
+
+    public function getCover(): ?Asset
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?Asset $cover): void
+    {
+        $this->cover = $cover;
     }
 }
 
