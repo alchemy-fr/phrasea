@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Asset;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +35,7 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
-        $this->denyAccessUnlessGranted(AssetVoter::PUBLISH);
+        $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH);
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
 

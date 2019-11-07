@@ -37,7 +37,7 @@ class PublicationIndex extends PureComponent {
         return data.map(p => <li
             key={p.id}
         >
-            <a href={`/p/${p.id}`}>
+            <a href={`/publication-${p.id}`}>
                 {p.cover ? <img src={p.cover.thumbUrl} alt=""/> : ''}
                 {p.title}
             </a>

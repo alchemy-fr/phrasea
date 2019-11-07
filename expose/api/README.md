@@ -6,37 +6,35 @@ Payload, defines the publication (draft):
 
 ```json
 {
-  "id": "123",
-  "begins_at": null,
-  "expires_at": null,
-  "layouts": "download | gallery | lightbox",
-  "theme": "my_theme1",
-  "theme_options": {
-    "background_color": "#FF0000"
-  },
-  "security": {
-    "protection_method": "password | authentication | url_token",
-    "password": "s3cr3t",
-    "required_roles": []
-  },
-  "download_url": "https://site.com/package.zip",
-  "assets": [
-    {
-      "id": "123",
-      "assetId": "asset-unique-id",
-      "date": "2019-01-011T00:00:00Z",
-      "type": "image/jpeg",
-      "download_url": "https://host/foo.jpg",
-      "video_thumbnail_url": "...",
-      "preview_url": "https://host/thumb_foo.jpg",
-      "thumbnail_url": "https://host/thumb_foo.jpg",
-      "meta": [
-        {"label": "Title", "value": "Foo", "locale": "fr_FR", "type": "string" },
-        {"label": "Title", "value": "Foo" },
-        {"label": "Creation date", "value": "2019-05-01T12:00:00Z", "type": "datetime" }
-      ]
-    }
-  ],
-  "download_url": "https://host/foo.zip"
+    "id": "0e558750-7a61-46de-abfd-cca8134e3c98",
+    "title": "Publication #1",
+    "description": "Lorem ipsum",
+    "assets": [
+        {
+            "asset": {
+                "id": "fb93c593-c6e3-47da-b873-15535a228601",
+                "size": 679085,
+                "title": "Photo #1",
+                "description": "Lorem ipsum",
+                "originalName": "photo.jpeg",
+                "mimeType": "image/jpeg",
+                "subDefinitions": [],
+                "url": "http://api.expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/preview",
+                "downloadUrl": "http://api.expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/download",
+                "thumbUrl": "http://api.expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/thumbnail"
+            },
+            "directUrlPath": "path/to/photo"
+        }
+    ],
+    "urlSlug": "publication-1",
+    "coverUrl": "http://api.expose.alchemy.local/assets/75c4635f-a6ad-4a44-9dcd-e5544f73a58e/thumbnail",
+    "packageUrl": "http://api.expose.alchemy.local/assets/c51e4878-aae2-4e6a-94a8-0dbcc2f31691/download",
+    "enabled": true,
+    "publiclyListed": true,
+    "layout": "download",
+    "theme": "light",
+    "beginsAt": null,
+    "expiresAt": null,
+    "createdAt": "2019-11-05T13:18:27+00:00"
 }
 ```

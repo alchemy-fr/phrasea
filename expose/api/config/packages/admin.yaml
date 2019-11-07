@@ -13,6 +13,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - id
+          - slug
           - title
           - layout
           - enabled
@@ -20,6 +21,7 @@ easy_admin:
       form:
         fields:
           - { property: 'title' }
+          - { property: 'slug' }
           - { property: 'layout', type: App\Form\LayoutChoiceType }
           - { property: 'theme', type: App\Form\ThemeChoiceType }
           - { property: 'enabled' }
@@ -38,3 +40,23 @@ easy_admin:
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - createdAt
+
+    PublicationAsset:
+      class: App\Entity\PublicationAsset
+      list:
+        batch_actions:
+          - delete
+        sort: [publication.id, ASC]
+        fields:
+          - id
+          - { property: publication.title, label: 'Publication title' }
+          - { property: publication.id, label: 'Publication ID' }
+          - { property: asset.title, label: 'Asset title' }
+          - { property: asset.id, label: 'Asset ID' }
+          - { property: directUrlPath }
+          - createdAt
+      form:
+        fields:
+          - { property: 'publication' }
+          - { property: 'asset' }
+          - { property: 'directUrlPath' }

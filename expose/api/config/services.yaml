@@ -43,9 +43,9 @@ services:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
 
-    App\Serializer\AssetSerializer:
+    App\Serializer\EntitySerializer:
         decorates: 'api_platform.jsonld.normalizer.item'
-        arguments: [ '@App\Serializer\AssetSerializer.inner' ]
+        arguments: [ '@App\Serializer\EntitySerializer.inner' ]
 
     App\Form\ThemeChoiceType:
         arguments:

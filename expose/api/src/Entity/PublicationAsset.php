@@ -14,32 +14,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_direct_url", columns={"publication_id", "direct_url_path"})})
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_url", columns={"publication_id", "slug"})})
  * @ApiResource(
  *     iri="http://alchemy.fr/PublicationAsset",
  *     itemOperations={
  *         "get",
+ *         "put"={
+ *              "security"="is_granted('publication:publish')"
+ *         }
  *     },
  *     collectionOperations={
  *         "post"={
- *             "controller"=CreateAssetAction::class,
- *             "defaults"={
- *                  "_api_receive"=false
- *             },
- *             "validation_groups"={"Default", "publication_create"},
- *             "swagger_context"={
- *                 "consumes"={
- *                     "multipart/form-data",
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="formData",
- *                         "name"="file",
- *                         "type"="file",
- *                         "description"="The file to upload",
- *                     },
- *                 },
- *             },
+ *              "security"="is_granted('publication:publish')"
  *         }
  *     }
  * )
@@ -97,7 +83,7 @@ class PublicationAsset
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $directUrlPath;
+    protected $slug;
 
     /**
      * @var DateTime
@@ -118,7 +104,7 @@ class PublicationAsset
         return $this->id->__toString();
     }
 
-    public function getPublication(): Publication
+    public function getPublication(): ?Publication
     {
         return $this->publication;
     }
@@ -128,7 +114,7 @@ class PublicationAsset
         $this->publication = $publication;
     }
 
-    public function getAsset(): Asset
+    public function getAsset(): ?Asset
     {
         return $this->asset;
     }
@@ -143,13 +129,13 @@ class PublicationAsset
         return $this->createdAt;
     }
 
-    public function getDirectUrlPath(): ?string
+    public function getSlug(): ?string
     {
-        return $this->directUrlPath;
+        return $this->slug;
     }
 
-    public function setDirectUrlPath(?string $directUrlPath): void
+    public function setSlug(?string $slug): void
     {
-        $this->directUrlPath = $directUrlPath;
+        $this->slug = $slug;
     }
 }

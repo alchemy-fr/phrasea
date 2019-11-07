@@ -8,7 +8,7 @@ import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 
 class Publication extends PureComponent {
     static propTypes = {
-        id: PropTypes.string.isRequired
+        id: PropTypes.string.isRequired,
     };
 
     state = {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Entity\Asset;
+use App\Entity\Publication;
 use App\Entity\SubDefinition;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -12,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class AssetSerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
+class EntitySerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
 {
     private $decorated;
     /**
@@ -30,12 +31,17 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @param Asset $object
-     */
     public function normalize($object, $format = null, array $context = [])
     {
-        if ($object instanceof Asset) {
+        // TODO explode into entity serializers (one serializer per entity)
+        if ($object instanceof Publication) {
+            if ($object->getPackage() instanceof Asset) {
+                $object->setPackageUrl($this->generateAssetUrl('asset_download', $object->getPackage()));
+            }
+            if ($object->getCover() instanceof Asset) {
+                $object->setCoverUrl($this->generateAssetUrl('asset_thumbnail', $object->getCover()));
+            }
+        } elseif ($object instanceof Asset) {
             $object->setUrl($this->generateAssetUrl('asset_preview', $object));
             $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $object));
             $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
@@ -62,7 +68,9 @@ class AssetSerializer implements NormalizerInterface, DenormalizerInterface, Ser
 
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof Asset || $data instanceof SubDefinition;
+        return $data instanceof Asset
+            || $data instanceof SubDefinition
+            || $data instanceof Publication;
     }
 
     public function supportsDenormalization($data, $type, $format = null)

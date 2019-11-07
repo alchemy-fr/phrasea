@@ -45,6 +45,11 @@ class AssetManager
             $publication->setCover($asset);
             $this->em->persist($publication);
         }
+        if (isset($options['use_as_package'])) {
+            $publication = $this->getPublication($options['use_as_package']);
+            $publication->setPackage($asset);
+            $this->em->persist($publication);
+        }
         if (isset($options['publication_id'])) {
             $publication = $this->getPublication($options['publication_id']);
             $publicationAsset = new PublicationAsset();
@@ -52,8 +57,8 @@ class AssetManager
             $publicationAsset->setAsset($asset);
             $asset->addPublication($publicationAsset);
 
-            if (isset($options['direct_url_path'])) {
-                $publicationAsset->setDirectUrlPath($options['direct_url_path']);
+            if (isset($options['slug'])) {
+                $publicationAsset->setSlug($options['slug']);
             }
 
             $this->em->persist($publicationAsset);

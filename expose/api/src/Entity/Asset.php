@@ -14,13 +14,25 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Controller\GetAssetWithSlugAction;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
- *         "get"={"access_control"="is_granted('read_meta', object)"},
+ *         "get"={},
+ *         "get_with_slug"={
+ *              "controller"=GetAssetWithSlugAction::class,
+ *              "method"="GET",
+ *              "path"="/publications/{publicationSlug}/{assetSlug}",
+ *              "defaults"={
+ *                   "_api_receive"=false
+ *              },
+ *          },
+ *         "put"={
+ *              "security"="is_granted('publication:publish')"
+ *         },
  *     },
  *     collectionOperations={
  *         "post"={
@@ -47,6 +59,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "name"="publication_id",
  *                         "type"="string",
  *                         "description"="Attach asset to a publication (optional)",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="slug",
+ *                         "type"="string",
+ *                         "description"="Ignored if no publication_id provided",
  *                     },
 *                      {
 *                          "in"="body",
@@ -365,5 +383,10 @@ class Asset implements MediaInterface
     public function setThumbnailDefinition(?SubDefinition $thumbnailDefinition): void
     {
         $this->thumbnailDefinition = $thumbnailDefinition;
+    }
+
+    public function __toString()
+    {
+        return $this->getId().($this->title ? '-'.$this->title : '');
     }
 }
