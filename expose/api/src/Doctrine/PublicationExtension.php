@@ -13,7 +13,7 @@ class PublicationExtension implements QueryCollectionExtensionInterface
 {
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
     {
-        if ($resourceClass === Publication::class) {
+        if (Publication::class === $resourceClass) {
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->andWhere(sprintf('%s.publiclyListed = true', $rootAlias));
         }

@@ -70,7 +70,6 @@ class AssetManager
         return $asset;
     }
 
-
     public function createSubDefinition(
         string $name,
         string $path,
@@ -79,7 +78,6 @@ class AssetManager
         Asset $asset,
         array $options = []
     ): SubDefinition {
-
         $existingSubDef = $this->em->getRepository(SubDefinition::class)
             ->findSubDefinitionByType($asset->getId(), $name);
         if ($existingSubDef instanceof SubDefinition) {

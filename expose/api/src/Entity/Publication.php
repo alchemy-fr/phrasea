@@ -6,13 +6,13 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\GetPublicationAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Controller\GetPublicationAction;
 
 /**
  * @ORM\Entity()
@@ -21,9 +21,9 @@ use App\Controller\GetPublicationAction;
  *     itemOperations={
  *         "get"={
  *              "controller"=GetPublicationAction::class,
-*               "defaults"={
-*                    "_api_receive"=false
-*               },
+ *              "defaults"={
+ *                   "_api_receive"=false
+ *              },
  *          },
  *         "put"={
  *              "security"="is_granted('publication:publish')"
@@ -159,10 +159,11 @@ class Publication
     private $publiclyListed = false;
 
     /**
-     * URL slug
+     * URL slug.
      *
      * @ApiProperty()
      * @Groups({"publication:list", "publication:read"})
+     *
      * @var string|null
      *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
@@ -385,4 +386,3 @@ class Publication
         return $this->getId().($this->title ? '-'.$this->title : '');
     }
 }
-

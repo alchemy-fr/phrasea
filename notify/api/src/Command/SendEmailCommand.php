@@ -47,9 +47,9 @@ class SendEmailCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $template  = $input->getArgument('template');
-        $email  = $input->getArgument('email');
-        $locale  = $input->getArgument('locale');
+        $template = $input->getArgument('template');
+        $email = $input->getArgument('email');
+        $locale = $input->getArgument('locale');
         $parameters = [];
 
         $this->eventProducer->publish(new EventMessage(SendEmailHandler::EVENT, [

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Model;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\FormSchemaAction;
 use App\Controller\FormEditSchemaAction;
+use App\Controller\FormSchemaAction;
 
 /**
  * @ApiResource(

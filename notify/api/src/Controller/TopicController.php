@@ -36,4 +36,3 @@ class TopicController extends AbstractController
         return new JsonResponse(true);
     }
 }
-

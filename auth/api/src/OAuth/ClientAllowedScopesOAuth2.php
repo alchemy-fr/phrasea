@@ -21,32 +21,32 @@ class ClientAllowedScopesOAuth2 extends OAuth2
     const NO_SCOPE_PROVIDED = '__NO_SCOPE_PROVIDED__';
 
     /**
-     * Overrides parent method in order to keep "scope" empty if input param is empty
+     * Overrides parent method in order to keep "scope" empty if input param is empty.
      *
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function grantAccessToken(Request $request = null)
     {
-        $filters = array(
-            "grant_type" => array(
-                "filter" => FILTER_VALIDATE_REGEXP,
-                "options" => array("regexp" => self::GRANT_TYPE_REGEXP),
-                "flags" => FILTER_REQUIRE_SCALAR
-            ),
-            "scope" => array("flags" => FILTER_REQUIRE_SCALAR),
-            "code" => array("flags" => FILTER_REQUIRE_SCALAR),
-            "redirect_uri" => array("filter" => FILTER_SANITIZE_URL),
-            "username" => array("flags" => FILTER_REQUIRE_SCALAR),
-            "password" => array("flags" => FILTER_REQUIRE_SCALAR),
-            "refresh_token" => array("flags" => FILTER_REQUIRE_SCALAR),
-        );
+        $filters = [
+            'grant_type' => [
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'options' => ['regexp' => self::GRANT_TYPE_REGEXP],
+                'flags' => FILTER_REQUIRE_SCALAR,
+            ],
+            'scope' => ['flags' => FILTER_REQUIRE_SCALAR],
+            'code' => ['flags' => FILTER_REQUIRE_SCALAR],
+            'redirect_uri' => ['filter' => FILTER_SANITIZE_URL],
+            'username' => ['flags' => FILTER_REQUIRE_SCALAR],
+            'password' => ['flags' => FILTER_REQUIRE_SCALAR],
+            'refresh_token' => ['flags' => FILTER_REQUIRE_SCALAR],
+        ];
 
-        if ($request === null) {
+        if (null === $request) {
             $request = Request::createFromGlobals();
         }
 
         // Input data by default can be either POST or GET
-        if ($request->getMethod() === 'POST') {
+        if ('POST' === $request->getMethod()) {
             $inputData = $request->request->all();
         } else {
             $inputData = $request->query->all();
@@ -59,7 +59,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
         $input = filter_var_array($inputData, $filters);
 
         // Grant Type must be specified.
-        if (!$input["grant_type"]) {
+        if (!$input['grant_type']) {
             throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_REQUEST, 'Invalid grant_type parameter or parameter missing');
         }
 
@@ -72,16 +72,16 @@ class ClientAllowedScopesOAuth2 extends OAuth2
             throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_CLIENT, 'The client credentials are invalid');
         }
 
-        if ($this->storage->checkClientCredentials($client, $clientCredentials[1]) === false) {
+        if (false === $this->storage->checkClientCredentials($client, $clientCredentials[1])) {
             throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_CLIENT, 'The client credentials are invalid');
         }
 
-        if (!$this->storage->checkRestrictedGrantType($client, $input["grant_type"])) {
+        if (!$this->storage->checkRestrictedGrantType($client, $input['grant_type'])) {
             throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_UNAUTHORIZED_CLIENT, 'The grant type is unauthorized for this client_id');
         }
 
         // Do the granting
-        switch ($input["grant_type"]) {
+        switch ($input['grant_type']) {
             case self::GRANT_TYPE_AUTH_CODE:
                 // returns array('data' => data, 'scope' => scope)
                 $stored = $this->grantAccessTokenAuthCode($client, $input);
@@ -99,14 +99,10 @@ class ClientAllowedScopesOAuth2 extends OAuth2
                 $stored = $this->grantAccessTokenRefreshToken($client, $input);
                 break;
             default:
-                if (substr($input["grant_type"], 0, 4) !== 'urn:'
-                    && !filter_var($input["grant_type"], FILTER_VALIDATE_URL)
+                if ('urn:' !== substr($input['grant_type'], 0, 4)
+                    && !filter_var($input['grant_type'], FILTER_VALIDATE_URL)
                 ) {
-                    throw new OAuth2ServerException(
-                        Response::HTTP_BAD_REQUEST,
-                        self::ERROR_INVALID_REQUEST,
-                        'Invalid grant_type parameter or parameter missing'
-                    );
+                    throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_REQUEST, 'Invalid grant_type parameter or parameter missing');
                 }
 
                 // returns: true || array('scope' => scope)
@@ -114,52 +110,54 @@ class ClientAllowedScopesOAuth2 extends OAuth2
         }
 
         if (!is_array($stored)) {
-            $stored = array();
+            $stored = [];
         }
 
         // if no scope provided to check against $input['scope'] then application defaults are set
         // if no data is provided than null is set
-        $stored += array('scope' => $this->getVariable(self::CONFIG_SUPPORTED_SCOPES, null), 'data' => null,
+        $stored += ['scope' => $this->getVariable(self::CONFIG_SUPPORTED_SCOPES, null), 'data' => null,
             'access_token_lifetime' => $this->getVariable(self::CONFIG_ACCESS_LIFETIME),
-            'issue_refresh_token' => true, 'refresh_token_lifetime' => $this->getVariable(self::CONFIG_REFRESH_LIFETIME));
+            'issue_refresh_token' => true, 'refresh_token_lifetime' => $this->getVariable(self::CONFIG_REFRESH_LIFETIME), ];
 
         $scope = $input['scope']; // !!!!!!! THIS IS THE OVERRIDDEN PART !!!!!!!
-        if ($input["scope"]) {
+        if ($input['scope']) {
             // Check scope, if provided
-            if (!isset($stored["scope"]) || !$this->checkScope($input["scope"], $stored["scope"])) {
+            if (!isset($stored['scope']) || !$this->checkScope($input['scope'], $stored['scope'])) {
                 throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_SCOPE, 'An unsupported scope was requested.');
             }
-            $scope = $input["scope"];
+            $scope = $input['scope'];
         }
 
         $token = $this->createAccessToken($client, $stored['data'], $scope, $stored['access_token_lifetime'], $stored['issue_refresh_token'], $stored['refresh_token_lifetime']);
+
         return new Response(json_encode($token), 200, $this->getJsonHeaders());
     }
 
     /**
      * Overriden because it was private
-     * @inheritDoc
+     * {@inheritdoc}
      */
     private function getJsonHeaders()
     {
-        $headers = $this->getVariable(self::CONFIG_RESPONSE_EXTRA_HEADERS, array());
-        $headers += array(
+        $headers = $this->getVariable(self::CONFIG_RESPONSE_EXTRA_HEADERS, []);
+        $headers += [
             'Content-Type' => 'application/json',
             'Cache-Control' => 'no-store',
             'Pragma' => 'no-cache',
-        );
+        ];
+
         return $headers;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function createAccessToken(IOAuth2Client $client, $data, $scope = null, $access_token_lifetime = null, $issue_refresh_token = true, $refresh_token_lifetime = null)
     {
         if (!empty(trim((string) $scope))) {
             $scopes = explode(' ', $scope);
             $scopes = array_filter($scopes, function (string $scope): bool {
-                return $scope !== self::NO_SCOPE_PROVIDED;
+                return self::NO_SCOPE_PROVIDED !== $scope;
             });
 
             if (!empty($scopes) && $client instanceof OAuthClient) {
@@ -173,7 +171,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function checkScope($requiredScope, $availableScope)
     {
@@ -183,11 +181,11 @@ class ClientAllowedScopesOAuth2 extends OAuth2
 
         // The required scope should match or be a subset of the available scope
         if (!is_array($requiredScope)) {
-            $requiredScope = explode(' ', trim((string)$requiredScope));
+            $requiredScope = explode(' ', trim((string) $requiredScope));
         }
 
         if (!is_array($availableScope)) {
-            $availableScope = explode(' ', trim((string)$availableScope));
+            $availableScope = explode(' ', trim((string) $availableScope));
         }
 
         return 0 === count(array_diff($requiredScope, $availableScope));
@@ -198,13 +196,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
         $allowedScopes = $client->getAllowedScopes();
         foreach ($scopes as $scope) {
             if (!in_array($scope, $allowedScopes)) {
-                throw new OAuth2AuthenticateException(
-                    Response::HTTP_BAD_REQUEST,
-                    'Bearer',
-                    'Service',
-                    OAuth2::ERROR_INVALID_SCOPE,
-                    sprintf('Scope "%s" is not allowed for this client.', $scope)
-                );
+                throw new OAuth2AuthenticateException(Response::HTTP_BAD_REQUEST, 'Bearer', 'Service', OAuth2::ERROR_INVALID_SCOPE, sprintf('Scope "%s" is not allowed for this client.', $scope));
             }
         }
     }

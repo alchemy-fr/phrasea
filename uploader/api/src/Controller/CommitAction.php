@@ -6,8 +6,8 @@ namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Consumer\Handler\CommitHandler;
-use App\Form\FormValidator;
 use App\Entity\Commit;
+use App\Form\FormValidator;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;

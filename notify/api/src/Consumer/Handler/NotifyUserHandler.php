@@ -44,6 +44,7 @@ class NotifyUserHandler extends AbstractLogHandler
 
         if (null === $contact) {
             $this->logger->error('Trying to notify user ID which is not existing in database. Maybe you forget to declare user info?');
+
             return;
         }
 

@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\CreateAssetAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -75,10 +74,11 @@ class PublicationAsset
     private $asset;
 
     /**
-     * Direct access to asset
+     * Direct access to asset.
      *
      * @ApiProperty()
      * @Groups({"publication:read", "asset:read"})
+     *
      * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=true)

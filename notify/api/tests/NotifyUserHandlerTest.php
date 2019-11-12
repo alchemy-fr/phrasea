@@ -120,16 +120,16 @@ class NotifyUserHandlerTest extends WebTestCase
         $contactManager = $this->createMock(ContactManager::class);
         $contactManager
             ->method('createContact')
-            ->willReturnCallback(function (string $userId, array $data): Contact{
+            ->willReturnCallback(function (string $userId, array $data): Contact {
                 $contact = new Contact();
                 $contact->setUserId($userId);
                 $contact->setEmail($data['email']);
+
                 return $contact;
             });
 
         return $contactManager;
     }
-
 
     /**
      * @return EventProducer|MockObject
@@ -141,6 +141,7 @@ class NotifyUserHandlerTest extends WebTestCase
         $eventProducer
             ->expects($this->once())
             ->method('publish');
+
         return $eventProducer;
     }
 }

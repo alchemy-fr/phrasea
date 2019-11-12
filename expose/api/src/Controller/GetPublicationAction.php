@@ -4,18 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Security\Voter\AssetVoter;
-use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class GetPublicationAction extends AbstractController

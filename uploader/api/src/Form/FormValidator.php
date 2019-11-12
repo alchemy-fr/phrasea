@@ -44,7 +44,7 @@ class FormValidator
     public static function cleanExtraFields(array $data): array
     {
         foreach ($data as $key => $v) {
-            if (strpos($key, '__') === 0) {
+            if (0 === strpos($key, '__')) {
                 unset($data[$key]);
             }
         }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\BulkData;
-use App\Model\BulkDataModel;
 use App\Entity\BulkDataRepository;
+use App\Model\BulkDataModel;
 use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

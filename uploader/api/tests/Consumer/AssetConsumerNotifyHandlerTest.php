@@ -11,9 +11,9 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
-use GuzzleHttp\Psr7\Response;
 
 class AssetConsumerNotifyHandlerTest extends TestCase
 {

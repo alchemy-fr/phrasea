@@ -39,7 +39,6 @@ class MailerTest extends WebTestCase
             ->subject('Subject content')
             ->from('noreply@test')
             ->html('Body content');
-            ;
 
         /** @var MailerInterface|MockObject $symfonyMailer */
         $symfonyMailer = $this->createMock(MailerInterface::class);

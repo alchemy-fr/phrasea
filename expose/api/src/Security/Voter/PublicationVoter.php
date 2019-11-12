@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
-use App\Entity\Asset;
 use App\Entity\Publication;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -27,12 +26,12 @@ class PublicationVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $subject instanceof Publication || $attribute === self::PUBLISH;
+        return $subject instanceof Publication || self::PUBLISH === $attribute;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($attribute === self::PUBLISH) {
+        if (self::PUBLISH === $attribute) {
             if ($token instanceof RemoteAuthToken && $token->hasScope('expose:publish')) {
                 return true;
             } elseif ($this->security->isGranted('ROLE_ADMIN')) {

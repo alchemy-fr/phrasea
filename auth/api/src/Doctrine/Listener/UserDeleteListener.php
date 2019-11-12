@@ -29,7 +29,7 @@ class UserDeleteListener
      */
     public function preRemove(User $user)
     {
-        $this->deletedUsers[] = (string)$user->getId();
+        $this->deletedUsers[] = (string) $user->getId();
     }
 
     /**

@@ -32,7 +32,7 @@ class CommitVoter extends Voter
 
     /**
      * @param AssetToken $token
-     * @param Commit $subject
+     * @param Commit     $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {

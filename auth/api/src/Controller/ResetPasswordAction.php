@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Form\ResetPasswordForm;
 use App\Entity\User;
+use App\Form\ResetPasswordForm;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

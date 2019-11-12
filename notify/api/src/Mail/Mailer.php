@@ -67,7 +67,7 @@ class Mailer implements LoggerAwareInterface
         return $this->renderFile($template, $parameters);
     }
 
-    private function renderSubject(string $template, array $parameters):string
+    private function renderSubject(string $template, array $parameters): string
     {
         return $this->renderFile($template.'_subject', $parameters);
     }

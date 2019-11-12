@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
-use Alchemy\ApiTest\ApiTestCase;
 
 abstract class AbstractTestCase extends ApiTestCase
 {

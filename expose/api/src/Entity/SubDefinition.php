@@ -6,11 +6,11 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\CreateSubDefinitionAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Controller\CreateSubDefinitionAction;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SubDefinitionRepository")
@@ -143,6 +143,7 @@ class SubDefinition implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"subdef:read", "asset:read", "publication:read"})
+     *
      * @var string
      */
     private $url;
@@ -150,6 +151,7 @@ class SubDefinition implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"subdef:read", "asset:read", "publication:read"})
+     *
      * @var string
      */
     private $downloadUrl;

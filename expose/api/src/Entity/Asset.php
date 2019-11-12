@@ -8,13 +8,13 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\CreateAssetAction;
+use App\Controller\GetAssetWithSlugAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Controller\GetAssetWithSlugAction;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
@@ -66,10 +66,10 @@ use App\Controller\GetAssetWithSlugAction;
  *                         "type"="string",
  *                         "description"="Ignored if no publication_id provided",
  *                     },
-*                      {
-*                          "in"="body",
-*                          "name"="asset",
-*                      },
+ *                      {
+ *                          "in"="body",
+ *                          "name"="asset",
+ *                      },
  *                 }
  *             },
  *         }
@@ -203,6 +203,7 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read"})
+     *
      * @var string
      */
     private $url;
@@ -210,6 +211,7 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read", "publication:list"})
+     *
      * @var string
      */
     private $downloadUrl;
@@ -217,6 +219,7 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read", "publication:list"})
+     *
      * @var string
      */
     private $thumbUrl;
