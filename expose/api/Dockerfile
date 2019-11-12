@@ -1,4 +1,4 @@
-FROM php:7.3.4-fpm-alpine AS expose_api_php
+FROM php:7.3.4-fpm-alpine AS expose-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
@@ -47,14 +47,14 @@ RUN mkdir -p var/cache var/logs var/sessions \
 
 CMD ["php-fpm"]
 
-FROM nginx:1.15.11-alpine AS expose_api_nginx
+FROM nginx:1.15.11-alpine AS expose-api-nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
-COPY --from=expose_api_php /srv/app/public /srv/app/public
+COPY --from=expose-api-php /srv/app/public /srv/app/public
 
 EXPOSE 80
 
-FROM expose_api_php as expose_worker
+FROM expose-api-php as expose-worker
 
 RUN apk add --no-cache \
         supervisor \

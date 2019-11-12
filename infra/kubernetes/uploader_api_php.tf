@@ -1,4 +1,4 @@
-resource "kubernetes_service" "uploader_api_php" {
+resource "kubernetes_service" "uploader-api-php" {
   metadata {
     name = "uploader-api-php"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "uploader_api_php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "uploader_api_php"
+      tier = "uploader-api-php"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "uploader_api_php" {
   }
 }
 
-resource "kubernetes_deployment" "uploader_api_php" {
+resource "kubernetes_deployment" "uploader-api-php" {
   metadata {
     name = "phraseanet-service-uploader-api-php"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "uploader_api_php" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "uploader_api_php"
+        tier = "uploader-api-php"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "uploader_api_php" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "uploader_api_php"
+          tier = "uploader-api-php"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}uploader_api_php:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}uploader-api-php:${var.DOCKER_TAG}"
           name              = "uploader-api-php"
           image_pull_policy = "Always"
 

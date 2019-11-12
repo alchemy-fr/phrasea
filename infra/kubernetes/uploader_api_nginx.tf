@@ -1,4 +1,4 @@
-resource "kubernetes_service" "uploader_api_nginx" {
+resource "kubernetes_service" "uploader-api-nginx" {
   metadata {
     name = "uploader-api-nginx"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "uploader_api_nginx" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "uploader_api_nginx"
+      tier = "uploader-api-nginx"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "uploader_api_nginx" {
   }
 }
 
-resource "kubernetes_deployment" "uploader_api_nginx" {
+resource "kubernetes_deployment" "uploader-api-nginx" {
   metadata {
     name = "uploader-api-nginx"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "uploader_api_nginx" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "uploader_api_nginx"
+        tier = "uploader-api-nginx"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "uploader_api_nginx" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "uploader_api_nginx"
+          tier = "uploader-api-nginx"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}uploader_api_nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}uploader-api-nginx:${ var.DOCKER_TAG }"
           name              = "uploader-api-nginx"
           image_pull_policy = "Always"
         }

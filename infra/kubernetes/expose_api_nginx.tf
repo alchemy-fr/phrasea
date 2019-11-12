@@ -1,4 +1,4 @@
-resource "kubernetes_service" "expose_api_nginx" {
+resource "kubernetes_service" "expose-api-nginx" {
   metadata {
     name = "expose-api-nginx"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "expose_api_nginx" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "expose_api_nginx"
+      tier = "expose-api-nginx"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "expose_api_nginx" {
   }
 }
 
-resource "kubernetes_deployment" "expose_api_nginx" {
+resource "kubernetes_deployment" "expose-api-nginx" {
   metadata {
     name = "expose-api-nginx"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "expose_api_nginx" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "expose_api_nginx"
+        tier = "expose-api-nginx"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "expose_api_nginx" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "expose_api_nginx"
+          tier = "expose-api-nginx"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose_api_nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}expose-api-nginx:${ var.DOCKER_TAG }"
           name              = "expose-api-nginx"
           image_pull_policy = "Always"
         }

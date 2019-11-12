@@ -1,4 +1,4 @@
-FROM php:7.3.4-fpm-alpine AS uploader_api_php
+FROM php:7.3.4-fpm-alpine AS uploader-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
@@ -47,14 +47,14 @@ RUN mkdir -p var/cache var/logs var/sessions \
 
 CMD ["php-fpm"]
 
-FROM nginx:1.15.11-alpine AS uploader_api_nginx
+FROM nginx:1.15.11-alpine AS uploader-api-nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
-COPY --from=uploader_api_php /srv/app/public /srv/app/public
+COPY --from=uploader-api-php /srv/app/public /srv/app/public
 
 EXPOSE 80
 
-FROM uploader_api_php as uploader_worker
+FROM uploader-api-php as uploader-worker
 
 RUN apk add --no-cache \
         supervisor \

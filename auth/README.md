@@ -18,7 +18,7 @@ AUTH_BASE_URL=https://alchemy-auth.com
 
 ### User management
 
-Go to the auth_api_php container:
+Go to the auth-api-php container:
 
 ```bash
 docker-compose exec --user app auth_php /bin/sh

@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "notify_worker" {
+resource "kubernetes_deployment" "notify-worker" {
   metadata {
     name = "notify-worker"
   }
@@ -9,7 +9,7 @@ resource "kubernetes_deployment" "notify_worker" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "notify_worker"
+        tier = "notify-worker"
       }
     }
 
@@ -17,13 +17,13 @@ resource "kubernetes_deployment" "notify_worker" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "notify_worker"
+          tier = "notify-worker"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify_worker:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}notify-worker:${var.DOCKER_TAG}"
           name              = "notify-worker"
           image_pull_policy = "Always"
 

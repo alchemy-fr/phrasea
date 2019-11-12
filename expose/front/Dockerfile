@@ -1,4 +1,4 @@
-FROM node:10 as expose_front_build
+FROM node:10 as expose-front-build
 
 RUN apt-get update \
     && apt-get install -y \
@@ -25,9 +25,9 @@ CMD ["/bin/sh", "-c", "./docker/generate-env.sh ./public && mv env-config.*.js .
 
 ############
 
-FROM nginx:1.16.0 as expose_front_nginx
+FROM nginx:1.16.0 as expose-front_nginx
 
-COPY --from=expose_front_build /usr/src/app/build /var/app
+COPY --from=expose-front-build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d
 COPY docker/generate-env.sh /var/docker/
 COPY .env /var/.env

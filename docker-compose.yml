@@ -4,15 +4,15 @@ networks:
   internal:
 
 services:
-  uploader_api_php:
-    image: ${REGISTRY_NAMESPACE}uploader_api_php:$DOCKER_TAG
+  uploader-api-php:
+    image: ${REGISTRY_NAMESPACE}uploader-api-php:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader_api_php
+      target: uploader-api-php
     networks:
       internal:
         aliases:
-          - uploader_api_php
+          - uploader-api-php
     depends_on:
       - rabbitmq
       - db
@@ -34,11 +34,11 @@ services:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
 
-  uploader_worker:
-    image: ${REGISTRY_NAMESPACE}uploader_worker:$DOCKER_TAG
+  uploader-worker:
+    image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader_worker
+      target: uploader-worker
     networks:
       - internal
     depends_on:
@@ -57,23 +57,23 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
 
-  uploader_api_nginx:
-    image: ${REGISTRY_NAMESPACE}uploader_api_nginx:$DOCKER_TAG
+  uploader-api-nginx:
+    image: ${REGISTRY_NAMESPACE}uploader-api-nginx:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader_api_nginx
+      target: uploader-api-nginx
     networks:
       - internal
     ports:
       - ${UPLOADER_API_PORT}:80
     depends_on:
-      - uploader_api_php
+      - uploader-api-php
 
-  uploader_client:
-    image: ${REGISTRY_NAMESPACE}uploader_client:$DOCKER_TAG
+  uploader-client:
+    image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
     build:
       context: ./uploader/client
-      target: uploader_client_nginx
+      target: uploader-client_nginx
     volumes:
       - ./configs:/configs
     ports:
@@ -87,11 +87,11 @@ services:
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
 
-  auth_worker:
-    image: ${REGISTRY_NAMESPACE}auth_worker:$DOCKER_TAG
+  auth-worker:
+    image: ${REGISTRY_NAMESPACE}auth-worker:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth_worker
+      target: auth-worker
     networks:
       - internal
     depends_on:
@@ -108,15 +108,15 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
-  auth_api_php:
-    image: ${REGISTRY_NAMESPACE}auth_api_php:$DOCKER_TAG
+  auth-api-php:
+    image: ${REGISTRY_NAMESPACE}auth-api-php:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth_api_php
+      target: auth-api-php
     networks:
       internal:
         aliases:
-          - auth_api_php
+          - auth-api-php
     environment:
       - APP_ENV
       - AUTH_BASE_URL
@@ -136,11 +136,11 @@ services:
       - rabbitmq
       - db
 
-  auth_api_nginx:
-    image: ${REGISTRY_NAMESPACE}auth_api_nginx:$DOCKER_TAG
+  auth-api-nginx:
+    image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth_api_nginx
+      target: auth-api-nginx
     networks:
       internal:
         aliases:
@@ -148,7 +148,7 @@ services:
     ports:
       - ${AUTH_PORT}:80
     depends_on:
-      - auth_api_php
+      - auth-api-php
 
   redis:
     image: redis:5.0.5-alpine
@@ -185,15 +185,15 @@ services:
       - internal
     command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "50s", "--", "echo", "ready"]
 
-  expose_api_php:
-    image: ${REGISTRY_NAMESPACE}expose_api_php:$DOCKER_TAG
+  expose-api-php:
+    image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose_api_php
+      target: expose-api-php
     networks:
       internal:
         aliases:
-          - expose_api_php
+          - expose-api-php
     volumes:
       - ./configs:/configs
     depends_on:
@@ -213,11 +213,11 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
 
-  expose_worker:
-    image: ${REGISTRY_NAMESPACE}expose_worker:$DOCKER_TAG
+  expose-worker:
+    image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose_worker
+      target: expose-worker
     networks:
       - internal
     volumes:
@@ -235,11 +235,11 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
 
-  expose_api_nginx:
-    image: ${REGISTRY_NAMESPACE}expose_api_nginx:$DOCKER_TAG
+  expose-api-nginx:
+    image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose_api_nginx
+      target: expose-api-nginx
     networks:
       internal:
         aliases:
@@ -247,13 +247,13 @@ services:
     ports:
       - ${EXPOSE_API_PORT}:80
     depends_on:
-      - expose_api_php
+      - expose-api-php
 
-  expose_front:
-    image: ${REGISTRY_NAMESPACE}expose_front:$DOCKER_TAG
+  expose-front:
+    image: ${REGISTRY_NAMESPACE}expose-front:$DOCKER_TAG
     build:
       context: ./expose/front
-      target: expose_front_nginx
+      target: expose-front_nginx
     volumes:
       - ./configs:/configs
     ports:
@@ -267,15 +267,15 @@ services:
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
 
-  notify_api_php:
-    image: ${REGISTRY_NAMESPACE}notify_api_php:$DOCKER_TAG
+  notify-api-php:
+    image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify_api_php
+      target: notify-api-php
     networks:
       internal:
         aliases:
-          - notify_api_php
+          - notify-api-php
     volumes:
       - ./configs:/configs
     depends_on:
@@ -291,11 +291,11 @@ services:
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
       - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
 
-  notify_worker:
-    image: ${REGISTRY_NAMESPACE}notify_worker:$DOCKER_TAG
+  notify-worker:
+    image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify_worker
+      target: notify-worker
     networks:
       - internal
     depends_on:
@@ -307,11 +307,11 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
 
-  notify_api_nginx:
-    image: ${REGISTRY_NAMESPACE}notify_api_nginx:$DOCKER_TAG
+  notify-api-nginx:
+    image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify_api_nginx
+      target: notify-api-nginx
     networks:
       internal:
         aliases:
@@ -319,7 +319,7 @@ services:
     ports:
       - ${NOTIFY_PORT}:80
     depends_on:
-      - notify_api_php
+      - notify-api-php
 
   minio:
     image: minio/minio
@@ -332,7 +332,7 @@ services:
       MINIO_ACCESS_KEY: ${S3_STORAGE_ACCESS_KEY}
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
-  minio_mc:
+  minio-mc:
     image: minio/mc
     networks:
       - internal

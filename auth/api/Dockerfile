@@ -1,4 +1,4 @@
-FROM php:7.3.4-fpm-alpine AS auth_api_php
+FROM php:7.3.4-fpm-alpine AS auth-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
@@ -47,14 +47,14 @@ RUN mkdir -p var/cache var/logs var/sessions \
 
 CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && php-fpm"]
 
-FROM nginx:1.15.11-alpine AS auth_api_nginx
+FROM nginx:1.15.11-alpine AS auth-api-nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
-COPY --from=auth_api_php /srv/app/public /srv/app/public
+COPY --from=auth-api-php /srv/app/public /srv/app/public
 
 EXPOSE 80
 
-FROM auth_api_php as auth_worker
+FROM auth-api-php as auth-worker
 
 RUN apk add --no-cache \
         supervisor \

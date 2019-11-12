@@ -1,16 +1,16 @@
 version: '3.4'
 
 services:
-  uploader_client:
+  uploader-client:
     command: ["/bin/sh", "-c", "exit"]
 
-  expose_front:
+  expose-front:
     command: ["/bin/sh", "-c", "exit"]
 
-  uploader_client_dev:
+  uploader-client-dev:
     build:
       context: ./uploader/client
-      target: uploader_client_build
+      target: uploader-client-build
     networks:
       - internal
     volumes:
@@ -25,10 +25,10 @@ services:
     ports:
       - 127.0.0.1:3001:3000
 
-  expose_front_dev:
+  expose-front-dev:
     build:
       context: ./expose/front
-      target: expose_front_build
+      target: expose-front-build
     networks:
       - internal
     volumes:
@@ -43,29 +43,29 @@ services:
     ports:
       - 127.0.0.1:3002:3000
 
-  uploader_api_php:
+  uploader-api-php:
     volumes:
       - ./uploader/api:/srv/app
 
-  uploader_worker:
+  uploader-worker:
     volumes:
       - ./uploader/api:/srv/app
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
 
-  uploader_api_nginx:
+  uploader-api-nginx:
     volumes:
       - ./uploader/api:/srv/app
 
-  auth_worker:
+  auth-worker:
     volumes:
       - ./auth/api:/srv/app
       - ./auth/api/docker/supervisor:/etc/supervisor.d
 
-  auth_api_php:
+  auth-api-php:
     volumes:
       - ./auth/api:/srv/app
 
-  auth_api_nginx:
+  auth-api-nginx:
     volumes:
       - ./auth/api:/srv/app
 
@@ -88,28 +88,28 @@ services:
     ports:
       - 8025:8025
 
-  expose_api_php:
+  expose-api-php:
     volumes:
       - ./expose/api:/srv/app
 
-  expose_api_nginx:
+  expose-api-nginx:
     volumes:
       - ./expose/api:/srv/app
 
-  expose_worker:
+  expose-worker:
     volumes:
       - ./expose/api:/srv/app
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
-  notify_api_php:
+  notify-api-php:
     volumes:
       - ./notify/api:/srv/app
 
-  notify_api_nginx:
+  notify-api-nginx:
     volumes:
       - ./notify/api:/srv/app
 
-  notify_worker:
+  notify-worker:
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d

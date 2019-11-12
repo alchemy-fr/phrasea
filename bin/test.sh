@@ -15,10 +15,10 @@ fi
 
 
 SF_SERVICES="
-uploader_api_php
-auth_api_php
-expose_api_php
-notify_api_php
+uploader-api-php
+auth-api-php
+expose-api-php
+notify-api-php
 "
 
 for s in ${SF_SERVICES}; do
@@ -27,7 +27,7 @@ done
 
 # TODO make this work in CircleCI (which has no mounted volumes)
 #REACT_SERVICES="
-#expose_front_dev
+#expose-front-dev
 #"
 #for s in ${REACT_SERVICES}; do
 #    # No use of $FILE because we need to load _dev containers (defined in docker-compose.override.yml)

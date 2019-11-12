@@ -33,24 +33,24 @@ exec_container rabbitmq "\
     && rabbitmqctl set_permissions -p notify ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*' \
 "
 
-exec_container uploader_api_php "\
+exec_container uploader-api-php "\
     bin/console rabbitmq:setup-fabric \
     && chown -R app: /var/data/upload \
     && bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
 "
 
-exec_container expose_api_php "\
+exec_container expose-api-php "\
     bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
 "
 
-exec_container notify_api_php "\
+exec_container notify-api-php "\
     bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
 "
 
-exec_container auth_api_php "\
+exec_container auth-api-php "\
     bin/console rabbitmq:setup-fabric \
     && bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
@@ -61,7 +61,7 @@ exec_container auth_api_php "\
 "
 
 # Create expose bucket
-docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio_mc "\
+docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \

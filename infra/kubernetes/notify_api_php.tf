@@ -1,4 +1,4 @@
-resource "kubernetes_service" "notify_api_php" {
+resource "kubernetes_service" "notify-api-php" {
   metadata {
     name = "notify-api-php"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "notify_api_php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "notify_api_php"
+      tier = "notify-api-php"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "notify_api_php" {
   }
 }
 
-resource "kubernetes_deployment" "notify_api_php" {
+resource "kubernetes_deployment" "notify-api-php" {
   metadata {
     name = "notify-api-php"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "notify_api_php" {
     selector {
       match_labels {
         app  = "phraseanet"
-        tier = "notify_api_php"
+        tier = "notify-api-php"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "notify_api_php" {
       metadata {
         labels {
           app  = "phraseanet"
-          tier = "notify_api_php"
+          tier = "notify-api-php"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify_api_php:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}notify-api-php:${var.DOCKER_TAG}"
           name              = "notify-api-php"
           image_pull_policy = "Always"
 
