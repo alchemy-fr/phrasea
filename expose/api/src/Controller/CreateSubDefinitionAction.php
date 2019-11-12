@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
-use App\Security\Voter\AssetVoter;
 use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -51,7 +50,7 @@ final class CreateSubDefinitionAction extends AbstractController
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset %s not found', $assetId));
         }
-        $this->denyAccessUnlessGranted(AssetVoter::PUBLISH, $asset);
+        $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH, $asset);
 
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
