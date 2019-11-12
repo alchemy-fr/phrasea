@@ -8,21 +8,42 @@ use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 class MeAction extends AbstractController
 {
+    /**
+     * @var Security
+     */
+    private $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
     /**
      * @Route(path="/me")
      */
     public function __invoke()
     {
-        /** @var User $user */
-        $user = $this->getUser();
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        return new JsonResponse([
-            'user_id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'roles' => $user->getRoles(),
-        ]);
+        $token = $this->security->getToken();
+        $user = $token->getUser();
+
+        if ($user instanceof User) {
+            $data = [
+                'user_id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+            ];
+        } else {
+            $data = [
+                'roles' => $token->getRoleNames(),
+            ];
+        }
+
+        return new JsonResponse($data);
     }
 }
