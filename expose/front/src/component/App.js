@@ -8,7 +8,6 @@ function App() {
     return <Router>
         <Switch>
             <Route path="/" exact component={PublicationIndex} />
-            <Route path="/publication-:id" sensitive exact component={PublicationRoute} />
             <Route path="/:publication" exact component={PublicationRoute} />
             <Route path="/:publication/:asset" exact component={AssetRoute} />
             <Route path="/:publication/:asset/:subdef" exact component={AssetRoute} />
