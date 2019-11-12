@@ -53,10 +53,10 @@ easy_admin:
           - { property: publication.id, label: 'Publication ID' }
           - { property: asset.title, label: 'Asset title' }
           - { property: asset.id, label: 'Asset ID' }
-          - { property: directUrlPath }
+          - { property: slug }
           - createdAt
       form:
         fields:
           - { property: 'publication' }
           - { property: 'asset' }
-          - { property: 'directUrlPath' }
+          - { property: 'slug' }

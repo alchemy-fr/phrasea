@@ -23,7 +23,7 @@ Payload, defines the publication (draft):
                 "downloadUrl": "http://api.expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/download",
                 "thumbUrl": "http://api.expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/thumbnail"
             },
-            "directUrlPath": "path/to/photo"
+            "slug": "path/to/photo"
         }
     ],
     "urlSlug": "publication-1",
