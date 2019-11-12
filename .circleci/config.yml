@@ -38,3 +38,23 @@ jobs:
           command: |-
             bin/install.sh
             bin/test.sh
+  publish-latest:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            bin/publish.sh
+  workflows:
+    version: 2
+    build:
+      jobs:
+        - build: ~
+        - publish-latest:
+            requires:
+              - build
+            filters:
+              branches:
+                only: master
