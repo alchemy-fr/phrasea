@@ -4,12 +4,7 @@ set -e
 
 BASEDIR=$(dirname $0)/..
 
-SYMFONY_PROJECTS="
-expose/api
-uploader/api
-auth/api
-notify/api
-"
+. "${BASEDIR}/bin/vars.sh"
 
 for f in ${SYMFONY_PROJECTS}; do
     rm -rf "${BASEDIR}/${f}/__lib"
