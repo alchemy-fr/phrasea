@@ -39,9 +39,10 @@
         "symfony/yaml": "4.3.*"
     },
     "require-dev": {
-        "symfony/test-pack": "^1.0",
+        "friendsofphp/php-cs-fixer": "^2.16",
         "hautelook/alice-bundle": "^2.5",
         "symfony/debug-pack": "^1.0",
+        "symfony/test-pack": "^1.0",
         "symfony/var-dumper": "4.3.*"
     },
     "config": {

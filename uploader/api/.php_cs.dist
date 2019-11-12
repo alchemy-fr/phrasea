@@ -1,9 +1,8 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->exclude('vendor')
-    ->exclude('var')
     ->in(__DIR__)
+    ->exclude('var')
 ;
 
 return PhpCsFixer\Config::create()

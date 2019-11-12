@@ -6,13 +6,14 @@ namespace App\Security\Voter;
 
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Asset;
+use App\Entity\Publication;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
 
-class AssetVoter extends Voter
+class PublicationVoter extends Voter
 {
-    const PUBLISH = 'asset:publish';
+    const PUBLISH = 'publication:publish';
 
     /**
      * @var Security
@@ -26,7 +27,7 @@ class AssetVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $subject instanceof Asset || $attribute === self::PUBLISH;
+        return $subject instanceof Publication || $attribute === self::PUBLISH;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -34,8 +35,7 @@ class AssetVoter extends Voter
         if ($attribute === self::PUBLISH) {
             if ($token instanceof RemoteAuthToken && $token->hasScope('expose:publish')) {
                 return true;
-            }
-            if ($this->security->isGranted('ROLE_ADMIN')) {
+            } elseif ($this->security->isGranted('ROLE_ADMIN')) {
                 return true;
             }
         }

@@ -37,11 +37,18 @@ class AssetManager
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
 
-        if (isset($options['direct_url_path'])) {
-            $asset->setDirectUrlPath($options['direct_url_path']);
-        }
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
+        }
+        if (isset($options['use_as_cover'])) {
+            $publication = $this->getPublication($options['use_as_cover']);
+            $publication->setCover($asset);
+            $this->em->persist($publication);
+        }
+        if (isset($options['use_as_package'])) {
+            $publication = $this->getPublication($options['use_as_package']);
+            $publication->setPackage($asset);
+            $this->em->persist($publication);
         }
         if (isset($options['publication_id'])) {
             $publication = $this->getPublication($options['publication_id']);
@@ -49,6 +56,11 @@ class AssetManager
             $publicationAsset->setPublication($publication);
             $publicationAsset->setAsset($asset);
             $asset->addPublication($publicationAsset);
+
+            if (isset($options['slug'])) {
+                $publicationAsset->setSlug($options['slug']);
+            }
+
             $this->em->persist($publicationAsset);
         }
 

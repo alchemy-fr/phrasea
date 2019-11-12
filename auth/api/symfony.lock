@@ -20,6 +20,12 @@
     "clue/stream-filter": {
         "version": "v1.4.1"
     },
+    "composer/semver": {
+        "version": "1.5.0"
+    },
+    "composer/xdebug-handler": {
+        "version": "1.4.0"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -115,6 +121,18 @@
             "config/routes/easy_admin.yaml"
         ]
     },
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
+        },
+        "files": [
+            ".php_cs.dist"
+        ]
+    },
     "friendsofsymfony/oauth-server-bundle": {
         "version": "1.6.2"
     },
@@ -186,6 +204,9 @@
     },
     "pagerfanta/pagerfanta": {
         "version": "v2.1.2"
+    },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
     },
     "php-http/client-common": {
         "version": "1.9.1"

@@ -1,6 +1,12 @@
 App\Entity\Publication:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields: slug
+        message: Publication slug is already used
   properties:
     title:
+      - NotBlank: ~
+    layout:
       - NotBlank: ~
 
 App\Entity\SubDefinition:
