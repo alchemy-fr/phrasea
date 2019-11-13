@@ -17,6 +17,8 @@ easy_admin:
           - title
           - layout
           - enabled
+          - publiclyListed
+          - securityMethod
           - createdAt
       form:
         fields:
@@ -25,6 +27,8 @@ easy_admin:
           - { property: 'layout', type: App\Form\LayoutChoiceType }
           - { property: 'theme', type: App\Form\ThemeChoiceType }
           - { property: 'enabled' }
+          - { property: 'publiclyListed' }
+          - { property: 'securityMethod', type: App\Form\SecurityMethodChoiceType }
 
     Asset:
       class: App\Entity\Asset

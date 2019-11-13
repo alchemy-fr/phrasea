@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class RequestHelper
 {
-    public static function getAccessTokenFromRequest(Request $request, $authType = 'Bearer', bool $allowGET = true): ?string
+    public static function getAuthorizationFromRequest(Request $request, $authType = 'Bearer', bool $allowGET = true, string $getParam = 'access_token'): ?string
     {
         if (
             (null !== $accessToken = $request->headers->get('Authorization'))
@@ -16,7 +16,7 @@ abstract class RequestHelper
         ) {
             return preg_replace('#^'.$authType.'\s+#', '', $accessToken);
         } elseif ($allowGET) {
-            return $request->get('access_token');
+            return $request->get($getParam);
         }
 
         return null;

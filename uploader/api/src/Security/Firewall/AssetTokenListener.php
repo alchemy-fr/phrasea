@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Security\Firewall;
 
+use Alchemy\RemoteAuthBundle\Security\RequestHelper;
 use App\Security\Authentication\AssetToken;
-use App\Security\RequestHelper;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -26,7 +26,7 @@ class AssetTokenListener
     {
         $request = $event->getRequest();
 
-        $accessToken = RequestHelper::getAccessTokenFromRequest($request, 'AssetToken', false);
+        $accessToken = RequestHelper::getAuthorizationFromRequest($request, 'AssetToken', false);
         if (null === $accessToken) {
             return;
         }

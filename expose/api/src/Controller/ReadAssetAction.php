@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Asset;
 use App\Entity\MediaInterface;
+use App\Security\Voter\PublicationAssetVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Mimey\MimeTypes;
@@ -41,7 +43,7 @@ final class ReadAssetAction extends AbstractController
      */
     public function assetPreview(string $id): Response
     {
-        $asset = $this->assetManager->findAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id);
 
         return $this->getMediaStream($asset->getPreviewDefinition() ?? $asset);
     }
@@ -51,7 +53,7 @@ final class ReadAssetAction extends AbstractController
      */
     public function assetThumbnail(string $id): Response
     {
-        $asset = $this->assetManager->findAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id);
 
         return $this->getMediaStream($asset->getThumbnailDefinition() ?? $asset);
     }
@@ -68,12 +70,22 @@ final class ReadAssetAction extends AbstractController
         ]);
     }
 
+    private function getAssetFromPublicationAsset(string $id): Asset
+    {
+        $publicationAsset = $this->assetManager->findPublicationAsset($id);
+        $this->denyAccessUnlessGranted(PublicationAssetVoter::READ, $publicationAsset);
+        $asset = $publicationAsset->getAsset();
+
+        return $asset;
+    }
+
     /**
      * @Route("/{id}/sub-definitions/{type}", name="subdef_open")
      */
     public function subDefinitionOpen(string $id, string $type): Response
     {
-        $subDefinition = $this->assetManager->findAssetSubDefinition($id, $type);
+        $asset = $this->getAssetFromPublicationAsset($id);
+        $subDefinition = $this->assetManager->findAssetSubDefinition($asset, $type);
         $stream = $this->storageManager->getStream($subDefinition->getPath());
 
         return new StreamedResponse(function () use ($stream) {
@@ -89,7 +101,8 @@ final class ReadAssetAction extends AbstractController
      */
     public function subDefinitionDownload(string $id, string $type): Response
     {
-        $subDefinition = $this->assetManager->findAssetSubDefinition($id, $type);
+        $asset = $this->getAssetFromPublicationAsset($id);
+        $subDefinition = $this->assetManager->findAssetSubDefinition($asset, $type);
         $stream = $this->storageManager->getStream($subDefinition->getPath());
 
         $mimes = new MimeTypes();
@@ -110,7 +123,7 @@ final class ReadAssetAction extends AbstractController
      */
     public function downloadAsset(string $id): Response
     {
-        $asset = $this->assetManager->findAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id);
         $stream = $this->storageManager->getStream($asset->getPath());
         fclose($stream);
 

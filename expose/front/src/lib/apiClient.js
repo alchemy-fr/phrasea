@@ -1,34 +1,40 @@
 import request from "superagent";
 
 class ApiClient {
-    accessToken;
-
-    async get(uri, params = {}) {
-        const req = await request
+    async get(uri, params = {}, options = {}) {
+        const req = request
             .get(uri)
-            .query(params)
-            .accept('json');
+            .query(params);
 
-        if (this.accessToken) {
-
-        }
+        this.setOptions(req, options);
 
         const res = await req;
         return res.body;
     }
 
-    async post(uri, data = {}) {
+    async post(uri, data = {}, options = {}) {
         const req = request
             .post(uri)
-            .send(data)
-            .accept('json');
+            .send(data);
 
-        if (this.accessToken) {
-
-        }
+        this.setOptions(req, options);
 
         const res = await req;
         return res.body;
+    }
+
+    setOptions(req, options) {
+        req.accept('json');
+
+        if (options.headers) {
+            Object.keys(options.headers).forEach(h => {
+                req.set(h, options.headers[h]);
+            });
+        }
+
+        if (options.withCredentials) {
+            req.withCredentials();
+        }
     }
 }
 

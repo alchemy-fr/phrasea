@@ -23,19 +23,13 @@ Otherwise the response will be limited to protection method:
 ```json
 {
   "id": "123",
-  "security": {
-      "protection_method": "password | authentication | url_token",
-      "password": "s3cr3t",
-      "required_roles": []
-  }
+  "securityMethod": "password | authentication"
 }
 ```
 
 Then front (React) application will display the according authentication method and request the publication payload again:
 
-- with secret token: `GET [API_HOST]/p/{id} --header "Authorization: Token {token}"`
 - with password: `GET [API_HOST]/p/{id} --header "Authorization: Password {password}"`
-
 
 In this example we access the publication at:
 `https://client-url.com/gallery/123`
@@ -92,3 +86,11 @@ EXPOSE_CLIENT_ID=<THE_CLIENT_ID> # NOT the client ID from Phraseanet
 EXPOSE_CLIENT_RANDOM_ID=<A_RANDOM_HASH>
 EXPOSE_CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 ```
+
+## Direct URL access
+
+Publications and assets can be accessed directly with slugs:
+
+i.e. `GET https://mygallery.com/publication-1/asset-1`
+
+In the above example, publication should have a `slug` property equal to `publication-1` and the asset having 

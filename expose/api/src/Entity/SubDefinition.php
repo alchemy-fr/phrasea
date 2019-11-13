@@ -212,7 +212,7 @@ class SubDefinition implements MediaInterface
         $this->url = $url;
     }
 
-    public function getDownloadUrl(): string
+    public function getDownloadUrl(): ?string
     {
         return $this->downloadUrl;
     }

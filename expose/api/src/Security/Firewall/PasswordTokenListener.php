@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\RemoteAuthBundle\Security\Firewall;
+namespace App\Security\Firewall;
 
 use Alchemy\RemoteAuthBundle\Security\RequestHelper;
-use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
+use App\Security\Authentication\PasswordToken;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-class RemoteAuthListener
+class PasswordTokenListener
 {
-    const COOKIE_NAME = 'auth-access-token';
+    const COOKIE_NAME = 'auth-password';
+
     protected $tokenStorage;
     protected $authenticationManager;
 
@@ -27,14 +28,15 @@ class RemoteAuthListener
     {
         $request = $event->getRequest();
 
-        $accessToken = RequestHelper::getAuthorizationFromRequest($request)
+        $password = RequestHelper::getAuthorizationFromRequest($request, 'Password', false, 'password')
             ?? $request->cookies->get(self::COOKIE_NAME);
-
-        if (empty($accessToken)) {
+        if (null === $password) {
             return;
         }
 
-        $token = new RemoteAuthToken($accessToken);
+        $token = new PasswordToken($password);
+        $token->setUser('password');
+        $token->setAuthenticated(true);
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);
@@ -42,10 +44,6 @@ class RemoteAuthListener
 
             return;
         } catch (AuthenticationException $failed) {
-            $token = $this->tokenStorage->getToken();
-            if ($token instanceof RemoteAuthToken) {
-                $this->tokenStorage->setToken(null);
-            }
             return;
         }
     }

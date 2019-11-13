@@ -30,7 +30,6 @@ class SubDefinitionUploadTest extends AbstractTestCase
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
-        $this->assertRegExp('#^http://localhost#', $json['url']);
 
         /** @var EntityManagerInterface $em */
         $em = self::$container->get(EntityManagerInterface::class);
@@ -43,6 +42,5 @@ class SubDefinitionUploadTest extends AbstractTestCase
 
         $this->assertEquals(1, count($json));
         $this->assertEquals('thumb', $json[0]['name']);
-        $this->assertRegExp('#^http://localhost/assets/[^/]+/sub-definitions/thumb#', $json[0]['url']);
     }
 }

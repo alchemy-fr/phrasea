@@ -33,6 +33,7 @@ class PublicationAsset
 {
     /**
      * @ApiProperty(identifier=true)
+     * @Groups({"publication:read"})
      *
      * @var Uuid
      *
@@ -43,7 +44,6 @@ class PublicationAsset
 
     /**
      * @var Publication
-     * @Groups({"asset:read"})
      *
      * @ApiProperty(
      *     attributes={

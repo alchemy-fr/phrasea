@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\EntityNormalizerPass;
+use App\Security\Factory\PasswordTokenFactory;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -28,6 +30,20 @@ class Kernel extends BaseKernel
     public function getProjectDir(): string
     {
         return \dirname(__DIR__);
+    }
+
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+
+        $extension = $container->getExtension('security');
+        $extension->addSecurityListenerFactory(new PasswordTokenFactory());
+    }
+
+    protected function prepareContainer(ContainerBuilder $container)
+    {
+        parent::prepareContainer($container);
+        $container->addCompilerPass(new EntityNormalizerPass());
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
