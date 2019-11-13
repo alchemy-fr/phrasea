@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class RemoteAuthListener
 {
+    const COOKIE_NAME = 'auth-access-token';
     protected $tokenStorage;
     protected $authenticationManager;
 
@@ -26,7 +27,9 @@ class RemoteAuthListener
     {
         $request = $event->getRequest();
 
-        $accessToken = RequestHelper::getAuthorizationFromRequest($request);
+        $accessToken = RequestHelper::getAuthorizationFromRequest($request)
+            ?? $request->cookies->get(self::COOKIE_NAME);
+
         if (empty($accessToken)) {
             return;
         }

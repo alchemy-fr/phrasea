@@ -64,7 +64,9 @@ class Publication extends PureComponent {
     load() {
         const {id} = this.props;
         const {authorization} = this.state;
-        const options = {};
+        const options = {
+            withCredentials: true
+        };
         const authHeader = authorization || getAuthorizationFromCookies(id);
 
         if (authHeader) {

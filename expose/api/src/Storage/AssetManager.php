@@ -78,8 +78,11 @@ class AssetManager
         Asset $asset,
         array $options = []
     ): SubDefinition {
-        $existingSubDef = $this->em->getRepository(SubDefinition::class)
-            ->findSubDefinitionByType($asset->getId(), $name);
+        $existingSubDef = $this
+            ->em
+            ->getRepository(SubDefinition::class)
+            ->findSubDefinitionByType($asset, $name);
+
         if ($existingSubDef instanceof SubDefinition) {
             throw new BadRequestHttpException(sprintf('Sub definition named "%s" already exists for this asset', $name));
         }
@@ -125,13 +128,23 @@ class AssetManager
         return $asset;
     }
 
-    public function findAssetSubDefinition(string $assetId, string $subDefType): SubDefinition
+    public function findPublicationAsset(string $id): PublicationAsset
+    {
+        $publicationAsset = $this->em->find(PublicationAsset::class, $id);
+        if (!$publicationAsset instanceof PublicationAsset) {
+            throw new NotFoundHttpException('PublicationAsset '.$id.' not found');
+        }
+
+        return $publicationAsset;
+    }
+
+    public function findAssetSubDefinition(Asset $asset, string $subDefType): SubDefinition
     {
         $subDef = $this->em
             ->getRepository(SubDefinition::class)
-            ->findSubDefinitionByType($assetId, $subDefType);
+            ->findSubDefinitionByType($asset, $subDefType);
         if (!$subDef instanceof SubDefinition) {
-            throw new NotFoundHttpException('SubDefinition '.$assetId.'/'.$subDefType.' not found');
+            throw new NotFoundHttpException('SubDefinition '.$asset->getId().'/'.$subDefType.' not found');
         }
 
         return $subDef;

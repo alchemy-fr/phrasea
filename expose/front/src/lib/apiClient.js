@@ -31,6 +31,10 @@ class ApiClient {
                 req.set(h, options.headers[h]);
             });
         }
+
+        if (options.withCredentials) {
+            req.withCredentials();
+        }
     }
 }
 

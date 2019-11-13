@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f6f0fd82280fbeb8d95b4429be49114a",
+    "content-hash": "ecd8e3f56066e95e97f95faddeb051aa",
     "packages": [
         {
             "name": "alchemy/admin-bundle",

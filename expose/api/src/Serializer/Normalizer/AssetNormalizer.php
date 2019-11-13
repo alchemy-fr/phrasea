@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
+use App\Entity\PublicationAsset;
 
 class AssetNormalizer extends AbstractRouterNormalizer
 {
@@ -13,9 +14,13 @@ class AssetNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = [])
     {
-        $object->setUrl($this->generateAssetUrl('asset_preview', $object));
-        $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $object));
-        $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
+        /** @var PublicationAsset|null $publicationAsset */
+        $publicationAsset = $context['publication_asset'] ?? null;
+        if ($publicationAsset instanceof PublicationAsset) {
+            $object->setUrl($this->generateAssetUrl('asset_preview', $publicationAsset));
+            $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $publicationAsset));
+            $object->setDownloadUrl($this->generateAssetUrl('asset_download', $publicationAsset));
+        }
     }
 
     public function support($object, $format): bool

@@ -253,7 +253,7 @@ class Publication
      * @ORM\Column(type="json_array")
      *
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:read"})
+     * @Groups({"publication:read"})
      */
     private $securityOptions = [];
 
