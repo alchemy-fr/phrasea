@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Security\Firewall;
 
 use Alchemy\RemoteAuthBundle\Security\RequestHelper;
-use App\Security\Authentication\AssetToken;
+use App\Security\Authentication\PasswordToken;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-class AssetTokenListener
+class PasswordTokenListener
 {
     protected $tokenStorage;
     protected $authenticationManager;
@@ -26,13 +26,14 @@ class AssetTokenListener
     {
         $request = $event->getRequest();
 
-        $accessToken = RequestHelper::getAuthorizationFromRequest($request, 'AssetToken', false);
-        if (null === $accessToken) {
+        $password = RequestHelper::getAuthorizationFromRequest($request, 'Password', false, 'password');
+        if (null === $password) {
             return;
         }
 
-        $token = new AssetToken($accessToken);
-        $token->setUser('asset');
+        $token = new PasswordToken($password);
+        $token->setUser('password');
+        $token->setAuthenticated(true);
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);

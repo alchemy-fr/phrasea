@@ -26,7 +26,7 @@ class RemoteAuthListener
     {
         $request = $event->getRequest();
 
-        $accessToken = RequestHelper::getAccessTokenFromRequest($request);
+        $accessToken = RequestHelper::getAuthorizationFromRequest($request);
         if (empty($accessToken)) {
             return;
         }

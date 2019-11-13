@@ -28,6 +28,7 @@ security:
         api:
             anonymous: ~
             stateless: true
+            password: true
             remote_auth: true
 
     access_control:

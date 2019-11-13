@@ -7,6 +7,10 @@ class Config {
     getApiBaseUrl() {
         return this.get('EXPOSE_BASE_URL');
     }
+
+    getAuthBaseUrl() {
+        return this.get('AUTH_BASE_URL');
+    }
 }
 
 const config = new Config();

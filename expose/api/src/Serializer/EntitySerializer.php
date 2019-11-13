@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use App\Entity\Asset;
-use App\Entity\Publication;
-use App\Entity\SubDefinition;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\Serializer\Normalizer\EntityNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
@@ -16,61 +13,46 @@ use Symfony\Component\Serializer\SerializerInterface;
 class EntitySerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
 {
     private $decorated;
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
 
-    public function __construct(NormalizerInterface $decorated, UrlGeneratorInterface $urlGenerator)
+    /**
+     * @var EntityNormalizerInterface[]
+     */
+    private $normalizers = [];
+
+    public function __construct(NormalizerInterface $decorated)
     {
         if (!$decorated instanceof DenormalizerInterface) {
             throw new \InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
         }
 
         $this->decorated = $decorated;
-        $this->urlGenerator = $urlGenerator;
+    }
+
+    public function addNormalizer(EntityNormalizerInterface $normalizer): void
+    {
+        $this->normalizers[] = $normalizer;
     }
 
     public function normalize($object, $format = null, array $context = [])
     {
-        // TODO explode into entity serializers (one serializer per entity)
-        if ($object instanceof Publication) {
-            if ($object->getPackage() instanceof Asset) {
-                $object->setPackageUrl($this->generateAssetUrl('asset_download', $object->getPackage()));
+        foreach ($this->normalizers as $normalizer) {
+            if ($normalizer->support($object, $format)) {
+                $normalizer->normalize($object, $context);
             }
-            if ($object->getCover() instanceof Asset) {
-                $object->setCoverUrl($this->generateAssetUrl('asset_thumbnail', $object->getCover()));
-            }
-        } elseif ($object instanceof Asset) {
-            $object->setUrl($this->generateAssetUrl('asset_preview', $object));
-            $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $object));
-            $object->setDownloadUrl($this->generateAssetUrl('asset_download', $object));
-        } elseif ($object instanceof SubDefinition) {
-            $object->setUrl($this->generateSubDefinitionUrl('asset_subdef_open', $object));
-            $object->setDownloadUrl($this->generateSubDefinitionUrl('asset_subdef_download', $object));
         }
 
         return $this->decorated->normalize($object, $format, $context);
     }
 
-    private function generateAssetUrl(string $route, Asset $asset): string
+    public function supportsNormalization($data, $format = null): bool
     {
-        return $this->urlGenerator->generate($route, ['id' => $asset->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-    }
+        foreach ($this->normalizers as $normalizer) {
+            if ($normalizer->support($data, $format)) {
+                return true;
+            }
+        }
 
-    private function generateSubDefinitionUrl(string $route, SubDefinition $subDefinition): string
-    {
-        return $this->urlGenerator->generate($route, [
-            'id' => $subDefinition->getAsset()->getId(),
-            'type' => $subDefinition->getName(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
-    }
-
-    public function supportsNormalization($data, $format = null)
-    {
-        return $data instanceof Asset
-            || $data instanceof SubDefinition
-            || $data instanceof Publication;
+        return false;
     }
 
     public function supportsDenormalization($data, $type, $format = null)

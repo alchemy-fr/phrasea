@@ -41,18 +41,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Publication
 {
+    const GROUP_PUB_INDEX = 'publication:index';
+    const GROUP_PUB_READ = 'publication:read';
+    const GROUP_PUB_LIST = 'publication:list';
+
     const API_READ = [
-        'groups' => ['publication:read'],
+        'groups' => [self::GROUP_PUB_READ],
         'swagger_definition_name' => 'Read',
     ];
     const API_LIST = [
-        'groups' => ['publication:list'],
+        'groups' => [self::GROUP_PUB_LIST],
         'swagger_definition_name' => 'List',
     ];
 
+
+    const SECURITY_METHOD_NONE = null;
+    const SECURITY_METHOD_PASSWORD = 'password';
+    const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"publication:list", "publication:read", "asset:read"})
+     * @Groups({"publication:index", "publication:list", "publication:read", "asset:read"})
      *
      * @var Uuid
      *
@@ -153,6 +162,22 @@ class Publication
      * @var bool
      *
      * @ApiProperty()
+     * @Groups({"publication:index", "publication:read"})
+     */
+    private $authorized = false;
+
+    /**
+     * @var string|null
+     *
+     * @ApiProperty()
+     * @Groups({"publication:index"})
+     */
+    private $authorizationError;
+
+    /**
+     * @var bool
+     *
+     * @ApiProperty()
      * @ORM\Column(type="boolean")
      * @Groups({"publication:read"})
      */
@@ -162,7 +187,7 @@ class Publication
      * URL slug.
      *
      * @ApiProperty()
-     * @Groups({"publication:list", "publication:read"})
+     * @Groups({"publication:index", "publication:list", "publication:read"})
      *
      * @var string|null
      *
@@ -213,6 +238,24 @@ class Publication
      * @Groups({"publication:read"})
      */
     private $createdAt;
+
+    /**
+     * @var string|null
+     * @ORM\Column(type="string", length=20, nullable=true)
+     *
+     * @ApiProperty()
+     * @Groups({"publication:index", "publication:read"})
+     */
+    private $securityMethod = self::SECURITY_METHOD_NONE;
+
+    /**
+     * @var array
+     * @ORM\Column(type="json_array")
+     *
+     * @ApiProperty()
+     * @Groups({"publication:index", "publication:read"})
+     */
+    private $securityOptions = [];
 
     public function __construct()
     {
@@ -384,5 +427,45 @@ class Publication
     public function __toString()
     {
         return $this->getId().($this->title ? '-'.$this->title : '');
+    }
+
+    public function getSecurityMethod(): ?string
+    {
+        return $this->securityMethod;
+    }
+
+    public function setSecurityMethod(?string $securityMethod): void
+    {
+        $this->securityMethod = $securityMethod;
+    }
+
+    public function getSecurityOptions(): array
+    {
+        return $this->securityOptions;
+    }
+
+    public function setSecurityOptions(array $securityOptions): void
+    {
+        $this->securityOptions = $securityOptions;
+    }
+
+    public function isAuthorized(): bool
+    {
+        return $this->authorized;
+    }
+
+    public function setAuthorized(bool $authorized): void
+    {
+        $this->authorized = $authorized;
+    }
+
+    public function getAuthorizationError(): ?string
+    {
+        return $this->authorizationError;
+    }
+
+    public function setAuthorizationError(?string $authorizationError): void
+    {
+        $this->authorizationError = $authorizationError;
     }
 }
