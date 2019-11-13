@@ -6,7 +6,7 @@ import {PropTypes} from 'prop-types';
 class GalleryLayout extends React.Component {
     static propTypes = {
         data: dataShape,
-        assetSlug: PropTypes.string,
+        assetId: PropTypes.string,
     };
 
     state = {
@@ -49,13 +49,13 @@ class GalleryLayout extends React.Component {
                 showVideo[item.url] ?
                     <div className='video-wrapper'>
                         <video controls autoPlay={true}>
-                            <source src={item.url} type={'video/mp4'} />
+                            <source src={item.url} type={'video/mp4'}/>
                             Sorry, your browser doesn't support embedded videos.
                         </video>
                     </div>
                     : <div onClick={this.toggleShowVideo.bind(this, item.url)}>
-                        <div className='play-button' />
-                        <img src={item.thumbUrl} alt={item.title} />
+                        <div className='play-button'/>
+                        <img src={item.thumbUrl} alt={item.title}/>
                         {
                             item.description &&
                             <span
@@ -71,7 +71,7 @@ class GalleryLayout extends React.Component {
     };
 
     render() {
-        const {assetSlug, data} = this.props;
+        const {assetId, data} = this.props;
         const {
             title,
             assets,
@@ -83,10 +83,13 @@ class GalleryLayout extends React.Component {
         } = this.state;
 
         let startIndex = 0;
-        if (assetSlug) {
-            startIndex = assets.findIndex(a => a.slug === assetSlug);
+        if (assetId) {
+            startIndex = assets.findIndex(a => a.id === assetId);
             if (startIndex < 0) {
-                startIndex = 0;
+                startIndex = assets.findIndex(a => a.slug === assetId);
+                if (startIndex < 0) {
+                    startIndex = 0;
+                }
             }
         }
 

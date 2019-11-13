@@ -5,7 +5,7 @@ class AssetRoute extends PureComponent {
     render() {
         return <Publication
             id={this.props.match.params.publication}
-            assetSlug={this.props.match.params.asset}
+            assetId={this.props.match.params.asset}
         />
     }
 }
