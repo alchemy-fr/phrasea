@@ -202,7 +202,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"publication:read"})
      *
      * @var string
      */
@@ -210,7 +210,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read", "publication:list"})
+     * @Groups({"publication:read", "publication:list"})
      *
      * @var string
      */
@@ -218,7 +218,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read", "publication:list"})
+     * @Groups({"publication:read", "publication:list"})
      *
      * @var string
      */
@@ -350,7 +350,7 @@ class Asset implements MediaInterface
         $this->thumbUrl = $thumbUrl;
     }
 
-    public function getDownloadUrl(): string
+    public function getDownloadUrl(): ?string
     {
         return $this->downloadUrl;
     }

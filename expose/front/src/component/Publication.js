@@ -21,6 +21,7 @@ function getAuthorizationFromCookies(publicationId) {
 class Publication extends PureComponent {
     static propTypes = {
         id: PropTypes.string.isRequired,
+        assetSlug: PropTypes.string,
     };
 
     state = {
@@ -103,6 +104,7 @@ class Publication extends PureComponent {
                     const Layout = layouts[data.layout];
                     return <Layout
                         data={data}
+                        assetSlug={this.props.assetSlug}
                     />
                 }}
             />

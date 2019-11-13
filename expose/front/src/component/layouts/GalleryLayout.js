@@ -1,10 +1,12 @@
 import React from 'react';
 import ImageGallery from 'react-image-gallery';
 import {dataShape} from "../props/dataShape";
+import {PropTypes} from 'prop-types';
 
 class GalleryLayout extends React.Component {
     static propTypes = {
         data: dataShape,
+        assetSlug: PropTypes.string,
     };
 
     state = {
@@ -29,12 +31,7 @@ class GalleryLayout extends React.Component {
         this.setState(prevState => {
             const showVideo = {...prevState.showVideo};
             const wasShown = !!showVideo[url];
-
-            console.log('wasShown', wasShown);
-
             showVideo[url] = !wasShown;
-
-            console.log('showVideo', showVideo);
 
             return {
                 showVideo,
@@ -74,21 +71,31 @@ class GalleryLayout extends React.Component {
     };
 
     render() {
+        const {assetSlug, data} = this.props;
         const {
             title,
             assets,
-        } = this.props.data;
+        } = data;
 
         const {
             showFullscreenButton,
             showPlayButton,
         } = this.state;
 
+        let startIndex = 0;
+        if (assetSlug) {
+            startIndex = assets.findIndex(a => a.slug === assetSlug);
+            if (startIndex < 0) {
+                startIndex = 0;
+            }
+        }
+
         return <div className={`layout-gallery`}>
             <div className="container">
 
                 <h1>{title}</h1>
                 <ImageGallery
+                    startIndex={startIndex}
                     onSlide={this.onSlide}
                     showFullscreenButton={showFullscreenButton}
                     showPlayButton={showPlayButton}
