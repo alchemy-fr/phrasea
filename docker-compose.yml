@@ -266,6 +266,7 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+      - MATOMO_HOST
 
   notify-api-php:
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
@@ -344,7 +345,8 @@ services:
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
   matomo-php:
-    image: matomo:3.12.0-fpm-alpine
+    image: ${REGISTRY_NAMESPACE}matomo-php:$DOCKER_TAG
+    build: ./infra/docker/matomo-php
     networks:
       internal:
         aliases:
