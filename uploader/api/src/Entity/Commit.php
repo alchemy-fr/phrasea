@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\CommitAckAction;
@@ -14,11 +15,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ORM\Table(name="asset_commit")
  * @ApiResource(
+ *     order={"acknowledged": "ASC", "createdAt": "DESC"},
  *     shortName="commit",
  *     collectionOperations={
  *         "post"={
@@ -85,6 +88,7 @@ class Commit
     /**
      * @var bool
      * @ORM\Column(type="boolean")
+     * @ApiFilter(BooleanFilter::class)
      */
     private $acknowledged = false;
 
