@@ -315,7 +315,7 @@ services:
     networks:
       internal:
         aliases:
-          - notify_api
+          - notify-api
     ports:
       - ${NOTIFY_PORT}:80
     depends_on:

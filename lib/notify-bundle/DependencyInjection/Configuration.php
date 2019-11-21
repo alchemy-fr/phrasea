@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('notify_base_url')->defaultValue('http://notify_api')->end()
+                ->scalarNode('notify_base_url')->defaultValue('http://notify-api')->end()
             ->end()
         ;
 
