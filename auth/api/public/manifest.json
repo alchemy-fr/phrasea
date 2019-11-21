@@ -1,6 +1,6 @@
 {
-  "short_name": "Uploader",
-  "name": "Alchemy Uploader",
+  "short_name": "Auth",
+  "name": "Alchemy Auth",
   "icons": [
     {
       "src": "favicon.ico",
