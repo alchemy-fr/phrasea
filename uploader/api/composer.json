@@ -46,6 +46,7 @@
         "easycorp/easyadmin-bundle": "^2.2",
         "eightpoints/guzzle-bundle": "^7.5",
         "guzzlehttp/guzzle": "^6.3",
+        "nelmio/cors-bundle": "1.5.6",
         "nyholm/psr7": "^1.1",
         "oneup/flysystem-bundle": "^3.0",
         "php-amqplib/rabbitmq-bundle": "^1.14",
