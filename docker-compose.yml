@@ -375,6 +375,9 @@ services:
 
   matomo-db:
     image: mariadb:10.4.10-bionic
+    command:
+      - "mysqld"
+      - "--max_allowed_packet=64MB"
     networks:
       internal:
         aliases:
