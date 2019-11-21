@@ -146,6 +146,17 @@ services:
       - dev_vol:/home/app
       - ./configs:/configs
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - internal
+    environment:
+      - PMA_HOST=matomo-db
+    depends_on:
+      - matomo-db
+    ports:
+      - ${PHPMYADMIN_HOST}:80
+
 volumes:
   dev_vol:
     driver: local
