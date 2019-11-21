@@ -6,7 +6,7 @@ You can directly link this file to your Nginx's configuration:
 
 ```bash
 # cd /path/to/this/repo
-sudo ln -s `pwd`/doc/nginx.conf /etc/nginx/sites-enabled/uploader.conf
+sudo ln -s `pwd`/infra/dev/nginx.conf /etc/nginx/sites-enabled/phraseanet-services.conf
 sudo service nginx reload
 ```
 
