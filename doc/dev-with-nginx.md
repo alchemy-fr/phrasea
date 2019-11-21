@@ -1,6 +1,6 @@
 # NGINX setup
 
-See [nginx.conf](nginx.conf)
+See [nginx.conf](../infra/dev/nginx.conf)
 
 You can directly link this file to your Nginx's configuration:
 
@@ -21,5 +21,6 @@ Add the following entries to your `/etc/hosts` file:
 127.0.0.1 expose.alchemy.local
 127.0.0.1 api.expose.alchemy.local
 127.0.0.1 minio.alchemy.local
+127.0.0.1 matomo.alchemy.local
 127.0.0.1 notify.alchemy.local
 ```
