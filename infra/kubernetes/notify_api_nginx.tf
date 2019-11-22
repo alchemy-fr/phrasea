@@ -1,4 +1,4 @@
-resource "kubernetes_service" "notify-api-nginx" {
+resource "kubernetes_service" "notify_api_nginx" {
   metadata {
     name = "notify-api-nginx"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "notify-api-nginx" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "notify-api-nginx"
+      tier = "notify_api_nginx"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "notify-api-nginx" {
   }
 }
 
-resource "kubernetes_deployment" "notify-api-nginx" {
+resource "kubernetes_deployment" "notify_api_nginx" {
   metadata {
     name = "notify-api-nginx"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "notify-api-nginx" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "notify-api-nginx"
+        tier = "notify_api_nginx"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "notify-api-nginx" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "notify-api-nginx"
+          tier = "notify_api_nginx"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify-api-nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}notify-api-nginx:${var.DOCKER_TAG}"
           name              = "notify-api-nginx"
           image_pull_policy = "Always"
         }

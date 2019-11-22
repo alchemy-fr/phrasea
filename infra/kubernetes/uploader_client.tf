@@ -1,4 +1,4 @@
-resource "kubernetes_service" "uploader-client" {
+resource "kubernetes_service" "uploader_client" {
   metadata {
     name = "uploader-client"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "uploader-client" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "uploader-client"
+      tier = "uploader_client"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "uploader-client" {
   }
 }
 
-resource "kubernetes_deployment" "uploader-client" {
+resource "kubernetes_deployment" "uploader_client" {
   metadata {
     name = "uploader-client"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "uploader-client" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "uploader-client"
+        tier = "uploader_client"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "uploader-client" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "uploader-client"
+          tier = "uploader_client"
         }
       }
 

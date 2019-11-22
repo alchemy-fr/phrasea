@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "notify-worker" {
+resource "kubernetes_deployment" "notify_worker" {
   metadata {
     name = "notify-worker"
   }
@@ -9,7 +9,7 @@ resource "kubernetes_deployment" "notify-worker" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "notify-worker"
+        tier = "notify_worker"
       }
     }
 
@@ -17,7 +17,7 @@ resource "kubernetes_deployment" "notify-worker" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "notify-worker"
+          tier = "notify_worker"
         }
       }
 

@@ -1,4 +1,4 @@
-resource "kubernetes_service" "notify-api-php" {
+resource "kubernetes_service" "notify_api_php" {
   metadata {
     name = "notify-api-php"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "notify-api-php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "notify-api-php"
+      tier = "notify_api_php"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "notify-api-php" {
   }
 }
 
-resource "kubernetes_deployment" "notify-api-php" {
+resource "kubernetes_deployment" "notify_api_php" {
   metadata {
     name = "notify-api-php"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "notify-api-php" {
     selector {
       match_labels {
         app  = "phraseanet"
-        tier = "notify-api-php"
+        tier = "notify_api_php"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "notify-api-php" {
       metadata {
         labels {
           app  = "phraseanet"
-          tier = "notify-api-php"
+          tier = "notify_api_php"
         }
       }
 

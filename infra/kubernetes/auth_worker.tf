@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "phraseanet-service-auth-worker" {
+resource "kubernetes_deployment" "phraseanet-service-auth_worker" {
   metadata {
     name = "phraseanet-service-auth-worker"
   }
@@ -9,7 +9,7 @@ resource "kubernetes_deployment" "phraseanet-service-auth-worker" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "auth-worker"
+        tier = "auth_worker"
       }
     }
 
@@ -17,7 +17,7 @@ resource "kubernetes_deployment" "phraseanet-service-auth-worker" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "auth-worker"
+          tier = "auth_worker"
         }
       }
 

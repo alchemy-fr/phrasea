@@ -1,4 +1,4 @@
-resource "kubernetes_service" "auth-api-nginx" {
+resource "kubernetes_service" "auth_api_nginx" {
   metadata {
     name = "auth-api-nginx"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "auth-api-nginx" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "auth-api-nginx"
+      tier = "auth_api_nginx"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "auth-api-nginx" {
   }
 }
 
-resource "kubernetes_deployment" "auth-api-nginx" {
+resource "kubernetes_deployment" "auth_api_nginx" {
   metadata {
     name = "auth-api-nginx"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "auth-api-nginx" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "auth-api-nginx"
+        tier = "auth_api_nginx"
       }
     }
 
@@ -35,13 +35,13 @@ resource "kubernetes_deployment" "auth-api-nginx" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "auth-api-nginx"
+          tier = "auth_api_nginx"
         }
       }
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}auth-api-nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}auth-api-nginx:${var.DOCKER_TAG}"
           name              = "auth-api-nginx"
           image_pull_policy = "Always"
         }

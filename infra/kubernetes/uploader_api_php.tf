@@ -1,4 +1,4 @@
-resource "kubernetes_service" "uploader-api-php" {
+resource "kubernetes_service" "uploader_api_php" {
   metadata {
     name = "uploader-api-php"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "uploader-api-php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "uploader-api-php"
+      tier = "uploader_api_php"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "uploader-api-php" {
   }
 }
 
-resource "kubernetes_deployment" "uploader-api-php" {
+resource "kubernetes_deployment" "uploader_api_php" {
   metadata {
     name = "phraseanet-service-uploader-api-php"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "uploader-api-php" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "uploader-api-php"
+        tier = "uploader_api_php"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "uploader-api-php" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "uploader-api-php"
+          tier = "uploader_api_php"
         }
       }
 

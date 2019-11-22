@@ -1,4 +1,4 @@
-resource "kubernetes_service" "auth-api-php" {
+resource "kubernetes_service" "auth_api_php" {
   metadata {
     name = "auth-api-php"
   }
@@ -6,7 +6,7 @@ resource "kubernetes_service" "auth-api-php" {
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "auth-api-php"
+      tier = "auth_api_php"
     }
 
     port {
@@ -16,7 +16,7 @@ resource "kubernetes_service" "auth-api-php" {
   }
 }
 
-resource "kubernetes_deployment" "auth-api-php" {
+resource "kubernetes_deployment" "auth_api_php" {
   metadata {
     name = "auth-api-php"
   }
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "auth-api-php" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "auth-api-php"
+        tier = "auth_api_php"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "auth-api-php" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "auth-api-php"
+          tier = "auth_api_php"
         }
       }
 
