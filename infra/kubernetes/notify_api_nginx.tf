@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "notify_api_nginx" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify_api_nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}notify-api-nginx:${var.DOCKER_TAG}"
           name              = "notify-api-nginx"
           image_pull_policy = "Always"
         }

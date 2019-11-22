@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "auth_api_php" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}auth_api_php:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}auth-api-php:${var.DOCKER_TAG}"
           name              = "auth-api-php"
           image_pull_policy = "Always"
 

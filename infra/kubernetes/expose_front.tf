@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "expose_front" {
         }
 
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose_front:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}expose-front:${var.DOCKER_TAG}"
           name              = "expose-front"
           image_pull_policy = "Always"
 

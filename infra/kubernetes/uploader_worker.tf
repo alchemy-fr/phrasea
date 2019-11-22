@@ -23,7 +23,7 @@ resource "kubernetes_deployment" "uploader_worker" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}uploader_worker:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}uploader-worker:${var.DOCKER_TAG}"
           name              = "uploader-worker"
           image_pull_policy = "Always"
 

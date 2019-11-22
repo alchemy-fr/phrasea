@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "notify_api_php" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify_api_php:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}notify-api-php:${var.DOCKER_TAG}"
           name              = "notify-api-php"
           image_pull_policy = "Always"
 

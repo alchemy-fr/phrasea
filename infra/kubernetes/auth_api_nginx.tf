@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "auth_api_nginx" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}auth_api_nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}auth-api-nginx:${var.DOCKER_TAG}"
           name              = "auth-api-nginx"
           image_pull_policy = "Always"
         }

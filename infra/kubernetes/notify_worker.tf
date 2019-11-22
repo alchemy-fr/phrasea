@@ -23,7 +23,7 @@ resource "kubernetes_deployment" "notify_worker" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}notify_worker:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}notify-worker:${var.DOCKER_TAG}"
           name              = "notify-worker"
           image_pull_policy = "Always"
 

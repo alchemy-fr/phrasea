@@ -23,7 +23,7 @@ resource "kubernetes_deployment" "phraseanet-service-auth_worker" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}auth_worker:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}auth-worker:${var.DOCKER_TAG}"
           name              = "auth-worker"
           image_pull_policy = "Always"
 

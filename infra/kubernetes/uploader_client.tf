@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "uploader_client" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}uploader_client:${var.DOCKER_TAG}"
+          image             = "${var.REGISTRY_NAMESPACE}uploader-client:${var.DOCKER_TAG}"
           name              = "uploader-client"
           image_pull_policy = "Always"
 

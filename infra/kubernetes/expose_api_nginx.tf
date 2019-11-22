@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "expose_api_nginx" {
 
       spec {
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose_api_nginx:${ var.DOCKER_TAG }"
+          image             = "${var.REGISTRY_NAMESPACE}expose-api-nginx:${var.DOCKER_TAG}"
           name              = "expose-api-nginx"
           image_pull_policy = "Always"
         }
