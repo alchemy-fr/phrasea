@@ -157,6 +157,12 @@ services:
     ports:
       - ${PHPMYADMIN_HOST}:80
 
+  report-api:
+    ports:
+      - 8092:80
+    volumes:
+      - ./report/src:/go/src/app
+
 volumes:
   dev_vol:
     driver: local

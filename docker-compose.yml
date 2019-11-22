@@ -421,6 +421,17 @@ services:
       - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
       - POSTGRES_HOST=db
 
+  report-api:
+    image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
+    build: report
+    networks:
+      - internal
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DATABASE=${REPORT_DB_NAME}
+      - POSTGRES_HOST=db
+
 volumes:
   weblate_vol:
   db_vol:

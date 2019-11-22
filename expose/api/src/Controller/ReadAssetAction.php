@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportClient;
 use App\Entity\Asset;
 use App\Entity\MediaInterface;
 use App\Security\Voter\PublicationAssetVoter;
@@ -29,13 +30,19 @@ final class ReadAssetAction extends AbstractController
      * @var AssetManager
      */
     private $assetManager;
+    /**
+     * @var ReportClient
+     */
+    private $reportClient;
 
     public function __construct(
         FileStorageManager $storageManager,
-        AssetManager $assetManager
+        AssetManager $assetManager,
+        ReportClient $reportClient
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
+        $this->reportClient = $reportClient;
     }
 
     /**
@@ -126,6 +133,10 @@ final class ReadAssetAction extends AbstractController
         $asset = $this->getAssetFromPublicationAsset($id);
         $stream = $this->storageManager->getStream($asset->getPath());
         fclose($stream);
+
+        $this->reportClient->pushAction('download_asset', [
+            'id' => $asset->getAssetId(),
+        ]);
 
         $stream = $this->storageManager->getStream($asset->getPath());
 

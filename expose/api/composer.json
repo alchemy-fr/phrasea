@@ -12,6 +12,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/api-test",
             "options": {
                 "symlink": true
@@ -25,6 +32,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/report-bundle": "@dev",
         "alchemy/api-test": "@dev",
         "api-platform/api-pack": "^1.2",
         "doctrine/dbal": "2.9.1",

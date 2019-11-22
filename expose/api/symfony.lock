@@ -8,6 +8,9 @@
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
+    "alchemy/report-bundle": {
+        "version": "dev-report"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },
