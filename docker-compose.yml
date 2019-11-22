@@ -266,6 +266,7 @@ services:
       - AUTH_BASE_URL
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+      - MATOMO_HOST
 
   notify-api-php:
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
@@ -343,6 +344,52 @@ services:
       MINIO_ACCESS_KEY: ${S3_STORAGE_ACCESS_KEY}
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
+  matomo-php:
+    image: ${REGISTRY_NAMESPACE}matomo-php:$DOCKER_TAG
+    build: ./infra/docker/matomo-php
+    networks:
+      internal:
+        aliases:
+          - matomo-php
+    depends_on:
+      - matomo-db
+    environment:
+      - MATOMO_DATABASE_HOST=matomo-db
+      - MATOMO_DATABASE_USERNAME
+      - MATOMO_DATABASE_PASSWORD
+      - MATOMO_DATABASE_DBNAME
+    volumes:
+      - matomo_vol:/var/www/html
+
+  matomo-nginx:
+    image: ${REGISTRY_NAMESPACE}matomo-nginx:$DOCKER_TAG
+    build: ./infra/docker/matomo-nginx
+    networks:
+      - internal
+    depends_on:
+      - matomo-php
+    volumes:
+      - matomo_vol:/var/www/html:ro
+    ports:
+      - ${MATOMO_PORT}:80
+
+  matomo-db:
+    image: mariadb:10.4.10-bionic
+    command:
+      - "mysqld"
+      - "--max_allowed_packet=64MB"
+    networks:
+      internal:
+        aliases:
+          - matomo-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MATOMO_MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MATOMO_DATABASE_DBNAME
+      - MYSQL_USER=$MATOMO_DATABASE_USERNAME
+      - MYSQL_PASSWORD=$MATOMO_DATABASE_PASSWORD
+    volumes:
+      - mariadb_vol:/var/lib/mysql
+
   weblate:
     image: weblate/weblate:3.8-4
     volumes:
@@ -380,3 +427,5 @@ volumes:
   redis_vol:
   uploader_vol: # rw-many
   s3_vol:
+  matomo_vol:
+  mariadb_vol:
