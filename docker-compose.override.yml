@@ -161,7 +161,7 @@ services:
     ports:
       - 8092:80
     volumes:
-      - ./report/src:/go/src/app
+      - ./report/src:/usr/app
 
 volumes:
   dev_vol:

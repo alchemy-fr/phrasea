@@ -2,51 +2,44 @@ package main
 
 import (
 	"fmt"
+	"context"
 	"github.com/julienschmidt/httprouter"
-    "database/sql"
-	pq "github.com/lib/pq"
+	"github.com/jackc/pgx/v4"
 	"log"
 	"net/http"
 	"os"
 )
 
-func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+var conn *pgx.Conn
+
+func indexHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
     header := w.Header()
     header.Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "true")
+
+	addAction(ps.ByName("action"))
 }
 
-func createDatabase(db Conn, databaseName string) {
-    rows, err := db.Query("SELECT 1 FROM pg_database WHERE datname='$1'", databaseName)
-
-    if len(rows) == 0 {
-        sqlStatement := fmt.Sprintf("CREATE DATABASE '%s'", databaseName)
-        _, err = db.Exec(sqlStatement)
-        if err != nil {
-          panic(err)
-        }
-    }
+func addAction(action string) error {
+	_, err := conn.Exec(context.Background(), "INSERT INTO logs(action) values($1)", action)
+	return err
 }
 
 func main() {
-    psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-        "password=%s sslmode=disable",
-    os.Getenv("POSTGRES_HOST"), 5432, os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"))
-    db, err := sql.Open("postgres", psqlInfo)
-    if err != nil {
-        panic(err)
-    }
-    defer db.Close()
+    connStr := fmt.Sprintf("host=db port=5432 user=%s password=%s dbname=%s sslmode=disable",
+        os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DATABASE"))
 
-    err = db.Ping()
+    var err error
+    conn, err = pgx.Connect(context.Background(), connStr)
     if err != nil {
-        panic(err)
+        fmt.Fprintf(os.Stderr, "Unable to connection to database: %v\n", err)
+        os.Exit(1)
     }
+    defer conn.Close(context.Background())
     fmt.Println("Successfully connected!")
-    createDatabase(db, os.Getenv("POSTGRES_DATABASE"))
 
 	router := httprouter.New()
-	router.GET("/", indexHandler)
+	router.POST("/", indexHandler)
 
 	// print env
 	env := os.Getenv("APP_ENV")
@@ -57,4 +50,10 @@ func main() {
 	}
 
 	http.ListenAndServe(":80", router)
+}
+
+func checkError(err error) {
+    if err != nil {
+        panic(err)
+    }
 }

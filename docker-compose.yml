@@ -430,7 +430,6 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
-      - POSTGRES_HOST=db
 
 volumes:
   weblate_vol:
