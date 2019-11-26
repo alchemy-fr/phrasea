@@ -17,4 +17,5 @@ return [
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
+    Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
 ];

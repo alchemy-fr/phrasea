@@ -1,0 +1,25 @@
+parameters:
+  alchemy_report.report_base_url: '%env(REPORT_BASE_URL)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  alchemy_report.http_client:
+    class: GuzzleHttp\Client
+    arguments:
+      -
+        base_uri: "%alchemy_report.report_base_url%"
+        options:
+          timeout: 10
+          http_errors: false
+          headers:
+            Accept: "application/json"
+
+  Alchemy\ReportSDK\ReportClient:
+    arguments:
+      $appName: "%alchemy_report.app_name%"
+      $client: "@alchemy_report.http_client"
+
+  Alchemy\ReportBundle\ReportUserDecorator: ~

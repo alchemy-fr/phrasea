@@ -25,6 +25,14 @@ for s in ${SF_SERVICES}; do
     docker-compose$FILE run -T --user app --rm ${s} /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
 done
 
+
+LIBS="
+report-sdk
+"
+for lib in ${LIBS}; do
+    docker-compose$FILE run -T --user app --rm expose-api-php /bin/sh -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
+done
+
 # TODO make this work in CircleCI (which has no mounted volumes)
 #REACT_SERVICES="
 #expose-front-dev

@@ -64,9 +64,13 @@ Access PgAdmin4 at `http://localhost:5050`
 
 You can login with `admin@alchemy.fr` / `CxkngkeTRPkJOyniPHmZ` by default (see `.env` file).
 Then add the server by using:
+
 Connection > Host name: `db`
+
 Connection > Port: `5432`
+
 Connection > Username: `alchemy` # by default (see `.env` file)
+
 Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 
 # Further reading

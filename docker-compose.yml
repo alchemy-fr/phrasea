@@ -30,6 +30,7 @@ services:
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
       - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - REPORT_BASE_URL
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -165,7 +166,6 @@ services:
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - POSTGRES_DB=${WEBLATE_POSTGRES_DB}
     volumes:
       - db_vol:/var/lib/postgresql/data
 
@@ -212,6 +212,7 @@ services:
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
+      - REPORT_BASE_URL
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -420,6 +421,18 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
       - POSTGRES_HOST=db
+
+  report-api:
+    image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
+    build: report
+    networks:
+      internal:
+        aliases:
+          - report-api
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DATABASE=${REPORT_DB_NAME}
 
 volumes:
   weblate_vol:

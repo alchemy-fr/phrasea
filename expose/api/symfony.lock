@@ -8,6 +8,12 @@
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
+    "alchemy/report-bundle": {
+        "version": "dev-report"
+    },
+    "alchemy/report-sdk": {
+        "version": "dev-report"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },
@@ -220,6 +226,9 @@
         "files": [
             "config/packages/oneup_flysystem.yaml"
         ]
+    },
+    "opis/json-schema": {
+        "version": "1.0.18"
     },
     "pagerfanta/pagerfanta": {
         "version": "v2.1.3"

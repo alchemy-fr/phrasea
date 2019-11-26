@@ -81,6 +81,8 @@ services:
       - PGADMIN_DEFAULT_PASSWORD
     depends_on:
       - db
+    volumes:
+      - pgadmin_vol:/var/lib/pgadmin
 
   mailhog:
     image: mailhog/mailhog
@@ -138,6 +140,7 @@ services:
       - S3_STORAGE_SECRET_KEY
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - AUTH_BASE_URL
+      - REPORT_BASE_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace
@@ -157,6 +160,13 @@ services:
     ports:
       - ${PHPMYADMIN_HOST}:80
 
+  report-api:
+    ports:
+      - 8092:80
+    volumes:
+      - ./report/src:/usr/app
+
 volumes:
+  pgadmin_vol:
   dev_vol:
     driver: local
