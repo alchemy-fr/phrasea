@@ -14,6 +14,7 @@ import (
 var conn *pgx.Conn
 
 type logJson struct {
+    App string
     Action string
     Item string
     User string
@@ -42,8 +43,8 @@ func logHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
 }
 
 func addAction(log logJson) error {
-	//fmt.Printf("Action=%s, Item=%s, User=%s, Payload=%v", log.Action, log.Item, log.User, log.Payload)
-	_, err := conn.Exec(context.Background(), "INSERT INTO logs(action, item, user_id, payload) values($1, $2, $3, $4)", log.Action, log.Item, log.User, log.Payload)
+	//fmt.Printf("App=%s, Action=%s, Item=%s, User=%s, Payload=%v", log.App, log.Action, log.Item, log.User, log.Payload)
+	_, err := conn.Exec(context.Background(), "INSERT INTO logs(app, action, item, user_id, payload) values($1, $2, $3, $4)", log.App, log.Action, log.Item, log.User, log.Payload)
 	return err
 }
 

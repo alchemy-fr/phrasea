@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://alchemy.fr/log-schema.json#",
+  "title": "Phraseanet internal log schema",
+  "type": [
+    "object"
+  ],
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "asset_view",
+        "asset_download",
+        "asset_preview"
+      ],
+      "pattern": "^[a-zA-Z]+([a-zA-Z0-9_]+)*$"
+    },
+    "app": {
+      "type": "string",
+      "pattern": "^[a-zA-Z]+([a-zA-Z0-9\\-_]+)*$"
+    },
+    "item": {
+      "type": "string"
+    },
+    "user": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "action",
+    "app"
+  ],
+  "additionalProperties": false
+}

@@ -140,6 +140,7 @@ services:
       - S3_STORAGE_SECRET_KEY
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - AUTH_BASE_URL
+      - REPORT_BASE_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

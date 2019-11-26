@@ -12,7 +12,21 @@
         },
         {
             "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-sdk",
             "options": {
                 "symlink": true
             }
@@ -32,8 +46,8 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
-        "alchemy/report-bundle": "@dev",
         "alchemy/api-test": "@dev",
+        "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "doctrine/dbal": "2.9.1",
         "league/flysystem-aws-s3-v3": "^1.0",

@@ -1,0 +1,35 @@
+{
+  "name": "alchemy/report-sdk",
+  "type": "library",
+  "description": "Symfony report SDK",
+  "keywords": [],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.3",
+    "guzzlehttp/guzzle": "^6.3",
+    "opis/json-schema": "^1.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\ReportSDK\\": "src/"
+    },
+    "exclude-from-classmap": [
+      "/tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\ReportSDK\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.4"
+  }
+}
