@@ -17,6 +17,9 @@ services:
           headers:
             Accept: "application/json"
 
-  Alchemy\ReportBundle\ReportClient:
+  Alchemy\ReportSDK\ReportClient:
     arguments:
+      $appName: "%alchemy_report.app_name%"
       $client: "@alchemy_report.http_client"
+
+  Alchemy\ReportBundle\ReportUserDecorator: ~

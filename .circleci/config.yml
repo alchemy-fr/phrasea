@@ -16,7 +16,7 @@ jobs:
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - setup_remote_docker:
           version: 18.01.0-ce
-          docker_layer_caching: false
+          docker_layer_caching: true
       - run:
           name: Install Docker client
           command: |

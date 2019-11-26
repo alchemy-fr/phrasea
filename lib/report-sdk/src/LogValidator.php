@@ -36,7 +36,7 @@ class LogValidator
         } else {
             /** @var ValidationError $error */
             $error = $result->getFirstError();
-            throw new InvalidLogException($error->keyword() . ' '.json_encode($error->keywordArgs(), JSON_PRETTY_PRINT));
+            throw new InvalidLogException('Invalid log: '.$error->keyword() . ' '.json_encode($error->keywordArgs(), JSON_PRETTY_PRINT));
         }
     }
 }

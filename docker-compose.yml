@@ -426,7 +426,9 @@ services:
     image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
     build: report
     networks:
-      - internal
+      internal:
+        aliases:
+          - report-api
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD

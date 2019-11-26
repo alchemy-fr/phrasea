@@ -12,6 +12,6 @@ RUN go build \
     && chmod +x go.sh \
     && rm *.go *.mod *.sum
 
-CMD ./go.sh
-
 EXPOSE 80
+
+CMD ./go.sh
