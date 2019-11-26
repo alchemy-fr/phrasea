@@ -81,6 +81,8 @@ services:
       - PGADMIN_DEFAULT_PASSWORD
     depends_on:
       - db
+    volumes:
+      - pgadmin_vol:/var/lib/pgadmin
 
   mailhog:
     image: mailhog/mailhog
@@ -164,5 +166,6 @@ services:
       - ./report/src:/usr/app
 
 volumes:
+  pgadmin_vol:
   dev_vol:
     driver: local
