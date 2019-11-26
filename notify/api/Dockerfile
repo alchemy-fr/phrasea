@@ -36,6 +36,14 @@ RUN adduser -D -u 1000 app \
 
 WORKDIR /srv/app
 
+# Warm up composer cache for faster builds
+COPY docker/caching/composer.* ./
+COPY __lib ./__lib
+RUN mkdir -p var/cache var/logs var/sessions \
+    && composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction --no-scripts \
+    && rm -rf vendor composer.* __lib
+# End warm up
+
 COPY . .
 
 ENV APP_ENV=prod

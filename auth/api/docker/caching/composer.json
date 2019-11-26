@@ -1,0 +1,121 @@
+{
+    "type": "project",
+    "license": "proprietary",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./__lib/notify-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/admin-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/api-test",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.1.3",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "alchemy/admin-bundle": "*",
+        "alchemy/api-test": "@dev",
+        "alchemy/notify-bundle": "*",
+        "arthem/locale-bundle": "^0",
+        "arthem/rabbit-bundle": "@dev",
+        "friendsofsymfony/oauth-server-bundle": "^1.6",
+        "hwi/oauth-bundle": "^0.6.3",
+        "nelmio/cors-bundle": "1.5.6",
+        "php-http/guzzle6-adapter": "^2|^1",
+        "php-http/httplug": "^2|^1",
+        "php-http/httplug-bundle": "^1.16",
+        "predis/predis": "^1.0",
+        "ramsey/uuid-doctrine": "^1.5",
+        "snc/redis-bundle": "^2.1",
+        "symfony/console": "^4.3",
+        "symfony/dotenv": "^4.3",
+        "symfony/flex": "^1.1",
+        "symfony/form": "^4.3",
+        "symfony/framework-bundle": "^4.3",
+        "symfony/orm-pack": "^1.0",
+        "symfony/security-bundle": "^4.3",
+        "symfony/templating": "^4.3",
+        "symfony/translation": "^4.3",
+        "symfony/twig-bundle": "^4.3",
+        "symfony/validator": "^4.3",
+        "symfony/yaml": "^4.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "hautelook/alice-bundle": "^2.5",
+        "symfony/css-selector": "^4.3",
+        "symfony/process": "^4.3",
+        "symfony/profiler-pack": "^1.0",
+        "symfony/test-pack": "^1.0",
+        "symfony/var-dumper": "^4.3"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "replace": {
+        "paragonie/random_compat": "2.*",
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php71": "*",
+        "symfony/polyfill-php70": "*",
+        "symfony/polyfill-php56": "*"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "^4.3"
+        }
+    }
+}
