@@ -30,6 +30,7 @@ services:
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
       - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - REPORT_BASE_URL
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -211,6 +212,7 @@ services:
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
+      - REPORT_BASE_URL
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
