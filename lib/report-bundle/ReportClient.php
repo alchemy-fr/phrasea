@@ -19,14 +19,11 @@ class ReportClient
         $this->client = $client;
     }
 
-    public function pushAction(string $action, array $payload): void
+    public function pushLog(array $log): void
     {
         try {
-            $response = $this->client->post('/action', [
-                'json' => [
-                    'action' => $action,
-                    'payload' => $payload,
-                ],
+            $response = $this->client->post('/log', [
+                'json' => $log,
             ]);
         } catch (ClientException $e) {
             throw $e;

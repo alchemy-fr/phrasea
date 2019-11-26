@@ -10,7 +10,7 @@ COPY ./src .
 
 RUN go build \
     && chmod +x go.sh \
-    && rm *.go *.mod *.sum *.sql
+    && rm *.go *.mod *.sum
 
 CMD ./go.sh
 

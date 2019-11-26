@@ -20,7 +20,7 @@ type logJson struct {
     Payload map[string]string
 }
 
-func indexHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+func logHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
     header := w.Header()
     header.Set("Content-Type", "application/json")
 
@@ -61,7 +61,7 @@ func main() {
     fmt.Println("Successfully connected!")
 
 	router := httprouter.New()
-	router.POST("/", indexHandler)
+	router.POST("/log", logHandler)
 
 	// print env
 	env := os.Getenv("APP_ENV")

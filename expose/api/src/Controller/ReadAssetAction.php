@@ -134,8 +134,9 @@ final class ReadAssetAction extends AbstractController
         $stream = $this->storageManager->getStream($asset->getPath());
         fclose($stream);
 
-        $this->reportClient->pushAction('download_asset', [
-            'id' => $asset->getAssetId(),
+        $this->reportClient->pushLog([
+            'action' => 'download_asset',
+            'item' => $asset->getAssetId(),
         ]);
 
         $stream = $this->storageManager->getStream($asset->getPath());
