@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"context"
+	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"github.com/jackc/pgx/v4"
 	"log"
@@ -12,16 +13,37 @@ import (
 
 var conn *pgx.Conn
 
-func indexHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-    header := w.Header()
-    header.Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "true")
-
-	addAction(ps.ByName("action"))
+type logJson struct {
+    Action string
+    Item string
+    User string
+    Payload map[string]string
 }
 
-func addAction(action string) error {
-	_, err := conn.Exec(context.Background(), "INSERT INTO logs(action) values($1)", action)
+func indexHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+    header := w.Header()
+    header.Set("Content-Type", "application/json")
+
+    decoder := json.NewDecoder(req.Body)
+    var t logJson
+    err := decoder.Decode(&t)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Unable to decode JSON: %v\n", err)
+        return
+    }
+    err = addAction(t)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Unable to persist log: %v\n", err)
+        fmt.Fprintf(w, "{\"error\":\"%v\"}", err)
+        return
+    }
+
+    fmt.Fprintf(w, "true")
+}
+
+func addAction(log logJson) error {
+	//fmt.Printf("Action=%s, Item=%s, User=%s, Payload=%v", log.Action, log.Item, log.User, log.Payload)
+	_, err := conn.Exec(context.Background(), "INSERT INTO logs(action, item, user_id, payload) values($1, $2, $3, $4)", log.Action, log.Item, log.User, log.Payload)
 	return err
 }
 
@@ -32,7 +54,7 @@ func main() {
     var err error
     conn, err = pgx.Connect(context.Background(), connStr)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Unable to connection to database: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
         os.Exit(1)
     }
     defer conn.Close(context.Background())
@@ -50,10 +72,4 @@ func main() {
 	}
 
 	http.ListenAndServe(":80", router)
-}
-
-func checkError(err error) {
-    if err != nil {
-        panic(err)
-    }
 }

@@ -8,10 +8,9 @@ RUN apk add --no-cache git mercurial
 
 COPY ./src .
 
-RUN go mod init /usr/app \
-    && go get \
-    && go build \
-    && chmod +x go.sh
+RUN go build \
+    && chmod +x go.sh \
+    && rm *.go *.mod *.sum *.sql
 
 CMD ./go.sh
 

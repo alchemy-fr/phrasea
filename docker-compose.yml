@@ -165,7 +165,6 @@ services:
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - POSTGRES_DB=${WEBLATE_POSTGRES_DB}
     volumes:
       - db_vol:/var/lib/postgresql/data
 

@@ -24,6 +24,12 @@ function exec_container() {
     docker-compose ${CONF} exec -T "$1" sh -c "$2"
 }
 
+PSQL="psql -U "${POSTGRES_USER}""
+
+function create_db() {
+    exec_container db "${PSQL} -tc \"SELECT 1 FROM pg_database WHERE datname = '$1'\" | grep -q 1 || ${PSQL} -c \"CREATE DATABASE $1\""
+}
+
 exec_container rabbitmq "\
     rabbitmqctl add_vhost auth \
     && rabbitmqctl add_vhost upload \
@@ -68,3 +74,10 @@ docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
   mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME && \
   mc policy set download minio/$EXPOSE_STORAGE_BUCKET_NAME \
 "
+
+# Weblate
+create_db "${WEBLATE_POSTGRES_DB}"
+
+# Report
+create_db "${REPORT_DB_NAME}"
+exec_container db "${PSQL} ${REPORT_DB_NAME}" < "$BASEDIR/../report/structure.sql"
