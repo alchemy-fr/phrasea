@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
 use DateTime;
@@ -15,7 +16,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
@@ -54,8 +54,9 @@ class Commit
     private $id;
 
     /**
+     * TODO make async cascade remove.
+     *
      * @var Asset[]|Collection
-     * TODO make async cascade remove
      * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
      */
     private $assets;

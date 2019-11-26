@@ -32,7 +32,7 @@ class AuthorizationListener implements EventSubscriberInterface
 
         foreach ([
                      PasswordTokenListener::COOKIE_NAME,
-                     RemoteAuthListener::COOKIE_NAME
+                     RemoteAuthListener::COOKIE_NAME,
                  ] as $cookieName) {
             if ($request->cookies->has($cookieName)) {
                 // Cookie is already set, pass.

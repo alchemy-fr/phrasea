@@ -25,11 +25,11 @@ class RemoteClient
         try {
             $response = $this->client->request('GET', '/token-info', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Authorization' => 'Bearer '.$accessToken,
                 ],
             ]);
         } catch (ClientException $e) {
-            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 401) {
+            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
                 throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
             }
 
@@ -55,7 +55,7 @@ class RemoteClient
                 ],
             ]);
         } catch (ClientException $e) {
-            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 401) {
+            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
                 throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
             }
 

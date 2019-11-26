@@ -2,11 +2,7 @@
 
 namespace Alchemy\AdminBundle\DependencyInjection;
 
-use Alchemy\AdminBundle\Admin\Notifier;
-use Alchemy\AdminBundle\Admin\NotifierInterface;
-use Alchemy\AdminBundle\Admin\NullNotifier;
 use Alchemy\AdminBundle\OAuth\OAuthRegistry;
-use Alchemy\AdminBundle\Security\LoginFormAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -30,7 +26,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
         $this->loadExternalConfig($container, $config['service']);
@@ -71,8 +67,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 $siteTitle
             );
         } else {
-            $adminSiteTitle = $siteTitle . ' Admin';
-
+            $adminSiteTitle = $siteTitle.' Admin';
         }
         $container->setParameter('easy_admin.site_title', $adminSiteTitle);
 
@@ -99,17 +94,16 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 'formats' => [
                     'date' => 'd/m/Y',
                     'time' => 'H:i',
-                    'datetime' => 'd/m/Y H:i:s'
+                    'datetime' => 'd/m/Y H:i:s',
                 ],
                 'show' => [
                     'max_results' => 100,
                 ],
                 'user' => [
-
                     'display_name' => true,
                     'display_avatar' => false,
                     'name_property_path' => 'username',
-                ]
+                ],
             ]
         );
 
@@ -119,8 +113,8 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                         'admin' => [
                             'route_name' => 'alchemy_admin_login',
                             'default_target_path' => '/admin',
-                        ]
-                    ]
+                        ],
+                    ],
                 ]
             );
         }

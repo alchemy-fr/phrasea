@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\ReportSDK;
 
 use Alchemy\ReportSDK\Exception\InvalidLogException;
-use Opis\JsonSchema\{
-    Validator, ValidationError, Schema
-};
+use Opis\JsonSchema\Schema;
+use Opis\JsonSchema\ValidationError;
+use Opis\JsonSchema\Validator;
 
 class LogValidator
 {
@@ -36,7 +36,7 @@ class LogValidator
         } else {
             /** @var ValidationError $error */
             $error = $result->getFirstError();
-            throw new InvalidLogException('Invalid log: '.$error->keyword() . ' '.json_encode($error->keywordArgs(), JSON_PRETTY_PRINT));
+            throw new InvalidLogException('Invalid log: '.$error->keyword().' '.json_encode($error->keywordArgs(), JSON_PRETTY_PRINT));
         }
     }
 }

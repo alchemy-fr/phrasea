@@ -47,7 +47,7 @@ class OAuthClient
         } catch (ClientException $e) {
             $response = $e->getResponse();
             $json = $this->getJson($response);
-            if ($response->getStatusCode() === 401) {
+            if (401 === $response->getStatusCode()) {
                 $this->validatePayload($json);
             }
 
@@ -70,10 +70,7 @@ class OAuthClient
     private function validatePayload(array $data, string $exceptionClass = CustomUserMessageAuthenticationException::class): void
     {
         if (isset($data['error'])) {
-            throw new $exceptionClass(sprintf('%s: %s',
-                $data['error'],
-                $data['error_description']
-            ));
+            throw new $exceptionClass(sprintf('%s: %s', $data['error'], $data['error_description']));
         }
     }
 }

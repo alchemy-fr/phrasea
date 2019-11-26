@@ -62,8 +62,7 @@ class LoginController extends AbstractController
         OAuthClient $oauthClient,
         RemoteAuthProvider $userProvider,
         RemoteAuthAuthenticator $authenticator
-    ): Response
-    {
+    ): Response {
         $accessToken = $oauthClient->getAccessTokenFromAuthorizationCode(
             $request->get('code'),
             $this->getRedirectUri()

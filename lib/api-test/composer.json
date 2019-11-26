@@ -25,5 +25,8 @@
     "psr-4": {
       "Alchemy\\ApiTest\\Tests\\": "tests"
     }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16"
   }
 }

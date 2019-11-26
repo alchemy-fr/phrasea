@@ -27,7 +27,7 @@ class AlchemyRemoteAuthExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        if ($container->getParameter("kernel.environment") === 'test') {
+        if ('test' === $container->getParameter('kernel.environment')) {
             $loader->load('services_test.yaml');
         }
 
@@ -39,6 +39,5 @@ class AlchemyRemoteAuthExtension extends Extension
             $def->setArgument('$defaultTargetPath', $loginForm['default_target_path']);
             $container->setDefinition('alchemy_remote.login_form.'.$name, $def);
         }
-
     }
 }

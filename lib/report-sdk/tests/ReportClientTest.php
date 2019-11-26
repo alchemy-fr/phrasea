@@ -6,11 +6,11 @@ namespace Alchemy\ReportSDK\Tests;
 
 use Alchemy\ReportSDK\Exception\InvalidLogException;
 use Alchemy\ReportSDK\ReportClient;
-use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 class ReportClientTest extends TestCase
 {

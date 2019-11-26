@@ -53,27 +53,30 @@ class PublicationVoter extends Voter
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
     {
-        if ($publication->getSecurityMethod() === Publication::SECURITY_METHOD_NONE) {
+        if (Publication::SECURITY_METHOD_NONE === $publication->getSecurityMethod()) {
             return true;
         }
 
-        if ($publication->getSecurityMethod() === Publication::SECURITY_METHOD_PASSWORD) {
+        if (Publication::SECURITY_METHOD_PASSWORD === $publication->getSecurityMethod()) {
             if (!$token instanceof PasswordToken) {
                 $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
+
                 return false;
             }
 
             if ($token->getPassword() !== $publication->getSecurityOptions()['password']) {
                 $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
+
                 return false;
             }
 
             return true;
         }
 
-        if ($publication->getSecurityMethod() === Publication::SECURITY_METHOD_AUTHENTICATION) {
+        if (Publication::SECURITY_METHOD_AUTHENTICATION === $publication->getSecurityMethod()) {
             if (!$token instanceof RemoteAuthToken) {
                 $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
+
                 return false;
             }
 

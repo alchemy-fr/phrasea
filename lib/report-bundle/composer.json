@@ -5,6 +5,15 @@
   "keywords": [],
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../report-sdk",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
   "require": {
     "php": "^7.3",
     "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
@@ -26,5 +35,8 @@
     "psr-4": {
       "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
     }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16"
   }
 }

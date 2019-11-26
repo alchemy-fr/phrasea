@@ -54,7 +54,6 @@ class Publication
         'swagger_definition_name' => 'List',
     ];
 
-
     const SECURITY_METHOD_NONE = null;
     const SECURITY_METHOD_PASSWORD = 'password';
     const SECURITY_METHOD_AUTHENTICATION = 'authentication';

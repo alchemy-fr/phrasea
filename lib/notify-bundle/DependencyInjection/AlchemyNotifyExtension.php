@@ -5,7 +5,6 @@ namespace Alchemy\NotifyBundle\DependencyInjection;
 use Alchemy\NotifyBundle\Notify\Notifier;
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use Alchemy\NotifyBundle\Notify\NullNotifier;
-use Alchemy\NotifyBundle\Security\LoginFormAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -32,7 +31,7 @@ class AlchemyNotifyExtension extends Extension
 
         $container->setParameter('notify_base_url_internal', $config['notify_base_url']);
 
-        if ($container->getParameter('kernel.environment') === 'test') {
+        if ('test' === $container->getParameter('kernel.environment')) {
             $def = new Definition(NullNotifier::class);
             $container->setDefinition(NullNotifier::class, $def);
             $container->setAlias(NotifierInterface::class, NullNotifier::class);

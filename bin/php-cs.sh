@@ -10,3 +10,8 @@ for f in ${SYMFONY_PROJECTS}; do
     echo "Fix CS in ${f}:"
     (cd "${BASEDIR}/${f}" && ./vendor/bin/php-cs-fixer fix)
 done
+
+for f in ${PHP_LIBS}; do
+    echo "Fix CS in ${f}:"
+    (cd "${BASEDIR}/${f}" && composer req --dev friendsofphp/php-cs-fixer && ./vendor/bin/php-cs-fixer fix)
+done

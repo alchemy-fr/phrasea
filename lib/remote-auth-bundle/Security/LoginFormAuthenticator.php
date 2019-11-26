@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -130,7 +128,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             ]);
         } catch (ClientException $e) {
             $response = $e->getResponse();
-            if ($response->getStatusCode() === 401) {
+            if (401 === $response->getStatusCode()) {
                 $json = \GuzzleHttp\json_decode($response->getBody()->getContents());
                 throw new CustomUserMessageAuthenticationException($json['error_description']);
             }

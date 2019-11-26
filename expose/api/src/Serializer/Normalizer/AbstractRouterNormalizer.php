@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Serializer\Normalizer;
 
-use App\Entity\Asset;
 use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

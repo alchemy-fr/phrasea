@@ -10,7 +10,6 @@ use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityF
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 
 class RemoteAuthFactory implements SecurityFactoryInterface
 {

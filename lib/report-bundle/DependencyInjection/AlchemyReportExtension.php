@@ -24,7 +24,7 @@ class AlchemyReportExtension extends Extension
 
         $container->setParameter('alchemy_report.app_name', $config['app_name']);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
     }
 }

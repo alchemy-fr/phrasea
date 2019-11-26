@@ -7,8 +7,6 @@ namespace Alchemy\RemoteAuthBundle\Security;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;

@@ -28,5 +28,8 @@
     "psr-4": {
       "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
     }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16"
   }
 }

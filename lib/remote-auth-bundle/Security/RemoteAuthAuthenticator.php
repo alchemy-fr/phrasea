@@ -32,8 +32,7 @@ class RemoteAuthAuthenticator
         TokenStorageInterface $tokenStorage,
         SessionInterface $session,
         EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
         $this->tokenStorage = $tokenStorage;
         $this->session = $session;
         $this->eventDispatcher = $eventDispatcher;
@@ -41,12 +40,11 @@ class RemoteAuthAuthenticator
 
     public function authenticateUser(
         Request $request,
-        string  $accessToken,
+        string $accessToken,
         array $tokenInfo,
         RemoteUser $user,
         string $providerKey
-    ): void
-    {
+    ): void {
         $securityToken = new RemoteAuthToken($accessToken, $user->getRoles());
         $securityToken->setScopes($tokenInfo['scopes']);
         $securityToken->setAuthenticated(true);

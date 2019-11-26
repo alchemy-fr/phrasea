@@ -46,6 +46,7 @@ class RemoteAuthListener
             if ($token instanceof RemoteAuthToken) {
                 $this->tokenStorage->setToken(null);
             }
+
             return;
         }
     }

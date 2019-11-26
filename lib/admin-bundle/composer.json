@@ -10,7 +10,7 @@
   "repositories": [
     {
       "type": "path",
-      "url": "./__lib/remote-auth-bundle",
+      "url": "../remote-auth-bundle",
       "options": {
         "symlink": true
       }
@@ -38,5 +38,8 @@
     "psr-4": {
       "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
     }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16"
   }
 }

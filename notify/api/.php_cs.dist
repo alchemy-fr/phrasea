@@ -3,6 +3,7 @@
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
     ->exclude('var')
+    ->exclude('__lib')
 ;
 
 return PhpCsFixer\Config::create()
