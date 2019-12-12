@@ -1,15 +1,6 @@
 {
     "type": "project",
     "license": "proprietary",
-    "repositories": [
-        {
-            "type": "path",
-            "url": "./__lib/admin-bundle",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -17,7 +8,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "arthem/rabbit-bundle": "@dev",
-        "alchemy/admin-bundle": "@dev",
         "qandidate/symfony-json-request-transformer": "^1.3",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^5.4",

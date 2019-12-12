@@ -46,7 +46,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
-        "alchemy/api-test": "@dev",
         "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "doctrine/dbal": "2.9.1",
@@ -62,6 +61,7 @@
         "symfony/yaml": "4.3.*"
     },
     "require-dev": {
+        "alchemy/api-test": "@dev",
         "friendsofphp/php-cs-fixer": "^2.16",
         "hautelook/alice-bundle": "^2.5",
         "symfony/debug-pack": "^1.0",
