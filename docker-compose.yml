@@ -18,6 +18,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
       - DB_USER=${POSTGRES_USER}
@@ -47,6 +48,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
       - DB_USER=${POSTGRES_USER}
@@ -102,6 +104,7 @@ services:
       - ./configs:/configs
     environment:
       - APP_ENV
+      - APP_ID=auth
       - AUTH_BASE_URL
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - DB_USER=${POSTGRES_USER}
@@ -120,6 +123,7 @@ services:
           - auth-api-php
     environment:
       - APP_ENV
+      - APP_ID=auth
       - AUTH_BASE_URL
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
@@ -201,6 +205,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - APP_ID=expose
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -228,6 +233,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - APP_ID=expose
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -304,6 +310,7 @@ services:
       - rabbitmq
     environment:
       - APP_ENV
+      - APP_ID=notify
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}

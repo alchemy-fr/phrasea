@@ -73,6 +73,11 @@ Connection > Username: `alchemy` # by default (see `.env` file)
 
 Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
 
+## Running multiple instances of services
+
+You may need to deploy to different expose services (with their specific network/security rules).
+In that case, you need to assign a unique `APP_ID` to each instance. This `APP_ID` will be stored in report service.
+
 # Further reading
 
 - [Dev with NGINX](./doc/dev-with-nginx.md)

@@ -23,8 +23,12 @@ class ReportClient
      * @var string
      */
     private $appName;
+    /**
+     * @var string
+     */
+    private $appId;
 
-    public function __construct(string $appName, Client $client, ?LogValidator $logValidator = null)
+    public function __construct(string $appName, string $appId, Client $client, ?LogValidator $logValidator = null)
     {
         $this->client = $client;
 
@@ -33,13 +37,15 @@ class ReportClient
         }
         $this->logValidator = $logValidator;
         $this->appName = $appName;
+        $this->appId = $appId;
     }
 
     public function pushLog(string $action, ?string $userId = null, ?string $itemId = null, array $payload = []): void
     {
         $log = [
             'action' => $action,
-            'app' => $this->appName,
+            'appName' => $this->appName,
+            'appId' => $this->appId,
         ];
         if ($userId) {
             $log['user'] = $userId;
