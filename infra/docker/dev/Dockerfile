@@ -74,7 +74,8 @@ COPY oh-my-zsh/themes/arthem.zsh-theme /bootstrap/.oh-my-zsh/themes/arthem.zsh-t
 
 RUN chmod -R +x \
         /bootstrap/entrypoint.sh \
-        /bootstrap/entrypoint.d/*.sh
+        /bootstrap/entrypoint.d/*.sh \
+   && echo "memory_limit = -1" >> /usr/local/etc/php/conf.d/zz.ini
 
 USER app
 

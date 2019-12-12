@@ -38,9 +38,8 @@ WORKDIR /srv/app
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
-COPY __lib ./__lib
 RUN composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction --no-scripts \
-    && rm -rf vendor composer.* __lib
+    && rm -rf vendor composer.*
 # End warm up
 
 COPY . .
