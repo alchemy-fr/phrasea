@@ -116,6 +116,8 @@ final class ReadAssetAction extends AbstractController
         $mimes = new MimeTypes();
         $extension = $mimes->getExtension($subDefinition->getMimeType());
 
+        $this->reportClient->pushLog(LogActionInterface::ACTION_SUBDEF_DOWNLOAD, $asset->getAssetId());
+
         return new StreamedResponse(function () use ($stream) {
             fpassthru($stream);
             fclose($stream);
@@ -133,11 +135,8 @@ final class ReadAssetAction extends AbstractController
     {
         $asset = $this->getAssetFromPublicationAsset($id);
         $stream = $this->storageManager->getStream($asset->getPath());
-        fclose($stream);
 
         $this->reportClient->pushLog(LogActionInterface::ACTION_ASSET_DOWNLOAD, $asset->getAssetId());
-
-        $stream = $this->storageManager->getStream($asset->getPath());
 
         return new StreamedResponse(function () use ($stream) {
             ob_end_flush();

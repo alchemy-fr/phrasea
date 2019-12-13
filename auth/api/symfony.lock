@@ -205,6 +205,9 @@
     "pagerfanta/pagerfanta": {
         "version": "v2.1.2"
     },
+    "php": {
+        "version": "7.3"
+    },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },

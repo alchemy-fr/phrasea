@@ -16,6 +16,7 @@ class PublicationExtension implements QueryCollectionExtensionInterface
         if (Publication::class === $resourceClass) {
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->andWhere(sprintf('%s.publiclyListed = true', $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.enabled = true', $rootAlias));
         }
     }
 }
