@@ -42,7 +42,8 @@
   },
   "required": [
     "action",
-    "app"
+    "appName",
+    "appId"
   ],
   "additionalProperties": false
 }

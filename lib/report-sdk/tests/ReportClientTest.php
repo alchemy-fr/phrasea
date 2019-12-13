@@ -51,7 +51,6 @@ class ReportClientTest extends TestCase
             [['']],
             [['invalid-action-format']],
             [['09']],
-            [['unsupported_action']],
         ];
     }
 }

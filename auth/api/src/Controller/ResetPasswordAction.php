@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportUserDecorator;
+use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\User;
 use App\Form\ResetPasswordForm;
 use App\Security\PasswordManager;
@@ -17,10 +19,15 @@ class ResetPasswordAction extends AbstractController
      * @var PasswordManager
      */
     private $passwordManager;
+    /**
+     * @var ReportUserDecorator
+     */
+    private $reportClient;
 
-    public function __construct(PasswordManager $passwordManager)
+    public function __construct(PasswordManager $passwordManager, ReportUserDecorator $reportClient)
     {
         $this->passwordManager = $passwordManager;
+        $this->reportClient = $reportClient;
     }
 
     /**
@@ -37,6 +44,8 @@ class ResetPasswordAction extends AbstractController
             /** @var User $user */
             $user = $form->getData();
             $this->passwordManager->resetPassword($id, $token, $user->getPlainPassword());
+
+            $this->reportClient->pushLog(LogActionInterface::RESET_PASSWORD);
 
             return $this->redirectToRoute('reset_password_changed');
         }

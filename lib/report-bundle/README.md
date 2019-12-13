@@ -38,7 +38,7 @@ final class MyService
     {
         // ...
         $this->reportClient->pushLog(
-            LogActionInterface::ACTION_ASSET_DOWNLOAD, // action
+            LogActionInterface::ASSET_DOWNLOAD, // action
             $id, // item ID
             [
                 'some' => [

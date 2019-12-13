@@ -25,6 +25,20 @@
         },
         {
             "type": "path",
+            "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-sdk",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/api-test",
             "options": {
                 "symlink": true
@@ -42,6 +56,7 @@
         "alchemy/notify-bundle": "*",
         "arthem/locale-bundle": "^0",
         "arthem/rabbit-bundle": "@dev",
+        "alchemy/report-bundle": "@dev",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hwi/oauth-bundle": "^0.6.3",
         "nelmio/cors-bundle": "1.5.6",
