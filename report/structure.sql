@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS  logs (
   item character(36),
   user_id character(36),
   payload json,
-  date timestamp not null default CURRENT_TIMESTAMP
+  event_date timestamp not null default CURRENT_TIMESTAMP
+  created_at timestamp not null default CURRENT_TIMESTAMP
 );

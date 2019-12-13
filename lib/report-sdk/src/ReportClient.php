@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\ReportSDK;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Throwable;
 
 class ReportClient
 {
@@ -23,12 +25,24 @@ class ReportClient
      * @var string
      */
     private $appName;
+
     /**
      * @var string
      */
     private $appId;
 
-    public function __construct(string $appName, string $appId, Client $client, ?LogValidator $logValidator = null)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(
+        string $appName,
+        string $appId,
+        Client $client,
+        ?LogValidator $logValidator = null,
+        LoggerInterface $logger = null
+    )
     {
         $this->client = $client;
 
@@ -38,9 +52,15 @@ class ReportClient
         $this->logValidator = $logValidator;
         $this->appName = $appName;
         $this->appId = $appId;
+        $this->logger = $logger ?? new NullLogger();
     }
 
-    public function pushLog(string $action, ?string $userId = null, ?string $itemId = null, array $payload = []): void
+    public function pushLog(
+        string $action,
+        ?string $userId = null,
+        ?string $itemId = null,
+        array $payload = []
+    ): void
     {
         $log = [
             'action' => $action,
@@ -63,8 +83,12 @@ class ReportClient
             $this->client->post('/log', [
                 'json' => $log,
             ]);
-        } catch (ClientException $e) {
-            throw $e;
+        } catch (Throwable $e) {
+            $this->logger->alert(sprintf(
+                'Unable to send log to report service: (%s) %s',
+                $e->getMessage(),
+                get_class($e)
+            ));
         }
     }
 }
