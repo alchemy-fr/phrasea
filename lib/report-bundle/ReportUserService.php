@@ -9,7 +9,7 @@ use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
-class ReportUserService implements ReportUserServiceInterface
+class ReportUserService
 {
     /**
      * @var ReportClient
