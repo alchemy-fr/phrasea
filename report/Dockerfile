@@ -8,9 +8,12 @@ RUN apk add --no-cache git mercurial
 
 COPY ./src .
 
-RUN go build \
+RUN go build -o app . \
     && chmod +x go.sh \
     && rm *.go *.mod *.sum
+
+RUN pwd
+RUN ls -la
 
 EXPOSE 80
 

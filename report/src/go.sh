@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if [ ${APP_ENV} == "production" ];
+if [ ${APP_ENV} == "prod" ];
 	then
-	app
+	./app
 else
 	go get github.com/pilu/fresh \
 	&& fresh

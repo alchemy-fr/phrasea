@@ -77,7 +77,7 @@ func main() {
 
 	// print env
 	env := os.Getenv("APP_ENV")
-	if env == "production" {
+	if env == "prod" {
 		log.Println("Running api server in production mode")
 	} else {
 		log.Println("Running api server in dev mode")

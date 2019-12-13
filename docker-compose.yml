@@ -444,6 +444,7 @@ services:
         aliases:
           - report-api
     environment:
+      - APP_ENV
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
