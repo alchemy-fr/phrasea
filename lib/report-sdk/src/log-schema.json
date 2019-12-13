@@ -8,22 +8,33 @@
   "properties": {
     "action": {
       "type": "string",
-      "enum": [
-        "asset_view",
-        "asset_download",
-        "asset_preview"
-      ],
-      "pattern": "^[a-zA-Z]+([a-zA-Z0-9_]+)*$"
+      "pattern": "^[a-zA-Z]+([a-zA-Z0-9_]+)*$",
+      "maxLength": 50
     },
-    "app": {
+    "appName": {
       "type": "string",
-      "pattern": "^[a-zA-Z]+([a-zA-Z0-9\\-_]+)*$"
+      "pattern": "^[a-zA-Z]+([a-zA-Z0-9\\-_]+)*$",
+      "maxLength": 36
+    },
+    "appId": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "databoxId": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "baseId": {
+      "type": "string",
+      "maxLength": 36
     },
     "item": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 36
     },
     "user": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 36
     },
     "payload": {
       "type": "object"
@@ -31,7 +42,8 @@
   },
   "required": [
     "action",
-    "app"
+    "appName",
+    "appId"
   ],
   "additionalProperties": false
 }

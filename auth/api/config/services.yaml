@@ -75,3 +75,7 @@ services:
     App\Controller\TokenInfoAction:
         arguments:
             $tokenManager: "@fos_oauth_server.access_token_manager.default"
+
+    App\Doctrine\Listener\AccessTokenListener:
+        tags:
+            - { name: doctrine.orm.entity_listener, lazy: true }

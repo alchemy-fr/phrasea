@@ -29,7 +29,7 @@ class LogValidator
 
     public function validate(array $data): array
     {
-        $result = $this->validator->schemaValidation((object) $data, $this->schema);
+        $result = $this->validator->schemaValidation(\GuzzleHttp\json_decode(\GuzzleHttp\json_encode($data)), $this->schema);
 
         if ($result->isValid()) {
             return $data;

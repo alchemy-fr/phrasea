@@ -25,10 +25,10 @@ class LogValidatorTest extends TestCase
     {
         return [
             [[]],
-            [['app' => 'foo']],
-            [['app' => 'foo', 'action' => 'invalid-action-format']],
-            [['app' => 'foo', 'action' => '09']],
-            [['app' => 'foo', 'action' => 'unsupported_action']],
+            [['appName' => 'foo']],
+            [['appName' => 'foo', 'appId' => 'app-123']],
+            [['appName' => 'foo', 'appId' => 'app-123', 'action' => 'invalid-action-format']],
+            [['appName' => 'foo', 'appId' => 'app-123', 'action' => '09']],
         ];
     }
 }

@@ -6,9 +6,10 @@ namespace Alchemy\ReportBundle;
 
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
-class ReportUserDecorator
+class ReportUserService implements ReportUserServiceInterface
 {
     /**
      * @var ReportClient
@@ -24,6 +25,15 @@ class ReportUserDecorator
     {
         $this->client = $client;
         $this->security = $security;
+    }
+
+    public function pushHttpRequestLog(Request $request, string $action, ?string $itemId = null, array $payload = []): void
+    {
+        $payload['ip'] = $request->getClientIp();
+        $payload['user_agent'] = $request->headers->get('User-Agent');
+        $payload['accept_language'] = $request->headers->get('Accept-Language');
+
+        $this->pushLog($action, $itemId, $payload);
     }
 
     public function pushLog(string $action, ?string $itemId = null, array $payload = []): void

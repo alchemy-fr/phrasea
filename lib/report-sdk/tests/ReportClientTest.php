@@ -23,7 +23,7 @@ class ReportClientTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        $reportClient = new ReportClient('test-app', $client);
+        $reportClient = new ReportClient('test-app', 'app-id', $client);
         $reportClient->pushLog('asset_view');
 
         $this->assertEquals(0, $mock->count());
@@ -38,7 +38,7 @@ class ReportClientTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        $reportClient = new ReportClient('test-app', $client);
+        $reportClient = new ReportClient('test-app', 'app-id', $client);
 
         $this->expectException(InvalidLogException::class);
 
@@ -51,7 +51,6 @@ class ReportClientTest extends TestCase
             [['']],
             [['invalid-action-format']],
             [['09']],
-            [['unsupported_action']],
         ];
     }
 }

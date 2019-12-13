@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\ReportBundle\ReportUserDecorator;
+use Alchemy\ReportBundle\ReportUserService;
 use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\Asset;
 use App\Entity\MediaInterface;
@@ -13,6 +13,7 @@ use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,14 +33,14 @@ final class ReadAssetAction extends AbstractController
      */
     private $assetManager;
     /**
-     * @var ReportUserDecorator
+     * @var ReportUserService
      */
     private $reportClient;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        ReportUserDecorator $reportClient
+        ReportUserService $reportClient
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
@@ -107,7 +108,7 @@ final class ReadAssetAction extends AbstractController
     /**
      * @Route("/{id}/sub-definitions/{type}/download", name="subdef_download")
      */
-    public function subDefinitionDownload(string $id, string $type): Response
+    public function subDefinitionDownload(string $id, string $type, Request $request): Response
     {
         $asset = $this->getAssetFromPublicationAsset($id);
         $subDefinition = $this->assetManager->findAssetSubDefinition($asset, $type);
@@ -115,6 +116,8 @@ final class ReadAssetAction extends AbstractController
 
         $mimes = new MimeTypes();
         $extension = $mimes->getExtension($subDefinition->getMimeType());
+
+        $this->logAssetAction(LogActionInterface::SUBDEF_DOWNLOAD, $asset, $request);
 
         return new StreamedResponse(function () use ($stream) {
             fpassthru($stream);
@@ -129,15 +132,12 @@ final class ReadAssetAction extends AbstractController
     /**
      * @Route("/{id}/download", name="download")
      */
-    public function downloadAsset(string $id): Response
+    public function downloadAsset(string $id, Request $request): Response
     {
         $asset = $this->getAssetFromPublicationAsset($id);
         $stream = $this->storageManager->getStream($asset->getPath());
-        fclose($stream);
 
-        $this->reportClient->pushLog(LogActionInterface::ACTION_ASSET_DOWNLOAD, $asset->getAssetId());
-
-        $stream = $this->storageManager->getStream($asset->getPath());
+        $this->logAssetAction(LogActionInterface::ASSET_DOWNLOAD, $asset, $request);
 
         return new StreamedResponse(function () use ($stream) {
             ob_end_flush();
@@ -148,5 +148,14 @@ final class ReadAssetAction extends AbstractController
             'Content-Disposition' => sprintf('attachment; filename="%s"', $asset->getOriginalName()),
             'Content-Size' => $asset->getSize(),
         ]);
+    }
+
+    private function logAssetAction(string $action, Asset $asset, Request $request): void
+    {
+        $payload = [
+            'asset_id' => $asset->getAssetId(),
+        ];
+
+        $this->reportClient->pushHttpRequestLog($request, $action, $asset->getId(), $payload);
     }
 }

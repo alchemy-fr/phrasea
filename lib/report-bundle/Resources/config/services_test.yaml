@@ -1,26 +1,20 @@
-parameters:
-  alchemy_report.report_base_url: '%env(REPORT_BASE_URL)%'
-
 services:
   _defaults:
     autowire: true
     autoconfigure: true
 
+  alchemy_report.handler_stack:
+    class: GuzzleHttp\HandlerStack
+    factory: ['Alchemy\ReportBundle\Test\MockHandlerFactory', 'create']
+
   alchemy_report.http_client:
     class: GuzzleHttp\Client
     arguments:
       -
+        handler: '@alchemy_report.handler_stack'
         base_uri: "%alchemy_report.report_base_url%"
         options:
           timeout: 10
           http_errors: false
           headers:
             Accept: "application/json"
-
-  Alchemy\ReportSDK\ReportClient:
-    arguments:
-      $appName: "%alchemy_report.app_name%"
-      $appId: "%alchemy_report.app_id%"
-      $client: "@alchemy_report.http_client"
-
-  Alchemy\ReportBundle\ReportUserService: ~

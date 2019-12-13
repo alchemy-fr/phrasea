@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('app_id')->defaultValue('%env(APP_ID)%')->end()
                 ->scalarNode('app_name')->isRequired()->end()
             ->end()
         ;
