@@ -57,6 +57,7 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - UPLOADER_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
+      - REPORT_BASE_URL
     volumes:
       - uploader_vol:/var/data/upload
 
@@ -111,6 +112,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - REPORT_BASE_URL
 
   auth-api-php:
     image: ${REGISTRY_NAMESPACE}auth-api-php:$DOCKER_TAG
@@ -134,6 +136,7 @@ services:
       - MAILER_URL
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - REPORT_BASE_URL
     volumes:
       - ./configs:/configs
     depends_on:
@@ -241,6 +244,7 @@ services:
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
+      - REPORT_BASE_URL
 
   expose-api-nginx:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
@@ -290,6 +294,7 @@ services:
       - rabbitmq
     environment:
       - APP_ENV
+      - APP_ID=notify
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -298,6 +303,7 @@ services:
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
       - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - REPORT_BASE_URL
 
   notify-worker:
     image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
@@ -315,6 +321,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - REPORT_BASE_URL
 
   notify-api-nginx:
     image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG

@@ -23,4 +23,4 @@ services:
       $appId: "%alchemy_report.app_id%"
       $client: "@alchemy_report.http_client"
 
-  Alchemy\ReportBundle\ReportUserDecorator: ~
+  Alchemy\ReportBundle\ReportUserService: ~

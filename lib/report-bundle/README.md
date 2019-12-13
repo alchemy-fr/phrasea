@@ -15,21 +15,53 @@ alchemy_report:
 
 ## Usage
 
+### In a HTTP request context
+
 ```php
 <?php
 namespace App\Controller;
 
-use Alchemy\ReportBundle\ReportUserDecorator;
+use Alchemy\ReportBundle\ReportUserService;
+use Alchemy\ReportSDK\LogActionInterface;
+use Symfony\Component\HttpFoundation\Request;
+
+final class MyController
+{
+    public function handle(string $id, ReportUserService $reportClient, Request $request)
+    {
+        // ...
+        $reportClient->pushHttpRequestLog(
+            $request,
+            LogActionInterface::ASSET_DOWNLOAD, // action
+            $id, // item ID
+            [
+                'some' => [
+                    'extra' => 'data',
+                ],
+            ], // payload
+        );
+        // ...
+    }
+}
+```
+
+## In a worker context
+
+```php
+<?php
+namespace App;
+
+use Alchemy\ReportBundle\ReportUserService;
 use Alchemy\ReportSDK\LogActionInterface;
 
 final class MyService
 {
     /**
-     * @var ReportUserDecorator
+     * @var ReportUserService
      */
     private $reportClient;
 
-    public function __construct(ReportUserDecorator $reportClient)
+    public function __construct(ReportUserService $reportClient)
     {
         $this->reportClient = $reportClient;
     }

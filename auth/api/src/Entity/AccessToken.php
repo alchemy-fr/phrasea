@@ -11,6 +11,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AccessTokenRepository")
+ * @ORM\EntityListeners({"App\Doctrine\Listener\AccessTokenListener"})
  */
 class AccessToken extends BaseAccessToken
 {
