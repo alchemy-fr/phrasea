@@ -17,10 +17,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('alchemy_notify');
-
-        $rootNode
+        $treeBuilder = new TreeBuilder('alchemy_notify');
+        $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('notify_base_url')->defaultValue('http://notify-api')->end()
             ->end()

@@ -12,13 +12,17 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "00759d088c36429a40e7da45340d070a1b4d6f43"
+                "reference": "f67bd64d869269d8dd1980424892037a31bed8aa"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^2.3",
+                "guzzlehttp/guzzle": "^6.3",
                 "php": "^7.3",
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -48,16 +52,19 @@
         },
         {
             "name": "alchemy/api-test",
-            "version": "dev-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "a8452176b73ec8b76fc371127e4e286f477da80a"
+                "reference": "2094b128588091381b0c0dea178ca1907cc4c494"
             },
             "require": {
                 "php": "^7.3",
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
             },
             "type": "library",
             "autoload": {
@@ -89,12 +96,15 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
-                "reference": "2aec378c6f38b20de931825699b16d73b06eb75b"
+                "reference": "e25f2e873a3ed1789a6af435b8d3bda650892c80"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "php": "^7.3",
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -128,13 +138,16 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
-                "reference": "57eeaff08abbbcb608cb768753a954f50b2ce0b5"
+                "reference": "a1e705a282a7592e99bad39878ea0f96996e22ff"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "php": "^7.3",
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -164,7 +177,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-report",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -204,7 +217,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-report",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",

@@ -17,10 +17,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('alchemy_remote_auth');
-
-        $rootNode
+        $treeBuilder = new TreeBuilder('alchemy_remote_auth');
+        $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('login_forms')
                     ->useAttributeAsKey('name')

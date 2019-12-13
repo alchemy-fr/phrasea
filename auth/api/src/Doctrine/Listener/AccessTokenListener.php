@@ -31,6 +31,6 @@ class AccessTokenListener
         /** @var User $user */
         $user = $accessToken->getUser();
         $event = new OAuthEvent($user);
-        $this->eventDispatcher->dispatch(Events::ON_ACCESS_TOKEN_DELIVERED, $event);
+        $this->eventDispatcher->dispatch($event, Events::ON_ACCESS_TOKEN_DELIVERED);
     }
 }

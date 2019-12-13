@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Listener\OAuth;
 
 use App\Entity\User;
-use Symfony\Component\EventDispatcher\Event;
 
-class OAuthEvent extends Event
+class OAuthEvent
 {
     /**
      * @var User|null
