@@ -24,4 +24,5 @@ return [
     Arthem\Bundle\LocaleBundle\ArthemLocaleBundle::class => ['all' => true],
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
+    Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class => ['all' => true],
 ];

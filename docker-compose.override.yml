@@ -166,6 +166,15 @@ services:
     volumes:
       - ./report/src:/usr/app
 
+  saml-idp:
+    image: kristophjunge/test-saml-idp
+    ports:
+      - ${SAML_IDP_PORT}:8080
+    environment:
+      - SIMPLESAMLPHP_SP_ENTITY_ID=http://auth.alchemy.local
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=http://saml-idp.alchemy.local/simplesaml/module.php/saml/sp/saml2-acs.php/test-sp
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=http://saml-idp.alchemy.local/simplesaml/module.php/saml/sp/saml2-logout.php/test-sp
+
 volumes:
   pgadmin_vol:
   dev_vol:

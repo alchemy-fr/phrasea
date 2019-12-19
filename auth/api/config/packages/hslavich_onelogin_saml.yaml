@@ -1,0 +1,49 @@
+hslavich_onelogin_saml:
+  # Basic settings
+  idp:
+    entityId: 'http://saml-idp.alchemy.local/saml2/idp/metadata.php'
+    singleSignOnService:
+      url: 'http://saml-idp.alchemy.local/saml2/idp/SSOService.php'
+      binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+    singleLogoutService:
+      url: 'http://saml-idp.alchemy.local/saml2/idp/SingleLogoutService.php'
+      binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+    x509cert: ''
+  sp:
+    entityId: 'http://auth.alchemy.local/saml/metadata'
+    assertionConsumerService:
+      url: 'http://auth.alchemy.local/saml/acs'
+      binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+    singleLogoutService:
+      url: 'http://auth.alchemy.local/saml/logout'
+      binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+    privateKey: ''
+  # Optional settings
+  baseurl: 'http://auth.alchemy.local'
+  strict: true
+  debug: true
+  security:
+    nameIdEncrypted:       false
+    authnRequestsSigned:   false
+    logoutRequestSigned:   false
+    logoutResponseSigned:  false
+    wantMessagesSigned:    false
+    wantAssertionsSigned:  false
+    wantNameIdEncrypted:   false
+    requestedAuthnContext: true
+    signMetadata: false
+    wantXMLValidation: true
+    signatureAlgorithm: 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+    digestAlgorithm: 'http://www.w3.org/2001/04/xmlenc#sha256'
+  contactPerson:
+    technical:
+      givenName: 'Tech User'
+      emailAddress: 'techuser@example.com'
+    support:
+      givenName: 'Support User'
+      emailAddress: 'supportuser@example.com'
+  organization:
+    en:
+      name: 'Example'
+      displayname: 'Example'
+      url: 'http://example.com'
