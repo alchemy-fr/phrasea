@@ -16,7 +16,7 @@ class LoginTest extends AbstractStateFullTestCase
         $crawler = $client->request('GET', '/admin/login');
 
         $form = $crawler->selectButton('login_submit')->form();
-        $form['email'] = 'foo@bar.com';
+        $form['username'] = 'foo@bar.com';
         $form['password'] = 'secret';
         $client->submit($form);
 
@@ -35,7 +35,7 @@ class LoginTest extends AbstractStateFullTestCase
         $crawler = $client->request('GET', '/admin/login');
 
         $form = $crawler->selectButton('login_submit')->form();
-        $form['email'] = 'enabled@bar.com';
+        $form['username'] = 'enabled@bar.com';
         $form['password'] = 'secret';
         $client->submit($form);
 

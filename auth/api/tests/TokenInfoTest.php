@@ -18,6 +18,7 @@ class TokenInfoTest extends AbstractTestCase
         $this->assertEquals([], $json['scopes']);
         $this->assertArrayHasKey('user', $json);
         $this->assertEquals('foo@bar.com', $json['user']['email']);
+        $this->assertEquals('foo@bar.com', $json['user']['username']);
     }
 
     public function testTokenInfoGenerates401WithInvalidAccessToken(): void

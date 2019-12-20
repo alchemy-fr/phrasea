@@ -17,7 +17,7 @@ class RegistrationTest extends WebTestCase
         $crawler = $client->request('GET', '/en/register');
 
         $form = $crawler->selectButton('register_form[submit]')->form();
-        $form['register_form[email]'] = 'test@test.com';
+        $form['register_form[username]'] = 'test@test.com';
         $form['register_form[plainPassword][first]'] = 'secret';
         $form['register_form[plainPassword][second]'] = 'secret';
         $client->submit($form);
@@ -37,13 +37,13 @@ class RegistrationTest extends WebTestCase
         $crawler = $client->request('GET', '/en/register');
 
         $form = $crawler->selectButton('register_form[submit]')->form();
-        $form['register_form[email]'] = 'enabled@bar.com';
+        $form['register_form[username]'] = 'enabled@bar.com';
         $form['register_form[plainPassword][first]'] = 'secret';
         $form['register_form[plainPassword][second]'] = 'secret';
         $client->submit($form);
 
         $this->assertContains(
-            'Email is already used',
+            'Username is already used',
             $client->getResponse()->getContent()
         );
     }

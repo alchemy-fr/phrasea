@@ -17,7 +17,14 @@
           "base_url": "https://alpha.preprod.alchemyasp.com"
         }
       }
-    ]
+    ],
+    "saml": {
+      "identity_providers": [
+        {
+          ""
+        }
+      ]
+    }
   },
   "uploader": {
     "max_upload_file_size": null,

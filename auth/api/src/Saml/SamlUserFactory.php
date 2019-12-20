@@ -3,7 +3,6 @@
 namespace App\Saml;
 
 use App\Entity\SamlIdentity;
-use App\Entity\User;
 use App\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
@@ -42,14 +41,5 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $this->em->flush();
 
         return $user;
-    }
-
-    private function getAttribute(SamlTokenInterface $token, string $name)
-    {
-        if ($token->hasAttribute($name)) {
-            return $token->getAttribute($name)[0];
-        }
-
-        return null;
     }
 }

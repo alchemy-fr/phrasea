@@ -19,11 +19,11 @@ abstract class AbstractPasswordTest extends AbstractTestCase
         $this->assertEquals($count, count($requests));
     }
 
-    protected function createResetPasswordRequest(string $userEmail): ResetPasswordRequest
+    protected function createResetPasswordRequest(string $username): ResetPasswordRequest
     {
         $em = self::getEntityManager();
 
-        $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
+        $user = $em->getRepository(User::class)->findOneBy(['username' => $username]);
 
         $request = new ResetPasswordRequest($user, 'the_token');
 
@@ -33,22 +33,22 @@ abstract class AbstractPasswordTest extends AbstractTestCase
         return $request;
     }
 
-    protected function assertPasswordIsInvalid(string $email, string $password): void
+    protected function assertPasswordIsInvalid(string $username, string $password): void
     {
-        $response = $this->requestToken($email, $password);
+        $response = $this->requestToken($username, $password);
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    protected function assertPasswordIsValid(string $email, string $password): void
+    protected function assertPasswordIsValid(string $username, string $password): void
     {
-        $response = $this->requestToken($email, $password);
+        $response = $this->requestToken($username, $password);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    private function requestToken(string $email, string $password): Response
+    private function requestToken(string $username, string $password): Response
     {
         return $this->request(null, 'POST', '/oauth/v2/token', [
-            'username' => $email,
+            'username' => $username,
             'password' => $password,
             'grant_type' => 'password',
             'client_id' => self::CLIENT_ID,
