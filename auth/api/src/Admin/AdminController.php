@@ -100,11 +100,11 @@ class AdminController extends EasyAdminController
         $entity = $this->em->getRepository(User::class)->find($id);
 
         if ($entity->isEmailVerified()) {
-            $this->addFlash('warning', sprintf('User %s has already joined', $entity->getEmail()));
+            $this->addFlash('warning', sprintf('User %s has already joined', $entity->getUsername()));
         } elseif (!$this->inviteManager->userCanBeInvited($entity)) {
             $this->addFlash('warning', sprintf(
                 'User %s has already been invited less than %d seconds ago',
-                $entity->getEmail(),
+                $entity->getUsername(),
                 $this->inviteManager->getAllowedInviteDelay()
             ));
         } else {
@@ -112,7 +112,7 @@ class AdminController extends EasyAdminController
                 'id' => $entity->getId(),
             ]));
 
-            $this->addFlash('success', sprintf('User will be invited by email at %s', $entity->getEmail()));
+            $this->addFlash('success', sprintf('User will be invited by email at %s', $entity->getUsername()));
         }
 
         return $this->redirectToRoute('easyadmin', [

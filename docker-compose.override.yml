@@ -171,9 +171,9 @@ services:
     ports:
       - ${SAML_IDP_PORT}:8080
     environment:
-      - SIMPLESAMLPHP_SP_ENTITY_ID=http://auth.alchemy.local
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=http://saml-idp.alchemy.local/simplesaml/module.php/saml/sp/saml2-acs.php/test-sp
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=http://saml-idp.alchemy.local/simplesaml/module.php/saml/sp/saml2-logout.php/test-sp
+      - SIMPLESAMLPHP_SP_ENTITY_ID=http://auth.alchemy.local/saml/metadata
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=http://auth.alchemy.local/saml/acs
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=http://auth.alchemy.local/saml/logout
 
 volumes:
   pgadmin_vol:

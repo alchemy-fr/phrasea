@@ -79,3 +79,12 @@ services:
     App\Doctrine\Listener\AccessTokenListener:
         tags:
             - { name: doctrine.orm.entity_listener, lazy: true }
+
+    saml_user_factory:
+        class: Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory
+        arguments:
+            # User class
+            - App\Entity\User
+            # Attribute mapping.
+            - email: $mail
+              roles: ['ROLE_USER']

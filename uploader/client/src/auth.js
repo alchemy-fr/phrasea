@@ -49,21 +49,21 @@ class Auth {
         this.listeners[type].forEach(func => func(event));
     }
 
-    login(email, password, callback, errCallback) {
-        this.doLogin(email, password, () => {
+    login(username, password, callback, errCallback) {
+        this.doLogin(username, password, () => {
             this.triggerEvent('login');
             callback();
         }, errCallback);
     }
 
-    doLogin(email, password, callback, errCallback) {
+    doLogin(username, password, callback, errCallback) {
         const {clientId, clientSecret} = config.getClientCredential();
 
         request
             .post(config.getAuthBaseURL() + '/oauth/v2/token')
             .accept('json')
             .send({
-                username: email,
+                username,
                 password,
                 grant_type: 'password',
                 client_id: clientId,
@@ -128,7 +128,7 @@ class Auth {
                 }
 
                 this.authenticated = true;
-                this.setUsername(res.body.email);
+                this.setUsername(res.body.username);
                 this.triggerEvent('authentication', {user: res.body});
                 callback && callback(res.body);
             });

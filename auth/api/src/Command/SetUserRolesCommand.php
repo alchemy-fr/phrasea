@@ -32,7 +32,7 @@ class SetUserRolesCommand extends Command
         $this
             ->setName('app:user:set-roles')
             ->setDescription('Update user roles')
-            ->addArgument('email', InputArgument::REQUIRED, 'The user email (used a login)')
+            ->addArgument('username', InputArgument::REQUIRED, 'The username')
             ->addArgument(
                 'roles',
                 InputArgument::REQUIRED,
@@ -46,11 +46,11 @@ class SetUserRolesCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $email = $input->getArgument('email');
+        $username = $input->getArgument('username');
 
-        $user = $this->userManager->findUserByEmail($email);
+        $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
-            throw new Exception(sprintf('User with email "%s" does not exist', $email));
+            throw new Exception(sprintf('User with username "%s" does not exist', $username));
         }
 
         $roles = explode(',', $input->getArgument('roles'));

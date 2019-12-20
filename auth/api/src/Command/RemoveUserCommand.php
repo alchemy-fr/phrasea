@@ -33,7 +33,7 @@ class RemoveUserCommand extends Command
         $this
             ->setName('app:user:remove')
             ->setDescription('Remove user from database')
-            ->addArgument('email', InputArgument::REQUIRED, 'The user email (used a login)')
+            ->addArgument('username', InputArgument::REQUIRED, 'The user username')
             ;
     }
 
@@ -42,17 +42,17 @@ class RemoveUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $email = $input->getArgument('email');
+        $username = $input->getArgument('username');
 
-        $user = $this->userManager->findUserByEmail($email);
+        $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
-            throw new Exception(sprintf('User with email "%s" does not exist', $email));
+            throw new Exception(sprintf('User with username "%s" does not exist', $username));
         }
 
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion(sprintf(
             '<question>Are you sure you want to delete user %s from database? [yN]</question>',
-            $user->getEmail()
+            $user->getUsername()
         ), false);
 
         if (!$helper->ask($input, $output, $question)) {

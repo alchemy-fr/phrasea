@@ -14,7 +14,7 @@ security:
         user_password:
             entity:
                 class: App\Entity\User
-                property: email
+                property: username
     firewalls:
         anonymous:
             pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|oauth|_wdt/|_profiler/)
@@ -34,6 +34,15 @@ security:
             guard:
                 authenticators:
                 - App\Security\LoginFormAuthenticator
+        saml:
+            anonymous:  ~
+            pattern: ^/saml/
+            saml:
+                username_attribute: uid
+                check_path: /saml/acs
+                login_path: /saml/login
+            logout:
+                path: /saml/logout
         api:
             pattern:    ^/
             fos_oauth:  true
@@ -42,6 +51,8 @@ security:
             user_checker: App\Security\UserChecker
 
     access_control:
+        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/oauth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
