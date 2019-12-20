@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\AdminBundle\OAuth;
+namespace Alchemy\AdminBundle\Auth;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;

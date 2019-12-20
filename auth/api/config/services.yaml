@@ -64,6 +64,11 @@ services:
         arguments:
             $oAuth2Server: "@fos_oauth_server.server"
 
+    App\Controller\SamlController:
+        arguments:
+            $samlAuth: "@onelogin_auth"
+            $oAuth2Server: "@fos_oauth_server.server"
+
     App\User\InviteManager:
         arguments:
             $allowedInviteDelay: '%app.allowed_invite_delay%'

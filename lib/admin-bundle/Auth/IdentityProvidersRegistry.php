@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\AdminBundle\OAuth;
+namespace Alchemy\AdminBundle\Auth;
 
-class OAuthRegistry
+class IdentityProvidersRegistry
 {
     /**
      * @var array
      */
-    private $oAuthProviders;
+    private $identityProviders;
     /**
      * @var string
      */
@@ -19,9 +19,9 @@ class OAuthRegistry
      */
     private $authClientId;
 
-    public function __construct(array $oAuthProviders, string $authBaseUrl, string $authClientId)
+    public function __construct(array $identityProviders, string $authBaseUrl, string $authClientId)
     {
-        $this->oAuthProviders = $oAuthProviders;
+        $this->identityProviders = $identityProviders;
         $this->authBaseUrl = $authBaseUrl;
         $this->authClientId = $authClientId;
     }
@@ -32,13 +32,14 @@ class OAuthRegistry
             return [
                 'title' => $provider['title'],
                 'entrypoint' => sprintf(
-                    '%s/oauth/%s/authorize?redirect_uri=%s&client_id=%s',
+                    '%s/%s/%s/authorize?redirect_uri=%s&client_id=%s',
                         $this->authBaseUrl,
+                        $provider['type'],
                         $provider['name'],
                         urlencode($redirectUri),
                         $this->authClientId,
                     ),
             ];
-        }, $this->oAuthProviders);
+        }, $this->identityProviders);
     }
 }

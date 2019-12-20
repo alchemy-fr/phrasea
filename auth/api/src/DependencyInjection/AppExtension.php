@@ -26,8 +26,11 @@ class AppExtension extends Extension
         $def = new Definition(OAuthProviderFactory::class);
         $def->setAutowired(true);
         $def->setAutoconfigured(true);
-        $providers = $config['auth']['oauth_providers'] ?? [];
-        $def->setArgument('$oAuthProviders', $providers);
+        $providers = $config['auth']['identity_providers'] ?? [];
+        $oauthProviders = array_filter($providers, function (array $provider) {
+            return $provider['type'] === 'oauth';
+        });
+        $def->setArgument('$oAuthProviders', $oauthProviders);
         $container->setDefinition($def->getClass(), $def);
 
         if (isset($config['admin']['logo']['src'])) {

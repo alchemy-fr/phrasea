@@ -1,5 +1,14 @@
+services:
+  # Use our SAML listener in order to redirect to saml_check route to return access_token to the client
+  hslavich_onelogin_saml.saml_listener:
+    class: App\Saml\StatelessSamlListener
+    parent: security.authentication.listener.abstract
+    abstract: true
+    calls:
+      - [setOneLoginAuth, ["@onelogin_auth"]]
+      - [setRouter, ["@router"]]
+
 hslavich_onelogin_saml:
-  # Basic settings
   idp:
     entityId: 'http://saml-idp.alchemy.local/simplesaml/saml2/idp/metadata.php'
     singleSignOnService:
@@ -10,18 +19,16 @@ hslavich_onelogin_saml:
       binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
     x509cert: 'MIIDXTCCAkWgAwIBAgIJALmVVuDWu4NYMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwHhcNMTYxMjMxMTQzNDQ3WhcNNDgwNjI1MTQzNDQ3WjBFMQswCQYDVQQGEwJBVTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQdHkgTHRkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzUCFozgNb1h1M0jzNRSCjhOBnR+uVbVpaWfXYIR+AhWDdEe5ryY+CgavOg8bfLybyzFdehlYdDRgkedEB/GjG8aJw06l0qF4jDOAw0kEygWCu2mcH7XOxRt+YAH3TVHa/Hu1W3WjzkobqqqLQ8gkKWWM27fOgAZ6GieaJBN6VBSMMcPey3HWLBmc+TYJmv1dbaO2jHhKh8pfKw0W12VM8P1PIO8gv4Phu/uuJYieBWKixBEyy0lHjyixYFCR12xdh4CA47q958ZRGnnDUGFVE1QhgRacJCOZ9bd5t9mr8KLaVBYTCJo5ERE8jymab5dPqe5qKfJsCZiqWglbjUo9twIDAQABo1AwTjAdBgNVHQ4EFgQUxpuwcs/CYQOyui+r1G+3KxBNhxkwHwYDVR0jBBgwFoAUxpuwcs/CYQOyui+r1G+3KxBNhxkwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAAiWUKs/2x/viNCKi3Y6blEuCtAGhzOOZ9EjrvJ8+COH3Rag3tVBWrcBZ3/uhhPq5gy9lqw4OkvEws99/5jFsX1FJ6MKBgqfuy7yh5s1YfM0ANHYczMmYpZeAcQf2CGAaVfwTTfSlzNLsF2lW/ly7yapFzlYSJLGoVE+OHEu8g5SlNACUEfkXw+5Eghh+KzlIN7R6Q7r2ixWNFBC/jWf7NKUfJyX8qIG5md1YUeT6GBW9Bm2/1/RiO24JTaYlfLdKK9TYb8sG5B+OLab2DImG99CJ25RkAcSobWNF5zD0O6lgOo3cEdB/ksCq3hmtlC/DlLZ/D8CJ+7VuZnS1rR2naQ=='
   sp:
-    entityId: 'http://auth.alchemy.local/saml/metadata'
+    entityId: '%env(AUTH_BASE_URL)%/saml/metadata'
     assertionConsumerService:
-      url: 'http://auth.alchemy.local/saml/acs'
+      url: '%env(AUTH_BASE_URL)%/saml/acs'
       binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
     singleLogoutService:
-      url: 'http://auth.alchemy.local/saml/logout'
+      url: '%env(AUTH_BASE_URL)%/saml/logout'
       binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
     privateKey: ''
-  # Optional settings
-  baseurl: 'http://auth.alchemy.local/saml'
+  baseurl: '%env(AUTH_BASE_URL)%/saml'
   strict: true
-  debug: true
   security:
     nameIdEncrypted:       false
     authnRequestsSigned:   false
@@ -36,14 +43,11 @@ hslavich_onelogin_saml:
     signatureAlgorithm: 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
     digestAlgorithm: 'http://www.w3.org/2001/04/xmlenc#sha256'
   contactPerson:
-    technical:
-      givenName: 'Tech User'
-      emailAddress: 'techuser@example.com'
     support:
       givenName: 'Support User'
-      emailAddress: 'supportuser@example.com'
+      emailAddress: 'support@alchemy.fr'
   organization:
     en:
-      name: 'Example'
-      displayname: 'Example'
-      url: 'http://example.com'
+      name: 'Alchemy'
+      displayname: 'Alchemy'
+      url: 'http://alchemy.fr'

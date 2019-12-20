@@ -14,9 +14,9 @@ export default class OAuthProviders extends Component {
     render() {
         return (
             <div>
-                {authConfig.oauth_providers.map((provider) => {
+                {authConfig.identity_providers.map((provider) => {
                     const redirectUri = `${host}/auth/${provider.name}`;
-                    const authorizeUrl = `${window.config._env_.AUTH_BASE_URL}/oauth/${provider.name}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${config.getClientCredential().clientId}`;
+                    const authorizeUrl = `${window.config._env_.AUTH_BASE_URL}/${provider.type}/${provider.name}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${config.getClientCredential().clientId}`;
 
                     return <div
                         key={provider.name}

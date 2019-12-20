@@ -1,2 +1,0 @@
-hslavich_saml_sp:
-  resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
