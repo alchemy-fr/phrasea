@@ -2,28 +2,54 @@
 
 namespace App\Saml;
 
+use App\Entity\SamlIdentity;
 use App\Entity\User;
+use App\User\UserManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $em;
+    /**
+     * @var UserManager
+     */
+    private $userManager;
+
+    public function __construct(EntityManagerInterface $em, UserManager $userManager)
+    {
+        $this->em = $em;
+        $this->userManager = $userManager;
+    }
+
     public function createUser(SamlTokenInterface $token)
     {
-        $user = new User();
+        $samlIdentity = new SamlIdentity();
+        $samlIdentity->setAttributes($token->getAttributes());
+
+        $samlIdentity->setUsername($token->getUsername());
+        $user = $this->userManager->createUser();
         $user->setUsername($token->getUsername());
+        $user->setEnabled(true);
+        $samlIdentity->setUser($user);
+
+        $this->em->persist($samlIdentity);
+        $this->em->persist($user);
+        $this->em->flush();
 
         return $user;
     }
 
-    protected function getPropertyValue($token, $attribute)
+    private function getAttribute(SamlTokenInterface $token, string $name)
     {
-        if (is_string($attribute) && '$' == substr($attribute, 0, 1)) {
-            $attributes = $token->getAttributes();
-
-            return $attributes[substr($attribute, 1)][0];
+        if ($token->hasAttribute($name)) {
+            return $token->getAttribute($name)[0];
         }
 
-        return $attribute;
+        return null;
     }
 }
