@@ -19,16 +19,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class OAuthController extends AbstractIdentityProviderController
 {
     /**
-     * @var OAuth2
-     */
-    private $oAuth2Server;
-
-    public function __construct(OAuth2 $oAuth2Server)
-    {
-        $this->oAuth2Server = $oAuth2Server;
-    }
-
-    /**
      * @Route(path="/{provider}/authorize", name="authorize")
      */
     public function authorize(string $provider, Request $request, OAuthProviderFactory $OAuthFactory)
@@ -59,6 +49,7 @@ class OAuthController extends AbstractIdentityProviderController
     public function check(
         string $provider,
         Request $request,
+        OAuth2 $oAuth2Server,
         OAuthProviderFactory $OAuthFactory,
         OAuthUserProvider $OAuthUserProvider
     ) {
@@ -92,7 +83,7 @@ class OAuthController extends AbstractIdentityProviderController
         $subRequest->query->set('response_type', 'code');
 
         try {
-            return $this->oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
+            return $oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
         } catch (OAuth2ServerException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }

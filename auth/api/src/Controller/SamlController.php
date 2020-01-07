@@ -20,24 +20,9 @@ use Symfony\Component\Security\Core\Security;
 class SamlController extends AbstractIdentityProviderController
 {
     /**
-     * @var Auth
-     */
-    private $samlAuth;
-    /**
-     * @var OAuth2
-     */
-    private $oAuth2Server;
-
-    public function __construct(Auth $samlAuth, OAuth2 $oAuth2Server)
-    {
-        $this->samlAuth = $samlAuth;
-        $this->oAuth2Server = $oAuth2Server;
-    }
-
-    /**
      * @Route(path="/{provider}/authorize", name="authorize")
      */
-    public function authorize(string $provider, Request $request)
+    public function authorize(string $provider, Auth $samlAuth, Request $request)
     {
         $clientId = $request->get('client_id');
         if (!$clientId) {
@@ -70,7 +55,7 @@ class SamlController extends AbstractIdentityProviderController
             $clientId
         )));
 
-        $this->samlAuth->login();
+        $samlAuth->login();
     }
 
     /**
@@ -78,6 +63,7 @@ class SamlController extends AbstractIdentityProviderController
      */
     public function check(
         string $provider,
+        OAuth2 $oAuth2Server,
         Request $request
     ) {
         $finalRedirectUri = $request->get('r');
@@ -95,7 +81,7 @@ class SamlController extends AbstractIdentityProviderController
         $subRequest->query->set('response_type', 'code');
 
         try {
-            return $this->oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
+            return $oAuth2Server->finishClientAuthorization(true, $user, $subRequest, $scope);
         } catch (OAuth2ServerException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
