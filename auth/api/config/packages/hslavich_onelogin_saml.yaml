@@ -1,13 +1,3 @@
-services:
-  # Use our SAML listener in order to redirect to saml_check route to return access_token to the client
-  hslavich_onelogin_saml.saml_listener:
-    class: App\Saml\StatelessSamlListener
-    parent: security.authentication.listener.abstract
-    abstract: true
-    calls:
-      - [setOneLoginAuth, ["@onelogin_auth"]]
-      - [setRouter, ["@router"]]
-
 hslavich_onelogin_saml:
   idp:
     entityId: 'http://saml-idp.alchemy.local/simplesaml/saml2/idp/metadata.php'

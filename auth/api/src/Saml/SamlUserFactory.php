@@ -3,6 +3,7 @@
 namespace App\Saml;
 
 use App\Entity\SamlIdentity;
+use App\Entity\User;
 use App\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
@@ -25,7 +26,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $this->userManager = $userManager;
     }
 
-    public function createUser(SamlTokenInterface $token)
+    public function createUser(SamlTokenInterface $token): User
     {
         $samlIdentity = new SamlIdentity();
         $samlIdentity->setAttributes($token->getAttributes());

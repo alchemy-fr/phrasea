@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\User;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
 use OneLogin\Saml2\Auth;
@@ -63,11 +64,13 @@ class SamlController extends AbstractIdentityProviderController
             throw new RuntimeException($error->getMessage());
         }
 
-        $this->samlAuth->login($this->generateUrl('saml_check', $this->getRedirectParams(
+        $session->set('_security.saml.target_path', $this->generateUrl('saml_check', $this->getRedirectParams(
             $provider,
             $lastRedirectUri,
             $clientId
         )));
+
+        $this->samlAuth->login();
     }
 
     /**
@@ -80,8 +83,10 @@ class SamlController extends AbstractIdentityProviderController
         $finalRedirectUri = $request->get('r');
         $clientId = $request->get('cid');
 
-        // TODO check if user is authenticated
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw new \Exception('User is not authenticated from SAML');
+        }
 
         $scope = $request->get('scope');
         $subRequest = new Request();
