@@ -1,47 +1,45 @@
-FROM node:10 as uploader-client-build
+FROM node:10.18.0-alpine3.11 as uploader-client-build
 
-RUN apt-get update \
-    && apt-get install -y \
-        jq \
-    && mkdir -p /usr/src/app /configs \
-    && chown -R node: /configs \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --virtual .build \
+        wget \
+    && mkdir -p /var/docker \
+    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/1.0.0/generate-env-alpine \
+    && chmod +x /var/docker/generate-env \
+    && apk del .build \
+    && mkdir -p /usr/src/app
 
 COPY . /usr/src/app
 
 WORKDIR /usr/src/app
 
 RUN yarn install --silent \
-    && cp public/index.tpl.html public/index.html \
-    && rm public/index.tpl.html \
-    && yarn run build \
-    && chmod +x ./docker/generate-env.sh
-
-USER node
+    && mv public/index.tpl.html public/index.html \
+    && yarn run build
 
 EXPOSE 3000
 
-CMD ["/bin/sh", "-c", "./docker/generate-env.sh ./public && mv env-config.*.js ./public/ && yarn start"]
+CMD ["/bin/sh", "-c", "/var/docker/generate-env ./public && yarn start"]
 
 ############
 
-FROM nginx:1.16.0 as uploader-client_nginx
+FROM nginx:1.17.6-alpine as uploader-client_nginx
 
 COPY --from=uploader-client-build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d
-COPY docker/generate-env.sh /var/docker/
-COPY .env /var/.env
 
-RUN apt-get update \
-    && apt-get install -y \
-        jq \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm /etc/nginx/conf.d/default.conf \
-    && chmod +x /var/docker/generate-env.sh \
-    && mkdir -p /usr/src/app /configs
+RUN apk add --no-cache libstdc++ \
+    && apk add --virtual .build \
+        wget \
+    && mkdir -p /var/docker \
+    && wget -q -O /var/docker/generate-env https://github.com/alchemy-fr/config-compiler/releases/download/1.0.0/generate-env-alpine \
+    && chmod +x /var/docker/generate-env \
+    && apk del .build \
+    && rm /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
+COPY config-compiler.js /var/app/
+
 WORKDIR /var/app
 
-CMD ["/bin/sh", "-c", "/var/docker/generate-env.sh ./ && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "/var/docker/generate-env ./ && nginx -g 'daemon off;'"]

@@ -28,8 +28,8 @@ class AuthenticationMethod extends PureComponent {
                     username,
                     password,
                     grant_type: 'password',
-                    client_id: config.get('CLIENT_ID'),
-                    client_secret: config.get('CLIENT_SECRET'),
+                    client_id: config.get('clientId'),
+                    client_secret: config.get('clientSecret'),
                 });
 
                 if (res.access_token) {

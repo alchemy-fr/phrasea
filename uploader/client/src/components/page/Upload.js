@@ -10,16 +10,14 @@ import UploadDone from "./UploadDone";
 import Container from "../Container";
 import {Link} from "react-router-dom";
 import filesize from 'filesize';
+import config from '../../config';
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
 const UPLOAD = 2;
 const UPLOAD_DONE = 3;
 
-const uploaderConfig = window.config.uploader;
-const maxFileSize = uploaderConfig.max_upload_file_size || undefined;
-const maxCommitSize = uploaderConfig.max_upload_commit_size || undefined;
-const maxFileCount = uploaderConfig.max_upload_file_count || undefined;
+const {maxFileSize, maxCommitSize, maxFileCount} = config.all();
 
 export default class Upload extends Component {
     state = {
