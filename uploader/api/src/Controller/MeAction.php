@@ -23,7 +23,8 @@ class MeAction extends AbstractController
 
         return new JsonResponse([
             'user_id' => $user->getId(),
-            'email' => $user->getUsername(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
             'is_admin' => $this->isGranted('ROLE_ADMIN'),
         ]);
     }

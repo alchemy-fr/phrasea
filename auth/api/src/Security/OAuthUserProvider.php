@@ -32,10 +32,10 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
     {
         $response->getEmail();
 
-        $user = $this->findUserByEmail($response->getEmail());
+        $user = $this->findUserByUsername($response->getEmail());
         if (null === $user) {
             $user = $this->userManager->createUser();
-            $user->setEmail($response->getEmail());
+            $user->setUsername($response->getEmail());
         }
 
         $user->setEnabled(true);
@@ -60,11 +60,11 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         return $user;
     }
 
-    private function findUserByEmail(string $email): ?User
+    private function findUserByUsername(string $username): ?User
     {
         return $this->em->getRepository(User::class)
             ->findOneBy([
-                'email' => $email,
+                'username' => $username,
             ]);
     }
 }

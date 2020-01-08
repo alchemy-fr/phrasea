@@ -18,7 +18,7 @@ class ResetPasswordTest extends AbstractPasswordTest
             $request->getToken()
         );
         $client->request('GET', $uri, [
-            'email' => 'foo@bar.com',
+            'username' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 

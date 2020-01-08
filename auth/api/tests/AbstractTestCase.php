@@ -24,10 +24,10 @@ abstract class AbstractTestCase extends ApiTestCase
     /**
      * @return string The access token
      */
-    protected function authenticateUser(string $email, string $password): string
+    protected function authenticateUser(string $username, string $password): string
     {
         $response = $this->request(null, 'POST', '/oauth/v2/token', [
-            'username' => $email,
+            'username' => $username,
             'password' => $password,
             'grant_type' => 'password',
             'client_id' => self::CLIENT_ID,

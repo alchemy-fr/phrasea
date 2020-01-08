@@ -31,7 +31,7 @@ class User implements UserInterface, UserLocaleInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    protected $email;
+    protected $username;
 
     /**
      * @var bool
@@ -122,14 +122,24 @@ class User implements UserInterface, UserLocaleInterface
         return $this->id->__toString();
     }
 
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
     public function getEmail(): ?string
     {
-        return $this->email;
+        return $this->getUsername();
     }
 
     public function setEmail(string $email): void
     {
-        $this->email = $email;
+        $this->setUsername($email);
+    }
+
+    public function setUsername(string $username): void
+    {
+        $this->username = $username;
     }
 
     public function getRoles(): array
@@ -155,11 +165,6 @@ class User implements UserInterface, UserLocaleInterface
     public function getSalt()
     {
         return $this->salt;
-    }
-
-    public function getUsername()
-    {
-        return $this->email;
     }
 
     public function eraseCredentials()

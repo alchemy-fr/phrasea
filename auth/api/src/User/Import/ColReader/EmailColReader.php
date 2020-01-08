@@ -12,11 +12,11 @@ class EmailColReader implements ColReaderInterface
     {
         $str = strtolower(trim($str));
 
-        $user->setEmail($str);
+        $user->setUsername($str);
     }
 
     public function supports(string $colName): bool
     {
-        return 'email' === strtolower($colName);
+        return in_array(strtolower($colName), ['username', 'email'], true);
     }
 }

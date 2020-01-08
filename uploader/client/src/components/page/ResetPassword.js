@@ -10,13 +10,13 @@ export default class ResetPassword extends Component {
         super(props);
 
         this.state = {
-            email: '',
+            username: '',
             requested: false,
         };
     }
 
     isFormValid() {
-        return this.state.email.length > 0;
+        return this.state.username.length > 0;
     }
 
     handleSubmit = async event => {
@@ -28,7 +28,7 @@ export default class ResetPassword extends Component {
             .post(`${config.getAuthBaseURL()}/${i18n.language}/password/reset-request`)
             .accept('json')
             .send({
-                email: this.state.email,
+                username: this.state.username,
             })
         ;
 
@@ -48,12 +48,12 @@ export default class ResetPassword extends Component {
                 <div>
                     {requested ? 'You will receive an email to reset your password.' :
                         <form onSubmit={this.handleSubmit}>
-                            <FormGroup controlId="email">
+                            <FormGroup controlId="username">
                                 <FormLabel>Email</FormLabel>
                                 <FormControl
                                     autoFocus
                                     type="email"
-                                    value={this.state.email}
+                                    value={this.state.username}
                                     onChange={this.handleChange}
                                 />
                             </FormGroup>

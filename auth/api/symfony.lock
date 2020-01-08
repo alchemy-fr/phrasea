@@ -162,6 +162,9 @@
             "fixtures/.gitignore"
         ]
     },
+    "hslavich/oneloginsaml-bundle": {
+        "version": "v1.4.1"
+    },
     "hwi/oauth-bundle": {
         "version": "0.6",
         "recipe": {
@@ -207,6 +210,9 @@
     },
     "ocramius/proxy-manager": {
         "version": "2.1.1"
+    },
+    "onelogin/php-saml": {
+        "version": "3.4.1"
     },
     "opis/json-schema": {
         "version": "1.0.18"
@@ -279,6 +285,9 @@
         "files": [
             "config/packages/ramsey_uuid_doctrine.yaml"
         ]
+    },
+    "robrichards/xmlseclibs": {
+        "version": "3.0.4"
     },
     "sebastian/comparator": {
         "version": "3.0.2"

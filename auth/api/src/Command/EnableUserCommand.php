@@ -33,7 +33,7 @@ class EnableUserCommand extends Command
         $this
             ->setName('app:user:enable')
             ->setDescription('Enable user')
-            ->addArgument('email', InputArgument::REQUIRED, 'The user email (used a login)')
+            ->addArgument('username', InputArgument::REQUIRED, 'The username')
             ->addOption('disable', null, InputOption::VALUE_NONE, 'Disable the user');
     }
 
@@ -42,11 +42,11 @@ class EnableUserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $email = $input->getArgument('email');
+        $username = $input->getArgument('username');
 
-        $user = $this->userManager->findUserByEmail($email);
+        $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
-            throw new Exception(sprintf('User with email "%s" does not exist', $email));
+            throw new Exception(sprintf('User with username "%s" does not exist', $username));
         }
 
         $enabled = !$input->getOption('disable', false);

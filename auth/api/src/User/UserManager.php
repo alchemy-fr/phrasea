@@ -61,13 +61,13 @@ class UserManager implements UserProviderInterface
         return bin2hex(random_bytes(($length - ($length % 2)) / 2));
     }
 
-    public function findUserByEmail(string $email): ?User
+    public function findUserByUsername(string $username): ?User
     {
         return $this
             ->em
             ->getRepository(User::class)
             ->findOneBy([
-                'email' => $email,
+                'username' => $username,
             ]);
     }
 
@@ -100,7 +100,7 @@ class UserManager implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        $user = $this->findUserByEmail($username);
+        $user = $this->findUserByUsername($username);
 
         if (null === $user) {
             throw new UsernameNotFoundException(sprintf('user "%s" not found', $username));

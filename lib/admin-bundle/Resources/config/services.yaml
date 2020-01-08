@@ -15,11 +15,11 @@ services:
       $siteTitle: '%alchemy_admin.site_title%'
       $siteLogo: '%alchemy_admin.site_logo%'
 
-  Alchemy\AdminBundle\OAuth\OAuthRegistry:
+  Alchemy\AdminBundle\Auth\IdentityProvidersRegistry:
     arguments:
       $authBaseUrl: '%alchemy_admin.auth_base_url%'
       $authClientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-      $oAuthProviders: []
+      $identityProviders: []
 
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
@@ -36,7 +36,7 @@ services:
           headers:
             Accept: "application/json"
 
-  Alchemy\AdminBundle\OAuth\OAuthClient:
+  Alchemy\AdminBundle\Auth\OAuthClient:
     arguments:
       $client: "@alchemy_admin.http_client"
       $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'

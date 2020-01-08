@@ -80,8 +80,9 @@ class OAuthProviderFactory
         }
 
         $providerConfig = $providers[0];
-        $class = $this->resourceOwners[$providerConfig['type']];
+        $class = $this->resourceOwners[$providerConfig['options']['type']];
         $options = $providerConfig['options'];
+        unset($options['type']);
 
         $provider = new $class(
             $this->httpClient,

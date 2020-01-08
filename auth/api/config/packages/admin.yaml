@@ -18,17 +18,17 @@ easy_admin:
         - { property: 'enabled' }
         sort: [createdAt, DESC]
         fields:
-          - email
+          - username
           - enabled
           - { property: roles, sortable: false }
           - createdAt
       search:
-        sort: ['email', 'ASC']
+        sort: ['username', 'ASC']
         fields:
-          - email
+          - username
       form:
         fields:
-          - { property: 'email' }
+          - { property: 'username' }
           - { property: 'roles', type: App\Form\RoleChoiceType }
           - { property: 'enabled' }
       new:

@@ -14,7 +14,9 @@ security:
         user_password:
             entity:
                 class: App\Entity\User
-                property: email
+                property: username
+        saml_user:
+            id: App\Saml\SamlUserProvider
     firewalls:
         anonymous:
             pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|oauth|_wdt/|_profiler/)
@@ -31,17 +33,32 @@ security:
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
+            provider: user_password
             guard:
                 authenticators:
                 - App\Security\LoginFormAuthenticator
+        saml:
+            anonymous:  ~
+            pattern: ^/saml/
+            provider: saml_user
+            saml:
+                username_attribute: email
+                user_factory: saml_user_factory
+                check_path: /saml/acs
+                login_path: /saml/login
+            logout:
+                path: /saml/logout
         api:
             pattern:    ^/
-            fos_oauth:  true
+            provider: user_password
+            fos_oauth:
             stateless:  true
             anonymous:  false
             user_checker: App\Security\UserChecker
 
     access_control:
+        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/oauth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }

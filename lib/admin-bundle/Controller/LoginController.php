@@ -2,8 +2,8 @@
 
 namespace Alchemy\AdminBundle\Controller;
 
-use Alchemy\AdminBundle\OAuth\OAuthClient;
-use Alchemy\AdminBundle\OAuth\OAuthRegistry;
+use Alchemy\AdminBundle\Auth\OAuthClient;
+use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +33,7 @@ class LoginController extends AbstractController
     /**
      * @Route("/login", name="login")
      */
-    public function login(AuthenticationUtils $authenticationUtils, OAuthRegistry $authRegistry): Response
+    public function login(AuthenticationUtils $authenticationUtils, IdentityProvidersRegistry $authRegistry): Response
     {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();

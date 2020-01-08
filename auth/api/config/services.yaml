@@ -12,6 +12,9 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            OneLogin\Saml2\Auth $samlAuth: "@onelogin_auth"
+            OAuth2\OAuth2 $oAuth2Server: "@fos_oauth_server.server"
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -60,10 +63,6 @@ services:
     HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface:
         alias: App\OAuth\BlackHoleOAuthStorage
 
-    App\Controller\OAuthController:
-        arguments:
-            $oAuth2Server: "@fos_oauth_server.server"
-
     App\User\InviteManager:
         arguments:
             $allowedInviteDelay: '%app.allowed_invite_delay%'
@@ -79,3 +78,6 @@ services:
     App\Doctrine\Listener\AccessTokenListener:
         tags:
             - { name: doctrine.orm.entity_listener, lazy: true }
+
+    saml_user_factory:
+        class: App\Saml\SamlUserFactory

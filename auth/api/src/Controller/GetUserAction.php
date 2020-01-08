@@ -34,6 +34,7 @@ class GetUserAction extends AbstractController
 
         return new JsonResponse([
             'id' => $user->getId(),
+            'username' => $user->getUsername(),
             'email' => $user->getEmail(),
             'locale' => $user->getLocale(),
             'createdAt' => $user->getCreatedAt()->format(DateTime::ISO8601),

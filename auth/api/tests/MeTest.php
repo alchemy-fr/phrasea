@@ -15,6 +15,7 @@ class MeTest extends AbstractTestCase
 
         $json = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('user_id', $json);
+        $this->assertEquals('foo@bar.com', $json['username']);
         $this->assertEquals('foo@bar.com', $json['email']);
     }
 

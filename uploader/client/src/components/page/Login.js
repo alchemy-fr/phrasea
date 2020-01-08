@@ -10,19 +10,19 @@ import {Translation} from "react-i18next";
 
 export default class Login extends Component {
     state = {
-        email: '',
+        username: '',
         password: '',
         redirectToReferrer: false,
         error: null,
     };
 
     isFormValid() {
-        return this.state.email.length > 0 && this.state.password.length > 0;
+        return this.state.username.length > 0 && this.state.password.length > 0;
     }
 
     handleSubmit = event => {
         event.preventDefault();
-        auth.login(this.state.email, this.state.password, () => {
+        auth.login(this.state.username, this.state.password, () => {
             this.setState({
                 redirectToReferrer: true,
             });
@@ -58,14 +58,14 @@ export default class Login extends Component {
                 <Container title="Please sign in">
                     <div className="form-container login-form">
                         <form onSubmit={this.handleSubmit}>
-                            <FormGroup controlId="email">
+                            <FormGroup controlId="username">
                                 <FormLabel>
                                     {t('form.email.label')}
                                 </FormLabel>
                                 <FormControl
                                     autoFocus
-                                    type="email"
-                                    value={this.state.email}
+                                    type="username"
+                                    value={this.state.username}
                                     onChange={this.handleChange}
                                 />
                             </FormGroup>

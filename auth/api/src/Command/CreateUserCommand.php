@@ -42,7 +42,7 @@ class CreateUserCommand extends Command
         $this
             ->setName('app:user:create')
             ->setDescription('Creates a user')
-            ->addArgument('email', InputArgument::REQUIRED, 'The user email (used a login)')
+            ->addArgument('username', InputArgument::REQUIRED, 'The username')
             ->addOption(
                 'password',
                 'p',
@@ -54,7 +54,7 @@ class CreateUserCommand extends Command
                 'update-if-exist',
                 null,
                 InputOption::VALUE_NONE,
-                'If user email already exists, just update the password.',
+                'If username already exists, just update the password.',
                 null
             )
             ->addOption(
@@ -74,14 +74,14 @@ class CreateUserCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $io->title('User Credentials');
-        $email = $input->getArgument('email');
+        $username = $input->getArgument('username');
 
-        $user = $this->userManager->findUserByEmail($email);
+        $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
             $user = $this->userManager->createUser();
-            $user->setEmail($email);
+            $user->setUsername($username);
         } elseif (!$input->getOption('update-if-exist')) {
-            throw new Exception(sprintf('User with email "%s" already exists', $email));
+            throw new Exception(sprintf('User with username "%s" already exists', $username));
         }
 
         $user->setEnabled(true);
@@ -95,9 +95,9 @@ class CreateUserCommand extends Command
             $user->setRoles($roles);
         }
 
-        $headers = ['Email', 'Plain password'];
+        $headers = ['Username', 'Plain password'];
         $rows = [
-            [$user->getEmail(), $user->getPlainPassword()],
+            [$user->getUsername(), $user->getPlainPassword()],
         ];
 
         $this->userManager->encodePassword($user);

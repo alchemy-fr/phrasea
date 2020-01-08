@@ -35,6 +35,7 @@ class MeAction extends AbstractController
         if ($user instanceof User) {
             $data = [
                 'user_id' => $user->getId(),
+                'username' => $user->getUsername(),
                 'email' => $user->getEmail(),
                 'roles' => $user->getRoles(),
             ];

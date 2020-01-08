@@ -9,7 +9,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
     public function testRequestResetPasswordWithExistingEmail(): void
     {
         $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'email' => 'foo@bar.com',
+            'username' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
@@ -21,10 +21,10 @@ class RequestResetPasswordTest extends AbstractPasswordTest
     public function testMultipleRequestsWillGenerateOnlyOneRequest(): void
     {
         $this->request(null, 'POST', '/en/password/reset-request', [
-            'email' => 'foo@bar.com',
+            'username' => 'foo@bar.com',
         ]);
         $this->request(null, 'POST', '/en/password/reset-request', [
-            'email' => 'foo@bar.com',
+            'username' => 'foo@bar.com',
         ]);
         $this->assertPasswordResetRequestCount(1);
     }
@@ -32,9 +32,9 @@ class RequestResetPasswordTest extends AbstractPasswordTest
     public function testRequestResetPasswordWithNonExistingEmail(): void
     {
         $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'email' => 'baz@bar.com',
+            'username' => 'baz@bar.com',
         ]);
-        // Must return 200 otherwise it would allow attackers to scan emails in database.
+        // Must return 200 otherwise it would allow attackers to scan usernames in database.
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
@@ -45,7 +45,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
     public function testRequestResetPasswordWillSendEmail(): void
     {
         $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'email' => 'foo@bar.com',
+            'username' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
