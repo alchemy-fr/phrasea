@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -26,9 +27,15 @@ class ApiExceptionListener implements EventSubscriberInterface
      */
     private $debug = false;
 
-    public function __construct(bool $debug)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(bool $debug, LoggerInterface $logger)
     {
         $this->debug = $debug;
+        $this->logger = $logger;
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event): void
@@ -55,6 +62,7 @@ class ApiExceptionListener implements EventSubscriberInterface
                 'error' => self::DEFAULT_ERROR,
                 'error_description' => 'Something went wrong!',
             ];
+            $this->logger->error($exception->getMessage());
         }
 
         if ($this->debug) {
