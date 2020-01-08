@@ -1,15 +1,16 @@
+const configData = window.config;
 
 class Config {
     get(key) {
-        return window.config._env_[key];
+        return configData[key];
     }
 
     getApiBaseUrl() {
-        return this.get('EXPOSE_BASE_URL');
+        return configData.baseUrl;
     }
 
     getAuthBaseUrl() {
-        return this.get('AUTH_BASE_URL');
+        return configData.authBaseUrl;
     }
 }
 

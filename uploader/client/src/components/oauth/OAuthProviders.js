@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import config from "../../config";
 
-const authConfig = window.config.auth;
-
 const host = [
     window.location.protocol,
     '//',
@@ -14,9 +12,9 @@ export default class OAuthProviders extends Component {
     render() {
         return (
             <div>
-                {authConfig.identity_providers.map((provider) => {
+                {config.get('identityProviders').map((provider) => {
                     const redirectUri = `${host}/auth/${provider.name}`;
-                    const authorizeUrl = `${window.config._env_.AUTH_BASE_URL}/${provider.type}/${provider.name}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${config.getClientCredential().clientId}`;
+                    const authorizeUrl = `${config.getAuthBaseURL()}/oauth/${provider.name}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${config.getClientCredential().clientId}`;
 
                     return <div
                         key={provider.name}

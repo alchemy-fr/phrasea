@@ -3,9 +3,15 @@ import request from "superagent";
 import auth from "./auth";
 import i18n from "./locales/i18n";
 
+const configData = window.config;
+
 class Config {
     get(key) {
-        return store.get(key) || window.config._env_[key];
+        return store.get(key) || configData[key];
+    }
+
+    all() {
+        return configData;
     }
 
     set(key, value) {
@@ -13,11 +19,11 @@ class Config {
     }
 
     getUploadBaseURL() {
-        return this.get('UPLOADER_BASE_URL');
+        return this.get('baseUrl');
     }
 
     getAvailableLocales() {
-        return window.config.available_locales;
+        return configData.locales;
     }
 
     getSignUpURL() {
@@ -25,31 +31,31 @@ class Config {
     }
 
     getAuthBaseURL() {
-        return this.get('AUTH_BASE_URL');
+        return this.get('authBaseUrl');
     }
 
     getClientCredential() {
         return {
-            clientId: this.get('CLIENT_ID'),
-            clientSecret: this.get('CLIENT_SECRET'),
+            clientId: this.get('clientId'),
+            clientSecret: this.get('clientSecret'),
         };
     }
 
     setClientCredential({clientId, clientSecret}) {
-        this.set('CLIENT_ID', clientId);
-        this.set('CLIENT_SECRET', clientSecret);
+        this.set('clientId', clientId);
+        this.set('clientSecret', clientSecret);
     }
 
     setUploadBaseURL(url) {
-        this.set('UPLOADER_BASE_URL', url);
+        this.set('baseUrl', url);
     }
 
     setAuthBaseURL(url) {
-        this.set('AUTH_BASE_URL', url);
+        this.set('authBaseUrl', url);
     }
 
     devModeEnabled() {
-        return window.config._env_.DEV_MODE === 'true';
+        return configData.devMode;
     }
 
     getFormSchema() {
