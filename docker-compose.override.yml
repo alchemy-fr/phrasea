@@ -169,7 +169,7 @@ services:
   saml-idp:
     image: kristophjunge/test-saml-idp
     ports:
-      - ${SAML_IDP_PORT}:8080
+      - 127.0.0.1:${SAML_IDP_PORT}:8080
     environment:
       - SIMPLESAMLPHP_SP_ENTITY_ID=http://auth.alchemy.local/saml/metadata
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=http://auth.alchemy.local/saml/acs

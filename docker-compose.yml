@@ -60,6 +60,7 @@ services:
       - REPORT_BASE_URL
     volumes:
       - uploader_vol:/var/data/upload
+      - ./configs:/configs
 
   uploader-api-nginx:
     image: ${REGISTRY_NAMESPACE}uploader-api-nginx:$DOCKER_TAG
@@ -314,6 +315,8 @@ services:
       - internal
     depends_on:
       - rabbitmq
+    volumes:
+      - ./configs:/configs
     environment:
       - APP_ENV
       - APP_ID=notify
