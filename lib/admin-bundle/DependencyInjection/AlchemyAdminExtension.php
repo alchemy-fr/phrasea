@@ -3,6 +3,7 @@
 namespace Alchemy\AdminBundle\DependencyInjection;
 
 use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
+use InvalidArgumentException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -78,6 +79,13 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
 
     private function loadOAuthProviders(ContainerBuilder $container, array $identityProviders): void
     {
+        $samlProviders = array_filter($identityProviders, function (array $config): bool {
+            return $config['type'] === 'saml';
+        });
+        if (count($samlProviders) > 1) {
+            throw new InvalidArgumentException('Only one auth provider of type SAML is supported');
+        }
+
         $def = $container->getDefinition(IdentityProvidersRegistry::class);
         $def->setArgument('$identityProviders', $identityProviders);
     }
