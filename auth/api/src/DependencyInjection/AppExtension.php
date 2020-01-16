@@ -61,8 +61,8 @@ class AppExtension extends Extension implements PrependExtensionInterface
     public function prepend(ContainerBuilder $container)
     {
         $config = $this->getGlobalConfig();
-        $hasSamlProvider = false;
         $providers = $config['auth']['identity_providers'] ?? [];
+        $idps = [];
         foreach ($providers as $provider) {
             if ($provider['type'] === 'saml') {
                 $options = $provider['options'];
@@ -83,39 +83,38 @@ class AppExtension extends Extension implements PrependExtensionInterface
                     ];
                 }
 
-                $samlConfig = [
-                    'idp' => $idp,
-                    'sp' => [
-                        'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata',
-                        'assertionConsumerService' => [
-                            'url' => '%env(AUTH_BASE_URL)%/saml/acs',
-                            'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-                        ],
-                        'singleLogoutService' => [
-                            'url' => '%env(AUTH_BASE_URL)%/saml/logout',
-                            'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-                        ],
-                        'privateKey' => '',
-                    ],
-                    'baseurl' => '%env(AUTH_BASE_URL)%/saml',
-                    'strict' => true,
-                    'contactPerson' => array_map(function (array $contact): array {
-                        return [
-                            'givenName' => $contact['name'],
-                            'emailAddress' => $contact['email'],
-                        ];
-                    }, $options['contacts'] ?? []),
-                    'organization' => $options['organization'] ?? [],
-                ];
-
-                $hasSamlProvider = true;
-                $container->prependExtensionConfig('hslavich_onelogin_saml', $samlConfig);
-
-                // Only one SAML IDP is supported
-                break;
+                $idps[$provider['name']] = $idp;
             }
-
-            $container->setParameter('has_saml_provider', $hasSamlProvider);
         }
+
+        if (!empty($idps)) {
+            $samlConfig = [
+                'idps' => $idps,
+                'sp' => [
+                    'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata',
+                    'assertionConsumerService' => [
+                        'url' => '%env(AUTH_BASE_URL)%/saml/acs',
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+                    ],
+                    'singleLogoutService' => [
+                        'url' => '%env(AUTH_BASE_URL)%/saml/logout',
+                        'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ],
+                    'privateKey' => '',
+                ],
+                'baseurl' => '%env(AUTH_BASE_URL)%/saml',
+                'strict' => true,
+                'contactPerson' => array_map(function (array $contact): array {
+                    return [
+                        'givenName' => $contact['name'],
+                        'emailAddress' => $contact['email'],
+                    ];
+                }, $options['contacts'] ?? []),
+                'organization' => $options['organization'] ?? [],
+            ];
+
+            $container->prependExtensionConfig('hslavich_onelogin_saml', $samlConfig);
+        }
+        $container->setParameter('has_saml_provider', !empty($idps));
     }
 }

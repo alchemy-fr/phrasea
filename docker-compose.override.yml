@@ -65,6 +65,7 @@ services:
   auth-api-php:
     volumes:
       - ./auth/api:/srv/app
+      - ./OneloginSamlBundle:/srv/app/vendor/hslavich/oneloginsaml-bundle
 
   auth-api-nginx:
     volumes:
