@@ -45,7 +45,6 @@ class SamlUserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        $this->em->refresh($user);
     }
 
     public function supportsClass($class)

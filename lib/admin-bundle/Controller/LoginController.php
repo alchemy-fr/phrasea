@@ -41,7 +41,7 @@ class LoginController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('@AlchemyAdmin/login.html.twig', [
-            'providers' => $authRegistry->getViewProviders($this->getRedirectUri()),
+            'providers' => $authRegistry->getViewProviders($this->getRedirectUrl()),
             'site_title' => $this->siteTitle,
             'site_logo' => $this->siteLogo,
             'last_username' => $lastUsername,
@@ -49,13 +49,13 @@ class LoginController extends AbstractController
         ]);
     }
 
-    private function getRedirectUri(): string
+    private function getRedirectUrl(): string
     {
-        return $this->generateUrl('alchemy_admin_oauth_check', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->generateUrl('alchemy_admin_auth_check', [], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**
-     * @Route("/oauth/check", name="oauth_check")
+     * @Route("/auth/check", name="auth_check")
      */
     public function oauthCheck(
         Request $request,
@@ -65,7 +65,7 @@ class LoginController extends AbstractController
     ): Response {
         $accessToken = $oauthClient->getAccessTokenFromAuthorizationCode(
             $request->get('code'),
-            $this->getRedirectUri()
+            $this->getRedirectUrl()
         );
 
         $tokenInfo = $userProvider->getTokenInfo($accessToken);

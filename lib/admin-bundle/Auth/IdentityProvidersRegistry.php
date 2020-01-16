@@ -10,10 +10,12 @@ class IdentityProvidersRegistry
      * @var array
      */
     private $identityProviders;
+
     /**
      * @var string
      */
     private $authBaseUrl;
+
     /**
      * @var string
      */
@@ -33,12 +35,12 @@ class IdentityProvidersRegistry
                 'title' => $provider['title'],
                 'entrypoint' => sprintf(
                     '%s/%s/%s/authorize?redirect_uri=%s&client_id=%s',
-                        $this->authBaseUrl,
-                        $provider['type'],
-                        $provider['name'],
-                        urlencode($redirectUri),
-                        $this->authClientId,
-                    ),
+                    $this->authBaseUrl,
+                    urlencode($provider['type']),
+                    urlencode($provider['name']),
+                    urlencode($redirectUri),
+                    urlencode($this->authClientId),
+                ),
             ];
         }, $this->identityProviders);
     }

@@ -2,20 +2,21 @@
 
 namespace App\Admin;
 
-use App\OAuth\OAuthProviderFactory;
-use App\Security\OAuthUserProvider;
+use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
+use App\Entity\AuthCode;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route("/admin")
@@ -23,11 +24,21 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 class LoginController extends AbstractController
 {
     /**
+     * @var string
+     */
+    private $authClientId;
+
+    public function __construct(string $authClientId)
+    {
+        $this->authClientId = $authClientId;
+    }
+
+    /**
      * @Route("/login", name="login")
      */
     public function login(
         AuthenticationUtils $authenticationUtils,
-        OAuthProviderFactory $OAuthProviderFactory
+        IdentityProvidersRegistry $authRegistry
     ): Response {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -39,63 +50,52 @@ class LoginController extends AbstractController
             'site_logo' => null,
             'last_username' => $lastUsername,
             'error' => $error,
-            'providers' => $OAuthProviderFactory->getViewProviders('alchemy_admin_'),
+            'providers' => $authRegistry->getViewProviders($this->getRedirectUrl()),
         ]);
     }
 
-    /**
-     * @Route(path="/oauth/{provider}/authorize", name="oauth_authorize")
-     */
-    public function authorize(string $provider, OAuthProviderFactory $OAuthFactory)
+    private function getRedirectUrl(): string
     {
-        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-        $redirectUri = $this->getRedirectUrl($provider);
-
-        return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri));
-    }
-
-    private function getRedirectUrl(string $provider): string
-    {
-        return $this->generateUrl('alchemy_admin_oauth_check', [
-            'provider' => $provider,
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->generateUrl(
+            'alchemy_admin_auth_check',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
     }
 
     /**
-     * @Route(path="/oauth/{provider}/check", name="oauth_check")
+     * Authenticates from code (in query parameters)
+     * @Route(path="/auth/check", name="auth_check")
      */
     public function check(
-        string $provider,
         Request $request,
-        OAuthProviderFactory $OAuthFactory,
-        OAuthUserProvider $OAuthUserProvider,
+        EntityManagerInterface $em,
         TokenStorageInterface $tokenStorage,
         SessionInterface $session,
         EventDispatcherInterface $dispatcher
     ) {
-        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
+        $code = $request->query->get('code');
 
-        $redirectUri = $this->getRedirectUrl($provider);
-
-        if ($resourceOwner->handles($request)) {
-            $accessToken = $resourceOwner->getAccessToken(
-                $request,
-                $redirectUri
-            );
-        } else {
-            throw new BadRequestHttpException('Unsupported request');
+        $authCode = $em->getRepository(AuthCode::class)
+            ->findOneBy([
+                'client' => $this->authClientId,
+                'token' => $code,
+            ]);
+        if (!$authCode instanceof AuthCode) {
+            throw new AccessDeniedHttpException('Invalid auth code');
+        }
+        if ($authCode->getExpiresAt() < time()) {
+            throw new AccessDeniedHttpException('Auth code has expired');
         }
 
-        $userInformation = $resourceOwner->getUserInformation($accessToken);
-        $user = $OAuthUserProvider->loadUserByOAuthUserResponse($userInformation);
-
+        $user = $authCode->getData();
         $token = new PostAuthenticationGuardToken($user, 'admin', $user->getRoles());
         $tokenStorage->setToken($token);
         $session->set('_security_admin', serialize($token));
         $session->save();
 
         $event = new InteractiveLoginEvent($request, $token);
-        $dispatcher->dispatch('security.interactive_login', $event);
+        $dispatcher->dispatch($event);
 
         return $this->redirectToRoute('easyadmin');
     }

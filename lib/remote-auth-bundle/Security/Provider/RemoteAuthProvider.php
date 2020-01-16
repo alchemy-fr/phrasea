@@ -59,7 +59,7 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
         if (isset($tokenInfo['user'])) {
             $userData = $tokenInfo['user'];
 
-            return new RemoteUser($userData['id'], $userData['email'], $userData['roles']);
+            return new RemoteUser($userData['id'], $userData['username'], $userData['roles']);
         }
 
         return null;

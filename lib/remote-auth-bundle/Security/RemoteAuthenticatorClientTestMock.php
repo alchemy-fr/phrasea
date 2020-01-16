@@ -39,7 +39,7 @@ class RemoteAuthenticatorClientTestMock extends Client
             case '/me':
                 return $this->createResponse(200, [
                     'user_id' => '123',
-                    'email' => $accessToken,
+                    'username' => $accessToken,
                     'roles' => $roles,
                 ]);
             case '/token-info':
@@ -47,7 +47,7 @@ class RemoteAuthenticatorClientTestMock extends Client
                     'scopes' => [],
                     'user' => [
                         'id' => '123',
-                        'email' => $accessToken,
+                        'username' => $accessToken,
                         'roles' => $roles,
                     ],
                 ]);

@@ -67,19 +67,24 @@ class AppExtension extends Extension implements PrependExtensionInterface
             if ($provider['type'] === 'saml') {
                 $options = $provider['options'];
 
-                $samlConfig = [
-                    'idp' => [
-                        'entityId' => $options['entity_id'],
-                        'singleSignOnService' => [
-                            'url' => $options['sso_url'],
-                            'binding' => $options['sso_binding'] ?? 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-                        ],
-                        'singleLogoutService' => [
-                            'url' => $options['logout_url'],
-                            'binding' => $options['logout_binding'] ?? 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-                        ],
-                        'x509cert' => $options['x509cert'],
+                $idp = [
+                    'entityId' => $options['entity_id'],
+                    'singleSignOnService' => [
+                        'url' => $options['sso_url'],
+                        'binding' => $options['sso_binding'] ?? 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                     ],
+                    'x509cert' => $options['x509cert'],
+                ];
+
+                if (isset($options['logout_url'])) {
+                    $idp['singleLogoutService'] = [
+                        'url' => $options['logout_url'],
+                        'binding' => $options['logout_binding'] ?? 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                    ];
+                }
+
+                $samlConfig = [
+                    'idp' => $idp,
                     'sp' => [
                         'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata',
                         'assertionConsumerService' => [

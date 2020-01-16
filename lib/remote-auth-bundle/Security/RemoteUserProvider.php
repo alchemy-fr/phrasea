@@ -43,7 +43,7 @@ class RemoteUserProvider implements UserProviderInterface
             throw new UnauthorizedHttpException($e->getMessage());
         }
 
-        $user = new RemoteUser($data['user_id'], $data['email'], $data['roles']);
+        $user = new RemoteUser($data['user_id'], $data['username'], $data['roles']);
 
         return $user;
     }

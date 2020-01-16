@@ -81,3 +81,7 @@ services:
 
     saml_user_factory:
         class: App\Saml\SamlUserFactory
+
+    App\Admin\LoginController:
+        arguments:
+            $authClientId: '%env(AUTH_CLIENT_ID)%'
