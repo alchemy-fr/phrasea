@@ -1946,12 +1946,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/OneloginSamlBundle.git",
-                "reference": "303ad17cae1ae1d218637d2bcf3c2828e89175df"
+                "reference": "883aa498678be6630e8ff304bb750a2897401b15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/OneloginSamlBundle/zipball/303ad17cae1ae1d218637d2bcf3c2828e89175df",
-                "reference": "303ad17cae1ae1d218637d2bcf3c2828e89175df",
+                "url": "https://api.github.com/repos/4rthem/OneloginSamlBundle/zipball/883aa498678be6630e8ff304bb750a2897401b15",
+                "reference": "883aa498678be6630e8ff304bb750a2897401b15",
                 "shasum": ""
             },
             "require": {
@@ -1992,7 +1992,7 @@
             "support": {
                 "source": "https://github.com/4rthem/OneloginSamlBundle/tree/fix-multiple-idp"
             },
-            "time": "2020-01-17T13:06:14+00:00"
+            "time": "2020-01-17T15:22:30+00:00"
         },
         {
             "name": "hwi/oauth-bundle",
