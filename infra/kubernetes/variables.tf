@@ -128,7 +128,7 @@ variable "EXPOSE_CLIENT_SECRET" {
 
 variable "EXPOSE_STORAGE_ROOT_URL" {
   description = ""
-  default     = "https://s3.expose.alchemy.local/expose"
+  default     = "https://s3-expose.alchemy.local/expose"
 }
 
 variable "EXPOSE_STORAGE_BUCKET_NAME" {
