@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
-use OneLogin\Saml2\Auth;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -22,7 +23,7 @@ class SamlController extends AbstractIdentityProviderController
     /**
      * @Route(path="/{provider}/authorize", name="authorize")
      */
-    public function authorize(string $provider, Auth $samlAuth, Request $request)
+    public function authorize(string $provider, OneLoginAuthRegistry $loginAuthRegistry, Request $request)
     {
         $clientId = $request->get('client_id');
         if (!$clientId) {
@@ -55,7 +56,9 @@ class SamlController extends AbstractIdentityProviderController
             $clientId
         )));
 
-        $samlAuth->login();
+        $session->set(SamlListener::IDP_NAME_SESSION_NAME, $provider);
+
+        $loginAuthRegistry->getIdpAuth($provider)->login();
     }
 
     /**

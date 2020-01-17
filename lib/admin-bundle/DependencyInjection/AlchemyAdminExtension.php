@@ -3,6 +3,7 @@
 namespace Alchemy\AdminBundle\DependencyInjection;
 
 use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
+use InvalidArgumentException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

@@ -13,7 +13,6 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            OneLogin\Saml2\Auth $samlAuth: "@onelogin_auth"
             OAuth2\OAuth2 $oAuth2Server: "@fos_oauth_server.server"
 
     # makes classes in src/ available to be used as services
