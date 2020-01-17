@@ -45,7 +45,7 @@ security:
                 username_attribute: email
                 user_factory: saml_user_factory
                 check_path: /saml/acs
-                login_path: /saml/login
+                login_path: /admin/login
             logout:
                 path: /saml/logout
         api:

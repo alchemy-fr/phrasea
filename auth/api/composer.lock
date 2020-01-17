@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "888bcfc7b623d7237a64cdfb88144235",
+    "content-hash": "54958aa718fda2cb286166fe938c0c4a",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
@@ -1370,16 +1370,16 @@
         },
         {
             "name": "doctrine/persistence",
-            "version": "1.3.5",
+            "version": "1.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/persistence.git",
-                "reference": "be70c016fdcd44a428405ee062ebcdd01a6867cd"
+                "reference": "5dd3ac5eebef2d0b074daa4440bb18f93132dee4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/persistence/zipball/be70c016fdcd44a428405ee062ebcdd01a6867cd",
-                "reference": "be70c016fdcd44a428405ee062ebcdd01a6867cd",
+                "url": "https://api.github.com/repos/doctrine/persistence/zipball/5dd3ac5eebef2d0b074daa4440bb18f93132dee4",
+                "reference": "5dd3ac5eebef2d0b074daa4440bb18f93132dee4",
                 "shasum": ""
             },
             "require": {
@@ -1387,7 +1387,7 @@
                 "doctrine/cache": "^1.0",
                 "doctrine/collections": "^1.0",
                 "doctrine/event-manager": "^1.0",
-                "doctrine/reflection": "^1.0",
+                "doctrine/reflection": "^1.1",
                 "php": "^7.1"
             },
             "conflict": {
@@ -1449,7 +1449,7 @@
                 "orm",
                 "persistence"
             ],
-            "time": "2020-01-14T18:44:12+00:00"
+            "time": "2020-01-16T22:06:23+00:00"
         },
         {
             "name": "doctrine/reflection",
@@ -1942,16 +1942,16 @@
         },
         {
             "name": "hslavich/oneloginsaml-bundle",
-            "version": "dev-master",
+            "version": "dev-fix-multiple-idp",
             "source": {
                 "type": "git",
-                "url": "https://github.com/hslavich/OneloginSamlBundle.git",
-                "reference": "c4d5ea341b82285d6634cf31220ba9f35e391878"
+                "url": "https://github.com/4rthem/OneloginSamlBundle.git",
+                "reference": "303ad17cae1ae1d218637d2bcf3c2828e89175df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hslavich/OneloginSamlBundle/zipball/c4d5ea341b82285d6634cf31220ba9f35e391878",
-                "reference": "c4d5ea341b82285d6634cf31220ba9f35e391878",
+                "url": "https://api.github.com/repos/4rthem/OneloginSamlBundle/zipball/303ad17cae1ae1d218637d2bcf3c2828e89175df",
+                "reference": "303ad17cae1ae1d218637d2bcf3c2828e89175df",
                 "shasum": ""
             },
             "require": {
@@ -1974,7 +1974,6 @@
                     "/Tests/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1986,11 +1985,14 @@
             ],
             "description": "OneLogin SAML Bundle for Symfony2",
             "keywords": [
-                "SSO",
                 "onelogin",
-                "saml"
+                "saml",
+                "sso"
             ],
-            "time": "2019-09-25T16:18:42+00:00"
+            "support": {
+                "source": "https://github.com/4rthem/OneloginSamlBundle/tree/fix-multiple-idp"
+            },
+            "time": "2020-01-17T13:06:14+00:00"
         },
         {
             "name": "hwi/oauth-bundle",
@@ -7404,16 +7406,16 @@
         },
         {
             "name": "doctrine/data-fixtures",
-            "version": "1.4.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/data-fixtures.git",
-                "reference": "640ab13b91bac8925af3da94dee4daf96b62a428"
+                "reference": "39e9777c9089351a468f780b01cffa3cb0a42907"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/data-fixtures/zipball/640ab13b91bac8925af3da94dee4daf96b62a428",
-                "reference": "640ab13b91bac8925af3da94dee4daf96b62a428",
+                "url": "https://api.github.com/repos/doctrine/data-fixtures/zipball/39e9777c9089351a468f780b01cffa3cb0a42907",
+                "reference": "39e9777c9089351a468f780b01cffa3cb0a42907",
                 "shasum": ""
             },
             "require": {
@@ -7464,7 +7466,7 @@
             "keywords": [
                 "database"
             ],
-            "time": "2020-01-13T18:16:40+00:00"
+            "time": "2020-01-17T11:11:28+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",

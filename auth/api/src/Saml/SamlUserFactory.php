@@ -29,12 +29,15 @@ class SamlUserFactory implements SamlUserFactoryInterface
     public function createUser(SamlTokenInterface $token): User
     {
         $samlIdentity = new SamlIdentity();
+        $samlIdentity->setProvider($token->getIdpName());
         $samlIdentity->setAttributes($token->getAttributes());
 
-        $samlIdentity->setUsername($token->getUsername());
-        $user = $this->userManager->createUser();
-        $user->setUsername($token->getUsername());
-        $user->setEnabled(true);
+        if (null === $user = $this->userManager->findUserByUsername($token->getUsername())) {
+            $user = $this->userManager->createUser();
+            $user->setUsername($token->getUsername());
+            $user->setEnabled(true);
+        }
+
         $samlIdentity->setUser($user);
 
         $this->em->persist($samlIdentity);

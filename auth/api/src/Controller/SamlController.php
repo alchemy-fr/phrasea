@@ -56,7 +56,7 @@ class SamlController extends AbstractIdentityProviderController
             $clientId
         )));
 
-        $session->set(SamlListener::AUTH_ID_SESSION_NAME, $provider);
+        $session->set(SamlListener::IDP_NAME_SESSION_NAME, $provider);
 
         $loginAuthRegistry->getIdpAuth($provider)->login();
     }

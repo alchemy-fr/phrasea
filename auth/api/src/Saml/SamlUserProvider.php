@@ -24,14 +24,16 @@ class SamlUserProvider implements UserProviderInterface
         $this->em = $em;
     }
 
-    public function loadUserByUsername($username)
+    public function loadUserByUsername($username, string $idpName = null)
     {
         $user = $this->em->createQueryBuilder()
             ->select('u')
             ->from(User::class, 'u')
             ->innerJoin(SamlIdentity::class, 'i', Join::WITH, 'i.user = u.id')
-            ->andWhere('i.username = :username')
+            ->andWhere('u.username = :username')
             ->setParameter('username', $username)
+            ->andWhere('i.provider = :provider')
+            ->setParameter('provider', $idpName)
             ->getQuery()
             ->getOneOrNullResult()
         ;

@@ -11,7 +11,8 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity()
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="user_provider_udix",columns={"provider", "user_id"})})
  */
 class SamlIdentity
 {
@@ -27,9 +28,9 @@ class SamlIdentity
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=100)
      */
-    protected $username;
+    protected $provider;
 
     /**
      * @var User
@@ -72,14 +73,14 @@ class SamlIdentity
         return $this->id->__toString();
     }
 
-    public function getUsername(): string
+    public function getProvider(): string
     {
-        return $this->username;
+        return $this->provider;
     }
 
-    public function setUsername(string $username): void
+    public function setProvider(string $provider): void
     {
-        $this->username = $username;
+        $this->provider = $provider;
     }
 
     public function getUser(): User

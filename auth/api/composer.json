@@ -43,6 +43,10 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/OneloginSamlBundle.git"
         }
     ],
     "minimum-stability": "dev",
@@ -58,7 +62,7 @@
         "arthem/locale-bundle": "^0",
         "arthem/rabbit-bundle": "^0.0.7",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
-        "hslavich/oneloginsaml-bundle": "dev-master#c4d5ea341b82285d6634cf31220ba9f35e391878",
+        "hslavich/oneloginsaml-bundle": "dev-fix-multiple-idp",
         "hwi/oauth-bundle": "^0.6.3",
         "nelmio/cors-bundle": "1.5.6",
         "php-http/guzzle6-adapter": "^2|^1",

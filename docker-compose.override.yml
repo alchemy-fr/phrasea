@@ -168,13 +168,24 @@ services:
       - ./report/src:/usr/app
 
   saml-idp:
-    image: kristophjunge/test-saml-idp
+    image: alchemyfr/test-saml-idp
     ports:
       - 127.0.0.1:${SAML_IDP_PORT}:8080
     environment:
-      - SIMPLESAMLPHP_SP_ENTITY_ID=http://auth.alchemy.local/saml/metadata
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=http://auth.alchemy.local/saml/acs
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=http://auth.alchemy.local/saml/logout
+      - SIMPLESAMLPHP_BASE_URL=https://saml-idp.alchemy.local/simplesaml
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://auth.alchemy.local/saml/acs
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://auth.alchemy.local/saml/logout
+
+  saml-idp2:
+    image: alchemyfr/test-saml-idp
+    ports:
+      - 127.0.0.1:${SAML_IDP_PORT2}:8080
+    environment:
+      - SIMPLESAMLPHP_BASE_URL=https://saml-idp2.alchemy.local/simplesaml
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://auth.alchemy.local/saml/acs
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://auth.alchemy.local/saml/logout
 
 volumes:
   pgadmin_vol:
