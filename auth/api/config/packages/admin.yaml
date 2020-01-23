@@ -20,6 +20,7 @@ easy_admin:
         fields:
           - username
           - enabled
+          - { property: groups, sortable: false }
           - { property: roles, sortable: false }
           - createdAt
       search:
@@ -31,9 +32,28 @@ easy_admin:
           - { property: 'username' }
           - { property: 'roles', type: App\Form\RoleChoiceType }
           - { property: 'enabled' }
+          - { property: 'groups', type_options: { expanded: true, multiple: true } }
       new:
         fields:
-          - { property: inviteByEmail, type: Symfony\Component\Form\Extension\Core\Type\CheckboxType }
+          - { property: inviteByEmail, type: checkbox }
+
+    Group:
+      class: App\Entity\Group
+      list:
+        batch_actions:
+          - delete
+        sort: [name, DESC]
+        fields:
+          - name
+          - { property: 'userCount' }
+          - createdAt
+      search:
+        sort: ['name', 'ASC']
+        fields:
+          - name
+      form:
+        fields:
+          - { property: 'name' }
 
     OAuthClient:
       class: App\Entity\OAuthClient

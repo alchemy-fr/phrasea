@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -108,9 +110,17 @@ class User implements UserInterface, UserLocaleInterface
      */
     protected $inviteByEmail = false;
 
+    /**
+     * @var Group[]|Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Group", inversedBy="users")
+     */
+    protected $groups;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): string
@@ -271,5 +281,25 @@ class User implements UserInterface, UserLocaleInterface
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    /**
+     * @return Group[]
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): void
+    {
+        $group->addUser($this);
+        $this->groups->add($group);
+    }
+
+    public function removeGroup(Group $group): void
+    {
+        $group->removeUser($this);
+        $this->groups->removeElement($group);
     }
 }
