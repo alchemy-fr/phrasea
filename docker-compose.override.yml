@@ -173,7 +173,7 @@ services:
       - 127.0.0.1:${SAML_IDP_PORT}:8080
     environment:
       - SIMPLESAMLPHP_BASE_URL=https://saml-idp.alchemy.local/simplesaml
-      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata/idp-test
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://auth.alchemy.local/saml/acs
       - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://auth.alchemy.local/saml/logout
 
@@ -183,7 +183,7 @@ services:
       - 127.0.0.1:${SAML_IDP_PORT2}:8080
     environment:
       - SIMPLESAMLPHP_BASE_URL=https://saml-idp2.alchemy.local/simplesaml
-      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://auth.alchemy.local/saml/metadata/idp-test2
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://auth.alchemy.local/saml/acs
       - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://auth.alchemy.local/saml/logout
 

@@ -91,7 +91,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
             $samlConfig = [
                 'idps' => $idps,
                 'sp' => [
-                    'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata',
+                    'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata/{idp}',
                     'assertionConsumerService' => [
                         'url' => '%env(AUTH_BASE_URL)%/saml/acs',
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
