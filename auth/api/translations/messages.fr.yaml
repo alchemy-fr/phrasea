@@ -1,7 +1,7 @@
 form:
   register:
     submit: S'inscrire
-    email: E-mail
+    username: Nom d'utilisateur
     password:
       first: Choisissez un mot de passe
       second: Confirmez le mot de passe
