@@ -83,7 +83,6 @@ class Mailer implements LoggerAwareInterface
             $this->renderSubject($template, $parameters);
             $this->renderView($template, $parameters);
         } catch (LoaderError $e) {
-            dump($e->getMessage());
             throw new BadRequestHttpException(sprintf('Undefined template "%s"', $template));
         } catch (RuntimeError $e) {
             if (1 === preg_match('#^Variable "([^"]+)" does not exist.$#', $e->getMessage(), $regs)) {

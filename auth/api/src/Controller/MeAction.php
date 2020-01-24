@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Group;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +39,9 @@ class MeAction extends AbstractController
                 'username' => $user->getUsername(),
                 'email' => $user->getEmail(),
                 'roles' => $user->getRoles(),
+                'groups' => array_map(function (Group $group): string {
+                    return $group->getName();
+                }, $user->getGroups()->toArray()),
             ];
         } else {
             $data = [

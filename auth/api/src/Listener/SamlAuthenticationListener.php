@@ -6,8 +6,8 @@ namespace App\Listener;
 
 use App\Entity\SamlIdentity;
 use App\Entity\User;
+use App\Saml\SamlGroupManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Join;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -19,10 +19,15 @@ class SamlAuthenticationListener implements EventSubscriberInterface
      * @var EntityManagerInterface
      */
     private $em;
+    /**
+     * @var SamlGroupManager
+     */
+    private $groupManager;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, SamlGroupManager $groupManager)
     {
         $this->em = $em;
+        $this->groupManager = $groupManager;
     }
 
     public static function getSubscribedEvents()
@@ -37,22 +42,31 @@ class SamlAuthenticationListener implements EventSubscriberInterface
         $token = $event->getAuthenticationToken();
         if ($token instanceof SamlTokenInterface) {
             /** @var User $user */
-            $samlIdentity = $token->getUser();
+            $user = $token->getUser();
+            $samlIdentity = $this->getSamlIdentity($user, $token);
+            $samlIdentity->setAttributes($token->getAttributes());
 
+            $this->groupManager->updateGroups($user, $token);
+
+            $this->em->persist($samlIdentity);
+            $this->em->flush();
         }
     }
 
-    private function getSamlIdentity(User $user, $token): SamlIdentity
+    private function getSamlIdentity(User $user, SamlTokenInterface $token): SamlIdentity
     {
-        $user = $this->em->createQueryBuilder()
-            ->select('u')
-            ->from(User::class, 'u')
-            ->innerJoin(SamlIdentity::class, 'i', Join::WITH, 'i.user = u.id')
-            ->andWhere('i. = :username')
-            ->andWhere('i.username = :username')
-            ->setParameter('username', $user->getUsername())
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $samlIdentity = $this->em->getRepository(SamlIdentity::class)
+            ->findOneBy([
+                'user' => $user->getId(),
+                'provider' => $token->getIdpName(),
+            ]);
+
+        if (null === $samlIdentity) {
+            $samlIdentity = new SamlIdentity();
+            $samlIdentity->setUser($user);
+            $samlIdentity->setProvider($token->getIdpName());
+        }
+
+        return $samlIdentity;
     }
 }

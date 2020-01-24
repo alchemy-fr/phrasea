@@ -45,8 +45,12 @@ class SamlUserProvider implements UserProviderInterface
         throw new UsernameNotFoundException('User not found');
     }
 
+    /**
+     * @param User $user
+     */
     public function refreshUser(UserInterface $user)
     {
+        return $this->em->find(User::class, $user->getId());
     }
 
     public function supportsClass($class)

@@ -23,11 +23,17 @@ class RemoteUser implements UserInterface
      */
     private $roles;
 
-    public function __construct(string $id, string $username, array $roles = [])
+    /**
+     * @var array
+     */
+    private $groups;
+
+    public function __construct(string $id, string $username, array $roles = [], array $groups = [])
     {
         $this->username = $username;
         $this->id = $id;
         $this->roles = $roles;
+        $this->groups = $groups;
     }
 
     public function getId(): string
@@ -35,9 +41,14 @@ class RemoteUser implements UserInterface
         return $this->id;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return $this->roles;
+    }
+
+    public function getGroups(): array
+    {
+        return $this->groups;
     }
 
     public function getPassword()

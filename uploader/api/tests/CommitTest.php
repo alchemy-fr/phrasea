@@ -36,7 +36,6 @@ class CommitTest extends AbstractTestCase
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        var_dump($json);
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertTrue(is_array($json), 'Not an array');
         $this->assertTrue(empty($json), 'Not empty');

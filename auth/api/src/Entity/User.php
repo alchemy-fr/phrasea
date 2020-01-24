@@ -6,8 +6,11 @@ namespace App\Entity;
 
 use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -15,7 +18,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="`user`")
  * @ORM\EntityListeners({"App\Doctrine\Listener\UserDeleteListener"})
  */
-class User implements UserInterface, UserLocaleInterface
+class User implements UserInterface, UserLocaleInterface, EquatableInterface
 {
     /**
      * @var Uuid
@@ -108,9 +111,17 @@ class User implements UserInterface, UserLocaleInterface
      */
     protected $inviteByEmail = false;
 
+    /**
+     * @var Group[]|Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Group", inversedBy="users")
+     */
+    protected $groups;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): string
@@ -271,5 +282,35 @@ class User implements UserInterface, UserLocaleInterface
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    /**
+     * @return Group[]
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): void
+    {
+        $group->addUser($this);
+        $this->groups->add($group);
+    }
+
+    public function removeGroup(Group $group): void
+    {
+        $group->removeUser($this);
+        $this->groups->removeElement($group);
+    }
+
+    public function isEqualTo(UserInterface $user)
+    {
+        if (!$user instanceof User
+            || $this->getId() !== $user->getId()) {
+            return false;
+        }
+
+        return count($this->getRoles()) === count($user->getRoles()) && empty(array_diff($this->getRoles(), $user->getRoles()));
     }
 }

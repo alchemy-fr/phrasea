@@ -75,6 +75,7 @@ class UserInviteHandler extends AbstractEntityManagerHandler
                 'url' => $this->router->generate('invite_confirm', [
                     'id' => $user->getId(),
                     'token' => $user->getSecurityToken(),
+                    '_locale'=> $user->getLocale() ?? 'en',
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
             ],
             [
