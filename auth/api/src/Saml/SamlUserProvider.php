@@ -55,6 +55,6 @@ class SamlUserProvider implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        return $class === User::class;
+        return User::class === $class;
     }
 }

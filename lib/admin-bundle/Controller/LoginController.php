@@ -2,8 +2,8 @@
 
 namespace Alchemy\AdminBundle\Controller;
 
-use Alchemy\AdminBundle\Auth\OAuthClient;
 use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
+use Alchemy\AdminBundle\Auth\OAuthClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

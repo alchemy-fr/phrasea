@@ -40,14 +40,13 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $def->setAutoconfigured(true);
         $providers = $config['auth']['identity_providers'] ?? [];
         $oauthProviders = array_filter($providers, function (array $provider) {
-            return $provider['type'] === 'oauth';
+            return 'oauth' === $provider['type'];
         });
         $def->setArgument('$oAuthProviders', $oauthProviders);
         $container->setDefinition($def->getClass(), $def);
 
-
         $samlProviders = array_filter($providers, function (array $provider) {
-            return $provider['type'] === 'saml';
+            return 'saml' === $provider['type'];
         });
         $this->loadSamlProviders($container, $samlProviders);
 
@@ -88,7 +87,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $providers = $config['auth']['identity_providers'] ?? [];
         $idps = [];
         foreach ($providers as $provider) {
-            if ($provider['type'] === 'saml') {
+            if ('saml' === $provider['type']) {
                 $options = $provider['options'];
 
                 $idp = [

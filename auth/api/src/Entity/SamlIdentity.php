@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity()

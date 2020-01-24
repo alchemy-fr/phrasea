@@ -42,8 +42,7 @@ class ReportClient
         Client $client,
         ?LogValidator $logValidator = null,
         LoggerInterface $logger = null
-    )
-    {
+    ) {
         $this->client = $client;
 
         if (null === $logValidator) {
@@ -60,8 +59,7 @@ class ReportClient
         ?string $userId = null,
         ?string $itemId = null,
         array $payload = []
-    ): void
-    {
+    ): void {
         $log = [
             'action' => $action,
             'appName' => $this->appName,

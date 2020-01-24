@@ -64,7 +64,8 @@ class LoginController extends AbstractController
     }
 
     /**
-     * Authenticates from code (in query parameters)
+     * Authenticates from code (in query parameters).
+     *
      * @Route(path="/auth/check", name="auth_check")
      */
     public function check(

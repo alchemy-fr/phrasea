@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Response;
 
 abstract class MockHandlerFactory
 {
-    public  static function create(): HandlerStack
+    public static function create(): HandlerStack
     {
         return MockHandler::createWithMiddleware([
             new Response(200),

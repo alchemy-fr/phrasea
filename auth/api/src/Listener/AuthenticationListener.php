@@ -34,8 +34,7 @@ class AuthenticationListener implements EventSubscriberInterface
         EntityManagerInterface $em,
         ReportUserService $reportUser,
         RequestStack $requestStack
-    )
-    {
+    ) {
         $this->em = $em;
         $this->reportUser = $reportUser;
         $this->requestStack = $requestStack;
