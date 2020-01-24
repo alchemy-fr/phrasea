@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -17,7 +18,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="`user`")
  * @ORM\EntityListeners({"App\Doctrine\Listener\UserDeleteListener"})
  */
-class User implements UserInterface, UserLocaleInterface
+class User implements UserInterface, UserLocaleInterface, EquatableInterface
 {
     /**
      * @var Uuid
@@ -301,5 +302,15 @@ class User implements UserInterface, UserLocaleInterface
     {
         $group->removeUser($this);
         $this->groups->removeElement($group);
+    }
+
+    public function isEqualTo(UserInterface $user)
+    {
+        if (!$user instanceof User
+            || $this->getId() !== $user->getId()) {
+            return false;
+        }
+
+        return count($this->getRoles()) === count($user->getRoles()) && empty(array_diff($this->getRoles(), $user->getRoles()));
     }
 }

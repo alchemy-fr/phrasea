@@ -112,6 +112,7 @@ class UserManager implements UserProviderInterface
     public function getUserByIdAndToken(string $userId, string $token): User
     {
         try {
+            /** @var User $user */
             $user = $this->em->find(User::class, $userId);
         } catch (ConversionException $e) {
             throw new BadRequestHttpException('Invalid ID', $e);
@@ -139,6 +140,8 @@ class UserManager implements UserProviderInterface
     public function refreshUser(UserInterface $user)
     {
         $this->em->refresh($user);
+
+        return $user;
     }
 
     public function supportsClass($class)

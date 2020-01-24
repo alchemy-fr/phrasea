@@ -19,18 +19,25 @@ class SamlUserFactory implements SamlUserFactoryInterface
      * @var UserManager
      */
     private $userManager;
+    /**
+     * @var SamlGroupManager
+     */
+    private $groupManager;
 
-    public function __construct(EntityManagerInterface $em, UserManager $userManager)
+    public function __construct(EntityManagerInterface $em, UserManager $userManager, SamlGroupManager $groupManager)
     {
         $this->em = $em;
         $this->userManager = $userManager;
+        $this->groupManager = $groupManager;
     }
 
     public function createUser(SamlTokenInterface $token): User
     {
+        $attributes = $token->getAttributes();
+
         $samlIdentity = new SamlIdentity();
         $samlIdentity->setProvider($token->getIdpName());
-        $samlIdentity->setAttributes($token->getAttributes());
+        $samlIdentity->setAttributes($attributes);
 
         if (null === $user = $this->userManager->findUserByUsername($token->getUsername())) {
             $user = $this->userManager->createUser();
@@ -38,10 +45,11 @@ class SamlUserFactory implements SamlUserFactoryInterface
             $user->setEnabled(true);
         }
 
+        $this->groupManager->updateGroups($user, $token);
+
         $samlIdentity->setUser($user);
 
         $this->em->persist($samlIdentity);
-        $this->em->persist($user);
         $this->em->flush();
 
         return $user;

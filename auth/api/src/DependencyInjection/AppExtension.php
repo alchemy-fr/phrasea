@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DependencyInjection;
 
 use App\OAuth\OAuthProviderFactory;
+use App\Saml\SamlGroupManager;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -44,6 +45,12 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $def->setArgument('$oAuthProviders', $oauthProviders);
         $container->setDefinition($def->getClass(), $def);
 
+
+        $samlProviders = array_filter($providers, function (array $provider) {
+            return $provider['type'] === 'saml';
+        });
+        $this->loadSamlProviders($container, $samlProviders);
+
         if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
                 '<img src="%s" width="%s" />',
@@ -56,6 +63,23 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
         $container->setParameter('easy_admin.site_name', $siteName);
         $container->setParameter('available_locales', $config['available_locales'] ?? ['en']);
+    }
+
+    private function loadSamlProviders(ContainerBuilder $container, array $samlProviders): void
+    {
+        $groupAttributesNames = [];
+        foreach ($samlProviders as $idpName => $config) {
+            if (isset($config['options']['groups_attribute'])) {
+                $groupAttributesNames[$config['name']] = $config['options']['groups_attribute'];
+            }
+        }
+
+        $def = new Definition(SamlGroupManager::class);
+        $def->setAutowired(true);
+        $def->setAutoconfigured(true);
+        $def->setArgument('$groupAttributesName', $groupAttributesNames);
+
+        $container->setDefinition(SamlGroupManager::class, $def);
     }
 
     public function prepend(ContainerBuilder $container)

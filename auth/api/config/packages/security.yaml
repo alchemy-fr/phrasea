@@ -38,7 +38,7 @@ security:
                 authenticators:
                 - App\Security\LoginFormAuthenticator
         saml:
-            anonymous:  ~
+            anonymous: ~
             pattern: ^/saml/
             provider: saml_user
             saml:
