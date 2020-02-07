@@ -45,6 +45,10 @@ services:
       - 127.0.0.1:3002:3000
 
   uploader-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
 
@@ -63,6 +67,10 @@ services:
       - ./auth/api/docker/supervisor:/etc/supervisor.d
 
   auth-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
       - ./OneloginSamlBundle:/srv/app/vendor/hslavich/oneloginsaml-bundle
@@ -93,6 +101,10 @@ services:
       - 8025:8025
 
   expose-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
 
@@ -106,6 +118,10 @@ services:
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
   notify-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
 

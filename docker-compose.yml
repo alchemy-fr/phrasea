@@ -4,7 +4,7 @@ networks:
   internal:
     ipam:
       config:
-        - subnet: ${SUBNET}
+        - subnet: ${PS_SUBNET}
 
 services:
   uploader-api-php:
@@ -21,7 +21,7 @@ services:
       - db
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES
+      - TRUSTED_PROXIES=${PS_SUBNET}
       - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
@@ -130,7 +130,7 @@ services:
           - auth-api-php
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES
+      - TRUSTED_PROXIES=${PS_SUBNET}
       - APP_ID=auth
       - AUTH_BASE_URL
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
@@ -214,7 +214,7 @@ services:
       - db
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES
+      - TRUSTED_PROXIES=${PS_SUBNET}
       - APP_ID=expose
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
@@ -301,7 +301,7 @@ services:
       - rabbitmq
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES
+      - TRUSTED_PROXIES=${PS_SUBNET}
       - APP_ID=notify
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
