@@ -25,15 +25,13 @@ bin/install.sh
 
 * Start the whole stack:
 ```bash
-bin/start.sh
+docker-compose -f docker-compose.yml up -d
 ```
 
-If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `bin/start.sh` again.
+If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose -f docker-compose.yml up -d` again.
 
 ## Development
 
-The `bin/start.sh` script avoid using the `docker-compose.override.yml`.
-In development, we need to use it so run:
 ```bash
 docker-compose up -d
 ```
