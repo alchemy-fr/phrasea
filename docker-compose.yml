@@ -352,6 +352,8 @@ services:
     networks:
       - internal
     command: server /data
+    ports:
+      - ${MINIO_PORT}:9000
     volumes:
       - s3_vol:/data
     environment:

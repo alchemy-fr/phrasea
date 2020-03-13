@@ -134,10 +134,6 @@ services:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
 
-  minio:
-    ports:
-      - 127.0.0.1:${MINIO_PORT}:9000
-
   dev:
     build: infra/docker/dev
     networks:
