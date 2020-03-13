@@ -73,7 +73,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
-      - ./OneloginSamlBundle:/srv/app/vendor/hslavich/oneloginsaml-bundle
 
   auth-api-nginx:
     volumes:
