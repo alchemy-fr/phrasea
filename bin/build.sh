@@ -27,3 +27,4 @@ docker-compose -f docker-compose.yml build minio
 docker-compose -f docker-compose.yml build minio-mc
 docker-compose -f docker-compose.yml build weblate
 docker-compose -f docker-compose.yml build report-api
+docker-compose -f docker-compose.yml build dashboard

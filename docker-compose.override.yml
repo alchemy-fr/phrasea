@@ -201,6 +201,12 @@ services:
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://auth.alchemy.local/saml/acs
       - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://auth.alchemy.local/saml/logout
 
+  dashboard:
+    volumes:
+    - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
+    - ./dashboard/src:/var/app
+    - ./dashboard/src/public:/usr/share/nginx/html
+
 volumes:
   pgadmin_vol:
   dev_vol:
