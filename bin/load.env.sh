@@ -18,5 +18,5 @@ do
 done < "$BASEDIR/../.env"
 
 if [ -f "$BASEDIR/../env.local" ]; then
-    export $(cat "$BASEDIR/../env.local" | xargs)
+    export $(cat "$BASEDIR/../env.local" | grep -v '#' | xargs)
 fi
