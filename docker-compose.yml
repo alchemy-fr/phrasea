@@ -461,6 +461,39 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
 
+  mailhog:
+    image: mailhog/mailhog
+    networks:
+      - internal
+    ports:
+      - ${MAILHOG_PORT}:8025
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - ${PGADMIN_PORT}:80
+    networks:
+      - internal
+    environment:
+      - PGADMIN_LISTEN_ADDRESS=127.0.0.1
+      - PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_vol:/var/lib/pgadmin
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - internal
+    environment:
+      - PMA_HOST=matomo-db
+    depends_on:
+      - matomo-db
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+
   dashboard:
     image: ${REGISTRY_NAMESPACE}dashboard:$DOCKER_TAG
     build: dashboard
@@ -511,7 +544,7 @@ services:
       - MATOMO_PORT
       - MATOMO_MYSQL_ROOT_PASSWORD
       - MATOMO_DATABASE_DBNAME
-      - PHPMYADMIN_HOST
+      - PHPMYADMIN_PORT
       - PHPMYADMIN_BASE_URL
       - REPORT_DB_NAME
       - REPORT_BASE_URL
@@ -520,6 +553,8 @@ services:
       - IDE_KEY
       - XDEBUG_ENABLED
       - PS_DEBUG_SERVER_NAME_PREFIX
+      - MAILHOG_PORT
+      - MAILHOG_BASE_URL
 
 volumes:
   weblate_vol:
@@ -529,3 +564,4 @@ volumes:
   s3_vol:
   matomo_vol:
   mariadb_vol:
+  pgadmin_vol:

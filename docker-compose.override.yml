@@ -23,7 +23,7 @@ services:
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
     ports:
-      - 127.0.0.1:3001:3000
+      - 127.0.0.1:${UPLOADER_CLIENT_DEV_PORT}:3000
 
   expose-front-dev:
     build:
@@ -42,7 +42,7 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
     ports:
-      - 127.0.0.1:3002:3000
+      - 127.0.0.1:${EXPOSE_FRONT_DEV_PORT}:3000
 
   uploader-api-php:
     environment:
@@ -77,27 +77,6 @@ services:
   auth-api-nginx:
     volumes:
       - ./auth/api:/srv/app
-
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - ${PGADMIN_PORT}:80
-    networks:
-      - internal
-    environment:
-      - PGADMIN_DEFAULT_EMAIL
-      - PGADMIN_DEFAULT_PASSWORD
-    depends_on:
-      - db
-    volumes:
-      - pgadmin_vol:/var/lib/pgadmin
-
-  mailhog:
-    image: mailhog/mailhog
-    networks:
-      - internal
-    ports:
-      - 8025:8025
 
   expose-api-php:
     environment:
@@ -164,20 +143,7 @@ services:
       - dev_vol:/home/app
       - ./configs:/configs
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    networks:
-      - internal
-    environment:
-      - PMA_HOST=matomo-db
-    depends_on:
-      - matomo-db
-    ports:
-      - ${PHPMYADMIN_HOST}:80
-
   report-api:
-    ports:
-      - 8092:80
     volumes:
       - ./report/src:/usr/app
 
@@ -208,6 +174,5 @@ services:
     - ./dashboard/src/public:/usr/share/nginx/html
 
 volumes:
-  pgadmin_vol:
   dev_vol:
     driver: local

@@ -73,11 +73,11 @@ You can change the services port by overriding the environment variables (see `.
 
 ## RabbitMQ Management
 
-Access `http://localhost:8082` (or you can change the port with env var `$RABBITMQ_MGT_PORT`).
+Access `http://localhost:8182` (or you can change the port with env var `$RABBITMQ_MGT_PORT`).
 
 ## Database Management
 
-Access PgAdmin4 at `http://localhost:5050`
+Access PgAdmin4 at `http://localhost:8190`
 
 You can login with `admin@alchemy.fr` / `CxkngkeTRPkJOyniPHmZ` by default (see `.env` file).
 Then add the server by using:
