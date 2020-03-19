@@ -5,6 +5,25 @@ This repository contains all the services to facilitate development but each gro
 
 ## Setup (with docker-compose)
 
+### Using a env.local (custom .env)
+
+It may be easier to deal with a local file to manage our env variables.
+
+You can add your `env.local` at the root of this project and define a command function in your `~/.bashrc`:
+
+```bash
+# ~/.bashrc or ~/.zshrc
+function dc() {
+    if [ -f env.local ]; then
+        env $(cat env.local | grep -v '#' | tr '\n' ' ') docker-compose $@
+    else
+        docker-compose $@
+    fi
+}
+```
+
+### Installation
+
 * Pull this repository
 
 * If you need a fresh version of images, build all images:

@@ -16,3 +16,7 @@ do
 
   eval $(echo "export ${varname}=$value")
 done < "$BASEDIR/../.env"
+
+if [ -f "$BASEDIR/../env.local" ]; then
+    export $(cat "$BASEDIR/../env.local" | xargs)
+fi
