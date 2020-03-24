@@ -28,13 +28,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "put"={
  *              "security"="is_granted('publication:publish')"
  *         },
+ *         "delete"={
+ *              "security"="is_granted('publication:publish')"
+ *         },
  *     },
  *     collectionOperations={
  *         "get"={
  *              "normalization_context"=Publication::API_LIST,
  *          },
  *         "post"={
- *              "security"="is_granted('publication:publish')"
+ *             "security"="is_granted('publication:publish')"
  *         }
  *     }
  * )
@@ -43,6 +46,7 @@ class Publication
 {
     const GROUP_PUB_INDEX = 'publication:index';
     const GROUP_PUB_READ = 'publication:read';
+    const GROUP_PUB_ADMIN_READ = 'publication:admin:read';
     const GROUP_PUB_LIST = 'publication:list';
 
     const API_READ = [
@@ -158,6 +162,15 @@ class Publication
     private $enabled = false;
 
     /**
+     * @var string|null
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"publication:admin:read"})
+     */
+    private $ownerId;
+
+    /**
      * @var bool
      *
      * @ApiProperty()
@@ -172,6 +185,51 @@ class Publication
      * @Groups({"publication:index"})
      */
     private $authorizationError;
+
+    /**
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Publication",
+     *         }
+     *     }
+     * )
+     * @Groups({"publication:read"})
+     *
+     * @var Publication[]|Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Publication", inversedBy="parents")
+     * @ORM\JoinTable(name="publication_children",
+     *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
+     * )
+     */
+    private $children;
+
+    /**
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Publication",
+     *         }
+     *     }
+     * )
+     * @Groups({"publication:read"})
+     *
+     * @var Publication[]|Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Publication", mappedBy="children")
+     */
+    private $parents;
+
+    /**
+     * Virtual property.
+     *
+     * @ApiProperty()
+     * @var string|null
+     * @Groups({"publication:write"})
+     */
+    private $parentId;
 
     /**
      * @var bool
@@ -256,10 +314,18 @@ class Publication
      */
     private $securityOptions = [];
 
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private $root = true;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->assets = new ArrayCollection();
+        $this->children = new ArrayCollection();
+        $this->parents = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
 
@@ -466,5 +532,69 @@ class Publication
     public function setAuthorizationError(?string $authorizationError): void
     {
         $this->authorizationError = $authorizationError;
+    }
+
+    /**
+     * @return Publication[]
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(Collection $children): void
+    {
+        $this->children = $children;
+    }
+
+    /**
+     * @return Publication[]
+     */
+    public function getParents(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): void
+    {
+        $child->getParents()->add($this);
+        $this->children->add($child);
+    }
+
+    public function addParent(self $parent): void
+    {
+        $parent->getChildren()->add($this);
+        $this->parents->add($parent);
+    }
+
+    public function isRoot(): bool
+    {
+        return $this->root;
+    }
+
+    public function setRoot(bool $root): void
+    {
+        $this->root = $root;
+    }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(?string $ownerId): void
+    {
+        $this->ownerId = $ownerId;
+    }
+
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    public function setParentId(?string $parentId): void
+    {
+        $this->setRoot(false);
+        $this->parentId = $parentId;
     }
 }

@@ -51,6 +51,9 @@ services:
         decorates: 'api_platform.jsonld.normalizer.item'
         arguments: [ '@App\Serializer\EntitySerializer.inner' ]
 
+    App\DataPersister\PublicationDataPersister:
+        decorates: 'api_platform.doctrine.orm.data_persister'
+
     App\Form\ThemeChoiceType:
         arguments:
             $choices:
