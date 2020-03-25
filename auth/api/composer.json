@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/oauth-server-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/remote-auth-bundle",
             "options": {
                 "symlink": true
@@ -59,6 +66,7 @@
         "alchemy/api-test": "@dev",
         "alchemy/notify-bundle": "*",
         "alchemy/report-bundle": "@dev",
+        "alchemy/oauth-server-bundle": "@dev",
         "arthem/locale-bundle": "^0",
         "arthem/rabbit-bundle": "^0.0.7",
         "friendsofsymfony/oauth-server-bundle": "^1.6",

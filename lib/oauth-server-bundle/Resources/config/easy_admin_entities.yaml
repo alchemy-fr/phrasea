@@ -1,0 +1,21 @@
+easy_admin:
+  entities:
+    OAuthClient:
+      class: Alchemy\OAuthServerBundle\Entity\OAuthClient
+      list:
+        sort: [createdAt, DESC]
+        batch_actions:
+          - delete
+        fields:
+          - publicId
+          - allowedScopes
+          - allowedGrantTypes
+          - redirectUris
+      form:
+        fields:
+          - { property: 'id', label: 'Client name' }
+          - randomId
+          - secret
+          - allowedGrantTypes
+          - { property: 'allowedScopes', label: 'Allowed scopes', type: Alchemy\OAuthServerBundle\Form\AllowedScopesChoiceType }
+          - redirectUris

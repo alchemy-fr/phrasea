@@ -5,6 +5,9 @@
     "alchemy/api-test": {
         "version": "dev-expose"
     },
+    "alchemy/oauth-server-bundle": {
+        "version": "dev-expose-oauth-server"
+    },
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
@@ -33,6 +36,9 @@
     },
     "aws/aws-sdk-php": {
         "version": "3.110.10"
+    },
+    "brick/math": {
+        "version": "0.8.14"
     },
     "composer/semver": {
         "version": "1.5.0"
@@ -142,6 +148,12 @@
         "files": [
             ".php_cs.dist"
         ]
+    },
+    "friendsofsymfony/oauth-server-bundle": {
+        "version": "1.6.2"
+    },
+    "friendsofsymfony/oauth2-php": {
+        "version": "1.3.0"
     },
     "fzaninotto/faker": {
         "version": "v1.8.0"
@@ -265,6 +277,9 @@
     },
     "ralouphie/mimey": {
         "version": "2.1.0"
+    },
+    "ramsey/collection": {
+        "version": "1.0.1"
     },
     "ramsey/uuid": {
         "version": "3.8.0"
@@ -528,6 +543,9 @@
     },
     "symfony/stopwatch": {
         "version": "v4.3.4"
+    },
+    "symfony/templating": {
+        "version": "v4.3.11"
     },
     "symfony/test-pack": {
         "version": "v1.0.6"

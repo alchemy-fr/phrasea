@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace Alchemy\OAuthServerBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;

@@ -1,4 +1,4 @@
-App\Entity\OAuthClient:
+Alchemy\OAuthServerBundle\Entity\OAuthClient:
     mobile_app:
         id: mobile-app
         randomId: 12356789abcdefghijklmnopqrstuvwx

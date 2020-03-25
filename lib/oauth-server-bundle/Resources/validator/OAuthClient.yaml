@@ -1,0 +1,7 @@
+Alchemy\OAuthServerBundle\Entity\OAuthClient:
+  properties:
+    id:
+      - NotBlank: ~
+      - Regex:
+          pattern: '/^[a-z0-9]+[a-z0-9_-]*$/'
+          message: "Invalid client name. Must be lower case and must match ^[a-z0-9]+[a-z0-9_-]*$"

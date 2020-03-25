@@ -2,21 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace Alchemy\OAuthServerBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use FOS\OAuthServerBundle\Entity\AccessToken as BaseAccessToken;
-use Ramsey\Uuid\Uuid;
+use FOS\OAuthServerBundle\Entity\AuthCode as BaseAuthCode;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\AccessTokenRepository")
- * @ORM\EntityListeners({"App\Doctrine\Listener\AccessTokenListener"})
+ * @ORM\Entity
  */
-class AccessToken extends BaseAccessToken
+class AuthCode extends BaseAuthCode
 {
     /**
-     * @var Uuid
+     * @var string
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -34,14 +32,6 @@ class AccessToken extends BaseAccessToken
     protected $client;
 
     /**
-     * @var User|null
-     *
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
-     */
-    protected $user;
-
-    /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime")
@@ -51,11 +41,6 @@ class AccessToken extends BaseAccessToken
     public function __construct()
     {
         $this->createdAt = new DateTime();
-    }
-
-    public function getId()
-    {
-        return $this->id->__toString();
     }
 
     public function getCreatedAt(): DateTime

@@ -54,23 +54,3 @@ easy_admin:
       form:
         fields:
           - { property: 'name' }
-
-    OAuthClient:
-      class: App\Entity\OAuthClient
-      list:
-        sort: [createdAt, DESC]
-        batch_actions:
-          - delete
-        fields:
-          - publicId
-          - allowedScopes
-          - allowedGrantTypes
-          - redirectUris
-      form:
-        fields:
-          - { property: 'id', label: 'Client name' }
-          - randomId
-          - secret
-          - allowedGrantTypes
-          - { property: 'allowedScopes', label: 'Allowed scopes', type: App\Form\AllowedScopesChoiceType }
-          - redirectUris

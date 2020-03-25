@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace Alchemy\OAuthServerBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 
 class AccessTokenRepository extends EntityRepository
 {
-    public function revokeTokens(User $user): void
+    public function revokeTokens(string $userId): void
     {
         foreach ([
                      AccessToken::class,
@@ -22,7 +22,7 @@ class AccessTokenRepository extends EntityRepository
                 ->from($class, 't')
                 ->andWhere('t.user = :user')
                 ->setParameters([
-                    'user' => $user->getId(),
+                    'user' => $userId,
                 ])
                 ->getQuery()
                 ->execute();

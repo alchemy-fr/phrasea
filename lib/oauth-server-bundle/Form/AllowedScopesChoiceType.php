@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Form;
+namespace Alchemy\OAuthServerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -15,9 +15,9 @@ class AllowedScopesChoiceType extends AbstractType
      */
     private $scopes;
 
-    public function __construct(string $scopes)
+    public function __construct(array $scopes)
     {
-        $this->scopes = explode(' ', $scopes);
+        $this->scopes = $scopes;
     }
 
     public function configureOptions(OptionsResolver $resolver)

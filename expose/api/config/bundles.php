@@ -17,4 +17,6 @@ return [
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
+    FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
+    Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
 ];

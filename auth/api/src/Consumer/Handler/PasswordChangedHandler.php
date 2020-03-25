@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
-use App\Entity\AccessToken;
+use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use App\Entity\ResetPasswordRequest;
 use App\Entity\User;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -39,7 +39,7 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
 
         $em
             ->getRepository(AccessToken::class)
-            ->revokeTokens($user);
+            ->revokeTokens($user->getId());
         $em
             ->getRepository(ResetPasswordRequest::class)
             ->revokeRequests($user);
