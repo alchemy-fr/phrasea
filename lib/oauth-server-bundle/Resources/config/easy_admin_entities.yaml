@@ -3,14 +3,16 @@ easy_admin:
     OAuthClient:
       class: Alchemy\OAuthServerBundle\Entity\OAuthClient
       list:
+        template: '@AlchemyAdmin/list/code.html.twig'
         sort: [createdAt, DESC]
         batch_actions:
           - delete
         fields:
-          - publicId
-          - allowedScopes
-          - allowedGrantTypes
-          - redirectUris
+          - { property: 'publicId', label: 'Client ID', template: '@AlchemyAdmin/list/code.html.twig' }
+          - { property: 'secret', template: '@AlchemyAdmin/list/secret.html.twig' }
+          - { property: allowedScopes, type: array }
+          - { property: allowedGrantTypes, type: array }
+          - { property: redirectUris }
       form:
         fields:
           - { property: 'id', label: 'Client name' }

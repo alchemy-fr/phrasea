@@ -38,6 +38,7 @@ class OAuthClient extends BaseClient
     public function __construct()
     {
         parent::__construct();
+        $this->setRandomId(substr($this->getRandomId(), 0, 6));
         $this->createdAt = new DateTime();
     }
 

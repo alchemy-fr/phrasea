@@ -1,2 +1,0 @@
-parameters:
-  oauth.allowed_scopes: 'scope1 scope2 scope3'
