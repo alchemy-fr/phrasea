@@ -31,7 +31,7 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
         $container->setParameter('alchemy_oauth_server.allowed_scopes', $config['scopes']);
@@ -78,11 +78,11 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
         $container->prependExtensionConfig('framework', [
             'templating' => [
                 'engine' => 'twig',
-            ]
+            ],
         ]);
 
         if (isset($bundles['EasyAdminBundle'])) {
-            $data = (new YamlParser())->parse(file_get_contents(__DIR__ . '/../Resources/config/easy_admin_entities.yaml'));
+            $data = (new YamlParser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));
             $container->prependExtensionConfig('easy_admin', $data['easy_admin']);
         }
     }

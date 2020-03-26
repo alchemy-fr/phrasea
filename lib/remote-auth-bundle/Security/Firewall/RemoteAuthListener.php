@@ -30,7 +30,7 @@ class RemoteAuthListener
         $accessToken = RequestHelper::getAuthorizationFromRequest($request)
             ?? $request->cookies->get(self::COOKIE_NAME);
 
-        if (empty($accessToken) || strpos($accessToken, RemoteAuthToken::TOKEN_PREFIX) !== 0) {
+        if (empty($accessToken) || 0 !== strpos($accessToken, RemoteAuthToken::TOKEN_PREFIX)) {
             return;
         }
 

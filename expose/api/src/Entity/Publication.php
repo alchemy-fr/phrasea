@@ -226,6 +226,7 @@ class Publication
      * Virtual property.
      *
      * @ApiProperty()
+     *
      * @var string|null
      * @Groups({"publication:write"})
      */

@@ -107,8 +107,8 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 'design' => [
                     'templates' => [
                         'list' => '@AlchemyAdmin/list.html.twig',
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
 
