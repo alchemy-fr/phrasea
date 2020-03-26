@@ -45,12 +45,17 @@ abstract class AbstractTestCase extends ApiTestCase
 
     protected function assertResponseToken(array $json, bool $refreshTokenExpected = true)
     {
-        $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['access_token']);
+        $this->assertTokenContent($json['access_token']);
         $this->assertArrayHasKey('scope', $json);
         $this->assertEquals('7776000', $json['expires_in']);
         $this->assertEquals('bearer', $json['token_type']);
         if ($refreshTokenExpected) {
-            $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['refresh_token']);
+            $this->assertTokenContent($json['refresh_token']);
         }
+    }
+
+    protected function assertTokenContent(string $token)
+    {
+        $this->assertRegExp('#^[!a-zA-Z0-9]+$#', $token, 'Invalid token');
     }
 }

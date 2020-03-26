@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\OAuth;
+namespace Alchemy\OAuthServerBundle\OAuth;
 
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use OAuth2\Model\IOAuth2Client;

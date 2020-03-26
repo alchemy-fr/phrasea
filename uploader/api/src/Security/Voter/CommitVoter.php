@@ -12,8 +12,8 @@ use Symfony\Component\Security\Core\Security;
 
 class CommitVoter extends Voter
 {
-    const ACK = 'ack';
-    const READ = 'read';
+    const ACK = 'ACK';
+    const READ = 'READ';
 
     /**
      * @var Security
@@ -46,7 +46,7 @@ class CommitVoter extends Voter
 
         switch ($attribute) {
             case self::READ:
-                if ($this->security->isGranted('ROLE_UPLOADER:COMMIT_LIST')) {
+                if ($this->security->isGranted('ROLE_COMMIT:LIST')) {
                     return true;
                 }
                 if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {

@@ -29,6 +29,7 @@ security:
             anonymous: ~
             stateless: true
             password: true
+            fos_oauth:  true
             remote_auth: true
 
     access_control:

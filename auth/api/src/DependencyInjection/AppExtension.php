@@ -52,7 +52,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
         if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
-                '<img src="%s" width="%s" />',
+                '<img src="%s" width="%s" alt="Admin" />',
                 $config['admin']['logo']['src'],
                 $config['admin']['logo']['with']
             );
@@ -61,7 +61,6 @@ class AppExtension extends Extension implements PrependExtensionInterface
         }
 
         $container->setParameter('easy_admin.site_name', $siteName);
-        $container->setParameter('available_locales', $config['available_locales'] ?? ['en']);
     }
 
     private function loadSamlProviders(ContainerBuilder $container, array $samlProviders): void

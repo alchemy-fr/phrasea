@@ -30,7 +30,7 @@ class RemoteAuthListener
         $accessToken = RequestHelper::getAuthorizationFromRequest($request)
             ?? $request->cookies->get(self::COOKIE_NAME);
 
-        if (empty($accessToken)) {
+        if (empty($accessToken) || strpos($accessToken, RemoteAuthToken::TOKEN_PREFIX) !== 0) {
             return;
         }
 
@@ -39,6 +39,9 @@ class RemoteAuthListener
         try {
             $authToken = $this->authenticationManager->authenticate($token);
             $this->tokenStorage->setToken($authToken);
+
+            // Remove access_token for next authentication listeners
+            $request->headers->set('AUTHORIZATION', '');
 
             return;
         } catch (AuthenticationException $failed) {

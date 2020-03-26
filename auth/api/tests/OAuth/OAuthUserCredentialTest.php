@@ -18,8 +18,8 @@ class OAuthUserCredentialTest extends AbstractTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $json = json_decode($response->getContent(), true);
-        $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['access_token']);
-        $this->assertRegExp('#^[a-zA-Z0-9]+$#', $json['refresh_token']);
+        $this->assertTokenContent($json['access_token']);
+        $this->assertTokenContent($json['refresh_token']);
         $this->assertArrayHasKey('scope', $json);
         $this->assertEquals('7776000', $json['expires_in']);
         $this->assertEquals('bearer', $json['token_type']);

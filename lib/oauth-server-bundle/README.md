@@ -17,6 +17,37 @@ alchemy_oauth_server:
     - scope2
 ```
 
+Add routes:
+
+```yaml
+# config/routes/alchemy_oauth_server.yml
+alchemy_oauth_server:
+  resource: "@AlchemyOAuthServerBundle/Resources/config/routing/routes.yaml"
+```
+
+Configure your firewalls:
+
+```yaml
+# app/config/package/security.yaml
+security:
+    firewalls:
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+
+# Optionally:
+#        oauth_authorize:
+#            pattern:    ^/oauth/v2/auth
+#            # Add your favorite authentication process here
+
+        api:
+            anonymous: ~
+            stateless: true
+            fos_oauth:  true
+            # If you also are using remote-auth-bundle
+            # remote_auth: true
+```
+
 ### Access token delivered to users
 
 By default this bundle generates entities without the user column.

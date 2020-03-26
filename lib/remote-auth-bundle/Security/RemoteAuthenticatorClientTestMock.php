@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
+use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 
 class RemoteAuthenticatorClientTestMock extends Client
 {
-    const USER_TOKEN = '__VALID_USER_TOKEN__';
-    const ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
+    const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
+    const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
 
     public function request($method, $uri = '', array $options = [])
     {

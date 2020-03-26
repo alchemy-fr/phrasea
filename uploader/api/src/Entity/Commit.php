@@ -28,10 +28,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "path"="/commit",
  *             "controller"=CommitAction::class,
  *         },
- *         "get",
+ *         "get"={"access_control"="is_granted('ROLE_COMMIT:LIST') or is_granted('ROLE_SUPER_ADMIN')"},
  *     },
  *     itemOperations={
- *         "get"={"access_control"="is_granted('read', object)"},
+ *         "get"={"access_control"="is_granted('READ', object)"},
  *         "ack"={
  *             "method"="POST",
  *             "path"="/commits/{id}/ack",

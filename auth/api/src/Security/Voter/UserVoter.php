@@ -28,7 +28,7 @@ class UserVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($this->security->isGranted('ROLE_AUTH:USER_READ')) {
+        if ('READ' === $attribute && $this->security->isGranted('ROLE_USER:READ')) {
             return true;
         }
 
