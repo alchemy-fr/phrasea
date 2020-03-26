@@ -58,18 +58,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "in"="formData",
  *                         "name"="publication_id",
  *                         "type"="string",
- *                         "description"="Attach asset to a publication (optional)",
+ *                         "required"=false,
+ *                         "description"="Attach asset to a publication",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="asset_id",
+ *                         "type"="string",
+ *                         "required"=false,
+ *                         "description"="Unique asset ID (for reference)",
  *                     },
  *                     {
  *                         "in"="formData",
  *                         "name"="slug",
  *                         "type"="string",
+ *                         "required"=false,
  *                         "description"="Ignored if no publication_id provided",
  *                     },
- *                      {
- *                          "in"="body",
- *                          "name"="asset",
- *                      },
  *                 }
  *             },
  *         }

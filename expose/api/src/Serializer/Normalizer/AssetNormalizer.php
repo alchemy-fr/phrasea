@@ -17,9 +17,9 @@ class AssetNormalizer extends AbstractRouterNormalizer
         /** @var PublicationAsset|null $publicationAsset */
         $publicationAsset = $context['publication_asset'] ?? null;
         if ($publicationAsset instanceof PublicationAsset) {
-            $object->setUrl($this->generateAssetUrl('asset_preview', $publicationAsset));
-            $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $publicationAsset));
-            $object->setDownloadUrl($this->generateAssetUrl('asset_download', $publicationAsset));
+            $object->setUrl($this->generateAssetUrl('asset_preview', $publicationAsset->getAsset()));
+            $object->setThumbUrl($this->generateAssetUrl('asset_thumbnail', $publicationAsset->getAsset()));
+            $object->setDownloadUrl($this->generateAssetUrl('asset_download', $publicationAsset->getAsset()));
         }
     }
 

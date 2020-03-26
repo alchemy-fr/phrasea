@@ -25,14 +25,12 @@ final class GetPublicationAction extends AbstractController
     public function __invoke(string $id): Publication
     {
         $params = Uuid::isValid($id) ? ['id' => $id] : ['slug' => $id];
+        /** @var Publication|null $publication */
         $publication = $this->em
             ->getRepository(Publication::class)
             ->findOneBy($params);
 
-        if (
-            !$publication instanceof Publication
-            || !$publication->isEnabled() && !$this->isGranted('ROLE_ADMIN')
-        ) {
+        if (!$publication instanceof Publication) {
             throw new NotFoundHttpException();
         }
 
