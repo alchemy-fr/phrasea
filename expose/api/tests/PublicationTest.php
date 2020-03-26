@@ -22,6 +22,7 @@ class PublicationTest extends AbstractTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Foo', $json['title']);
+        $this->assertEquals('123', $json['ownerId']);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
@@ -31,7 +32,7 @@ class PublicationTest extends AbstractTestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function testGetPublication(): void
+    public function testGetPublicationFromAdmin(): void
     {
         $id = $this->createPublication();
         $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
@@ -41,5 +42,62 @@ class PublicationTest extends AbstractTestCase
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
+        $this->assertEquals(null, $json['ownerId']);
+    }
+
+    public function testGetPublicationFromAnonymous(): void
+    {
+        $id = $this->createPublication(['enabled' => true]);
+        $response = $this->request(null, 'GET', '/publications/'.$id);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertArrayNotHasKey('ownerId', $json);
+        $this->assertArrayHasKey('id', $json);
+        $this->assertArrayHasKey('title', $json);
+    }
+
+    public function testGetNonEnabledPublicationFromAdmin(): void
+    {
+        $id = $this->createPublication(['enabled' => false]);
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertEquals(null, $json['ownerId']);
+        $this->assertArrayHasKey('id', $json);
+        $this->assertArrayHasKey('title', $json);
+    }
+
+    public function testGetNonEnabledPublicationFromAnonymous(): void
+    {
+        $id = $this->createPublication(['enabled' => false]);
+        $response = $this->request(null, 'GET', '/publications/'.$id);
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    public function testDeletePublicationAsAdmin(): void
+    {
+        $id = $this->createPublication();
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$id);
+        $this->assertEquals(204, $response->getStatusCode());
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $this->assertEquals(404, $response->getStatusCode());
+    }
+
+    public function testDeletePublicationAsAnonymous(): void
+    {
+        $id = $this->createPublication();
+        $response = $this->request(null, 'DELETE', '/publications/'.$id);
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testDeletePublicationAsUser(): void
+    {
+        $id = $this->createPublication();
+        $response = $this->request(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
+        $this->assertEquals(403, $response->getStatusCode());
     }
 }

@@ -17,6 +17,7 @@ class PublicationVoter extends Voter
 {
     const PUBLISH = 'publication:publish';
     const READ = 'publication:read';
+    const EDIT = 'publication:edit';
 
     /**
      * @var Security
@@ -46,6 +47,11 @@ class PublicationVoter extends Voter
             }
         } elseif (self::READ === $attribute) {
             return $this->securityMethodPasses($subject, $token);
+        } elseif (self::EDIT === $attribute) {
+            if ($token instanceof RemoteAuthToken) {
+                return $this->security->isGranted('ROLE_ADMIN') ||
+                    $subject->getOwnerId() === $token->getUser()->getId();
+            }
         }
 
         return false;
