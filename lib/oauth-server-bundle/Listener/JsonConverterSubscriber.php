@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Listener;
+namespace Alchemy\OAuthServerBundle\Listener;
 
 use function json_last_error;
 use function json_last_error_msg;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class BeforeActionSubscriber implements EventSubscriberInterface
+class JsonConverterSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {
@@ -23,7 +23,7 @@ class BeforeActionSubscriber implements EventSubscriberInterface
     public function convertJsonStringToArray(FilterControllerEvent $event)
     {
         $request = $event->getRequest();
-        if ('json' !== $request->getContentType() || !$request->getContent()) {
+        if ('json' !== $request->getContentType() || empty($request->getContent())) {
             return;
         }
         $data = json_decode($request->getContent(), true);

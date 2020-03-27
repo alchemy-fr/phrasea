@@ -11,3 +11,7 @@ services:
   Alchemy\OAuthServerBundle\Doctrine\Listener\AccessTokenListener:
     tags:
       - { name: doctrine.orm.entity_listener, lazy: true }
+
+  Alchemy\OAuthServerBundle\Listener\JsonConverterSubscriber:
+    tags:
+      - { name: kernel.event_subsriber }
