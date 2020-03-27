@@ -39,13 +39,11 @@ class PublicationVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if (self::PUBLISH === $attribute) {
-            if ($token instanceof RemoteAuthToken && $token->hasScope('expose:publish')) {
-                return true;
-            } elseif ($this->security->isGranted('ROLE_ADMIN')) {
-                return true;
-            }
-        } elseif (self::READ === $attribute) {
+        if ($this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
+        if (self::READ === $attribute) {
             return $this->securityMethodPasses($subject, $token);
         } elseif (self::EDIT === $attribute) {
             if ($token instanceof RemoteAuthToken) {

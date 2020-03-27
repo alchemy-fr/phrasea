@@ -298,6 +298,8 @@ class Publication
     private $createdAt;
 
     /**
+     * "password" or "authentication"
+     *
      * @var string|null
      * @ORM\Column(type="string", length=20, nullable=true)
      *
@@ -307,6 +309,9 @@ class Publication
     private $securityMethod = self::SECURITY_METHOD_NONE;
 
     /**
+     * If securityMethod="password", you must provide:
+     * {"password":"$3cr3t!"}
+     *
      * @var array
      * @ORM\Column(type="json_array")
      *

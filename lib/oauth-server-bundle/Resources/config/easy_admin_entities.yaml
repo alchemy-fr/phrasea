@@ -18,6 +18,6 @@ easy_admin:
           - { property: 'id', label: 'Client name' }
           - randomId
           - secret
-          - allowedGrantTypes
-          - { property: 'allowedScopes', label: 'Allowed scopes', type: Alchemy\OAuthServerBundle\Form\AllowedScopesChoiceType }
+          - { property: allowedGrantTypes, label: 'Allowed grant types', type: Alchemy\OAuthServerBundle\Form\AllowedGrantTypesChoiceType }
+          - { property: allowedScopes, label: 'Allowed scopes', type: Alchemy\OAuthServerBundle\Form\AllowedScopesChoiceType }
           - redirectUris
