@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\AccessToken;
+use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use App\Entity\User;
 use FOS\OAuthServerBundle\Model\TokenManagerInterface;
 use FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken;

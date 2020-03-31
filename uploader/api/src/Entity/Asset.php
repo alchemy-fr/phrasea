@@ -21,8 +21,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "groups"={"asset_read"},
  *     },
  *     itemOperations={
- *         "get"={"access_control"="is_granted('read_meta', object)"},
+ *         "get"={"access_control"="is_granted('READ_META', object)"},
  *         "download"={
+ *             "access_control"="is_granted('DOWNLOAD', object)",
  *             "method"="GET",
  *             "path"="/assets/{id}/download",
  *             "controller"=DownloadAssetAction::class,

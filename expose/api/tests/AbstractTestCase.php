@@ -74,6 +74,7 @@ abstract class AbstractTestCase extends ApiTestCase
         $em = self::$container->get(EntityManagerInterface::class);
         /** @var Publication $publication */
         $publication = $em->find(Publication::class, $id);
+
         return $publication;
     }
 

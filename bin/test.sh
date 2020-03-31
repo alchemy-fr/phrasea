@@ -7,6 +7,7 @@
 set -ex
 
 export APP_ENV=test
+export XDEBUG_ENABLED=0
 
 FILE=""
 if [[ -z "$1" ]]; then
@@ -22,15 +23,21 @@ notify-api-php
 "
 
 for s in ${SF_SERVICES}; do
-    docker-compose$FILE run -T --user app --rm ${s} /bin/sh -c "composer install --no-interaction && bin/console doctrine:schema:update -f && bin/phpunit"
+    docker-compose$FILE run -T --user app --rm ${s} /bin/sh -c "composer install --no-interaction && composer test"
 done
 
 
 LIBS="
+admin-bundle
+api-test
+notify-bundle
+oauth-server-bundle
+remote-auth-bundle
+report-bundle
 report-sdk
 "
 for lib in ${LIBS}; do
-    docker-compose$FILE run -T --user app --rm expose-api-php /bin/sh -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
+    docker-compose$FILE run -T --user app --rm auth-api-php /bin/sh -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
 done
 
 # TODO make this work in CircleCI (which has no mounted volumes)

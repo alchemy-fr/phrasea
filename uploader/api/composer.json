@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/oauth-server-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/remote-auth-bundle",
             "options": {
                 "symlink": true
@@ -39,6 +46,7 @@
         "ext-iconv": "*",
         "alchemy/admin-bundle": "*",
         "alchemy/notify-bundle": "*",
+        "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "api-platform/api-pack": "^1.2",
         "api-platform/core": "2.4.2",
@@ -120,7 +128,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },
     "conflict": {
         "symfony/symfony": "*"

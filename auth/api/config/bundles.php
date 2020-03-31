@@ -14,7 +14,6 @@ return [
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
     OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
     Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class => ['all' => true],
-    App\AppBundle::class => ['all' => true],
     Http\HttplugBundle\HttplugBundle::class => ['all' => true],
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
@@ -24,4 +23,6 @@ return [
     Arthem\Bundle\LocaleBundle\ArthemLocaleBundle::class => ['all' => true],
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
+    Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
+    App\AppBundle::class => ['all' => true], // Must stay declared after AlchemyOAuthServerBundle
 ];

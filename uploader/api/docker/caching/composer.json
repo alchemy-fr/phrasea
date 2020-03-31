@@ -12,6 +12,7 @@
         "arthem/rabbit-bundle": "@dev",
         "easycorp/easyadmin-bundle": "^2.2",
         "eightpoints/guzzle-bundle": "^7.5",
+        "fig/link-util": "^1.1",
         "guzzlehttp/guzzle": "^6.3",
         "nelmio/cors-bundle": "1.5.6",
         "nyholm/psr7": "^1.1",

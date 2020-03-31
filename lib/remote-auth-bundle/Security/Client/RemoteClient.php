@@ -46,32 +46,6 @@ class RemoteClient
         return $data;
     }
 
-    public function getMe(string $accessToken): array
-    {
-        try {
-            $response = $this->client->request('GET', '/me', [
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
-            ]);
-        } catch (ClientException $e) {
-            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
-                throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
-            }
-
-            throw $e;
-        }
-
-        if (401 === $response->getStatusCode()) {
-            throw new InvalidResponseException($response->getBody()->getContents());
-        }
-
-        $content = $response->getBody()->getContents();
-        $data = \GuzzleHttp\json_decode($content, true);
-
-        return $data;
-    }
-
     public function post(string $uri, array $options = [])
     {
         return $this->client->post($uri, $options);

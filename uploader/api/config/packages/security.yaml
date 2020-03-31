@@ -10,6 +10,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+
         api_doc:
             pattern: ^/$
             security: false
@@ -30,6 +34,7 @@ security:
             stateless: true
             asset: true
             remote_auth: true
+            fos_oauth:  true
 
     access_control:
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

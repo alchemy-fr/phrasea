@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
+use Alchemy\OAuthServerBundle\Listener\OAuth\Events;
+use Alchemy\OAuthServerBundle\Listener\OAuth\OAuthEvent;
 use Alchemy\ReportBundle\ReportUserService;
 use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\User;
-use App\Listener\OAuth\Events;
-use App\Listener\OAuth\OAuthEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;

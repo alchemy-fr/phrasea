@@ -26,6 +26,9 @@
   "config": {
     "sort-packages": true
   },
+  "scripts": {
+    "test": "echo 'This project has no test...'"
+  },
   "autoload": {
     "psr-4": {
       "Alchemy\\AdminBundle\\": ""

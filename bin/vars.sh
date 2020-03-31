@@ -12,6 +12,7 @@ lib/admin-bundle
 lib/api-test
 lib/notify-bundle
 lib/remote-auth-bundle
+lib/oauth-server-bundle
 lib/report-bundle
 lib/report-sdk
 "

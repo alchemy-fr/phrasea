@@ -8,6 +8,9 @@
     "alchemy/notify-bundle": {
         "version": "dev-master"
     },
+    "alchemy/oauth-server-bundle": {
+        "version": "dev-expose-oauth-server"
+    },
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
@@ -22,6 +25,9 @@
     },
     "arthem/rabbit-bundle": {
         "version": "dev-master"
+    },
+    "brick/math": {
+        "version": "0.8.14"
     },
     "clue/stream-filter": {
         "version": "v1.4.1"
@@ -145,6 +151,15 @@
     "fzaninotto/faker": {
         "version": "v1.8.0"
     },
+    "guzzlehttp/guzzle": {
+        "version": "6.5.2"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.6.1"
+    },
     "hautelook/alice-bundle": {
         "version": "2.1",
         "recipe": {
@@ -220,6 +235,18 @@
     "php": {
         "version": "7.3"
     },
+    "php-amqplib/php-amqplib": {
+        "version": "v2.11.1"
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "1.12",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        }
+    },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },
@@ -228,6 +255,12 @@
     },
     "php-http/discovery": {
         "version": "1.6.1"
+    },
+    "php-http/guzzle6-adapter": {
+        "version": "v1.1.1"
+    },
+    "php-http/httplug": {
+        "version": "v1.1.0"
     },
     "php-http/httplug-bundle": {
         "version": "1.6",
@@ -250,6 +283,9 @@
     "php-http/message-factory": {
         "version": "v1.0.2"
     },
+    "php-http/promise": {
+        "version": "v1.0.0"
+    },
     "php-http/stopwatch-plugin": {
         "version": "1.2.0"
     },
@@ -265,8 +301,17 @@
     "psr/container": {
         "version": "1.0.0"
     },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
     "psr/log": {
         "version": "1.1.0"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
+    },
+    "ramsey/collection": {
+        "version": "1.0.1"
     },
     "ramsey/uuid": {
         "version": "3.8.0"

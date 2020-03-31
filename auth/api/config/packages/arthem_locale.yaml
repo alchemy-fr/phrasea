@@ -1,3 +1,4 @@
 
 arthem_locale:
-  locales: '%available_locales%'
+  locales:
+    - en

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Listener\OAuth;
+namespace Alchemy\OAuthServerBundle\Listener\OAuth;
 
 abstract class Events
 {

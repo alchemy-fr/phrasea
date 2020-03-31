@@ -8,6 +8,8 @@ use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 class RemoteAuthToken extends AbstractToken
 {
+    const TOKEN_PREFIX = '!';
+
     /**
      * @var string
      */

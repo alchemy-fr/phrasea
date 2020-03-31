@@ -2,28 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Form;
+namespace Alchemy\OAuthServerBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AllowedScopesChoiceType extends AbstractType
+class AllowedGrantTypesChoiceType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    private $scopes;
-
-    public function __construct(string $scopes)
-    {
-        $this->scopes = explode(' ', $scopes);
-    }
-
     public function configureOptions(OptionsResolver $resolver)
     {
         $choices = [];
-        foreach ($this->scopes as $scope) {
+        foreach ([
+            'authorization_code',
+            'password',
+            'client_credentials',
+            'refresh_token',
+                 ] as $scope) {
             $choices[$scope] = $scope;
         }
 

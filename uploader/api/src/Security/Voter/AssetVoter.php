@@ -12,8 +12,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    const DOWNLOAD = 'download';
-    const READ_METADATA = 'read_meta';
+    const DOWNLOAD = 'DOWNLOAD';
+    const READ_METADATA = 'READ_META';
 
     /**
      * @var Security

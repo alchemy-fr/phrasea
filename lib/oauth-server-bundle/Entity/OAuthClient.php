@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace Alchemy\OAuthServerBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,6 +38,7 @@ class OAuthClient extends BaseClient
     public function __construct()
     {
         parent::__construct();
+        $this->setRandomId(substr($this->getRandomId(), 0, 6));
         $this->createdAt = new DateTime();
     }
 

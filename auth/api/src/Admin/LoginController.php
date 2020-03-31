@@ -3,7 +3,7 @@
 namespace App\Admin;
 
 use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
-use App\Entity\AuthCode;
+use Alchemy\OAuthServerBundle\Entity\AuthCode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

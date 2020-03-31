@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Entity\OAuthClient;
+use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use FOS\OAuthServerBundle\Model\ClientManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
