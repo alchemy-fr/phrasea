@@ -83,9 +83,8 @@ final class ReadAssetAction extends AbstractController
     {
         $publicationAsset = $this->assetManager->findPublicationAsset($id);
         $this->denyAccessUnlessGranted(PublicationAssetVoter::READ, $publicationAsset);
-        $asset = $publicationAsset->getAsset();
 
-        return $asset;
+        return $publicationAsset->getAsset();
     }
 
     /**

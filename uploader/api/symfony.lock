@@ -203,6 +203,9 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.2"
+    },
     "league/flysystem": {
         "version": "1.0.51"
     },
@@ -271,7 +274,7 @@
         "version": "v2.1.3"
     },
     "php": {
-        "version": "7.3"
+        "version": "7.4"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.9.2"
@@ -737,6 +740,9 @@
     },
     "twig/twig": {
         "version": "v2.7.4"
+    },
+    "webimpress/safe-writer": {
+        "version": "2.0.1"
     },
     "webmozart/assert": {
         "version": "1.4.0"

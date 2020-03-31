@@ -189,6 +189,9 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.2"
+    },
     "myclabs/deep-copy": {
         "version": "1.9.1"
     },
@@ -233,7 +236,7 @@
         "version": "v2.1.2"
     },
     "php": {
-        "version": "7.3"
+        "version": "7.4"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.11.1"
@@ -645,6 +648,9 @@
     },
     "twig/twig": {
         "version": "v2.8.1"
+    },
+    "webimpress/safe-writer": {
+        "version": "2.0.1"
     },
     "zendframework/zend-code": {
         "version": "3.3.1"
