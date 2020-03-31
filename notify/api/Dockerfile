@@ -1,4 +1,4 @@
-FROM php:7.3.4-fpm-alpine AS notify-api-php
+FROM php:7.4.4-fpm-alpine3.11 AS notify-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
@@ -7,8 +7,8 @@ RUN apk add --no-cache --virtual .persistent-deps \
 		zlib \
 		libzip
 
-ENV APCU_VERSION=5.1.12 \
-    XDEBUG_VERSION=2.9.2 \
+ENV APCU_VERSION=5.1.18 \
+    XDEBUG_VERSION=2.9.4 \
     APP_ENV=prod
 
 RUN set -eux \
@@ -35,6 +35,8 @@ COPY docker/app/conf.d/symfony.ini $PHP_INI_DIR/conf.d/symfony.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
+    # Increase process-timeout for "composer test" which downloads phpunit
+    && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \
     && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 

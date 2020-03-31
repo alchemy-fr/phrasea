@@ -52,6 +52,13 @@ If one of the port is already allocated, see the [Changing ports](#changing-port
 ## Development
 
 ```bash
+# bin/build.sh optimize build order in order to maximize benefit of docker layer caching: 
+bin/build.sh
+
+# Build the dev container
+docker-compose build dev
+
+# Start the stack
 docker-compose up -d
 ```
 
@@ -66,6 +73,25 @@ bin/update-libs.sh
 ```
 
 This will copy all librairies/bundles (`./lib/*`) in all Symfony application in a sub folder `__lib`.
+
+### Composer caching in Docker
+
+In order to keep vendor docker layer and to prevent composer from downloading all packages every time an app file change
+we use a step (docker layer) for composer install a warm composer cache before copying all app files.
+We keep a `composer.json` and `composer.lock` version isolated (in ./docker/caching of each PHP service).
+
+You can update both this two  files in order to keep a fresh cache.
+Because local packages (repositories with type=path) will neither be copied nor cached, we need to remove them from the requirements.
+
+You can use the following helper to do so automatically:
+```bash
+# Usage
+# optimize-composer-docker-cache [app-path]
+./bin/optimize-composer-docker-cache ./auth/api
+
+# You can update multiple projects at the same time
+./bin/optimize-composer-docker-cache ./auth/api ./uploader/api
+```
 
 ## Changing ports
 

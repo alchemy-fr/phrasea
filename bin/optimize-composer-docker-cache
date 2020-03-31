@@ -1,0 +1,99 @@
+#!/usr/bin/env php
+<?php
+
+if ($argc === 1) {
+    $projects = [getcwd()];
+} else {
+    $projects = array_values($argv);
+    array_shift($projects);
+    $projects = array_map('realpath', $projects);
+}
+
+function setupStreaming()
+{
+    ini_set('output_buffering', 'off');
+    ini_set('zlib.output_compression', false);
+    if (function_exists('apache_setenv')) {
+        apache_setenv('no-gzip', '1');
+        apache_setenv('dont-vary', '1');
+    }
+}
+
+setupStreaming();
+
+function runSubCommand($cmd)
+{
+    system($cmd, $return);
+    if (0 !== $return) {
+        throw new Exception(sprintf('Error %d: %s', $return, $cmd));
+    }
+}
+
+function updateProject(string $project)
+{
+    echo sprintf("##########################\n## Optimize %s\n##########################\n\n", $project);
+
+    $composerSrc = $project.'/composer.json';
+    if (!file_exists($composerSrc)) {
+        echo "WARNING: No composer.json file found.\n";
+        return;
+    }
+
+    $composerJson = json_decode(file_get_contents($composerSrc), true);
+
+    $repositories = $composerJson['repositories'] ?? [];
+    $keyAreNumerical = true;
+    $requiresToRemove = [];
+    foreach ($repositories as $key => $repo) {
+        if (!is_numeric($key)) {
+            $keyAreNumerical = false;
+        }
+        if ($repo['type'] === 'path') {
+            $requiresToRemove[] = json_decode(file_get_contents($project.'/'.$repo['url'].'/composer.json'), true)['name'];
+            unset($repositories[$key]);
+        }
+    }
+
+    foreach ($requiresToRemove as $projectName) {
+        unset($composerJson['require'][$projectName]);
+        unset($composerJson['require-dev'][$projectName]);
+    }
+
+    if (empty($repositories)) {
+        unset($composerJson['repositories']);
+    } else {
+        if ($keyAreNumerical) {
+            $repositories = array_values($repositories);
+        }
+        $composerJson['repositories'] = $repositories;
+    }
+
+    $composerCacheSrc = $project . '/docker/caching/composer.json';
+    file_put_contents($composerCacheSrc, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+
+    echo sprintf("%s updated!\n", $composerCacheSrc);
+
+    runSubCommand(sprintf(implode(' && ', [
+        'set -x',
+        'export COMPOSER_MEMORY_LIMIT=-1',
+        'cd %s',
+        'rm -f composer.lock',
+        'composer update --no-interaction --no-scripts --ignore-platform-reqs --ansi --no-plugins --no-suggest',
+        'rm -rf vendor',
+    ]), dirname($composerCacheSrc)));
+
+    runSubCommand(sprintf(implode(' && ', [
+        'set -x',
+        'export COMPOSER_MEMORY_LIMIT=-1',
+        '(cd %s',
+        'rm -f composer.lock',
+        'composer update --no-interaction --no-scripts --ignore-platform-reqs --ansi --no-plugins --no-suggest',
+        'rm -rf vendor)',
+        '(cd %s && composer update --no-interaction --ignore-platform-reqs --ansi)',
+    ]), dirname($composerCacheSrc), $project));
+}
+
+foreach ($projects as $project) {
+    updateProject($project);
+}
+
