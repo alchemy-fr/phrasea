@@ -1,0 +1,5 @@
+alchemy_security_token:
+  signers:
+    jwt:
+      jwt:
+        signing_key: '%env(resolve:TOKEN_SIGNING_KEY)%'

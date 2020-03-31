@@ -135,6 +135,7 @@ services:
       - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
       - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
       - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - TOKEN_SIGNING_KEY=${EXPOSE_TOKEN_SIGNING_KEY}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

@@ -5,6 +5,13 @@
     "repositories": [
         {
             "type": "path",
+            "url": "./__lib/security-token-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/admin-bundle",
             "options": {
                 "symlink": true
@@ -55,6 +62,7 @@
         "alchemy/admin-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
+        "alchemy/security-token-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "doctrine/dbal": "2.9.1",
         "league/flysystem-aws-s3-v3": "^1.0",
@@ -119,7 +127,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "4.3.*"
+            "require": "^4.4"
         }
     }
 }
