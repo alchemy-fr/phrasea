@@ -5,12 +5,28 @@ BASEDIR=$(dirname $0)
 . "${BASEDIR}/load.env.sh"
 . "${BASEDIR}/vars.sh"
 
-for f in ${SYMFONY_PROJECTS}; do
-    echo "Install dependencies for ${f}"
-    (cd "${BASEDIR}/../${f}" && composer install)
-done
+set -e
 
-for f in ${NPM_PROJECTS}; do
-    echo "Install dependencies for ${f}"
-    (cd "${BASEDIR}/../${f}" && yarn install)
-done
+function installComposer() {
+    echo "Installing composer in $1..."
+    docker-compose run --rm $1 su app sh -c "composer install"
+    echo "Done."
+    echo ""
+    echo ""
+}
+
+function installNodeModules() {
+    echo "Installing node modules in $1..."
+    docker-compose run --rm $1 su node sh -c "yarn install"
+    echo "Done."
+    echo ""
+    echo ""
+}
+
+installComposer auth-api-php
+installComposer notify-api-php
+installComposer uploader-api-php
+installComposer expose-api-php
+
+installNodeModules expose-front-dev
+installNodeModules uploader-client-dev
