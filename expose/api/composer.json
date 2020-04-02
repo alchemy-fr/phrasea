@@ -4,11 +4,8 @@
     "license": "proprietary",
     "repositories": [
         {
-            "type": "path",
-            "url": "./__lib/security-token-bundle",
-            "options": {
-                "symlink": true
-            }
+            "type": "git",
+            "url": "git@github.com:4rthem/psr-http-message-bridge.git"
         },
         {
             "type": "path",
@@ -62,7 +59,9 @@
         "alchemy/admin-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
-        "alchemy/security-token-bundle": "@dev",
+        "symfony/psr-http-message-bridge": "dev-https-support as 2.0.0",
+        "arthem/request-signer-bundle": "^1.0.1",
+        "arthem/jwt-request-signer": "^1",
         "api-platform/api-pack": "^1.2",
         "doctrine/dbal": "2.9.1",
         "league/flysystem-aws-s3-v3": "^1.0",

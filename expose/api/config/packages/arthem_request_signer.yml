@@ -1,5 +1,6 @@
-alchemy_security_token:
+arthem_request_signer:
   signers:
     jwt:
       jwt:
+        ttl: 300
         signing_key: '%env(resolve:TOKEN_SIGNING_KEY)%'

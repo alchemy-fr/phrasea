@@ -59,7 +59,7 @@ bin/build.sh
 docker-compose build dev
 
 # Install app dependencies
-docker-compose run --rm dev su app bin/install-dev.sh
+docker-compose run --rm dev su app bash -c 'bin/install-dev.sh'
 
 # Start the stack
 docker-compose up -d

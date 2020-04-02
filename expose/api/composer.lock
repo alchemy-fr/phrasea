@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4a0646c41dbc823040970c810fd060e",
+    "content-hash": "5b2e6f68122818b53eb9115558200516",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-master",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "f67bd64d869269d8dd1980424892037a31bed8aa"
+                "reference": "06b05ffe0a6069a8858fe6156e39b674184172ff"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -38,6 +38,11 @@
                     "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -52,11 +57,11 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-expose-oauth-server",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
-                "reference": "10946495e7d8ab558fc9b98e37e9b949f40305ca"
+                "reference": "decae405817b9a8ce90e1f8577235d32d65f122d"
             },
             "require": {
                 "friendsofsymfony/oauth-server-bundle": "^1.6",
@@ -81,6 +86,11 @@
                     "Alchemy\\OAuthServerBundle\\Tests\\": "/Tests/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -92,11 +102,11 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-master",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
-                "reference": "a1e705a282a7592e99bad39878ea0f96996e22ff"
+                "reference": "2ebe4f7f43322c151423ba7db6eb82e93b1faf14"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -121,6 +131,11 @@
                     "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -135,11 +150,11 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-master",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
-                "reference": "93744df9fca9678ac68ddef0d80d4ea93a8bd5e6"
+                "reference": "542739672202d03a38ffe1b9674e80e7bcbcd532"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -164,6 +179,11 @@
                     "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
                 }
             },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -175,7 +195,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-master",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -219,63 +239,17 @@
             }
         },
         {
-            "name": "alchemy/security-token-bundle",
-            "version": "dev-security-token-bundle",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/security-token-bundle",
-                "reference": "87d5724ee1f7a5f630298209966afc982f22d530"
-            },
-            "require": {
-                "php": "^7.4",
-                "symfony/framework-bundle": "^4.0 || ^5.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "suggest": {
-                "lcobucci/jwt": "For JWT signer"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\SecurityTokenBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\SecurityTokenBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony Security token bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true
-            }
-        },
-        {
             "name": "api-platform/api-pack",
-            "version": "v1.2.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/api-pack.git",
-                "reference": "41364f8763475d7709c43f790aa77a4157d038e2"
+                "reference": "ca7ca22f30bcfcdb2493ec9e8b7b5dba1271608a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/api-pack/zipball/41364f8763475d7709c43f790aa77a4157d038e2",
-                "reference": "41364f8763475d7709c43f790aa77a4157d038e2",
+                "url": "https://api.github.com/repos/api-platform/api-pack/zipball/ca7ca22f30bcfcdb2493ec9e8b7b5dba1271608a",
+                "reference": "ca7ca22f30bcfcdb2493ec9e8b7b5dba1271608a",
                 "shasum": ""
             },
             "require": {
@@ -285,7 +259,7 @@
                 "doctrine/orm": "^2.4.5",
                 "nelmio/cors-bundle": "^1.5 || ^2.0",
                 "php": "^7.0",
-                "phpdocumentor/reflection-docblock": "^3.0 || ^4.0",
+                "phpdocumentor/reflection-docblock": "^3.0 || ^4.0 || ^5.0",
                 "symfony/asset": "*",
                 "symfony/expression-language": "*",
                 "symfony/security-bundle": "*",
@@ -298,7 +272,7 @@
                 "MIT"
             ],
             "description": "A pack for API Platform",
-            "time": "2019-11-12T17:43:33+00:00"
+            "time": "2020-04-01T16:40:06+00:00"
         },
         {
             "name": "api-platform/core",
@@ -452,17 +426,105 @@
             "time": "2020-01-13T16:27:19+00:00"
         },
         {
-            "name": "aws/aws-sdk-php",
-            "version": "3.133.47",
+            "name": "arthem/jwt-request-signer",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "706082d6a0e53c7656eca61866b456178112daf6"
+                "url": "https://github.com/4rthem/jwt-request-signer.git",
+                "reference": "ef40b6c0ab77cf043c8303b61f45634267cf4880"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/706082d6a0e53c7656eca61866b456178112daf6",
-                "reference": "706082d6a0e53c7656eca61866b456178112daf6",
+                "url": "https://api.github.com/repos/4rthem/jwt-request-signer/zipball/ef40b6c0ab77cf043c8303b61f45634267cf4880",
+                "reference": "ef40b6c0ab77cf043c8303b61f45634267cf4880",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/psr7": "^1.6",
+                "lcobucci/jwt": "^4",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Arthem\\JWTRequestSigner\\": "src/"
+                },
+                "exclude-from-classmap": [
+                    "/tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Protect access to your resources with JWT",
+            "homepage": "https://github.com/4rthem/jwt-request-signer",
+            "time": "2020-04-02T15:15:30+00:00"
+        },
+        {
+            "name": "arthem/request-signer-bundle",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/4rthem/request-signer-bundle.git",
+                "reference": "1bc5516e2e3db14985c7291e047c08fbe5263b9f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/4rthem/request-signer-bundle/zipball/1bc5516e2e3db14985c7291e047c08fbe5263b9f",
+                "reference": "1bc5516e2e3db14985c7291e047c08fbe5263b9f",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/psr7": "^1.6",
+                "nyholm/psr7": "^1.2",
+                "php": "^7.2",
+                "symfony/framework-bundle": "^4.0 || ^5.0",
+                "symfony/psr-http-message-bridge": "^2.0"
+            },
+            "require-dev": {
+                "arthem/jwt-request-signer": "^1",
+                "aws/aws-sdk-php": "^3",
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8"
+            },
+            "suggest": {
+                "arthem/jwt-request-signer": "For JWT signed requests",
+                "aws/aws-sdk-php": "For S3 signed requests"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Arthem\\RequestSignerBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony Request signer bundle",
+            "homepage": "https://github.com/4rthem/request-signer-bundle",
+            "time": "2020-04-02T14:35:03+00:00"
+        },
+        {
+            "name": "aws/aws-sdk-php",
+            "version": "3.134.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aws/aws-sdk-php.git",
+                "reference": "aefab57896b558634d24342bdc3c6814e8e533f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/aefab57896b558634d24342bdc3c6814e8e533f6",
+                "reference": "aefab57896b558634d24342bdc3c6814e8e533f6",
                 "shasum": ""
             },
             "require": {
@@ -533,7 +595,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2020-03-30T18:15:57+00:00"
+            "time": "2020-04-01T18:14:23+00:00"
         },
         {
             "name": "brick/math",
@@ -582,20 +644,21 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "v1.8.0",
+            "version": "1.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc"
+                "reference": "5eb79f3dbdffed6544e1fc287572c0f462bd29bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/904dca4eb10715b92569fbcd79e201d5c349b6bc",
-                "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/5eb79f3dbdffed6544e1fc287572c0f462bd29bb",
+                "reference": "5eb79f3dbdffed6544e1fc287572c0f462bd29bb",
                 "shasum": ""
             },
             "require": {
                 "doctrine/lexer": "1.*",
+                "ext-tokenizer": "*",
                 "php": "^7.1"
             },
             "require-dev": {
@@ -605,7 +668,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.9.x-dev"
                 }
             },
             "autoload": {
@@ -646,7 +709,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2019-10-01T18:55:10+00:00"
+            "time": "2020-04-02T12:33:25+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -2082,6 +2145,172 @@
             "time": "2014-01-12T16:20:24+00:00"
         },
         {
+            "name": "lcobucci/clock",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/clock.git",
+                "reference": "70f25bddfb21a9cbf8d45cc53571de8ab45f5b69"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/clock/zipball/70f25bddfb21a9cbf8d45cc53571de8ab45f5b69",
+                "reference": "70f25bddfb21a9cbf8d45cc53571de8ab45f5b69",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4"
+            },
+            "require-dev": {
+                "infection/infection": "^0.15",
+                "lcobucci/coding-standard": "^4.0",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\Clock\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com"
+                }
+            ],
+            "description": "Yet another clock abstraction",
+            "time": "2020-02-26T20:20:12+00:00"
+        },
+        {
+            "name": "lcobucci/jose-parsing",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/jose-parsing.git",
+                "reference": "ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/jose-parsing/zipball/ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4",
+                "reference": "ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "^2.3",
+                "phpunit/phpunit": "^6.0",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\Jose\\Parsing\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Otávio Cobucci Oblonczyk",
+                    "email": "lcobucci@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A basic Base64Url and JSON encoding/decoding implementation",
+            "keywords": [
+                "JOSE",
+                "base64url"
+            ],
+            "time": "2017-02-12T22:14:17+00:00"
+        },
+        {
+            "name": "lcobucci/jwt",
+            "version": "4.0.0-alpha3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/jwt.git",
+                "reference": "487d0296cb89d11c023ccacc294f86802cf7bde0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/487d0296cb89d11c023ccacc294f86802cf7bde0",
+                "reference": "487d0296cb89d11c023ccacc294f86802cf7bde0",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "lcobucci/clock": "^1.0",
+                "lcobucci/jose-parsing": "~2.1",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "infection/infection": "^0.12",
+                "lcobucci/coding-standard": "^2.0",
+                "mikey179/vfsstream": "^1.6",
+                "phpbench/phpbench": "dev-master@dev",
+                "phpmd/phpmd": "^2.5",
+                "phpstan/phpstan": "^0.11",
+                "phpstan/phpstan-deprecation-rules": "^0.11",
+                "phpstan/phpstan-phpunit": "^0.11",
+                "phpstan/phpstan-strict-rules": "^0.11",
+                "phpunit/php-invoker": "^2.0",
+                "phpunit/phpunit": "^8.0",
+                "squizlabs/php_codesniffer": "^3.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to work with JSON Web Token and JSON Web Signature",
+            "keywords": [
+                "JWS",
+                "jwt"
+            ],
+            "time": "2019-04-16T11:51:01+00:00"
+        },
+        {
             "name": "league/flysystem",
             "version": "1.0.66",
             "source": {
@@ -2328,6 +2557,68 @@
             "time": "2019-06-17T08:53:14+00:00"
         },
         {
+            "name": "nyholm/psr7",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nyholm/psr7.git",
+                "reference": "55ff6b76573f5b242554c9775792bd59fb52e11c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nyholm/psr7/zipball/55ff6b76573f5b242554c9775792bd59fb52e11c",
+                "reference": "55ff6b76573f5b242554c9775792bd59fb52e11c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1",
+                "php-http/message-factory": "^1.0",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.0"
+            },
+            "provide": {
+                "psr/http-factory-implementation": "1.0",
+                "psr/http-message-implementation": "1.0"
+            },
+            "require-dev": {
+                "http-interop/http-factory-tests": "dev-master",
+                "php-http/psr7-integration-tests": "dev-master",
+                "phpunit/phpunit": "^7.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nyholm\\Psr7\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
+                },
+                {
+                    "name": "Martijn van der Ven",
+                    "email": "martijn@vanderven.se"
+                }
+            ],
+            "description": "A fast PHP7 implementation of PSR-7",
+            "homepage": "http://tnyholm.se",
+            "keywords": [
+                "psr-17",
+                "psr-7"
+            ],
+            "time": "2019-09-05T13:24:16+00:00"
+        },
+        {
             "name": "oneup/flysystem-bundle",
             "version": "3.4.0",
             "source": {
@@ -2562,6 +2853,56 @@
             "time": "2019-07-17T20:56:16+00:00"
         },
         {
+            "name": "php-http/message-factory",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/message-factory.git",
+                "reference": "a478cb11f66a6ac48d8954216cfed9aa06a501a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/message-factory/zipball/a478cb11f66a6ac48d8954216cfed9aa06a501a1",
+                "reference": "a478cb11f66a6ac48d8954216cfed9aa06a501a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4",
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
+                }
+            ],
+            "description": "Factory interfaces for PSR-7 HTTP Message",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "stream",
+                "uri"
+            ],
+            "time": "2015-12-19T14:08:53+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "2.0.0",
             "source": {
@@ -2615,41 +2956,38 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "4.3.4",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "da3fd972d6bafd628114f7e7e036f45944b62e9c"
+                "reference": "cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/da3fd972d6bafd628114f7e7e036f45944b62e9c",
-                "reference": "da3fd972d6bafd628114f7e7e036f45944b62e9c",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e",
+                "reference": "cd72d394ca794d3466a3b2fc09d5a6c1dc86b47e",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0",
-                "phpdocumentor/reflection-common": "^1.0.0 || ^2.0.0",
-                "phpdocumentor/type-resolver": "~0.4 || ^1.0.0",
-                "webmozart/assert": "^1.0"
+                "ext-filter": "^7.1",
+                "php": "^7.2",
+                "phpdocumentor/reflection-common": "^2.0",
+                "phpdocumentor/type-resolver": "^1.0",
+                "webmozart/assert": "^1"
             },
             "require-dev": {
-                "doctrine/instantiator": "^1.0.5",
-                "mockery/mockery": "^1.0",
-                "phpdocumentor/type-resolver": "0.4.*",
-                "phpunit/phpunit": "^6.4"
+                "doctrine/instantiator": "^1",
+                "mockery/mockery": "^1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.x-dev"
+                    "dev-master": "5.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "phpDocumentor\\Reflection\\": [
-                        "src/"
-                    ]
+                    "phpDocumentor\\Reflection\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2660,10 +2998,14 @@
                 {
                     "name": "Mike van Riel",
                     "email": "me@mikevanriel.com"
+                },
+                {
+                    "name": "Jaap van Otterdijk",
+                    "email": "account@ijaap.nl"
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2019-12-28T18:55:12+00:00"
+            "time": "2020-02-22T12:28:44+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -2805,6 +3147,58 @@
                 "psr"
             ],
             "time": "2017-02-14T16:28:37+00:00"
+        },
+        {
+            "name": "psr/http-factory",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-factory.git",
+                "reference": "12ac7fcd07e5b077433f5f2bee95b3a771bf61be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/12ac7fcd07e5b077433f5f2bee95b3a771bf61be",
+                "reference": "12ac7fcd07e5b077433f5f2bee95b3a771bf61be",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0",
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interfaces for PSR-7 HTTP message factories",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "psr",
+                "psr-17",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "time": "2019-04-30T12:38:16+00:00"
         },
         {
             "name": "psr/http-message",
@@ -5261,6 +5655,63 @@
             "time": "2020-03-27T16:54:36+00:00"
         },
         {
+            "name": "symfony/psr-http-message-bridge",
+            "version": "dev-https-support",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:4rthem/psr-http-message-bridge.git",
+                "reference": "d336c735f5d06063fd287fe50824f8859607fb92"
+            },
+            "require": {
+                "php": "^7.1",
+                "psr/http-message": "^1.0",
+                "symfony/http-foundation": "^4.4 || ^5.0"
+            },
+            "require-dev": {
+                "nyholm/psr7": "^1.1",
+                "symfony/phpunit-bridge": "^4.4 || ^5.0"
+            },
+            "suggest": {
+                "nyholm/psr7": "For a super lightweight PSR-7/17 implementation"
+            },
+            "type": "symfony-bridge",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Bridge\\PsrHttpMessage\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "PSR HTTP message bridge",
+            "homepage": "http://symfony.com",
+            "keywords": [
+                "http",
+                "http-message",
+                "psr-17",
+                "psr-7"
+            ],
+            "time": "2020-04-02T08:41:57+00:00"
+        },
+        {
             "name": "symfony/routing",
             "version": "v4.4.7",
             "source": {
@@ -6708,11 +7159,11 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-master",
+            "version": "dev-security-token-bundle",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "2094b128588091381b0c0dea178ca1907cc4c494"
+                "reference": "8619b02ae43ff25048616e32c43a07812e224e30"
             },
             "require": {
                 "php": "^7.3",
@@ -6732,6 +7183,11 @@
                 "psr-4": {
                     "Alchemy\\ApiTest\\Tests\\": "tests"
                 }
+            },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
             },
             "license": [
                 "MIT"
@@ -8434,13 +8890,20 @@
             "time": "2019-12-01T12:31:52+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "2.0.0",
+            "alias_normalized": "2.0.0.0",
+            "version": "dev-https-support",
+            "package": "symfony/psr-http-message-bridge"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "alchemy/admin-bundle": 20,
         "alchemy/report-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
-        "alchemy/security-token-bundle": 20,
+        "symfony/psr-http-message-bridge": 20,
         "alchemy/api-test": 20
     },
     "prefer-stable": true,

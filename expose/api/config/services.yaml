@@ -34,6 +34,8 @@ services:
         arguments:
             $filesystem: "@oneup_flysystem.asset_filesystem"
 
+    Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
+
     app.s3_client:
         class: Aws\S3\S3Client
         arguments:

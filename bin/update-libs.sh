@@ -10,5 +10,6 @@ for f in ${SYMFONY_PROJECTS}; do
     rm -rf "${BASEDIR}/${f}/__lib"
     mkdir -p "${BASEDIR}/${f}/__lib"
 
-    rsync -av "${BASEDIR}/lib/" "${BASEDIR}/${f}/__lib/" --exclude=vendor
+    rsync -a "${BASEDIR}/lib/" "${BASEDIR}/${f}/__lib/" --exclude=vendor
+    echo "$f Synced."
 done

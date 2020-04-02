@@ -8,14 +8,16 @@ use Alchemy\ReportBundle\ReportUserService;
 use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\Asset;
 use App\Entity\MediaInterface;
-use App\Security\Voter\PublicationAssetVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
+use Arthem\RequestSignerBundle\RequestSigner;
 use Mimey\MimeTypes;
+use Arthem\RequestSignerBundle\Exception\InvalidSignatureException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -36,23 +38,29 @@ final class ReadAssetAction extends AbstractController
      * @var ReportUserService
      */
     private $reportClient;
+    /**
+     * @var RequestSigner
+     */
+    private RequestSigner $requestSigner;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        ReportUserService $reportClient
+        ReportUserService $reportClient,
+        RequestSigner $requestSigner
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->reportClient = $reportClient;
+        $this->requestSigner = $requestSigner;
     }
 
     /**
      * @Route("/{id}/preview", name="preview")
      */
-    public function assetPreview(string $id): Response
+    public function assetPreview(string $id, Request $request): Response
     {
-        $asset = $this->getAssetFromPublicationAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id, $request);
 
         return $this->getMediaStream($asset->getPreviewDefinition() ?? $asset);
     }
@@ -60,9 +68,9 @@ final class ReadAssetAction extends AbstractController
     /**
      * @Route("/{id}/thumbnail", name="thumbnail")
      */
-    public function assetThumbnail(string $id): Response
+    public function assetThumbnail(string $id, Request $request): Response
     {
-        $asset = $this->getAssetFromPublicationAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id, $request);
 
         return $this->getMediaStream($asset->getThumbnailDefinition() ?? $asset);
     }
@@ -79,10 +87,14 @@ final class ReadAssetAction extends AbstractController
         ]);
     }
 
-    private function getAssetFromPublicationAsset(string $id): Asset
+    private function getAssetFromPublicationAsset(string $id, Request $request): Asset
     {
+        try {
+            $this->requestSigner->validateRequest($request);
+        } catch (InvalidSignatureException $e) {
+            throw new AccessDeniedHttpException($e->getMessage());
+        }
         $publicationAsset = $this->assetManager->findPublicationAsset($id);
-        $this->denyAccessUnlessGranted(PublicationAssetVoter::READ, $publicationAsset);
 
         return $publicationAsset->getAsset();
     }
@@ -90,9 +102,9 @@ final class ReadAssetAction extends AbstractController
     /**
      * @Route("/{id}/sub-definitions/{type}", name="subdef_open")
      */
-    public function subDefinitionOpen(string $id, string $type): Response
+    public function subDefinitionOpen(string $id, string $type, Request $request): Response
     {
-        $asset = $this->getAssetFromPublicationAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id, $request);
         $subDefinition = $this->assetManager->findAssetSubDefinition($asset, $type);
         $stream = $this->storageManager->getStream($subDefinition->getPath());
 
@@ -109,7 +121,7 @@ final class ReadAssetAction extends AbstractController
      */
     public function subDefinitionDownload(string $id, string $type, Request $request): Response
     {
-        $asset = $this->getAssetFromPublicationAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id, $request);
         $subDefinition = $this->assetManager->findAssetSubDefinition($asset, $type);
         $stream = $this->storageManager->getStream($subDefinition->getPath());
 
@@ -133,7 +145,7 @@ final class ReadAssetAction extends AbstractController
      */
     public function downloadAsset(string $id, Request $request): Response
     {
-        $asset = $this->getAssetFromPublicationAsset($id);
+        $asset = $this->getAssetFromPublicationAsset($id, $request);
         $stream = $this->storageManager->getStream($asset->getPath());
 
         $this->logAssetAction(LogActionInterface::ASSET_DOWNLOAD, $asset, $request);
