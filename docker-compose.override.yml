@@ -23,7 +23,7 @@ services:
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
     ports:
-      - 127.0.0.1:${UPLOADER_CLIENT_DEV_PORT}:3000
+      - ${UPLOADER_CLIENT_DEV_PORT}:3000
 
   expose-front-dev:
     build:
@@ -42,7 +42,7 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
     ports:
-      - 127.0.0.1:${EXPOSE_FRONT_DEV_PORT}:3000
+      - ${EXPOSE_FRONT_DEV_PORT}:3000
 
   uploader-api-php:
     environment:
