@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5b2e6f68122818b53eb9115558200516",
+    "content-hash": "8c4f36b7626807f1c308faa56352c3b8",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
@@ -5659,7 +5659,7 @@
             "version": "dev-https-support",
             "source": {
                 "type": "git",
-                "url": "git@github.com:4rthem/psr-http-message-bridge.git",
+                "url": "https://github.com/4rthem/psr-http-message-bridge.git",
                 "reference": "d336c735f5d06063fd287fe50824f8859607fb92"
             },
             "require": {
