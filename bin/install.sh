@@ -60,7 +60,7 @@ exec_container auth-api-php "\
     bin/console rabbitmq:setup-fabric \
     && bin/console doctrine:database:create --if-not-exists \
     && bin/console doctrine:schema:update -f \
-    && bin/console app:create-client ${ADMIN_CLIENT_ID} --random-id=${ADMIN_CLIENT_RANDOM_ID} --secret=${ADMIN_CLIENT_SECRET} --grant-type password --grant-type authorization_code --redirect-uri http:// \
+    && bin/console app:create-client ${ADMIN_CLIENT_ID} --random-id=${ADMIN_CLIENT_RANDOM_ID} --secret=${ADMIN_CLIENT_SECRET} --grant-type password --grant-type authorization_code --redirect-uri ${AUTH_BASE_URL} --redirect-uri ${UPLOADER_BASE_URL} --redirect-uri ${EXPOSE_BASE_URL} \
     && bin/console app:create-client ${UPLOADER_CLIENT_ID} --random-id=${UPLOADER_CLIENT_RANDOM_ID} --secret=${UPLOADER_CLIENT_SECRET} --grant-type password --grant-type authorization_code \
     && bin/console app:create-client ${EXPOSE_CLIENT_ID} --random-id=${EXPOSE_CLIENT_RANDOM_ID} --secret=${EXPOSE_CLIENT_SECRET} --grant-type client_credentials --grant-type authorization_code \
     && bin/console app:user:create --update-if-exist ${DEFAULT_USER_EMAIL} -p ${DEFAULT_USER_PASSWORD} --roles ROLE_SUPER_ADMIN \
@@ -71,8 +71,7 @@ docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
-  mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME && \
-  mc policy set download minio/$EXPOSE_STORAGE_BUCKET_NAME \
+  mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME \
 "
 
 # Weblate
