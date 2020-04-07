@@ -5,41 +5,72 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
+use App\Entity\MediaInterface;
 use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Arthem\RequestSignerBundle\RequestSigner;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 {
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private string $storageBaseUrl;
+    private RequestSigner $requestSigner;
+    private RequestStack $requestStack;
 
     /**
      * @required
      */
-    public function setUrlGenerator(UrlGeneratorInterface $urlGenerator)
+    public function setRequestSigner(RequestSigner $requestSigner)
     {
-        $this->urlGenerator = $urlGenerator;
+        $this->requestSigner = $requestSigner;
+    }
+
+    /**
+     * @required
+     */
+    public function setStorageBaseUrl(string $storageBaseUrl)
+    {
+        $this->storageBaseUrl = $storageBaseUrl;
+    }
+
+    /**
+     * @required
+     */
+    public function setRequestStack(RequestStack $requestStack)
+    {
+        $this->requestStack = $requestStack;
     }
 
     /**
      * @param PublicationAsset|Asset $publicationAsset
      */
-    protected function generateAssetUrl(string $route, $publicationAsset): string
+    protected function generateAssetUrl(MediaInterface $media, bool $download = false): string
     {
-        return $this->urlGenerator->generate($route, ['id' => $publicationAsset->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->generateUrl($media->getPath(), $download);
     }
 
     /**
      * @param PublicationAsset|Asset $publicationAsset
      */
-    protected function generateSubDefinitionUrl(string $route, $publicationAsset, SubDefinition $subDefinition): string
+    protected function generateSubDefinitionUrl(SubDefinition $subDefinition, bool $download = false): string
     {
-        return $this->urlGenerator->generate($route, [
-            'id' => $publicationAsset->getId(),
-            'type' => $subDefinition->getName(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->generateUrl($subDefinition->getPath(), $download);
+    }
+
+    private function generateUrl(string $path, bool $download): string
+    {
+        $options = [];
+        if ($download) {
+            $options['ResponseContentDisposition'] = sprintf(
+                'attachment; filename=%s',
+                basename($path)
+            );
+        }
+
+        return $this->requestSigner->signUri(
+                $this->storageBaseUrl.'/'.$path,
+                $this->requestStack->getCurrentRequest(),
+                $options
+        );
     }
 }

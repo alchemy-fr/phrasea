@@ -23,4 +23,22 @@ class AssetRepository extends EntityRepository
             ->getOneOrNullResult()
             ;
     }
+
+    public function findAssetPublicationOwnedBy(Asset $asset, string $ownerId): ?Publication
+    {
+        return $this
+            ->_em
+            ->createQueryBuilder('p')
+            ->select('p')
+            ->from(Publication::class, 'p')
+            ->innerJoin('p.assets', 'pa')
+            ->andWhere('p.ownerId = :ownerId')
+            ->andWhere('pa.asset = :id')
+            ->setParameter('id', $asset->getId())
+            ->setParameter('ownerId', $ownerId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 }

@@ -7,6 +7,11 @@ uploader/api
 notify/api
 "
 
+NPM_PROJECTS="
+expose/front
+uploader/client
+"
+
 PHP_LIBS="
 lib/admin-bundle
 lib/api-test

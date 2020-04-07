@@ -58,6 +58,9 @@ bin/build.sh
 # Build the dev container
 docker-compose build dev
 
+# Install app dependencies
+bin/install-dev.sh
+
 # Start the stack
 docker-compose up -d
 ```

@@ -19,4 +19,5 @@ return [
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
+    Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
 ];

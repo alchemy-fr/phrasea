@@ -1,0 +1,20 @@
+services:
+  s3_client:
+    class: Aws\S3\S3Client
+    arguments:
+      -
+        endpoint: '%env(STORAGE_BASE_URL)%'
+        region: ''
+        version: '2006-03-01'
+        bucket_endpoint: true
+        credentials:
+          key: '%env(S3_STORAGE_ACCESS_KEY)%'
+          secret: '%env(S3_STORAGE_SECRET_KEY)%'
+
+arthem_request_signer:
+  signers:
+    s3:
+      aws_s3:
+        ttl: 300
+        bucket_name: '%env(STORAGE_BUCKET_NAME)%'
+        service_id: 's3_client'

@@ -28,9 +28,9 @@ security:
         api:
             anonymous: ~
             stateless: true
-            password: true
             fos_oauth:  true
             remote_auth: true
+            password: true
 
     access_control:
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

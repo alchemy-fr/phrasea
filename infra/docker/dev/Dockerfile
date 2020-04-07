@@ -11,7 +11,10 @@ RUN apk add --no-cache --virtual .persistent-deps \
 		curl \
         bash \
         nano \
+        make \
+        g++ \
         vim \
+        python \
         zsh \
         openssh-client \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
