@@ -127,26 +127,4 @@ class AssetManager
 
         return $asset;
     }
-
-    public function findPublicationAsset(string $id): PublicationAsset
-    {
-        $publicationAsset = $this->em->find(PublicationAsset::class, $id);
-        if (!$publicationAsset instanceof PublicationAsset) {
-            throw new NotFoundHttpException('PublicationAsset '.$id.' not found');
-        }
-
-        return $publicationAsset;
-    }
-
-    public function findAssetSubDefinition(Asset $asset, string $subDefType): SubDefinition
-    {
-        $subDef = $this->em
-            ->getRepository(SubDefinition::class)
-            ->findSubDefinitionByType($asset, $subDefType);
-        if (!$subDef instanceof SubDefinition) {
-            throw new NotFoundHttpException('SubDefinition '.$asset->getId().'/'.$subDefType.' not found');
-        }
-
-        return $subDef;
-    }
 }

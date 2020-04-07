@@ -47,8 +47,7 @@ class PublicationVoter extends Voter
             return $this->securityMethodPasses($subject, $token);
         } elseif (self::EDIT === $attribute) {
             if ($token instanceof RemoteAuthToken) {
-                return $this->security->isGranted('ROLE_ADMIN') ||
-                    $subject->getOwnerId() === $token->getUser()->getId();
+                return $subject->getOwnerId() === $token->getUser()->getId();
             }
         }
 

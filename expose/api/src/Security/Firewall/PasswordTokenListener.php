@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Firewall;
 
 use Alchemy\RemoteAuthBundle\Security\RequestHelper;
+use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Security\Authentication\PasswordToken;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -27,6 +28,10 @@ class PasswordTokenListener
     public function __invoke(RequestEvent $event)
     {
         $request = $event->getRequest();
+
+        if ($this->tokenStorage->getToken() instanceof RemoteAuthToken) {
+            return;
+        }
 
         $password = RequestHelper::getAuthorizationFromRequest($request, 'Password', false, 'password')
             ?? $request->cookies->get(self::COOKIE_NAME);

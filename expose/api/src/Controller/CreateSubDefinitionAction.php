@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
+use App\Security\Voter\AssetVoter;
 use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -37,7 +38,6 @@ final class CreateSubDefinitionAction extends AbstractController
 
     public function __invoke(Request $request): SubDefinition
     {
-        $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH);
         $assetId = $request->request->get('asset_id');
         if (!$assetId) {
             throw new BadRequestHttpException('"asset_id" is required');
@@ -46,11 +46,12 @@ final class CreateSubDefinitionAction extends AbstractController
         if (empty($name)) {
             throw new BadRequestHttpException('"name" is required and must not be empty');
         }
+
         $asset = $this->findAsset($assetId);
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset %s not found', $assetId));
         }
-        $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH, $asset);
+        $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
 
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
@@ -72,7 +73,7 @@ final class CreateSubDefinitionAction extends AbstractController
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
-        $subDefinition = $this->assetManager->createSubDefinition(
+        return $this->assetManager->createSubDefinition(
             $name,
             $path,
             $uploadedFile->getMimeType(),
@@ -80,8 +81,6 @@ final class CreateSubDefinitionAction extends AbstractController
             $asset,
             $request->request->all()
         );
-
-        return $subDefinition;
     }
 
     private function findAsset(string $id): Asset
