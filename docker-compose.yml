@@ -184,11 +184,14 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7.14-management
+    hostname: rabbitmq
     networks:
       - internal
     environment:
       - RABBITMQ_DEFAULT_USER
       - RABBITMQ_DEFAULT_PASS
+    volumes:
+      - rabbitmq_vol:/var/lib/rabbitmq
     ports:
       - ${RABBITMQ_MGT_PORT}:15672
 
@@ -564,3 +567,4 @@ volumes:
   matomo_vol:
   mariadb_vol:
   pgadmin_vol:
+  rabbitmq_vol:
