@@ -3,6 +3,8 @@ import {PropTypes} from 'prop-types';
 export const dataShape = PropTypes.shape({
     title: PropTypes.string.isRequired,
     assets: PropTypes.array.isRequired,
+    parents: PropTypes.array.isRequired,
+    children: PropTypes.array.isRequired,
 });
 
 export const assetShape = PropTypes.shape({

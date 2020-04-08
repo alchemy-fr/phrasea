@@ -558,18 +558,23 @@ class Publication
      */
     public function getParents(): Collection
     {
-        return $this->children;
+        return $this->parents;
+    }
+
+    public function setParents(Collection $parents): void
+    {
+        $this->parents = $parents;
     }
 
     public function addChild(self $child): void
     {
-        $child->getParents()->add($this);
+        $child->parents->add($this);
         $this->children->add($child);
     }
 
     public function addParent(self $parent): void
     {
-        $parent->getChildren()->add($this);
+        $parent->children->add($this);
         $this->parents->add($parent);
     }
 

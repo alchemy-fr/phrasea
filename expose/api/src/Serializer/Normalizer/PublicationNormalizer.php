@@ -27,7 +27,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = [])
     {
-        if (!$object->isEnabled() && !$this->security->isGranted(PublicationVoter::EDIT, $object)) {
+        if (!$this->security->isGranted(PublicationVoter::READ, $object)) {
             throw new NotFoundHttpException();
         }
 
@@ -44,14 +44,17 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         }
 
         $object->setChildren($object->getChildren()->filter(function (Publication $child): bool {
-            return $child->isEnabled() || $this->security->isGranted(PublicationVoter::EDIT, $child);
+            return $this->security->isGranted(PublicationVoter::READ, $child);
+        }));
+        $object->setParents($object->getParents()->filter(function (Publication $child): bool {
+            return $this->security->isGranted(PublicationVoter::READ, $child);
         }));
 
         if ($object->getPackage() instanceof Asset) {
-            $object->setPackageUrl($this->generateAssetUrl('asset_download', $object->getPackage()));
+            $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
         if ($object->getCover() instanceof Asset) {
-            $object->setCoverUrl($this->generateAssetUrl('asset_thumbnail', $object->getCover()));
+            $object->setCoverUrl($this->generateAssetUrl($object->getCover()));
         }
     }
 

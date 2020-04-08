@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Publication;
 use App\Security\Authentication\PasswordToken;
@@ -39,19 +40,22 @@ class PublicationVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN')) {
-            return true;
-        }
+        $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
 
-        if (self::READ === $attribute) {
-            return $this->securityMethodPasses($subject, $token);
-        } elseif (self::EDIT === $attribute) {
-            if ($token instanceof RemoteAuthToken) {
-                return $subject->getOwnerId() === $token->getUser()->getId();
-            }
-        }
+        switch ($attribute) {
+            case self::PUBLISH:
+                return $isAdmin;
+            case self::READ:
+                return $isAdmin || ($subject->isEnabled() && $this->securityMethodPasses($subject, $token));
+            case self::EDIT:
+                $user = $token->getUser();
+                $isAuthenticated = $user instanceof RemoteUser;
 
-        return false;
+                return $isAdmin ||
+                    ($isAuthenticated && $subject->getOwnerId() === $user->getId());
+            default:
+                return false;
+        }
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool

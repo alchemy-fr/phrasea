@@ -61,6 +61,7 @@ class NestedPublicationTest extends AbstractTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('children', $json);
         $this->assertArrayHasKey('0', $json['children']);
+        $this->assertEmpty($json['parents']);
         $this->assertEquals($childId, $json['children'][0]['id']);
         $this->assertArrayHasKey('title', $json['children'][0]);
 

@@ -7,6 +7,8 @@ import {layouts} from "./layouts";
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import Cookies from 'universal-cookie';
 import {securityMethods} from "./security/methods";
+import Layout from "./Layout";
+import PublicationNavigation from "./PublicationNavigation";
 
 const cookies = new Cookies();
 
@@ -41,7 +43,10 @@ class Publication extends PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.authorization !== this.state.authorization) {
+        if (
+            prevState.authorization !== this.state.authorization
+            || prevProps.id !== this.props.id
+        ) {
             this.load();
         }
     }
@@ -82,6 +87,20 @@ class Publication extends PureComponent {
     }
 
     render() {
+        const {data} = this.state;
+
+        return <Layout
+            menu={<PublicationNavigation
+                currentTitle={data ? data.title : 'Loading...'}
+                children={data ? data.children : []}
+                parents={data ?data.parents : []}
+            />}
+        >
+            {this.renderContent()}
+        </Layout>
+    }
+
+    renderContent() {
         const {data} = this.state;
 
         if (null === data) {

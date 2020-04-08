@@ -1,0 +1,46 @@
+
+#sidebar {
+  $width: 250px;
+  min-width: $width;
+  max-width: $width;
+  background: $secondary;
+  -webkit-transition: all .3s;
+  -o-transition: all .3s;
+  transition: all .3s;
+  position: relative;
+  min-height: 100vh;
+
+  &.hidden {
+    margin-left: -$width;
+
+    .custom-menu {
+      margin-right: -50px;
+    }
+  }
+
+  .custom-menu {
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    margin-right: -20px;
+    -webkit-transition: .3s;
+    -o-transition: .3s;
+    transition: .3s;
+
+    .btn.btn-primary {
+      background: $primary;
+      border-color: $primary;
+    }
+
+    .btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+  }
+
+  ul {
+    padding-left: 10px;
+  }
+}

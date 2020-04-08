@@ -95,8 +95,8 @@ class GalleryLayout extends React.Component {
 
         return <div className={`layout-gallery`}>
             <div className="container">
-
                 <h1>{title}</h1>
+                {assets.length > 0 ?
                 <ImageGallery
                     startIndex={startIndex}
                     onSlide={this.onSlide}
@@ -107,7 +107,7 @@ class GalleryLayout extends React.Component {
                         thumbnail: a.asset.thumbUrl,
                         renderItem: -1 === a.asset.mimeType.indexOf('image/') ? () => this.renderVideo(a.asset) : undefined,
                     }))}
-                />
+                /> : 'Gallery is empty'}
             </div>
         </div>
     }
