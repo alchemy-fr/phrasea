@@ -264,7 +264,7 @@ class Publication
     private DateTime $createdAt;
 
     /**
-     * "password" or "authentication"
+     * "password" or "authentication".
      *
      * @ORM\Column(type="string", length=20, nullable=true)
      *
@@ -275,7 +275,7 @@ class Publication
 
     /**
      * If securityMethod="password", you must provide:
-     * {"password":"$3cr3t!"}
+     * {"password":"$3cr3t!"}.
      *
      * @ORM\Column(type="json_array")
      *

@@ -7,7 +7,6 @@ namespace App\Controller;
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
 use App\Security\Voter\AssetVoter;
-use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

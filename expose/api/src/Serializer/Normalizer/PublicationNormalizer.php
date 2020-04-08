@@ -7,7 +7,6 @@ namespace App\Serializer\Normalizer;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
