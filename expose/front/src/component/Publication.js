@@ -92,8 +92,8 @@ class Publication extends PureComponent {
         return <Layout
             menu={<PublicationNavigation
                 currentTitle={data ? data.title : 'Loading...'}
-                children={data ? data.children : []}
-                parents={data ?data.parents : []}
+                children={data && data.children ? data.children : []}
+                parents={data && data.parents ? data.parents : []}
             />}
         >
             {this.renderContent()}
