@@ -559,6 +559,8 @@ services:
       - PS_DEBUG_SERVER_NAME_PREFIX
       - MAILHOG_PORT
       - MAILHOG_BASE_URL
+      - SAML_BASE_URL
+      - SAML2_BASE_URL
 
 volumes:
   weblate_vol:
