@@ -27,10 +27,6 @@ class PublicationNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = [])
     {
-        if (!$this->security->isGranted(PublicationVoter::READ, $object)) {
-            throw new NotFoundHttpException();
-        }
-
         if (in_array(Publication::GROUP_PUB_READ, $context['groups'])) {
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ, $object);
             $object->setAuthorized($isAuthorized);
@@ -44,10 +40,10 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         }
 
         $object->setChildren($object->getChildren()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::READ, $child);
+            return $this->security->isGranted(PublicationVoter::INDEX, $child);
         }));
         $object->setParents($object->getParents()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::READ, $child);
+            return $this->security->isGranted(PublicationVoter::INDEX, $child);
         }));
 
         if ($object->getPackage() instanceof Asset) {

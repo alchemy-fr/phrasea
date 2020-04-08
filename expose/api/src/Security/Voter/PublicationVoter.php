@@ -17,6 +17,7 @@ use Symfony\Component\Security\Core\Security;
 class PublicationVoter extends Voter
 {
     const PUBLISH = 'publication:publish';
+    const INDEX = 'publication:index';
     const READ = 'publication:read';
     const EDIT = 'publication:edit';
 
@@ -47,6 +48,8 @@ class PublicationVoter extends Voter
                 return $isAdmin;
             case self::READ:
                 return $isAdmin || ($subject->isEnabled() && $this->securityMethodPasses($subject, $token));
+            case self::INDEX:
+                return $isAdmin || $subject->isEnabled();
             case self::EDIT:
                 $user = $token->getUser();
                 $isAuthenticated = $user instanceof RemoteUser;

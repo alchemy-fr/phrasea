@@ -76,22 +76,18 @@ class Publication
     /**
      * @ApiProperty()
      *
-     * @var string
-     *
      * @ORM\Column(type="string", length=255)
      * @Groups({"publication:list", "publication:read"})
      */
-    private $title;
+    private ?string $title = null;
 
     /**
      * @ApiProperty()
      *
-     * @var string|null
-     *
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"publication:list", "publication:read"})
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @var PublicationAsset[]|Collection
@@ -106,11 +102,9 @@ class Publication
      * @Groups({"publication:read"})
      * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
      */
-    private $assets;
+    private Collection $assets;
 
     /**
-     * @var Asset|null
-     *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
@@ -120,19 +114,15 @@ class Publication
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
      */
-    private $cover;
+    private ?Asset $cover = null;
 
     /**
-     * @var string|null
-     *
      * @ApiProperty()
      * @Groups({"publication:read", "publication:list"})
      */
-    private $coverUrl;
+    private ?string $coverUrl = null;
 
     /**
-     * @var Asset|null
-     *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
@@ -142,49 +132,39 @@ class Publication
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
      */
-    private $package;
+    private ?Asset $package = null;
 
     /**
-     * @var string|null
-     *
      * @ApiProperty()
      * @Groups({"publication:read", "publication:list"})
      */
-    private $packageUrl;
+    private ?string $packageUrl = null;
 
     /**
-     * @var bool
-     *
      * @ApiProperty()
      * @ORM\Column(type="boolean")
      * @Groups({"publication:read"})
      */
-    private $enabled = false;
+    private bool $enabled = false;
 
     /**
-     * @var string|null
-     *
      * @ApiProperty()
      * @ORM\Column(type="string", nullable=true)
      * @Groups({"publication:admin:read"})
      */
-    private $ownerId;
+    private ?string $ownerId = null;
 
     /**
-     * @var bool
-     *
      * @ApiProperty()
      * @Groups({"publication:index", "publication:read"})
      */
-    private $authorized = false;
+    private bool $authorized = false;
 
     /**
-     * @var string|null
-     *
      * @ApiProperty()
      * @Groups({"publication:index"})
      */
-    private $authorizationError;
+    private ?string $authorizationError = null;
 
     /**
      * @ApiProperty(
@@ -204,7 +184,7 @@ class Publication
      *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
      * )
      */
-    private $children;
+    private Collection $children;
 
     /**
      * @ApiProperty(
@@ -220,7 +200,7 @@ class Publication
      *
      * @ORM\ManyToMany(targetEntity="Publication", mappedBy="children")
      */
-    private $parents;
+    private Collection $parents;
 
     /**
      * Virtual property.
@@ -230,16 +210,14 @@ class Publication
      * @var string|null
      * @Groups({"publication:write"})
      */
-    private $parentId;
+    private ?string $parentId = null;
 
     /**
-     * @var bool
-     *
      * @ApiProperty()
      * @ORM\Column(type="boolean")
      * @Groups({"publication:read"})
      */
-    private $publiclyListed = false;
+    private bool $publiclyListed = false;
 
     /**
      * URL slug.
@@ -247,84 +225,69 @@ class Publication
      * @ApiProperty()
      * @Groups({"publication:index", "publication:list", "publication:read"})
      *
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */
-    protected $slug;
+    protected ?string $slug = null;
 
     /**
-     * @var string
-     *
      * @ApiProperty()
      * @Groups({"publication:read"})
      * @ORM\Column(type="string", length=20)
      */
-    private $layout;
+    private ?string $layout = null;
 
     /**
-     * @var string|null
-     *
      * @ApiProperty()
      * @Groups({"publication:read"})
      * @ORM\Column(type="string", length=30, nullable=true)
      */
-    private $theme;
+    private ?string $theme = null;
 
     /**
-     * @var DateTime|null
-     *
      * @ApiProperty()
      * @Groups({"publication:read"})
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $beginsAt;
+    private ?DateTime $beginsAt = null;
 
     /**
-     * @var DateTime|null
-     *
      * @ApiProperty()
      * @Groups({"publication:read"})
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $expiresAt;
+    private ?DateTime $expiresAt = null;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      * @Groups({"publication:read"})
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     /**
      * "password" or "authentication"
      *
-     * @var string|null
      * @ORM\Column(type="string", length=20, nullable=true)
      *
      * @ApiProperty()
      * @Groups({"publication:index", "publication:read"})
      */
-    private $securityMethod = self::SECURITY_METHOD_NONE;
+    private ?string $securityMethod = self::SECURITY_METHOD_NONE;
 
     /**
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}
      *
-     * @var array
      * @ORM\Column(type="json_array")
      *
      * @ApiProperty()
      * @Groups({"publication:read"})
      */
-    private $securityOptions = [];
+    private array $securityOptions = [];
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean", nullable=false)
      */
-    private $root = true;
+    private bool $root = true;
 
     public function __construct()
     {

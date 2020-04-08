@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Publication;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,6 +32,10 @@ final class GetPublicationAction extends AbstractController
             ->findOneBy($params);
 
         if (!$publication instanceof Publication) {
+            throw new NotFoundHttpException();
+        }
+
+        if (!$this->isGranted(PublicationVoter::READ, $publication)) {
             throw new NotFoundHttpException();
         }
 
