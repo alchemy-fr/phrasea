@@ -75,10 +75,6 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
     {
         // Remove orphan children
         foreach ($data->getChildren() as $child) {
-            if ($child->isRoot() || $child->getParents()->count() > 1) {
-                continue;
-            }
-
             $this->doRemove($child);
         }
 

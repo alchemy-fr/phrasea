@@ -41,9 +41,6 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $object->setChildren($object->getChildren()->filter(function (Publication $child): bool {
             return $this->security->isGranted(PublicationVoter::INDEX, $child);
         }));
-        $object->setParents($object->getParents()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::INDEX, $child);
-        }));
 
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));

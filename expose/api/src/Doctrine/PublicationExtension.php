@@ -17,7 +17,8 @@ class PublicationExtension implements QueryCollectionExtensionInterface
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->andWhere(sprintf('%s.publiclyListed = true', $rootAlias));
             $queryBuilder->andWhere(sprintf('%s.enabled = true', $rootAlias));
-            $queryBuilder->andWhere(sprintf('%s.root = true', $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.parent IS NULL', $rootAlias));
+            $queryBuilder->addOrderBy(sprintf('%s.title', $rootAlias), 'ASC');
         }
     }
 }

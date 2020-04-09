@@ -77,7 +77,7 @@ class Publication
      * @ApiProperty()
      *
      * @ORM\Column(type="string", length=255)
-     * @Groups({"publication:list", "publication:read"})
+     * @Groups({"publication:index", "publication:list", "publication:read"})
      */
     private ?string $title = null;
 
@@ -178,13 +178,9 @@ class Publication
      *
      * @var Publication[]|Collection
      *
-     * @ORM\ManyToMany(targetEntity="Publication", inversedBy="parents")
-     * @ORM\JoinTable(name="publication_children",
-     *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
-     * )
+     * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
      */
-    private Collection $children;
+    private ?Publication $parent = null;
 
     /**
      * @ApiProperty(
@@ -198,9 +194,20 @@ class Publication
      *
      * @var Publication[]|Collection
      *
-     * @ORM\ManyToMany(targetEntity="Publication", mappedBy="children")
+     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent")
+     * @ORM\JoinTable(name="publication_children",
+     *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
+     * )
      */
-    private Collection $parents;
+    private Collection $children;
+
+    /**
+     * @ApiProperty()
+     * @ORM\Column(type="boolean")
+     * @Groups({"publication:read"})
+     */
+    private bool $publiclyListed = false;
 
     /**
      * Virtual property.
@@ -211,13 +218,6 @@ class Publication
      * @Groups({"publication:write"})
      */
     private ?string $parentId = null;
-
-    /**
-     * @ApiProperty()
-     * @ORM\Column(type="boolean")
-     * @Groups({"publication:read"})
-     */
-    private bool $publiclyListed = false;
 
     /**
      * URL slug.
@@ -284,17 +284,11 @@ class Publication
      */
     private array $securityOptions = [];
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private bool $root = true;
-
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
-        $this->parents = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
 
@@ -460,7 +454,7 @@ class Publication
 
     public function __toString()
     {
-        return $this->getId().($this->title ? '-'.$this->title : '');
+        return $this->title ?? $this->getId() ?? '';
     }
 
     public function getSecurityMethod(): ?string
@@ -516,39 +510,20 @@ class Publication
         $this->children = $children;
     }
 
-    /**
-     * @return Publication[]
-     */
-    public function getParents(): Collection
+    public function getParent(): ?self
     {
-        return $this->parents;
+        return $this->parent;
     }
 
-    public function setParents(Collection $parents): void
+    public function setParent(?self $parent): void
     {
-        $this->parents = $parents;
+        $this->parent = $parent;
     }
 
     public function addChild(self $child): void
     {
-        $child->parents->add($this);
+        $child->setParent($this);
         $this->children->add($child);
-    }
-
-    public function addParent(self $parent): void
-    {
-        $parent->children->add($this);
-        $this->parents->add($parent);
-    }
-
-    public function isRoot(): bool
-    {
-        return $this->root;
-    }
-
-    public function setRoot(bool $root): void
-    {
-        $this->root = $root;
     }
 
     public function getOwnerId(): ?string
@@ -568,7 +543,6 @@ class Publication
 
     public function setParentId(?string $parentId): void
     {
-        $this->setRoot(false);
         $this->parentId = $parentId;
     }
 }

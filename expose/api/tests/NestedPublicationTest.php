@@ -37,11 +37,10 @@ class NestedPublicationTest extends AbstractTestCase
         );
         $this->assertEquals('123', $json['ownerId']);
 
-        $this->assertArrayHasKey('parents', $json);
-        $this->assertArrayHasKey('0', $json['parents']);
-        $this->assertEquals($id, $json['parents'][0]['id']);
-        $this->assertArrayHasKey('title', $json['parents'][0]);
-        $this->assertEquals('123', $json['parents'][0]['ownerId']);
+        $this->assertArrayHasKey('parent', $json);
+        $this->assertEquals($id, $json['parent']['id']);
+        $this->assertArrayHasKey('title', $json['parent']);
+        $this->assertEquals('123', $json['parent']['ownerId']);
     }
 
     public function testGetNestedPublication(): void
@@ -61,7 +60,6 @@ class NestedPublicationTest extends AbstractTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('children', $json);
         $this->assertArrayHasKey('0', $json['children']);
-        $this->assertEmpty($json['parents']);
         $this->assertEquals($childId, $json['children'][0]['id']);
         $this->assertArrayHasKey('title', $json['children'][0]);
 
@@ -77,9 +75,9 @@ class NestedPublicationTest extends AbstractTestCase
         $this->assertEquals($childId, $json['id']);
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('children', $json);
-        $this->assertArrayHasKey('0', $json['parents']);
-        $this->assertEquals($parentId, $json['parents'][0]['id']);
-        $this->assertArrayHasKey('title', $json['parents'][0]);
+        $this->assertArrayHasKey('id', $json['parent']);
+        $this->assertArrayHasKey('title', $json['parent']);
+        $this->assertEquals($parentId, $json['parent']['id']);
     }
 
     public function testGetPublicationWithDisabledChild(): void
@@ -100,96 +98,68 @@ class NestedPublicationTest extends AbstractTestCase
         $this->assertEmpty($json['children']);
     }
 
-    public function testDeleteWontRemoveNonOrphanChild(): void
+    public function testDeleteWillRemoveChildren(): void
     {
         $tree = [
             'p1' => [
                 'pA' => [],
+                'pB' => [],
             ],
             'p2' => [
-                'pA' => [],
-                'pB' => [],
-            ],
-            'pB' => [],
-        ];
-        $ids = [];
-        $this->createTree($tree, $ids);
-
-        $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
-            'DELETE',
-            '/publications/'.$ids['p1']
-        );
-        $this->assertEquals(204, $response->getStatusCode());
-
-        $this->assertPublicationDoesNotExist($ids['p1']);
-        $this->assertPublicationExists($ids['pA']);
-        $this->assertPublicationExists($ids['pB']);
-        $this->assertPublicationExists($ids['p2']);
-    }
-
-    public function testDeleteWontRemoveAChildWhichIsAlsoRoot(): void
-    {
-        $tree = [
-            'p1' => [
-                'pA' => [],
-                'pB' => [],
-            ],
-            'pA' => [],
-        ];
-        $ids = [];
-        $this->createTree($tree, $ids);
-
-        $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
-            'DELETE',
-            '/publications/'.$ids['p1']
-        );
-        $this->assertEquals(204, $response->getStatusCode());
-
-        $this->assertPublicationDoesNotExist($ids['p1']);
-        $this->assertPublicationExists($ids['pA']);
-        $this->assertPublicationDoesNotExist($ids['pB']);
-    }
-
-    public function testDeleteWillRemoveOrphanChild(): void
-    {
-        $tree = [
-            'p1' => [
-                'pA' => [],
-            ],
-            'p2' => [
-                'pB' => [],
+                'pC' => [],
             ],
         ];
         $ids = [];
-        $this->createTree($tree, $ids);
+        $this->createTree($tree, [], $ids);
 
-        $response = $this->request(
+        $this->request(
             RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/publications/'.$ids['p1']
         );
         $this->assertPublicationDoesNotExist($ids['p1']);
         $this->assertPublicationDoesNotExist($ids['pA']);
+        $this->assertPublicationDoesNotExist($ids['pB']);
         $this->assertPublicationExists($ids['p2']);
-        $this->assertPublicationExists($ids['pB']);
+        $this->assertPublicationExists($ids['pC']);
     }
 
-    private function createTree(array $tree, array &$ids, ?string $parentName = null): void
+    public function testListPublicationsWillDisplayOnlyRoot(): void
+    {
+        $tree = [
+            'p1' => [
+                'pA' => [],
+                'pB' => [],
+            ],
+            'p2' => [
+                'pC' => [],
+            ],
+        ];
+        $ids = [];
+        $this->createTree($tree, [], $ids);
+
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertEquals(2, count($json));
+        $this->assertEquals('p1', $json[0]['title']);
+        $this->assertEquals('p2', $json[1]['title']);
+    }
+
+    private function createTree(array $tree, array $options, array &$ids, ?string $parentName = null): void
     {
         foreach ($tree as $pubName => $children) {
+            $options['title'] = $pubName;
             if ($parentName) {
-                if (!isset($ids[$pubName])) {
-                    $ids[$pubName] = $this->createPublication(['parent_id' => $ids[$parentName]]);
-                } elseif ($parentName) {
-                    $this->addPublicationChild($ids[$parentName], $ids[$pubName]);
-                }
+                $ids[$pubName] = $this->createPublication(array_merge($options, ['parent_id' => $ids[$parentName]]));
             } else {
-                $ids[$pubName] = $this->createPublication();
+                $ids[$pubName] = $this->createPublication($options);
             }
 
-            $this->createTree($children, $ids, $pubName);
+            $this->createTree($children, $options, $ids, $pubName);
         }
     }
 }

@@ -4,24 +4,18 @@ import {Link} from "react-router-dom";
 
 class PublicationNavigation extends PureComponent {
     static propTypes = {
-        parents: PropTypes.array.isRequired,
+        parent: PropTypes.object,
         currentTitle: PropTypes.string.isRequired,
         children: PropTypes.array.isRequired,
     };
 
     render() {
-        const {parents, children, currentTitle} = this.props;
+        const {parent, children, currentTitle} = this.props;
 
         return <>
-            <ul className="list-unstyled components mb-5">
-                {parents.map(p => <li
-                    key={p.id}
-                >
-                    <Link to={`/${p.id}`}>
-                        {p.title}
-                    </Link>
-                </li>)}
-            </ul>
+            {parent ? <Link to={`/${parent.id}`}>
+                {parent.title}
+            </Link> : ''}
             <h2>{currentTitle}</h2>
             <NavTree children={children}/>
         </>

@@ -17,13 +17,14 @@ easy_admin:
           - title
           - layout
           - enabled
+          - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
-          - { property: 'parents.count', label: Parents }
           - publiclyListed
           - securityMethod
           - createdAt
       form:
         fields:
+          - { property: 'parent' }
           - { property: 'title' }
           - { property: 'slug' }
           - { property: 'layout', type: App\Form\LayoutChoiceType }

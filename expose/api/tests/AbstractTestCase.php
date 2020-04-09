@@ -21,15 +21,14 @@ abstract class AbstractTestCase extends ApiTestCase
 
         $options = array_merge([
             'enabled' => true,
+            'publicly_listed' => true,
         ], $options);
 
         $publication = new Publication();
         if (isset($options['parent_id'])) {
-            $publication->setRoot(false);
             /** @var Publication $parent */
             $parent = $em->find(Publication::class, $options['parent_id']);
             $parent->addChild($publication);
-            $em->persist($parent);
         }
         if (isset($options['enabled'])) {
             $publication->setEnabled($options['enabled']);
@@ -37,9 +36,12 @@ abstract class AbstractTestCase extends ApiTestCase
         if (isset($options['owner_id'])) {
             $publication->setOwnerId($options['owner_id']);
         }
+        if (isset($options['publicly_listed'])) {
+            $publication->setPubliclyListed($options['publicly_listed']);
+        }
 
         $publication->setLayout('gallery');
-        $publication->setTitle('Foo');
+        $publication->setTitle($options['title'] ?? 'Foo');
         $em->persist($publication);
         $em->flush();
 

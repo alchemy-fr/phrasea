@@ -26,6 +26,30 @@ class PublicationTest extends AbstractTestCase
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
+    public function testListPublications(): void
+    {
+        $this->createPublication([
+            'title' => 'Pub #1',
+            'enabled' => true,
+            'publicly_listed' => true,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #2',
+            'enabled' => true,
+            'publicly_listed' => true,
+        ]);
+
+        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertEquals(2, count($json));
+        $this->assertEquals('Pub #1', $json[0]['title']);
+        $this->assertEquals('Pub #2', $json[1]['title']);
+    }
+
     public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
         $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
