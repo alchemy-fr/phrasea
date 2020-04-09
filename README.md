@@ -134,3 +134,7 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 
 - [Dev with NGINX](./doc/dev-with-nginx.md)
 - [Private/public networks](./doc/networks.md)
+
+## Infra
+
+- [Operating tasks](./doc/infra-operating-tasks.md)
