@@ -5,20 +5,10 @@ import {PropTypes} from 'prop-types';
 import FullPageLoader from "./FullPageLoader";
 import {layouts} from "./layouts";
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
-import Cookies from 'universal-cookie';
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-
-const cookies = new Cookies();
-
-function getAuthCookieName(publicationId) {
-    return `auth_${publicationId}`;
-}
-
-function getAuthorizationFromCookies(publicationId) {
-    return cookies.get(getAuthCookieName(publicationId));
-}
+import {getAuthorization, setAuthorization} from "../lib/credential";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -34,6 +24,7 @@ class Publication extends PureComponent {
     static getDerivedStateFromProps(props, state) {
         if (props.id !== state.propsId) {
             return {
+                authorization: getAuthorization(props.id),
                 propsId: props.id,
                 data: null,
             }
@@ -53,11 +44,12 @@ class Publication extends PureComponent {
 
     onAuthorizationChange = (authorization) => {
         let {id, slug} = this.state.data;
-        cookies.set(getAuthCookieName(id), authorization, {path: '/'});
+        setAuthorization(id, authorization);
         if (slug) {
-            cookies.set(getAuthCookieName(slug), authorization, {path: '/'});
+            setAuthorization(slug, authorization);
         }
 
+        console.log('id', id);
         this.setState({authorization}, () => {
             this.load();
         });
@@ -67,23 +59,19 @@ class Publication extends PureComponent {
         this.load();
     }
 
-    load() {
+    async load() {
         const {id} = this.props;
         const {authorization} = this.state;
-        const options = {
-            withCredentials: true
-        };
-        const authHeader = authorization || getAuthorizationFromCookies(id);
+        const options = {};
+        const authHeader = authorization || getAuthorization(id);
 
         if (authHeader) {
             options.headers = {'Authorization': authHeader};
         }
 
         const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
-
-        req.then((res) => {
-            this.setState({data: res});
-        });
+        const res = await req;
+        this.setState({data: res});
     }
 
     render() {

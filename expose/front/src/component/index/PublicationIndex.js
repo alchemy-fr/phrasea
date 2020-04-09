@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import FullPageLoader from "../FullPageLoader";
 import apiClient from "../../lib/apiClient";
 import config from "../../lib/config";
+import {Link} from "react-router-dom";
 
 class PublicationIndex extends PureComponent {
     state = {
@@ -37,10 +38,10 @@ class PublicationIndex extends PureComponent {
         return data.map(p => <li
             key={p.id}
         >
-            <a href={`/${p.slug || p.id}`}>
+            <Link to={`/${p.slug || p.id}`}>
                 {p.cover ? <img src={p.cover.thumbUrl} alt=""/> : ''}
                 {p.title}
-            </a>
+            </Link>
         </li>)
     }
 }

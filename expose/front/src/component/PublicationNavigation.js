@@ -35,7 +35,9 @@ class NavTree extends PureComponent {
 
     render() {
         return <ul className="list-unstyled components">
-            {this.props.children.map(c => <li
+            {this.props.children.map(c => {
+                console.log('c', c);
+                return <li
                 key={c.id}
             >
                 <Link to={`/${c.id}`}>
@@ -44,7 +46,8 @@ class NavTree extends PureComponent {
                 {c.children && c.children.length > 0 ?
                     <NavTree children={c.children}/>
                     : ''}
-            </li>)}
+            </li>
+            })}
         </ul>
     }
 }
