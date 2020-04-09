@@ -49,7 +49,6 @@ class Publication extends PureComponent {
             setAuthorization(slug, authorization);
         }
 
-        console.log('id', id);
         this.setState({authorization}, () => {
             this.load();
         });
