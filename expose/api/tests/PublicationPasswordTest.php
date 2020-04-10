@@ -102,6 +102,45 @@ class PublicationPasswordTest extends AbstractTestCase
         $this->assertTrue($json['authorized']);
     }
 
+    public function testGetNestedPublicationWithPasswordOnChildNode(): void
+    {
+        $rootId = $this->createPublication([
+        ]);
+        $childId = $this->createPublication([
+            'parent_id' => $rootId,
+            'password' => 'child_secret',
+        ]);
+
+        $response = $this->request(null, 'GET', '/publications/'.$rootId);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertTrue($json['authorized']);
+        $this->assertEquals($rootId, $json['securityContainerId']);
+
+        $response = $this->request(null, 'GET', '/publications/'.$childId);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertFalse($json['authorized']);
+        $this->assertEquals($childId, $json['securityContainerId']);
+
+        $passwords = base64_encode(json_encode([
+            $childId => 'child_secret',
+        ]));
+        $response = $this->request(null, 'GET', '/publications/'.$childId, [], [], [
+            'HTTP_X-Passwords' => $passwords,
+        ]);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue($json['authorized']);
+
+        $response = $this->request(null, 'GET', '/publications/'.$rootId, [], [], [
+            'HTTP_X-Passwords' => $passwords,
+        ]);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue($json['authorized']);
+    }
+
     public function testGetNestedPublicationWithPasswordOnBothNode(): void
     {
         $rootId = $this->createPublication([
@@ -130,7 +169,6 @@ class PublicationPasswordTest extends AbstractTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse($json['authorized']);
         $this->assertEquals($childId, $json['securityContainerId']);
-
 
         $passwords = base64_encode(json_encode([
             $childId => 'child_secret',

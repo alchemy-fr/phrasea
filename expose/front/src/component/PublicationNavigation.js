@@ -13,7 +13,7 @@ class PublicationNavigation extends PureComponent {
         const {parent, children, currentTitle} = this.props;
 
         return <>
-            {parent ? <Link to={`/${parent.id}`}>
+            {parent ? <Link to={`/${parent.slug || parent.id}`}>
                 {parent.title}
             </Link> : ''}
             <h2>{currentTitle}</h2>
@@ -32,7 +32,7 @@ class NavTree extends PureComponent {
             {this.props.children.map(c => <li
                 key={c.id}
             >
-                <Link to={`/${c.id}`}>
+                <Link to={`/${c.slug || c.id}`}>
                     {c.title}
                 </Link>
                 {c.children && c.children.length > 0 ?

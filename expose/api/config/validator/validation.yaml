@@ -8,6 +8,9 @@ App\Entity\Publication:
       - NotBlank: ~
     layout:
       - NotBlank: ~
+    slug:
+      - Regex:
+          pattern: /^[a-z_\-0-9]+$/i
 
 App\Entity\SubDefinition:
   properties:

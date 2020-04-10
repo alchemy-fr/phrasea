@@ -19,6 +19,7 @@ easy_admin:
           - enabled
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
+          - { property: 'assets.count', label: Assets }
           - publiclyListed
           - securityMethod
           - createdAt
