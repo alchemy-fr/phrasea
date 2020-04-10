@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import apiClient from "../../lib/apiClient";
 import config from "../../lib/config";
+import {setAccessToken} from "../../lib/credential";
 
 class AuthenticationMethod extends PureComponent {
     static propTypes = {
@@ -34,7 +35,8 @@ class AuthenticationMethod extends PureComponent {
 
                 if (res.access_token) {
                     newState.errors = [];
-                    this.props.onAuthorization(`Bearer ${res.access_token}`);
+                    setAccessToken(res.access_token);
+                    this.props.onAuthorization();
                 } else {
                     newState.errors = [res.error_description];
                 }

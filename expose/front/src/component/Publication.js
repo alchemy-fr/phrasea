@@ -8,7 +8,7 @@ import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-import {getAuthorization, setAuthorization} from "../lib/credential";
+import {getAccessToken, getPasswords} from "../lib/credential";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -24,7 +24,6 @@ class Publication extends PureComponent {
     static getDerivedStateFromProps(props, state) {
         if (props.id !== state.propsId) {
             return {
-                authorization: getAuthorization(props.id),
                 propsId: props.id,
                 data: null,
             }
@@ -34,24 +33,13 @@ class Publication extends PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (
-            prevState.authorization !== this.state.authorization
-            || prevProps.id !== this.props.id
-        ) {
+        if (prevProps.id !== this.props.id) {
             this.load();
         }
     }
 
-    onAuthorizationChange = (authorization) => {
-        let {id, slug} = this.state.data;
-        setAuthorization(id, authorization);
-        if (slug) {
-            setAuthorization(slug, authorization);
-        }
-
-        this.setState({authorization}, () => {
-            this.load();
-        });
+    onAuthorizationChange = () => {
+        this.load();
     };
 
     componentDidMount() {
@@ -60,12 +48,17 @@ class Publication extends PureComponent {
 
     async load() {
         const {id} = this.props;
-        const {authorization} = this.state;
         const options = {};
-        const authHeader = authorization || getAuthorization(id);
 
-        if (authHeader) {
-            options.headers = {'Authorization': authHeader};
+        const passwords = getPasswords();
+        console.log('passwords', passwords);
+        if (passwords) {
+            options.headers = {'X-Passwords': passwords};
+        }
+
+        const accessToken = getAccessToken();
+        if (accessToken) {
+            options.headers = {'Authorization': `Bearer ${accessToken}`};
         }
 
         const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
@@ -119,11 +112,13 @@ class Publication extends PureComponent {
 
     renderSecurityAccess() {
         const {data} = this.state;
+        const {securityContainerId} = data;
 
         if (securityMethods[data.securityMethod]) {
             return React.createElement(securityMethods[data.securityMethod], {
                 error: data.authorizationError,
                 onAuthorization: this.onAuthorizationChange,
+                securityContainerId,
             });
         }
 

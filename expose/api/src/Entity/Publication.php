@@ -161,6 +161,14 @@ class Publication
     private bool $authorized = false;
 
     /**
+     * Password identifier for the current publication branch.
+     *
+     * @ApiProperty()
+     * @Groups({"publication:index", "publication:read"})
+     */
+    private ?string $securityContainerId = null;
+
+    /**
      * @ApiProperty()
      * @Groups({"publication:index"})
      */
@@ -457,6 +465,15 @@ class Publication
         return $this->title ?? $this->getId() ?? '';
     }
 
+    public function getSecurityContainer(): self
+    {
+        if ($this->securityMethod !== self::SECURITY_METHOD_NONE) {
+            return $this;
+        }
+
+        return $this->parent ?? $this;
+    }
+
     public function getSecurityMethod(): ?string
     {
         return $this->securityMethod;
@@ -485,6 +502,16 @@ class Publication
     public function setAuthorized(bool $authorized): void
     {
         $this->authorized = $authorized;
+    }
+
+    public function getSecurityContainerId(): ?string
+    {
+        return $this->securityContainerId;
+    }
+
+    public function setSecurityContainerId(?string $securityContainerId): void
+    {
+        $this->securityContainerId = $securityContainerId;
     }
 
     public function getAuthorizationError(): ?string
@@ -544,5 +571,22 @@ class Publication
     public function setParentId(?string $parentId): void
     {
         $this->parentId = $parentId;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->securityOptions['password'] ?? null;
+    }
+
+    public function setPassword(?string $password): void
+    {
+        if (!empty($password)) {
+            if ($this->securityMethod === self::SECURITY_METHOD_NONE) {
+                $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
+            }
+            $this->securityOptions['password'] = $password;
+        } else {
+            unset($this->securityOptions['password']);
+        }
     }
 }

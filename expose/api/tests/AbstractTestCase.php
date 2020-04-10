@@ -39,6 +39,9 @@ abstract class AbstractTestCase extends ApiTestCase
         if (isset($options['publicly_listed'])) {
             $publication->setPubliclyListed($options['publicly_listed']);
         }
+        if (isset($options['password'])) {
+            $publication->setPassword($options['password']);
+        }
 
         $publication->setLayout('gallery');
         $publication->setTitle($options['title'] ?? 'Foo');

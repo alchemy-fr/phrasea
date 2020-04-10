@@ -1,9 +1,12 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
+import {setPassword} from "../../lib/credential";
 
 class PasswordMethod extends PureComponent {
     static propTypes = {
         onAuthorization: PropTypes.func.isRequired,
+        authorization: PropTypes.string,
+        securityContainerId: PropTypes.string.isRequired,
         error: PropTypes.string,
     };
 
@@ -13,7 +16,9 @@ class PasswordMethod extends PureComponent {
 
     onSubmit = (e) => {
         e.preventDefault();
-        this.props.onAuthorization(`Password ${this.state.password}`);
+
+        setPassword(this.props.securityContainerId, this.state.password);
+        this.props.onAuthorization();
     };
 
     render() {

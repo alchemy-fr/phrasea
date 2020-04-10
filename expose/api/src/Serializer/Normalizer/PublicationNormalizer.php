@@ -48,6 +48,11 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         if ($object->getCover() instanceof Asset) {
             $object->setCoverUrl($this->generateAssetUrl($object->getCover()));
         }
+
+        $securityContainer = $object->getSecurityContainer();
+        $object->setSecurityContainerId($securityContainer->getId());
+        $object->setSecurityMethod($securityContainer->getSecurityMethod());
+        $object->setSecurityOptions($securityContainer->getSecurityOptions());
     }
 
     public function support($object, $format): bool

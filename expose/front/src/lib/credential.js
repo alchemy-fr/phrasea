@@ -1,22 +1,29 @@
 import Cookies from 'universal-cookie';
-const cookieName = 'auth';
+const passwordCookieName = 'passwds';
+const tokenCookieName = 'access_token';
 
 const cookies = new Cookies();
 
-export function getAuthorization(publicationId) {
-    const data = getData();
-
-    return data[publicationId] || null;
+export function getPasswords() {
+    return cookies.get(passwordCookieName);
 }
 
-export function setAuthorization(publicationId, auth) {
-    const data = getData();
+export function setPassword(securityContainerId, password) {
+    const passwords = decodePassword();
 
-    data[publicationId] = auth;
-    cookies.set(cookieName, JSON.stringify(data), {path: '/'});
+    passwords[securityContainerId] = password;
+    cookies.set(passwordCookieName, btoa(JSON.stringify(passwords)), {path: '/'});
 }
 
-function getData() {
-    const cData = cookies.get(cookieName);
-    return cData ? (typeof cData === 'string' ? JSON.parse(cData) : cData) : {};
+function decodePassword() {
+    const cData = cookies.get(passwordCookieName);
+    return cData ? (typeof cData === 'string' ? JSON.parse(atob(cData)) : cData) : {};
+}
+
+export function getAccessToken() {
+    return cookies.get(tokenCookieName);
+}
+
+export function setAccessToken(accessToken) {
+    cookies.set(tokenCookieName, accessToken, {path: '/'});
 }

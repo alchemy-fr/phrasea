@@ -65,18 +65,28 @@ class PublicationVoter extends Voter
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
     {
-        if (Publication::SECURITY_METHOD_NONE === $publication->getSecurityMethod()) {
+        $securityContainer = $publication->getSecurityContainer();
+        if (Publication::SECURITY_METHOD_NONE === $securityContainer->getSecurityMethod()) {
             return true;
         }
 
-        if (Publication::SECURITY_METHOD_PASSWORD === $publication->getSecurityMethod()) {
+        if (Publication::SECURITY_METHOD_PASSWORD === $securityContainer->getSecurityMethod()) {
             if (!$token instanceof PasswordToken) {
                 $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
 
                 return false;
             }
 
-            if ($token->getPassword() !== $publication->getSecurityOptions()['password']) {
+            $publicationPassword = $token->getPublicationPassword($securityContainer->getId());
+            if (empty($publicationPassword)) {
+                $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
+
+                return false;
+            }
+
+//            var_dump($publicationPassword);
+//            var_dump($securityContainer->getSecurityOptions()['password']);
+            if ($publicationPassword !== $securityContainer->getSecurityOptions()['password']) {
                 $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
 
                 return false;
@@ -85,7 +95,7 @@ class PublicationVoter extends Voter
             return true;
         }
 
-        if (Publication::SECURITY_METHOD_AUTHENTICATION === $publication->getSecurityMethod()) {
+        if (Publication::SECURITY_METHOD_AUTHENTICATION === $securityContainer->getSecurityMethod()) {
             if (!$token instanceof RemoteAuthToken) {
                 $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
 

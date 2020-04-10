@@ -32,6 +32,7 @@ easy_admin:
           - { property: 'enabled' }
           - { property: 'publiclyListed' }
           - { property: 'securityMethod', type: App\Form\SecurityMethodChoiceType }
+          - { property: 'password', type: text }
 
     Asset:
       class: App\Entity\Asset

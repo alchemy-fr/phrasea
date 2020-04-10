@@ -14,8 +14,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class PasswordTokenListener
 {
-    const COOKIE_NAME = 'auth-password';
-
     protected $tokenStorage;
     protected $authenticationManager;
 
@@ -33,13 +31,12 @@ class PasswordTokenListener
             return;
         }
 
-        $password = RequestHelper::getAuthorizationFromRequest($request, 'Password', false, 'password')
-            ?? $request->cookies->get(self::COOKIE_NAME);
-        if (null === $password) {
+        $passwords = $request->headers->get('X-Passwords');
+        if (null === $passwords) {
             return;
         }
 
-        $token = new PasswordToken($password);
+        $token = new PasswordToken($passwords);
         $token->setUser('password');
         $token->setAuthenticated(true);
 
