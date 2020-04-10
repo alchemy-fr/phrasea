@@ -589,4 +589,10 @@ class Publication
             unset($this->securityOptions['password']);
         }
     }
+
+    // @see https://github.com/doctrine/orm/issues/7944
+    public function __sleep()
+    {
+        return [];
+    }
 }
