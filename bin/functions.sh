@@ -2,47 +2,40 @@
 
 BASEDIR=$(dirname $0)
 
-# Export a value from a file if it exists in the file
-# The environment var take precedence
-# Usage : export_value_from_file "VAR_NAME" "path/of/env.file"
-function export_value_from_file {
+# Export env vars from a file if their are not defined yet
+# Usage: export_env_from_file "path/to/env.file"
+function export_env_from_file {
+    while read -r line || [[ -n "$line" ]];
+    do
+      if printf '%s\n' "$line" | grep -q -e '='; then
+        varname=$(printf '%s\n' "$line" | sed -e 's/=.*//')
+        varvalue=$(printf '%s\n' "$line" | sed -e 's/^[^=]*=//')
+      fi
 
-  chunk=$(cat $2 | grep $1 | grep "^[^#;]")
-  varname=$(echo $chunk | sed -e 's/=.*//')
-  toto=$1
-  if [[ $varname == "$1" ]]; then
-     varvalue=$(echo $chunk | sed -e 's/^[^=]*=//')
-     env_value=$(eval echo \$$toto)
-     [[ -z $env_value ]] && eval export $varname=$varvalue
-  fi
+      # Read value of current variable if exists as Environment variable
+      value=$(printf '%s\n' "${!varname}")
+      # Otherwise use value from .env file
+      [[ -z $value ]] && value=${varvalue}
+
+      eval $(echo "export ${varname}=$value")
+    done < "$1"
 }
 
-# Search for a variable in .env and in env.local and export it
-# The environment var take precedence
-# Usage : export_from_env_file "VAR_NAME"
-function export_from_env_file () {
-    export_value_from_file $1 $BASEDIR/../.env
-    export_value_from_file $1 $BASEDIR/../env.local
-
+# Export env vars from defaults
+# Defined env vars take precedence, then env.local, then .env
+# Usage: load-env
+function load-env {
+    export_env_from_file "$BASEDIR/../.env"
+    export_env_from_file "$BASEDIR/../env.local"
 }
 
 # Run docker-compose depending on the APP_ENV value
 # If APP_ENV = PROD, then only use docker-compose.yml file
 function d-c {
-    if [ ${APP_ENV} == "prod" ]; then
+    if [ "${APP_ENV}" == "prod" ]; then
         docker-compose -f docker-compose.yml "$@"
     else
         docker-compose "$@"
-    fi
-}
-
-# Make an "export" on every vars in ../env.local file
-# /!\ The behavior is not the same than ./env : it override environment vars
-function load-env-local {
-    if [ -f "$BASEDIR/../env.local" ]; then
-        set -a
-        . "$BASEDIR/../env.local"
-        set +a
     fi
 }
 

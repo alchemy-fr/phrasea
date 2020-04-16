@@ -76,16 +76,16 @@ resource "kubernetes_deployment" "notify_api_php" {
               value = "${var.AUTH_BASE_URL}"
             },
             {
-              name  = "AUTH_CLIENT_ID"
-              value = "${var.ADMIN_CLIENT_ID}"
+              name  = "ADMIN_CLIENT_ID"
+              value = "${var.NOTIFY_ADMIN_CLIENT_ID}"
             },
             {
-              name  = "AUTH_CLIENT_RANDOM_ID"
-              value = "${var.ADMIN_CLIENT_RANDOM_ID}}"
+              name  = "ADMIN_CLIENT_RANDOM_ID"
+              value = "${var.NOTIFY_ADMIN_CLIENT_RANDOM_ID}}"
             },
             {
-              name  = "AUTH_CLIENT_SECRET"
-              value = "${var.ADMIN_CLIENT_SECRET}"
+              name  = "ADMIN_CLIENT_SECRET"
+              value = "${var.NOTIFY_ADMIN_CLIENT_SECRET}"
             },
           ]
         }

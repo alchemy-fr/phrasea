@@ -48,7 +48,7 @@ variable "UPLOADER_CLIENT_ID" {
 
 variable "UPLOADER_CLIENT_RANDOM_ID" {
   description = "OAuth client secret for Auth service (left part)"
-  default     = "12356789abcdefghijklmnopqrstuvwx"
+  default     = "12345"
 }
 
 variable "UPLOADER_CLIENT_SECRET" {
@@ -81,17 +81,62 @@ variable "UPLOADER_BASE_URL" {
   default     = "http://localhost:8080"
 }
 
-variable "ADMIN_CLIENT_ID" {
+variable "AUTH_ADMIN_CLIENT_ID" {
   description = ""
-  default     = "admin"
+  default     = "auth-admin"
 }
 
-variable "ADMIN_CLIENT_RANDOM_ID" {
+variable "AUTH_ADMIN_CLIENT_RANDOM_ID" {
   description = ""
-  default     = "12356789abcdefghijklmnopqrstuvwx"
+  default     = "12345"
 }
 
-variable "ADMIN_CLIENT_SECRET" {
+variable "AUTH_ADMIN_CLIENT_SECRET" {
+  description = ""
+  default     = "cli3nt_s3cr3t"
+}
+
+variable "EXPOSE_ADMIN_CLIENT_ID" {
+  description = ""
+  default     = "expose-admin"
+}
+
+variable "EXPOSE_ADMIN_CLIENT_RANDOM_ID" {
+  description = ""
+  default     = "12345"
+}
+
+variable "EXPOSE_ADMIN_CLIENT_SECRET" {
+  description = ""
+  default     = "cli3nt_s3cr3t"
+}
+
+variable "UPLOADER_ADMIN_CLIENT_ID" {
+  description = ""
+  default     = "uploader-admin"
+}
+
+variable "UPLOADER_ADMIN_CLIENT_RANDOM_ID" {
+  description = ""
+  default     = "12345"
+}
+
+variable "UPLOADER_ADMIN_CLIENT_SECRET" {
+  description = ""
+  default     = "cli3nt_s3cr3t"
+}
+
+variable "NOTIFY_ADMIN_CLIENT_ID" {
+  description = ""
+  default     = "notify-admin"
+}
+
+variable "NOTIFY_ADMIN_CLIENT_RANDOM_ID" {
+  description = ""
+  default     = "12345"
+}
+
+variable "NOTIFY_ADMIN_CLIENT_SECRET" {
   description = ""
   default     = "cli3nt_s3cr3t"
 }
@@ -118,7 +163,7 @@ variable "EXPOSE_CLIENT_ID" {
 
 variable "EXPOSE_CLIENT_RANDOM_ID" {
   description = "OAuth client secret for Auth service (left part)"
-  default     = "12356789abcdefghijklmnopqrstuvwx"
+  default     = "12345"
 }
 
 variable "EXPOSE_CLIENT_SECRET" {

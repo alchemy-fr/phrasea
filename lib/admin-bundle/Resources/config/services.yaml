@@ -18,7 +18,7 @@ services:
   Alchemy\AdminBundle\Auth\IdentityProvidersRegistry:
     arguments:
       $authBaseUrl: '%alchemy_admin.auth_base_url%'
-      $authClientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
+      $authClientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
       $identityProviders: []
 
   Alchemy\AdminBundle\Twig\AdminExtension:
@@ -39,5 +39,5 @@ services:
   Alchemy\AdminBundle\Auth\OAuthClient:
     arguments:
       $client: "@alchemy_admin.http_client"
-      $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-      $clientSecret: '%env(AUTH_CLIENT_SECRET)%'
+      $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+      $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'

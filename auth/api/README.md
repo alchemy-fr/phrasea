@@ -73,7 +73,7 @@ with the `client_credentials` grant type:
 
 ```json
 {
-	"client_id": "uploader-app_12356789abcdefghijklmnopqrstuvwx",
+	"client_id": "uploader-app_12345",
 	"client_secret": "cli3nt_s3cr3t",
 	"grant_type": "client_credentials"
 }

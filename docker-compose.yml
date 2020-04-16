@@ -32,9 +32,9 @@ services:
       - UPLOADER_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
       - AUTH_BASE_URL
-      - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
-      - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
-      - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - REPORT_BASE_URL
     volumes:
       - uploader_vol:/var/data/upload
@@ -133,9 +133,9 @@ services:
       - TRUSTED_PROXIES=${PS_SUBNET}
       - APP_ID=auth
       - AUTH_BASE_URL
-      - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
-      - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
-      - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${AUTH_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
@@ -191,7 +191,7 @@ services:
       - POSTGRES_PASSWORD
     volumes:
       - db_vol:/var/lib/postgresql/data
-      - ./db/create-database.sh:/create-database.sh
+      - ./infra/docker/db/create-database.sh:/create-database.sh
 
   rabbitmq:
     image: rabbitmq:3.7.14-management
@@ -203,7 +203,7 @@ services:
       - RABBITMQ_DEFAULT_PASS
     volumes:
       - rabbitmq_vol:/var/lib/rabbitmq
-      - ./rabbitmq/setup.sh:/setup.sh
+      - ./infra/docker/rabbitmq/setup.sh:/setup.sh
     ports:
       - ${RABBITMQ_MGT_PORT}:15672
 
@@ -236,9 +236,9 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - AUTH_BASE_URL
-      - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
-      - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
-      - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${EXPOSE_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
       - STORAGE_BASE_URL=${MINIO_BASE_URL}
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - S3_STORAGE_ACCESS_KEY
@@ -325,9 +325,9 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - AUTH_BASE_URL
-      - AUTH_CLIENT_ID=${ADMIN_CLIENT_ID}
-      - AUTH_CLIENT_RANDOM_ID=${ADMIN_CLIENT_RANDOM_ID}
-      - AUTH_CLIENT_SECRET=${ADMIN_CLIENT_SECRET}
+      - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${NOTIFY_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
       - REPORT_BASE_URL
 
   notify-worker:

@@ -3,9 +3,7 @@
 BASEDIR=$(dirname $0)
 . "$BASEDIR/functions.sh"
 
-# Load vars from env.local
-load-env-local
-
+load-env
 
 . "${BASEDIR}/vars.sh"
 
