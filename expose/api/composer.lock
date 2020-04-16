@@ -4,8 +4,54 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c4f36b7626807f1c308faa56352c3b8",
+    "content-hash": "f21950a2f83fec040613c53663b1eee5",
     "packages": [
+        {
+            "name": "alchemy/acl-bundle",
+            "version": "dev-acl",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/acl-bundle",
+                "reference": "0af05ee47216bb5bdb244af93fd0509b30432416"
+            },
+            "require": {
+                "doctrine/orm": "^2.6",
+                "php": "^7.3",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony ACL bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/admin-bundle",
             "version": "dev-security-token-bundle",
@@ -8849,9 +8895,10 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
-        "alchemy/report-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
+        "alchemy/report-bundle": 20,
         "symfony/psr-http-message-bridge": 20,
         "alchemy/api-test": 20
     },

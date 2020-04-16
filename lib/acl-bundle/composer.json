@@ -1,0 +1,37 @@
+{
+  "name": "alchemy/acl-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony ACL bundle",
+  "keywords": [],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.3",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
+    "ramsey/uuid-doctrine": "^1.5",
+    "doctrine/orm": "^2.6"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": "echo 'This project has no test...'"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\AclBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\AclBundle\\Tests\\": "/Tests/"
+    }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16"
+  }
+}

@@ -51,7 +51,6 @@ class Publication extends PureComponent {
         const options = {};
 
         const passwords = getPasswords();
-        console.log('passwords', passwords);
         if (passwords) {
             options.headers = {'X-Passwords': passwords};
         }
