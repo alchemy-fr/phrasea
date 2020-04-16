@@ -25,8 +25,8 @@ services:
   Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator:
     abstract: true
     arguments:
-      $clientId: '%env(AUTH_CLIENT_ID)%_%env(AUTH_CLIENT_RANDOM_ID)%'
-      $clientSecret: '%env(AUTH_CLIENT_SECRET)%'
+      $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+      $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
 
   Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener: ~
 

@@ -33,7 +33,7 @@ bin/build.sh
 
 * Run (magical) configuration for all projects:
 ```bash
-bin/install.sh
+bin/setup.sh
 ```
 
 * Read group of services documentation to customize environment variables:

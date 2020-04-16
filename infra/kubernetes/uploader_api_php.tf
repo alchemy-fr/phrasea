@@ -97,16 +97,16 @@ resource "kubernetes_deployment" "uploader_api_php" {
               value = "${var.AUTH_BASE_URL}"
             },
             {
-              name  = "AUTH_CLIENT_ID"
-              value = "${var.ADMIN_CLIENT_ID}}"
+              name  = "ADMIN_CLIENT_ID"
+              value = "${var.UPLOADER_ADMIN_CLIENT_ID}}"
             },
             {
-              name  = "AUTH_CLIENT_RANDOM_ID"
-              value = "${var.ADMIN_CLIENT_RANDOM_ID}"
+              name  = "ADMIN_CLIENT_RANDOM_ID"
+              value = "${var.UPLOADER_ADMIN_CLIENT_RANDOM_ID}"
             },
             {
-              name  = "AUTH_CLIENT_SECRET"
-              value = "${var.ADMIN_CLIENT_SECRET}"
+              name  = "ADMIN_CLIENT_SECRET"
+              value = "${var.UPLOADER_ADMIN_CLIENT_SECRET}"
             },
           ]
         }

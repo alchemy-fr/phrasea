@@ -36,7 +36,7 @@ jobs:
       - run:
           name: Install applications and run tests
           command: |-
-            bin/install.sh
+            bin/setup.sh
             bin/test.sh
       - run:
           name: Publish Docker Image to Docker Hub

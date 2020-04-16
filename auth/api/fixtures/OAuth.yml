@@ -1,7 +1,7 @@
 Alchemy\OAuthServerBundle\Entity\OAuthClient:
     mobile_app:
         id: mobile-app
-        randomId: 12356789abcdefghijklmnopqrstuvwx
+        randomId: 12345
         secret: cli3nt_s3cr3t
         allowedGrantTypes:
             - password

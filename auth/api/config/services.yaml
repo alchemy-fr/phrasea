@@ -75,7 +75,7 @@ services:
 
     App\Admin\LoginController:
         arguments:
-            $authClientId: '%env(AUTH_CLIENT_ID)%'
+            $authClientId: '%env(ADMIN_CLIENT_ID)%'
 
     security.user_checker:
         alias: "App\\Security\\UserChecker"
