@@ -143,16 +143,6 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - REPORT_BASE_URL
-      - UPLOADER_BASE_URL
-      - UPLOADER_CLIENT_ID
-      - EXPOSE_BASE_URL
-      - UPLOADER_CLIENT_RANDOM_ID
-      - UPLOADER_CLIENT_SECRET
-      - EXPOSE_CLIENT_ID
-      - EXPOSE_CLIENT_RANDOM_ID
-      - EXPOSE_CLIENT_SECRET
-      - DEFAULT_USER_EMAIL
-      - DEFAULT_USER_PASSWORD
     volumes:
       - ./configs:/configs
     depends_on:
@@ -191,7 +181,6 @@ services:
       - POSTGRES_PASSWORD
     volumes:
       - db_vol:/var/lib/postgresql/data
-      - ./infra/docker/db/create-database.sh:/create-database.sh
 
   rabbitmq:
     image: rabbitmq:3.7.14-management
@@ -203,7 +192,6 @@ services:
       - RABBITMQ_DEFAULT_PASS
     volumes:
       - rabbitmq_vol:/var/lib/rabbitmq
-      - ./infra/docker/rabbitmq/setup.sh:/setup.sh
     ports:
       - ${RABBITMQ_MGT_PORT}:15672
 
@@ -388,8 +376,6 @@ services:
       MINIO_ACCESS_KEY: ${S3_STORAGE_ACCESS_KEY}
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
       EXPOSE_STORAGE_BUCKET_NAME: $EXPOSE_STORAGE_BUCKET_NAME
-    volumes:
-      - ./minio/setup.sh:/setup.sh
 
   matomo-php:
     image: ${REGISTRY_NAMESPACE}matomo-php:$DOCKER_TAG
