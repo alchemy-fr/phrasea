@@ -8,6 +8,8 @@ easy_admin:
     Publication:
       class: App\Entity\Publication
       list:
+        actions:
+          - permissions
         batch_actions:
           - delete
         sort: [createdAt, DESC]

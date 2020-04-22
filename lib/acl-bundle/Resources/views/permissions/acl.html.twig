@@ -1,0 +1,91 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% set _request_parameters = app.request.query.all %}
+
+{% block head_custom_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        {% include '@AlchemyAcl/permissions/style.css' %}
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script>
+        $(function () {
+            $('.perm input[type=checkbox]').on('change', function () {
+                const $tr = $(this).closest('tr');
+                let checkedCount = $tr.find('.perm input[type=checkbox]:checked').length;
+                if (checkedCount === {{ permissions|length }}) {
+                    $tr.find('.all-toggle input').prop('checked', true);
+                } else if (checkedCount ===  0) {
+                    $tr.find('.all-toggle input').prop('checked', false);
+                }
+            });
+            $('input[name=all]').click(function () {
+                $(this).closest('tr').find('.perm input').prop('checked', $(this).is(':checked'));
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content_title %}
+    <a href="{{ path('easyadmin', _request_parameters|merge({ action: 'list' })) }}">Back</a>
+    |
+    Manage permissions for <b>{{ object_key }} #{{ object_id }}</b>
+{% endblock %}
+
+{% block main %}
+    <table class="table datagrid">
+        <thead>
+        <tr>
+            <th>
+                <span>User</span>
+            </th>
+            {% for perm,k in permissions %}
+                <th class="perm">
+                    <span>
+                        {{ perm|lower|humanize }}
+                    </span>
+                </th>
+            {% endfor %}
+            <th>
+                <span>
+                    All
+                </span>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ace in aces %}
+            <tr>
+                <td>
+                    {{ ace.userId }}
+                </td>
+                {% for perm,k in permissions %}
+                    <td class="perm">
+                        <input type="checkbox"
+                               name="ace[{{ ace.userId }}][]"{% if ace.hasPermission(k) %} checked{% endif %}>
+                    </td>
+                {% endfor %}
+                <td class="all-toggle">
+                    <input type="checkbox" name="all">
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>
+                <select name="users">
+                    {% for user,id in users %}
+                        <option value="{{ id }}">{{ user }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

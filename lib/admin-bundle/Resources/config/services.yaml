@@ -41,3 +41,5 @@ services:
       $client: "@alchemy_admin.http_client"
       $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
       $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
+
+  Alchemy\AclBundle\Controller\PermissionController: ~

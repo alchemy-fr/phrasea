@@ -2,3 +2,13 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
+
+  Alchemy\AclBundle\Repository\DoctrinePermissionRepository: ~
+  Alchemy\AclBundle\Security\PermissionManager: ~
+  Alchemy\AclBundle\Mapping\ObjectMapping: ~
+
+  Alchemy\AclBundle\Repository\PermissionRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\DoctrinePermissionRepository"
+
+  Alchemy\AclBundle\Security\Voter\AclVoter:
+    tags:
+      - { name: security.voter }

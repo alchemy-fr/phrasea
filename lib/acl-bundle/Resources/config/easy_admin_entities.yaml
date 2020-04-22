@@ -1,0 +1,18 @@
+easy_admin:
+  entities:
+    AccessControlEntry:
+      label: ACL
+      class: Alchemy\AclBundle\Entity\AccessControlEntry
+      list:
+        sort: [createdAt, DESC]
+        batch_actions:
+          - delete
+        fields:
+          - { property: userId }
+          - { property: mask }
+          - { property: object }
+      form:
+        fields:
+          - { property: userId }
+          - { property: object }
+          - { property: permissions, type: Alchemy\AclBundle\Form\PermissionFormType }

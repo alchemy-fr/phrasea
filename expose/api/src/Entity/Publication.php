@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\GetPublicationAction;
@@ -26,10 +27,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('EDIT', object)"
  *         },
  *         "delete"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('DELETE', object)"
  *         },
  *     },
  *     collectionOperations={
@@ -42,7 +43,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class Publication
+class Publication implements AclObjectInterface
 {
     const GROUP_PUB_INDEX = 'publication:index';
     const GROUP_PUB_READ = 'publication:read';
@@ -300,7 +301,7 @@ class Publication
         $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id->__toString();
     }

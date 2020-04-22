@@ -20,6 +20,10 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_acl');
         $treeBuilder->getRootNode()
             ->children()
+                ->arrayNode('objects')
+                ->useAttributeAsKey('key')
+                    ->prototype('scalar')
+                ->end()
             ->end()
         ;
 

@@ -1,12 +1,5 @@
-# ACL bundle
-
-## Project configuration
-
-### Admin setup
-
-```php
 <?php
-// 
+
 declare(strict_types=1);
 
 namespace App\Admin;
@@ -18,13 +11,3 @@ class AdminController extends EasyAdminController
 {
     use PermissionTrait;
 }
-```
-
-```yaml
-# config/routes/admin.yaml
-easy_admin_bundle:
-    resource: 'App\Admin\AdminController'
-    prefix: /admin
-    type: annotation
-
-```

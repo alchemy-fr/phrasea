@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Publication;
@@ -20,7 +21,7 @@ class PublicationVoter extends Voter
     const INDEX = 'publication:index';
     const READ = 'publication:read';
     const READ_DETAILS = 'publication:read_details';
-    const EDIT = 'publication:edit';
+    const EDIT = 'EDIT';
 
     /**
      * @var Security
@@ -56,8 +57,9 @@ class PublicationVoter extends Voter
                 $user = $token->getUser();
                 $isAuthenticated = $user instanceof RemoteUser;
 
-                return $isAdmin ||
-                    ($isAuthenticated && $subject->getOwnerId() === $user->getId());
+                return $isAdmin
+                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             default:
                 return false;
         }

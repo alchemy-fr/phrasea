@@ -1,0 +1,3 @@
+alchemy_acl:
+  objects:
+    publication: App\Entity\Publication
