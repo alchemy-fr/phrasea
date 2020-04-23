@@ -6,7 +6,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.3",
+    "php": "^7.4",
     "friendsofsymfony/oauth-server-bundle": "^1.6",
     "symfony/framework-bundle": "^4.0 || ^5.0",
     "symfony/templating": "^4.0 || ^5.0"

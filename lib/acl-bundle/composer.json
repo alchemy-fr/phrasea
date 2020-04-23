@@ -6,7 +6,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.3",
+    "php": "^7.4",
     "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
     "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
     "ramsey/uuid-doctrine": "^1.5",
@@ -31,8 +31,18 @@
       "Alchemy\\AclBundle\\Tests\\": "/Tests/"
     }
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../remote-auth-bundle",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.16",
-    "phpunit/phpunit": "^8.4"
+    "phpunit/phpunit": "^8.4",
+    "alchemy/remote-auth-bundle": "@dev"
   }
 }

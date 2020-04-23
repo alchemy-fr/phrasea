@@ -17,20 +17,64 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         $this->em = $em;
     }
 
-    public function getObjectAces(string $objectId): array
+    public function getObjectAces(string $objectType, string $objectId): array
     {
         return $this->em->getRepository(AccessControlEntry::class)
             ->findBy([
-                'object' => $objectId,
+                'object' => $this->getObjectUID($objectType, $objectId),
+            ], [
+                'createdAt' => 'DESC',
             ]);
     }
 
-    public function getAce(string $userId, string $objectId): ?AccessControlEntryInterface
+    public function getAce(string $userId, string $objectType, string $objectId): ?AccessControlEntryInterface
     {
         return $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $objectId,
+                'object' => $this->getObjectUID($objectType, $objectId),
                 'userId' => $userId,
             ]);
+    }
+
+    public function updateOrCreateAce(string $userId, string $objectType, string $objectId, int $mask): ?AccessControlEntryInterface
+    {
+        $ace = $this->em->getRepository(AccessControlEntry::class)
+            ->findOneBy([
+                'object' => $this->getObjectUID($objectType, $objectId),
+                'userId' => $userId,
+            ]);
+
+
+        if (!$ace instanceof AccessControlEntry) {
+            $ace = new AccessControlEntry();
+            $ace->setUserId($userId);
+            $ace->setObject($this->getObjectUID($objectType, $objectId));
+        }
+
+        $ace->setMask($mask);
+
+        $this->em->persist($ace);
+        $this->em->flush();
+
+        return $ace;
+    }
+
+    public function deleteAce(string $userId, string $objectType, string $objectId): void
+    {
+        $ace = $this->em->getRepository(AccessControlEntry::class)
+            ->findOneBy([
+                'object' => $this->getObjectUID($objectType, $objectId),
+                'userId' => $userId,
+            ]);
+
+        if ($ace instanceof AccessControlEntry) {
+            $this->em->remove($ace);
+            $this->em->flush();
+        }
+    }
+
+    private function getObjectUID(string $objectType, string $objectId): string
+    {
+        return $objectType . ':' . $objectId;
     }
 }

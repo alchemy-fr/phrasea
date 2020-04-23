@@ -1,0 +1,109 @@
+$(function () {
+    $('body')
+        .on('change', '.perm input[type=checkbox]', function () {
+            const $tr = $(this).closest('tr');
+
+            syncToggle($tr);
+            updateAce($tr);
+        })
+        .on('click', 'input[name=all]', function () {
+            var $tr = $(this).closest('tr');
+            $tr.find('.perm input').prop('checked', $(this).is(':checked'));
+            updateAce($tr);
+        })
+        .on('click', '.delete', function () {
+            var $tr = $(this).closest('tr');
+            $tr.remove();
+            deleteAce($tr.data('id'));
+        });
+
+    $('#aces tr').each(function () {
+        syncToggle($(this));
+    });
+
+    function syncToggle($tr) {
+        let checkedCount = $tr.find('.perm input[type=checkbox]:checked').length;
+        if (checkedCount === {{ permissions|length }}) {
+            $tr.find('.all-toggle input').prop('checked', true);
+        } else if (checkedCount === 0) {
+            $tr.find('.all-toggle input').prop('checked', false);
+        }
+    }
+
+    function updateAce($tr) {
+        let mask = 0;
+        $tr.find('td.perm input').each(function () {
+            mask += $(this).is(':checked') ? parseInt($(this).val()) : 0;
+        });
+        const userId = $tr.data('id');
+        setPermissions(userId, mask);
+    }
+
+    function isInList(id) {
+        return $('#aces').find('tr[data-id=' + id + ']').length === 1;
+    }
+
+    function setPermissions(userId, mask) {
+        $.ajax({
+            type: 'PUT',
+            url: '{{ path('alchemy_acl_ace') }}',
+            data: {
+                objectType: '{{ object_type }}',
+                objectId: '{{ object_id }}',
+                userId: userId,
+                mask: mask
+            }
+        });
+    }
+
+    function deleteAce(userId) {
+        $.ajax({
+            type: 'DELETE',
+            url: '{{ path('alchemy_acl_ace_delete') }}',
+            data: {
+                objectType: '{{ object_type }}',
+                objectId: '{{ object_id }}',
+                userId: userId
+            }
+        });
+    }
+
+    $('#user-select')
+        .select2({
+            width: '400px',
+            placeholder: "Select user to grant...",
+            templateResult: function (state) {
+                if (!state.id) {
+                    return state.text;
+                }
+
+                console.log('state', state);
+
+                const disabled = isInList(state.id);
+
+                return $(
+                    '<span class="' + (disabled ? 'disabled ' : '') + state.element.className + '">' + state.text + '</span>'
+                );
+            }
+        })
+        .on('select2:select', function (e) {
+            const data = $(this).select2('data');
+            const userId = data[0].id;
+
+            $(this).val(null).trigger('change');
+            if (isInList(userId)) {
+                return false;
+            }
+
+            var $row = $(this).closest('tr');
+
+            setPermissions(userId, 0);
+
+            $($('#row-template').html()
+                .replace(/\#USERID\#/g, userId)
+                .replace(/\#USERNAME\#/g, data[0].text)
+            )
+                .insertBefore($row);
+
+        });
+});

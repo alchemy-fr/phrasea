@@ -16,31 +16,37 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script>
-        $(function () {
-            $('.perm input[type=checkbox]').on('change', function () {
-                const $tr = $(this).closest('tr');
-                let checkedCount = $tr.find('.perm input[type=checkbox]:checked').length;
-                if (checkedCount === {{ permissions|length }}) {
-                    $tr.find('.all-toggle input').prop('checked', true);
-                } else if (checkedCount ===  0) {
-                    $tr.find('.all-toggle input').prop('checked', false);
-                }
-            });
-            $('input[name=all]').click(function () {
-                $(this).closest('tr').find('.perm input').prop('checked', $(this).is(':checked'));
-            });
-        });
+        {% include '@AlchemyAcl/permissions/permissions.js.twig' %}
     </script>
 {% endblock %}
 
 {% block content_title %}
     <a href="{{ path('easyadmin', _request_parameters|merge({ action: 'list' })) }}">Back</a>
     |
-    Manage permissions for <b>{{ object_key }} #{{ object_id }}</b>
+    Manage permissions for <b>{{ object_type }} #{{ object_id }}</b>
 {% endblock %}
 
 {% block main %}
-    <table class="table datagrid">
+    <script id="row-template" type="text/x-custom-template">
+        <tr data-id="#USERID#">
+            <td>
+                #USERNAME#
+            </td>
+            {% for perm,k in permissions %}
+                <td class="perm">
+                    <input type="checkbox"
+                           name="ace[#USERID#][]">
+                </td>
+            {% endfor %}
+            <td class="all-toggle">
+                <input type="checkbox" name="all">
+            </td>
+            <td>
+                <button class="delete btn btn-danger">Delete</button>
+            </td>
+        </tr>
+    </script>
+    <table id="aces" class="table datagrid">
         <thead>
         <tr>
             <th>
@@ -58,29 +64,36 @@
                     All
                 </span>
             </th>
+            <th>
+            </th>
         </tr>
         </thead>
         <tbody>
         {% for ace in aces %}
-            <tr>
+            <tr data-id="{{ ace.userId }}">
                 <td>
-                    {{ ace.userId }}
+                    {{ ace.username }}
                 </td>
                 {% for perm,k in permissions %}
                     <td class="perm">
                         <input type="checkbox"
-                               name="ace[{{ ace.userId }}][]"{% if ace.hasPermission(k) %} checked{% endif %}>
+                               value="{{ k }}"
+                               name="perm"{% if ace.permissions[perm] %} checked{% endif %}>
                     </td>
                 {% endfor %}
                 <td class="all-toggle">
                     <input type="checkbox" name="all">
                 </td>
+                <td>
+                    <button class="delete btn btn-danger">Delete</button>
+                </td>
             </tr>
         {% endfor %}
         <tr>
             <td>
-                <select name="users">
-                    {% for user,id in users %}
+                <select id="user-select" name="users">
+                    <option value=""></option>
+                    {% for id, user in users %}
                         <option value="{{ id }}">{{ user }}</option>
                     {% endfor %}
                 </select>

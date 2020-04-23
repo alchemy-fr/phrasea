@@ -28,3 +28,20 @@ easy_admin_bundle:
     type: annotation
 
 ```
+
+```yaml
+# config/routes/alchemy_acl.yml
+alchemy_acl:
+  resource: "@AlchemyOAuthServerBundle/Resources/routing/permissions.yaml"
+```
+
+Add redis cache for access token:
+```yaml
+# config/packages/cache.yaml
+framework:
+    cache:
+        default_redis_provider: redis://redis
+        pools:
+            accessToken.cache: # You must use this name for auto wiring
+                adapter: cache.adapter.redis
+```

@@ -7,6 +7,12 @@ input {
     padding: 15px;
 }
 
+span.disabled {
+    display: block;
+    color: #CCC;
+    cursor: not-allowed;
+}
+
 th.perm span {
     writing-mode: vertical-rl;
     margin: 0 auto;

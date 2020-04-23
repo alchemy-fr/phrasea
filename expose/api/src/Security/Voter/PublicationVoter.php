@@ -22,6 +22,7 @@ class PublicationVoter extends Voter
     const READ = 'publication:read';
     const READ_DETAILS = 'publication:read_details';
     const EDIT = 'EDIT';
+    const DELETE = 'DELETE';
 
     /**
      * @var Security
@@ -53,6 +54,7 @@ class PublicationVoter extends Voter
                 return $isAdmin || $subject->isEnabled();
             case self::READ_DETAILS:
                 return $isAdmin || ($subject->isEnabled() && $this->securityMethodPasses($subject, $token));
+            case self::DELETE:
             case self::EDIT:
                 $user = $token->getUser();
                 $isAuthenticated = $user instanceof RemoteUser;

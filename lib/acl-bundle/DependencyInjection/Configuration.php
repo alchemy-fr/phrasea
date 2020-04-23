@@ -20,6 +20,13 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_acl');
         $treeBuilder->getRootNode()
             ->children()
+                ->arrayNode('auth')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('client_id')->defaultValue('%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%')->end()
+                        ->scalarNode('client_secret')->defaultValue('%env(ADMIN_CLIENT_SECRET)%')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('objects')
                 ->useAttributeAsKey('key')
                     ->prototype('scalar')

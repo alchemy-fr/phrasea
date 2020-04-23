@@ -11,3 +11,4 @@ Alchemy\OAuthServerBundle\Entity\OAuthClient:
         allowedScopes:
             - scope1
             - scope3
+            - 'user:list'

@@ -10,10 +10,7 @@ use GuzzleHttp\Exception\ClientException;
 
 class RemoteClient
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
     public function __construct(Client $client)
     {
@@ -41,9 +38,37 @@ class RemoteClient
         }
 
         $content = $response->getBody()->getContents();
-        $data = \GuzzleHttp\json_decode($content, true);
 
-        return $data;
+        return \GuzzleHttp\json_decode($content, true);
+    }
+
+    public function getUsers(string $accessToken, int $limit = 200, int $offset = 0): array
+    {
+        try {
+            $response = $this->client->request('GET', '/users', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$accessToken,
+                ],
+                'query' => [
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
+                throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
+            }
+
+            throw $e;
+        }
+
+        if (401 === $response->getStatusCode()) {
+            throw new InvalidResponseException($response->getBody()->getContents());
+        }
+
+        $content = $response->getBody()->getContents();
+
+        return \GuzzleHttp\json_decode($content, true);
     }
 
     public function post(string $uri, array $options = [])

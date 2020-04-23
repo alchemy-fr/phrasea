@@ -8,10 +8,14 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 
 interface PermissionRepositoryInterface
 {
-    public function getAce(string $userId, string $objectId): ?AccessControlEntryInterface;
+    public function getAce(string $userId, string $objectType, string $objectId): ?AccessControlEntryInterface;
 
     /**
      * @return AccessControlEntryInterface[]
      */
-    public function getObjectAces(string $objectId): array;
+    public function getObjectAces(string $objectType, string $objectId): array;
+
+    public function updateOrCreateAce(string $userId, string $objectType, string $objectId, int $permissions): ?AccessControlEntryInterface;
+
+    public function deleteAce(string $userId, string $objectType, string $objectId): void;
 }

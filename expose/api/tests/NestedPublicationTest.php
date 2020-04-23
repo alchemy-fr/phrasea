@@ -112,11 +112,12 @@ class NestedPublicationTest extends AbstractTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $this->request(
+        $response = $this->request(
             RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/publications/'.$ids['p1']
         );
+        $this->assertEquals(204, $response->getStatusCode());
         $this->assertPublicationDoesNotExist($ids['p1']);
         $this->assertPublicationDoesNotExist($ids['pA']);
         $this->assertPublicationDoesNotExist($ids['pB']);

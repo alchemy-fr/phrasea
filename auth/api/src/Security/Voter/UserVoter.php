@@ -11,10 +11,9 @@ use Symfony\Component\Security\Core\Security;
 
 class UserVoter extends Voter
 {
-    /**
-     * @var Security
-     */
-    private $security;
+    const LIST_USERS = 'LIST_USERS';
+
+    private Security $security;
 
     public function __construct(Security $security)
     {
@@ -23,12 +22,16 @@ class UserVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $subject instanceof User;
+        return $attribute === self::LIST_USERS || $subject instanceof User;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         if ('READ' === $attribute && $this->security->isGranted('ROLE_USER:READ')) {
+            return true;
+        }
+
+        if (self::LIST_USERS === $attribute && $this->security->isGranted('ROLE_USER:LIST')) {
             return true;
         }
 

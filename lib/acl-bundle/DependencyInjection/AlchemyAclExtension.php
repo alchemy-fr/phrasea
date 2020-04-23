@@ -3,6 +3,7 @@
 namespace Alchemy\AclBundle\DependencyInjection;
 
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Repository\RemoteAuthUserRepository;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -30,6 +31,10 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
 
         $mapperDef = $container->findDefinition(ObjectMapping::class);
         $mapperDef->setArgument('$mapping', $config['objects']);
+
+        $mapperDef = $container->findDefinition(RemoteAuthUserRepository::class);
+        $mapperDef->setArgument('$clientId', $config['auth']['client_id']);
+        $mapperDef->setArgument('$clientSecret', $config['auth']['client_secret']);
     }
 
     public function prepend(ContainerBuilder $container)
