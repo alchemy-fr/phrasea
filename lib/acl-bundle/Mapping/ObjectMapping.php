@@ -38,7 +38,7 @@ class ObjectMapping
     {
         $class = is_string($class) ? $class : get_class($class);
 
-        if (false === $pos = strrpos($class, '\\' . Proxy::MARKER . '\\')) {
+        if (false === $pos = strrpos($class, '\\'.Proxy::MARKER.'\\')) {
             return $class;
         }
 
@@ -67,10 +67,7 @@ class ObjectMapping
                 }
             }
 
-            throw new InvalidArgumentException(sprintf(
-                    'Class "%s" is not defined in the object mapping',
-                    $className)
-            );
+            throw new InvalidArgumentException(sprintf('Class "%s" is not defined in the object mapping', $className));
         }
 
         return $key;

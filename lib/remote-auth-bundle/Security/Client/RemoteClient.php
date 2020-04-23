@@ -52,7 +52,7 @@ class RemoteClient
                 'query' => [
                     'limit' => $limit,
                     'offset' => $offset,
-                ]
+                ],
             ]);
         } catch (ClientException $e) {
             if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {

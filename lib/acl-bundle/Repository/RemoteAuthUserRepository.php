@@ -20,8 +20,7 @@ class RemoteAuthUserRepository implements UserRepositoryInterface
         CacheInterface $accessTokenCache,
         string $clientId,
         string $clientSecret
-    )
-    {
+    ) {
         $this->remoteClient = $remoteClient;
         $this->cache = $accessTokenCache;
         $this->clientId = $clientId;
@@ -35,7 +34,7 @@ class RemoteAuthUserRepository implements UserRepositoryInterface
 
     private function getAccessToken(): string
     {
-        return $this->cache->get('remote_auth_access_token',  function (ItemInterface $item) {
+        return $this->cache->get('remote_auth_access_token', function (ItemInterface $item) {
             $response = $this->remoteClient->post('oauth/v2/token', [
                 'json' => [
                     'scope' => 'user:list',

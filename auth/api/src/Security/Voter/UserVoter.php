@@ -22,7 +22,7 @@ class UserVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $attribute === self::LIST_USERS || $subject instanceof User;
+        return self::LIST_USERS === $attribute || $subject instanceof User;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)

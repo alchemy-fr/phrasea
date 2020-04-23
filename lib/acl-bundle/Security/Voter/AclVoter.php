@@ -29,7 +29,7 @@ class AclVoter extends Voter
     }
 
     /**
-     * @param int $attribute
+     * @param int                $attribute
      * @param AclObjectInterface $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -38,7 +38,7 @@ class AclVoter extends Voter
         if ($user instanceof UserInterface || $user instanceof RemoteUser) {
             return $this->permissionManager->isGranted($user, $subject, $attribute);
         }
-    
+
         return false;
     }
 }

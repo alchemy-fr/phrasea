@@ -468,7 +468,7 @@ class Publication implements AclObjectInterface
 
     public function getSecurityContainer(): self
     {
-        if ($this->securityMethod !== self::SECURITY_METHOD_NONE) {
+        if (self::SECURITY_METHOD_NONE !== $this->securityMethod) {
             return $this;
         }
 
@@ -582,7 +582,7 @@ class Publication implements AclObjectInterface
     public function setPassword(?string $password): void
     {
         if (!empty($password)) {
-            if ($this->securityMethod === self::SECURITY_METHOD_NONE) {
+            if (self::SECURITY_METHOD_NONE === $this->securityMethod) {
                 $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
             }
             $this->securityOptions['password'] = $password;

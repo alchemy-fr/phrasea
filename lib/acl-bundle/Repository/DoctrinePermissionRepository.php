@@ -44,7 +44,6 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
                 'userId' => $userId,
             ]);
 
-
         if (!$ace instanceof AccessControlEntry) {
             $ace = new AccessControlEntry();
             $ace->setUserId($userId);
@@ -75,6 +74,6 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
 
     private function getObjectUID(string $objectType, string $objectId): string
     {
-        return $objectType . ':' . $objectId;
+        return $objectType.':'.$objectId;
     }
 }

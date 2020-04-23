@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Firewall;
 
-use Alchemy\RemoteAuthBundle\Security\RequestHelper;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Security\Authentication\PasswordToken;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

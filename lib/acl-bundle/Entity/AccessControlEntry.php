@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\AclBundle\Entity;
 
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
-use Alchemy\AclBundle\Security\PermissionInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -108,7 +107,7 @@ class AccessControlEntry implements AccessControlEntryInterface
     {
         $permissions = [];
         $length = 30;
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $bit = 1 << $i;
 
             if (($bit & $this->mask) === $bit) {

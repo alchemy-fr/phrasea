@@ -25,8 +25,7 @@ class PermissionController extends AbstractController
         ObjectMapping $objectMapping,
         PermissionRepositoryInterface $repository,
         UserRepositoryInterface $userRepository
-    )
-    {
+    ) {
         $this->objectMapping = $objectMapping;
         $this->repository = $repository;
         $this->userRepository = $userRepository;
