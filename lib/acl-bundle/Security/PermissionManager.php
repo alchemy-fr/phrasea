@@ -28,9 +28,7 @@ class PermissionManager
     {
         $objectKey = $this->objectMapper->getObjectKey($object);
 
-        $objectKey = $objectKey.':'.$object->getId();
-
-        $ace = $this->repository->getAce($user->getId(), $objectKey);
+        $ace = $this->repository->getAce($user->getId(), $objectKey, $object->getId());
         if (null === $ace) {
             return false;
         }
