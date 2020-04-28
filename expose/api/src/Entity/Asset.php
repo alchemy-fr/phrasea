@@ -178,7 +178,7 @@ class Asset implements MediaInterface
      *
      * @ApiSubresource()
      * @Groups({"asset:read", "publication:read"})
-     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset")
+     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset", cascade={"remove"})
      */
     private $subDefinitions;
 

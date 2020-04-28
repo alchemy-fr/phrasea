@@ -203,7 +203,7 @@ class Publication implements AclObjectInterface
      *
      * @var Publication[]|Collection
      *
-     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinTable(name="publication_children",
      *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}

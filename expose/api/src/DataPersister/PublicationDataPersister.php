@@ -66,18 +66,6 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
      */
     public function remove($data, array $context = [])
     {
-        $this->doRemove($data);
-
-        $this->em->flush();
-    }
-
-    public function doRemove(Publication $data): void
-    {
-        // Remove orphan children
-        foreach ($data->getChildren() as $child) {
-            $this->doRemove($child);
-        }
-
-        $this->em->remove($data);
+        $this->decorated->remove($data, $context);
     }
 }
