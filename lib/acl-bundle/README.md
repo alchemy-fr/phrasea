@@ -33,6 +33,7 @@ easy_admin_bundle:
 # config/routes/alchemy_acl.yml
 alchemy_acl:
   resource: "@AlchemyOAuthServerBundle/Resources/routing/permissions.yaml"
+  prefix: /permissions
 ```
 
 Add redis cache for access token:
@@ -44,4 +45,24 @@ framework:
         pools:
             accessToken.cache: # You must use this name for auto wiring
                 adapter: cache.adapter.redis
+```
+
+## API
+
+This bundle exposes the following routes to the application:
+
+- `GET /permissions/users` Get all users
+- `GET /permissions/groups` Get all groups
+- `PUT /permissions/ace` Add or update access control entry (ACE)
+- `DELETE /permissions/ace` Remove access control entry (ACE)
+
+For the `/permissions/ace` endpoints you must provide the following data:
+```json
+{
+    "objectType": "user",
+    "objectId": "the-user-id",
+    "entityType": "publication",
+    "entityId": "the-publication-id",
+    "mask": 7 // For PUT only
+}
 ```

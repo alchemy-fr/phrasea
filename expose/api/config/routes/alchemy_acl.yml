@@ -1,2 +1,3 @@
 alchemy_acl:
   resource: "@AlchemyAclBundle/Resources/routing/permissions.yaml"
+  prefix: /permissions

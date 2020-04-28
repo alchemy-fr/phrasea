@@ -10,6 +10,7 @@ use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,12 +36,16 @@ class PermissionController extends AbstractController
         $this->groupRepository = $groupRepository;
     }
 
+    private function validateAuthorization(): void
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+    }
+
     public function acl(string $entityClass, string $id): Response
     {
+        $this->validateAuthorization();
         $objectKey = $this->objectMapping->getObjectKey($entityClass);
-
         $permissions = PermissionInterface::PERMISSIONS;
-
         $aces = $this->repository->getObjectAces($objectKey, $id);
 
         $users = [];
@@ -86,6 +91,7 @@ class PermissionController extends AbstractController
      */
     public function setAce(Request $request, PermissionRepositoryInterface $repository): Response
     {
+        $this->validateAuthorization();
         $objectType = $request->request->get('objectType');
         $objectId = $request->request->get('objectId');
         $entityType = $request->request->get('entityType');
@@ -102,6 +108,7 @@ class PermissionController extends AbstractController
      */
     public function deleteAce(Request $request, PermissionRepositoryInterface $repository): Response
     {
+        $this->validateAuthorization();
         $objectType = $request->request->get('objectType');
         $objectId = $request->request->get('objectId');
         $entityType = $request->request->get('entityType');
@@ -110,5 +117,29 @@ class PermissionController extends AbstractController
         $repository->deleteAce($entityType, $entityId, $objectType, $objectId);
 
         return new JsonResponse(true);
+    }
+
+    /**
+     * @Route("/users", methods={"GET"}, name="users")
+     */
+    public function getUsers(Request $request, UserRepositoryInterface $repository): Response
+    {
+        $this->validateAuthorization();
+        $limit = $request->query->get('limit');
+        $offset = $request->query->get('offset');
+
+        return new JsonResponse($repository->getUsers($limit, $offset));
+    }
+
+    /**
+     * @Route("/groups", methods={"GET"}, name="groups")
+     */
+    public function getGroups(Request $request, GroupRepositoryInterface $repository): Response
+    {
+        $this->validateAuthorization();
+        $limit = $request->query->get('limit');
+        $offset = $request->query->get('offset');
+
+        return new JsonResponse($repository->getGroups($limit, $offset));
     }
 }

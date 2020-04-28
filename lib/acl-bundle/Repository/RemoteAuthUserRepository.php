@@ -6,8 +6,8 @@ namespace Alchemy\AclBundle\Repository;
 
 class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements UserRepositoryInterface
 {
-    public function getUsers(): array
+    public function getUsers(?int $limit = null, ?int $offset = null): array
     {
-        return $this->serviceClient->getUsers($this->getAccessToken());
+        return $this->serviceClient->getUsers($this->getAccessToken(), $limit, $offset);
     }
 }

@@ -6,5 +6,5 @@ namespace Alchemy\AclBundle\Repository;
 
 interface GroupRepositoryInterface
 {
-    public function getGroups(): array;
+    public function getGroups(?int $limit = null, ?int $offset = null): array;
 }
