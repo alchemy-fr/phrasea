@@ -6,9 +6,12 @@ services:
   Alchemy\AclBundle\Repository\DoctrinePermissionRepository: ~
   Alchemy\AclBundle\Security\PermissionManager: ~
   Alchemy\AclBundle\Mapping\ObjectMapping: ~
+  Alchemy\AclBundle\Repository\AbstractRemoteAuthRepository: ~
   Alchemy\AclBundle\Repository\RemoteAuthUserRepository: ~
+  Alchemy\AclBundle\Repository\RemoteAuthGroupRepository: ~
 
   Alchemy\AclBundle\Repository\UserRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\RemoteAuthUserRepository"
+  Alchemy\AclBundle\Repository\GroupRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\RemoteAuthGroupRepository"
 
   Alchemy\AclBundle\Repository\PermissionRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\DoctrinePermissionRepository"
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\RemoteAuthBundle\Security;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
+use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -14,11 +14,11 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class RemoteUserProvider implements UserProviderInterface
 {
     /**
-     * @var RemoteClient
+     * @var AuthServiceClient
      */
     private $client;
 
-    public function __construct(RemoteClient $client)
+    public function __construct(AuthServiceClient $client)
     {
         $this->client = $client;
     }

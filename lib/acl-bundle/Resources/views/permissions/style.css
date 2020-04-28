@@ -7,6 +7,10 @@ input {
     padding: 15px;
 }
 
+tr.type-group td.entity-name {
+    font-weight: bold;
+}
+
 span.disabled {
     display: block;
     color: #CCC;

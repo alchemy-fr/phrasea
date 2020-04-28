@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Security\Voter\UserVoter;
+use App\Entity\Group;
+use App\Security\Voter\GroupVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class GetUsersAction extends AbstractController
+class GetGroupsAction extends AbstractController
 {
     private EntityManagerInterface $em;
 
@@ -22,7 +22,7 @@ class GetUsersAction extends AbstractController
     }
 
     /**
-     * @Route(path="/users")
+     * @Route(path="/groups")
      */
     public function __invoke(Request $request)
     {
@@ -31,20 +31,20 @@ class GetUsersAction extends AbstractController
         $limit = $limit > 200 ? 200 : $limit;
 
         $users = $this->em
-            ->getRepository(User::class)
+            ->getRepository(Group::class)
             ->findBy(
                 [],
-                ['username' => 'ASC'],
+                ['name' => 'ASC'],
                 $limit,
                 $offset
             );
 
-        $this->denyAccessUnlessGranted(UserVoter::LIST_USERS);
+        $this->denyAccessUnlessGranted(GroupVoter::LIST_GROUPS);
 
-        return new JsonResponse(array_map(fn (User $user): array => [
-            'id' => $user->getId(),
-            'username' => $user->getUsername(),
-            'email' => $user->getEmail(),
+        return new JsonResponse(array_map(fn (Group $group): array => [
+            'id' => $group->getId(),
+            'name' => $group->getName(),
+            'userCount' => $group->getUserCount(),
         ], $users));
     }
 }

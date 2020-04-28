@@ -55,6 +55,7 @@ class TokenInfoAction extends AbstractController
                 'id' => $user->getId(),
                 'username' => $user->getUsername(),
                 'email' => $user->getEmail(),
+                'groups' => $user->getIndexedGroups(),
                 'roles' => $user->getRoles(),
             ];
         }

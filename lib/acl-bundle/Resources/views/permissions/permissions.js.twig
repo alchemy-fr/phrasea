@@ -14,7 +14,7 @@ $(function () {
         .on('click', '.delete', function () {
             var $tr = $(this).closest('tr');
             $tr.remove();
-            deleteAce($tr.data('id'));
+            deleteAce($tr.data('type'), $tr.data('id'));
         });
 
     $('#aces tr').each(function () {
@@ -35,75 +35,79 @@ $(function () {
         $tr.find('td.perm input').each(function () {
             mask += $(this).is(':checked') ? parseInt($(this).val()) : 0;
         });
-        const userId = $tr.data('id');
-        setPermissions(userId, mask);
+        setPermissions($tr.data('type'), $tr.data('id'), mask);
     }
 
-    function isInList(id) {
-        return $('#aces').find('tr[data-id=' + id + ']').length === 1;
+    function isInList(id, type) {
+        return $('#aces').find('tr[data-id=' + id + '][data-type=' + type + ']').length === 1;
     }
 
-    function setPermissions(userId, mask) {
+    function setPermissions(entityType, entityId, mask) {
         $.ajax({
             type: 'PUT',
             url: '{{ path('alchemy_acl_ace') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',
-                userId: userId,
+                entityId: entityId,
+                entityType: entityType,
                 mask: mask
             }
         });
     }
 
-    function deleteAce(userId) {
+    function deleteAce(entityType, entityId) {
         $.ajax({
             type: 'DELETE',
             url: '{{ path('alchemy_acl_ace_delete') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',
-                userId: userId
+                entityId: entityId,
+                entityType: entityType
             }
         });
     }
 
-    $('#user-select')
-        .select2({
-            width: '400px',
-            placeholder: "Select user to grant...",
-            templateResult: function (state) {
-                if (!state.id) {
-                    return state.text;
+    function initSelect($select, entityType) {
+        $select
+            .select2({
+                width: '400px',
+                placeholder: "Select " + entityType + " to grant...",
+                templateResult: function (state) {
+                    if (!state.id) {
+                        return state.text;
+                    }
+                    const disabled = isInList(state.id, entityType);
+
+                    return $(
+                        '<span class="' + (disabled ? 'disabled ' : '') + state.element.className + '">' + state.text + '</span>'
+                    );
+                }
+            })
+            .on('select2:select', function (e) {
+                const data = $(this).select2('data');
+                const entityId = data[0].id;
+
+                $(this).val(null).trigger('change');
+                if (isInList(entityId, entityType)) {
+                    return false;
                 }
 
-                console.log('state', state);
+                var $row = $(this).closest('tr');
 
-                const disabled = isInList(state.id);
+                setPermissions(entityType, entityId, 0);
 
-                return $(
-                    '<span class="' + (disabled ? 'disabled ' : '') + state.element.className + '">' + state.text + '</span>'
+                $('#aces tbody').prepend(
+                    $('#row-template')
+                        .html()
+                        .replace(/\#ENTITYTYPE\#/g, entityType)
+                        .replace(/\#ENTITYID\#/g, entityId)
+                        .replace(/\#ENTITYNAME\#/g, data[0].text)
                 );
-            }
-        })
-        .on('select2:select', function (e) {
-            const data = $(this).select2('data');
-            const userId = data[0].id;
+            });
+    }
 
-            $(this).val(null).trigger('change');
-            if (isInList(userId)) {
-                return false;
-            }
-
-            var $row = $(this).closest('tr');
-
-            setPermissions(userId, 0);
-
-            $($('#row-template').html()
-                .replace(/\#USERID\#/g, userId)
-                .replace(/\#USERNAME\#/g, data[0].text)
-            )
-                .insertBefore($row);
-
-        });
+    initSelect($('#user-select'), 'user');
+    initSelect($('#group-select'), 'group');
 });

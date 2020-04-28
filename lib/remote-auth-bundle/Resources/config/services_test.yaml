@@ -3,10 +3,10 @@ services:
         autowire: true
         autoconfigure: true
 
-    Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock: ~
+    Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock: ~
 
-    Alchemy\RemoteAuthBundle\Security\Client\RemoteClient:
+    Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
         arguments:
-            $client: "@Alchemy\\RemoteAuthBundle\\Security\\RemoteAuthenticatorClientTestMock"
+            $client: "@Alchemy\\RemoteAuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
 
     Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~

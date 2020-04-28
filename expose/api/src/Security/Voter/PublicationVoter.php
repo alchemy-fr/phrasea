@@ -106,7 +106,7 @@ class PublicationVoter extends Voter
                 return false;
             }
 
-            return true;
+            return $this->security->isGranted(PermissionInterface::VIEW, $publication);
         }
 
         return false;

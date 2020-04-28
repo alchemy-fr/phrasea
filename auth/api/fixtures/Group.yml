@@ -1,0 +1,5 @@
+App\Entity\Group:
+  group1:
+    name: Group 1
+  group2:
+    name: Group 2

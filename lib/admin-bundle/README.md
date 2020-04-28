@@ -4,6 +4,8 @@ This bundle provides an admin based on EasyAdminBundle.
 
 ## Installation
 
+> !! Ensure this bundle is declared before `EasyAdminBundle` in `config/bundles.php`
+
 ```yaml
 # config/packages/admin.yaml
 alchemy_admin:

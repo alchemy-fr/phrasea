@@ -28,14 +28,15 @@
 
 {% block main %}
     <script id="row-template" type="text/x-custom-template">
-        <tr data-id="#USERID#">
-            <td>
-                #USERNAME#
+        <tr data-id="#ENTITYID#" data-type="#ENTITYTYPE#" class="type-#ENTITYTYPE#">
+            <td class="entity-name">
+                #ENTITYNAME#
             </td>
             {% for perm,k in permissions %}
                 <td class="perm">
                     <input type="checkbox"
-                           name="ace[#USERID#][]">
+                           value="{{ k }}"
+                           name="ace[#ENTITYID#][]">
                 </td>
             {% endfor %}
             <td class="all-toggle">
@@ -46,11 +47,34 @@
             </td>
         </tr>
     </script>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Add user</h3>
+            <select id="user-select" name="users">
+                <option value=""></option>
+                {% for id, user in users %}
+                    <option value="{{ id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <h3>Add group</h3>
+            <select id="group-select" name="groups">
+                <option value=""></option>
+                {% for id, group in groups %}
+                    <option value="{{ id }}">{{ group }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+        <hr>
+
     <table id="aces" class="table datagrid">
         <thead>
         <tr>
             <th>
-                <span>User</span>
+                <span>User / Group</span>
             </th>
             {% for perm,k in permissions %}
                 <th class="perm">
@@ -70,9 +94,9 @@
         </thead>
         <tbody>
         {% for ace in aces %}
-            <tr data-id="{{ ace.userId }}">
-                <td>
-                    {{ ace.username }}
+            <tr data-id="{{ ace.entityId }}" data-type="{{ ace.entityType }}" class="type-{{ ace.entityType }}">
+                <td class="entity-name">
+                    {{ ace.name }}
                 </td>
                 {% for perm,k in permissions %}
                     <td class="perm">
@@ -90,14 +114,7 @@
             </tr>
         {% endfor %}
         <tr>
-            <td>
-                <select id="user-select" name="users">
-                    <option value=""></option>
-                    {% for id, user in users %}
-                        <option value="{{ id }}">{{ user }}</option>
-                    {% endfor %}
-                </select>
-            </td>
+
         </tr>
         </tbody>
     </table>

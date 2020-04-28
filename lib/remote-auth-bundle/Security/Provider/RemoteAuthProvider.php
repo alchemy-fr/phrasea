@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\RemoteAuthBundle\Security\Provider;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
+use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
@@ -15,14 +15,14 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 class RemoteAuthProvider implements AuthenticationProviderInterface
 {
     /**
-     * @var RemoteClient
+     * @var AuthServiceClient
      */
     private $client;
 
     /**
      * @required
      */
-    public function setClient(RemoteClient $client)
+    public function setClient(AuthServiceClient $client)
     {
         $this->client = $client;
     }
@@ -59,7 +59,7 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
         if (isset($tokenInfo['user'])) {
             $userData = $tokenInfo['user'];
 
-            return new RemoteUser($userData['id'], $userData['username'], $userData['roles']);
+            return new RemoteUser($userData['id'], $userData['username'], $userData['roles'], $userData['groups']);
         }
 
         return null;

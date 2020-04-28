@@ -8,9 +8,9 @@ interface AccessControlEntryInterface
 {
     public function getId(): string;
 
-    public function getUserId(): ?string;
+    public function getEntityId(): ?string;
 
-    public function setUserId(string $userId): void;
+    public function setEntityId(string $userId): void;
 
     public function getObject(): ?string;
 

@@ -21,33 +21,38 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
     {
         return $this->em->getRepository(AccessControlEntry::class)
             ->findBy([
-                'object' => $this->getObjectUID($objectType, $objectId),
+                'object' => $this->getObjectURI($objectType, $objectId),
             ], [
                 'createdAt' => 'DESC',
             ]);
     }
 
-    public function getAce(string $userId, string $objectType, string $objectId): ?AccessControlEntryInterface
+    public function getAce(string $entityType, string $entityId, string $objectType, string $objectId): ?AccessControlEntryInterface
     {
         return $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $this->getObjectUID($objectType, $objectId),
-                'userId' => $userId,
+                'object' => $this->getObjectURI($objectType, $objectId),
+                'entityType' => AccessControlEntry::getEntityTypeFromString($entityType),
+                'entityId' => $entityId,
             ]);
     }
 
-    public function updateOrCreateAce(string $userId, string $objectType, string $objectId, int $mask): ?AccessControlEntryInterface
+    public function updateOrCreateAce(string $entityType, string $entityId, string $objectType, string $objectId, int $mask): ?AccessControlEntryInterface
     {
+        $entityType = AccessControlEntry::getEntityTypeFromString($entityType);
+
         $ace = $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $this->getObjectUID($objectType, $objectId),
-                'userId' => $userId,
+                'object' => $this->getObjectURI($objectType, $objectId),
+                'entityType' => $entityType,
+                'entityId' => $entityId,
             ]);
 
         if (!$ace instanceof AccessControlEntry) {
             $ace = new AccessControlEntry();
-            $ace->setUserId($userId);
-            $ace->setObject($this->getObjectUID($objectType, $objectId));
+            $ace->setEntityType($entityType);
+            $ace->setEntityId($entityId);
+            $ace->setObject($this->getObjectURI($objectType, $objectId));
         }
 
         $ace->setMask($mask);
@@ -58,12 +63,15 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         return $ace;
     }
 
-    public function deleteAce(string $userId, string $objectType, string $objectId): void
+    public function deleteAce(string $entityType, string $entityId, string $objectType, string $objectId): void
     {
+        $entityType = AccessControlEntry::getEntityTypeFromString($entityType);
+
         $ace = $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $this->getObjectUID($objectType, $objectId),
-                'userId' => $userId,
+                'object' => $this->getObjectURI($objectType, $objectId),
+                'entityType' => $entityType,
+                'entityId' => $entityId,
             ]);
 
         if ($ace instanceof AccessControlEntry) {
@@ -72,7 +80,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         }
     }
 
-    private function getObjectUID(string $objectType, string $objectId): string
+    private function getObjectURI(string $objectType, string $objectId): string
     {
         return $objectType.':'.$objectId;
     }

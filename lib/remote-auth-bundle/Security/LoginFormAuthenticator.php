@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
-use Alchemy\RemoteAuthBundle\Security\Client\RemoteClient;
+use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -34,7 +34,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $passwordEncoder;
 
     /**
-     * @var RemoteClient
+     * @var AuthServiceClient
      */
     private $client;
     /**
@@ -67,7 +67,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         RouterInterface $router,
         CsrfTokenManagerInterface $csrfTokenManager,
         UserPasswordEncoderInterface $passwordEncoder,
-        RemoteClient $client,
+        AuthServiceClient $client,
         string $clientId,
         string $clientSecret,
         string $routeName,

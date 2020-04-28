@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\RemoteAuthBundle\Security;
+namespace Alchemy\RemoteAuthBundle\Tests\Client;
 
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 
-class RemoteAuthenticatorClientTestMock extends Client
+class AuthServiceClientTestMock extends Client
 {
     const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
     const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';

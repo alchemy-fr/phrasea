@@ -36,6 +36,11 @@ class RemoteUser implements UserInterface
         return $this->groups;
     }
 
+    public function getGroupIds(): array
+    {
+        return array_keys($this->groups);
+    }
+
     public function getPassword()
     {
         return null;

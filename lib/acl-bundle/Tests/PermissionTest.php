@@ -18,9 +18,9 @@ class PermissionTest extends TestCase
     /**
      * @dataProvider permissionProvider
      */
-    public function testPermissions(array $acePermissions, int $permissionToTest, bool $expectedResult)
+    public function testPermissionsWithUser(array $acePermissions, int $permissionToTest, bool $expectedResult)
     {
-        $ace = $this->createAce('pub:42', '123', $acePermissions);
+        $ace = $this->createAce('pub:42', AccessControlEntry::ENTITY_USER, '123', $acePermissions);
 
         $objectMapper = $this->createMock(ObjectMapping::class);
         $objectMapper
@@ -36,7 +36,42 @@ class PermissionTest extends TestCase
 
         $permissionManager = new PermissionManager($objectMapper, $permissionRepo);
 
-        $user = new UserMock('123');
+        $user = new UserMock('123', []);
+        $object = new ObjectMock('42');
+
+        $this->assertEquals($expectedResult, $permissionManager->isGranted($user, $object, $permissionToTest));
+    }
+    /**
+     * @dataProvider permissionProvider
+     */
+    public function testPermissionsWithGroup(array $acePermissions, int $permissionToTest, bool $expectedResult)
+    {
+        $ace = $this->createAce('pub:42', AccessControlEntry::ENTITY_USER, '123', $acePermissions);
+
+        $objectMapper = $this->createMock(ObjectMapping::class);
+        $objectMapper
+            ->expects($this->once())
+            ->method('getObjectKey')
+            ->willReturn('pub');
+
+        $permissionRepo = $this->createMock(PermissionRepositoryInterface::class);
+        $permissionRepo
+            ->expects($this->at(0))
+            ->method('getAce')
+            ->with($this->equalTo('user'), $this->equalTo('123'), $this->equalTo('pub'), $this->equalTo('42'))
+            ->willReturn(null);
+
+        $permissionRepo
+            ->expects($this->at(1))
+            ->method('getAce')
+            ->with($this->equalTo('group'), $this->equalTo('group1'), $this->equalTo('pub'), $this->equalTo('42'))
+            ->willReturn($ace);
+
+        $permissionManager = new PermissionManager($objectMapper, $permissionRepo);
+
+        $user = new UserMock('123', [
+            'group1',
+        ]);
         $object = new ObjectMock('42');
 
         $this->assertEquals($expectedResult, $permissionManager->isGranted($user, $object, $permissionToTest));
@@ -57,11 +92,12 @@ class PermissionTest extends TestCase
         ];
     }
 
-    private function createAce(string $objectId, string $userId, array $permissions): AccessControlEntry
+    private function createAce(string $objectId, int $entityType, string $entityId, array $permissions): AccessControlEntry
     {
         $ace = new AccessControlEntry();
         $ace->setObject($objectId);
-        $ace->setUserId($userId);
+        $ace->setEntityType($entityType);
+        $ace->setEntityId($entityId);
 
         foreach ($permissions as $permission) {
             $ace->addPermission($permission);

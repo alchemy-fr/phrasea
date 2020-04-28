@@ -13,10 +13,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class GetPublicationAction extends AbstractController
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {

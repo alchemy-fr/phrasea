@@ -12,3 +12,4 @@ Alchemy\OAuthServerBundle\Entity\OAuthClient:
             - scope1
             - scope3
             - 'user:list'
+            - 'group:list'

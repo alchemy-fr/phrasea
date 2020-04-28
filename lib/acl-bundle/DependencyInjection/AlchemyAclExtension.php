@@ -3,6 +3,7 @@
 namespace Alchemy\AclBundle\DependencyInjection;
 
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Repository\RemoteAuthGroupRepository;
 use Alchemy\AclBundle\Repository\RemoteAuthUserRepository;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,15 +27,20 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
 
         $mapperDef = $container->findDefinition(ObjectMapping::class);
         $mapperDef->setArgument('$mapping', $config['objects']);
 
-        $mapperDef = $container->findDefinition(RemoteAuthUserRepository::class);
-        $mapperDef->setArgument('$clientId', $config['auth']['client_id']);
-        $mapperDef->setArgument('$clientSecret', $config['auth']['client_secret']);
+        foreach ([
+                     RemoteAuthUserRepository::class,
+                     RemoteAuthGroupRepository::class,
+                 ] as $serviceId) {
+            $mapperDef = $container->findDefinition($serviceId);
+            $mapperDef->setArgument('$clientId', $config['auth']['client_id']);
+            $mapperDef->setArgument('$clientSecret', $config['auth']['client_secret']);
+        }
     }
 
     public function prepend(ContainerBuilder $container)
@@ -45,7 +51,7 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         if (isset($bundles['EasyAdminBundle'])) {
-            $data = (new Parser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));
+            $data = (new Parser())->parse(file_get_contents(__DIR__ . '/../Resources/config/easy_admin_entities.yaml'));
             $container->prependExtensionConfig('easy_admin', $data['easy_admin']);
         }
     }

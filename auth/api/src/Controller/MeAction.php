@@ -39,9 +39,7 @@ class MeAction extends AbstractController
                 'username' => $user->getUsername(),
                 'email' => $user->getEmail(),
                 'roles' => $user->getRoles(),
-                'groups' => array_map(function (Group $group): string {
-                    return $group->getName();
-                }, $user->getGroups()->toArray()),
+                'groups' => $user->getIndexedGroups(),
             ];
         } else {
             $data = [

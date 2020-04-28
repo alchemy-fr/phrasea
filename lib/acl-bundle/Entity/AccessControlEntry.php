@@ -10,11 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ace", columns={"user_id", "object"})})
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ace", columns={"entity_type", "entity_id", "object"})})
  * @ORM\Entity()
  */
 class AccessControlEntry implements AccessControlEntryInterface
 {
+    const ENTITY_USER = 0;
+    const ENTITY_GROUP = 1;
+
+    const ENTITY_TYPES = [
+        'user' => self::ENTITY_USER,
+        'group' => self::ENTITY_GROUP,
+    ];
+
     /**
      * @var Uuid
      *
@@ -26,34 +34,31 @@ class AccessControlEntry implements AccessControlEntryInterface
     protected $id;
 
     /**
-     * @var string
-     *
+     * @ORM\Column(type="smallint")
+     */
+    protected int $entityType;
+
+    /**
      * @ORM\Column(type="string", length=36)
      */
-    protected $userId;
+    protected string $entityId;
 
     /**
      * The full object URI (publication:5cd05ab6-e4d8-4f2b-aa44-f0944148ae5f).
      *
-     * @var string
-     *
      * @ORM\Column(type="string", length=56)
      */
-    protected $object;
+    protected string $object;
 
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer")
      */
-    protected $mask = 0;
+    protected int $mask = 0;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     public function __construct()
     {
@@ -61,19 +66,39 @@ class AccessControlEntry implements AccessControlEntryInterface
         $this->createdAt = new DateTime();
     }
 
+    public static function getEntityTypeFromString(string $type): int
+    {
+        return self::ENTITY_TYPES[$type];
+    }
+
+    public static function getEntityTypeFromCode(int $type): string
+    {
+        return array_search($type, self::ENTITY_TYPES, true);
+    }
+
     public function getId(): string
     {
         return $this->id->__toString();
     }
 
-    public function getUserId(): ?string
+    public function getEntityId(): ?string
     {
-        return $this->userId;
+        return $this->entityId;
     }
 
-    public function setUserId(string $userId): void
+    public function setEntityId(string $entityId): void
     {
-        $this->userId = $userId;
+        $this->entityId = $entityId;
+    }
+
+    public function getEntityType(): int
+    {
+        return $this->entityType;
+    }
+
+    public function setEntityType(int $entityType): void
+    {
+        $this->entityType = $entityType;
     }
 
     public function getObject(): ?string
@@ -141,5 +166,15 @@ class AccessControlEntry implements AccessControlEntryInterface
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
+    }
+
+    public function getEntityTypeString(): string
+    {
+        return self::getEntityTypeFromCode($this->entityType);
+    }
+
+    public function setEntityTypeString(string $type): void
+    {
+        $this->setEntityType(self::getEntityTypeFromString($type));
     }
 }

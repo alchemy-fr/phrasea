@@ -8,10 +8,7 @@ use App\Entity\User;
 
 class InviteManager
 {
-    /**
-     * @var int
-     */
-    private $allowedInviteDelay;
+    private int $allowedInviteDelay;
 
     public function __construct(int $allowedInviteDelay)
     {

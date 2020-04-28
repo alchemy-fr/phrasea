@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\RemoteAuthBundle\Security\Client;
+namespace Alchemy\RemoteAuthBundle\Client;
 
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-class RemoteClient
+class AuthServiceClient
 {
     private Client $client;
 
@@ -44,8 +44,18 @@ class RemoteClient
 
     public function getUsers(string $accessToken, int $limit = 200, int $offset = 0): array
     {
+        return $this->get('/users', $accessToken, $limit, $offset);
+    }
+
+    public function getGroups(string $accessToken, int $limit = 200, int $offset = 0): array
+    {
+        return $this->get('/groups', $accessToken, $limit, $offset);
+    }
+
+    private function get(string $path, string $accessToken, int $limit = 200, int $offset = 0): array
+    {
         try {
-            $response = $this->client->request('GET', '/users', [
+            $response = $this->client->request('GET', $path, [
                 'headers' => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
