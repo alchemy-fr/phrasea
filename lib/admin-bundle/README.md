@@ -5,6 +5,18 @@ This bundle provides an admin based on EasyAdminBundle.
 ## Installation
 
 ```yaml
+# config/packages/admin.yaml
+alchemy_admin:
+  service:
+    title: My Service
+    name: my-service
+
+easy_admin:
+  entities:
+    # ...
+```
+
+```yaml
 # config/packages/security.yaml
 
 security:
