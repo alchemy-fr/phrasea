@@ -45,7 +45,7 @@ $(function () {
     function setPermissions(entityType, entityId, mask) {
         $.ajax({
             type: 'PUT',
-            url: '{{ path('alchemy_acl_ace') }}',
+            url: '{{ path('alchemy_acl_admin_ace') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',
@@ -59,7 +59,7 @@ $(function () {
     function deleteAce(entityType, entityId) {
         $.ajax({
             type: 'DELETE',
-            url: '{{ path('alchemy_acl_ace_delete') }}',
+            url: '{{ path('alchemy_acl_admin_ace_delete') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',

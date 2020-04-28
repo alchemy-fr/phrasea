@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 namespace Alchemy\AclBundle\Admin;
 
-use Alchemy\AclBundle\Controller\PermissionController;
-
 trait PermissionTrait
 {
+    protected PermissionView $permissionView;
+
+    /**
+     * @required
+     */
+    public function setPermissionView(PermissionView $permissionView): void
+    {
+        $this->permissionView = $permissionView;
+    }
+
     public function permissionsAction()
     {
-        return $this->forward(PermissionController::class.'::acl', [
-            'entityClass' => $this->entity['class'],
-            'id' => $this->request->query->get('id'),
-        ], $this->request->query->all());
+        return $this->render('@AlchemyAcl/permissions/acl.html.twig',
+            $this->permissionView->getAclViewParameters(
+                $this->entity['class'],
+                $this->request->query->get('id')
+            ));
     }
 }

@@ -31,9 +31,12 @@ easy_admin_bundle:
 
 ```yaml
 # config/routes/alchemy_acl.yml
-alchemy_acl:
-  resource: "@AlchemyOAuthServerBundle/Resources/routing/permissions.yaml"
+alchemy_acl_api:
+  resource: "@AlchemyAclBundle/Resources/routing/permissions_api.yaml"
   prefix: /permissions
+alchemy_acl_admin:
+  resource: "@AlchemyAclBundle/Resources/routing/permissions_admin.yaml"
+  prefix: /admin/permissions
 ```
 
 Add redis cache for access token:

@@ -35,7 +35,7 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
-        $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH);
+        $this->denyAccessUnlessGranted(PublicationVoter::EDIT);
 
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');

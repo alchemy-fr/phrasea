@@ -88,8 +88,6 @@ class PublicationVoter extends Voter
                 return false;
             }
 
-//            var_dump($publicationPassword);
-//            var_dump($securityContainer->getSecurityOptions()['password']);
             if ($publicationPassword !== $securityContainer->getSecurityOptions()['password']) {
                 $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
 
