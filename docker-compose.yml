@@ -199,7 +199,7 @@ services:
     image: jwilder/dockerize
     networks:
       - internal
-    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "50s", "--", "echo", "ready"]
+    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "100s", "--", "echo", "ready"]
 
   expose-api-php:
     image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
