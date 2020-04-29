@@ -19,7 +19,6 @@ class GetUsersTest extends AbstractTestCase
         foreach ($json as $user) {
             $this->assertArrayHasKey('id', $user);
             $this->assertArrayHasKey('username', $user);
-            $this->assertArrayHasKey('groups', $user);
         }
     }
 

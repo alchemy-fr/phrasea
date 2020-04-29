@@ -40,14 +40,21 @@ class AssetVoter extends Voter
             return true;
         }
 
+        $user = $token->getUser();
+        $isAuthenticated = $user instanceof RemoteUser;
+        if ($isAuthenticated && $subject->getOwnerId() === $user->getId()) {
+            return true;
+        }
+
         if ($subject instanceof Asset) {
             $user = $token->getUser();
 
             if ($user instanceof RemoteUser) {
-                $publication = $this->em->getRepository(Asset::class)
-                    ->findAssetPublicationOwnedBy($subject, $user->getId());
-
-                return $publication instanceof Publication;
+                foreach ($subject->getPublications() as $publicationAsset) {
+                    if ($this->security->isGranted($attribute, $publicationAsset->getPublication())) {
+                        return true;
+                    }
+                }
             }
         }
 

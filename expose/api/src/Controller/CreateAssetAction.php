@@ -37,7 +37,7 @@ final class CreateAssetAction extends AbstractController
     {
         if (!$request->request->get('publication_id')) {
             // If no publication is assigned, we validate the following grant:
-            $this->denyAccessUnlessGranted(PublicationVoter::PUBLISH);
+            $this->denyAccessUnlessGranted(PublicationVoter::CREATE);
         }
 
         /** @var UploadedFile $uploadedFile */

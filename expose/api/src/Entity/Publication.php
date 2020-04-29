@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('EDIT', object)"
+ *              "security"="is_granted('EDIT', previous_object)"
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)"
@@ -38,7 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "normalization_context"=Publication::API_LIST,
  *          },
  *         "post"={
- *             "security"="is_granted('publication:publish')"
+ *             "security"="is_granted('publication:create')"
  *         }
  *     }
  * )

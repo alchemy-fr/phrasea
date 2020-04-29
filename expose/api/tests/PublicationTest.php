@@ -99,7 +99,7 @@ class PublicationTest extends AbstractTestCase
     {
         $id = $this->createPublication(['enabled' => false]);
         $response = $this->request(null, 'GET', '/publications/'.$id);
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testDeletePublicationAsAdmin(): void

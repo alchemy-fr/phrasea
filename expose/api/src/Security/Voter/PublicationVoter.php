@@ -18,9 +18,10 @@ use Symfony\Component\Security\Core\Security;
 class PublicationVoter extends Voter
 {
     const PUBLISH = 'publication:publish';
+    const CREATE = 'publication:create';
     const INDEX = 'publication:index';
-    const READ = 'publication:read';
-    const READ_DETAILS = 'publication:read_details';
+    const READ = 'READ';
+    const READ_DETAILS = 'READ_DETAILS';
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
 
@@ -36,7 +37,7 @@ class PublicationVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $subject instanceof Publication || self::PUBLISH === $attribute;
+        return $subject instanceof Publication || self::CREATE === $attribute;
     }
 
     /**
@@ -45,23 +46,31 @@ class PublicationVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
+        $user = $token->getUser();
+        $isAuthenticated = $user instanceof RemoteUser;
+
 
         switch ($attribute) {
-            case self::PUBLISH:
-                return $isAdmin;
+            case self::CREATE:
+                return $isAdmin || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::INDEX:
+                return true;
             case self::READ:
-                return $isAdmin || $subject->isEnabled();
+                return $subject->isEnabled()
+                    || $isAdmin
+                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId());
             case self::READ_DETAILS:
                 return $isAdmin || ($subject->isEnabled() && $this->securityMethodPasses($subject, $token));
             case self::DELETE:
-            case self::EDIT:
-                $user = $token->getUser();
-                $isAuthenticated = $user instanceof RemoteUser;
-
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
+                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
+                    ;
+            case self::EDIT:
+                return $isAdmin
+                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
+                    ;
             default:
                 return false;
         }

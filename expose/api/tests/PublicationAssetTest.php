@@ -52,8 +52,8 @@ class PublicationAssetTest extends AbstractTestCase
             'description' => 'asset desc',
         ]);
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/publication-assets', [
-            'asset_id' => $assetId,
-            'publication_id' => $publicationId,
+            'asset' => '/assets/'.$assetId,
+            'publication' => '/publications/'.$publicationId,
         ]);
         $this->assertEquals(403, $response->getStatusCode());
     }
@@ -65,9 +65,9 @@ class PublicationAssetTest extends AbstractTestCase
             'description' => 'asset desc',
         ]);
         $response = $this->request(null, 'POST', '/publication-assets', [
-            'asset_id' => $assetId,
-            'publication_id' => $publicationId,
+            'asset' => '/assets/'.$assetId,
+            'publication' => '/publications/'.$publicationId,
         ]);
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 }

@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     iri="http://alchemy.fr/PublicationAsset",
  *     itemOperations={
  *         "get"={
- *              "security"="is_granted('publication:read_details', object.getPublication())"
+ *              "security"="is_granted('READ_DETAILS', object.getPublication())"
  *         },
  *         "put"={
  *              "security"="is_granted('EDIT', object.getPublication())"
@@ -29,9 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         }
  *     },
  *     collectionOperations={
- *         "post"={
- *              "security"="is_granted('publication:publish')"
- *         }
+ *         "post"={}
  *     }
  * )
  */

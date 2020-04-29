@@ -11,10 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {
@@ -39,7 +36,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         }
 
         $object->setChildren($object->getChildren()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::INDEX, $child);
+            return $this->security->isGranted(PublicationVoter::READ_DETAILS, $child);
         }));
 
         if ($object->getPackage() instanceof Asset) {

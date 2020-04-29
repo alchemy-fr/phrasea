@@ -21,7 +21,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
- *         "get"={},
+ *         "get"={
+ *         },
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
@@ -31,7 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('EDIT', object)"
  *         },
  *     },
  *     collectionOperations={
@@ -159,6 +160,13 @@ class Asset implements MediaInterface
      * @Groups({"asset:read", "publication:read", "publication:list"})
      */
     private $mimeType;
+
+    /**
+     * @ApiProperty()
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"publication:admin:read"})
+     */
+    private ?string $ownerId = null;
 
     /**
      * @var PublicationAsset[]|Collection
@@ -315,7 +323,7 @@ class Asset implements MediaInterface
     }
 
     /**
-     * @return Publication[]|Collection
+     * @return PublicationAsset[]|Collection
      */
     public function getPublications(): Collection
     {
@@ -393,6 +401,16 @@ class Asset implements MediaInterface
     public function setThumbnailDefinition(?SubDefinition $thumbnailDefinition): void
     {
         $this->thumbnailDefinition = $thumbnailDefinition;
+    }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(?string $ownerId): void
+    {
+        $this->ownerId = $ownerId;
     }
 
     public function __toString()
