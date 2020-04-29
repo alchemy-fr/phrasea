@@ -29,8 +29,8 @@ function export_env_from_file {
 # Defined env vars take precedence, then env.local, then .env
 # Usage: load-env
 function load-env {
-    export_env_from_file "$BASEDIR/../.env"
     export_env_from_file "$BASEDIR/../env.local"
+    export_env_from_file "$BASEDIR/../.env"
 }
 
 # Run docker-compose depending on the APP_ENV value
