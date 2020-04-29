@@ -5,6 +5,10 @@ BASEDIR=$(dirname $0)
 # Export env vars from a file if their are not defined yet
 # Usage: export_env_from_file "path/to/env.file"
 function export_env_from_file {
+    if [ ! -f "$1" ]; then
+        return
+    fi
+
     while read -r line || [[ -n "$line" ]];
     do
       if printf '%s\n' "$line" | grep -q -e '='; then
