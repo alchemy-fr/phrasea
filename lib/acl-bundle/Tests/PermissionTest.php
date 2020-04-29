@@ -20,7 +20,7 @@ class PermissionTest extends TestCase
      */
     public function testPermissionsWithUser(array $acePermissions, int $permissionToTest, bool $expectedResult)
     {
-        $ace = $this->createAce('pub:42', AccessControlEntry::ENTITY_USER, '123', $acePermissions);
+        $ace = $this->createAce(AccessControlEntry::TYPE_USER_VALUE, '123', 'pub', '42', $acePermissions);
 
         $objectMapper = $this->createMock(ObjectMapping::class);
         $objectMapper
@@ -31,8 +31,8 @@ class PermissionTest extends TestCase
         $permissionRepo = $this->createMock(PermissionRepositoryInterface::class);
         $permissionRepo
             ->expects($this->once())
-            ->method('getAce')
-            ->willReturn($ace);
+            ->method('getAces')
+            ->willReturn([$ace]);
 
         $permissionManager = new PermissionManager($objectMapper, $permissionRepo);
 
@@ -46,7 +46,8 @@ class PermissionTest extends TestCase
      */
     public function testPermissionsWithGroup(array $acePermissions, int $permissionToTest, bool $expectedResult)
     {
-        $ace = $this->createAce('pub:42', AccessControlEntry::ENTITY_USER, '123', $acePermissions);
+        $userAce = $this->createAce(AccessControlEntry::TYPE_USER_VALUE, '123', 'pub', '42', []);
+        $ace = $this->createAce(AccessControlEntry::TYPE_GROUP_VALUE, 'group1', 'pub', '42', $acePermissions);
 
         $objectMapper = $this->createMock(ObjectMapping::class);
         $objectMapper
@@ -56,16 +57,13 @@ class PermissionTest extends TestCase
 
         $permissionRepo = $this->createMock(PermissionRepositoryInterface::class);
         $permissionRepo
-            ->expects($this->at(0))
-            ->method('getAce')
-            ->with($this->equalTo('user'), $this->equalTo('123'), $this->equalTo('pub'), $this->equalTo('42'))
-            ->willReturn(null);
-
-        $permissionRepo
-            ->expects($this->at(1))
-            ->method('getAce')
-            ->with($this->equalTo('group'), $this->equalTo('group1'), $this->equalTo('pub'), $this->equalTo('42'))
-            ->willReturn($ace);
+            ->expects($this->once())
+            ->method('getAces')
+            ->with($this->equalTo('123'), $this->equalTo(['group1']), $this->equalTo('pub'), $this->equalTo('42'))
+            ->willReturn([
+                $userAce,
+                $ace,
+            ]);
 
         $permissionManager = new PermissionManager($objectMapper, $permissionRepo);
 
@@ -92,12 +90,13 @@ class PermissionTest extends TestCase
         ];
     }
 
-    private function createAce(string $objectId, int $entityType, string $entityId, array $permissions): AccessControlEntry
+    private function createAce(int $userType, string $userId, string $objectType, string $objectId, array $permissions): AccessControlEntry
     {
         $ace = new AccessControlEntry();
-        $ace->setObject($objectId);
-        $ace->setEntityType($entityType);
-        $ace->setEntityId($entityId);
+        $ace->setObjectType($objectType);
+        $ace->setObjectId($objectId);
+        $ace->setUserType($userType);
+        $ace->setUserId($userId);
 
         foreach ($permissions as $permission) {
             $ace->addPermission($permission);

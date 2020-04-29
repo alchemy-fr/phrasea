@@ -35,11 +35,11 @@ class PermissionController extends AbstractController
         $this->validateAuthorization();
         $objectType = $request->request->get('objectType');
         $objectId = $request->request->get('objectId');
-        $entityType = $request->request->get('entityType');
-        $entityId = $request->request->get('entityId');
+        $userType = $request->request->get('userType');
+        $userId = $request->request->get('userId');
         $mask = (int) $request->request->get('mask', 0);
 
-        $repository->updateOrCreateAce($entityType, $entityId, $objectType, $objectId, $mask);
+        $repository->updateOrCreateAce($userType, $userId, $objectType, $objectId, $mask);
 
         return new JsonResponse(true);
     }
@@ -52,10 +52,10 @@ class PermissionController extends AbstractController
         $this->validateAuthorization();
         $objectType = $request->request->get('objectType');
         $objectId = $request->request->get('objectId');
-        $entityType = $request->request->get('entityType');
-        $entityId = $request->request->get('entityId');
+        $userType = $request->request->get('userType');
+        $userId = $request->request->get('userId');
 
-        $repository->deleteAce($entityType, $entityId, $objectType, $objectId);
+        $repository->deleteAce($userType, $userId, $objectType, $objectId);
 
         return new JsonResponse(true);
     }

@@ -36,7 +36,9 @@ class PermissionView
         $permissions = PermissionInterface::PERMISSIONS;
         $aces = $this->repository->getObjectAces($objectKey, $id);
 
-        $users = [];
+        $users = [
+            AccessControlEntry::USER_WILDCARD => 'All users',
+        ];
         foreach ($this->userRepository->getUsers() as $user) {
             $users[$user['id']] = $user['username'];
         }
@@ -46,25 +48,26 @@ class PermissionView
         }
 
         $aces = array_map(function (AccessControlEntry $ace) use ($users, $groups, $permissions): array {
-            $name = $ace->getEntityId();
-            switch ($ace->getEntityType()) {
-                case AccessControlEntry::ENTITY_USER:
-                    $name = $users[$ace->getEntityId()] ?? $name;
+            $name = $ace->getUserId();
+            switch ($ace->getUserType()) {
+                case AccessControlEntry::TYPE_USER_VALUE:
+                    $name = $ace->getUserId() ? ($users[$ace->getUserId()] ?? $name) : AccessControlEntry::USER_WILDCARD;
                     break;
-                case AccessControlEntry::ENTITY_GROUP:
-                    $name = $groups[$ace->getEntityId()] ?? $name;
+                case AccessControlEntry::TYPE_GROUP_VALUE:
+                    $name = $groups[$ace->getUserId()] ?? $name;
                     break;
             }
 
             return [
-                'entityType' => $ace->getEntityTypeString(),
-                'entityId' => $ace->getEntityId(),
+                'userType' => $ace->getUserTypeString(),
+                'userId' => $ace->getUserId() ?? AccessControlEntry::USER_WILDCARD,
                 'name' => $name,
                 'permissions' => array_map(fn (int $p): bool => $ace->hasPermission($p), $permissions),
             ];
         }, $aces);
 
         return [
+            'USER_WILDCARD' => AccessControlEntry::USER_WILDCARD,
             'object_type' => $objectKey,
             'object_id' => $id,
             'permissions' => $permissions,

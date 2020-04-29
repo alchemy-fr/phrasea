@@ -9,12 +9,12 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EntityTypeFormType extends AbstractType
+class UserTypeFormType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
         $choices = [];
-        foreach (AccessControlEntry::ENTITY_TYPES as $name => $code) {
+        foreach (AccessControlEntry::USER_TYPES as $name => $code) {
             $choices[$name] = $code;
         }
 

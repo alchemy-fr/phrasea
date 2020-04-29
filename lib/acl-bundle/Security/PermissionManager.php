@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\AclBundle\Security;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\UserInterface;
@@ -29,23 +28,14 @@ class PermissionManager
     {
         $objectKey = $this->objectMapper->getObjectKey($object);
 
-        $ace = $this->repository->getAce(
-            AccessControlEntry::getEntityTypeFromCode(AccessControlEntry::ENTITY_USER),
+        $aces = $this->repository->getAces(
             $user->getId(),
+            $user->getGroupIds(),
             $objectKey,
             $object->getId()
         );
-        if (null !== $ace && ($ace->getMask() & $permission) === $permission) {
-            return true;
-        }
 
-        foreach ($user->getGroupIds() as $groupId) {
-            $ace = $this->repository->getAce(
-                AccessControlEntry::getEntityTypeFromCode(AccessControlEntry::ENTITY_GROUP),
-                $groupId,
-                $objectKey,
-                $object->getId()
-            );
+        foreach ($aces as $ace) {
             if (null !== $ace && ($ace->getMask() & $permission) === $permission) {
                 return true;
             }

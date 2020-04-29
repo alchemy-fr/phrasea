@@ -11,6 +11,16 @@ tr.type-group td.entity-name {
     font-weight: bold;
 }
 
+tr.type-wildcard td {
+    background: #fcd8d8;
+}
+tr.type-wildcard td.entity-name {
+    font-weight: bold;
+}
+tr.type-wildcard:hover td {
+    background: #ffcccc !important;
+}
+
 span.disabled {
     display: block;
     color: #CCC;

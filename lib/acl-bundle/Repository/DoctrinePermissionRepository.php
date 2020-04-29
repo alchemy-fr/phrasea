@@ -17,42 +17,43 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         $this->em = $em;
     }
 
-    public function getObjectAces(string $objectType, string $objectId): array
+    public function getObjectAces(string $objectType, ?string $objectId): array
     {
         return $this->em->getRepository(AccessControlEntry::class)
             ->findBy([
-                'object' => $this->getObjectURI($objectType, $objectId),
+                'objectType' => $objectType,
+                'objectId' => $objectId,
             ], [
                 'createdAt' => 'DESC',
             ]);
     }
 
-    public function getAce(string $entityType, string $entityId, string $objectType, string $objectId): ?AccessControlEntryInterface
+    public function getAces(string $userId, array $groupIds, string $objectType, string $objectId): array
     {
-        return $this->em->getRepository(AccessControlEntry::class)
-            ->findOneBy([
-                'object' => $this->getObjectURI($objectType, $objectId),
-                'entityType' => AccessControlEntry::getEntityTypeFromString($entityType),
-                'entityId' => $entityId,
-            ]);
+        return $this->em
+            ->getRepository(AccessControlEntry::class)
+            ->findAces($userId, $groupIds, $objectType, $objectId);
     }
 
-    public function updateOrCreateAce(string $entityType, string $entityId, string $objectType, string $objectId, int $mask): ?AccessControlEntryInterface
+    public function updateOrCreateAce(string $userType, ?string $userId, string $objectType, ?string $objectId, int $mask): ?AccessControlEntryInterface
     {
-        $entityType = AccessControlEntry::getEntityTypeFromString($entityType);
+        $userId = $userId === AccessControlEntry::USER_WILDCARD ? null : $userId;
+        $userType = AccessControlEntry::getUserTypeFromString($userType);
 
         $ace = $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $this->getObjectURI($objectType, $objectId),
-                'entityType' => $entityType,
-                'entityId' => $entityId,
+                'objectType' => $objectType,
+                'objectId' => $objectId,
+                'userType' => $userType,
+                'userId' => $userId,
             ]);
 
         if (!$ace instanceof AccessControlEntry) {
             $ace = new AccessControlEntry();
-            $ace->setEntityType($entityType);
-            $ace->setEntityId($entityId);
-            $ace->setObject($this->getObjectURI($objectType, $objectId));
+            $ace->setUserType($userType);
+            $ace->setUserId($userId);
+            $ace->setObjectType($objectType);
+            $ace->setObjectId($objectId);
         }
 
         $ace->setMask($mask);
@@ -63,25 +64,22 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         return $ace;
     }
 
-    public function deleteAce(string $entityType, string $entityId, string $objectType, string $objectId): void
+    public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): void
     {
-        $entityType = AccessControlEntry::getEntityTypeFromString($entityType);
+        $userId = $userId === AccessControlEntry::USER_WILDCARD ? null : $userId;
+        $userType = AccessControlEntry::getUserTypeFromString($userType);
 
         $ace = $this->em->getRepository(AccessControlEntry::class)
             ->findOneBy([
-                'object' => $this->getObjectURI($objectType, $objectId),
-                'entityType' => $entityType,
-                'entityId' => $entityId,
+                'objectType' => $objectType,
+                'objectId' => $objectId,
+                'userType' => $userType,
+                'userId' => $userId,
             ]);
 
         if ($ace instanceof AccessControlEntry) {
             $this->em->remove($ace);
             $this->em->flush();
         }
-    }
-
-    private function getObjectURI(string $objectType, string $objectId): string
-    {
-        return $objectType.':'.$objectId;
     }
 }

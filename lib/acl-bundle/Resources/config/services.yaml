@@ -10,6 +10,7 @@ services:
   Alchemy\AclBundle\Repository\RemoteAuthUserRepository: ~
   Alchemy\AclBundle\Repository\RemoteAuthGroupRepository: ~
   Alchemy\AclBundle\Admin\PermissionView: ~
+  Alchemy\AclBundle\Form\ObjectTypeFormType: ~
 
   Alchemy\AclBundle\Repository\UserRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\RemoteAuthUserRepository"
   Alchemy\AclBundle\Repository\GroupRepositoryInterface: "@Alchemy\\AclBundle\\Repository\\RemoteAuthGroupRepository"

@@ -34,6 +34,11 @@ class ObjectMapping
         return true;
     }
 
+    public function getObjectTypes(): array
+    {
+        return array_keys($this->mapping);
+    }
+
     private static function getRealClass($class): string
     {
         $class = is_string($class) ? $class : get_class($class);

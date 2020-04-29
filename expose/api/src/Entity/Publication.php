@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('EDIT', previous_object)"
+ *              "security"="is_granted('EDIT', object)"
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)"

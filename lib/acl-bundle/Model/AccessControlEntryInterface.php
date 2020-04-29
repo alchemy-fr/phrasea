@@ -8,13 +8,13 @@ interface AccessControlEntryInterface
 {
     public function getId(): string;
 
-    public function getEntityId(): ?string;
+    public function getUserId(): ?string;
 
-    public function setEntityId(string $userId): void;
+    public function setUserId(string $userId): void;
 
-    public function getObject(): ?string;
+    public function getObjectType(): ?string;
 
-    public function setObject(string $object): void;
+    public function setObjectType(string $object): void;
 
     public function getMask(): int;
 

@@ -42,43 +42,43 @@ $(function () {
         return $('#aces').find('tr[data-id=' + id + '][data-type=' + type + ']').length === 1;
     }
 
-    function setPermissions(entityType, entityId, mask) {
+    function setPermissions(userType, userId, mask) {
         $.ajax({
             type: 'PUT',
             url: '{{ path('alchemy_acl_admin_ace') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',
-                entityId: entityId,
-                entityType: entityType,
+                userId: userId,
+                userType: userType,
                 mask: mask
             }
         });
     }
 
-    function deleteAce(entityType, entityId) {
+    function deleteAce(userType, userId) {
         $.ajax({
             type: 'DELETE',
             url: '{{ path('alchemy_acl_admin_ace_delete') }}',
             data: {
                 objectType: '{{ object_type }}',
                 objectId: '{{ object_id }}',
-                entityId: entityId,
-                entityType: entityType
+                userId: userId,
+                userType: userType
             }
         });
     }
 
-    function initSelect($select, entityType) {
+    function initSelect($select, userType) {
         $select
             .select2({
                 width: '400px',
-                placeholder: "Select " + entityType + " to grant...",
+                placeholder: "Select " + userType + " to grant...",
                 templateResult: function (state) {
                     if (!state.id) {
                         return state.text;
                     }
-                    const disabled = isInList(state.id, entityType);
+                    const disabled = isInList(state.id, userType);
 
                     return $(
                         '<span class="' + (disabled ? 'disabled ' : '') + state.element.className + '">' + state.text + '</span>'
@@ -87,24 +87,24 @@ $(function () {
             })
             .on('select2:select', function (e) {
                 const data = $(this).select2('data');
-                const entityId = data[0].id;
+                const userId = data[0].id;
 
                 $(this).val(null).trigger('change');
-                if (isInList(entityId, entityType)) {
+                if (isInList(userId, userType)) {
                     return false;
                 }
 
-                var $row = $(this).closest('tr');
+                setPermissions(userType, userId, 0);
 
-                setPermissions(entityType, entityId, 0);
-
-                $('#aces tbody').prepend(
-                    $('#row-template')
-                        .html()
-                        .replace(/\#ENTITYTYPE\#/g, entityType)
-                        .replace(/\#ENTITYID\#/g, entityId)
-                        .replace(/\#ENTITYNAME\#/g, data[0].text)
-                );
+                const $newAce = $($('#row-template')
+                    .html()
+                    .replace(/\#USERTYPE\#/g, userType)
+                    .replace(/\#USERID\#/g, userId)
+                    .replace(/\#ENTITYNAME\#/g, data[0].text));
+                if (userId === '{{ USER_WILDCARD }}') {
+                    $newAce.addClass('type-wildcard');
+                }
+                $('#aces tbody').prepend($newAce);
             });
     }
 

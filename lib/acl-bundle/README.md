@@ -2,6 +2,16 @@
 
 ## Project configuration
 
+Add the entities you want to extend with ACL:
+
+```yaml
+# config/packages/alchemy_acl.yml
+alchemy_acl:
+  objects:
+    publication: App\Entity\Publication
+    asset: App\Entity\Asset
+```
+
 ### Admin setup
 
 ```php
@@ -62,10 +72,10 @@ This bundle exposes the following routes to the application:
 For the `/permissions/ace` endpoints you must provide the following data:
 ```json
 {
-    "objectType": "user",
-    "objectId": "the-user-id",
-    "entityType": "publication",
-    "entityId": "the-publication-id",
+    "userType": "user",
+    "userId": "the-user-id",
+    "objectType": "publication",
+    "objectId": "the-publication-id",
     "mask": 7 // For PUT only
 }
 ```

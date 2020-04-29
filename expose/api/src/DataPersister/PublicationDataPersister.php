@@ -51,16 +51,19 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
         if ($data instanceof Publication
             || $data instanceof Asset) {
             $user = $this->security->getUser();
-            if ($user instanceof RemoteUser) {
+            if ($user instanceof RemoteUser && !$data->getOwnerId()) {
                 $data->setOwnerId($user->getId());
             }
         }
 
         if ($data instanceof PublicationAsset) {
-            if (!$this->security->isGranted(PublicationVoter::EDIT, $data->getPublication())) {
+            if (
+                !$this->security->isGranted(PublicationVoter::EDIT, $data->getPublication())
+                && !$this->security->isGranted(PublicationVoter::CREATE, $data->getPublication())
+            ) {
                 throw new AccessDeniedHttpException('Cannot edit this publication');
             }
-            if (!$this->security->isGranted(PublicationVoter::EDIT, $data->getAsset())) {
+            if (!$this->security->isGranted(PublicationVoter::READ, $data->getAsset())) {
                 throw new AccessDeniedHttpException('Cannot edit this asset');
             }
         }

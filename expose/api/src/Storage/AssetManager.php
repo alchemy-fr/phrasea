@@ -120,7 +120,10 @@ class AssetManager
             throw new NotFoundHttpException(sprintf('Publication %s not found', $id));
         }
 
-        if (!$this->security->isGranted(PublicationVoter::EDIT, $publication)) {
+        if (
+            !$this->security->isGranted(PublicationVoter::EDIT, $publication)
+            && !$this->security->isGranted(PublicationVoter::CREATE, $publication)
+        ) {
             throw new AccessDeniedHttpException();
         }
 

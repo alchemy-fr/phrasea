@@ -28,7 +28,7 @@
 
 {% block main %}
     <script id="row-template" type="text/x-custom-template">
-        <tr data-id="#ENTITYID#" data-type="#ENTITYTYPE#" class="type-#ENTITYTYPE#">
+        <tr data-id="#USERID#" data-type="#USERTYPE#" class="type-#USERTYPE#">
             <td class="entity-name">
                 #ENTITYNAME#
             </td>
@@ -36,7 +36,7 @@
                 <td class="perm">
                     <input type="checkbox"
                            value="{{ k }}"
-                           name="ace[#ENTITYID#][]">
+                           name="ace[#USERID#][]">
                 </td>
             {% endfor %}
             <td class="all-toggle">
@@ -94,9 +94,11 @@
         </thead>
         <tbody>
         {% for ace in aces %}
-            <tr data-id="{{ ace.entityId }}" data-type="{{ ace.entityType }}" class="type-{{ ace.entityType }}">
+            <tr data-id="{{ ace.userId }}" data-type="{{ ace.userType }}"
+                class="type-{{ ace.userType }}{% if ace.name == USER_WILDCARD %} type-wildcard{% endif %}"
+            >
                 <td class="entity-name">
-                    {{ ace.name }}
+                    {{ ace.name == USER_WILDCARD ? 'All users' : ace.name }}
                 </td>
                 {% for perm,k in permissions %}
                     <td class="perm">

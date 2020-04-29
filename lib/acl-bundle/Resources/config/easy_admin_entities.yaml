@@ -4,19 +4,20 @@ easy_admin:
       label: Permissions
       helper: Access control entries
       class: Alchemy\AclBundle\Entity\AccessControlEntry
-      disabled_actions: ['new']
       list:
         sort: [createdAt, DESC]
         batch_actions:
           - delete
         fields:
-          - { property: entityTypeString, label: Type }
-          - { property: entityId, label: ID }
+          - { property: userTypeString, label: Type }
+          - { property: userId, label: ID }
+          - { property: objectType }
+          - { property: objectId }
           - { property: mask }
-          - { property: object }
       form:
         fields:
-          - { property: entityType, label: Type, type: Alchemy\AclBundle\Form\EntityTypeFormType }
-          - { property: entityId, label: ID }
-          - { property: object }
+          - { property: userType, label: Type, type: Alchemy\AclBundle\Form\UserTypeFormType }
+          - { property: userId, label: ID }
+          - { property: objectType, type: Alchemy\AclBundle\Form\ObjectTypeFormType }
+          - { property: objectId }
           - { property: permissions, type: Alchemy\AclBundle\Form\PermissionFormType }
