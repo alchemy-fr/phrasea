@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\RemoteAuthBundle\Security;
+namespace Alchemy\RemoteAuthBundle\Tests\Client;
 
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 
-class RemoteAuthenticatorClientTestMock extends Client
+class AuthServiceClientTestMock extends Client
 {
     const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
     const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
@@ -42,6 +42,7 @@ class RemoteAuthenticatorClientTestMock extends Client
                     'user_id' => '123',
                     'username' => $accessToken,
                     'roles' => $roles,
+                    'groups' => [],
                 ]);
             case '/token-info':
                 return $this->createResponse(200, [
@@ -50,6 +51,7 @@ class RemoteAuthenticatorClientTestMock extends Client
                         'id' => '123',
                         'username' => $accessToken,
                         'roles' => $roles,
+                        'groups' => [],
                     ],
                 ]);
         }

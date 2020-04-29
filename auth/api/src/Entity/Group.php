@@ -40,11 +40,9 @@ class Group
     protected $users;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     public function __construct()
     {

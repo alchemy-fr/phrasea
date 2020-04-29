@@ -2,6 +2,7 @@ FROM php:7.4.4-fpm-alpine3.11 AS auth-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
+		gettext \
 		postgresql-dev \
 		icu-libs \
 		zlib \
@@ -31,7 +32,6 @@ RUN set -eux \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& apk del .build-deps
 
-COPY docker/app/conf.d/symfony.ini $PHP_INI_DIR/conf.d/symfony.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \

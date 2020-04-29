@@ -17,3 +17,10 @@ App\Entity\SubDefinition:
     name:
       - NotNull: ~
       - NotBlank: ~
+
+App\Entity\PublicationAsset:
+  properties:
+    publication:
+      - NotNull: ~
+    asset:
+      - NotNull: ~

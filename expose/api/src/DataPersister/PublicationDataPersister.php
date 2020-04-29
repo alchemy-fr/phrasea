@@ -7,22 +7,20 @@ namespace App\DataPersister;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
+use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Entity\PublicationAsset;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationDataPersister implements ContextAwareDataPersisterInterface
 {
-    private $decorated;
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var Security
-     */
-    private $security;
+    private DataPersisterInterface $decorated;
+    private EntityManagerInterface $em;
+    private Security $security;
 
     public function __construct(DataPersisterInterface $decorated, EntityManagerInterface $em, Security $security)
     {
@@ -33,27 +31,41 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
 
     public function supports($data, array $context = []): bool
     {
-        return $data instanceof Publication;
+        return $this->decorated->supports($data, $context);
     }
 
-    /**
-     * @param Publication $data
-     */
     public function persist($data, array $context = [])
     {
-        if ($data->getParentId()) {
-            $parent = $this->em->find(Publication::class, $data->getParentId());
-            if (!$parent instanceof Publication) {
-                throw new InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
-            }
+        if ($data instanceof Publication) {
+            if ($data->getParentId()) {
+                $parent = $this->em->find(Publication::class, $data->getParentId());
+                if (!$parent instanceof Publication) {
+                    throw new InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
+                }
 
-            $parent->addChild($data);
-            $this->em->persist($parent);
+                $parent->addChild($data);
+                $this->em->persist($parent);
+            }
         }
 
-        $user = $this->security->getUser();
-        if ($user instanceof RemoteUser) {
-            $data->setOwnerId($user->getId());
+        if ($data instanceof Publication
+            || $data instanceof Asset) {
+            $user = $this->security->getUser();
+            if ($user instanceof RemoteUser && !$data->getOwnerId()) {
+                $data->setOwnerId($user->getId());
+            }
+        }
+
+        if ($data instanceof PublicationAsset) {
+            if (
+                !$this->security->isGranted(PublicationVoter::EDIT, $data->getPublication())
+                && !$this->security->isGranted(PublicationVoter::CREATE, $data->getPublication())
+            ) {
+                throw new AccessDeniedHttpException('Cannot edit this publication');
+            }
+            if (!$this->security->isGranted(PublicationVoter::READ, $data->getAsset())) {
+                throw new AccessDeniedHttpException('Cannot edit this asset');
+            }
         }
 
         $this->decorated->persist($data);
@@ -61,23 +73,8 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
         return $data;
     }
 
-    /**
-     * @param Publication $data
-     */
     public function remove($data, array $context = [])
     {
-        $this->doRemove($data);
-
-        $this->em->flush();
-    }
-
-    public function doRemove(Publication $data): void
-    {
-        // Remove orphan children
-        foreach ($data->getChildren() as $child) {
-            $this->doRemove($child);
-        }
-
-        $this->em->remove($data);
+        $this->decorated->remove($data, $context);
     }
 }

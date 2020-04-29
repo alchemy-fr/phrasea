@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\GetPublicationAction;
@@ -26,10 +27,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('EDIT', object)"
  *         },
  *         "delete"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('DELETE', object)"
  *         },
  *     },
  *     collectionOperations={
@@ -37,24 +38,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              "normalization_context"=Publication::API_LIST,
  *          },
  *         "post"={
- *             "security"="is_granted('publication:publish')"
+ *             "security"="is_granted('publication:create')"
  *         }
  *     }
  * )
  */
-class Publication
+class Publication implements AclObjectInterface
 {
-    const GROUP_PUB_INDEX = 'publication:index';
-    const GROUP_PUB_READ = 'publication:read';
-    const GROUP_PUB_ADMIN_READ = 'publication:admin:read';
-    const GROUP_PUB_LIST = 'publication:list';
+    const GROUP_INDEX = 'publication:index';
+    const GROUP_READ = 'publication:read';
+    const GROUP_ADMIN_READ = 'publication:admin:read';
+    const GROUP_LIST = 'publication:list';
 
     const API_READ = [
-        'groups' => [self::GROUP_PUB_READ],
+        'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
     const API_LIST = [
-        'groups' => [self::GROUP_PUB_LIST],
+        'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
 
@@ -202,7 +203,7 @@ class Publication
      *
      * @var Publication[]|Collection
      *
-     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinTable(name="publication_children",
      *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
@@ -300,7 +301,7 @@ class Publication
         $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id->__toString();
     }
@@ -467,7 +468,7 @@ class Publication
 
     public function getSecurityContainer(): self
     {
-        if ($this->securityMethod !== self::SECURITY_METHOD_NONE) {
+        if (self::SECURITY_METHOD_NONE !== $this->securityMethod) {
             return $this;
         }
 
@@ -581,7 +582,7 @@ class Publication
     public function setPassword(?string $password): void
     {
         if (!empty($password)) {
-            if ($this->securityMethod === self::SECURITY_METHOD_NONE) {
+            if (self::SECURITY_METHOD_NONE === $this->securityMethod) {
                 $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
             }
             $this->securityOptions['password'] = $password;

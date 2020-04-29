@@ -1,0 +1,201 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Alchemy\AclBundle\Entity;
+
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
+use DateTime;
+use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
+
+/**
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ace", columns={"user_type", "user_id", "object_type", "object_id"})})
+ * @ORM\Entity(repositoryClass="AccessControlEntryRepository")
+ */
+class AccessControlEntry implements AccessControlEntryInterface
+{
+    const USER_WILDCARD = '__ALL_USERS__';
+
+    const TYPE_USER_VALUE = 0;
+    const TYPE_GROUP_VALUE = 1;
+    const TYPE_USER = 'user';
+    const TYPE_GROUP = 'group';
+
+    const USER_TYPES = [
+        self::TYPE_USER => self::TYPE_USER_VALUE,
+        self::TYPE_GROUP => self::TYPE_GROUP_VALUE,
+    ];
+
+    /**
+     * @var Uuid
+     *
+     * @ORM\Id
+     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    protected ?int $userType = null;
+
+    /**
+     * @ORM\Column(type="string", length=36, nullable=true)
+     */
+    protected ?string $userId = null;
+
+    /**
+     * The object type name (i.e. publication).
+     *
+     * @ORM\Column(type="string", length=20)
+     */
+    protected ?string $objectType = null;
+
+    /**
+     * The full object URI (publication:5cd05ab6-e4d8-4f2b-aa44-f0944148ae5f).
+     *
+     * @ORM\Column(type="string", length=36, nullable=true)
+     */
+    protected ?string $objectId = null;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected int $mask = 0;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private DateTime $createdAt;
+
+    public function __construct()
+    {
+        $this->id = Uuid::uuid4();
+        $this->createdAt = new DateTime();
+    }
+
+    public static function getUserTypeFromString(string $type): int
+    {
+        return self::USER_TYPES[$type];
+    }
+
+    public static function getUserTypeFromCode(int $type): string
+    {
+        return array_search($type, self::USER_TYPES, true);
+    }
+
+    public function getId(): string
+    {
+        return $this->id->__toString();
+    }
+
+    public function getUserType(): ?int
+    {
+        return $this->userType;
+    }
+
+    public function setUserType(int $userType): void
+    {
+        $this->userType = $userType;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId;
+    }
+
+    public function getObjectType(): ?string
+    {
+        return $this->objectType;
+    }
+
+    public function setObjectType(string $object): void
+    {
+        $this->objectType = $object;
+    }
+
+    public function getObjectId(): ?string
+    {
+        return $this->objectId;
+    }
+
+    public function setObjectId(?string $objectId): void
+    {
+        $this->objectId = $objectId;
+    }
+
+    public function getMask(): int
+    {
+        return $this->mask;
+    }
+
+    public function setMask(int $mask): void
+    {
+        $this->mask = $mask;
+    }
+
+    public function setPermissions(array $permissions): void
+    {
+        foreach ($permissions as $permission) {
+            $this->addPermission($permission);
+        }
+    }
+
+    public function getPermissions(): array
+    {
+        $permissions = [];
+        $length = 30;
+        for ($i = 0; $i < $length; ++$i) {
+            $bit = 1 << $i;
+
+            if (($bit & $this->mask) === $bit) {
+                $permissions[] = $bit;
+            }
+        }
+
+        return $permissions;
+    }
+
+    public function hasPermission(int $permission): bool
+    {
+        return ($this->mask & $permission) === $permission;
+    }
+
+    public function addPermission(int $permission): void
+    {
+        $this->mask |= $permission;
+    }
+
+    public function removePermission(int $permission): void
+    {
+        $this->mask &= ~$permission;
+    }
+
+    public function resetPermissions(): void
+    {
+        $this->mask = 0;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getUserTypeString(): string
+    {
+        return self::getUserTypeFromCode($this->userType);
+    }
+
+    public function setUserTypeString(string $type): void
+    {
+        $this->setUserType(self::getUserTypeFromString($type));
+    }
+}

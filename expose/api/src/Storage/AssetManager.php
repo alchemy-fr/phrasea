@@ -8,20 +8,22 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Security;
 
 class AssetManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
+    private Security $security;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, Security $security)
     {
         $this->em = $em;
+        $this->security = $security;
     }
 
     public function createAsset(
@@ -59,6 +61,9 @@ class AssetManager
 
             if (isset($options['slug'])) {
                 $publicationAsset->setSlug($options['slug']);
+            }
+            if (isset($options['description'])) {
+                $publicationAsset->setDescription($options['description']);
             }
 
             $this->em->persist($publicationAsset);
@@ -113,6 +118,13 @@ class AssetManager
         $publication = $this->em->find(Publication::class, $id);
         if (!$publication) {
             throw new NotFoundHttpException(sprintf('Publication %s not found', $id));
+        }
+
+        if (
+            !$this->security->isGranted(PublicationVoter::EDIT, $publication)
+            && !$this->security->isGranted(PublicationVoter::CREATE, $publication)
+        ) {
+            throw new AccessDeniedHttpException();
         }
 
         return $publication;

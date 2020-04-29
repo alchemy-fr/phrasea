@@ -4,8 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c4f36b7626807f1c308faa56352c3b8",
+    "content-hash": "ab8a37815d85af1298d17c6b4846dc17",
     "packages": [
+        {
+            "name": "alchemy/acl-bundle",
+            "version": "dev-acl",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/acl-bundle",
+                "reference": "a9b093e5589a5a96ad7d703a00021c7acb658011"
+            },
+            "require": {
+                "doctrine/orm": "^2.6",
+                "php": "^7.3",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8.4"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "./vendor/bin/phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony ACL bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/admin-bundle",
             "version": "dev-security-token-bundle",
@@ -3052,6 +3099,56 @@
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "time": "2020-02-18T18:59:58+00:00"
+        },
+        {
+            "name": "predis/predis",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nrk/predis.git",
+                "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "suggest": {
+                "ext-curl": "Allows access to Webdis when paired with phpiredis",
+                "ext-phpiredis": "Allows faster serialization and deserialization of the Redis protocol"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Predis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniele Alessandri",
+                    "email": "suppakilla@gmail.com",
+                    "homepage": "http://clorophilla.net"
+                }
+            ],
+            "description": "Flexible and feature-complete Redis client for PHP and HHVM",
+            "homepage": "http://github.com/nrk/predis",
+            "keywords": [
+                "nosql",
+                "predis",
+                "redis"
+            ],
+            "time": "2016-06-16T16:22:20+00:00"
         },
         {
             "name": "psr/cache",
@@ -8849,9 +8946,10 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
-        "alchemy/report-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
+        "alchemy/report-bundle": 20,
         "symfony/psr-http-message-bridge": 20,
         "alchemy/api-test": 20
     },

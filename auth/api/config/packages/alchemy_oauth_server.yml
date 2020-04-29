@@ -1,4 +1,6 @@
 alchemy_oauth_server:
   user: ~
   scopes:
-    - user:read
+    - 'user:read'
+    - 'user:list'
+    - 'group:list'

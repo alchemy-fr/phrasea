@@ -1,0 +1,123 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% set _request_parameters = app.request.query.all %}
+
+{% block head_custom_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        {% include '@AlchemyAcl/permissions/style.css' %}
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script>
+        {% include '@AlchemyAcl/permissions/permissions.js.twig' %}
+    </script>
+{% endblock %}
+
+{% block content_title %}
+    <a href="{{ path('easyadmin', _request_parameters|merge({ action: 'list' })) }}">Back</a>
+    |
+    Manage permissions for <b>{{ object_type }} #{{ object_id }}</b>
+{% endblock %}
+
+{% block main %}
+    <script id="row-template" type="text/x-custom-template">
+        <tr data-id="#USERID#" data-type="#USERTYPE#" class="type-#USERTYPE#">
+            <td class="entity-name">
+                #ENTITYNAME#
+            </td>
+            {% for perm,k in permissions %}
+                <td class="perm">
+                    <input type="checkbox"
+                           value="{{ k }}"
+                           name="ace[#USERID#][]">
+                </td>
+            {% endfor %}
+            <td class="all-toggle">
+                <input type="checkbox" name="all">
+            </td>
+            <td>
+                <button class="delete btn btn-danger">Delete</button>
+            </td>
+        </tr>
+    </script>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Add user</h3>
+            <select id="user-select" name="users">
+                <option value=""></option>
+                {% for id, user in users %}
+                    <option value="{{ id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <h3>Add group</h3>
+            <select id="group-select" name="groups">
+                <option value=""></option>
+                {% for id, group in groups %}
+                    <option value="{{ id }}">{{ group }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+        <hr>
+
+    <table id="aces" class="table datagrid">
+        <thead>
+        <tr>
+            <th>
+                <span>User / Group</span>
+            </th>
+            {% for perm,k in permissions %}
+                <th class="perm">
+                    <span>
+                        {{ perm|lower|humanize }}
+                    </span>
+                </th>
+            {% endfor %}
+            <th>
+                <span>
+                    All
+                </span>
+            </th>
+            <th>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ace in aces %}
+            <tr data-id="{{ ace.userId }}" data-type="{{ ace.userType }}"
+                class="type-{{ ace.userType }}{% if ace.name == USER_WILDCARD %} type-wildcard{% endif %}"
+            >
+                <td class="entity-name">
+                    {{ ace.name == USER_WILDCARD ? 'All users' : ace.name }}
+                </td>
+                {% for perm,k in permissions %}
+                    <td class="perm">
+                        <input type="checkbox"
+                               value="{{ k }}"
+                               name="perm"{% if ace.permissions[perm] %} checked{% endif %}>
+                    </td>
+                {% endfor %}
+                <td class="all-toggle">
+                    <input type="checkbox" name="all">
+                </td>
+                <td>
+                    <button class="delete btn btn-danger">Delete</button>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

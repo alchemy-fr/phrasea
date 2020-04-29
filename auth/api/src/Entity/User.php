@@ -292,6 +292,18 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         return $this->groups;
     }
 
+    /**
+     * Return groups indexed by id
+     */
+    public function getIndexedGroups(): array
+    {
+        $groups = [];
+        foreach ($this->getGroups() as $group) {
+            $groups[$group->getId()] = $group->getName();
+        }
+        return $groups;
+    }
+
     public function addGroup(Group $group): void
     {
         $group->addUser($this);

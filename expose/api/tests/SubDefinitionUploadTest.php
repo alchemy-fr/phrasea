@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -13,9 +13,9 @@ class SubDefinitionUploadTest extends AbstractTestCase
     public function testUploadSubDefOK(): void
     {
         $publicationId = $this->createPublication();
-        $assetId = $this->createAsset($publicationId);
+        $assetId = $this->createAsset(['publication_id' => $publicationId]);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
             'asset_id' => $assetId,
             'name' => 'thumb',
         ], [
@@ -36,7 +36,7 @@ class SubDefinitionUploadTest extends AbstractTestCase
         $em->clear();
 
         // Test the sub definition is added to the asset
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 

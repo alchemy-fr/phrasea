@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class FormSchemaTest extends AbstractTestCase
 {
     public function testFormSchemaEditOK(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(json_encode(json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'))), $response->getContent());
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/form-schema/edit', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schema/edit', [
             'schema' => [
                 'foo' => 'bar',
             ],
@@ -23,14 +24,14 @@ class FormSchemaTest extends AbstractTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(true, $json);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('{"foo":"bar"}', $response->getContent());
     }
 
     public function testFormSchemaEditWithANonAdminUser(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'POST', '/form-schema/edit', [
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/form-schema/edit', [
             'schema' => [
                 'foo' => 'bar',
             ],

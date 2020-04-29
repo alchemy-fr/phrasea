@@ -33,6 +33,6 @@ class PublicationAssetVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        return $this->security->isGranted(PublicationVoter::READ, $subject->getPublication());
+        return $this->security->isGranted($attribute, $subject->getPublication());
     }
 }

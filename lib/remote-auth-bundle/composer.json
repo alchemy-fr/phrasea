@@ -8,7 +8,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.3",
+    "php": "^7.4",
     "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
     "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
     "guzzlehttp/guzzle": "^6.3"

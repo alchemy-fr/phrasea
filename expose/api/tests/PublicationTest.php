@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class PublicationTest extends AbstractTestCase
 {
     public function testCreatePublicationOK(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
             'title' => 'Foo',
             'layout' => 'download',
         ]);
@@ -39,7 +39,7 @@ class PublicationTest extends AbstractTestCase
             'publicly_listed' => true,
         ]);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -52,14 +52,14 @@ class PublicationTest extends AbstractTestCase
 
     public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetPublicationFromAdmin(): void
     {
         $id = $this->createPublication();
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -85,7 +85,7 @@ class PublicationTest extends AbstractTestCase
     public function testGetNonEnabledPublicationFromAdmin(): void
     {
         $id = $this->createPublication(['enabled' => false]);
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -99,15 +99,15 @@ class PublicationTest extends AbstractTestCase
     {
         $id = $this->createPublication(['enabled' => false]);
         $response = $this->request(null, 'GET', '/publications/'.$id);
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testDeletePublicationAsAdmin(): void
     {
         $id = $this->createPublication();
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$id);
         $this->assertEquals(204, $response->getStatusCode());
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
@@ -121,7 +121,7 @@ class PublicationTest extends AbstractTestCase
     public function testDeletePublicationAsUser(): void
     {
         $id = $this->createPublication();
-        $response = $this->request(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 }

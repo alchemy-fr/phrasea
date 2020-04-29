@@ -8,25 +8,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class RemoteUser implements UserInterface
 {
-    /**
-     * @var string
-     */
-    private $username;
-
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var array
-     */
-    private $roles;
-
-    /**
-     * @var array
-     */
-    private $groups;
+    private string $username;
+    private string $id;
+    private array $roles;
+    private array $groups;
 
     public function __construct(string $id, string $username, array $roles = [], array $groups = [])
     {
@@ -49,6 +34,11 @@ class RemoteUser implements UserInterface
     public function getGroups(): array
     {
         return $this->groups;
+    }
+
+    public function getGroupIds(): array
+    {
+        return array_keys($this->groups);
     }
 
     public function getPassword()

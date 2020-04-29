@@ -38,6 +38,22 @@ abstract class AbstractTestCase extends ApiTestCase
         return $json['access_token'];
     }
 
+    /**
+     * @return string The access token
+     */
+    protected function authenticateMachine(string $scopes): string
+    {
+        $response = $this->request(null, 'POST', '/oauth/v2/token', [
+            'scope' => $scopes,
+            'grant_type' => 'client_credentials',
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
+        ]);
+        $json = json_decode($response->getContent(), true);
+
+        return $json['access_token'];
+    }
+
     protected function assertNoCookie(Response $response): void
     {
         $this->assertNull($response->headers->get('Set-Cookie'));

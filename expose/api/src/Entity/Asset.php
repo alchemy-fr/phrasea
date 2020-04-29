@@ -21,7 +21,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
- *         "get"={},
+ *         "get"={
+ *         },
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
@@ -31,7 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *              },
  *          },
  *         "put"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('EDIT', object)"
  *         },
  *     },
  *     collectionOperations={
@@ -83,8 +84,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Asset implements MediaInterface
 {
+    const GROUP_READ = 'asset:read';
+
     const API_READ = [
-        'groups' => ['asset:read'],
+        'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
 
@@ -159,6 +162,13 @@ class Asset implements MediaInterface
     private $mimeType;
 
     /**
+     * @ApiProperty()
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"publication:admin:read"})
+     */
+    private ?string $ownerId = null;
+
+    /**
      * @var PublicationAsset[]|Collection
      *
      * @ApiProperty(
@@ -178,7 +188,7 @@ class Asset implements MediaInterface
      *
      * @ApiSubresource()
      * @Groups({"asset:read", "publication:read"})
-     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset")
+     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset", cascade={"remove"})
      */
     private $subDefinitions;
 
@@ -313,7 +323,7 @@ class Asset implements MediaInterface
     }
 
     /**
-     * @return Publication[]|Collection
+     * @return PublicationAsset[]|Collection
      */
     public function getPublications(): Collection
     {
@@ -391,6 +401,16 @@ class Asset implements MediaInterface
     public function setThumbnailDefinition(?SubDefinition $thumbnailDefinition): void
     {
         $this->thumbnailDefinition = $thumbnailDefinition;
+    }
+
+    public function getOwnerId(): ?string
+    {
+        return $this->ownerId;
+    }
+
+    public function setOwnerId(?string $ownerId): void
+    {
+        $this->ownerId = $ownerId;
     }
 
     public function __toString()

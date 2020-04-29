@@ -15,25 +15,36 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_url", columns={"publication_id", "slug"})})
  * @ApiResource(
+ *     normalizationContext=PublicationAsset::API_READ,
  *     iri="http://alchemy.fr/PublicationAsset",
  *     itemOperations={
- *         "get",
+ *         "get"={
+ *              "security"="is_granted('READ_DETAILS', object.getPublication())"
+ *         },
  *         "put"={
- *              "security"="is_granted('publication:publish')"
+ *              "security"="is_granted('EDIT', object.getPublication())"
+ *         },
+ *         "delete"={
+ *              "security"="is_granted('EDIT', object.getPublication())"
  *         }
  *     },
  *     collectionOperations={
- *         "post"={
- *              "security"="is_granted('publication:publish')"
- *         }
+ *         "post"={}
  *     }
  * )
  */
 class PublicationAsset
 {
+    const GROUP_READ = 'pubasset:read';
+
+    const API_READ = [
+        'groups' => [self::GROUP_READ],
+        'swagger_definition_name' => 'Read',
+    ];
+
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "pubasset:read"})
      *
      * @var Uuid
      *
@@ -43,8 +54,6 @@ class PublicationAsset
     protected $id;
 
     /**
-     * @var Publication
-     *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
@@ -52,14 +61,13 @@ class PublicationAsset
      *         }
      *     }
      * )
+     * @Groups({"pubasset:read"})
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="assets")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private $publication;
+    private ?Publication $publication = null;
 
     /**
-     * @var Asset
-     *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
@@ -67,31 +75,34 @@ class PublicationAsset
      *         }
      *     }
      * )
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "pubasset:read"})
      * @ORM\ManyToOne(targetEntity="Asset", inversedBy="publications")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    private $asset;
+    private ?Asset $asset = null;
 
     /**
      * Direct access to asset.
      *
      * @ApiProperty()
-     * @Groups({"publication:read", "asset:read"})
-     *
-     * @var string|null
+     * @Groups({"publication:read", "pubasset:read", "asset:read"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $slug;
+    protected ?string $slug = null;
 
     /**
-     * @var DateTime
+     * @ApiProperty()
      *
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $description = null;
+
+    /**
      * @ORM\Column(type="datetime")
      * @ApiProperty()
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     public function __construct()
     {
@@ -112,6 +123,16 @@ class PublicationAsset
     public function setPublication(Publication $publication): void
     {
         $this->publication = $publication;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getAsset(): ?Asset

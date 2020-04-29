@@ -13,6 +13,7 @@ uploader/client
 "
 
 PHP_LIBS="
+lib/acl-bundle
 lib/admin-bundle
 lib/api-test
 lib/notify-bundle
