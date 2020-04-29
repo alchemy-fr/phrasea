@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class BulkDataTest extends AbstractTestCase
 {
     public function testBulkDataEditOK(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('{}', $response->getContent());
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/bulk-data/edit', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/bulk-data/edit', [
             'data' => [
                 'foo' => 'bar',
             ],
@@ -23,14 +24,14 @@ class BulkDataTest extends AbstractTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(true, $json);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/bulk-data');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('{"foo":"bar"}', $response->getContent());
     }
 
     public function testBulkDataEditWithANonAdminUser(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::USER_TOKEN, 'POST', '/bulk-data/edit', [
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/bulk-data/edit', [
             'data' => [
                 'foo' => 'bar',
             ],

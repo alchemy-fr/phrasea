@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
@@ -15,7 +15,7 @@ class CommitTest extends AbstractTestCase
         [$commitId, $assetId] = $this->createCommit();
 
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'GET',
             '/commits/'.$commitId
         );
@@ -29,7 +29,7 @@ class CommitTest extends AbstractTestCase
     public function testGetCommitListOK(): void
     {
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'GET',
             '/commits'
         );

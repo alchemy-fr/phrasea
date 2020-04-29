@@ -45,17 +45,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Publication implements AclObjectInterface
 {
-    const GROUP_PUB_INDEX = 'publication:index';
-    const GROUP_PUB_READ = 'publication:read';
-    const GROUP_PUB_ADMIN_READ = 'publication:admin:read';
-    const GROUP_PUB_LIST = 'publication:list';
+    const GROUP_INDEX = 'publication:index';
+    const GROUP_READ = 'publication:read';
+    const GROUP_ADMIN_READ = 'publication:admin:read';
+    const GROUP_LIST = 'publication:list';
 
     const API_READ = [
-        'groups' => [self::GROUP_PUB_READ],
+        'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
     const API_LIST = [
-        'groups' => [self::GROUP_PUB_LIST],
+        'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
 

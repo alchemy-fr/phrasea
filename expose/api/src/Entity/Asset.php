@@ -83,8 +83,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Asset implements MediaInterface
 {
+    const GROUP_READ = 'asset:read';
+
     const API_READ = [
-        'groups' => ['asset:read'],
+        'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
 

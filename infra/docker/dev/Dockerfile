@@ -2,6 +2,7 @@ FROM php:7.4.4-fpm-alpine3.11 AS auth-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
+        gettext \
 		postgresql-dev \
 		mysql-dev \
 		icu-libs \
@@ -47,7 +48,6 @@ RUN set -eux \
 	&& apk del .build-deps \
 	&& adduser -D -u 1000 app
 
-COPY symfony.ini $PHP_INI_DIR/conf.d/symfony.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 ENV NODE_VERSION 13.10.1
@@ -144,6 +144,7 @@ RUN apk add --no-cache --virtual .build-deps-yarn curl gnupg tar \
 
 COPY oh-my-zsh/.zshrc /bootstrap/.zshrc
 COPY entrypoint.sh /bootstrap/entrypoint.sh
+COPY symfony.ini /bootstrap/symfony.ini
 COPY entrypoint.d/* /bootstrap/entrypoint.d/
 COPY oh-my-zsh/themes/arthem.zsh-theme /bootstrap/.oh-my-zsh/themes/arthem.zsh-theme
 

@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/sh
+
+set -e
 
 if [ -d /bootstrap/entrypoint.d ]; then
   for i in /bootstrap/entrypoint.d/*.sh; do

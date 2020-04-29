@@ -26,15 +26,15 @@ class PublicationNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = [])
     {
-        if (in_array(Publication::GROUP_PUB_READ, $context['groups'])) {
+        if (in_array(Publication::GROUP_READ, $context['groups'])) {
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $object);
             $object->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
-                $context['groups'] = [Publication::GROUP_PUB_INDEX];
+                $context['groups'] = [Publication::GROUP_INDEX];
             }
 
             if ($this->security->isGranted(PublicationVoter::EDIT, $object)) {
-                $context['groups'][] = Publication::GROUP_PUB_ADMIN_READ;
+                $context['groups'][] = Publication::GROUP_ADMIN_READ;
             }
         }
 

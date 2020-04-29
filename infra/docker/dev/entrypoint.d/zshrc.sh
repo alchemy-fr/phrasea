@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ ! -f "$HOME/.zshrc" ]; then
     cp /bootstrap/.zshrc "$HOME/.zshrc"

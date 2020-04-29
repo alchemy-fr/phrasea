@@ -83,20 +83,23 @@ abstract class AbstractTestCase extends ApiTestCase
         return $publication;
     }
 
-    protected function createAsset(?string $publicationId): string
+    protected function createAsset(array $options = []): string
     {
         $em = self::$container->get(EntityManagerInterface::class);
 
         $asset = new Asset();
+        if (isset($options['description'])) {
+            $asset->setDescription($options['description']);
+        }
         $asset->setOriginalName('Foo.jpeg');
         $asset->setSize(42);
-        $asset->setPath('/non-existing-file.jpeg');
+        $asset->setPath('non-existing-file.jpeg');
         $asset->setMimeType('image/jpeg');
 
-        if (null !== $publicationId) {
+        if (isset($options['publication_id'])) {
             $pubAsset = new PublicationAsset();
             $pubAsset->setAsset($asset);
-            $pubAsset->setPublication($em->find(Publication::class, $publicationId));
+            $pubAsset->setPublication($em->find(Publication::class, $options['publication_id']));
             $em->persist($pubAsset);
         }
 

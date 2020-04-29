@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Security\PasswordSecurityMethodInterface;
 
 class PublicationPasswordTest extends AbstractTestCase
@@ -53,7 +53,7 @@ class PublicationPasswordTest extends AbstractTestCase
             'password' => 'xxx',
         ]);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends AbstractTestCase
 {
     public function testUploadAssetOK(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
@@ -45,13 +45,13 @@ class AssetUploadTest extends AbstractTestCase
 
     public function testUploadAssetWithoutFileGenerates400(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testUploadEmptyFileGenerates400(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());

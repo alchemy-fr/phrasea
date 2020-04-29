@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class NestedPublicationTest extends AbstractTestCase
 {
@@ -14,7 +15,7 @@ class NestedPublicationTest extends AbstractTestCase
             'owner_id' => '123',
         ]);
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'POST',
             '/publications',
             [
@@ -49,7 +50,7 @@ class NestedPublicationTest extends AbstractTestCase
         $childId = $this->createPublication(['parent_id' => $parentId]);
 
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'GET',
             '/publications/'.$parentId
         );
@@ -65,7 +66,7 @@ class NestedPublicationTest extends AbstractTestCase
 
         // Test child
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'GET',
             '/publications/'.$childId
         );
@@ -113,7 +114,7 @@ class NestedPublicationTest extends AbstractTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(
-            RemoteAuthenticatorClientTestMock::ADMIN_TOKEN,
+            AuthServiceClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/publications/'.$ids['p1']
         );
@@ -139,7 +140,7 @@ class NestedPublicationTest extends AbstractTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());

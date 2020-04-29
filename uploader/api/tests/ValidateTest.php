@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthenticatorClientTestMock;
+use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class ValidateTest extends AbstractTestCase
 {
     public function testValidateOK(): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
             'data' => [
                 'album' => 'Foo',
                 'agreed' => true,
@@ -38,7 +38,7 @@ class ValidateTest extends AbstractTestCase
      */
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
-        $response = $this->request(RemoteAuthenticatorClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
             'data' => $data,
         ]);
         $json = json_decode($response->getContent(), true);

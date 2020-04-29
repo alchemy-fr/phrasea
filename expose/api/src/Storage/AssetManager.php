@@ -62,6 +62,9 @@ class AssetManager
             if (isset($options['slug'])) {
                 $publicationAsset->setSlug($options['slug']);
             }
+            if (isset($options['description'])) {
+                $publicationAsset->setDescription($options['description']);
+            }
 
             $this->em->persist($publicationAsset);
         }

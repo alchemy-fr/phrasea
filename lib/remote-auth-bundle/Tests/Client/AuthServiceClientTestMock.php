@@ -42,6 +42,7 @@ class AuthServiceClientTestMock extends Client
                     'user_id' => '123',
                     'username' => $accessToken,
                     'roles' => $roles,
+                    'groups' => [],
                 ]);
             case '/token-info':
                 return $this->createResponse(200, [
@@ -50,6 +51,7 @@ class AuthServiceClientTestMock extends Client
                         'id' => '123',
                         'username' => $accessToken,
                         'roles' => $roles,
+                        'groups' => [],
                     ],
                 ]);
         }
