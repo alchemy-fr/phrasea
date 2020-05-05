@@ -6,30 +6,14 @@ use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
 use Alchemy\AdminBundle\Auth\OAuthClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class LoginController extends AbstractController
+class LoginController extends AbstractAdminController
 {
-    /**
-     * @var string
-     */
-    private $siteTitle;
-    /**
-     * @var string|null
-     */
-    private $siteLogo;
-
-    public function __construct(string $siteTitle, ?string $siteLogo)
-    {
-        $this->siteTitle = $siteTitle;
-        $this->siteLogo = $siteLogo;
-    }
-
     /**
      * @Route("/login", name="login")
      */
@@ -40,13 +24,11 @@ class LoginController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('@AlchemyAdmin/login.html.twig', [
+        return $this->render('@AlchemyAdmin/login.html.twig', array_merge($this->getLayoutParams(), [
             'providers' => $authRegistry->getViewProviders($this->getRedirectUrl()),
-            'site_title' => $this->siteTitle,
-            'site_logo' => $this->siteLogo,
             'last_username' => $lastUsername,
             'error' => $error,
-        ]);
+        ]));
     }
 
     private function getRedirectUrl(): string

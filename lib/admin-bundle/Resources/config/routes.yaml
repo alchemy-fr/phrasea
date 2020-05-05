@@ -9,3 +9,7 @@ alchemy_admin_logout:
 alchemy_admin_login:
   name_prefix: alchemy_admin_
   resource: 'Alchemy\AdminBundle\Controller\LoginController'
+
+alchemy_admin_reset_password:
+  name_prefix: alchemy_admin_
+  resource: 'Alchemy\AdminBundle\Controller\ResetPasswordController'

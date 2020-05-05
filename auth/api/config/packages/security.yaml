@@ -60,5 +60,6 @@ security:
         - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/reset-password/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/auth/check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }

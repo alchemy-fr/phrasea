@@ -8,12 +8,10 @@ services:
 
   Alchemy\AdminBundle\Controller\:
     resource: '../../Controller'
-    tags: ['controller.service_arguments']
-
-  Alchemy\AdminBundle\Controller\LoginController:
     arguments:
       $siteTitle: '%alchemy_admin.site_title%'
       $siteLogo: '%alchemy_admin.site_logo%'
+    tags: ['controller.service_arguments']
 
   Alchemy\AdminBundle\Auth\IdentityProvidersRegistry:
     arguments:

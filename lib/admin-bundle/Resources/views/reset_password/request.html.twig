@@ -1,0 +1,10 @@
+{% extends '@AlchemyAdmin/base.html.twig' %}
+
+{% block title %}{{ site_title }} Admin | Reset password{% endblock %}
+
+{% block body %}
+   <h1>Forgot password</h1>
+
+   <p>In order to reset your password, please provide your email:</p>
+   {{ form(form) }}
+{% endblock %}
