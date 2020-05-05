@@ -84,8 +84,8 @@ resource "kubernetes_deployment" "auth_api_php" {
               value = "${var.POSTGRES_PASSWORD}"
             },
             {
-              name  = "MAILER_URL"
-              value = "${var.MAILER_URL}"
+              name  = "MAILER_DSN"
+              value = "${var.MAILER_DSN}"
             },
             {
               name  = "RABBITMQ_USER"

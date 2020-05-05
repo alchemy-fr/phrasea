@@ -231,7 +231,7 @@ variable "PGADMIN_DEFAULT_PASSWORD" {
   default     = "CxkngkeTRPkJOyniPHmZ"
 }
 
-variable "MAILER_URL" {
+variable "MAILER_DSN" {
   description = ""
   default     = "smtp://mailhog:1025"
 }
