@@ -7,7 +7,7 @@ The first time the stack is deployed we need to initialize some things:
 - Add vhosts & permissions to rabbitmq
 - etc.
 
-All the operations are described in [`/bin/install.sh`](../bin/install.sh).
+All the operations are described in [`/bin/setup.sh`](../bin/setup.sh).
 
 ## Client configuration
 
