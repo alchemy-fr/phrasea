@@ -337,6 +337,7 @@ services:
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - REPORT_BASE_URL
+      - MAILER_DSN
 
   notify-api-nginx:
     image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG
