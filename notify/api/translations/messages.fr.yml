@@ -14,8 +14,8 @@ auth:
   user_invite:
     mail:
       subject: Vous êtes invité sur Phraseanet !
-      p1: Vous êtes invité sur Phraseanet.
-      go_button: C'est parti
+      p1: Bienvenue sur Phraseanet !
+      go_button: Continuer
 
   reset_password:
     mail:

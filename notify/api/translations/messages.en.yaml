@@ -13,9 +13,9 @@ uploader:
 auth:
   user_invite:
     mail:
-      subject: You're invited to Phraseanet!
-      p1: You are invited to Uploader.
-      go_button: GO
+      subject: "You're invited to Phraseanet!"
+      p1: Welcome to Phraseanet!
+      go_button: Continue
 
   reset_password:
     mail:
