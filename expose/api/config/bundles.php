@@ -21,4 +21,5 @@ return [
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
     Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
+    Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
 ];

@@ -1,14 +1,14 @@
 framework:
     secret: '%env(APP_SECRET)%'
-    #default_locale: en
     csrf_protection: true
-    #http_method_override: true
 
     session:
         handler_id: snc_redis.session.handler
+        name: auth_sess
+        cookie_secure: auto
+        cookie_httponly: true
+        cookie_samesite: lax
 
-    #esi: true
-    #fragments: true
     php_errors:
         log: true
 

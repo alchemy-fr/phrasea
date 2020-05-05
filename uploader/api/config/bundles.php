@@ -27,4 +27,5 @@ return [
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
+    Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
 ];
