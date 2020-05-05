@@ -30,7 +30,7 @@ class InviteController extends AbstractController
         $user = $userManager->getUserByIdAndToken($id, $token);
 
         if (!$user->hasPassword()) {
-            $form = $this->createForm(SetPasswordForm::class);
+            $form = $this->createForm(SetPasswordForm::class, $user);
 
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {

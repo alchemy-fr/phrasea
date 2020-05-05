@@ -19,6 +19,7 @@ class SetPasswordForm extends AbstractType
         $builder
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
+                'invalid_message' => 'The password fields must match.',
                 'property_path' => 'plainPassword',
                 'first_options' => [
                     'label' => 'Password',
