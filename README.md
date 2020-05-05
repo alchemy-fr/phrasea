@@ -36,6 +36,12 @@ bin/build.sh
 bin/setup.sh
 ```
 
+If the stack is already deployed, you should use migrate after a fresh build:
+```bash
+bin/migrate.sh
+```
+
+
 * Read group of services documentation to customize environment variables:
     * [auth](./auth/README.md)
     * [notify](./notify/README.md)

@@ -27,10 +27,14 @@ class Group
     protected $id;
 
     /**
-     * @var string
      * @ORM\Column(type="string", length=150, unique=true)
      */
-    protected $name;
+    protected ?string $name = null;
+
+    /**
+     * @ORM\Column(type="json_array")
+     */
+    protected array $roles = [];
 
     /**
      * @var User[]|Collection
@@ -87,6 +91,16 @@ class Group
     public function getUserCount(): int
     {
         return $this->users->count();
+    }
+
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 
     public function __toString()

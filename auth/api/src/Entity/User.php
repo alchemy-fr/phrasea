@@ -37,22 +37,19 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
     protected $username;
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $emailVerified = false;
+    protected bool $emailVerified = false;
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $enabled;
+    protected ?bool $enabled = null;
 
     /**
-     * @var string|null
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $securityToken;
+    protected ?string $securityToken = null;
 
     /**
      * @var string
@@ -61,10 +58,9 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
     protected $salt;
 
     /**
-     * @var array
      * @ORM\Column(type="json_array")
      */
-    protected $roles = [];
+    protected array $roles = [];
 
     /**
      * @var string|null
@@ -106,10 +102,8 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
 
     /**
      * Not mapped.
-     *
-     * @var bool
      */
-    protected $inviteByEmail = false;
+    protected bool $inviteByEmail = false;
 
     /**
      * @var Group[]|Collection
@@ -153,12 +147,27 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         $this->username = $username;
     }
 
+    public function getGroupRoles(): array
+    {
+        $roles = [];
+        foreach ($this->getGroups() as $group) {
+            $roles = array_merge($roles, $group->getRoles());
+        }
+
+        return array_unique($roles);
+    }
+
     public function getRoles(): array
+    {
+        return array_unique(array_merge($this->getUserRoles(), $this->getGroupRoles()));
+    }
+
+    public function getUserRoles(): array
     {
         return $this->roles;
     }
 
-    public function setRoles(array $roles): void
+    public function setUserRoles(array $roles): void
     {
         $this->roles = $roles;
     }

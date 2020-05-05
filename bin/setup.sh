@@ -17,7 +17,6 @@ d-c up -d
 # Wait for services to be ready
 d-c run --rm dockerize
 
-
 # Setup Auth
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissions -p auth ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"

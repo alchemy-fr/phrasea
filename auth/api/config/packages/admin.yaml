@@ -21,7 +21,7 @@ easy_admin:
           - username
           - enabled
           - { property: groups, sortable: false }
-          - { property: roles, sortable: false }
+          - { property: userRoles, type: array, sortable: false }
           - createdAt
       search:
         sort: ['username', 'ASC']
@@ -30,7 +30,7 @@ easy_admin:
       form:
         fields:
           - { property: 'username' }
-          - { property: 'roles', type: App\Form\RoleChoiceType }
+          - { property: 'userRoles', type: App\Form\RoleChoiceType }
           - { property: 'enabled' }
           - { property: 'groups', type_options: { expanded: true, multiple: true } }
       new:
@@ -45,6 +45,7 @@ easy_admin:
         sort: [name, DESC]
         fields:
           - name
+          - { property: roles, type: array, sortable: false }
           - { property: 'userCount' }
           - createdAt
       search:
@@ -54,3 +55,4 @@ easy_admin:
       form:
         fields:
           - { property: 'name' }
+          - { property: 'roles', type: App\Form\RoleChoiceType }
