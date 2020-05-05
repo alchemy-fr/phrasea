@@ -13,7 +13,7 @@ class IsAdminColReader implements ColReaderInterface
         $str = trim(strtolower($str));
 
         if ($str && !in_array($str, ['non', 'no', 'n', '0'], true)) {
-            $user->setRoles(['ROLE_ADMIN']);
+            $user->setUserRoles(['ROLE_ADMIN']);
         }
     }
 

@@ -92,7 +92,7 @@ class CreateUserCommand extends Command
         $user->setPlainPassword($password);
 
         if (null !== $roles = $input->getOption('roles')) {
-            $user->setRoles($roles);
+            $user->setUserRoles($roles);
         }
 
         $headers = ['Username', 'Plain password'];

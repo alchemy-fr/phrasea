@@ -54,7 +54,7 @@ class SetUserRolesCommand extends Command
         }
 
         $roles = explode(',', $input->getArgument('roles'));
-        $user->setRoles($roles);
+        $user->setUserRoles($roles);
 
         $this->userManager->persistUser($user);
 
