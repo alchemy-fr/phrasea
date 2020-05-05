@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\OAuthServerBundle\Entity\AccessToken;
+use Alchemy\OAuthServerBundle\Entity\AuthCode;
+use Alchemy\OAuthServerBundle\Entity\RefreshToken;
 use Doctrine\ORM\EntityRepository;
+use Throwable;
 
 class UserRepository extends EntityRepository
 {
@@ -34,7 +38,7 @@ class UserRepository extends EntityRepository
             $this->_em->remove($user);
             $this->_em->flush();
             $this->_em->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->_em->rollback();
             throw $e;
         }
