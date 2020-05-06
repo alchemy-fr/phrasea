@@ -63,6 +63,12 @@ If one of the port is already allocated, see the [Changing ports](#changing-port
 
 ## Development
 
+Configure your local env var:
+```dotenv
+APP_ENV=dev
+DEV_MODE=true
+```
+
 ```bash
 # bin/build.sh optimize build order in order to maximize benefit of docker layer caching: 
 bin/build.sh
