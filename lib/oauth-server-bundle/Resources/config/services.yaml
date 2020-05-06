@@ -15,3 +15,7 @@ services:
   Alchemy\OAuthServerBundle\Listener\JsonConverterSubscriber:
     tags:
       - { name: kernel.event_subsriber }
+
+  Alchemy\OAuthServerBundle\Command\CreateClientCommand:
+    tags:
+      - { name: console.command }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use App\Security\Voter\FormDataEditorVoter;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +18,7 @@ class MeAction extends AbstractController
     /**
      * @Route(path="/me", methods={"GET"})
      */
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, EntityManagerInterface $em): Response
     {
         /** @var RemoteUser $user */
         $user = $this->getUser();
@@ -25,7 +27,10 @@ class MeAction extends AbstractController
             'user_id' => $user->getId(),
             'email' => $user->getEmail(),
             'username' => $user->getUsername(),
-            'is_admin' => $this->isGranted('ROLE_ADMIN'),
+            'permissions' => [
+                'form_schema' => $this->isGranted(FormDataEditorVoter::EDIT_FORM_SCHEMA),
+                'bulk_data' => $this->isGranted(FormDataEditorVoter::EDIT_BULK_DATA),
+            ],
         ]);
     }
 }

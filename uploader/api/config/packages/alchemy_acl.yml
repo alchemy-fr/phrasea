@@ -1,0 +1,4 @@
+alchemy_acl:
+  objects:
+    bulk_data: App\Entity\BulkData
+    form_schema: App\Entity\FormSchema

@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "534f84db56bb9c780231ea43c1179f5a",
+    "content-hash": "88e5fabdd68b9a683ab409ae2d94fd22",
     "packages": [
+        {
+            "name": "alchemy/acl-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/acl-bundle",
+                "reference": "611286bce7f43b4170c1bdb95e95288ab45226fb"
+            },
+            "require": {
+                "doctrine/orm": "^2.6",
+                "php": "^7.4",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
+                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
+            },
+            "require-dev": {
+                "alchemy/remote-auth-bundle": "@dev",
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8.4"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AclBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "./vendor/bin/phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony ACL bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "alchemy/admin-bundle",
             "version": "dev-master",
@@ -9543,6 +9591,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alchemy/acl-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
         "arthem/rabbit-bundle": 20,
         "alchemy/api-test": 20

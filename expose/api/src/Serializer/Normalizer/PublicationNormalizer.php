@@ -7,6 +7,7 @@ namespace App\Serializer\Normalizer;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
@@ -35,9 +36,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        $object->setChildren($object->getChildren()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::READ_DETAILS, $child);
-        }));
+        $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {
+            return $this->security->isGranted(PublicationVoter::READ, $child);
+        })->getValues()));
 
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));

@@ -70,8 +70,7 @@ class App extends Component {
         }
 
         const {user} = this.state;
-        const isAdmin = user && user.is_admin;
-
+        const perms = user && user.permissions;
 
         return (
             <Router>
@@ -87,8 +86,8 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
                     <Link onClick={() => this.closeMenu()} to="/about">About</Link>
                     <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
-                    {isAdmin ? <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
-                    {isAdmin ? <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link> : ''}
+                    {perms && perms.form_schema ? <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
+                    {perms && perms.bulk_data ? <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link> : ''}
                     {config.devModeEnabled() ?
                         <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                         : ''}

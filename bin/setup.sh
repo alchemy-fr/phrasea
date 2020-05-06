@@ -23,7 +23,7 @@ exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissio
 ## Setup container
 exec_container auth-api-php "bin/setup.sh"
 ## Create OAuth client for Admin
-exec_container auth-api-php "bin/console app:create-client ${AUTH_ADMIN_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMIN_CLIENT_ID} \
     --random-id=${AUTH_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${AUTH_ADMIN_CLIENT_SECRET} \
     --grant-type password \
@@ -37,17 +37,20 @@ exec_container rabbitmq "rabbitmqctl add_vhost upload && rabbitmqctl set_permiss
 ## Setup container
 exec_container uploader-api-php "bin/setup.sh"
 ## Create OAuth client
-exec_container auth-api-php "bin/console app:create-client ${UPLOADER_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_CLIENT_SECRET} \
     --grant-type password \
     --grant-type authorization_code"
 ## Create OAuth client for Admin
-exec_container auth-api-php "bin/console app:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
     --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_ADMIN_CLIENT_SECRET} \
     --grant-type password \
     --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope user:list \
+    --scope group:list \
     --redirect-uri ${UPLOADER_BASE_URL}"
 
 
@@ -55,17 +58,20 @@ exec_container auth-api-php "bin/console app:create-client ${UPLOADER_ADMIN_CLIE
 ## Setup container
 exec_container expose-api-php "bin/setup.sh"
 ## Create OAuth client
-exec_container auth-api-php "bin/console app:create-client ${EXPOSE_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_CLIENT_ID} \
     --random-id=${EXPOSE_CLIENT_RANDOM_ID} \
     --secret=${EXPOSE_CLIENT_SECRET} \
     --grant-type client_credentials \
     --grant-type authorization_code"
 ## Create OAuth client for Admin
-exec_container auth-api-php "bin/console app:create-client ${EXPOSE_ADMIN_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_ADMIN_CLIENT_ID} \
     --random-id=${EXPOSE_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${EXPOSE_ADMIN_CLIENT_SECRET} \
     --grant-type password \
     --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope user:list \
+    --scope group:list \
     --redirect-uri ${EXPOSE_BASE_URL}"
 ## Create minio bucket
 docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
@@ -81,7 +87,7 @@ exec_container rabbitmq "rabbitmqctl add_vhost notify && rabbitmqctl set_permiss
 ## Setup container
 exec_container notify-api-php "bin/setup.sh"
 ## Create OAuth client for Notify Admin
-exec_container auth-api-php "bin/console app:create-client ${NOTIFY_ADMIN_CLIENT_ID} \
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_ADMIN_CLIENT_ID} \
     --random-id=${NOTIFY_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${NOTIFY_ADMIN_CLIENT_SECRET} \
     --grant-type password \

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -11,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\FormSchemaRepository")
  */
-class FormSchema
+class FormSchema implements AclObjectInterface
 {
     /**
      * @var Uuid
@@ -22,10 +23,9 @@ class FormSchema
     protected $id;
 
     /**
-     * @var string|null
      * @ORM\Column(type="string", length=5, nullable=true, unique=true)
      */
-    private $locale;
+    private ?string $locale = null;
 
     /**
      * @var string
@@ -34,11 +34,9 @@ class FormSchema
     private $data;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     /**
      * @var DateTime
@@ -53,7 +51,7 @@ class FormSchema
         $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id->__toString();
     }
