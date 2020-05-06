@@ -23,6 +23,7 @@ easy_admin:
           - { property: totalSize, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - notifyEmail
           - createdAt
+
     Asset:
       class: App\Entity\Asset
       disabled_actions:
@@ -38,4 +39,19 @@ easy_admin:
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - userId
           - { property: committed, type: boolean }
+          - createdAt
+
+    FormSchema:
+      class: App\Entity\FormSchema
+      disabled_actions:
+        - new
+        - delete
+        - edit
+      list:
+        actions:
+          - permissions
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - locale
           - createdAt

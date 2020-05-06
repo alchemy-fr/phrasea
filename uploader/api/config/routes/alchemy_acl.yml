@@ -1,0 +1,6 @@
+alchemy_acl_api:
+  resource: "@AlchemyAclBundle/Resources/routing/permissions_api.yaml"
+  prefix: /permissions
+alchemy_acl_admin:
+  resource: "@AlchemyAclBundle/Resources/routing/permissions_admin.yaml"
+  prefix: /admin/permissions

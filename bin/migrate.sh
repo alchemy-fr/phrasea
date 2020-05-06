@@ -17,4 +17,11 @@ d-c up -d
 # Wait for services to be ready
 d-c run --rm dockerize
 
-exec_container auth-api-php "echo y | bin/console doctrine:migrations:migrate"
+APPS="
+auth-api-php
+uploader-api-php
+"
+
+for app in ${APPS}; do
+    exec_container $app "echo y | bin/console doctrine:migrations:migrate"
+done

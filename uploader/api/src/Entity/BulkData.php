@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -11,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\BulkDataRepository")
  */
-class BulkData
+class BulkData implements AclObjectInterface
 {
     /**
      * @var Uuid
@@ -22,24 +23,19 @@ class BulkData
     protected $id;
 
     /**
-     * @var array
      * @ORM\Column(type="json_array")
      */
-    private $data = [];
+    private array $data = [];
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private DateTime $createdAt;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $updatedAt;
+    private DateTime $updatedAt;
 
     public function __construct()
     {
@@ -47,7 +43,7 @@ class BulkData
         $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id->__toString();
     }

@@ -1,4 +1,7 @@
 {
+    "alchemy/acl-bundle": {
+        "version": "dev-master"
+    },
     "alchemy/admin-bundle": {
         "version": "dev-master"
     },
