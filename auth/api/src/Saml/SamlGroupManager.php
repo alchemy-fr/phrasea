@@ -11,19 +11,15 @@ use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface
 
 class SamlGroupManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var array
-     */
-    private $groupAttributesName;
+    private EntityManagerInterface $em;
+    private array $groupAttributesName;
+    private array $groupMap;
 
-    public function __construct(EntityManagerInterface $em, array $groupAttributesName)
+    public function __construct(EntityManagerInterface $em, array $groupAttributesName, array $groupMap)
     {
         $this->em = $em;
         $this->groupAttributesName = $groupAttributesName;
+        $this->groupMap = $groupMap;
     }
 
     public function updateGroups(User $user, SamlTokenInterface $token)
@@ -34,11 +30,16 @@ class SamlGroupManager
         $user->getGroups()->clear();
         if ($groupAttributeName && isset($attributes[$groupAttributeName])) {
             foreach ($attributes[$groupAttributeName] as $groupName) {
-                $user->addGroup($this->getOrCreateGroup($groupName));
+                $user->addGroup($this->getOrCreateGroup($this->resolveGroupName($groupName)));
             }
         }
 
         $this->em->persist($user);
+    }
+
+    private function resolveGroupName(string $samlGroup): string
+    {
+        return $this->groupMap[$samlGroup] ?? $samlGroup;
     }
 
     private function getOrCreateGroup(string $groupName): Group

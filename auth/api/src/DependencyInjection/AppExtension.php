@@ -72,10 +72,13 @@ class AppExtension extends Extension implements PrependExtensionInterface
             }
         }
 
+        $groupMap = $config['options']['group_map'] ?? [];
+
         $def = new Definition(SamlGroupManager::class);
         $def->setAutowired(true);
         $def->setAutoconfigured(true);
         $def->setArgument('$groupAttributesName', $groupAttributesNames);
+        $def->setArgument('$groupMap', $groupMap);
 
         $container->setDefinition(SamlGroupManager::class, $def);
     }
