@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"log"
 	"net/http"
+	"io/ioutil"
 	"os"
 )
 
@@ -72,6 +73,8 @@ func main() {
     defer conn.Close(context.Background())
     fmt.Println("Successfully connected!")
 
+    createSchema()
+
 	router := httprouter.New()
 	router.POST("/log", logHandler)
 
@@ -84,4 +87,21 @@ func main() {
 	}
 
 	http.ListenAndServe(":80", router)
+}
+
+func createSchema() {
+    dat, err := ioutil.ReadFile("./structure.sql")
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Unable to load file: %v\n", err)
+        os.Exit(1)
+    }
+
+    fmt.Println("Creating schema....")
+    _, err2 := conn.Exec(context.Background(), string(dat))
+    if err2 != nil {
+        fmt.Fprintf(os.Stderr, "Unable to create schema: %v\n", err2)
+        os.Exit(1)
+    }
+
+    fmt.Println("Done.")
 }

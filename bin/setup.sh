@@ -98,8 +98,6 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
 # Setup Report
 ## Create DB
 create_db "${REPORT_DB_NAME}"
-## Create schema
-exec_container db "psql -U \"${POSTGRES_USER}\" ${REPORT_DB_NAME}" < "$BASEDIR/../report/structure.sql"
 
 
 # Setup Weblate
