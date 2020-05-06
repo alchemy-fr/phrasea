@@ -106,10 +106,8 @@ class App extends Component {
                     <Route path="/forgot-password" exact component={ResetPassword}/>
                     <Route path="/about" exact component={About}/>
                     <PrivateRoute path="/settings" exact component={Settings}/>
-                    {user && user.is_admin ? <React.Fragment>
-                        <PrivateRoute path="/form-editor" exact component={FormEditor}/>
-                        <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/>
-                    </React.Fragment> : ''}
+                    {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
+                    {perms && perms.bulk_data ? <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/> : ''}
                     {config.devModeEnabled() ?
                         <Route path="/dev-settings" exact component={DevSettings}/>
                         : ''}
