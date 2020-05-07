@@ -19,6 +19,8 @@ d-c run --rm dockerize
 
 APPS="
 auth-api-php
+expose-api-php
+notify-api-php
 uploader-api-php
 "
 

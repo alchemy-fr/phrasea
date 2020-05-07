@@ -22,4 +22,5 @@ return [
     Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
+    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
 ];
