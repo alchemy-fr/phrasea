@@ -7,7 +7,7 @@ namespace App\Tests;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Security\PasswordSecurityMethodInterface;
 
-class PublicationPasswordTest extends AbstractTestCase
+class PublicationPasswordTest extends AbstractExposeTestCase
 {
     public function testGetPublicationWithPassword(): void
     {

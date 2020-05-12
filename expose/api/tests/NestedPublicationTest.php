@@ -7,7 +7,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class NestedPublicationTest extends AbstractTestCase
+class NestedPublicationTest extends AbstractExposeTestCase
 {
     public function testCreateNestedPublicationOK(): void
     {
@@ -21,7 +21,9 @@ class NestedPublicationTest extends AbstractTestCase
             [
             'parentId' => $id,
             'title' => 'Sub Foo',
-            'layout' => 'download',
+            'config' => [
+                'layout' => 'download',
+            ],
         ]
         );
         $json = json_decode($response->getContent(), true);

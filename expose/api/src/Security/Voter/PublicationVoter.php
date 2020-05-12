@@ -79,43 +79,42 @@ class PublicationVoter extends Voter
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
     {
         $securityContainer = $publication->getSecurityContainer();
-        if (Publication::SECURITY_METHOD_NONE === $securityContainer->getSecurityMethod()) {
+        $config = $securityContainer->getConfig();
+
+        switch ($config->getSecurityMethod()) {
+            case Publication::SECURITY_METHOD_NONE:
             return true;
+            case Publication::SECURITY_METHOD_PASSWORD:
+                if (!$token instanceof PasswordToken) {
+                    $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
+
+                    return false;
+                }
+
+                $publicationPassword = $token->getPublicationPassword($securityContainer->getId());
+                if (empty($publicationPassword)) {
+                    $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
+
+                    return false;
+                }
+
+                if ($publicationPassword !== $config->getSecurityOptions()['password']) {
+                    $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
+
+                    return false;
+                }
+
+                return true;
+            case Publication::SECURITY_METHOD_AUTHENTICATION:
+                if (!$token instanceof RemoteAuthToken) {
+                    $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
+
+                    return false;
+                }
+
+                return $this->security->isGranted(PermissionInterface::VIEW, $publication);
+            default:
+                return false;
         }
-
-        if (Publication::SECURITY_METHOD_PASSWORD === $securityContainer->getSecurityMethod()) {
-            if (!$token instanceof PasswordToken) {
-                $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
-
-                return false;
-            }
-
-            $publicationPassword = $token->getPublicationPassword($securityContainer->getId());
-            if (empty($publicationPassword)) {
-                $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
-
-                return false;
-            }
-
-            if ($publicationPassword !== $securityContainer->getSecurityOptions()['password']) {
-                $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
-
-                return false;
-            }
-
-            return true;
-        }
-
-        if (Publication::SECURITY_METHOD_AUTHENTICATION === $securityContainer->getSecurityMethod()) {
-            if (!$token instanceof RemoteAuthToken) {
-                $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
-
-                return false;
-            }
-
-            return $this->security->isGranted(PermissionInterface::VIEW, $publication);
-        }
-
-        return false;
     }
 }

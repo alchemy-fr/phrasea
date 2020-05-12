@@ -6,13 +6,15 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class PublicationTest extends AbstractTestCase
+class PublicationTest extends AbstractExposeTestCase
 {
     public function testCreatePublicationOK(): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
             'title' => 'Foo',
-            'layout' => 'download',
+            'config' => [
+                'layout' => 'download',
+            ],
         ]);
         $json = json_decode($response->getContent(), true);
 
@@ -23,6 +25,8 @@ class PublicationTest extends AbstractTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Foo', $json['title']);
         $this->assertEquals('123', $json['ownerId']);
+        $this->assertArrayHasKey('config', $json);
+        $this->assertEquals('download', $json['config']['layout']);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
     }
 

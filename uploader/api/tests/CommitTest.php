@@ -8,7 +8,7 @@ use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
-class CommitTest extends AbstractTestCase
+class CommitTest extends AbstractUploaderTestCase
 {
     public function testGetCommitOK(): void
     {

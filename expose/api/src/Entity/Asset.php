@@ -157,7 +157,7 @@ class Asset implements MediaInterface
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read", "publication:list"})
+     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
     private $mimeType;
 
@@ -225,7 +225,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
+     * @Groups({"publication:read", "publication:index"})
      *
      * @var string
      */
@@ -233,7 +233,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
+     * @Groups({"publication:read", "publication:index"})
      *
      * @var string
      */

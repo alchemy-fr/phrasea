@@ -6,7 +6,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class PublicationAssetTest extends AbstractTestCase
+class PublicationAssetTest extends AbstractExposeTestCase
 {
     public function testAddAssetToPublicationOK(): void
     {

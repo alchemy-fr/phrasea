@@ -8,7 +8,7 @@ use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class AssetUploadTest extends AbstractTestCase
+class AssetUploadTest extends AbstractExposeTestCase
 {
     public function testUploadAssetOK(): void
     {

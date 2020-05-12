@@ -7,7 +7,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class FormSchemaTest extends AbstractTestCase
+class FormSchemaTest extends AbstractUploaderTestCase
 {
     public function testFormSchemaEditOK(): void
     {

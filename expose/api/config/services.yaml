@@ -51,7 +51,7 @@ services:
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
 
     App\Serializer\EntitySerializer:
-        decorates: 'api_platform.jsonld.normalizer.item'
+        decorates: 'api_platform.serializer.normalizer.item'
         arguments: [ '@App\Serializer\EntitySerializer.inner' ]
 
     App\DataPersister\PublicationDataPersister:

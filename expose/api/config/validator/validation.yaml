@@ -6,11 +6,21 @@ App\Entity\Publication:
   properties:
     title:
       - NotBlank: ~
-    layout:
-      - NotBlank: ~
     slug:
       - Regex:
           pattern: /^[a-z_\-0-9]+$/i
+    config:
+      - Valid: ~
+
+App\Entity\PublicationConfig:
+  properties:
+    layout:
+      - NotBlank: ~
+
+App\Entity\PublicationProfile:
+  properties:
+    name:
+      - NotBlank: ~
 
 App\Entity\SubDefinition:
   properties:

@@ -17,26 +17,53 @@ easy_admin:
           - id
           - slug
           - title
-          - layout
-          - enabled
+          - config.layout
+          - config.enabled
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
           - { property: 'assets.count', label: Assets }
-          - publiclyListed
-          - securityMethod
+          - config.publiclyListed
+          - config.securityMethod
           - createdAt
       form:
         fields:
           - { property: 'parent' }
           - { property: 'title' }
           - { property: 'slug' }
-          - { property: 'layout', type: App\Form\LayoutChoiceType }
-          - { property: 'theme', type: App\Form\ThemeChoiceType }
-          - { property: 'enabled' }
+          - { property: 'config.layout', type: App\Form\LayoutChoiceType }
+          - { property: 'config.theme', type: App\Form\ThemeChoiceType }
+          - { property: 'config.enabled' }
           - { property: 'ownerId' }
-          - { property: 'publiclyListed' }
-          - { property: 'securityMethod', type: App\Form\SecurityMethodChoiceType }
-          - { property: 'password', type: text }
+          - { property: 'config.publiclyListed' }
+          - { property: 'config.securityMethod', type: App\Form\SecurityMethodChoiceType }
+          - { property: 'config.password', type: text }
+
+    PublicationProfile:
+      class: App\Entity\PublicationProfile
+      list:
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - name
+          - config.layout
+          - config.enabled
+          - config.publiclyListed
+          - config.securityMethod
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
+          - { property: 'config.layout', type: App\Form\LayoutChoiceType }
+          - { property: 'config.theme', type: App\Form\ThemeChoiceType }
+          - { property: 'config.enabled' }
+          - { property: 'ownerId' }
+          - { property: 'config.publiclyListed' }
+          - { property: 'config.securityMethod', type: App\Form\SecurityMethodChoiceType }
+          - { property: 'config.password', type: text }
 
     Asset:
       class: App\Entity\Asset

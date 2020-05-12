@@ -10,6 +10,7 @@ use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
+use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -49,7 +50,9 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
         }
 
         if ($data instanceof Publication
-            || $data instanceof Asset) {
+            || $data instanceof Asset
+            || $data instanceof PublicationProfile
+        ) {
             $user = $this->security->getUser();
             if ($user instanceof RemoteUser && !$data->getOwnerId()) {
                 $data->setOwnerId($user->getId());
