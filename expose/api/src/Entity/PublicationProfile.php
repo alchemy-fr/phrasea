@@ -132,4 +132,14 @@ class PublicationProfile implements AclObjectInterface
     {
         $this->ownerId = $ownerId;
     }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function __toString()
+    {
+        return $this->getName() ?? $this->getId();
+    }
 }
