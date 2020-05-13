@@ -101,7 +101,6 @@ class PublicationConfig
 
     /**
      * @ApiProperty(readableLink=true)
-     * @var TermsConfig
      *
      * @ORM\Embedded(class="App\Entity\TermsConfig")
      * @Groups({"profile:read", "publication:admin:read"})

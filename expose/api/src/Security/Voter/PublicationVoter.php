@@ -49,7 +49,6 @@ class PublicationVoter extends Voter
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
 
-
         switch ($attribute) {
             case self::CREATE:
                 return $isAdmin || $this->security->isGranted(PermissionInterface::EDIT, $subject);

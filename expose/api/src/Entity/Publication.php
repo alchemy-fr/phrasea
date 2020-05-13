@@ -210,7 +210,6 @@ class Publication implements AclObjectInterface
      *
      * @ApiProperty()
      *
-     * @var string|null
      * @Groups({"publication:write"})
      */
     private ?string $parentId = null;

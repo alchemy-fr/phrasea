@@ -71,6 +71,7 @@
         "arthem/jwt-request-signer": "^1",
         "arthem/request-signer-bundle": "^1.0.1",
         "doctrine/dbal": "2.9.1",
+        "exercise/htmlpurifier-bundle": "^3.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "nelmio/cors-bundle": "^1.5",
         "oneup/flysystem-bundle": "^3.1",

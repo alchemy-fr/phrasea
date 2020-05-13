@@ -6,7 +6,6 @@ namespace App\Security\Voter;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Asset;
-use App\Entity\Publication;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;

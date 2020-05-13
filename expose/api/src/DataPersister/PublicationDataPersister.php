@@ -13,6 +13,7 @@ use App\Entity\PublicationAsset;
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use HTMLPurifier;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
@@ -22,12 +23,18 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
     private DataPersisterInterface $decorated;
     private EntityManagerInterface $em;
     private Security $security;
+    private HTMLPurifier $purifier;
 
-    public function __construct(DataPersisterInterface $decorated, EntityManagerInterface $em, Security $security)
-    {
+    public function __construct(
+        DataPersisterInterface $decorated,
+        EntityManagerInterface $em,
+        Security $security,
+        HTMLPurifier $purifier
+    ) {
         $this->decorated = $decorated;
         $this->em = $em;
         $this->security = $security;
+        $this->purifier = $purifier;
     }
 
     public function supports($data, array $context = []): bool
@@ -38,6 +45,8 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
     public function persist($data, array $context = [])
     {
         if ($data instanceof Publication) {
+            $data->setDescription($this->cleanHtml($data->getDescription()));
+
             if ($data->getParentId()) {
                 $parent = $this->em->find(Publication::class, $data->getParentId());
                 if (!$parent instanceof Publication) {
@@ -74,6 +83,15 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
         $this->decorated->persist($data);
 
         return $data;
+    }
+
+    private function cleanHtml(?string $data): ?string
+    {
+        if (null === $data) {
+            return null;
+        }
+
+        return $this->purifier->purify($data);
     }
 
     public function remove($data, array $context = [])

@@ -221,4 +221,20 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
+
+    public function testPublicationWillHaveSafeHtmlDescription(): void
+    {
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'description' => <<<DESC
+<div><a onclick="alert('ok')">B</a></div>
+DESC
+,
+        ]);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $this->assertArrayHasKey('description', $json);
+        $this->assertEquals('<div><a>B</a></div>', $json['description']);
+    }
 }
