@@ -289,9 +289,9 @@ class Publication implements AclObjectInterface
     /**
      * @Groups({"publication:read"})
      */
-    public function getLayout(): ?string
+    public function getLayout(): string
     {
-        return $this->config->getLayout() ?? ($this->profile ? $this->profile->getConfig()->getLayout() : null);
+        return $this->config->getLayout() ?? ($this->profile ? $this->profile->getConfig()->getLayout() : 'gallery');
     }
 
     /**
@@ -363,6 +363,8 @@ class Publication implements AclObjectInterface
         if ($this->profile) {
             return $this->profile->getConfig()->getSecurityOptions();
         }
+
+        return [];
     }
 
     public function addAsset(Asset $asset): void

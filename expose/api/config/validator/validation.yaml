@@ -12,11 +12,6 @@ App\Entity\Publication:
     config:
       - Valid: ~
 
-App\Entity\PublicationConfig:
-  properties:
-    layout:
-      - NotBlank: ~
-
 App\Entity\PublicationProfile:
   properties:
     name:
