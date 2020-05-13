@@ -36,6 +36,11 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
+        $cover = $object->getCover();
+        if ($cover instanceof Asset) {
+            $object->setCoverUrl($this->generateAssetUrl($cover));
+        }
+
         $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {
             return $this->security->isGranted(PublicationVoter::READ, $child);
         })->getValues()));

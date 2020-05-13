@@ -230,6 +230,11 @@ class Publication implements AclObjectInterface
      */
     private DateTime $createdAt;
 
+    /**
+     * @Groups({"publication:admin:read", "publication:index"})
+     */
+    private ?string $coverUrl = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -529,6 +534,36 @@ class Publication implements AclObjectInterface
     public function setProfile(?PublicationProfile $profile): void
     {
         $this->profile = $profile;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getTerms(): TermsConfig
+    {
+        if ($this->profile) {
+            return $this->config->getTerms()->mergeWithProfile($this->profile->getConfig()->getTerms());
+        }
+
+        return $this->config->getTerms();
+    }
+
+    public function getCover(): ?Asset
+    {
+        return $this->config->getCover() ?? ($this->profile ? $this->profile->getConfig()->getCover() : null);
+    }
+
+    /**
+     * @Groups({"publication:index", "publication:read"})
+     */
+    public function getCoverUrl(): ?string
+    {
+        return $this->coverUrl;
+    }
+
+    public function setCoverUrl(?string $coverUrl): void
+    {
+        $this->coverUrl = $coverUrl;
     }
 
     // @see https://github.com/doctrine/orm/issues/7944

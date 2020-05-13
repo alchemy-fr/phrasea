@@ -15,14 +15,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EntitySerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface, CacheableSupportsMethodInterface
 {
-    private ItemNormalizer $decorated;
+    private NormalizerInterface $decorated;
 
     /**
      * @var EntityNormalizerInterface[]
      */
     private array $normalizers = [];
 
-    public function __construct(ItemNormalizer $decorated)
+    public function __construct(NormalizerInterface $decorated)
     {
         if (!$decorated instanceof DenormalizerInterface) {
             throw new InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));

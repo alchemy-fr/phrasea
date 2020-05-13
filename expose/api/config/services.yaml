@@ -53,6 +53,8 @@ services:
     App\Serializer\EntitySerializer:
         decorates: 'api_platform.serializer.normalizer.item'
         arguments: [ '@App\Serializer\EntitySerializer.inner' ]
+        tags:
+            - { name: serializer.normalizer, priority: 255 }
 
     App\DataPersister\PublicationDataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'

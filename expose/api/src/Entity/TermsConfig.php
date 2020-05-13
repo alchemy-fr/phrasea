@@ -59,4 +59,15 @@ class TermsConfig
     {
         $this->mustAccept = $mustAccept;
     }
+
+    public function mergeWithProfile(self $profile): self
+    {
+        $merged = new static();
+
+        $merged->setMustAccept($this->isMustAccept() || $profile->isMustAccept());
+        $merged->setText($this->getText() ?? $profile->getText());
+        $merged->setUrl($this->getUrl() ?? $profile->getUrl());
+
+        return $merged;
+    }
 }
