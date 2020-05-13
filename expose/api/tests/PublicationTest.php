@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use App\Entity\Publication;
+use App\Entity\PublicationProfile;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class PublicationTest extends AbstractExposeTestCase
 {
@@ -35,12 +38,12 @@ class PublicationTest extends AbstractExposeTestCase
         $this->createPublication([
             'title' => 'Pub #1',
             'enabled' => true,
-            'publicly_listed' => true,
+            'publiclyListed' => true,
         ]);
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
-            'publicly_listed' => true,
+            'publiclyListed' => true,
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
@@ -71,6 +74,96 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals(null, $json['ownerId']);
+    }
+
+    /**
+     * @dataProvider publicationAndProfilesProvider
+     */
+    public function testPublicationConfig(array $publicationOptions, array $profileOptions, array $expectations): void
+    {
+        $profile = new PublicationProfile();
+        $this->configureProfile($profile, $profileOptions);
+        $publication = new Publication();
+        $this->configurePublication($publication, array_merge(
+            $publicationOptions,
+            [
+                'profile' => $profile,
+            ]
+        ));
+
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+
+        foreach ($expectations as $propertyPath => $expectedValue) {
+            $this->assertEquals($expectedValue, $propertyAccessor->getValue($publication, $propertyPath));
+        }
+    }
+
+    public function publicationAndProfilesProvider(): array
+    {
+        return [
+          [[], [], [
+              'enabled' => true,
+          ]],
+          [[
+              'enabled' => false,
+          ], [], [
+              'enabled' => false,
+          ]],
+
+          [[
+              'enabled' => true,
+          ], [
+              'enabled' => false,
+          ], [
+              'enabled' => false,
+          ]],
+
+          [[
+              'enabled' => false,
+          ], [
+              'enabled' => false,
+          ], [
+              'enabled' => false,
+              'securityMethod' => null,
+          ]],
+
+          [[
+              'password' => 'xxx',
+          ], [
+          ], [
+              'securityMethod' => 'password',
+          ]],
+
+          [[
+          ], [
+              'password' => 'xxx',
+          ], [
+              'securityMethod' => 'password',
+          ]],
+
+          [[
+              'css' => '.publication {}',
+          ], [
+              'css' => '.profile {}',
+          ], [
+              'css' => '.publication {}'."\n".'.profile {}',
+          ]],
+
+          [[
+              'copyrightText' => 'Publication',
+          ], [
+              'copyrightText' => 'Profile',
+          ], [
+              'copyrightText' => 'Publication',
+          ]],
+
+          [[
+          ], [
+              'copyrightText' => 'Profile',
+          ], [
+              'copyrightText' => 'Profile',
+          ]],
+        ];
     }
 
     public function testGetPublicationFromAnonymous(): void

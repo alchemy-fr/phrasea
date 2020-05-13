@@ -23,7 +23,7 @@ class PublicationConfig
     /**
      * @ApiProperty()
      * @ORM\Column(type="boolean")
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private bool $enabled = false;
 
@@ -31,7 +31,7 @@ class PublicationConfig
      * @ApiProperty()
      *
      * @ORM\Column(type="json")
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private array $urls = [];
 
@@ -39,7 +39,7 @@ class PublicationConfig
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $copyrightText = null;
 
@@ -47,7 +47,7 @@ class PublicationConfig
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $css = null;
 
@@ -60,48 +60,42 @@ class PublicationConfig
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?Asset $cover = null;
 
     /**
-     * @ApiProperty()
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"publication:admin:read", "publication:index"})
      */
     private ?string $coverUrl = null;
 
     /**
-     * @ApiProperty()
      * @ORM\Column(type="string", length=20)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $layout = null;
 
     /**
-     * @ApiProperty()
      * @ORM\Column(type="string", length=30, nullable=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $theme = null;
 
     /**
-     * @ApiProperty()
      * @ORM\Column(type="boolean")
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private bool $publiclyListed = false;
 
     /**
-     * @ApiProperty()
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?DateTime $beginsAt = null;
 
     /**
-     * @ApiProperty()
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?DateTime $expiresAt = null;
 
@@ -110,7 +104,7 @@ class PublicationConfig
      * @var TermsConfig
      *
      * @ORM\Embedded(class="App\Entity\TermsConfig")
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private TermsConfig $terms;
 
@@ -120,7 +114,7 @@ class PublicationConfig
      * @ORM\Column(type="string", length=20, nullable=true)
      *
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:read", "profile:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $securityMethod = self::SECURITY_METHOD_NONE;
 
@@ -131,7 +125,7 @@ class PublicationConfig
      * @ORM\Column(type="json_array")
      *
      * @ApiProperty()
-     * @Groups({"publication:read", "profile:read"})
+     * @Groups({"profile:read", "publication:admin:read"})
      */
     private array $securityOptions = [];
 

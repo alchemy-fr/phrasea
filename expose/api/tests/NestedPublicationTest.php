@@ -12,7 +12,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'owner_id' => '123',
+            'ownerId' => '123',
         ]);
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,

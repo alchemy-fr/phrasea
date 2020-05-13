@@ -26,15 +26,17 @@ Payload, defines the publication (draft):
             "slug": "path/to/photo"
         }
     ],
-    "urlSlug": "publication-1",
-    "coverUrl": "https://api-expose.alchemy.local/assets/75c4635f-a6ad-4a44-9dcd-e5544f73a58e/thumbnail",
+    "slug": "publication-1",
     "packageUrl": "https://api-expose.alchemy.local/assets/c51e4878-aae2-4e6a-94a8-0dbcc2f31691/download",
-    "enabled": true,
-    "publiclyListed": true,
-    "layout": "download",
-    "theme": "light",
-    "beginsAt": null,
-    "expiresAt": null,
+    "config": {
+        "coverUrl": "https://api-expose.alchemy.local/assets/75c4635f-a6ad-4a44-9dcd-e5544f73a58e/thumbnail",
+        "enabled": true,
+        "publiclyListed": true,
+        "layout": "download",
+        "theme": "light",
+        "beginsAt": null,
+        "expiresAt": null
+    },
     "createdAt": "2019-11-05T13:18:27+00:00"
 }
 ```

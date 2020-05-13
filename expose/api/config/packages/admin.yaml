@@ -14,15 +14,14 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
-          - { property: 'profile' }
-          - slug
           - title
+          - slug
+          - { property: 'profile' }
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
           - { property: 'assets.count', label: Assets }
-          - { property: config.enabled, label: Enabled }
-          - { property: config.securityMethod, label: Security method }
+          - { property: enabled, type: boolean }
+          - { property: securityMethod }
           - createdAt
       form:
         fields:
@@ -48,10 +47,10 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
           - name
           - { property: config.layout, label: Layout }
           - { property: config.enabled, label: Enabled }
+          - { property: config.theme, label: Theme }
           - { property: config.publiclyListed, label: Publicly listed }
           - { property: config.securityMethod, label: Security method }
           - createdAt

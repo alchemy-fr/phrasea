@@ -114,7 +114,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="PublicationProfile")
-     * @Groups({"publication:read"})
+     * @Groups({"publication:admin:read"})
      */
     private ?PublicationProfile $profile = null;
 
@@ -201,7 +201,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ORM\Embedded(class="App\Entity\PublicationConfig")
-     * @Groups({"publication:index", "publication:read"})
+     * @Groups({"publication:index", "publication:admin:read"})
      */
     private PublicationConfig $config;
 
@@ -268,26 +268,101 @@ class Publication implements AclObjectInterface
         return $this->createdAt;
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
     public function isEnabled(): bool
     {
         return $this->config->isEnabled()
             && (!$this->profile || $this->profile->getConfig()->isEnabled());
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
     public function isPubliclyListed(): bool
     {
         return $this->config->isPubliclyListed()
             || ($this->profile && $this->profile->getConfig()->isPubliclyListed());
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
     public function getLayout(): ?string
     {
         return $this->config->getLayout() ?? ($this->profile ? $this->profile->getConfig()->getLayout() : null);
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getCss(): ?string
+    {
+        $css = [];
+        if ($this->config->getCss()) {
+            $css[] = $this->config->getCss();
+        }
+        if ($this->profile && $this->profile->getConfig()->getCss()) {
+            $css[] = $this->profile->getConfig()->getCss();
+        }
+
+        if (!empty($css)) {
+            return implode("\n", $css);
+        }
+
+        return null;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getUrls(): array
+    {
+        $urls = $this->config->getUrls();
+        if ($this->profile && $this->profile->getConfig()->getCss()) {
+            $urls = array_merge($this->profile->getConfig()->getUrls(), $urls);
+        }
+
+        return $urls;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getCopyrightText(): ?string
+    {
+        return $this->config->getCopyrightText() ?? ($this->profile ? $this->profile->getConfig()->getCopyrightText() : null);
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
     public function getTheme(): ?string
     {
         return $this->config->getTheme() ?? ($this->profile ? $this->profile->getConfig()->getTheme() : null);
+    }
+
+    /**
+     * @Groups({"publication:index", "publication:read"})
+     */
+    public function getSecurityMethod(): ?string
+    {
+        return $this->config->getSecurityMethod() ?? ($this->profile ? $this->profile->getConfig()->getSecurityMethod() : null);
+    }
+
+    /**
+     * @Groups({"publication:admin:read"})
+     */
+    public function getSecurityOptions(): array
+    {
+        if (!empty($this->config->getSecurityOptions())) {
+            return $this->config->getSecurityOptions();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getSecurityOptions();
+        }
     }
 
     public function addAsset(Asset $asset): void

@@ -79,9 +79,8 @@ class PublicationVoter extends Voter
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
     {
         $securityContainer = $publication->getSecurityContainer();
-        $config = $securityContainer->getConfig();
 
-        switch ($config->getSecurityMethod()) {
+        switch ($securityContainer->getSecurityMethod()) {
             case Publication::SECURITY_METHOD_NONE:
             return true;
             case Publication::SECURITY_METHOD_PASSWORD:
@@ -98,7 +97,7 @@ class PublicationVoter extends Voter
                     return false;
                 }
 
-                if ($publicationPassword !== $config->getSecurityOptions()['password']) {
+                if ($publicationPassword !== $securityContainer->getSecurityOptions()['password']) {
                     $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD);
 
                     return false;
