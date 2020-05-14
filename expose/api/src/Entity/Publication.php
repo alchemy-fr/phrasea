@@ -241,6 +241,7 @@ class Publication implements AclObjectInterface
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
+        $this->config->applyDefaults();
         $this->id = Uuid::uuid4();
     }
 
@@ -519,6 +520,11 @@ class Publication implements AclObjectInterface
     public function getConfig(): PublicationConfig
     {
         return $this->config;
+    }
+
+    public function setConfig(PublicationConfig $config): void
+    {
+        $this->config->mergeWith($config);
     }
 
     public function getProfile(): ?PublicationProfile

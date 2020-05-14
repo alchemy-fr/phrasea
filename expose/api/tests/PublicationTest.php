@@ -234,6 +234,26 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
+    public function testPutPublication(): void
+    {
+        $id = $this->createPublication([
+            'publiclyListed' => true,
+            'enabled' => false,
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$id, [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => true,
+            ],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(true, $json['config']['enabled']);
+        $this->assertEquals(true, $json['config']['publiclyListed']);
+    }
+
     public function testDeletePublicationAsAnonymous(): void
     {
         $id = $this->createPublication();

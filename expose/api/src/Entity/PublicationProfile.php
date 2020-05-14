@@ -72,7 +72,6 @@ class PublicationProfile implements AclObjectInterface
     private ?string $name = null;
 
     /**
-     * @ApiProperty(readableLink=true)
      * @ORM\Embedded(class="App\Entity\PublicationConfig")
      * @Groups({"profile:index", "profile:read", "publication:read"})
      */
@@ -95,6 +94,7 @@ class PublicationProfile implements AclObjectInterface
     {
         $this->createdAt = new DateTime();
         $this->config = new PublicationConfig();
+        $this->config->applyDefaults();
         $this->id = Uuid::uuid4();
     }
 
@@ -120,7 +120,7 @@ class PublicationProfile implements AclObjectInterface
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config = $config;
+        $this->config->mergeWith($config);
     }
 
     public function getOwnerId(): ?string

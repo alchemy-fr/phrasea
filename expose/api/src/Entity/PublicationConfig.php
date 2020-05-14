@@ -25,15 +25,21 @@ class PublicationConfig
      * @ORM\Column(type="boolean")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private bool $enabled = false;
+    private ?bool $enabled = null;
 
     /**
+     * List of URLS:
+     * {
+     *   "https://link1.com": "My link #1",
+     *   "https://link2.com": "My link #2"
+     * }
+     *
      * @ApiProperty()
      *
      * @ORM\Column(type="json")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private array $urls = [];
+    private ?array $urls = null;
 
     /**
      * @ApiProperty()
@@ -85,7 +91,7 @@ class PublicationConfig
      * @ORM\Column(type="boolean")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private bool $publiclyListed = false;
+    private ?bool $publiclyListed = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -105,7 +111,7 @@ class PublicationConfig
      * @ORM\Embedded(class="App\Entity\TermsConfig")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private TermsConfig $terms;
+    private ?TermsConfig $terms = null;
 
     /**
      * "password" or "authentication".
@@ -115,7 +121,7 @@ class PublicationConfig
      * @ApiProperty()
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?string $securityMethod = self::SECURITY_METHOD_NONE;
+    private ?string $securityMethod = null;
 
     /**
      * If securityMethod="password", you must provide:
@@ -126,11 +132,48 @@ class PublicationConfig
      * @ApiProperty()
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private array $securityOptions = [];
+    private ?array $securityOptions = null;
 
     public function __construct()
     {
         $this->terms = new TermsConfig();
+    }
+
+    /**
+     * applyDefaults and mergeWith methods are here to prevent
+     * instantiating new Config from Symfony denormalization (from serializer component)
+     * in PUT verb.
+     */
+    public function applyDefaults(): void
+    {
+        $this->enabled = false;
+        $this->publiclyListed = false;
+        $this->urls = [];
+        $this->securityMethod = self::SECURITY_METHOD_NONE;
+        $this->securityOptions = [];
+    }
+
+    public function mergeWith(self $config): void
+    {
+        foreach ([
+            'beginsAt',
+            'copyrightText',
+            'cover',
+            'css',
+            'enabled',
+            'expiresAt',
+            'layout',
+            'publiclyListed',
+            'securityMethod',
+            'securityOptions',
+            'terms',
+            'theme',
+            'urls',
+                 ] as $property) {
+            if (null !== $config->{$property}) {
+                $this->{$property} = $config->{$property};
+            }
+        }
     }
 
     public function getUrls(): array

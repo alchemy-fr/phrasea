@@ -17,7 +17,6 @@ class PublicationAssetTest extends AbstractExposeTestCase
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-assets', [
             'asset' => '/assets/'.$assetId,
             'publication' => '/publications/'.$publicationId,
-            'description' => 'Overridden description',
         ]);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(201, $response->getStatusCode());
@@ -27,7 +26,7 @@ class PublicationAssetTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('asset', $json);
         $this->assertEquals($publicationId, $json['publication']['id']);
         $this->assertEquals($assetId, $json['asset']['id']);
-        $this->assertEquals('Overridden description', $json['asset']['description']);
+        $this->assertEquals('asset desc', $json['asset']['description']);
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayNotHasKey('description', $json);
         $id = $json['id'];
@@ -42,7 +41,7 @@ class PublicationAssetTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('asset', $json);
         $this->assertEquals($publicationId, $json['publication']['id']);
         $this->assertEquals($assetId, $json['asset']['id']);
-        $this->assertEquals('Overridden description', $json['asset']['description']);
+        $this->assertEquals('asset desc', $json['asset']['description']);
     }
 
     public function testAddAssetToPublicationAsARandomUser(): void
