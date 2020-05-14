@@ -521,11 +521,6 @@ class Publication implements AclObjectInterface
         return $this->config;
     }
 
-    public function setConfig(PublicationConfig $config): void
-    {
-        $this->config = $config;
-    }
-
     public function getProfile(): ?PublicationProfile
     {
         return $this->profile;

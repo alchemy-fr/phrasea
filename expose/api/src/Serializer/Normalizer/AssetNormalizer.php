@@ -22,10 +22,6 @@ class AssetNormalizer extends AbstractRouterNormalizer
             $object->setUrl($this->generateAssetUrl($asset->getPreviewDefinition() ?? $asset));
             $object->setThumbUrl($this->generateAssetUrl($asset->getThumbnailDefinition() ?? $asset));
             $object->setDownloadUrl($this->generateAssetUrl($asset, true));
-            if ($publicationAsset->getDescription()) {
-                // Override association description
-                $object->setDescription($publicationAsset->getDescription());
-            }
         }
     }
 

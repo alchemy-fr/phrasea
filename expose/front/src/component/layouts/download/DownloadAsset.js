@@ -1,5 +1,6 @@
 import React from 'react';
 import {assetShape} from "../../props/dataShape";
+import Description from "../shared-components/Description";
 
 class DownloadAsset extends React.Component {
     static propTypes = {
@@ -12,6 +13,7 @@ class DownloadAsset extends React.Component {
             thumbUrl,
             originalName,
             mimeType,
+            description,
         } = this.props.data;
 
         return <div>
@@ -19,12 +21,14 @@ class DownloadAsset extends React.Component {
                 <img src={thumbUrl} alt={originalName} />
                 {originalName} - {mimeType}
             </a>
+            <Description
+                descriptionHtml={description}
+            />
             {this.renderSubDef()}
         </div>
     }
 
     renderSubDef() {
-
         const {
             subDefinitions,
         } = this.props.data;

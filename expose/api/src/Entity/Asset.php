@@ -178,7 +178,6 @@ class Asset implements MediaInterface
      *         }
      *     }
      * )
-     * @Groups({"asset:read"})
      * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
      */
     private $publications;

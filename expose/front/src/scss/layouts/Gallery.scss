@@ -20,6 +20,16 @@
       width: 100%;
     }
   }
+
+  .description {
+    margin-bottom: 15px;
+  }
+
+  .image-gallery-description {
+    .description {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .play-button {

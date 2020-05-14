@@ -92,13 +92,6 @@ class PublicationAsset
     protected ?string $slug = null;
 
     /**
-     * @ApiProperty()
-     *
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $description = null;
-
-    /**
      * @ORM\Column(type="datetime")
      * @ApiProperty()
      */
@@ -123,16 +116,6 @@ class PublicationAsset
     public function setPublication(Publication $publication): void
     {
         $this->publication = $publication;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): void
-    {
-        $this->description = $description;
     }
 
     public function getAsset(): ?Asset
