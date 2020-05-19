@@ -12,14 +12,11 @@ class PublicationConfigNormalizer extends AbstractRouterNormalizer
     /**
      * @param PublicationConfig $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
-        if ($object->getCover() instanceof Asset) {
-            $object->setCoverUrl($this->generateAssetUrl($object->getCover()));
-        }
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof PublicationConfig;
     }

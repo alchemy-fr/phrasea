@@ -8,21 +8,24 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
     private Security $security;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, UrlGeneratorInterface $urlGenerator)
     {
         $this->security = $security;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
      * @param Publication $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
         if (in_array(Publication::GROUP_READ, $context['groups'])) {
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $object);
@@ -36,17 +39,19 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        $cover = $object->getCover();
-        if ($cover instanceof Asset) {
-            $object->setCoverUrl($this->generateAssetUrl($cover));
-        }
-
         $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {
             return $this->security->isGranted(PublicationVoter::READ, $child);
         })->getValues()));
 
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
+        }
+
+        if (!empty($css = $object->getCss())) {
+            $object->setCssLink($this->urlGenerator->generate('publication_css', [
+                'id' => $object->getId(),
+                'hash' => md5($css),
+            ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
 
         $config = $object->getConfig();
@@ -57,7 +62,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $config->setSecurityOptions($securityContainerConfig->getSecurityOptions());
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof Publication;
     }

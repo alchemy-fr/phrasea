@@ -131,6 +131,19 @@ class Publication implements AclObjectInterface
     private ?Asset $package = null;
 
     /**
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Asset",
+     *         }
+     *     }
+     * )
+     * @ORM\ManyToOne(targetEntity="Asset")
+     * @Groups({"publication:admin:read", "publication:index", "publication:read"})
+     */
+    private ?Asset $cover = null;
+
+    /**
      * @ApiProperty()
      * @Groups({"publication:read", "publication:index"})
      */
@@ -231,9 +244,9 @@ class Publication implements AclObjectInterface
     private DateTime $createdAt;
 
     /**
-     * @Groups({"publication:admin:read", "publication:index"})
+     * @Groups({"publication:read"})
      */
-    private ?string $coverUrl = null;
+    private ?string $cssLink = null;
 
     public function __construct()
     {
@@ -300,7 +313,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:read"})
+     * @Groups({"publication:admin:read"})
      */
     public function getCss(): ?string
     {
@@ -317,6 +330,16 @@ class Publication implements AclObjectInterface
         }
 
         return null;
+    }
+
+    public function getCssLink(): ?string
+    {
+        return $this->cssLink;
+    }
+
+    public function setCssLink(?string $cssLink): void
+    {
+        $this->cssLink = $cssLink;
     }
 
     /**
@@ -551,20 +574,12 @@ class Publication implements AclObjectInterface
 
     public function getCover(): ?Asset
     {
-        return $this->config->getCover() ?? ($this->profile ? $this->profile->getConfig()->getCover() : null);
+        return $this->cover;
     }
 
-    /**
-     * @Groups({"publication:index", "publication:read"})
-     */
-    public function getCoverUrl(): ?string
+    public function setCover(?Asset $cover): void
     {
-        return $this->coverUrl;
-    }
-
-    public function setCoverUrl(?string $coverUrl): void
-    {
-        $this->coverUrl = $coverUrl;
+        $this->cover = $cover;
     }
 
     // @see https://github.com/doctrine/orm/issues/7944

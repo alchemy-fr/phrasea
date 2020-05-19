@@ -58,24 +58,6 @@ class PublicationConfig
     private ?string $css = null;
 
     /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     * @ORM\ManyToOne(targetEntity="Asset")
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
-    private ?Asset $cover = null;
-
-    /**
-     * @Groups({"publication:admin:read", "publication:index"})
-     */
-    private ?string $coverUrl = null;
-
-    /**
      * @ORM\Column(type="string", length=20, nullable=true)
      * @Groups({"profile:read", "publication:admin:read"})
      */
@@ -158,7 +140,6 @@ class PublicationConfig
         foreach ([
             'beginsAt',
             'copyrightText',
-            'cover',
             'css',
             'enabled',
             'expiresAt',
@@ -204,16 +185,6 @@ class PublicationConfig
     public function setCss(?string $css): void
     {
         $this->css = $css;
-    }
-
-    public function getCover(): ?Asset
-    {
-        return $this->cover;
-    }
-
-    public function setCover(?Asset $cover): void
-    {
-        $this->cover = $cover;
     }
 
     public function getTerms(): TermsConfig
@@ -284,16 +255,6 @@ class PublicationConfig
     public function setTheme(?string $theme): void
     {
         $this->theme = $theme;
-    }
-
-    public function getCoverUrl(): ?string
-    {
-        return $this->coverUrl;
-    }
-
-    public function setCoverUrl(?string $coverUrl): void
-    {
-        $this->coverUrl = $coverUrl;
     }
 
     public function getPassword(): ?string

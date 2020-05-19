@@ -12,7 +12,7 @@ class PublicationAssetNormalizer extends AbstractRouterNormalizer
     /**
      * @param PublicationAsset $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
         $context['publication_asset'] = $object;
 
@@ -26,7 +26,7 @@ class PublicationAssetNormalizer extends AbstractRouterNormalizer
         }
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof PublicationAsset;
     }

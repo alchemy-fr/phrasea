@@ -20,7 +20,7 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
     /**
      * @param PublicationProfile $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
         if (in_array(PublicationProfile::GROUP_READ, $context['groups'])) {
             if ($this->security->isGranted(PublicationProfileVoter::EDIT, $object)) {
@@ -29,7 +29,7 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
         }
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof PublicationProfile;
     }

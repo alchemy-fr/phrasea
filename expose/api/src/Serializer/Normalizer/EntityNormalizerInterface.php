@@ -6,7 +6,7 @@ namespace App\Serializer\Normalizer;
 
 interface EntityNormalizerInterface
 {
-    public function normalize($object, array &$context = []);
+    public function normalize($object, array &$context = []): void;
 
-    public function support($object, $format): bool;
+    public function support($object): bool;
 }

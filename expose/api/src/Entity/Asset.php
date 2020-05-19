@@ -225,18 +225,14 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      * @Groups({"publication:read", "publication:index"})
-     *
-     * @var string
      */
-    private $downloadUrl;
+    private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty()
      * @Groups({"publication:read", "publication:index"})
-     *
-     * @var string
      */
-    private $thumbUrl;
+    private ?string $thumbUrl = null;
 
     public function __construct()
     {
