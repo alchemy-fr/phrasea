@@ -8,7 +8,7 @@ import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-import {getAccessToken, getPasswords} from "../lib/credential";
+import {getAccessToken, getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import Cover from "./layouts/shared-components/Cover";
@@ -71,6 +71,10 @@ class Publication extends PureComponent {
     render() {
         const {data} = this.state;
 
+        if (data && data.terms.enabled && !isTermsAccepted('p_'+data.id)) {
+            return this.renderTerms();
+        }
+
         return <>
             {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
             <Layout
@@ -92,6 +96,32 @@ class Publication extends PureComponent {
                 {this.renderContent()}
             </Layout>
         </>
+    }
+
+    acceptTerms = () => {
+        setAcceptedTerms('p_'+this.state.data.id);
+        this.forceUpdate();
+    }
+
+    renderTerms() {
+        const {data} = this.state;
+        const {text, url} = data.terms;
+
+        return <div
+            className={'container terms-invite'}
+        >
+            <p>
+                {text ? text
+                    : <>
+                        Please read and accept the{' '}
+                        <a href={url} target={'_blank'}>terms</a>
+                </>}
+            </p>
+            <button
+                className={'btn btn-primary'}
+                onClick={this.acceptTerms}
+            >Accepter</button>
+        </div>
     }
 
     renderContent() {

@@ -244,6 +244,7 @@ class Publication implements AclObjectInterface
     private DateTime $createdAt;
 
     /**
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read"})
      */
     private ?string $cssLink = null;

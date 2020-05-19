@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\Embeddable()
  */
-class PublicationConfig
+class PublicationConfig implements MergeableValueObjectInterface
 {
     const SECURITY_METHOD_NONE = null;
     const SECURITY_METHOD_PASSWORD = 'password';
@@ -133,9 +133,11 @@ class PublicationConfig
         $this->urls = [];
         $this->securityMethod = self::SECURITY_METHOD_NONE;
         $this->securityOptions = [];
+
+        $this->terms->applyDefaults();
     }
 
-    public function mergeWith(self $config): void
+    public function mergeWith(MergeableValueObjectInterface $object): void
     {
         foreach ([
             'beginsAt',
@@ -151,8 +153,12 @@ class PublicationConfig
             'theme',
             'urls',
                  ] as $property) {
-            if (null !== $config->{$property}) {
-                $this->{$property} = $config->{$property};
+            if (null !== $object->{$property}) {
+                if ($this->{$property} instanceof MergeableValueObjectInterface) {
+                    $this->{$property}->mergeWith($object->{$property});
+                } else {
+                    $this->{$property} = $object->{$property};
+                }
             }
         }
     }

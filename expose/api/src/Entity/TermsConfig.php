@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Embeddable()
  */
-class TermsConfig
+class TermsConfig implements MergeableValueObjectInterface
 {
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -24,11 +24,25 @@ class TermsConfig
      */
     private ?string $url = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"profile:read", "publication:read"})
-     */
-    private bool $mustAccept = false;
+    public function applyDefaults(): void
+    {
+    }
+
+    public function mergeWith(MergeableValueObjectInterface $object): void
+    {
+        foreach ([
+                     'text',
+                     'url',
+                 ] as $property) {
+            if (null !== $object->{$property}) {
+                if ($this->{$property} instanceof MergeableValueObjectInterface) {
+                    $this->{$property}->mergeWith($object->{$property});
+                } else {
+                    $this->{$property} = $object->{$property};
+                }
+            }
+        }
+    }
 
     public function getText(): ?string
     {
@@ -50,21 +64,19 @@ class TermsConfig
         $this->url = $url;
     }
 
-    public function isMustAccept(): bool
+    /**
+     * @Groups({"profile:read", "publication:read"})
+     */
+    public function isEnabled(): bool
     {
-        return $this->mustAccept;
-    }
-
-    public function setMustAccept(bool $mustAccept): void
-    {
-        $this->mustAccept = $mustAccept;
+        return null !== $this->text
+            || null !== $this->url;
     }
 
     public function mergeWithProfile(self $profile): self
     {
         $merged = new static();
 
-        $merged->setMustAccept($this->isMustAccept() || $profile->isMustAccept());
         $merged->setText($this->getText() ?? $profile->getText());
         $merged->setUrl($this->getUrl() ?? $profile->getUrl());
 
