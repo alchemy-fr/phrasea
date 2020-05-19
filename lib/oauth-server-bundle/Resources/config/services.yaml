@@ -3,11 +3,6 @@ services:
     autowire: true
     autoconfigure: true
 
-
-  Alchemy\OAuthServerBundle\Form\AllowedScopesChoiceType:
-    arguments:
-      $scopes: '%alchemy_oauth_server.allowed_scopes%'
-
   Alchemy\OAuthServerBundle\Doctrine\Listener\AccessTokenListener:
     tags:
       - { name: doctrine.orm.entity_listener, lazy: true }

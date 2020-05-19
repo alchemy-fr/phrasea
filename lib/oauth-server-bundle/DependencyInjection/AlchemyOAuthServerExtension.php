@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Yaml\Parser as YamlParser;
 
@@ -33,6 +34,9 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+        if (class_exists(AbstractType::class)) {
+            $loader->load('forms.yaml');
+        }
 
         $container->setParameter('alchemy_oauth_server.allowed_scopes', $config['scopes']);
 
