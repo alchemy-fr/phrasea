@@ -39,7 +39,7 @@ class PublicationIndex extends PureComponent {
             key={p.id}
         >
             <Link to={`/${p.slug || p.id}`}>
-                {p.cover ? <img src={p.cover.thumbUrl} alt=""/> : ''}
+                {p.cover ? <img src={p.cover.thumbUrl} alt={p.title} /> : ''}
                 {p.title}
             </Link>
         </li>)

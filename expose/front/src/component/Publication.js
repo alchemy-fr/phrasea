@@ -9,6 +9,9 @@ import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
 import {getAccessToken, getPasswords} from "../lib/credential";
+import Urls from "./layouts/shared-components/Urls";
+import Copyright from "./layouts/shared-components/Copyright";
+import Cover from "./layouts/shared-components/Cover";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -68,15 +71,27 @@ class Publication extends PureComponent {
     render() {
         const {data} = this.state;
 
-        return <Layout
-            menu={<PublicationNavigation
-                currentTitle={data ? data.title : 'Loading...'}
-                children={data && data.children ? data.children : []}
-                parent={data ? data.parent : null}
-            />}
-        >
-            {this.renderContent()}
-        </Layout>
+        return <>
+            {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
+            <Layout
+                menu={
+                    <>
+                        {data && data.cover ? <Cover
+                            url={data.cover.thumbUrl}
+                            alt={data.title}
+                        /> : ''}
+                        <PublicationNavigation
+                            currentTitle={data ? data.title : 'Loading...'}
+                            children={data && data.children ? data.children : []}
+                            parent={data ? data.parent : null}
+                        />
+                        {data && data.urls ? <Urls urls={data.urls}/> : ''}
+                        {data ? <Copyright text={data.copyrightText}/> : ''}
+                    </>}
+            >
+                {this.renderContent()}
+            </Layout>
+        </>
     }
 
     renderContent() {
