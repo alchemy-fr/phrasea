@@ -23,17 +23,13 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yaml');
-
-        $this->loadExternalConfig($container, $config['service']);
     }
 
     private function loadExternalConfig(ContainerBuilder $container, array $serviceConfig): void
     {
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yaml');
+
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {
             $rootConfig = json_decode(file_get_contents($jsonConfigSrc), true);
@@ -88,6 +84,10 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         if (!isset($bundles['EasyAdminBundle'])) {
             throw new RuntimeException('You must enable the "EasyAdminBundle"');
         }
+
+        $configs = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration(new Configuration(), $configs);
+        $this->loadExternalConfig($container, $config['service']);
 
         $container->prependExtensionConfig('easy_admin', [
                 'site_name' => '%easy_admin.site_title%',
