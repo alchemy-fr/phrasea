@@ -118,7 +118,7 @@ class GalleryLayout extends React.Component {
         </div>
     }
 
-    renderItem({asset}) {
+    renderItem = ({asset}) => {
         if (-1 === asset.mimeType.indexOf('image/')) {
             return this.renderVideo(asset);
         }
