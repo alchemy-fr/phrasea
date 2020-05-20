@@ -10,6 +10,6 @@ class AdminTest extends AbstractAdminTest
 {
     public function testAdmin()
     {
-        $this->testAllPages();
+        $this->doTestAllPages();
     }
 }

@@ -21,7 +21,7 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client = static::createClient();
     }
 
-    protected function testAllPages(): void
+    protected function doTestAllPages(): void
     {
         $this->client->request('GET', '/admin');
         $this->client->followRedirects();

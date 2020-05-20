@@ -149,6 +149,7 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->urls = [];
         $this->securityMethod = self::SECURITY_METHOD_NONE;
         $this->securityOptions = [];
+        $this->downloadViaEmail = false;
 
         $this->terms->applyDefaults();
         $this->downloadTerms->applyDefaults();
