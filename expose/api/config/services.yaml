@@ -19,6 +19,8 @@ services:
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
     _instanceof:
+        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
+            tags: ['arthem_rabbit.event_handler']
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']
         Doctrine\Common\EventSubscriber:
@@ -69,6 +71,10 @@ services:
         arguments: [ '@app.serializer.decorated_object.inner' ]
         tags:
             - { name: serializer.normalizer, priority: -989 }
+
+    App\Listener\RouterContextListener:
+        arguments:
+            $baseUrl: '%env(EXPOSE_BASE_URL)%'
 
     App\DataPersister\PublicationDataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'

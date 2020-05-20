@@ -38,3 +38,11 @@ auth:
       p1: |
         Please verify your email by following the link below:
       go_button: Validate email
+
+expose:
+  download_link:
+    mail:
+      subject: "Expose: You download link"
+      p1: |
+        You can download your asset here:
+      download_button: Download

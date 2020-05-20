@@ -26,7 +26,7 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
     {
         $this->logger->debug(sprintf('Send email to "%s" with template "%s"', $email, $template));
 
-        $this->client->request('GET', '/send-email', [
+        $this->client->request('POST', '/send-email', [
             'json' => [
                 'email' => $email,
                 'template' => $template,

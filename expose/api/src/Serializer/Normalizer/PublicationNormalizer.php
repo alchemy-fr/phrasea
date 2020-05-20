@@ -14,12 +14,10 @@ use Symfony\Component\Security\Core\Security;
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
     private Security $security;
-    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(Security $security, UrlGeneratorInterface $urlGenerator)
+    public function __construct(Security $security)
     {
         $this->security = $security;
-        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -37,6 +35,10 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             if ($this->security->isGranted(PublicationVoter::EDIT, $object)) {
                 $context['groups'][] = Publication::GROUP_ADMIN_READ;
             }
+        }
+
+        if ($object->isDownloadViaEmail()) {
+            $context['download_via_email'] = true;
         }
 
         $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {

@@ -1,10 +1,12 @@
 import React from 'react';
 import {assetShape} from "../../props/dataShape";
 import Description from "../shared-components/Description";
+import {PropTypes} from 'prop-types';
 
 class DownloadAsset extends React.Component {
     static propTypes = {
         data: assetShape,
+        onDownload: PropTypes.func,
     };
 
     render() {
@@ -17,8 +19,11 @@ class DownloadAsset extends React.Component {
         } = this.props.data;
 
         return <div>
-            <a href={downloadUrl}>
-                <img src={thumbUrl} alt={originalName} />
+            <a
+                onClick={e => this.props.onDownload(downloadUrl, e)}
+                href={downloadUrl || '#'}
+            >
+                <img src={thumbUrl} alt={originalName}/>
                 {originalName} - {mimeType}
             </a>
             <Description
@@ -31,6 +36,7 @@ class DownloadAsset extends React.Component {
     renderSubDef() {
         const {
             subDefinitions,
+            id,
         } = this.props.data;
 
         if (subDefinitions.length === 0) {
@@ -43,7 +49,10 @@ class DownloadAsset extends React.Component {
                 {subDefinitions.map(d => <li
                     key={d.id}
                 >
-                    <a href={d.downloadUrl}>
+                    <a
+                        onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
+                        href={d.downloadUrl || '#'}
+                    >
                         {d.name}
                     </a>
                 </li>)}

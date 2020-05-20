@@ -29,13 +29,8 @@ easy_admin:
           - { property: 'title' }
           - { property: 'slug' }
           - { property: 'profile' }
-          - { property: 'config.layout', label: 'Layout', type: App\Form\LayoutChoiceType }
-          - { property: 'config.theme', label: 'Theme', type: App\Form\ThemeChoiceType }
-          - { property: 'config.enabled', label: 'Enabled' }
+          - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
-          - { property: 'config.publiclyListed', label: 'Publicly listed' }
-          - { property: 'config.securityMethod', label: 'Security method', type: App\Form\SecurityMethodChoiceType }
-          - { property: 'config.password', label: 'Password', type: text }
 
     Profile:
       class: App\Entity\PublicationProfile
@@ -57,13 +52,8 @@ easy_admin:
       form:
         fields:
           - { property: 'name' }
-          - { property: 'config.layout', label: 'Layout', type: App\Form\LayoutChoiceType }
-          - { property: 'config.theme', label: 'Theme', type: App\Form\ThemeChoiceType }
-          - { property: 'config.enabled', label: 'Enabled' }
+          - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId', label: 'Owner ID' }
-          - { property: 'config.publiclyListed', label: 'Publicly listed' }
-          - { property: 'config.securityMethod', label: 'Security method', type: App\Form\SecurityMethodChoiceType }
-          - { property: 'config.password', label: 'Password', type: text }
 
     Asset:
       class: App\Entity\Asset

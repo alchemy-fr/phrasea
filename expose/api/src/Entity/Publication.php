@@ -573,6 +573,27 @@ class Publication implements AclObjectInterface
         return $this->config->getTerms();
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getDownloadTerms(): TermsConfig
+    {
+        if ($this->profile) {
+            return $this->config->getDownloadTerms()->mergeWithProfile($this->profile->getConfig()->getDownloadTerms());
+        }
+
+        return $this->config->getDownloadTerms();
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function isDownloadViaEmail(): bool
+    {
+        return $this->config->getDownloadViaEmail()
+            || (!$this->profile || ($this->profile->getConfig()->getDownloadViaEmail()) ?? false);
+    }
+
     public function getCover(): ?Asset
     {
         return $this->cover;

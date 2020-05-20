@@ -12,6 +12,7 @@ import {getAccessToken, getPasswords, isTermsAccepted, setAcceptedTerms} from ".
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import Cover from "./layouts/shared-components/Cover";
+import TermsModal from "./layouts/shared-components/TermsModal";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -71,10 +72,6 @@ class Publication extends PureComponent {
     render() {
         const {data} = this.state;
 
-        if (data && data.terms.enabled && !isTermsAccepted('p_'+data.id)) {
-            return this.renderTerms();
-        }
-
         return <>
             {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
             <Layout
@@ -103,27 +100,6 @@ class Publication extends PureComponent {
         this.forceUpdate();
     }
 
-    renderTerms() {
-        const {data} = this.state;
-        const {text, url} = data.terms;
-
-        return <div
-            className={'container terms-invite'}
-        >
-            <p>
-                {text ? text
-                    : <>
-                        Please read and accept the{' '}
-                        <a href={url} target={'_blank'}>terms</a>
-                </>}
-            </p>
-            <button
-                className={'btn btn-primary'}
-                onClick={this.acceptTerms}
-            >Accepter</button>
-        </div>
-    }
-
     renderContent() {
         const {data} = this.state;
 
@@ -135,11 +111,14 @@ class Publication extends PureComponent {
             return this.renderSecurityAccess();
         }
 
+        if (data && data.terms.enabled && !isTermsAccepted('p_'+data.id)) {
+            return this.renderTerms();
+        }
+
         return <div className={`publication`}>
             <ThemeEditorProxy
                 data={data}
                 render={data => {
-
                     if (!layouts[data.layout]) {
                         throw new Error(`Unsupported layout ${data.layout}`);
                     }
@@ -152,6 +131,18 @@ class Publication extends PureComponent {
                 }}
             />
         </div>
+    }
+
+    renderTerms() {
+        const {data} = this.state;
+        const {text, url} = data.terms;
+
+        return <TermsModal
+            title={'Publication'}
+            onAccept={this.acceptTerms}
+            text={text}
+            url={url}
+        />
     }
 
     renderSecurityAccess() {

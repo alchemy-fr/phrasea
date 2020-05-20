@@ -64,7 +64,7 @@
         "ext-iconv": "*",
         "alchemy/admin-bundle": "*",
         "alchemy/api-test": "@dev",
-        "alchemy/notify-bundle": "*",
+        "alchemy/notify-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "arthem/locale-bundle": "^0",

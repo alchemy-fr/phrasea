@@ -28,6 +28,13 @@ class PublicationConfig implements MergeableValueObjectInterface
     private ?bool $enabled = null;
 
     /**
+     * @ApiProperty()
+     * @ORM\Column(type="boolean")
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private ?bool $downloadViaEmail = null;
+
+    /**
      * List of URLS:
      * {
      *   "https://link1.com": "My link #1",
@@ -93,7 +100,15 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Embedded(class="App\Entity\TermsConfig")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?TermsConfig $terms = null;
+    private TermsConfig $terms;
+
+    /**
+     * @ApiProperty(readableLink=true)
+     *
+     * @ORM\Embedded(class="App\Entity\TermsConfig")
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private TermsConfig $downloadTerms;
 
     /**
      * "password" or "authentication".
@@ -119,6 +134,7 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function __construct()
     {
         $this->terms = new TermsConfig();
+        $this->downloadTerms = new TermsConfig();
     }
 
     /**
@@ -135,6 +151,7 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->securityOptions = [];
 
         $this->terms->applyDefaults();
+        $this->downloadTerms->applyDefaults();
     }
 
     public function mergeWith(MergeableValueObjectInterface $object): void
@@ -143,6 +160,8 @@ class PublicationConfig implements MergeableValueObjectInterface
             'beginsAt',
             'copyrightText',
             'css',
+            'downloadTerms',
+            'downloadViaEmail',
             'enabled',
             'expiresAt',
             'layout',
@@ -200,7 +219,17 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function setTerms(TermsConfig $terms): void
     {
-        $this->terms = $terms;
+        $this->terms->mergeWith($terms);
+    }
+
+    public function getDownloadTerms(): TermsConfig
+    {
+        return $this->downloadTerms;
+    }
+
+    public function setDownloadTerms(TermsConfig $terms): void
+    {
+        $this->downloadTerms->mergeWith($terms);
     }
 
     public function getSecurityMethod(): ?string
@@ -298,5 +327,15 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setPubliclyListed(bool $publiclyListed): void
     {
         $this->publiclyListed = $publiclyListed;
+    }
+
+    public function getDownloadViaEmail(): ?bool
+    {
+        return $this->downloadViaEmail;
+    }
+
+    public function setDownloadViaEmail(?bool $downloadViaEmail): void
+    {
+        $this->downloadViaEmail = $downloadViaEmail;
     }
 }

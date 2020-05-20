@@ -24,4 +24,7 @@ return [
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
+    Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
+    OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
+    Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
 ];
