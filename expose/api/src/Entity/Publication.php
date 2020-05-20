@@ -459,7 +459,7 @@ class Publication implements AclObjectInterface
             return $this;
         }
 
-        return $this->parent->getSecurityContainer() ?? $this;
+        return $this->parent ? $this->parent->getSecurityContainer() : $this;
     }
 
     public function isAuthorized(): bool
