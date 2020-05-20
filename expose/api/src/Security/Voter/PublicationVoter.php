@@ -81,7 +81,7 @@ class PublicationVoter extends Voter
 
         switch ($securityContainer->getSecurityMethod()) {
             case Publication::SECURITY_METHOD_NONE:
-            return true;
+                return true;
             case Publication::SECURITY_METHOD_PASSWORD:
                 if (!$token instanceof PasswordToken) {
                     $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);

@@ -45,6 +45,37 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertEquals('123', $json['parent']['ownerId']);
     }
 
+    public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
+    {
+        $parentId = $this->createPublication();
+        $childId = $this->createPublication(['parent_id' => $parentId]);
+
+        foreach ([
+                     null,
+                     '*/*',
+                     'application/json',
+                     'application/ld+json',
+                 ] as $accept) {
+            $response = $this->request(
+                AuthServiceClientTestMock::ADMIN_TOKEN,
+                'GET',
+                '/publications/'.$childId,
+                [],
+                [],
+                ['HTTP_ACCEPT' => $accept]
+            );
+            $json = json_decode($response->getContent(), true);
+
+            $this->assertEquals(200, $response->getStatusCode());
+
+            $this->assertArrayHasKey('parent', $json);
+            $this->assertEquals($parentId, $json['parent']['id']);
+            $this->assertArrayHasKey('id', $json);
+            $this->assertArrayHasKey('title', $json);
+            $this->assertEquals(true, $json['authorized']);
+        }
+    }
+
     public function testGetNestedPublication(): void
     {
         $parentId = $this->createPublication();

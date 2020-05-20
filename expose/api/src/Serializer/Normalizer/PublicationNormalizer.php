@@ -58,10 +58,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
 
         $config = $object->getConfig();
         $securityContainer = $object->getSecurityContainer();
-        $securityContainerConfig = $securityContainer->getConfig();
         $object->setSecurityContainerId($securityContainer->getId());
-        $config->setSecurityMethod($securityContainerConfig->getSecurityMethod());
-        $config->setSecurityOptions($securityContainerConfig->getSecurityOptions());
+        $config->setSecurityMethod($securityContainer->getSecurityMethod());
+        $config->setSecurityOptions($securityContainer->getSecurityOptions());
     }
 
     public function support($object): bool

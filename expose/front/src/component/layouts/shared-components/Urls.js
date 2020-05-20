@@ -3,7 +3,7 @@ import {PropTypes} from 'prop-types';
 
 export default class Urls extends PureComponent {
     static propTypes = {
-        urls: PropTypes.object.isRequired,
+        urls: PropTypes.array.isRequired,
     };
 
     render() {
@@ -16,11 +16,11 @@ export default class Urls extends PureComponent {
         return <ul
             className="urls"
         >
-            {Object.keys(urls).map(k => <li
-                key={k}
+            {urls.map(url => <li
+                key={url.url}
             >
-                <a href={k}>
-                    {urls[k]}
+                <a href={url.url}>
+                    {url.text}
                 </a>
             </li>)}
         </ul>

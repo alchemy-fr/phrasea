@@ -178,6 +178,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(
+     *     readableLink=true,
      *     attributes={
      *         "swagger_context"={
      *             "$ref"="#/definitions/Publication",
@@ -185,8 +186,6 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
-     *
-     * @var Publication[]|Collection
      *
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
      */
@@ -344,16 +343,17 @@ class Publication implements AclObjectInterface
     }
 
     /**
+     * @return Url[]|array
      * @Groups({"publication:read"})
      */
     public function getUrls(): array
     {
         $urls = $this->config->getUrls();
-        if ($this->profile && $this->profile->getConfig()->getCss()) {
+        if ($this->profile && !empty($this->profile->getConfig()->getUrls())) {
             $urls = array_merge($this->profile->getConfig()->getUrls(), $urls);
         }
 
-        return $urls;
+        return Url::mapUrls($urls);
     }
 
     /**
@@ -455,11 +455,11 @@ class Publication implements AclObjectInterface
 
     public function getSecurityContainer(): self
     {
-        if (self::SECURITY_METHOD_NONE !== $this->config->getSecurityMethod()) {
+        if (self::SECURITY_METHOD_NONE !== $this->getSecurityMethod()) {
             return $this;
         }
 
-        return $this->parent ?? $this;
+        return $this->parent->getSecurityContainer() ?? $this;
     }
 
     public function isAuthorized(): bool

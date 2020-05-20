@@ -31,7 +31,12 @@ export default class TermsModal extends PureComponent {
 
             <Modal.Body>
                 <p>
-                    {text ? text
+                    {text ? <div
+                            className="terms-text"
+                            dangerouslySetInnerHTML={{
+                                __html: text,
+                            }}
+                        />
                         : <>
                             Please read and accept the{' '}
                             <a href={url} target={'_blank'}>terms</a>

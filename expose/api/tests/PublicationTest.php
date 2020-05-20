@@ -76,32 +76,6 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(null, $json['ownerId']);
     }
 
-    public function testPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
-    {
-        $id = $this->createPublication();
-
-        foreach ([
-            null,
-            'application/json',
-            'application/ld+json',
-                 ] as $accept) {
-            $response = $this->request(
-                AuthServiceClientTestMock::ADMIN_TOKEN,
-                'GET',
-                '/publications/'.$id,
-                [],
-                [],
-                ['HTTP_ACCEPT' => $accept]
-            );
-            $json = json_decode($response->getContent(), true);
-            $this->assertEquals(200, $response->getStatusCode());
-
-            $this->assertArrayHasKey('id', $json);
-            $this->assertArrayHasKey('title', $json);
-            $this->assertEquals(true, $json['authorized']);
-        }
-    }
-
     /**
      * @dataProvider publicationAndProfilesProvider
      */

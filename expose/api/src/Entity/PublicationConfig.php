@@ -35,14 +35,9 @@ class PublicationConfig implements MergeableValueObjectInterface
     private ?bool $downloadViaEmail = null;
 
     /**
-     * List of URLS:
-     * {
-     *   "https://link1.com": "My link #1",
-     *   "https://link2.com": "My link #2"
-     * }
-     *
      * @ApiProperty()
      *
+     * @var Url[]|array
      * @ORM\Column(type="json")
      * @Groups({"profile:read", "publication:admin:read"})
      */
@@ -185,12 +180,12 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     public function getUrls(): array
     {
-        return $this->urls;
+        return Url::mapUrls($this->urls);
     }
 
     public function setUrls(array $urls): void
     {
-        $this->urls = $urls;
+        $this->urls = Url::mapUrls($urls);
     }
 
     public function getCopyrightText(): ?string

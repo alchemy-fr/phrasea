@@ -6,6 +6,9 @@ namespace App\Doctrine;
 
 use App\Entity\Asset;
 use App\Entity\Publication;
+use App\Entity\PublicationConfig;
+use App\Entity\PublicationProfile;
+use App\Entity\TermsConfig;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
@@ -38,6 +41,25 @@ class DescriptionListener implements EventSubscriber
         ) {
             $entity->setDescription($this->cleanHtml($entity->getDescription()));
         }
+
+        if ($entity instanceof Publication
+            || $entity instanceof PublicationProfile
+        ) {
+            $this->handleConfig($entity->getConfig());
+        }
+    }
+
+    private function handleConfig(PublicationConfig $config): void
+    {
+        $config->setCopyrightText($this->cleanHtml($config->getCopyrightText()));
+
+        $this->handleTermsConfig($config->getTerms());
+        $this->handleTermsConfig($config->getDownloadTerms());
+    }
+
+    private function handleTermsConfig(TermsConfig $config): void
+    {
+        $config->setText($this->cleanHtml($config->getText()));
     }
 
     private function cleanHtml(?string $data): ?string
