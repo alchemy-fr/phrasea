@@ -13,4 +13,5 @@ return [
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
 ];

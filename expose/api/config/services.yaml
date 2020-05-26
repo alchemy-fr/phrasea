@@ -72,10 +72,6 @@ services:
         tags:
             - { name: serializer.normalizer, priority: -989 }
 
-    App\Listener\RouterContextListener:
-        arguments:
-            $baseUrl: '%env(EXPOSE_BASE_URL)%'
-
     App\DataPersister\PublicationDataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
 

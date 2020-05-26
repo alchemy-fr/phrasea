@@ -8,6 +8,9 @@
     "alchemy/api-test": {
         "version": "dev-expose"
     },
+    "alchemy/core-bundle": {
+        "version": "dev-core-bundle"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-publication-profile"
     },
@@ -140,6 +143,9 @@
     "doctrine/reflection": {
         "version": "v1.0.0"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.0.1"
+    },
     "easycorp/easyadmin-bundle": {
         "version": "2.0",
         "recipe": {
@@ -214,9 +220,6 @@
             "config/packages/test/hautelook_alice.yaml",
             "fixtures/.gitignore"
         ]
-    },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
     },
     "laminas/laminas-code": {
         "version": "3.4.1"

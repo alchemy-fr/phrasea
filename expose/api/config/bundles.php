@@ -27,4 +27,5 @@ return [
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
     OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
 ];
