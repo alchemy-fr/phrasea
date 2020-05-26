@@ -2,6 +2,9 @@
     "alchemy/admin-bundle": {
         "version": "dev-master"
     },
+    "alchemy/core-bundle": {
+        "version": "dev-core-bundle"
+    },
     "alchemy/remote-auth-bundle": {
         "version": "dev-master"
     },
@@ -93,6 +96,9 @@
     "doctrine/reflection": {
         "version": "v1.0.0"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.0.1"
+    },
     "easycorp/easyadmin-bundle": {
         "version": "2.0",
         "recipe": {
@@ -129,9 +135,6 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
-    },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.2"

@@ -43,6 +43,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -53,6 +60,7 @@
         "ext-iconv": "*",
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "*",
+        "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "*",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",

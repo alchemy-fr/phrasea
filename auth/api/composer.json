@@ -18,6 +18,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/remote-auth-bundle",
             "options": {
                 "symlink": true
@@ -62,8 +69,9 @@
         "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/admin-bundle": "*",
+        "alchemy/admin-bundle": "@dev",
         "alchemy/api-test": "@dev",
+        "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",

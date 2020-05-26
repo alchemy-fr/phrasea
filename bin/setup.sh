@@ -55,6 +55,8 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
 
 
 # Setup Expose
+## Create rabbitmq vhost
+exec_container rabbitmq "rabbitmqctl add_vhost expose && rabbitmqctl set_permissions -p expose ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container expose-api-php "bin/setup.sh"
 ## Create OAuth client

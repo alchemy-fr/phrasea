@@ -24,5 +24,6 @@ return [
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
-    App\AppBundle::class => ['all' => true], // Must stay declared after AlchemyOAuthServerBundle
+    App\AppBundle::class => ['all' => true],
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
 ];

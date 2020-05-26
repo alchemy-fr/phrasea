@@ -8,6 +8,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -17,6 +24,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
         "arthem/rabbit-bundle": "@dev",
         "predis/predis": "^1.1",
         "qandidate/symfony-json-request-transformer": "^1.3",

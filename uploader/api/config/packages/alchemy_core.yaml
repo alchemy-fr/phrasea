@@ -1,0 +1,3 @@
+alchemy_core:
+  app_base_url: '%env(UPLOADER_BASE_URL)%'
+  healthcheck: ~

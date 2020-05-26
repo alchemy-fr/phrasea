@@ -19,7 +19,7 @@ security:
             id: App\Saml\SamlUserProvider
     firewalls:
         anonymous:
-            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|oauth|_wdt/|_profiler/)
+            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|_healthcheck|oauth|_wdt/|_profiler/)
             security: false
         oauth_token:
             pattern:    ^/oauth/v2/token

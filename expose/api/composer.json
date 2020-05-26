@@ -37,6 +37,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/report-sdk",
             "options": {
                 "symlink": true
@@ -72,6 +79,7 @@
         "ext-iconv": "*",
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/report-bundle": "@dev",

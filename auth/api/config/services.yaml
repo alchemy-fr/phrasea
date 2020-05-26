@@ -43,10 +43,6 @@ services:
         arguments:
             $debug: '%kernel.debug%'
 
-    App\Listener\RouterContextListener:
-        arguments:
-            $baseUrl: '%env(AUTH_BASE_URL)%'
-
     App\Doctrine\Listener\UserDeleteListener:
         tags:
             - { name: doctrine.orm.entity_listener }
