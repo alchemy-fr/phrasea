@@ -17,3 +17,15 @@ body, #root {
   justify-content: center;
   overflow: auto;
 }
+
+.cover {
+  margin: 0 -1.5rem;
+  img {
+    width: 100%;
+  }
+}
+
+.terms-invite {
+  text-align: center;
+  margin-top: 50px;
+}

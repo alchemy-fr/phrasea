@@ -46,7 +46,7 @@ security:
         - { path: ^/admin/reset-password/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/auth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        # - ...
 ```
 
 ```yaml
@@ -85,5 +85,4 @@ easy_admin_bundle:
   resource: 'App\Admin\AdminController'
   type:     annotation
   prefix:   /admin
-
 ```

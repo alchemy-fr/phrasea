@@ -11,13 +11,13 @@ class SubDefinitionNormalizer extends AbstractRouterNormalizer
     /**
      * @param SubDefinition $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
         $object->setUrl($this->generateSubDefinitionUrl($object));
         $object->setDownloadUrl($this->generateSubDefinitionUrl($object, true));
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof SubDefinition;
     }

@@ -8,6 +8,7 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
@@ -22,7 +23,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
     /**
      * @param Publication $object
      */
-    public function normalize($object, array &$context = [])
+    public function normalize($object, array &$context = []): void
     {
         if (in_array(Publication::GROUP_READ, $context['groups'])) {
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $object);
@@ -36,6 +37,10 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             }
         }
 
+        if ($object->isDownloadViaEmail()) {
+            $context['download_via_email'] = true;
+        }
+
         $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {
             return $this->security->isGranted(PublicationVoter::READ, $child);
         })->getValues()));
@@ -43,17 +48,22 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
-        if ($object->getCover() instanceof Asset) {
-            $object->setCoverUrl($this->generateAssetUrl($object->getCover()));
+
+        if (!empty($css = $object->getCss())) {
+            $object->setCssLink($this->urlGenerator->generate('publication_css', [
+                'id' => $object->getId(),
+                'hash' => md5($css),
+            ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
 
+        $config = $object->getConfig();
         $securityContainer = $object->getSecurityContainer();
         $object->setSecurityContainerId($securityContainer->getId());
-        $object->setSecurityMethod($securityContainer->getSecurityMethod());
-        $object->setSecurityOptions($securityContainer->getSecurityOptions());
+        $config->setSecurityMethod($securityContainer->getSecurityMethod());
+        $config->setSecurityOptions($securityContainer->getSecurityOptions());
     }
 
-    public function support($object, $format): bool
+    public function support($object): bool
     {
         return $object instanceof Publication;
     }

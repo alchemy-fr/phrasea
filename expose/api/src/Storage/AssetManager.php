@@ -38,13 +38,16 @@ class AssetManager
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
+        if (isset($options['description'])) {
+            $asset->setDescription($options['description']);
+        }
 
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }
         if (isset($options['use_as_cover'])) {
             $publication = $this->getPublication($options['use_as_cover']);
-            $publication->setCover($asset);
+            $publication->getConfig()->setCover($asset);
             $this->em->persist($publication);
         }
         if (isset($options['use_as_package'])) {
@@ -61,9 +64,6 @@ class AssetManager
 
             if (isset($options['slug'])) {
                 $publicationAsset->setSlug($options['slug']);
-            }
-            if (isset($options['description'])) {
-                $publicationAsset->setDescription($options['description']);
             }
 
             $this->em->persist($publicationAsset);

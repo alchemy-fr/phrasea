@@ -6,7 +6,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class ValidateTest extends AbstractTestCase
+class ValidateTest extends AbstractUploaderTestCase
 {
     public function testValidateOK(): void
     {

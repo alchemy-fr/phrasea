@@ -8,7 +8,11 @@ import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-import {getAccessToken, getPasswords} from "../lib/credential";
+import {getAccessToken, getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
+import Urls from "./layouts/shared-components/Urls";
+import Copyright from "./layouts/shared-components/Copyright";
+import Cover from "./layouts/shared-components/Cover";
+import TermsModal from "./layouts/shared-components/TermsModal";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -68,15 +72,32 @@ class Publication extends PureComponent {
     render() {
         const {data} = this.state;
 
-        return <Layout
-            menu={<PublicationNavigation
-                currentTitle={data ? data.title : 'Loading...'}
-                children={data && data.children ? data.children : []}
-                parent={data ? data.parent : null}
-            />}
-        >
-            {this.renderContent()}
-        </Layout>
+        return <>
+            {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
+            <Layout
+                menu={
+                    <>
+                        {data && data.cover ? <Cover
+                            url={data.cover.thumbUrl}
+                            alt={data.title}
+                        /> : ''}
+                        <PublicationNavigation
+                            currentTitle={data ? data.title : 'Loading...'}
+                            children={data && data.children ? data.children : []}
+                            parent={data ? data.parent : null}
+                        />
+                        {data && data.urls ? <Urls urls={data.urls}/> : ''}
+                        {data ? <Copyright text={data.copyrightText}/> : ''}
+                    </>}
+            >
+                {this.renderContent()}
+            </Layout>
+        </>
+    }
+
+    acceptTerms = () => {
+        setAcceptedTerms('p_'+this.state.data.id);
+        this.forceUpdate();
     }
 
     renderContent() {
@@ -90,11 +111,14 @@ class Publication extends PureComponent {
             return this.renderSecurityAccess();
         }
 
+        if (data && data.terms.enabled && !isTermsAccepted('p_'+data.id)) {
+            return this.renderTerms();
+        }
+
         return <div className={`publication`}>
             <ThemeEditorProxy
                 data={data}
                 render={data => {
-
                     if (!layouts[data.layout]) {
                         throw new Error(`Unsupported layout ${data.layout}`);
                     }
@@ -107,6 +131,18 @@ class Publication extends PureComponent {
                 }}
             />
         </div>
+    }
+
+    renderTerms() {
+        const {data} = this.state;
+        const {text, url} = data.terms;
+
+        return <TermsModal
+            title={'Publication'}
+            onAccept={this.acceptTerms}
+            text={text}
+            url={url}
+        />
     }
 
     renderSecurityAccess() {

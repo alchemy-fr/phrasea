@@ -19,8 +19,12 @@ services:
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
     _instanceof:
+        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
+            tags: ['arthem_rabbit.event_handler']
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']
+        Doctrine\Common\EventSubscriber:
+            tags: ['doctrine.event_subscriber']
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -50,9 +54,27 @@ services:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
 
-    App\Serializer\EntitySerializer:
-        decorates: 'api_platform.jsonld.normalizer.item'
-        arguments: [ '@App\Serializer\EntitySerializer.inner' ]
+    App\Serializer\NormalizerDecorator:
+        abstract: true
+        autoconfigure: false
+
+    app.serializer.decorated_item:
+        class: App\Serializer\NormalizerDecorator
+        decorates: 'api_platform.serializer.normalizer.item'
+        arguments: [ '@app.serializer.decorated_item.inner' ]
+        tags:
+            - { name: serializer.normalizer, priority: 255 }
+
+    app.serializer.decorated_object:
+        class: App\Serializer\NormalizerDecorator
+        decorates: 'serializer.normalizer.object'
+        arguments: [ '@app.serializer.decorated_object.inner' ]
+        tags:
+            - { name: serializer.normalizer, priority: -989 }
+
+    App\Listener\RouterContextListener:
+        arguments:
+            $baseUrl: '%env(EXPOSE_BASE_URL)%'
 
     App\DataPersister\PublicationDataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'

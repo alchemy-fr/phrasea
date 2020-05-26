@@ -8,6 +8,9 @@
     "alchemy/api-test": {
         "version": "dev-expose"
     },
+    "alchemy/notify-bundle": {
+        "version": "dev-publication-profile"
+    },
     "alchemy/oauth-server-bundle": {
         "version": "dev-expose-oauth-server"
     },
@@ -39,6 +42,9 @@
     },
     "arthem/jwt-request-signer": {
         "version": "dev-security-token-bundle"
+    },
+    "arthem/rabbit-bundle": {
+        "version": "0.0.7"
     },
     "arthem/request-signer-bundle": {
         "version": "dev-security-token-bundle"
@@ -146,6 +152,21 @@
             "config/packages/easy_admin.yaml",
             "config/routes/easy_admin.yaml"
         ]
+    },
+    "exercise/htmlpurifier-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "4667fd2103dc4645d234591e1c85f727c6fe0d11"
+        },
+        "files": [
+            "config/packages/exercise_html_purifier.yaml"
+        ]
+    },
+    "ezyang/htmlpurifier": {
+        "version": "v4.12.0"
     },
     "fig/link-util": {
         "version": "1.0.0"
@@ -294,6 +315,22 @@
     "php": {
         "version": "7.4"
     },
+    "php-amqplib/php-amqplib": {
+        "version": "v2.11.3"
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "1.12",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        },
+        "files": [
+            "config/packages/old_sound_rabbit_mq.yaml",
+            "src/Consumer/.gitignore"
+        ]
+    },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },
@@ -308,6 +345,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.27"
     },
     "predis/predis": {
         "version": "v1.1.1"

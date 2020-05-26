@@ -2,6 +2,7 @@ import React from 'react';
 import ImageGallery from 'react-image-gallery';
 import {dataShape} from "../props/dataShape";
 import {PropTypes} from 'prop-types';
+import Description from "./shared-components/Description";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -96,20 +97,41 @@ class GalleryLayout extends React.Component {
         return <div className={`layout-gallery`}>
             <div className="container">
                 <h1>{title}</h1>
+                <Description
+                    descriptionHtml={data.description}
+                />
                 {assets.length > 0 ?
-                <ImageGallery
-                    startIndex={startIndex}
-                    onSlide={this.onSlide}
-                    showFullscreenButton={showFullscreenButton}
-                    showPlayButton={showPlayButton}
-                    items={assets.map(a => ({
-                        original: a.asset.url,
-                        thumbnail: a.asset.thumbUrl,
-                        renderItem: -1 === a.asset.mimeType.indexOf('image/') ? () => this.renderVideo(a.asset) : undefined,
-                    }))}
-                /> : 'Gallery is empty'}
+                    <ImageGallery
+                        startIndex={startIndex}
+                        onSlide={this.onSlide}
+                        showFullscreenButton={showFullscreenButton}
+                        showPlayButton={showPlayButton}
+                        items={assets.map(a => ({
+                            original: a.asset.url,
+                            thumbnail: a.asset.thumbUrl,
+                            description: 'toto',
+                            asset: a.asset,
+                            renderItem: this.renderItem,
+                        }))}
+                    /> : 'Gallery is empty'}
             </div>
         </div>
+    }
+
+    renderItem = ({asset}) => {
+        if (-1 === asset.mimeType.indexOf('image/')) {
+            return this.renderVideo(asset);
+        }
+
+        return <div className="image-gallery-image">
+            <img
+                alt={asset.title || 'Image'}
+                src={asset.url} />
+            {asset.description ? <span
+            className="image-gallery-description">
+                    <Description descriptionHtml={asset.description} />
+                </span> : ''}
+            </div>;
     }
 }
 

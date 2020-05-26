@@ -30,7 +30,7 @@ final class GetAssetWithSlugAction extends AbstractController
 
         if (
             !$publication instanceof Publication
-            || !$publication->isEnabled() && !$this->isGranted('ROLE_ADMIN')
+            || !$publication->getConfig()->isEnabled() && !$this->isGranted('ROLE_ADMIN')
         ) {
             throw new NotFoundHttpException();
         }

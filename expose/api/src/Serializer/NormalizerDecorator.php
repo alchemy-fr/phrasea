@@ -4,56 +4,38 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use App\Serializer\Normalizer\EntityNormalizerInterface;
 use InvalidArgumentException;
+use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class EntitySerializer implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
+class NormalizerDecorator implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface, CacheableSupportsMethodInterface
 {
     private NormalizerInterface $decorated;
+    private EntityNormalizer $entityNormalizer;
 
-    /**
-     * @var EntityNormalizerInterface[]
-     */
-    private array $normalizers = [];
-
-    public function __construct(NormalizerInterface $decorated)
+    public function __construct(NormalizerInterface $decorated, EntityNormalizer $entityNormalizer)
     {
         if (!$decorated instanceof DenormalizerInterface) {
             throw new InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
         }
 
         $this->decorated = $decorated;
-    }
-
-    public function addNormalizer(EntityNormalizerInterface $normalizer): void
-    {
-        $this->normalizers[] = $normalizer;
+        $this->entityNormalizer = $entityNormalizer;
     }
 
     public function normalize($object, $format = null, array $context = [])
     {
-        foreach ($this->normalizers as $normalizer) {
-            if ($normalizer->support($object, $format)) {
-                $normalizer->normalize($object, $context);
-            }
-        }
+        $this->entityNormalizer->normalize($object, $context);
 
         return $this->decorated->normalize($object, $format, $context);
     }
 
     public function supportsNormalization($data, $format = null): bool
     {
-        foreach ($this->normalizers as $normalizer) {
-            if ($normalizer->support($data, $format)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->decorated->supportsNormalization($data, $format);
     }
 
     public function supportsDenormalization($data, $type, $format = null)
@@ -71,5 +53,10 @@ class EntitySerializer implements NormalizerInterface, DenormalizerInterface, Se
         if ($this->decorated instanceof SerializerAwareInterface) {
             $this->decorated->setSerializer($serializer);
         }
+    }
+
+    public function hasCacheableSupportsMethod(): bool
+    {
+        return $this->decorated->hasCacheableSupportsMethod();
     }
 }

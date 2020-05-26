@@ -14,29 +14,46 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
-          - slug
           - title
-          - layout
-          - enabled
+          - slug
+          - { property: 'profile' }
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
           - { property: 'assets.count', label: Assets }
-          - publiclyListed
-          - securityMethod
+          - { property: enabled, type: boolean }
+          - { property: securityMethod }
           - createdAt
       form:
         fields:
           - { property: 'parent' }
           - { property: 'title' }
           - { property: 'slug' }
-          - { property: 'layout', type: App\Form\LayoutChoiceType }
-          - { property: 'theme', type: App\Form\ThemeChoiceType }
-          - { property: 'enabled' }
+          - { property: 'profile' }
+          - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
-          - { property: 'publiclyListed' }
-          - { property: 'securityMethod', type: App\Form\SecurityMethodChoiceType }
-          - { property: 'password', type: text }
+
+    Profile:
+      class: App\Entity\PublicationProfile
+      label: Profile
+      list:
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - name
+          - { property: config.layout, label: Layout }
+          - { property: config.enabled, label: Enabled }
+          - { property: config.theme, label: Theme }
+          - { property: config.publiclyListed, label: Publicly listed }
+          - { property: config.securityMethod, label: Security method }
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
+          - { property: 'config', type: App\Form\PublicationConfigType }
+          - { property: 'ownerId', label: 'Owner ID' }
 
     Asset:
       class: App\Entity\Asset

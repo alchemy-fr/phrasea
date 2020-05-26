@@ -157,7 +157,7 @@ class Asset implements MediaInterface
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
-     * @Groups({"asset:read", "publication:read", "publication:list"})
+     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
     private $mimeType;
 
@@ -178,7 +178,6 @@ class Asset implements MediaInterface
      *         }
      *     }
      * )
-     * @Groups({"asset:read"})
      * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
      */
     private $publications;
@@ -225,19 +224,15 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
-     *
-     * @var string
+     * @Groups({"publication:read", "publication:index"})
      */
-    private $downloadUrl;
+    private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
-     *
-     * @var string
+     * @Groups({"publication:read", "publication:index"})
      */
-    private $thumbUrl;
+    private ?string $thumbUrl = null;
 
     public function __construct()
     {

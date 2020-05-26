@@ -231,6 +231,7 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
+      - EXPOSE_BASE_URL
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -256,6 +257,7 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
+      - EXPOSE_BASE_URL
 
   expose-api-nginx:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG

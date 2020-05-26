@@ -10,8 +10,10 @@ use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
+use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use HTMLPurifier;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
@@ -22,8 +24,11 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
     private EntityManagerInterface $em;
     private Security $security;
 
-    public function __construct(DataPersisterInterface $decorated, EntityManagerInterface $em, Security $security)
-    {
+    public function __construct(
+        DataPersisterInterface $decorated,
+        EntityManagerInterface $em,
+        Security $security
+    ) {
         $this->decorated = $decorated;
         $this->em = $em;
         $this->security = $security;
@@ -49,7 +54,9 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
         }
 
         if ($data instanceof Publication
-            || $data instanceof Asset) {
+            || $data instanceof Asset
+            || $data instanceof PublicationProfile
+        ) {
             $user = $this->security->getUser();
             if ($user instanceof RemoteUser && !$data->getOwnerId()) {
                 $data->setOwnerId($user->getId());

@@ -48,7 +48,7 @@ class Publication implements AclObjectInterface
     const GROUP_INDEX = 'publication:index';
     const GROUP_READ = 'publication:read';
     const GROUP_ADMIN_READ = 'publication:admin:read';
-    const GROUP_LIST = 'publication:list';
+    const GROUP_LIST = 'publication:index';
 
     const API_READ = [
         'groups' => [self::GROUP_READ],
@@ -65,7 +65,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"publication:index", "publication:list", "publication:read", "asset:read"})
+     * @Groups({"publication:index", "publication:index", "publication:read", "asset:read"})
      *
      * @var Uuid
      *
@@ -78,7 +78,7 @@ class Publication implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="string", length=255)
-     * @Groups({"publication:index", "publication:list", "publication:read"})
+     * @Groups({"publication:index", "publication:index", "publication:read"})
      */
     private ?string $title = null;
 
@@ -86,7 +86,7 @@ class Publication implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"publication:list", "publication:read"})
+     * @Groups({"publication:index", "publication:read"})
      */
     private ?string $description = null;
 
@@ -109,19 +109,14 @@ class Publication implements AclObjectInterface
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
+     *             "$ref"="#/definitions/PublicationProfile",
      *         }
      *     }
      * )
-     * @ORM\ManyToOne(targetEntity="Asset")
+     * @ORM\ManyToOne(targetEntity="PublicationProfile")
+     * @Groups({"publication:admin:read"})
      */
-    private ?Asset $cover = null;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
-     */
-    private ?string $coverUrl = null;
+    private ?PublicationProfile $profile = null;
 
     /**
      * @ApiProperty(
@@ -136,17 +131,23 @@ class Publication implements AclObjectInterface
     private ?Asset $package = null;
 
     /**
-     * @ApiProperty()
-     * @Groups({"publication:read", "publication:list"})
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/Asset",
+     *         }
+     *     }
+     * )
+     * @ORM\ManyToOne(targetEntity="Asset")
+     * @Groups({"publication:admin:read", "publication:index", "publication:read"})
      */
-    private ?string $packageUrl = null;
+    private ?Asset $cover = null;
 
     /**
      * @ApiProperty()
-     * @ORM\Column(type="boolean")
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "publication:index"})
      */
-    private bool $enabled = false;
+    private ?string $packageUrl = null;
 
     /**
      * @ApiProperty()
@@ -177,6 +178,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(
+     *     readableLink=true,
      *     attributes={
      *         "swagger_context"={
      *             "$ref"="#/definitions/Publication",
@@ -184,8 +186,6 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
-     *
-     * @var Publication[]|Collection
      *
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
      */
@@ -212,18 +212,16 @@ class Publication implements AclObjectInterface
     private Collection $children;
 
     /**
-     * @ApiProperty()
-     * @ORM\Column(type="boolean")
-     * @Groups({"publication:read"})
+     * @ORM\Embedded(class="App\Entity\PublicationConfig")
+     * @Groups({"publication:index", "publication:admin:read"})
      */
-    private bool $publiclyListed = false;
+    private PublicationConfig $config;
 
     /**
      * Virtual property.
      *
      * @ApiProperty()
      *
-     * @var string|null
      * @Groups({"publication:write"})
      */
     private ?string $parentId = null;
@@ -232,39 +230,11 @@ class Publication implements AclObjectInterface
      * URL slug.
      *
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:list", "publication:read"})
+     * @Groups({"publication:index", "publication:index", "publication:read"})
      *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */
     protected ?string $slug = null;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     * @ORM\Column(type="string", length=20)
-     */
-    private ?string $layout = null;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     * @ORM\Column(type="string", length=30, nullable=true)
-     */
-    private ?string $theme = null;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?DateTime $beginsAt = null;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?DateTime $expiresAt = null;
 
     /**
      * @ORM\Column(type="datetime")
@@ -273,31 +243,18 @@ class Publication implements AclObjectInterface
     private DateTime $createdAt;
 
     /**
-     * "password" or "authentication".
-     *
-     * @ORM\Column(type="string", length=20, nullable=true)
-     *
-     * @ApiProperty()
-     * @Groups({"publication:index", "publication:read"})
-     */
-    private ?string $securityMethod = self::SECURITY_METHOD_NONE;
-
-    /**
-     * If securityMethod="password", you must provide:
-     * {"password":"$3cr3t!"}.
-     *
-     * @ORM\Column(type="json_array")
-     *
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read"})
      */
-    private array $securityOptions = [];
+    private ?string $cssLink = null;
 
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
+        $this->config = new PublicationConfig();
+        $this->config->applyDefaults();
         $this->id = Uuid::uuid4();
     }
 
@@ -329,14 +286,114 @@ class Publication implements AclObjectInterface
         return $this->createdAt;
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
     public function isEnabled(): bool
     {
-        return $this->enabled;
+        return $this->config->isEnabled()
+            && (!$this->profile || $this->profile->getConfig()->isEnabled());
     }
 
-    public function setEnabled(bool $enabled): void
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function isPubliclyListed(): bool
     {
-        $this->enabled = $enabled;
+        return $this->config->isPubliclyListed()
+            || ($this->profile && $this->profile->getConfig()->isPubliclyListed());
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getLayout(): string
+    {
+        return $this->config->getLayout() ?? ($this->profile ? $this->profile->getConfig()->getLayout() : 'gallery');
+    }
+
+    /**
+     * @Groups({"publication:admin:read"})
+     */
+    public function getCss(): ?string
+    {
+        $css = [];
+        if ($this->config->getCss()) {
+            $css[] = $this->config->getCss();
+        }
+        if ($this->profile && $this->profile->getConfig()->getCss()) {
+            $css[] = $this->profile->getConfig()->getCss();
+        }
+
+        if (!empty($css)) {
+            return implode("\n", $css);
+        }
+
+        return null;
+    }
+
+    public function getCssLink(): ?string
+    {
+        return $this->cssLink;
+    }
+
+    public function setCssLink(?string $cssLink): void
+    {
+        $this->cssLink = $cssLink;
+    }
+
+    /**
+     * @return Url[]|array
+     * @Groups({"publication:read"})
+     */
+    public function getUrls(): array
+    {
+        $urls = $this->config->getUrls();
+        if ($this->profile && !empty($this->profile->getConfig()->getUrls())) {
+            $urls = array_merge($this->profile->getConfig()->getUrls(), $urls);
+        }
+
+        return Url::mapUrls($urls);
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getCopyrightText(): ?string
+    {
+        return $this->config->getCopyrightText() ?? ($this->profile ? $this->profile->getConfig()->getCopyrightText() : null);
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getTheme(): ?string
+    {
+        return $this->config->getTheme() ?? ($this->profile ? $this->profile->getConfig()->getTheme() : null);
+    }
+
+    /**
+     * @Groups({"publication:index", "publication:read"})
+     */
+    public function getSecurityMethod(): ?string
+    {
+        return $this->config->getSecurityMethod() ?? ($this->profile ? $this->profile->getConfig()->getSecurityMethod() : null);
+    }
+
+    /**
+     * @Groups({"publication:admin:read"})
+     */
+    public function getSecurityOptions(): array
+    {
+        if (!empty($this->config->getSecurityOptions())) {
+            return $this->config->getSecurityOptions();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getSecurityOptions();
+        }
+
+        return [];
     }
 
     public function addAsset(Asset $asset): void
@@ -351,46 +408,6 @@ class Publication implements AclObjectInterface
         $this->assets->removeElement($asset);
     }
 
-    public function getLayout(): ?string
-    {
-        return $this->layout;
-    }
-
-    public function setLayout(string $layout): void
-    {
-        $this->layout = $layout;
-    }
-
-    public function getBeginsAt(): ?DateTime
-    {
-        return $this->beginsAt;
-    }
-
-    public function setBeginsAt(?DateTime $beginsAt): void
-    {
-        $this->beginsAt = $beginsAt;
-    }
-
-    public function getExpiresAt(): ?DateTime
-    {
-        return $this->expiresAt;
-    }
-
-    public function setExpiresAt(?DateTime $expiresAt): void
-    {
-        $this->expiresAt = $expiresAt;
-    }
-
-    public function getTheme(): ?string
-    {
-        return $this->theme;
-    }
-
-    public function setTheme(?string $theme): void
-    {
-        $this->theme = $theme;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -401,26 +418,6 @@ class Publication implements AclObjectInterface
         $this->description = $description;
     }
 
-    public function isPubliclyListed(): bool
-    {
-        return $this->publiclyListed;
-    }
-
-    public function setPubliclyListed(bool $publiclyListed): void
-    {
-        $this->publiclyListed = $publiclyListed;
-    }
-
-    public function getCover(): ?Asset
-    {
-        return $this->cover;
-    }
-
-    public function setCover(?Asset $cover): void
-    {
-        $this->cover = $cover;
-    }
-
     public function getPackage(): ?Asset
     {
         return $this->package;
@@ -429,16 +426,6 @@ class Publication implements AclObjectInterface
     public function setPackage(?Asset $package): void
     {
         $this->package = $package;
-    }
-
-    public function getCoverUrl(): ?string
-    {
-        return $this->coverUrl;
-    }
-
-    public function setCoverUrl(?string $coverUrl): void
-    {
-        $this->coverUrl = $coverUrl;
     }
 
     public function getPackageUrl(): ?string
@@ -468,31 +455,11 @@ class Publication implements AclObjectInterface
 
     public function getSecurityContainer(): self
     {
-        if (self::SECURITY_METHOD_NONE !== $this->securityMethod) {
+        if (self::SECURITY_METHOD_NONE !== $this->getSecurityMethod()) {
             return $this;
         }
 
-        return $this->parent ?? $this;
-    }
-
-    public function getSecurityMethod(): ?string
-    {
-        return $this->securityMethod;
-    }
-
-    public function setSecurityMethod(?string $securityMethod): void
-    {
-        $this->securityMethod = $securityMethod;
-    }
-
-    public function getSecurityOptions(): array
-    {
-        return $this->securityOptions;
-    }
-
-    public function setSecurityOptions(array $securityOptions): void
-    {
-        $this->securityOptions = $securityOptions;
+        return $this->parent ? $this->parent->getSecurityContainer() : $this;
     }
 
     public function isAuthorized(): bool
@@ -574,21 +541,67 @@ class Publication implements AclObjectInterface
         $this->parentId = $parentId;
     }
 
-    public function getPassword(): ?string
+    public function getConfig(): PublicationConfig
     {
-        return $this->securityOptions['password'] ?? null;
+        return $this->config;
     }
 
-    public function setPassword(?string $password): void
+    public function setConfig(PublicationConfig $config): void
     {
-        if (!empty($password)) {
-            if (self::SECURITY_METHOD_NONE === $this->securityMethod) {
-                $this->setSecurityMethod(self::SECURITY_METHOD_PASSWORD);
-            }
-            $this->securityOptions['password'] = $password;
-        } else {
-            unset($this->securityOptions['password']);
+        $this->config->mergeWith($config);
+    }
+
+    public function getProfile(): ?PublicationProfile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?PublicationProfile $profile): void
+    {
+        $this->profile = $profile;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getTerms(): TermsConfig
+    {
+        if ($this->profile) {
+            return $this->config->getTerms()->mergeWithProfile($this->profile->getConfig()->getTerms());
         }
+
+        return $this->config->getTerms();
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getDownloadTerms(): TermsConfig
+    {
+        if ($this->profile) {
+            return $this->config->getDownloadTerms()->mergeWithProfile($this->profile->getConfig()->getDownloadTerms());
+        }
+
+        return $this->config->getDownloadTerms();
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function isDownloadViaEmail(): bool
+    {
+        return $this->config->getDownloadViaEmail()
+            || (!$this->profile || ($this->profile->getConfig()->getDownloadViaEmail()) ?? false);
+    }
+
+    public function getCover(): ?Asset
+    {
+        return $this->cover;
+    }
+
+    public function setCover(?Asset $cover): void
+    {
+        $this->cover = $cover;
     }
 
     // @see https://github.com/doctrine/orm/issues/7944

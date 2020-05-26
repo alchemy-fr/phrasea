@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
-class NestedPublicationTest extends AbstractTestCase
+class NestedPublicationTest extends AbstractExposeTestCase
 {
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'owner_id' => '123',
+            'ownerId' => '123',
         ]);
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
@@ -21,7 +20,9 @@ class NestedPublicationTest extends AbstractTestCase
             [
             'parentId' => $id,
             'title' => 'Sub Foo',
-            'layout' => 'download',
+            'config' => [
+                'layout' => 'download',
+            ],
         ]
         );
         $json = json_decode($response->getContent(), true);
@@ -42,6 +43,37 @@ class NestedPublicationTest extends AbstractTestCase
         $this->assertEquals($id, $json['parent']['id']);
         $this->assertArrayHasKey('title', $json['parent']);
         $this->assertEquals('123', $json['parent']['ownerId']);
+    }
+
+    public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
+    {
+        $parentId = $this->createPublication();
+        $childId = $this->createPublication(['parent_id' => $parentId]);
+
+        foreach ([
+                     null,
+                     '*/*',
+                     'application/json',
+                     'application/ld+json',
+                 ] as $accept) {
+            $response = $this->request(
+                AuthServiceClientTestMock::ADMIN_TOKEN,
+                'GET',
+                '/publications/'.$childId,
+                [],
+                [],
+                ['HTTP_ACCEPT' => $accept]
+            );
+            $json = json_decode($response->getContent(), true);
+
+            $this->assertEquals(200, $response->getStatusCode());
+
+            $this->assertArrayHasKey('parent', $json);
+            $this->assertEquals($parentId, $json['parent']['id']);
+            $this->assertArrayHasKey('id', $json);
+            $this->assertArrayHasKey('title', $json);
+            $this->assertEquals(true, $json['authorized']);
+        }
     }
 
     public function testGetNestedPublication(): void

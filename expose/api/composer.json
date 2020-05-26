@@ -55,6 +55,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/notify-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -65,12 +72,15 @@
         "ext-iconv": "*",
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/notify-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "arthem/jwt-request-signer": "^1",
+        "arthem/rabbit-bundle": "^0.0.7",
         "arthem/request-signer-bundle": "^1.0.1",
         "doctrine/dbal": "2.9.1",
+        "exercise/htmlpurifier-bundle": "^2.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "nelmio/cors-bundle": "^1.5",
         "oneup/flysystem-bundle": "^3.1",
