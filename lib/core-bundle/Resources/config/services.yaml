@@ -8,3 +8,8 @@ services:
       $baseUrl: '%alchemy_core.app_base_url%'
     tags:
       - { name: kernel.event_subscriber }
+
+  alchemy_core.monolog.line_formatter_stack_trace:
+    class: Monolog\Formatter\LineFormatter
+    calls:
+      - [includeStacktraces]
