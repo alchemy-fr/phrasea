@@ -31,11 +31,19 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
-        $loader->load('services.yaml');
-        $container->setParameter('alchemy_core.app_base_url', $config['app_base_url']);
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['MonologBundle'])) {
+            $loader->load('monolog.yaml');
+        }
+
+        if (!empty($config['app_base_url'])) {
+            $container->setParameter('alchemy_core.app_base_url', $config['app_base_url']);
+            $loader->load('router_listener.yaml');
+        }
 
         if ($config['healthcheck']['enabled']) {
-            $this->loadHealthCheckers($container, $loader);
+            $loader->load('healthcheck.yaml');
+            $this->loadHealthCheckers($container);
         }
     }
 
@@ -57,10 +65,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
     }
 
-    private function loadHealthCheckers(ContainerBuilder $container, Loader\YamlFileLoader $loader): void
+    private function loadHealthCheckers(ContainerBuilder $container): void
     {
-        $loader->load('healthcheck.yaml');
-
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['DoctrineBundle'])) {
             $definition = $this->createHealthCheckerDefinition(DoctrineConnectionChecker::class);

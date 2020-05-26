@@ -29,5 +29,6 @@ return [
     FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
+    Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
 ];
