@@ -57,6 +57,7 @@ class ThemeEditorProxy extends PureComponent {
                         >
                             <option value="download">Download</option>
                             <option value="gallery">Gallery</option>
+                            <option value="mapbox">Mapbox</option>
                         </select>
                     </div>
                 </form>

@@ -100,66 +100,54 @@ class Asset implements MediaInterface
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    protected $id;
+    private $id;
 
     /**
      * @ApiProperty()
-     *
-     * @var string|null
      *
      * @Groups({"asset:read"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $assetId;
+    private ?string $assetId = null;
 
     /**
-     * @var string
      * @ORM\Column(type="string", length=255)
      */
-    private $path;
+    private ?string $path = null;
 
     /**
-     * @var int
      * @Groups({"asset:read", "publication:read"})
      * @ORM\Column(type="integer")
      */
-    private $size;
+    private ?int $size = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=255, nullable=true)
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read"})
      */
-    private $title;
+    private ?string $title = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="text", nullable=true)
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read"})
      */
-    private $description;
+    private ?string $description = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(iri="http://schema.org/name")
      * @Groups({"asset:read", "publication:read"})
      */
-    private $originalName;
+    private ?string $originalName = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read", "publication:index"})
      */
-    private $mimeType;
+    private ?string $mimeType = null;
 
     /**
      * @ApiProperty()
@@ -180,7 +168,7 @@ class Asset implements MediaInterface
      * )
      * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
      */
-    private $publications;
+    private ?Collection $publications = null;
 
     /**
      * @var SubDefinition[]|Collection
@@ -189,38 +177,57 @@ class Asset implements MediaInterface
      * @Groups({"asset:read", "publication:read"})
      * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset", cascade={"remove"})
      */
-    private $subDefinitions;
+    private ?Collection $subDefinitions = null;
 
     /**
-     * @var SubDefinition|null
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
      */
-    private $previewDefinition;
+    private ?SubDefinition $previewDefinition = null;
 
     /**
-     * @var SubDefinition|null
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
      */
-    private $thumbnailDefinition;
+    private ?SubDefinition $thumbnailDefinition = null;
 
     /**
-     * @var DateTime
+     * Location latitude.
      *
+     * @ApiProperty()
+     * @ORM\Column(type="float", nullable=true)
+     * @Groups({"asset:read", "publication:read"})
+     */
+    private ?float $lat = null;
+
+    /**
+     * Location longitude.
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="float", nullable=true)
+     * @Groups({"asset:read", "publication:read"})
+     */
+    private ?float $lng = null;
+
+    /**
+     * Location altitude.
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="float", nullable=true)
+     * @Groups({"asset:read", "publication:read"})
+     */
+    private ?float $altitude = null;
+
+    /**
      * @ORM\Column(type="datetime")
      * @ApiProperty()
      * @Groups({"asset:read"})
      */
-    private $createdAt;
+    private ?DateTime $createdAt = null;
 
     /**
      * @ApiProperty()
      * @Groups({"publication:read"})
-     *
-     * @var string
      */
-    private $url;
+    private ?string $url = null;
 
     /**
      * @ApiProperty()
@@ -406,6 +413,36 @@ class Asset implements MediaInterface
     public function setOwnerId(?string $ownerId): void
     {
         $this->ownerId = $ownerId;
+    }
+
+    public function getLat(): ?float
+    {
+        return $this->lat;
+    }
+
+    public function setLat(?float $lat): void
+    {
+        $this->lat = $lat;
+    }
+
+    public function getLng(): ?float
+    {
+        return $this->lng;
+    }
+
+    public function setLng(?float $lng): void
+    {
+        $this->lng = $lng;
+    }
+
+    public function getAltitude(): ?float
+    {
+        return $this->altitude;
+    }
+
+    public function setAltitude(?float $altitude): void
+    {
+        $this->altitude = $altitude;
     }
 
     public function __toString()

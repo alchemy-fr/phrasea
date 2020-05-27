@@ -127,6 +127,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private ?Asset $package = null;
 
@@ -139,6 +140,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      * @Groups({"publication:admin:read", "publication:index", "publication:read"})
      */
     private ?Asset $cover = null;

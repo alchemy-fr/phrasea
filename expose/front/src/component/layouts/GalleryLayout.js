@@ -3,11 +3,20 @@ import ImageGallery from 'react-image-gallery';
 import {dataShape} from "../props/dataShape";
 import {PropTypes} from 'prop-types';
 import Description from "./shared-components/Description";
+import {defaultMapProps, initMapbox} from "./mapbox/MapboxLayout";
+import mapboxgl from 'mapbox-gl';
 
 class GalleryLayout extends React.Component {
     static propTypes = {
         data: dataShape,
         assetId: PropTypes.string,
+        options: PropTypes.object,
+    };
+
+    static defaultProps = {
+        options: {
+            map: 'mapbox',
+        },
     };
 
     state = {
@@ -16,8 +25,66 @@ class GalleryLayout extends React.Component {
         showVideo: {},
     };
 
-    onSlide = () => {
+    map;
+
+    constructor(props) {
+        super(props);
+
+        this.mapContainer = React.createRef();
+    }
+
+    componentDidMount() {
+        if (this.props.options.map) {
+            this.initMap();
+        }
+    }
+
+    initMap() {
+        if (!this.mapContainer.current) {
+            return;
+        }
+
+        const locationAsset = this.props.data.assets.filter(a => a.asset.lat)[0].asset;
+
+        switch (this.props.options.map) {
+            case 'mapbox':
+                this.map = initMapbox(this.mapContainer.current, {
+                    ...defaultMapProps,
+                    ...(locationAsset ? {
+                        lat: locationAsset.lat,
+                        lng: locationAsset.lng,
+                    } : {}),
+                    zoom: 5
+                });
+                this.props.data.assets.forEach(a => {
+                    const {asset} = a;
+                    new mapboxgl.Marker()
+                        .setLngLat([
+                            asset.lng,
+                            asset.lat,])
+                        .addTo(this.map);
+                });
+                break;
+            default:
+                throw Error(`Undefined map provider ${this.props.options.map}`);
+        }
+    }
+
+    onSlide = (offset) => {
         this.resetVideo();
+
+        if (this.map) {
+            const asset = this.props.data.assets[offset].asset;
+            if (asset.lat) {
+                this.map.flyTo({
+                    center: [
+                        asset.lng,
+                        asset.lat,
+                    ],
+                    essential: true
+                });
+            }
+        }
     };
 
     resetVideo() {
@@ -72,7 +139,7 @@ class GalleryLayout extends React.Component {
     };
 
     render() {
-        const {assetId, data} = this.props;
+        const {assetId, data, options} = this.props;
         const {
             title,
             assets,
@@ -114,7 +181,17 @@ class GalleryLayout extends React.Component {
                             renderItem: this.renderItem,
                         }))}
                     /> : 'Gallery is empty'}
+                {options.map ? this.renderMap() : ''}
             </div>
+        </div>
+    }
+
+    renderMap() {
+        return <div className={'gallery-map'}>
+            <div
+                className={'map-container'}
+                ref={this.mapContainer}
+            />
         </div>
     }
 
@@ -126,12 +203,12 @@ class GalleryLayout extends React.Component {
         return <div className="image-gallery-image">
             <img
                 alt={asset.title || 'Image'}
-                src={asset.url} />
+                src={asset.url}/>
             {asset.description ? <span
-            className="image-gallery-description">
-                    <Description descriptionHtml={asset.description} />
+                className="image-gallery-description">
+                    <Description descriptionHtml={asset.description}/>
                 </span> : ''}
-            </div>;
+        </div>;
     }
 }
 

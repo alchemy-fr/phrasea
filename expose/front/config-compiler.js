@@ -14,5 +14,6 @@
         clientId: env.CLIENT_ID,
         clientSecret: env.CLIENT_SECRET,
         devMode: env.DEV_MODE === 'true',
+        mapBoxToken: env.MAPBOX_TOKEN
     };
 });

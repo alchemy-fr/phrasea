@@ -78,6 +78,7 @@ class DownloadRequest
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Asset")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private ?Asset $asset = null;
 
