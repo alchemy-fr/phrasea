@@ -20,24 +20,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AdminController extends EasyAdminController
 {
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    /**
-     * @var UserImporter
-     */
-    private $userImporter;
-    /**
-     * @var InviteManager
-     */
-    private $inviteManager;
+    private UserManager $userManager;
+    private EventProducer $eventProducer;
+    private UserImporter $userImporter;
+    private InviteManager $inviteManager;
 
     public function __construct(
         UserManager $userManager,

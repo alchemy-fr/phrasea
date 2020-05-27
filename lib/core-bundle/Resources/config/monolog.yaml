@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  alchemy_core.monolog.line_formatter_stack_trace:
+    class: Monolog\Formatter\LineFormatter
+    calls:
+      - [includeStacktraces]

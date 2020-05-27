@@ -88,6 +88,7 @@
         "symfony/flex": "^1.1",
         "symfony/form": "^4.4",
         "symfony/framework-bundle": "^4.4",
+        "symfony/monolog-bundle": "^3.5",
         "symfony/orm-pack": "^1.0",
         "symfony/process": "^4.4",
         "symfony/psr-http-message-bridge": "^1.2",
