@@ -445,6 +445,11 @@ class Asset implements MediaInterface
         $this->altitude = $altitude;
     }
 
+    public function getGeoPoint(): ?string
+    {
+        return $this->lat ? sprintf('[%.4f, %.4f]', $this->lat, $this->lat) : null;
+    }
+
     public function __toString()
     {
         return $this->getId().($this->title ? '-'.$this->title : '');

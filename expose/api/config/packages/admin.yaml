@@ -67,11 +67,15 @@ easy_admin:
           - id
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
+          - geoPoint
           - createdAt
       form:
         fields:
           - originalName
           - description
+          - lat
+          - lng
+          - altitude
 
     PublicationAsset:
       class: App\Entity\PublicationAsset
