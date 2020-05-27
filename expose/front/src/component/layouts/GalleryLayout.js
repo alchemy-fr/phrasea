@@ -44,7 +44,8 @@ class GalleryLayout extends React.Component {
             return;
         }
 
-        const locationAsset = this.props.data.assets.filter(a => a.asset.lat)[0].asset;
+        let locationAsset = this.props.data.assets.filter(a => a.asset.lat)[0];
+        locationAsset = locationAsset ? locationAsset.asset : null;
 
         switch (this.props.options.map) {
             case 'mapbox':
