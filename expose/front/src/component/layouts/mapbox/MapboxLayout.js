@@ -54,7 +54,13 @@ class MapboxLayout extends React.Component {
         if (!this.mapContainer.current) {
             return;
         }
-        const map = initMapbox(this.mapContainer.current, this.state);
+
+        const locationAsset = this.props.data.assets.filter(a => a.asset.lat)[0].asset;
+
+        const map = initMapbox(this.mapContainer.current, {
+            ...this.state,
+            ...(locationAsset ? locationAsset : {}),
+        });
         map.on('move', () => {
             this.setState({
                 lng: map.getCenter().lng.toFixed(4),

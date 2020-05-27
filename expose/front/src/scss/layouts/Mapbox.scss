@@ -8,6 +8,10 @@
     margin: 20px 0;
   }
 
+  .description {
+    margin-bottom: 25px;
+  }
+
   .container {
     width: 58vw;
   }
@@ -41,8 +45,14 @@
   }
 
   .image-full {
+    margin-top: 25px;
+
     img {
       max-width: 100%;
+    }
+
+    .description {
+      margin-top: 15px;
     }
   }
 }

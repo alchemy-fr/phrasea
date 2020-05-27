@@ -58,6 +58,9 @@ class GalleryLayout extends React.Component {
                 });
                 this.props.data.assets.forEach(a => {
                     const {asset} = a;
+                    if (!(asset.lat && asset.lng)) {
+                        return;
+                    }
                     new mapboxgl.Marker()
                         .setLngLat([
                             asset.lng,
@@ -75,7 +78,7 @@ class GalleryLayout extends React.Component {
 
         if (this.map) {
             const asset = this.props.data.assets[offset].asset;
-            if (asset.lat) {
+            if (asset.lat && asset.lng) {
                 this.map.flyTo({
                     center: [
                         asset.lng,

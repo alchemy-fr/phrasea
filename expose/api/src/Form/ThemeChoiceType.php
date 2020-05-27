@@ -10,10 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ThemeChoiceType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    private $choices;
+    private array $choices;
 
     public function __construct(array $choices)
     {
@@ -22,7 +19,9 @@ class ThemeChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choices = [];
+        $choices = [
+            'None' => '',
+        ];
         foreach ($this->choices as $key => $choice) {
             $choices[$choice] = $key;
         }
