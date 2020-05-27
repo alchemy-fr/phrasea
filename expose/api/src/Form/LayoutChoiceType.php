@@ -10,10 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LayoutChoiceType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    private $choices;
+    private array $choices;
 
     public function __construct(array $choices)
     {

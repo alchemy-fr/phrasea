@@ -291,6 +291,7 @@ services:
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
+      - MAPBOX_TOKEN
 
   notify-api-php:
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG

@@ -115,7 +115,7 @@ class Publication extends PureComponent {
             return this.renderTerms();
         }
 
-        return <div className={`publication`}>
+        return <>
             <ThemeEditorProxy
                 data={data}
                 render={data => {
@@ -130,7 +130,7 @@ class Publication extends PureComponent {
                     />
                 }}
             />
-        </div>
+        </>
     }
 
     renderTerms() {

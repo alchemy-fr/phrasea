@@ -59,7 +59,6 @@ easy_admin:
       class: App\Entity\Asset
       disabled_actions:
         - new
-        - edit
       list:
         batch_actions:
           - delete
@@ -69,6 +68,10 @@ easy_admin:
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - createdAt
+      form:
+        fields:
+          - originalName
+          - description
 
     PublicationAsset:
       class: App\Entity\PublicationAsset

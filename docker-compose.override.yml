@@ -41,6 +41,7 @@ services:
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
+      - MAPBOX_TOKEN
     ports:
       - ${EXPOSE_FRONT_DEV_PORT}:3000
 
@@ -134,6 +135,7 @@ services:
       - AUTH_BASE_URL
       - EXPOSE_BASE_URL
       - REPORT_BASE_URL
+      - MAPBOX_TOKEN
       - XDEBUG_ENABLED
       - IDE_KEY
       - XDEBUG_REMOTE_HOST=${PS_GATEWAY_IP}

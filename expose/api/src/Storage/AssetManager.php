@@ -47,7 +47,7 @@ class AssetManager
         }
         if (isset($options['use_as_cover'])) {
             $publication = $this->getPublication($options['use_as_cover']);
-            $publication->getConfig()->setCover($asset);
+            $publication->setCover($asset);
             $this->em->persist($publication);
         }
         if (isset($options['use_as_package'])) {
@@ -67,6 +67,16 @@ class AssetManager
             }
 
             $this->em->persist($publicationAsset);
+        }
+
+        if (isset($options['lat'])) {
+            $asset->setLat((float) $options['lat']);
+        }
+        if (isset($options['lng'])) {
+            $asset->setLng((float) $options['lng']);
+        }
+        if (isset($options['altitude'])) {
+            $asset->setAltitude((float) $options['altitude']);
         }
 
         $this->em->persist($asset);
