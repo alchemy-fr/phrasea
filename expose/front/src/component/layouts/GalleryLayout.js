@@ -31,6 +31,7 @@ class GalleryLayout extends React.Component {
         super(props);
 
         this.mapContainer = React.createRef();
+        this.sliderRef = React.createRef();
     }
 
     componentDidMount() {
@@ -57,21 +58,33 @@ class GalleryLayout extends React.Component {
                     } : {}),
                     zoom: 5
                 });
-                this.props.data.assets.forEach(a => {
+                this.props.data.assets.forEach((a, pos) => {
                     const {asset} = a;
                     if (!(asset.lat && asset.lng)) {
                         return;
                     }
-                    new mapboxgl.Marker()
+                    const marker = new mapboxgl.Marker()
                         .setLngLat([
                             asset.lng,
                             asset.lat,])
-                        .addTo(this.map);
+                        .addTo(this.map)
+                    ;
+
+                    marker.getElement().addEventListener('click', () => {
+                        this.goto(pos);
+                    });
                 });
                 break;
             default:
                 throw Error(`Undefined map provider ${this.props.options.map}`);
         }
+    }
+
+    goto(index) {
+        if (!this.sliderRef.current) {
+            return;
+        }
+        this.sliderRef.current.slideToIndex(index);
     }
 
     onSlide = (offset) => {
@@ -173,6 +186,7 @@ class GalleryLayout extends React.Component {
                 />
                 {assets.length > 0 ?
                     <ImageGallery
+                        ref={this.sliderRef}
                         startIndex={startIndex}
                         onSlide={this.onSlide}
                         showFullscreenButton={showFullscreenButton}

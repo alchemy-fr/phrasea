@@ -30,7 +30,7 @@ class Layout extends PureComponent {
                     {this.props.menu}
                 </div>
             </nav>
-            <div className="p-4 p-md-5 pt-5">
+            <div className="main-content p-4 p-md-5 pt-5">
                 {this.props.children}
             </div>
         </div>

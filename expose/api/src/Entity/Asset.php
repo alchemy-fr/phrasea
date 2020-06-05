@@ -64,6 +64,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                     },
  *                     {
  *                         "in"="formData",
+ *                         "name"="title",
+ *                         "type"="string",
+ *                         "required"=false,
+ *                     },
+ *                     {
+ *                         "in"="formData",
  *                         "name"="asset_id",
  *                         "type"="string",
  *                         "required"=false,
@@ -71,10 +77,51 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                     },
  *                     {
  *                         "in"="formData",
+ *                         "name"="use_as_package",
+ *                         "type"="boolean",
+ *                         "required"=false,
+ *                         "description"="When provided with publication_id, set this file as the publication's package file.",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="use_as_cover",
+ *                         "type"="boolean",
+ *                         "required"=false,
+ *                         "description"="When provided with publication_id, set this file as the publication's cover image.",
+ *                     },
+ *                     {
+ *                         "in"="formData",
  *                         "name"="slug",
  *                         "type"="string",
  *                         "required"=false,
  *                         "description"="Ignored if no publication_id provided",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="description",
+ *                         "type"="string",
+ *                         "required"=false,
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="lat",
+ *                         "type"="float",
+ *                         "required"=false,
+ *                         "description"="The asset location latitude",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="lng",
+ *                         "type"="float",
+ *                         "required"=false,
+ *                         "description"="The asset location longitude",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="altitude",
+ *                         "type"="float",
+ *                         "required"=false,
+ *                         "description"="The asset location altitude",
  *                     },
  *                 }
  *             },
@@ -447,7 +494,7 @@ class Asset implements MediaInterface
 
     public function getGeoPoint(): ?string
     {
-        return $this->lat ? sprintf('[%.4f, %.4f]', $this->lat, $this->lat) : null;
+        return $this->lat ? sprintf('[%.4f, %.4f]', $this->lat, $this->lng) : null;
     }
 
     public function __toString()
