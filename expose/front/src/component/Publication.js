@@ -2,17 +2,18 @@ import React, {PureComponent} from 'react';
 import config from '../lib/config';
 import apiClient from '../lib/apiClient';
 import {PropTypes} from 'prop-types';
-import FullPageLoader from "./FullPageLoader";
 import {layouts} from "./layouts";
+import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-import {getAccessToken, getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
+import {getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import Cover from "./layouts/shared-components/Cover";
 import TermsModal from "./layouts/shared-components/TermsModal";
+import {oauthClient} from "../lib/oauth";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -23,6 +24,7 @@ class Publication extends PureComponent {
     state = {
         data: null,
         authorization: null,
+        authenticated: null,
     };
 
     static getDerivedStateFromProps(props, state) {
@@ -59,14 +61,23 @@ class Publication extends PureComponent {
             options.headers = {'X-Passwords': passwords};
         }
 
-        const accessToken = getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
         if (accessToken) {
             options.headers = {'Authorization': `Bearer ${accessToken}`};
+
+            if (!this.state.authenticated) {
+                this.authenticate();
+            }
         }
 
         const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
         const res = await req;
         this.setState({data: res});
+    }
+
+    async authenticate() {
+        const res = await oauthClient.authenticate(`${config.getApiBaseUrl()}/me`);
+        this.setState({authenticated: res});
     }
 
     render() {
@@ -77,6 +88,7 @@ class Publication extends PureComponent {
             <Layout
                 menu={
                     <>
+                        {this.renderAuthenticated()}
                         {data && data.cover ? <Cover
                             url={data.cover.thumbUrl}
                             alt={data.title}
@@ -93,6 +105,41 @@ class Publication extends PureComponent {
                 {this.renderContent()}
             </Layout>
         </>
+    }
+
+    logout = () => {
+        oauthClient.logout();
+
+        this.setState({
+            data: null,
+            authorization: null,
+            authenticated: null,
+        }, () => {
+            this.load();
+        });
+    }
+
+    renderAuthenticated() {
+        const {authenticated} = this.state;
+
+        if (null === authenticated) {
+            return '';
+        }
+
+        if (!authenticated) {
+            return <FullPageLoader />
+        }
+
+        return <div>
+            Authenticated as {authenticated.username}
+            <br/>
+            <button
+                onClick={this.logout}
+                className={'btn btn-sm btn-danger'}
+            >
+                Logout
+            </button>
+        </div>
     }
 
     acceptTerms = () => {
@@ -148,6 +195,12 @@ class Publication extends PureComponent {
     renderSecurityAccess() {
         const {data} = this.state;
         const {securityContainerId} = data;
+
+        if (data.authorizationError === 'not_allowed') {
+            return <div>
+                Sorry! You are not allowed to access this publication.
+            </div>
+        }
 
         if (securityMethods[data.securityMethod]) {
             return React.createElement(securityMethods[data.securityMethod], {

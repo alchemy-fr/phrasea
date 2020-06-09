@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
-import apiClient from "../../lib/apiClient";
 import config from "../../lib/config";
-import {setAccessToken} from "../../lib/credential";
+import{OAuthProviders} from '@alchemy-fr/phraseanet-react-components';
+import {oauthClient, setAuthRedirect} from "../../lib/oauth";
 
 class AuthenticationMethod extends PureComponent {
     static propTypes = {
@@ -25,35 +25,31 @@ class AuthenticationMethod extends PureComponent {
             const newState = {loading: false};
 
             try {
-                const res = await apiClient.post(`${config.getAuthBaseUrl()}/oauth/v2/token`, {
-                    username,
-                    password,
-                    grant_type: 'password',
-                    client_id: config.get('clientId'),
-                    client_secret: config.get('clientSecret'),
-                });
-
-                if (res.access_token) {
-                    newState.errors = [];
-                    setAccessToken(res.access_token);
-                    this.props.onAuthorization();
+                await oauthClient.login(username, password);
+                this.props.onAuthorization();
+            } catch (e) {
+                if (e.res) {
+                    newState.errors = [e.res.body.error_description];
                 } else {
-                    newState.errors = [res.error_description];
+                    throw e;
                 }
-            } catch (err) {
-                newState.errors = [err.response.body.error_description];
             }
 
             this.setState(newState);
         });
     };
 
+    componentDidMount() {
+        setAuthRedirect(document.location.pathname);
+    }
+
     render() {
         const {error} = this.props;
         const {loading, username, password, errors} = this.state;
 
+        const allErrors = [...errors];
         if (error) {
-            errors.push(error);
+            allErrors.push(error);
         }
 
         return <div className={'container'}>
@@ -86,8 +82,8 @@ class AuthenticationMethod extends PureComponent {
                         type="password"
                     />
                 </div>
-                {errors.length > 0 ? <ul className="errors">
-                    {errors.filter(e => e !== 'missing_access_token').map((e) => <li key={e}>{e}</li>)}
+                {allErrors.length > 0 ? <ul className="errors">
+                    {allErrors.filter(e => e !== 'missing_access_token').map((e) => <li key={e}>{e}</li>)}
                 </ul> : ''}
                 <button
                     disabled={loading}
@@ -97,6 +93,12 @@ class AuthenticationMethod extends PureComponent {
                     OK
                 </button>
             </form>
+
+            <OAuthProviders
+                authBaseUrl={config.getAuthBaseUrl()}
+                authClientId={config.getClientCredential().clientId}
+                providers={config.get('identityProviders')}
+            />
         </div>
     }
 }

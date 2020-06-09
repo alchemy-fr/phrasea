@@ -1,6 +1,4 @@
 import store from './store';
-import request from "superagent";
-import auth from "./auth";
 import i18n from "./locales/i18n";
 
 const configData = window.config;
@@ -27,10 +25,10 @@ class Config {
     }
 
     getSignUpURL() {
-        return `${this.getAuthBaseURL()}/${i18n.language}/register`;
+        return `${this.getAuthBaseUrl()}/${i18n.language}/register`;
     }
 
-    getAuthBaseURL() {
+    getAuthBaseUrl() {
         return this.get('authBaseUrl');
     }
 
@@ -56,42 +54,6 @@ class Config {
 
     devModeEnabled() {
         return configData.devMode;
-    }
-
-    getFormSchema() {
-        const accessToken = auth.getAccessToken();
-
-        return new Promise((resolve, reject) => {
-            request
-                .get(config.getUploadBaseURL() + '/form-schema')
-                .accept('json')
-                .set('Authorization', `Bearer ${accessToken}`)
-                .end((err, res) => {
-                    if (!auth.isResponseValid(err, res)) {
-                        reject(err);
-                    }
-
-                    resolve(res.body);
-                });
-        });
-    }
-
-    getBulkData() {
-        const accessToken = auth.getAccessToken();
-
-        return new Promise((resolve, reject) => {
-            request
-                .get(config.getUploadBaseURL() + '/bulk-data')
-                .accept('json')
-                .set('Authorization', `Bearer ${accessToken}`)
-                .end((err, res) => {
-                    if (!auth.isResponseValid(err, res)) {
-                        reject(err);
-                    }
-
-                    resolve(res.body);
-                });
-        });
     }
 }
 

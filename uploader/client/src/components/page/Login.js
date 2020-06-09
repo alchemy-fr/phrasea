@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import {Button, FormControl, FormGroup, FormLabel} from "react-bootstrap";
 import {Link, Redirect} from "react-router-dom";
-import auth from '../../auth';
 import config from '../../config';
 import Container from "../Container";
 import Logo from "../Logo";
-import OAuthProviders from "../oauth/OAuthProviders";
 import {Translation} from "react-i18next";
+import {OAuthProviders} from "@alchemy-fr/phraseanet-react-components";
+import {oauthClient} from "../../oauth";
 
 export default class Login extends Component {
     state = {
@@ -22,17 +22,23 @@ export default class Login extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        auth.login(this.state.username, this.state.password, () => {
-            this.setState({
-                redirectToReferrer: true,
-            });
-        }, (err, res) => {
-            if (err) {
-                throw err;
-            } else if (res.body.error_description) {
+
+        this.setState({submitting: true}, async () => {
+            try {
+                await oauthClient.login(this.state.username, this.state.password);
                 this.setState({
-                    error: res.body.error_description,
+                    submitting: false,
+                    redirectToReferrer: true,
                 });
+            } catch (e) {
+                this.setState({submitting: false});
+                if (e.res && e.res.body.error_description) {
+                    this.setState({
+                        error: e.res.body.error_description,
+                    });
+                } else {
+                    throw e;
+                }
             }
         });
     };
@@ -45,10 +51,10 @@ export default class Login extends Component {
     };
 
     render() {
-        const {redirectToReferrer, error} = this.state;
+        const {redirectToReferrer, error, submitting} = this.state;
         const {from} = this.props.location.state || {from: {pathname: '/'}};
 
-        if (auth.isAuthenticated() || redirectToReferrer === true) {
+        if (oauthClient.isAuthenticated() || redirectToReferrer === true) {
             return <Redirect to={from}/>
         }
 
@@ -63,6 +69,7 @@ export default class Login extends Component {
                                     {t('form.email.label')}
                                 </FormLabel>
                                 <FormControl
+                                    disabled={submitting}
                                     autoFocus
                                     type="username"
                                     value={this.state.username}
@@ -72,6 +79,7 @@ export default class Login extends Component {
                             <FormGroup controlId="password">
                                 <FormLabel>{t('form.password.label')}</FormLabel>
                                 <FormControl
+                                    disabled={submitting}
                                     value={this.state.password}
                                     onChange={this.handleChange}
                                     type="password"
@@ -80,7 +88,7 @@ export default class Login extends Component {
                             {error ? <div className="error text-danger">{error}</div> : ''}
                             <Button
                                 block
-                                disabled={!this.isFormValid()}
+                                disabled={!this.isFormValid() || submitting}
                                 type="submit"
                             >
                                 {t('form.submit_button')}
@@ -98,8 +106,11 @@ export default class Login extends Component {
                             </p> : ''}
                     </div>
 
-                    <hr/>
-                    <OAuthProviders/>
+                    <OAuthProviders
+                        authBaseUrl={config.getAuthBaseUrl()}
+                        authClientId={config.getClientCredential().clientId}
+                        providers={config.get('identityProviders')}
+                    />
                 </Container>
             </>
             }

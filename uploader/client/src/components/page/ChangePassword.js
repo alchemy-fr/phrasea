@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, FormGroup, FormControl, FormLabel} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
-import auth from "../../auth";
+import {oauthClient} from "../../oauth";
 
 export default class ChangePassword extends Component {
     state = {
@@ -36,22 +36,22 @@ export default class ChangePassword extends Component {
         } = this.state;
 
         request
-            .post(config.getAuthBaseURL() + '/password/change')
+            .post(config.getAuthBaseUrl() + '/password/change')
             .accept('json')
-            .set('Authorization', 'Bearer ' + auth.getAccessToken())
+            .set('Authorization', 'Bearer ' + oauthClient.getAccessToken())
             .send({
                 old_password: oldPassword,
                 new_password: newPassword,
             })
             .end((err, res) => {
-                if (!auth.isResponseValid(err, res)) {
+                if (!oauthClient.isResponseValid(err, res)) {
                     if (res.body.error_description) {
                         this.setState({error: res.body.error_description})
                     }
                     return;
                 }
 
-                auth.doLogin(auth.getUsername(), newPassword);
+                oauthClient.doLogin(oauthClient.getUsername(), newPassword);
 
                 this.setState({
                     changed: true,

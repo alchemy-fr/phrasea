@@ -1,18 +1,18 @@
 import React, {Component} from 'react';
 import {Route, Redirect} from "react-router-dom";
-import auth from "../auth";
+import {oauthClient} from "../oauth";
 
 export default class PrivateRoute extends Component {
     render() {
         const {component: Component, ...rest} = this.props;
 
         return <Route {...rest} render={(props) => (
-            auth.isAuthenticated() === true
+            oauthClient.isAuthenticated() === true
                 ? <Component {...props} />
-                : <Redirect to={{
+                : (oauthClient.hasAccessToken() ? '' : <Redirect to={{
                     pathname: '/login',
                     state: { from: props.location }
-                }} />
+                }} />)
         )} />;
     }
 }

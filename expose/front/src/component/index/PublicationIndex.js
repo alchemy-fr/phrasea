@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
-import FullPageLoader from "../FullPageLoader";
 import apiClient from "../../lib/apiClient";
 import config from "../../lib/config";
 import {Link} from "react-router-dom";
+import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 
 class PublicationIndex extends PureComponent {
     state = {

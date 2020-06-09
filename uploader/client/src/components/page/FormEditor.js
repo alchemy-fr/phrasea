@@ -3,8 +3,9 @@ import {Form, Button} from "react-bootstrap";
 import FormPreview from "../FormPreview";
 import config from "../../config";
 import request from "superagent";
-import auth from "../../auth";
 import Container from "../Container";
+import {oauthClient} from "../../oauth";
+import {getFormSchema} from "../../requests";
 
 export default class FormEditor extends Component {
     constructor(props) {
@@ -15,8 +16,12 @@ export default class FormEditor extends Component {
         }
     }
 
-    async componentWillMount() {
-        let schema = await config.getFormSchema();
+    componentDidMount() {
+        this.init();
+    }
+
+    async init() {
+        const schema = await getFormSchema();
 
         this.setState({
             schema: JSON.stringify(schema, true, 2)
@@ -33,7 +38,7 @@ export default class FormEditor extends Component {
     handleSubmit = event => {
         event.preventDefault();
 
-        const accessToken = auth.getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
 
         request
             .post(config.getUploadBaseURL() + '/form-schema/edit')
@@ -41,7 +46,7 @@ export default class FormEditor extends Component {
             .set('Authorization', `Bearer ${accessToken}`)
             .send({schema: JSON.parse(this.state.schema)})
             .end((err, res) => {
-                auth.isResponseValid(err, res);
+                oauthClient.isResponseValid(err, res);
             })
         ;
 

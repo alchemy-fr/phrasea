@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import {Form, Button} from "react-bootstrap";
 import config from "../../config";
 import request from "superagent";
-import auth from "../../auth";
 import Container from "../Container";
+import {oauthClient} from "../../oauth";
+import {getBulkData} from "../../requests";
 
 export default class BulkDataEditor extends Component {
     state = {
@@ -12,8 +13,12 @@ export default class BulkDataEditor extends Component {
         error: null,
     };
 
-    async componentWillMount() {
-        let bulkData = await config.getBulkData();
+    componentDidMount() {
+        this.init();
+    }
+
+    async init() {
+        const bulkData = await getBulkData();
 
         this.setState({
             bulkData: JSON.stringify(bulkData, true, 2)
@@ -45,7 +50,7 @@ export default class BulkDataEditor extends Component {
     handleSubmit = event => {
         event.preventDefault();
 
-        const accessToken = auth.getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
 
         request
             .post(config.getUploadBaseURL() + '/bulk-data/edit')
@@ -53,7 +58,7 @@ export default class BulkDataEditor extends Component {
             .set('Authorization', `Bearer ${accessToken}`)
             .send({data: JSON.parse(this.state.bulkData)})
             .end((err, res) => {
-                auth.isResponseValid(err, res);
+                oauthClient.isResponseValid(err, res);
             })
         ;
 

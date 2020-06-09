@@ -2,7 +2,7 @@ import React from 'react';
 import {createStore, combineReducers} from 'redux';
 import {reducer as formReducer} from 'redux-form';
 import {Provider} from 'react-redux';
-import Liform, {renderField, DefaultTheme} from 'liform-react';
+import Liform, {renderField, DefaultTheme} from '@alchemy-fr/liform-react';
 
 const BaseForm = props => {
     const {schema, handleSubmit, theme, error, submitting, onCancel} = props;

@@ -25,7 +25,7 @@ export default class ResetPassword extends Component {
         this.setState({requested: true});
 
         await request
-            .post(`${config.getAuthBaseURL()}/${i18n.language}/password/reset-request`)
+            .post(`${config.getAuthBaseUrl()}/${i18n.language}/password/reset-request`)
             .accept('json')
             .send({
                 username: this.state.username,
