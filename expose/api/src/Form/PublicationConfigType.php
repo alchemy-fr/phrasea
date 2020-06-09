@@ -16,6 +16,7 @@ class PublicationConfigType extends AbstractType
     {
         $builder
             ->add('layout', LayoutChoiceType::class)
+            ->add('layoutOptions', LayoutOptionsType::class)
             ->add('theme', ThemeChoiceType::class)
             ->add('enabled')
             ->add('publiclyListed')
@@ -28,6 +29,7 @@ class PublicationConfigType extends AbstractType
             ->add('terms', TermsConfigType::class)
             ->add('downloadTerms', TermsConfigType::class)
             ->add('downloadViaEmail')
+            ->add('mapOptions', MapOptionsType::class)
             ;
     }
 

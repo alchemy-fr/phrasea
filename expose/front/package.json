@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@alchemy-fr/phraseanet-react-components": "^1.0.1-alpha5",
+    "@alchemy-fr/phraseanet-react-components": "^1.0.1-alpha6",
+    "@mapbox/mapbox-gl-language": "^0.10.1",
     "bootstrap": "^4.5.0",
     "mapbox-gl": "^1.10.1",
     "node-sass": "^4.12.0",

@@ -24,7 +24,6 @@ class Publication extends PureComponent {
     state = {
         data: null,
         authorization: null,
-        authenticated: null,
     };
 
     static getDerivedStateFromProps(props, state) {
@@ -50,6 +49,22 @@ class Publication extends PureComponent {
 
     componentDidMount() {
         this.load();
+
+        oauthClient.registerListener('logout', this.onLogout);
+    }
+
+    componentWillUnmount() {
+        this.timeout && clearTimeout(this.timeout);
+        oauthClient.unregisterListener('logout', this.onLogout);
+    }
+
+    onLogout = () => {
+        this.setState({
+            data: null,
+            authorization: null,
+        }, () => {
+            this.load();
+        });
     }
 
     async load() {
@@ -64,10 +79,6 @@ class Publication extends PureComponent {
         const accessToken = oauthClient.getAccessToken();
         if (accessToken) {
             options.headers = {'Authorization': `Bearer ${accessToken}`};
-
-            if (!this.state.authenticated) {
-                this.authenticate();
-            }
         }
 
         const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
@@ -81,75 +92,38 @@ class Publication extends PureComponent {
         }, config.get('requestSignatureTtl') * 1000 - 2000);
     }
 
-    componentWillUnmount() {
-        this.timeout && clearTimeout(this.timeout);
-    }
-
-    async authenticate() {
-        const res = await oauthClient.authenticate(`${config.getApiBaseUrl()}/me`);
-        this.setState({authenticated: res});
-    }
-
     render() {
         const {data} = this.state;
 
         return <>
             {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
-            <Layout
-                menu={
-                    <>
-                        {this.renderAuthenticated()}
-                        {data && data.cover ? <Cover
-                            url={data.cover.thumbUrl}
-                            alt={data.title}
-                        /> : ''}
-                        <PublicationNavigation
-                            currentTitle={data ? data.title : 'Loading...'}
-                            children={data && data.children ? data.children : []}
-                            parent={data ? data.parent : null}
-                        />
-                        {data && data.urls ? <Urls urls={data.urls}/> : ''}
-                        {data ? <Copyright text={data.copyrightText}/> : ''}
-                    </>}
-            >
-                {this.renderContent()}
-            </Layout>
+            <ThemeEditorProxy
+                data={data}
+                render={this.renderLayout}
+            />
         </>
     }
 
-    logout = () => {
-        oauthClient.logout();
-
-        this.setState({
-            data: null,
-            authorization: null,
-            authenticated: null,
-        }, () => {
-            this.load();
-        });
-    }
-
-    renderAuthenticated() {
-        const {authenticated} = this.state;
-
-        if (null === authenticated) {
-            return '';
-        }
-
-        if (!authenticated) {
-            return <FullPageLoader />
-        }
-
-        return <div>
-            Authenticated as {authenticated.username}
-            <br/>
-            <button
-                onClick={this.logout}
-                className={'btn btn-sm btn-danger'}
-            >
-                Logout
-            </button>
-        </div>
+    renderLayout = (data) => {
+        return <Layout
+            menu={
+                <>
+                    {data && data.cover ? <Cover
+                        url={data.cover.thumbUrl}
+                        alt={data.title}
+                    /> : ''}
+                    <PublicationNavigation
+                        currentTitle={data ? data.title : 'Loading...'}
+                        children={data && data.children ? data.children : []}
+                        parent={data ? data.parent : null}
+                    />
+                    {data && data.urls ? <Urls urls={data.urls}/> : ''}
+                    {data ? <Copyright text={data.copyrightText}/> : ''}
+                    {data && data.editor ? data.editor : ''}
+                </>}
+        >
+            {this.renderContent(data)}
+        </Layout>
     }
 
     acceptTerms = () => {
@@ -157,9 +131,7 @@ class Publication extends PureComponent {
         this.forceUpdate();
     }
 
-    renderContent() {
-        const {data} = this.state;
-
+    renderContent(data) {
         if (null === data) {
             return <FullPageLoader/>;
         }
@@ -172,22 +144,17 @@ class Publication extends PureComponent {
             return this.renderTerms();
         }
 
-        return <>
-            <ThemeEditorProxy
-                data={data}
-                render={data => {
-                    if (!layouts[data.layout]) {
-                        throw new Error(`Unsupported layout ${data.layout}`);
-                    }
+        if (!layouts[data.layout]) {
+            throw new Error(`Unsupported layout ${data.layout}`);
+        }
+        const Layout = layouts[data.layout];
 
-                    const Layout = layouts[data.layout];
-                    return <Layout
-                        data={data}
-                        assetId={this.props.assetId}
-                    />
-                }}
-            />
-        </>
+        return <Layout
+            data={data}
+            assetId={this.props.assetId}
+            options={data.layoutOptions}
+            mapOptions={data.mapOptions}
+        />
     }
 
     renderTerms() {

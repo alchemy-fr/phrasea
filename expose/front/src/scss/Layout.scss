@@ -9,6 +9,12 @@
   transition: all .3s;
   position: relative;
   min-height: 100vh;
+  z-index: 1000;
+
+  @include media-breakpoint-down($mobile-thresold-down) {
+    position: absolute;
+    z-index: 1000;
+  }
 
   &.hidden {
     margin-left: -$width;
@@ -21,7 +27,7 @@
   .custom-menu {
     display: inline-block;
     position: absolute;
-    top: 20px;
+    top: 10px;
     right: 0;
     margin-right: -20px;
     -webkit-transition: .3s;
@@ -43,4 +49,8 @@
   ul {
     padding-left: 10px;
   }
+}
+
+.authenticated-user {
+  font-size: 13px;
 }

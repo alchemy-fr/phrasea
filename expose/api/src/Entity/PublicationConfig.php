@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Model\LayoutOptions;
+use App\Model\MapOptions;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -119,17 +121,33 @@ class PublicationConfig implements MergeableValueObjectInterface
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}.
      *
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      *
      * @ApiProperty()
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?array $securityOptions = null;
 
+    /**
+     * @var MapOptions|array|null
+     * @ORM\Column(type="json", nullable=true)
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private $mapOptions = null;
+
+    /**
+     * @var LayoutOptions|array|null
+     * @ORM\Column(type="json", nullable=true)
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private $layoutOptions = null;
+
     public function __construct()
     {
         $this->terms = new TermsConfig();
         $this->downloadTerms = new TermsConfig();
+        $this->mapOptions = new MapOptions();
+        $this->layoutOptions = new LayoutOptions();
     }
 
     /**
@@ -150,8 +168,10 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->downloadTerms->applyDefaults();
     }
 
-    public function mergeWith(MergeableValueObjectInterface $object): void
+    public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
+        $clone = clone $this;
+
         foreach ([
             'beginsAt',
             'copyrightText',
@@ -164,18 +184,22 @@ class PublicationConfig implements MergeableValueObjectInterface
             'publiclyListed',
             'securityMethod',
             'securityOptions',
+            'mapOptions',
+            'layoutOptions',
             'terms',
             'theme',
             'urls',
                  ] as $property) {
             if (null !== $object->{$property}) {
-                if ($this->{$property} instanceof MergeableValueObjectInterface) {
-                    $this->{$property}->mergeWith($object->{$property});
+                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
+                    $clone->{$property}->mergeWith($object->{$property});
                 } else {
-                    $this->{$property} = $object->{$property};
+                    $clone->{$property} = $object->{$property};
                 }
             }
         }
+
+        return $clone;
     }
 
     public function getUrls(): array
@@ -333,5 +357,33 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setDownloadViaEmail(?bool $downloadViaEmail): void
     {
         $this->downloadViaEmail = $downloadViaEmail;
+    }
+
+    public function getMapOptions(): MapOptions
+    {
+        if (null === $this->mapOptions || is_array($this->mapOptions)) {
+            $this->mapOptions = new MapOptions($this->mapOptions);
+        }
+
+        return $this->mapOptions;
+    }
+
+    public function setMapOptions($mapOptions): void
+    {
+        $this->mapOptions = $mapOptions;
+    }
+
+    public function getLayoutOptions(): LayoutOptions
+    {
+        if (null === $this->layoutOptions || is_array($this->layoutOptions)) {
+            $this->layoutOptions = new LayoutOptions($this->layoutOptions);
+        }
+
+        return $this->layoutOptions;
+    }
+
+    public function setLayoutOptions($layoutOptions): void
+    {
+        $this->layoutOptions = $layoutOptions;
     }
 }

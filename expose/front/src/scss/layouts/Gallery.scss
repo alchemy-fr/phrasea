@@ -22,13 +22,26 @@
     }
   }
 
+  .image-gallery-description {
+    max-height: 200px;
+    overflow-y: auto;
+    transform: translateY(50px);
+    opacity: 0;
+    transition: opacity ease-in-out .3s, transform ease-in-out .3s;
+
+    .description {
+      margin-bottom: 0;
+    }
+  }
+
   .description {
     margin-bottom: 15px;
   }
 
-  .image-gallery-description {
-    .description {
-      margin-bottom: 0;
+  .image-gallery-slide-wrapper:hover {
+    .image-gallery-description {
+      transform: translateY(0);
+      opacity: 1;
     }
   }
 }

@@ -12,26 +12,21 @@
     margin-bottom: 25px;
   }
 
-  .container {
-    width: 58vw;
-  }
-
   .map-wrapper {
     width: 100%;
-    height: 100%;
     position: relative;
   }
 
   .map-container {
     width: 100%;
-    height: 40vh;
+    height: 50vh;
 
     .thumb {
       max-width: 200px;
     }
   }
 
-  .coordinates {
+  .map-controls {
     display: inline-block;
     position: absolute;
     top: 0;
@@ -42,6 +37,14 @@
     z-index: 1 !important;
     padding: 6px;
     font-weight: bold;
+  }
+
+  .coordinates, .map-layout {
+    display: inline-block;
+  }
+
+  .map-layout {
+    margin-left: 15px;
   }
 
   .image-full {
