@@ -1,6 +1,6 @@
-import auth from "./auth";
 import request from "superagent";
 import config from "./config";
+import {oauthClient} from "./oauth";
 
 class UploadBatch
 {
@@ -102,7 +102,7 @@ class UploadBatch
             files: idCollection,
             formData: this.formData,
         };
-        const accessToken = auth.getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
 
         request
             .post(config.getUploadBaseURL() + '/commit')
@@ -110,7 +110,7 @@ class UploadBatch
             .set('Authorization', `Bearer ${accessToken}`)
             .send(formData)
             .end((err, res) => {
-                if (!auth.isResponseValid(err, res)) {
+                if (!oauthClient.isResponseValid(err, res)) {
                     alert('Failed to commit assets');
                     console.log(res);
                     throw err;
@@ -123,7 +123,7 @@ class UploadBatch
         const formData = new FormData();
         formData.append('file', file.file);
 
-        const accessToken = auth.getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
 
         const req = request
             .post(config.getUploadBaseURL() + '/assets')
@@ -139,7 +139,7 @@ class UploadBatch
 
         req
             .end((err, res) => {
-                if (!auth.isResponseValid(err, res)) {
+                if (!oauthClient.isResponseValid(err, res)) {
                     return;
                 }
 

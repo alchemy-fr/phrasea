@@ -1,4 +1,4 @@
-FROM node:10.18.0-alpine3.11 as uploader-client-build
+FROM node:13.10.1-alpine3.11 as uploader-client-build
 
 RUN apk add --virtual .build \
         wget \
@@ -12,9 +12,14 @@ COPY . /usr/src/app
 
 WORKDIR /usr/src/app
 
-RUN yarn install --silent \
+RUN apk add --no-cache --virtual .gyp \
+        python \
+        make \
+        g++ \
+    && yarn install \
     && mv public/index.tpl.html public/index.html \
-    && yarn run build
+    && yarn run build \
+    && apk del .gyp
 
 EXPOSE 3000
 

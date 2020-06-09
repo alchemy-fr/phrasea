@@ -1,6 +1,5 @@
 import Cookies from 'universal-cookie';
 const passwordCookieName = 'passwds';
-const tokenCookieName = 'access_token';
 const termsCookieName = 'terms';
 
 const cookies = new Cookies();
@@ -36,12 +35,4 @@ export function setPassword(securityContainerId, password) {
 function decodePassword() {
     const cData = cookies.get(passwordCookieName);
     return cData ? (typeof cData === 'string' ? JSON.parse(atob(cData)) : cData) : {};
-}
-
-export function getAccessToken() {
-    return cookies.get(tokenCookieName);
-}
-
-export function setAccessToken(accessToken) {
-    cookies.set(tokenCookieName, accessToken, {path: '/'});
 }

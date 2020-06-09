@@ -1,10 +1,9 @@
-
 import request from "superagent";
 import config from "../config";
-import auth from "../auth";
+import {oauthClient} from "../oauth";
 
 export function Download(url, callback, errCallback) {
-    const accessToken = auth.getAccessToken();
+    const accessToken = oauthClient.getAccessToken();
 
     request
         .post(config.getUploadBaseURL() + '/downloads')
@@ -15,7 +14,7 @@ export function Download(url, callback, errCallback) {
             url,
         })
         .end((err, res) => {
-            if (!auth.isResponseValid(err, res) || err) {
+            if (!oauthClient.isResponseValid(err, res) || err) {
                 errCallback && errCallback();
                 console.error(err);
                 return;

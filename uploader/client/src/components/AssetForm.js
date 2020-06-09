@@ -2,11 +2,12 @@ import React, {Component} from 'react';
 import '../scss/Upload.scss';
 import PropTypes from "prop-types";
 import config from "../config";
-import auth from "../auth";
 import request from "superagent";
 import AssetLiForm from "./AssetLiForm";
 import {SubmissionError} from 'redux-form';
 import {Translation} from "react-i18next";
+import {oauthClient} from "../oauth";
+import {getFormSchema} from "../requests";
 
 export default class AssetForm extends Component {
     static propTypes = {
@@ -20,9 +21,12 @@ export default class AssetForm extends Component {
         schema: null,
     };
 
-    async componentWillMount() {
-        let schema = await config.getFormSchema();
+    componentDidMount() {
+        this.init();
+    }
 
+    async init() {
+        const schema = await getFormSchema();
         const {baseSchema} = this.props;
 
         if (baseSchema) {
@@ -56,7 +60,7 @@ export default class AssetForm extends Component {
 
     onSubmit = async (reduxFormData) => {
         let formData = {...reduxFormData};
-        const accessToken = auth.getAccessToken();
+        const accessToken = oauthClient.getAccessToken();
         const {baseSchema, submitPath, onComplete} = this.props;
 
         // Extract base fields out from form data
@@ -81,7 +85,7 @@ export default class AssetForm extends Component {
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send(data)
                 .end((err, res) => {
-                    if (!auth.isResponseValid(err, res)) {
+                    if (!oauthClient.isResponseValid(err, res)) {
                         console.log(err);
                         reject(new SubmissionError({_error: err.toString()}));
                         return;

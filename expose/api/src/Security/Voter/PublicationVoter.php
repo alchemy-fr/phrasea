@@ -110,7 +110,13 @@ class PublicationVoter extends Voter
                     return false;
                 }
 
-                return $this->security->isGranted(PermissionInterface::VIEW, $publication);
+                if (!$this->security->isGranted(PermissionInterface::VIEW, $publication)) {
+                    $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NOT_ALLOWED);
+
+                    return false;
+                } else {
+                    return true;
+                }
             default:
                 return false;
         }

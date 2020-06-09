@@ -12,6 +12,13 @@ class Config {
     getAuthBaseUrl() {
         return configData.authBaseUrl;
     }
+
+    getClientCredential() {
+        return {
+            clientId: this.get('clientId'),
+            clientSecret: this.get('clientSecret'),
+        };
+    }
 }
 
 const config = new Config();

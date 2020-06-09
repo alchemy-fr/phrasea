@@ -11,7 +11,7 @@ export default class DevSettings extends Component {
 
         this.state = {
             uploadBaseUrl: config.getUploadBaseURL() || '',
-            authBaseUrl: config.getAuthBaseURL() || '',
+            authBaseUrl: config.getAuthBaseUrl() || '',
             clientId: clientId || '',
             clientSecret: clientSecret || '',
             saved: false,
