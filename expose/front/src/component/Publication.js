@@ -73,6 +73,16 @@ class Publication extends PureComponent {
         const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
         const res = await req;
         this.setState({data: res});
+
+        this.timeout && clearTimeout(this.timeout);
+
+        this.timeout = setTimeout(() => {
+            this.load();
+        }, config.get('requestSignatureTtl') * 1000 - 2000);
+    }
+
+    componentWillUnmount() {
+        this.timeout && clearTimeout(this.timeout);
     }
 
     async authenticate() {

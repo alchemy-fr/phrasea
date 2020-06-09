@@ -15,6 +15,6 @@ arthem_request_signer:
   signers:
     s3:
       aws_s3:
-        ttl: 300
+        ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
         bucket_name: '%env(STORAGE_BUCKET_NAME)%'
         service_id: 's3_client'

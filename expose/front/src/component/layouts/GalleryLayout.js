@@ -23,6 +23,7 @@ class GalleryLayout extends React.Component {
         showFullscreenButton: true,
         showPlayButton: true,
         showVideo: {},
+        currentIndex: null,
     };
 
     map;
@@ -88,6 +89,7 @@ class GalleryLayout extends React.Component {
     }
 
     onSlide = (offset) => {
+        this.setState({currentIndex: offset});
         this.resetVideo();
 
         if (this.map) {
@@ -157,6 +159,7 @@ class GalleryLayout extends React.Component {
 
     render() {
         const {assetId, data, options} = this.props;
+        const {currentIndex} = this.state;
         const {
             title,
             assets,
@@ -168,7 +171,9 @@ class GalleryLayout extends React.Component {
         } = this.state;
 
         let startIndex = 0;
-        if (assetId) {
+        if (currentIndex) {
+            startIndex = currentIndex;
+        } else if (assetId) {
             startIndex = assets.findIndex(a => a.id === assetId);
             if (startIndex < 0) {
                 startIndex = assets.findIndex(a => a.slug === assetId);
