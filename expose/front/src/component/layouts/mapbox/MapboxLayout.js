@@ -4,7 +4,6 @@ import {dataShape} from "../../props/dataShape";
 import mapboxgl from 'mapbox-gl';
 import config from "../../../lib/config";
 import Description from "../shared-components/Description";
-import MapboxLanguage from '@mapbox/mapbox-gl-language';
 import {getBrowserLanguage} from "./browserLang";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
@@ -19,7 +18,6 @@ export function initMapbox(mapContainer, {lng, lat, zoom}) {
     });
 
     map.addControl(new mapboxgl.NavigationControl());
-    map.addControl(new MapboxLanguage());
     map.addControl(new mapboxgl.AttributionControl({
         compact: true,
     }));
