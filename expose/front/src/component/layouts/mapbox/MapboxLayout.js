@@ -85,30 +85,35 @@ class MapboxLayout extends React.Component {
         }
 
         const {data} = this.props;
-
-        const {layoutOptions} = data;
         const locationAsset = data.assets.filter(a => a.asset.lat)[0].asset;
 
-        const map = initMapbox(this.mapContainer.current, {
+        this.map = initMapbox(this.mapContainer.current, {
             ...this.state,
             ...(locationAsset ? locationAsset : {}),
         });
 
-        map.on('move', () => {
+        this.map.on('move', () => {
             this.setState({
-                lng: map.getCenter().lng.toFixed(4),
-                lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
+                lng: this.map.getCenter().lng.toFixed(4),
+                lat: this.map.getCenter().lat.toFixed(4),
+                zoom: this.map.getZoom().toFixed(2)
             });
         });
-        map.on('load', async () => {
-            this.map = map;
-            if (layoutOptions.displayMapPins) {
-                this.configureAssetPins();
-            } else {
-                this.configureAssetThumbs();
-            }
+        this.map.on('load', () => {
+            this.configureAssets();
+            this.map.on('style.load', this.configureAssets);
         });
+    }
+
+    configureAssets = () => {
+        const {data} = this.props;
+        const {layoutOptions} = data;
+
+        if (layoutOptions.displayMapPins) {
+            this.configureAssetPins();
+        } else {
+            this.configureAssetThumbs();
+        }
     }
 
     async configureAssetThumbs() {
