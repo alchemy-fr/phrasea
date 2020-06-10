@@ -19,11 +19,11 @@ class Publication extends PureComponent {
     static propTypes = {
         id: PropTypes.string.isRequired,
         assetId: PropTypes.string,
+        authenticated: PropTypes.object,
     };
 
     state = {
         data: null,
-        authorization: null,
     };
 
     static getDerivedStateFromProps(props, state) {
@@ -61,10 +61,7 @@ class Publication extends PureComponent {
     onLogout = () => {
         this.setState({
             data: null,
-            authorization: null,
-        }, () => {
-            this.load();
-        });
+        }, this.load);
     }
 
     async load() {
@@ -106,6 +103,7 @@ class Publication extends PureComponent {
 
     renderLayout = (data) => {
         return <Layout
+            authenticated={this.props.authenticated}
             menu={
                 <>
                     {data && data.cover ? <Cover

@@ -15,11 +15,12 @@ class ThemeEditorProxy extends PureComponent {
     static getDerivedStateFromProps(props, state) {
         const d = props.data || {};
 
-        if (state.lastPubId === d.id) {
+        if (state.propsData === d) {
             return null;
         }
 
         return {
+            propsData: props.data,
             theme: d.theme,
             layout: d.layout,
             lastPubId: d.id,

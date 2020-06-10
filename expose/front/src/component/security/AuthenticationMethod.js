@@ -22,20 +22,19 @@ class AuthenticationMethod extends PureComponent {
 
         this.setState({loading: true}, async () => {
             const {username, password} = this.state;
-            const newState = {loading: false};
 
             try {
                 await oauthClient.login(username, password);
                 this.props.onAuthorization();
             } catch (e) {
+                const newState = {loading: false};
                 if (e.res) {
                     newState.errors = [e.res.body.error_description];
                 } else {
                     throw e;
                 }
+                this.setState(newState);
             }
-
-            this.setState(newState);
         });
     };
 

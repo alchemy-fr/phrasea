@@ -3,11 +3,11 @@ import {PropTypes} from 'prop-types';
 import {Link} from "react-router-dom";
 import {oauthClient} from "../lib/oauth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
-import config from "../lib/config";
 
 class Layout extends PureComponent {
     static propTypes = {
         menu: PropTypes.node,
+        authenticated: PropTypes.object,
     };
 
     constructor(props) {
@@ -15,30 +15,7 @@ class Layout extends PureComponent {
 
         this.state = {
             displayMenu: window.innerWidth >= 992,
-            authenticated: null,
         }
-    }
-
-    componentDidMount() {
-        this.init();
-
-        oauthClient.registerListener('login', this.onLogin);
-    }
-
-    componentWillUnmount() {
-        oauthClient.unregisterListener('login', this.onLogin);
-    }
-
-    init = async () => {
-        if (oauthClient.getAccessToken()) {
-            if (!this.state.authenticated) {
-                this.authenticate();
-            }
-        }
-    }
-
-    onLogin = async () => {
-        this.authenticate();
     }
 
     render() {
@@ -69,23 +46,10 @@ class Layout extends PureComponent {
 
     logout = () => {
         oauthClient.logout();
-
-        this.setState({
-            data: null,
-            authorization: null,
-            authenticated: null,
-        }, () => {
-            this.init();
-        });
-    }
-
-    async authenticate() {
-        const res = await oauthClient.authenticate(`${config.getApiBaseUrl()}/me`);
-        this.setState({authenticated: res});
     }
 
     renderAuthenticated() {
-        const {authenticated} = this.state;
+        const {authenticated} = this.props;
 
         if (null === authenticated) {
             return '';
