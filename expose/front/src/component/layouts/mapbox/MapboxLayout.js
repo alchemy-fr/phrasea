@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import config from "../../../lib/config";
 import Description from "../shared-components/Description";
 import MapboxLanguage from '@mapbox/mapbox-gl-language';
+import {getBrowserLanguage} from "./browserLang";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -22,6 +23,13 @@ export function initMapbox(mapContainer, {lng, lat, zoom}) {
     map.addControl(new mapboxgl.AttributionControl({
         compact: true,
     }));
+
+    map.on('load', () => {
+        map.setLayoutProperty('country-label', 'text-field', [
+            'get',
+            'name_' + getBrowserLanguage()
+        ]);
+    });
 
     return map;
 }
