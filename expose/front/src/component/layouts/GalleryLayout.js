@@ -180,28 +180,26 @@ class GalleryLayout extends React.Component {
         }
 
         return <div className={`layout-gallery`}>
-            <div className="container">
-                <h1>{title}</h1>
-                <Description
-                    descriptionHtml={data.description}
-                />
-                {assets.length > 0 ?
-                    <ImageGallery
-                        ref={this.sliderRef}
-                        startIndex={startIndex}
-                        onSlide={this.onSlide}
-                        showFullscreenButton={showFullscreenButton}
-                        showPlayButton={showPlayButton}
-                        items={assets.map(a => ({
-                            original: a.asset.url,
-                            thumbnail: a.asset.thumbUrl,
-                            description: 'toto',
-                            asset: a.asset,
-                            renderItem: this.renderItem,
-                        }))}
-                    /> : 'Gallery is empty'}
-                {options.displayMap ? this.renderMap() : ''}
-            </div>
+            <h1>{title}</h1>
+            <Description
+                descriptionHtml={data.description}
+            />
+            {assets.length > 0 ?
+                <ImageGallery
+                    ref={this.sliderRef}
+                    startIndex={startIndex}
+                    onSlide={this.onSlide}
+                    showFullscreenButton={showFullscreenButton}
+                    showPlayButton={showPlayButton}
+                    items={assets.map(a => ({
+                        original: a.asset.url,
+                        thumbnail: a.asset.thumbUrl,
+                        description: 'toto',
+                        asset: a.asset,
+                        renderItem: this.renderItem,
+                    }))}
+                /> : 'Gallery is empty'}
+            {options.displayMap ? this.renderMap() : ''}
         </div>
     }
 
