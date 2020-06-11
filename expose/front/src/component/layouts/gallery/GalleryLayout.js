@@ -1,9 +1,9 @@
 import React from 'react';
 import ImageGallery from 'react-image-gallery';
-import {dataShape} from "../props/dataShape";
+import {dataShape} from "../../props/dataShape";
 import {PropTypes} from 'prop-types';
-import Description from "./shared-components/Description";
-import {defaultMapProps, initMapbox} from "./mapbox/MapboxLayout";
+import Description from "../shared-components/Description";
+import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
 
 class GalleryLayout extends React.Component {

@@ -1,22 +1,23 @@
 FROM node:13.10.1-alpine3.11 as expose-front-build
 
-RUN apk add --virtual .build \
-        wget \
+RUN apk add --no-cache --virtual .gyp \
+        python \
+        make \
+        g++ \
+    && wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+    && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-2.31-r0.apk \
+    && apk add glibc-2.31-r0.apk \
+    && rm glibc-2.31-r0.apk \
     && mkdir -p /var/docker \
     && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/1.0.0/generate-env-alpine \
     && chmod +x /var/docker/generate-env \
-    && apk del .build \
     && mkdir -p /usr/src/app
 
 COPY . /usr/src/app
 
 WORKDIR /usr/src/app
 
-RUN apk add --no-cache --virtual .gyp \
-            python \
-            make \
-            g++ \
-        && yarn install \
+RUN yarn install \
     && mv public/index.tpl.html public/index.html \
     && yarn run build \
     && apk del .gyp

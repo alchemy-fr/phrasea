@@ -241,6 +241,12 @@ class Publication implements AclObjectInterface
     protected ?string $slug = null;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"publication:read"})
+     */
+    private ?DateTime $date = null;
+
+    /**
      * @ORM\Column(type="datetime")
      * @Groups({"publication:read"})
      */
@@ -606,6 +612,16 @@ class Publication implements AclObjectInterface
     public function setCover(?Asset $cover): void
     {
         $this->cover = $cover;
+    }
+
+    public function getDate(): ?DateTime
+    {
+        return $this->date;
+    }
+
+    public function setDate(?DateTime $date): void
+    {
+        $this->date = $date;
     }
 
     /**
