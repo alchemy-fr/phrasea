@@ -6,6 +6,7 @@ namespace App\Form;
 
 use App\Entity\PublicationConfig;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -16,9 +17,11 @@ class PublicationConfigType extends AbstractType
     {
         $builder
             ->add('layout', LayoutChoiceType::class)
+            ->add('layoutOptions', LayoutOptionsType::class)
             ->add('theme', ThemeChoiceType::class)
             ->add('enabled')
             ->add('publiclyListed')
+            ->add('css', TextareaType::class)
             ->add('securityMethod', SecurityMethodChoiceType::class, [
                 'required' => false,
             ])
@@ -28,6 +31,7 @@ class PublicationConfigType extends AbstractType
             ->add('terms', TermsConfigType::class)
             ->add('downloadTerms', TermsConfigType::class)
             ->add('downloadViaEmail')
+            ->add('mapOptions', MapOptionsType::class)
             ;
     }
 

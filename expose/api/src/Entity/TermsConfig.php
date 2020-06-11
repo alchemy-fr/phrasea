@@ -28,20 +28,23 @@ class TermsConfig implements MergeableValueObjectInterface
     {
     }
 
-    public function mergeWith(MergeableValueObjectInterface $object): void
+    public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
+        $clone = clone $this;
         foreach ([
                      'text',
                      'url',
                  ] as $property) {
             if (null !== $object->{$property}) {
-                if ($this->{$property} instanceof MergeableValueObjectInterface) {
-                    $this->{$property}->mergeWith($object->{$property});
+                if ($clone->{$property} instanceof MergeableValueObjectInterface) {
+                    $clone->{$property}->mergeWith($object->{$property});
                 } else {
-                    $this->{$property} = $object->{$property};
+                    $clone->{$property} = $object->{$property};
                 }
             }
         }
+
+        return $clone;
     }
 
     public function getText(): ?string
@@ -71,15 +74,5 @@ class TermsConfig implements MergeableValueObjectInterface
     {
         return null !== $this->text
             || null !== $this->url;
-    }
-
-    public function mergeWithProfile(self $profile): self
-    {
-        $merged = new static();
-
-        $merged->setText($this->getText() ?? $profile->getText());
-        $merged->setUrl($this->getUrl() ?? $profile->getUrl());
-
-        return $merged;
     }
 }

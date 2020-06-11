@@ -13,5 +13,5 @@ interface MergeableValueObjectInterface
      */
     public function applyDefaults(): void;
 
-    public function mergeWith(MergeableValueObjectInterface $object): void;
+    public function mergeWith(self $object): self;
 }

@@ -11,12 +11,7 @@ class GalleryLayout extends React.Component {
         data: dataShape,
         assetId: PropTypes.string,
         options: PropTypes.object,
-    };
-
-    static defaultProps = {
-        options: {
-            map: 'mapbox',
-        },
+        mapOptions: PropTypes.object,
     };
 
     state = {
@@ -36,7 +31,7 @@ class GalleryLayout extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.options.map) {
+        if (this.props.options.displayMap) {
             this.initMap();
         }
     }
@@ -46,10 +41,13 @@ class GalleryLayout extends React.Component {
             return;
         }
 
-        let locationAsset = this.props.data.assets.filter(a => a.asset.lat)[0];
-        locationAsset = locationAsset ? locationAsset.asset : null;
+        const {data, options, mapOptions} = this.props;
 
-        switch (this.props.options.map) {
+        let locationAsset = data.assets.filter(a => a.asset.lat)[0];
+        locationAsset = locationAsset ? locationAsset.asset : mapOptions;
+
+        switch (options.mapProvider) {
+            default:
             case 'mapbox':
                 this.map = initMapbox(this.mapContainer.current, {
                     ...defaultMapProps,
@@ -57,9 +55,9 @@ class GalleryLayout extends React.Component {
                         lat: locationAsset.lat,
                         lng: locationAsset.lng,
                     } : {}),
-                    zoom: 5
+                    zoom: locationAsset && locationAsset.zoom ? locationAsset.zoom : 5
                 });
-                this.props.data.assets.forEach((a, pos) => {
+                data.assets.forEach((a, pos) => {
                     const {asset} = a;
                     if (!(asset.lat && asset.lng)) {
                         return;
@@ -76,8 +74,6 @@ class GalleryLayout extends React.Component {
                     });
                 });
                 break;
-            default:
-                throw Error(`Undefined map provider ${this.props.options.map}`);
         }
     }
 
@@ -184,28 +180,26 @@ class GalleryLayout extends React.Component {
         }
 
         return <div className={`layout-gallery`}>
-            <div className="container">
-                <h1>{title}</h1>
-                <Description
-                    descriptionHtml={data.description}
-                />
-                {assets.length > 0 ?
-                    <ImageGallery
-                        ref={this.sliderRef}
-                        startIndex={startIndex}
-                        onSlide={this.onSlide}
-                        showFullscreenButton={showFullscreenButton}
-                        showPlayButton={showPlayButton}
-                        items={assets.map(a => ({
-                            original: a.asset.url,
-                            thumbnail: a.asset.thumbUrl,
-                            description: 'toto',
-                            asset: a.asset,
-                            renderItem: this.renderItem,
-                        }))}
-                    /> : 'Gallery is empty'}
-                {options.map ? this.renderMap() : ''}
-            </div>
+            <h1>{title}</h1>
+            <Description
+                descriptionHtml={data.description}
+            />
+            {assets.length > 0 ?
+                <ImageGallery
+                    ref={this.sliderRef}
+                    startIndex={startIndex}
+                    onSlide={this.onSlide}
+                    showFullscreenButton={showFullscreenButton}
+                    showPlayButton={showPlayButton}
+                    items={assets.map(a => ({
+                        original: a.asset.url,
+                        thumbnail: a.asset.thumbUrl,
+                        description: 'toto',
+                        asset: a.asset,
+                        renderItem: this.renderItem,
+                    }))}
+                /> : 'Gallery is empty'}
+            {options.displayMap ? this.renderMap() : ''}
         </div>
     }
 

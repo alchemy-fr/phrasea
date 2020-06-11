@@ -8,6 +8,8 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\GetPublicationAction;
+use App\Model\LayoutOptions;
+use App\Model\MapOptions;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -550,7 +552,7 @@ class Publication implements AclObjectInterface
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config->mergeWith($config);
+        $this->config = $this->config->mergeWith($config);
     }
 
     public function getProfile(): ?PublicationProfile
@@ -569,7 +571,7 @@ class Publication implements AclObjectInterface
     public function getTerms(): TermsConfig
     {
         if ($this->profile) {
-            return $this->config->getTerms()->mergeWithProfile($this->profile->getConfig()->getTerms());
+            return $this->profile->getConfig()->getTerms()->mergeWith($this->config->getTerms());
         }
 
         return $this->config->getTerms();
@@ -581,7 +583,7 @@ class Publication implements AclObjectInterface
     public function getDownloadTerms(): TermsConfig
     {
         if ($this->profile) {
-            return $this->config->getDownloadTerms()->mergeWithProfile($this->profile->getConfig()->getDownloadTerms());
+            return $this->profile->getConfig()->getDownloadTerms()->mergeWith($this->config->getDownloadTerms());
         }
 
         return $this->config->getDownloadTerms();
@@ -604,6 +606,30 @@ class Publication implements AclObjectInterface
     public function setCover(?Asset $cover): void
     {
         $this->cover = $cover;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getMapOptions(): MapOptions
+    {
+        if ($this->profile) {
+            return $this->profile->getConfig()->getMapOptions()->mergeWith($this->config->getMapOptions());
+        }
+
+        return $this->config->getMapOptions();
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function getLayoutOptions(): LayoutOptions
+    {
+        if ($this->profile) {
+            return $this->profile->getConfig()->getLayoutOptions()->mergeWith($this->config->getLayoutOptions());
+        }
+
+        return $this->config->getLayoutOptions();
     }
 
     // @see https://github.com/doctrine/orm/issues/7944

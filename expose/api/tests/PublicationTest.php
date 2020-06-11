@@ -94,7 +94,7 @@ class PublicationTest extends AbstractExposeTestCase
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         foreach ($expectations as $propertyPath => $expectedValue) {
-            $this->assertEquals($expectedValue, $propertyAccessor->getValue($publication, $propertyPath));
+            $this->assertEquals(json_encode($expectedValue), json_encode($propertyAccessor->getValue($publication, $propertyPath)));
         }
     }
 
@@ -162,6 +162,37 @@ class PublicationTest extends AbstractExposeTestCase
               'copyrightText' => 'Profile',
           ], [
               'copyrightText' => 'Profile',
+          ]],
+
+          [[
+              'mapOptions' => ['lat' => 2.31],
+          ], [
+              'mapOptions' => ['lat' => 2.32],
+          ], [
+              'mapOptions' => ['lat' => 2.31],
+          ]],
+
+          [[
+              'mapOptions' => [],
+          ], [
+              'mapOptions' => [],
+          ], [
+              'mapOptions' => [],
+          ]],
+
+          [[
+              'mapOptions' => [],
+          ], [
+              'mapOptions' => ['lat' => 2.32],
+          ], [
+              'mapOptions' => ['lat' => 2.32],
+          ]],
+
+          [[
+              'mapOptions' => ['lat' => 2.31],
+          ], [
+          ], [
+              'mapOptions' => ['lat' => 2.31],
           ]],
         ];
     }

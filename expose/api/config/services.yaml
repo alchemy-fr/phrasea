@@ -87,3 +87,11 @@ services:
                 gallery: Gallery
                 download: Download
                 mapbox: Mapbox
+
+    App\Form\MapLayoutChoiceType:
+        arguments:
+            $choices:
+                light-v10: Light
+                dark-v10: Dark
+                outdoors-v11: Outdoors
+                satellite-v9: Satellite

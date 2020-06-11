@@ -2,8 +2,8 @@ import {PropTypes} from 'prop-types';
 
 export const dataShape = PropTypes.shape({
     title: PropTypes.string.isRequired,
-    assets: PropTypes.array.isRequired,
-    children: PropTypes.array.isRequired,
+    assets: PropTypes.array,
+    children: PropTypes.array,
     parent: PropTypes.object,
 });
 

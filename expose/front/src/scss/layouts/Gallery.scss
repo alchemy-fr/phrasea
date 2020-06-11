@@ -6,10 +6,6 @@
     margin: 20px 0;
   }
 
-  .container {
-    max-width: 50vw;
-  }
-
   .image-gallery-image {
     min-height: 300px;
     background-color: #CCC;
@@ -22,13 +18,26 @@
     }
   }
 
+  .image-gallery-description {
+    max-height: 200px;
+    overflow-y: auto;
+    transform: translateY(50px);
+    opacity: 0;
+    transition: opacity ease-in-out .3s, transform ease-in-out .3s;
+
+    .description {
+      margin-bottom: 0;
+    }
+  }
+
   .description {
     margin-bottom: 15px;
   }
 
-  .image-gallery-description {
-    .description {
-      margin-bottom: 0;
+  .image-gallery-slide-wrapper:hover {
+    .image-gallery-description {
+      transform: translateY(0);
+      opacity: 1;
     }
   }
 }
@@ -62,7 +71,6 @@
 .gallery-map {
   .map-container {
     position: relative;
-    width: 100%;
     height: 150px;
   }
 }

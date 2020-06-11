@@ -4,17 +4,31 @@ import {dataShape} from "../props/dataShape";
 
 class ThemeEditorProxy extends PureComponent {
     static propTypes = {
-        data: dataShape.isRequired,
+        data: dataShape,
         render: PropTypes.func.isRequired,
     };
 
-    constructor(props) {
-        super(props);
+    state = {
+        hidden: false,
+    };
 
-        this.state = {
-            theme: props.data.theme,
-            layout: props.data.layout,
+    static getDerivedStateFromProps(props, state) {
+        const d = props.data || {};
+
+        if (state.propsData === d) {
+            return null;
+        }
+
+        return {
+            propsData: props.data,
+            theme: d.theme,
+            layout: d.layout,
+            lastPubId: d.id,
         };
+    }
+
+    hide = () => {
+        this.setState({hidden: true});
     }
 
     render() {
@@ -25,15 +39,23 @@ class ThemeEditorProxy extends PureComponent {
         body.className = body.className.replace(/\btheme-.+\b/g, "");
         body.classList.add(`theme-${theme}`);
 
-        return <>
-            {render({
-                ...data,
-                layout,
-                theme,
-            })}
-            <div
+        const subData = data ? {
+            ...data,
+            layout,
+            theme,
+        } : data;
+
+        if (data && !this.state.hidden) {
+            subData.editor = <div
                 className={'theme-editor'}
             >
+                <button
+                    title={'Hide Editor'}
+                    className={'btn btn-close btn-sm'}
+                    onClick={this.hide}
+                >
+                    X
+                </button>
                 <h1>Display Editor</h1>
                 <form>
                     <div className="form-group">
@@ -62,6 +84,10 @@ class ThemeEditorProxy extends PureComponent {
                     </div>
                 </form>
             </div>
+        }
+
+        return <>
+            {render(subData)}
         </>
     }
 }

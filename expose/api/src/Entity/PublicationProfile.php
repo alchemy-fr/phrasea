@@ -120,7 +120,7 @@ class PublicationProfile implements AclObjectInterface
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config->mergeWith($config);
+        $this->config = $this->config->mergeWith($config);
     }
 
     public function getOwnerId(): ?string

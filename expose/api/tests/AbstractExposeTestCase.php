@@ -81,6 +81,9 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['layout'])) {
             $config->setLayout($options['layout']);
         }
+        if (isset($options['mapOptions'])) {
+            $config->setMapOptions($options['mapOptions']);
+        }
     }
 
     protected function createProfile(array $options = []): string

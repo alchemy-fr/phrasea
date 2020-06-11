@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@alchemy-fr/phraseanet-react-components@^1.0.1-alpha5":
-  version "1.0.1-alpha5"
-  resolved "https://registry.yarnpkg.com/@alchemy-fr/phraseanet-react-components/-/phraseanet-react-components-1.0.1-alpha5.tgz#dcd5f12134b400dc18fd5a801db4b2ffc8cfccb5"
-  integrity sha512-du5fTlErPOMMDzaPUXyPxFEmtkhTEKXlm0m8tO5flKW/ZoSbeD1/yAdPnUN3hNiMia+KVSdUHidzwcosybBohw==
+"@alchemy-fr/phraseanet-react-components@^1.0.1-alpha6":
+  version "1.0.1-alpha6"
+  resolved "https://registry.yarnpkg.com/@alchemy-fr/phraseanet-react-components/-/phraseanet-react-components-1.0.1-alpha6.tgz#7b1287b0712cb429d511226f7b893953f8021b27"
+  integrity sha512-kbhlwoIwWAqSIqoG98iwzn3VRLpbNYbObGy1SNaxQdCChw0SRt24+oFwRQfpoAs73lQUL+ZvSl3+PeB6Nn0DDg==
   dependencies:
     querystring "^0.2.0"
     react-loader-spinner "^3.1.14"
