@@ -1,8 +1,8 @@
-import React, {PureComponent} from 'react';
+import React, {Component} from 'react';
 import {PropTypes} from 'prop-types';
 import {dataShape} from "../props/dataShape";
 
-class ThemeEditorProxy extends PureComponent {
+class ThemeEditorProxy extends Component {
     static propTypes = {
         data: dataShape,
         render: PropTypes.func.isRequired,

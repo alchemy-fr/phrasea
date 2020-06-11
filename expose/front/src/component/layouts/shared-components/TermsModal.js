@@ -23,7 +23,7 @@ export default class TermsModal extends PureComponent {
 
         return <Modal
             show={true}
-            onHide={onClose}
+            onHide={onClose || (() => false)}
         >
             <Modal.Header closeButton={closable}>
                 <Modal.Title>{title}</Modal.Title>
