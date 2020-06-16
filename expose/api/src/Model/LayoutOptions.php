@@ -23,11 +23,17 @@ class LayoutOptions extends AbstractOptions
      */
     private ?bool $displayMapPins = null;
 
+    /**
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private ?string $logoUrl = null;
+
     public function jsonSerialize()
     {
         return array_filter([
             'displayMap' => $this->displayMap,
             'displayMapPins' => $this->displayMapPins,
+            'logoUrl' => $this->logoUrl,
         ]);
     }
 
@@ -35,6 +41,7 @@ class LayoutOptions extends AbstractOptions
     {
         $this->displayMap = $options['displayMap'] ?? null;
         $this->displayMapPins = $options['displayMapPins'] ?? null;
+        $this->logoUrl = $options['logoUrl'] ?? null;
     }
 
     public function isDisplayMap(): ?bool
@@ -55,5 +62,15 @@ class LayoutOptions extends AbstractOptions
     public function setDisplayMapPins(?bool $displayMapPins): void
     {
         $this->displayMapPins = $displayMapPins;
+    }
+
+    public function getLogoUrl(): ?string
+    {
+        return $this->logoUrl;
+    }
+
+    public function setLogoUrl(?string $logoUrl): void
+    {
+        $this->logoUrl = $logoUrl;
     }
 }

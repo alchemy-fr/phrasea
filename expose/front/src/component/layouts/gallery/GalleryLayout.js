@@ -1,10 +1,11 @@
 import React from 'react';
 import ImageGallery from 'react-image-gallery';
-import {dataShape} from "../props/dataShape";
+import {dataShape} from "../../props/dataShape";
 import {PropTypes} from 'prop-types';
-import Description from "./shared-components/Description";
-import {defaultMapProps, initMapbox} from "./mapbox/MapboxLayout";
+import Description from "../shared-components/Description";
+import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
+import VideoPlayer from "../shared-components/VideoPlayer";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -110,7 +111,7 @@ class GalleryLayout extends React.Component {
         });
     }
 
-    toggleShowVideo(url) {
+    toggleShowVideo = (url) => {
         this.setState(prevState => {
             const showVideo = {...prevState.showVideo};
             const wasShown = !!showVideo[url];
@@ -125,33 +126,16 @@ class GalleryLayout extends React.Component {
     }
 
     renderVideo = (item) => {
-        const {showVideo} = this.state;
-
         return <div className='image-gallery-image'>
-            {
-                showVideo[item.url] ?
-                    <div className='video-wrapper'>
-                        <video controls autoPlay={true}>
-                            <source src={item.url} type={'video/mp4'}/>
-                            Sorry, your browser doesn't support embedded videos.
-                        </video>
-                    </div>
-                    : <div onClick={this.toggleShowVideo.bind(this, item.url)}>
-                        <div className='play-button'/>
-                        <img src={item.thumbUrl} alt={item.title}/>
-                        {
-                            item.description &&
-                            <span
-                                className='image-gallery-description'
-                                style={{right: '0', left: 'initial'}}
-                            >
-                            {item.description}
-                          </span>
-                        }
-                    </div>
-            }
-        </div>;
-    };
+            <VideoPlayer
+                url={item.url}
+                thumbUrl={item.thumbUrl}
+                title={item.title}
+                description={item.description}
+                onPlay={() => this.toggleShowVideo(item.url)}
+            />
+        </div>
+    }
 
     render() {
         const {assetId, data, options} = this.props;
@@ -213,7 +197,7 @@ class GalleryLayout extends React.Component {
     }
 
     renderItem = ({asset}) => {
-        if (-1 === asset.mimeType.indexOf('image/')) {
+        if (0 === asset.mimeType.indexOf('video/')) {
             return this.renderVideo(asset);
         }
 

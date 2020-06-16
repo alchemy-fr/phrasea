@@ -29,6 +29,7 @@ easy_admin:
           - { property: 'title' }
           - { property: 'slug' }
           - { property: 'profile' }
+          - { property: 'date' }
           - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
 

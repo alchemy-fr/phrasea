@@ -79,6 +79,7 @@ class ThemeEditorProxy extends Component {
                         >
                             <option value="download">Download</option>
                             <option value="gallery">Gallery</option>
+                            <option value="grid">Grid gallery</option>
                             <option value="mapbox">Mapbox</option>
                         </select>
                     </div>

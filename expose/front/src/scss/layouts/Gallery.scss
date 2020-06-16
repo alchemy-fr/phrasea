@@ -42,6 +42,14 @@
   }
 }
 
+.video-container {
+  position: relative;
+
+  img {
+    cursor: pointer;
+  }
+}
+
 .play-button {
   cursor: pointer;
   position: absolute;

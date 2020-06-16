@@ -10,3 +10,10 @@ framework:
 
     php_errors:
         log: true
+
+    assets:
+        packages:
+            assets:
+                version: v1
+                base_urls:
+                    - '%env(EXPOSE_BASE_URL)%'

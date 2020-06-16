@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'ftv_heldustry-thin';
+    src: url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-thin-webfont.eot");
+    src: url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-thin-webfont.eot?#iefix") format("embedded-opentype"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-thin-webfont.woff") format("woff"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-thin-webfont.ttf") format("truetype"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-thin-webfont.svg#ftv_heldustry-thin-webfont") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ftv_heldustry-regularregular';
+    src: url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-regular-webfont.eot");
+    src: url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-regular-webfont.eot?#iefix") format("embedded-opentype"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-regular-webfont.woff") format("woff"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-regular-webfont.ttf") format("truetype"),url("https://www.phototele.com/plugins/web-gallery/assets/fonts/ftv/ftv_heldustry-regular-webfont.svg#ftv_heldustry-regularregular") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: "ftv_heldustry-regularregular";
+    color: #8a8a8a;
+}
+
+h1 {
+    font-family: "ftv_heldustry-thin";
+    color: #0074bc;
+}
+
+a {
+    color: #0074bc;
+}
+
+#sidebar {
+    background: #7ebfe7;
+}
+
+.btn-primary, .btn-primary:hover {
+    color: #fff;
+    background-color: #0074bc;
+    border-color: #0074bc;
+}

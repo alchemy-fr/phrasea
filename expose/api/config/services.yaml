@@ -85,6 +85,7 @@ services:
         arguments:
             $choices:
                 gallery: Gallery
+                grid: Grid gallery
                 download: Download
                 mapbox: Mapbox
 
