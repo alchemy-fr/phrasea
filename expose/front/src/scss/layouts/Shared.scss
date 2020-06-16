@@ -1,0 +1,16 @@
+.layout-asset-container {
+  position: relative;
+
+  .download-btn {
+    position: absolute;
+    display: none;
+    top: 15px;
+    right: 15px;
+  }
+
+  &:hover {
+    .download-btn {
+      display: block;
+    }
+  }
+}

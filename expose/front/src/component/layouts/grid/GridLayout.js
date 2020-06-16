@@ -13,18 +13,21 @@ import {
 } from "react-image-magnifiers";
 import squareImg from '../../../images/square.svg';
 import VideoPlayer from "../shared-components/VideoPlayer";
+import DownloadButton from "../shared-components/DownloadButton";
+import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../shared-components/DownloadViaEmailProxy";
 
-const CustomView = (props) => {
+const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
+
         <div className="asset">
-            {0 === props.data.mimeType.indexOf('video/') ? <VideoPlayer
-                url={props.data.url}
-                thumbUrl={props.data.thumbUrl}
-                title={props.data.title}
+            {0 === data.mimeType.indexOf('video/') ? <VideoPlayer
+                url={data.url}
+                thumbUrl={data.thumbUrl}
+                title={data.title}
             /> : <div className="flex-magnifier">
                 <Magnifier
-                    imageSrc={props.data.url}
-                    imageAlt={props.data.title}
+                    imageSrc={data.url}
+                    imageAlt={data.title}
                     mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
                     touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
                 />
@@ -32,8 +35,15 @@ const CustomView = (props) => {
         </div>
         <div className="desc">
             <Description
-                descriptionHtml={props.data.description}
+                descriptionHtml={data.description}
             />
+            {data.downloadUrl ? <div
+                className="download-btn">
+                <DownloadButton
+                    downloadUrl={data.downloadUrl}
+                    onDownload={carouselProps.onDownload}
+                />
+            </div> : ''}
         </div>
     </div>
 };
@@ -74,6 +84,8 @@ class GridLayout extends React.Component {
         } = data;
 
         return <div className={`layout-grid`}>
+            {renderDownloadTermsModal.call(this)}
+            {renderDownloadViaEmail.call(this)}
             <header>
                 {date ? <time>{moment(date).format('LLLL')}</time> : ''}
                 {layoutOptions.logoUrl ? <div>
@@ -86,6 +98,11 @@ class GridLayout extends React.Component {
             />
             {assets.length > 0 ? this.renderGallery() : 'Gallery is empty'}
         </div>
+    }
+
+    onDownload = (url, e) => {
+        onDownload.call(this, url, e);
+        this.closeModal();
     }
 
     renderGallery() {
@@ -121,6 +138,7 @@ class GridLayout extends React.Component {
                         onClose={this.closeModal}
                     >
                         <Carousel
+                            onDownload={this.onDownload}
                             currentIndex={currentAsset}
                             components={{
                                 View: CustomView,

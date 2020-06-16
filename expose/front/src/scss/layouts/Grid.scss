@@ -10,6 +10,14 @@
   }
 }
 
+.react-images__dialog {
+  .desc {
+    .download-btn {
+      margin-top: 30px;
+    }
+  }
+}
+
 .flex-magnifier {
   display: flex;
   align-items: flex-start;
@@ -71,5 +79,5 @@
 }
 
 .react-images__view-wrapper {
-    max-height: 100vh;
+  max-height: 100vh;
 }

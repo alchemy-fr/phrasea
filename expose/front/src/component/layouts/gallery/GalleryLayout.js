@@ -6,6 +6,13 @@ import Description from "../shared-components/Description";
 import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
 import VideoPlayer from "../shared-components/VideoPlayer";
+import DownloadButton from "../shared-components/DownloadButton";
+import DownloadViaEmailModal from "../shared-components/DownloadViaEmailModal";
+import {
+    downloadContainerDefaultState, onDownload,
+    renderDownloadTermsModal,
+    renderDownloadViaEmail
+} from "../shared-components/DownloadViaEmailProxy";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -20,6 +27,7 @@ class GalleryLayout extends React.Component {
         showPlayButton: true,
         showVideo: {},
         currentIndex: null,
+        ...downloadContainerDefaultState,
     };
 
     map;
@@ -164,6 +172,8 @@ class GalleryLayout extends React.Component {
         }
 
         return <div className={`layout-gallery`}>
+            {renderDownloadTermsModal.call(this)}
+            {renderDownloadViaEmail.call(this)}
             <h1>{title}</h1>
             <Description
                 descriptionHtml={data.description}
@@ -196,12 +206,33 @@ class GalleryLayout extends React.Component {
         </div>
     }
 
+    renderDownloadViaEmail() {
+        return <DownloadViaEmailModal
+            url={this.state.pendingDownloadUrl}
+            onClose={this.discardDownloadViaEmail}
+        />
+    }
+
+    discardDownloadViaEmail = () => {
+        this.setState({
+            displayDownloadViaEmail: false,
+            pendingDownloadUrl: null,
+        });
+    }
+
     renderItem = ({asset}) => {
         if (0 === asset.mimeType.indexOf('video/')) {
             return this.renderVideo(asset);
         }
 
-        return <div className="image-gallery-image">
+        return <div className="image-gallery-image layout-asset-container">
+            {asset.downloadUrl ? <div
+                className="download-btn">
+                <DownloadButton
+                    downloadUrl={asset.downloadUrl}
+                    onDownload={onDownload.bind(this)}
+                />
+            </div> : ''}
             <img
                 alt={asset.title || 'Image'}
                 src={asset.url}/>
