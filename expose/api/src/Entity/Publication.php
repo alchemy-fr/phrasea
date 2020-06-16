@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\GetPublicationAction;
+use App\Controller\SortAssetsAction;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use DateTime;
@@ -33,6 +34,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         },
  *         "delete"={
  *              "security"="is_granted('DELETE', object)"
+ *         },
+ *         "sort_assets"={
+ *             "defaults"={
+ *                  "_api_receive"=false,
+ *                  "_api_respond"=true,
+ *             },
+ *             "path"="/publications/{id}/sort-assets",
+ *             "controller"=SortAssetsAction::class,
+ *             "method"="POST",
  *         },
  *     },
  *     collectionOperations={
@@ -104,6 +114,7 @@ class Publication implements AclObjectInterface
      * )
      * @Groups({"publication:read"})
      * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
+     * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
     private Collection $assets;
 

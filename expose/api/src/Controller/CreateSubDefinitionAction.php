@@ -17,15 +17,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CreateSubDefinitionAction extends AbstractController
 {
-    /**
-     * @var FileStorageManager
-     */
-    private $storageManager;
-
-    /**
-     * @var AssetManager
-     */
-    private $assetManager;
+    private FileStorageManager $storageManager;
+    private AssetManager $assetManager;
 
     public function __construct(
         FileStorageManager $storageManager,

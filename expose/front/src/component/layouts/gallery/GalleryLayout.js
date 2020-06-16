@@ -205,10 +205,10 @@ class GalleryLayout extends React.Component {
             <img
                 alt={asset.title || 'Image'}
                 src={asset.url}/>
-            {asset.description ? <span
+            {asset.description ? <div
                 className="image-gallery-description">
                     <Description descriptionHtml={asset.description}/>
-                </span> : ''}
+                </div> : ''}
         </div>;
     }
 }

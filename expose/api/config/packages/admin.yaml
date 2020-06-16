@@ -91,9 +91,11 @@ easy_admin:
           - { property: asset.title, label: 'Asset title' }
           - { property: asset.id, label: 'Asset ID' }
           - { property: slug }
+          - { property: position }
           - createdAt
       form:
         fields:
           - { property: 'publication' }
           - { property: 'asset' }
           - { property: 'slug' }
+          - { property: 'position' }

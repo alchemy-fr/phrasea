@@ -92,6 +92,13 @@ class PublicationAsset
     protected ?string $slug = null;
 
     /**
+     * @ApiProperty()
+     *
+     * @ORM\Column(type="smallint", options={"default": 0})
+     */
+    protected int $position = 0;
+
+    /**
      * @ORM\Column(type="datetime")
      * @ApiProperty()
      */
@@ -141,5 +148,15 @@ class PublicationAsset
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

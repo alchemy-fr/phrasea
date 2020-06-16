@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
+import Description from "./Description";
 
 export default class VideoPlayer extends PureComponent {
     static propTypes = {
@@ -47,9 +48,8 @@ export default class VideoPlayer extends PureComponent {
                             description &&
                             <span
                                 className='image-gallery-description'
-                                style={{right: '0', left: 'initial'}}
                             >
-                            {description}
+                            <Description descriptionHtml={description}/>
                           </span>
                         }
                     </div>
