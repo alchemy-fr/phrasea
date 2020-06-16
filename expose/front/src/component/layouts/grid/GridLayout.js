@@ -5,28 +5,30 @@ import {dataShape} from "../../props/dataShape";
 import Gallery from 'react-grid-gallery';
 import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import Carousel, {Modal, ModalGateway} from "react-images";
-import View from 'react-images/lib/components/View';
 import moment from "moment";
 import {
     Magnifier,
     MOUSE_ACTIVATION,
     TOUCH_ACTIVATION
 } from "react-image-magnifiers";
+import squareImg from '../../../images/square.svg';
+import VideoPlayer from "../shared-components/VideoPlayer";
 
 const CustomView = (props) => {
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
-            {/*<View*/}
-            {/*    {...props}*/}
-            {/*/>*/}
-            <div className="flex-magnifier">
+            {0 === props.data.mimeType.indexOf('video/') ? <VideoPlayer
+                url={props.data.url}
+                thumbUrl={props.data.thumbUrl}
+                title={props.data.title}
+            /> : <div className="flex-magnifier">
                 <Magnifier
                     imageSrc={props.data.url}
                     imageAlt={props.data.title}
                     mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
                     touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
                 />
-            </div>
+            </div>}
         </div>
         <div className="desc">
             <Description
@@ -47,6 +49,7 @@ class GridLayout extends React.Component {
     state = {
         thumbsLoaded: false,
         currentAsset: null,
+        showVideo: {},
     };
 
     componentDidMount() {
@@ -73,9 +76,9 @@ class GridLayout extends React.Component {
         return <div className={`layout-grid`}>
             <header>
                 {date ? <time>{moment(date).format('LLLL')}</time> : ''}
-                {layoutOptions.logoUrl ? <a href="#">
-                    <img src={layoutOptions.logoUrl}/>
-                </a> : ''}
+                {layoutOptions.logoUrl ? <div>
+                    <img src={layoutOptions.logoUrl} alt={''}/>
+                </div> : ''}
             </header>
             <h1>{title}</h1>
             <Description
@@ -151,11 +154,18 @@ class GridLayout extends React.Component {
         await Promise.all(this.props.data.assets.map(a => {
             const {asset} = a;
 
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
                     asset.thumbWidth = img.width;
                     asset.thumbHeight = img.height;
+                    resolve();
+                };
+                img.onerror = e => {
+                    console.error(e);
+                    asset.thumbUrl = squareImg;
+                    asset.thumbWidth = 100;
+                    asset.thumbHeight = 100;
                     resolve();
                 };
                 img.src = asset.thumbUrl;

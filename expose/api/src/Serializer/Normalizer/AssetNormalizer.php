@@ -23,7 +23,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
             $asset = $publicationAsset->getAsset();
 
             $object->setUrl($this->generateAssetUrl($asset->getPreviewDefinition() ?? $asset));
-            $object->setThumbUrl($this->generateAssetUrl($asset->getThumbnailDefinition() ?? $asset));
+            $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($asset->getThumbnailDefinition() ?? $asset));
             if (!$downloadViaEmail) {
                 $object->setDownloadUrl($this->generateAssetUrl($asset, true));
             } else {
@@ -31,7 +31,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
             }
         } else {
             $object->setUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
-            $object->setThumbUrl($this->generateAssetUrl($object->getThumbnailDefinition() ?? $object));
+            $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object));
             if (!$downloadViaEmail) {
                 $object->setDownloadUrl($this->generateAssetUrl($object, true));
             }

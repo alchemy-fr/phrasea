@@ -9,12 +9,14 @@ use App\Entity\MediaInterface;
 use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 use App\Security\AssetUrlGenerator;
+use Symfony\Component\Asset\Packages;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 {
     private AssetUrlGenerator $assetUrlGenerator;
     protected UrlGeneratorInterface $urlGenerator;
+    private Packages $packages;
 
     /**
      * @required
@@ -27,9 +29,29 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     /**
      * @required
      */
+    public function setPackages(Packages $packages): void
+    {
+        $this->packages = $packages;
+    }
+
+    /**
+     * @required
+     */
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): void
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    /**
+     * @param PublicationAsset|Asset $publicationAsset
+     */
+    protected function generateAssetUrlOrVideoPreviewUrl(MediaInterface $media): string
+    {
+        if (strpos($media->getMimeType(), 'video/') === 0) {
+            return $this->packages->getUrl('/images/player.webp', 'assets');
+        }
+
+        return $this->generateAssetUrl($media);
     }
 
     /**
