@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-notify-api-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: notify-api-nginx
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: notify-api-nginx
+    spec:
+      containers:
+      - name: notify-api-nginx
+        image: {{ .Values.repository.baseurl }}/ps-notify-api-nginx:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError

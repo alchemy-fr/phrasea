@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-postgresql
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: postgresql
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: postgresql
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Values.postgresql.volumes.claim_name }}
+      containers:
+      - name: postgresql
+        image: postgres:11.2-alpine
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: data
+          mountPath: "/var/lib/postgresql/data"
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.postgresql.service.user }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgresql.service.password }}

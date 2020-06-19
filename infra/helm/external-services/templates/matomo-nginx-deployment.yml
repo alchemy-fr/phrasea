@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-matomo-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: matomo-nginx
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: matomo-nginx
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Values.matomo.volumes.html.claim_name }}
+      containers:
+      - name: matomo-nginx
+        image: {{ .Values.repository.baseurl }}/ps-matomo-nginx:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: data
+          mountPath: "/var/www/html"

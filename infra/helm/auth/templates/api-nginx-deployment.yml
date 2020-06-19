@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-auth-api-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: auth-api-nginx
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: auth-api-nginx
+    spec:
+      containers:
+      - name: auth-api-nginx
+        image: {{ .Values.repository.baseurl }}/ps-auth-api-nginx:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError

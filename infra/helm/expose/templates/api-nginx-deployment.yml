@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-expose-api-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: expose-api-nginx
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: expose-api-nginx
+    spec:
+      containers:
+      - name: expose-api-nginx
+        image: {{ .Values.repository.baseurl }}/ps-expose-api-nginx:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError

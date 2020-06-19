@@ -1,0 +1,34 @@
+repository:
+  baseurl: alchemyfr
+  tag: latest
+
+volumes:
+  upload:
+    claim_name: ps-upload
+  configs:
+    configmap_name: ps-configs
+
+hostname:
+  api:
+  client:
+
+oauth:
+  admin_client_id: uploader-admin
+  admin_client_random_id: uploader-admin-random
+  admin_client_secret: uploader123456
+  client_id: uploader
+  client_secret: uploader123456
+
+params:
+  app_id: uploader
+  asset_consumer_commit_uri:
+  asset_consumer_access_token:
+  db_user: user
+  db_password: password
+  rabbitmq_host: rabbitmq
+  rabbitmq_port: 5672
+  rabbitmq_user: rabbit
+  rabbitmq_password: rabbit
+  uploader_base_url:
+  auth_base_url:
+  report_base_url:

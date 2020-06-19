@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-report-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: report-api
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: report-api
+    spec:
+      containers:
+      - name: report-api
+        image: {{ .Values.repository.baseurl }}/ps-report-api:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError
+        env:
+        - name: APP_ENV
+          value: "prod"
+        - name: POSTGRES_USER
+          value: "{{ .Values.params.postgres_user }}"
+        - name: POSTGRES_PASSWORD
+          value: "{{ .Values.params.postgres_password }}"
+        - name: POSTGRES_DATABASE
+          value: "{{ .Values.params.postgres_database }}"

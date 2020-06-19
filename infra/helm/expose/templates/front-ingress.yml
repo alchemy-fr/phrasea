@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: expose-front-ingress
+spec:
+  rules:
+  - host: {{ .Values.hostname.front }}
+    http:
+      paths:
+      - backend:
+          serviceName: expose-front
+          servicePort: 80
+        path: /

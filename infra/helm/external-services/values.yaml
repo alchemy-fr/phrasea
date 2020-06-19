@@ -1,0 +1,38 @@
+repository:
+  baseurl: alchemyfr
+  tag: latest
+
+postgresql:
+  service:
+    user: user
+    password: password
+  volumes:
+    claim_name: ps-postgresql
+
+mysql:
+  service:
+    root_password: root
+    user: mysql-user
+    password: mysql-password
+    database: matomo
+  volumes:
+    claim_name: ps-mysql
+
+rabbitmq:
+  service:
+    user: rabbit
+    password: rabbit
+  volumes:
+    claim_name: ps-rabbitmq
+
+matomo:
+  service:
+    db:
+      host: phraseanet-service-mysql
+      user: mysql-user
+      password: mysql-password
+      database: matomo
+  volumes:
+    html:
+      claim_name: ps-matomo
+

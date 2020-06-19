@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: auth-api-nginx-ingress
+spec:
+  rules:
+  - host: {{ .Values.hostname.api }}
+    http:
+      paths:
+      - backend:
+          serviceName: auth-api-nginx
+          servicePort: 80
+        path: /

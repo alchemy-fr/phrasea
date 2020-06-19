@@ -1,0 +1,7 @@
+repository:
+  baseurl: alchemyfr
+  tag: latest
+params:
+    postgres_user: user
+    postgres_password: password
+    postgres_database: report

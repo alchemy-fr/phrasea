@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phraseanet-service-uploader-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-service
+      tier: uploader-client
+  template:
+    metadata:
+      labels:
+        app: phraseanet-service
+        tier: uploader-client
+    spec:
+      volumes:
+      - name: configs
+        configMap:
+          name: {{ .Values.volumes.configs.configmap_name }}
+      containers:
+      - name: uploader-client
+        image: {{ .Values.repository.baseurl }}/ps-uploader-client:{{ .Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: configs
+          mountPath: "/configs"
+        env:
+        - name: DEV_MODE
+          value: "prod"
+        - name: UPLOADER_BASE_URL
+          value: "{{ .Values.params.uploader_base_url }}"
+        - name: AUTH_BASE_URL
+          value: "{{ .Values.params.auth_base_url }}"
+        {{- if not .Values.oauth.use_secret }}
+        - name: CLIENT_ID
+          value: "{{ .Values.oauth.client_id }}"
+        - name: CLIENT_SECRET
+          value: "{{ .Values.oauth.client_secret }}"
+        {{- end }}
+        {{- if .Values.oauth.use_secret }}
+        - name: CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth.secret_name }}
+              key: CONCAT
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.oauth.secret_name }}
+              key: CLIENT_SECRET
+        {{- end }}
