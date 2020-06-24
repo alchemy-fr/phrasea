@@ -19,22 +19,20 @@ class AssetNormalizer extends AbstractRouterNormalizer
         $publicationAsset = $context['publication_asset'] ?? null;
         $downloadViaEmail = $context['download_via_email'] ?? false;
 
-        if ($publicationAsset instanceof PublicationAsset) {
-            $asset = $publicationAsset->getAsset();
+        if (!$downloadViaEmail) {
+            $object->setDownloadUrl($this->generateAssetUrl($object, true));
+        } else if ($publicationAsset instanceof PublicationAsset) {
+            $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
+        }
 
-            $object->setUrl($this->generateAssetUrl($asset->getPreviewDefinition() ?? $asset));
-            $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($asset->getThumbnailDefinition() ?? $asset));
-            if (!$downloadViaEmail) {
-                $object->setDownloadUrl($this->generateAssetUrl($asset, true));
-            } else {
-                $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
-            }
-        } else {
-            $object->setUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
-            $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object));
-            if (!$downloadViaEmail) {
-                $object->setDownloadUrl($this->generateAssetUrl($object, true));
-            }
+        $object->setUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
+        $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object));
+
+        if (!empty($webVTT = $object->getWebVTT())) {
+            $object->setWebVTTLink($this->urlGenerator->generate('asset_webvtt', [
+                'id' => $object->getId(),
+                'hash' => md5($webVTT),
+            ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
     }
 

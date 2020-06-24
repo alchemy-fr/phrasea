@@ -16,6 +16,10 @@
       margin-top: 30px;
     }
   }
+
+  .video-container {
+    width: 100%;
+  }
 }
 
 .flex-magnifier {
@@ -37,19 +41,29 @@
     color: #FFF;
   }
 
+  .asset {
+    width: 600px;
+  }
+
   @include media-breakpoint-up($mobile-thresold-up) {
     flex-direction: row;
+
     > div {
       margin-left: 15px;
       margin-right: 15px;
     }
 
     .asset {
+      width: 600px;
       max-width: 75%;
     }
 
     .desc {
       max-width: 25%;
+    }
+
+    .flex-magnifier {
+      //max-width: 50vw;
     }
   }
 
@@ -63,8 +77,13 @@
       margin-bottom: 15px;
     }
 
+    .asset {
+      max-width: 100%;
+    }
+
     .desc {
       padding: 15px;
+      padding-bottom: 50px;
       overflow: auto;
     }
 
@@ -76,6 +95,10 @@
       height: auto;
     }
   }
+}
+
+.react-images__track {
+  height: 100vh;
 }
 
 .react-images__view-wrapper {

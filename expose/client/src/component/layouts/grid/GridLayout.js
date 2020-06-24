@@ -18,12 +18,12 @@ import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../s
 
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
-
         <div className="asset">
             {0 === data.mimeType.indexOf('video/') ? <VideoPlayer
                 url={data.url}
                 thumbUrl={data.thumbUrl}
                 title={data.title}
+                webVTTLink={data.webVTTLink}
             /> : <div className="flex-magnifier">
                 <Magnifier
                     imageSrc={data.url}
@@ -148,14 +148,15 @@ class GridLayout extends React.Component {
                                 container: base => ({
                                     ...base,
                                     height: '100vh',
+                                    width: '100vw',
+                                    position: 'relative',
                                 }),
                                 view: base => ({
                                     ...base,
                                     alignItems: 'center',
-                                    display: 'flex ',
+                                    display: 'flex',
                                     height: 'calc(100vh - 54px)',
                                     justifyContent: 'center',
-
                                     '& > img': {
                                         maxHeight: 'calc(100vh - 94px)',
                                     },

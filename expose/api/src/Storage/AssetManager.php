@@ -78,6 +78,9 @@ class AssetManager
         if (isset($options['altitude'])) {
             $asset->setAltitude((float) $options['altitude']);
         }
+        if (isset($options['webVTT'])) {
+            $asset->setWebVTT($options['webVTT']);
+        }
 
         $this->em->persist($asset);
         $this->em->flush();

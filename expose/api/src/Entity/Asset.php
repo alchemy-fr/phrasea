@@ -255,6 +255,21 @@ class Asset implements MediaInterface
     private ?float $lng = null;
 
     /**
+     * Location longitude.
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"asset:admin:read"})
+     */
+    private ?string $webVTT = null;
+
+    /**
+     * @ApiProperty(writable=false)
+     * @Groups({"publication:read"})
+     */
+    private ?string $webVTTLink = null;
+
+    /**
      * Location altitude.
      *
      * @ApiProperty()
@@ -495,6 +510,26 @@ class Asset implements MediaInterface
     public function getGeoPoint(): ?string
     {
         return $this->lat ? sprintf('[%.4f, %.4f]', $this->lat, $this->lng) : null;
+    }
+
+    public function getWebVTT(): ?string
+    {
+        return $this->webVTT;
+    }
+
+    public function setWebVTT(?string $webVTT): void
+    {
+        $this->webVTT = $webVTT;
+    }
+
+    public function getWebVTTLink(): ?string
+    {
+        return $this->webVTTLink;
+    }
+
+    public function setWebVTTLink(?string $webVTTLink): void
+    {
+        $this->webVTTLink = $webVTTLink;
     }
 
     public function __toString()

@@ -140,6 +140,7 @@ class GalleryLayout extends React.Component {
                 thumbUrl={item.thumbUrl}
                 title={item.title}
                 description={item.description}
+                webVTTLink={item.webVTTLink}
                 onPlay={() => this.toggleShowVideo(item.url)}
             />
         </div>

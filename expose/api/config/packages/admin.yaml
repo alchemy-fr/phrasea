@@ -77,6 +77,7 @@ easy_admin:
           - lat
           - lng
           - altitude
+          - { property: webVTT, label: WebVTT }
 
     PublicationAsset:
       class: App\Entity\PublicationAsset
