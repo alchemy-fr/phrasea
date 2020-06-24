@@ -1,12 +1,12 @@
-resource "kubernetes_service" "expose_front" {
+resource "kubernetes_service" "expose_client" {
   metadata {
-    name = "expose-front"
+    name = "expose-client"
   }
 
   spec {
     selector {
       app  = "phraseanet-service"
-      tier = "expose_front"
+      tier = "expose_client"
     }
 
     port {
@@ -16,9 +16,9 @@ resource "kubernetes_service" "expose_front" {
   }
 }
 
-resource "kubernetes_deployment" "expose_front" {
+resource "kubernetes_deployment" "expose_client" {
   metadata {
-    name = "phraseanet-service-expose-front"
+    name = "phraseanet-service-expose-client"
   }
 
   spec {
@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "expose_front" {
     selector {
       match_labels {
         app  = "phraseanet-service"
-        tier = "expose_front"
+        tier = "expose_client"
       }
     }
 
@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "expose_front" {
       metadata {
         labels {
           app  = "phraseanet-service"
-          tier = "expose_front"
+          tier = "expose_client"
         }
       }
 
@@ -49,8 +49,8 @@ resource "kubernetes_deployment" "expose_front" {
         }
 
         container {
-          image             = "${var.REGISTRY_NAMESPACE}expose-front:${var.DOCKER_TAG}"
-          name              = "expose-front"
+          image             = "${var.REGISTRY_NAMESPACE}expose-client:${var.DOCKER_TAG}"
+          name              = "expose-client"
           image_pull_policy = "Always"
 
           volume_mount {
@@ -64,8 +64,8 @@ resource "kubernetes_deployment" "expose_front" {
               value = "${var.DEV_MODE}"
             },
             {
-              name  = "EXPOSE_BASE_URL"
-              value = "${var.EXPOSE_BASE_URL}"
+              name  = "EXPOSE_API_BASE_URL"
+              value = "${var.EXPOSE_API_BASE_URL}"
             },
             {
               name  = "AUTH_BASE_URL"

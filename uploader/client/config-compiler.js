@@ -12,7 +12,7 @@
         maxFileCount: config.uploader.max_upload_file_count,
         client: config.uploader.client,
         identityProviders,
-        baseUrl: env.UPLOADER_BASE_URL,
+        baseUrl: env.UPLOADER_API_BASE_URL,
         authBaseUrl: env.AUTH_BASE_URL,
         clientId: env.CLIENT_ID,
         clientSecret: env.CLIENT_SECRET,

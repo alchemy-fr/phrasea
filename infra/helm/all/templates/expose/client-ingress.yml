@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: expose-client-ingress
+spec:
+  rules:
+  - host: {{ .Values.expose.client.hostname }}
+    http:
+      paths:
+      - backend:
+          serviceName: expose-client
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - {{ .Values.expose.client.hostname }}
+    secretName: gateway-tls

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: urls-config
+data:
+{{- if .Values.report.enabled }}
+  REPORT_BASE_URL: {{ quote .Values.report.api.base_url }}
+{{- end }}
+{{- if .Values.auth.enabled }}
+  AUTH_BASE_URL: {{ quote .Values.auth.api.base_url }}
+{{- end }}
+{{- if .Values.expose.enabled }}
+  EXPOSE_API_BASE_URL: {{ quote .Values.expose.api.base_url }}
+{{- end }}
+{{- if .Values.uploader.enabled }}
+  UPLOADER_API_BASE_URL: {{ quote .Values.uploader.api.base_url }}
+{{- end }}

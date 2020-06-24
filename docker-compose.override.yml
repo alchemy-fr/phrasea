@@ -4,7 +4,7 @@ services:
   uploader-client:
     command: ["/bin/sh", "-c", "exit"]
 
-  expose-front:
+  expose-client:
     command: ["/bin/sh", "-c", "exit"]
 
   uploader-client-dev:
@@ -18,25 +18,25 @@ services:
       - ./configs:/configs
     environment:
       - DEV_MODE
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - AUTH_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
     ports:
       - ${UPLOADER_CLIENT_DEV_PORT}:3000
 
-  expose-front-dev:
+  expose-client-dev:
     build:
-      context: ./expose/front
-      target: expose-front-build
+      context: ./expose/client
+      target: expose-client-build
     networks:
       - internal
     volumes:
-      - ./expose/front:/usr/src/app
+      - ./expose/client:/usr/src/app
       - ./configs:/configs
     environment:
       - DEV_MODE
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
       - AUTH_BASE_URL
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
@@ -124,7 +124,7 @@ services:
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
@@ -134,7 +134,7 @@ services:
       - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - STORAGE_BASE_URL=${MINIO_BASE_URL}
       - AUTH_BASE_URL
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
       - REPORT_BASE_URL
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - MAPBOX_TOKEN

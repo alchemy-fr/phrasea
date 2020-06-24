@@ -29,7 +29,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
       - AUTH_BASE_URL
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
@@ -59,7 +59,7 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - RABBITMQ_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS}
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - UPLOAD_TEMP_DIR=/var/data/upload
       - REPORT_BASE_URL
     volumes:
@@ -91,7 +91,7 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - AUTH_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}_${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
@@ -232,7 +232,7 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -259,7 +259,7 @@ services:
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
 
   expose-api-nginx:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
@@ -275,11 +275,11 @@ services:
     depends_on:
       - expose-api-php
 
-  expose-front:
-    image: ${REGISTRY_NAMESPACE}expose-front:$DOCKER_TAG
+  expose-client:
+    image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
     build:
-      context: ./expose/front
-      target: expose-front_nginx
+      context: ./expose/client
+      target: expose-client_nginx
     volumes:
       - ./configs:/configs
     ports:
@@ -288,7 +288,7 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - AUTH_BASE_URL
       - CLIENT_ID=${EXPOSE_CLIENT_ID}_${EXPOSE_CLIENT_RANDOM_ID}
@@ -525,11 +525,11 @@ services:
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
       - UPLOADER_API_PORT
-      - UPLOADER_BASE_URL
+      - UPLOADER_API_BASE_URL
       - UPLOADER_FRONT_BASE_URL
       - EXPOSE_API_PORT
       - EXPOSE_FRONT_PORT
-      - EXPOSE_BASE_URL
+      - EXPOSE_API_BASE_URL
       - EXPOSE_FRONT_BASE_URL
       - EXPOSE_STORAGE_ROOT_URL
       - EXPOSE_STORAGE_BUCKET_NAME

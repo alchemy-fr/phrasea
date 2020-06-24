@@ -30,5 +30,5 @@ installComposer notify-api-php
 installComposer uploader-api-php
 installComposer expose-api-php
 
-installNodeModules expose-front-dev
+installNodeModules expose-client-dev
 installNodeModules uploader-client-dev

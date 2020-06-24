@@ -1,0 +1,199 @@
+repository:
+  baseurl: alchemyfr
+  tag: latest
+
+auth:
+  enabled: true
+  default_user:
+    username: admin@alchemy.fr
+    password: obIaHz6cVTkQKHqLBj
+  api:
+    hostname: ""
+    base_url: ""
+    config:
+      registration_validate_email: true
+  admin_oauth_client:
+    external_secret_name:
+    id: auth-admin
+    random_id: 9mIGK
+    secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
+  rabbitmq:
+    vhost: auth
+
+expose:
+  enabled: true
+  api:
+    hostname: ""
+    base_url: ""
+    config:
+      expose_request_signature_ttl: 3600
+      storage_base_url: ""
+      storage_bucket_name: expose
+  admin_oauth_client:
+    external_secret_name:
+    id: expose-admin
+    random_id: wIB0s
+    secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
+  client:
+    hostname: ""
+    base_url: ""
+    oauth_client:
+      id: expose-app
+      random_id: difnr
+      secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
+      redirect_uri: "{{ .Values.expose.client.base_url }}"
+    mapbox:
+      token: ""
+  rabbitmq:
+    vhost: expose
+
+notify:
+  enabled: true
+  api:
+    hostname: ""
+    base_url: ""
+  admin_oauth_client:
+    external_secret_name:
+    id: notify-admin
+    random_id: dUdGa
+    secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
+  rabbitmq:
+    vhost: notify
+
+uploader:
+  enabled: true
+  persistence:
+    enabled: true
+    existingClaim:
+    storageClass:
+    annotations: {}
+    accessMode: ReadWriteOnce
+    size: 30Gi
+    subPath:
+  api:
+    hostname: ""
+    base_url: ""
+    config:
+      asset_consumer_commit_uri: ""
+      asset_consumer_access_token: ""
+  admin_oauth_client:
+    external_secret_name:
+    id: uploader-admin
+    random_id: oqdsq
+    secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
+  client:
+    hostname: ""
+    oauth_client:
+      id: uploader-app
+      random_id: oqdsq
+      secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
+      redirect_uri: "{{ .Values.uploader.client.base_url }}"
+  rabbitmq:
+    vhost: upload
+
+report:
+  enabled: true
+  api:
+    hostname: ""
+    base_url: ""
+  database_name: report
+
+mailer_dsn: ""
+
+postgresql:
+  enabled: true
+  external_secret_name:
+  host: db
+  port: 5672
+  user: alchemy
+  password: 'iHdB$$tyVGmT9Zj6shv'
+  persistence:
+    enabled: true
+    existingClaim:
+    storageClass:
+    annotations: {}
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    subPath:
+
+rabbitmq:
+  enabled: true
+  external_secret_name:
+  host: rabbitmq
+  port: 5672
+  user: rabbit
+  password: '2rlTh4WyhyUZV7fEAnb$u4dqFchQDz'
+  persistence:
+    enabled: true
+    existingClaim:
+    storageClass:
+    annotations: {}
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    subPath:
+
+mysql:
+  enabled: true
+  external_secret_name:
+  root_password: root
+  user: matomo
+  password: 'YapTAq9yf8DYwYmr@tDoP8ykZ9ZXWb'
+  database: matomo
+  persistence:
+    enabled: true
+    existingClaim:
+    storageClass:
+    annotations: {}
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    subPath:
+  volumes:
+    claim_name: ps-mysql
+
+minio:
+  enabled: true
+  hostname: ""
+  base_url: ""
+  accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
+  secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
+  persistence:
+    enabled: true
+    existingClaim:
+    storageClass:
+    annotations: {}
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    subPath:
+
+matomo:
+  service:
+    db:
+      host: phraseanet-service-mysql
+      user: mysql-user
+      password: mysql-password
+      database: matomo
+  volumes:
+    html:
+      claim_name: ps-matomo
+
+ingress:
+  tls:
+    wildcard:
+      enabled: false
+
+global_config:
+  external_configmap_name:
+  content: |
+    {}
+
+_internal:
+  services:
+  - auth
+  - expose
+  - uploader
+  - notify
+  volumes:
+    uploader:
+      data:
+        name: uploader-data
+        mountPath: /var/data/upload

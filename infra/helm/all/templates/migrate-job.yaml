@@ -1,0 +1,39 @@
+{{- range .Values._internal.services }}
+{{ $appName := . }}
+{{- if (index $.Values $appName).enabled }}
+{{- with (index $.Values $appName)  }}
+{{ $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $appName }}-migrate
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      volumes:
+{{- include "volumes.configs" $ | indent 6 }}
+{{- include "app.volumes" $tplArgs | indent 6 }}
+      containers:
+      - name: {{ $appName }}-php-job
+        image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-php:{{ $.Values.repository.tag }}
+        args: ["bin/migrate.sh"]
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: configs
+          mountPath: /configs
+{{- include "app.volumes_mounts" $tplArgs | indent 8 }}
+        envFrom:
+{{- include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "secretRef.rabbitmq" $ | indent 8 }}
+{{- include "secretRef.postgresql" $ | indent 8 }}
+        - secretRef:
+            name: {{ .admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" $appName) }}
+      restartPolicy: Never
+  backoffLimit: 0
+---
+{{- end }}
+{{- end }}
+{{- end }}

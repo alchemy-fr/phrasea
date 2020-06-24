@@ -56,8 +56,8 @@ resource "kubernetes_deployment" "uploader_client" {
               value = "${var.DEV_MODE}"
             },
             {
-              name  = "UPLOADER_BASE_URL"
-              value = "${var.UPLOADER_BASE_URL}"
+              name  = "UPLOADER_API_BASE_URL"
+              value = "${var.UPLOADER_API_BASE_URL}"
             },
             {
               name  = "AUTH_BASE_URL"
