@@ -76,7 +76,7 @@ variable "UPLOADER_API_PORT" {
   default     = 8080
 }
 
-variable "UPLOADER_BASE_URL" {
+variable "UPLOADER_API_BASE_URL" {
   description = ""
   default     = "http://localhost:8080"
 }
@@ -151,7 +151,7 @@ variable "EXPOSE_FRONT_PORT" {
   default     = 8051
 }
 
-variable "EXPOSE_BASE_URL" {
+variable "EXPOSE_API_BASE_URL" {
   description = ""
   default     = "http://localhost:8050"
 }

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+data:
+  RABBITMQ_NODENAME: "rabbit@rabbitmq"
+  RABBITMQ_ERLANG_COOKIE: "H#75$3CjoTKn3129DNwcqlHvhfqs15"
+  ERL_EPMD_PORT: "55950"

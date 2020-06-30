@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: expose-client-config
+data:
+  DEV_MODE: "0"
+{{- with .Values.expose }}
+  EXPOSE_REQUEST_SIGNATURE_TTL: {{ quote .api.config.expose_request_signature_ttl }}
+  MAPBOX_TOKEN: {{ required "Missing mapbox token at expose.client.mapbox.token" .client.mapbox.token | quote }}
+{{- end }}

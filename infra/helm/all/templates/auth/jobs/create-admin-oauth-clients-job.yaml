@@ -1,0 +1,61 @@
+{{- range .Values._internal.services }}
+{{ $appName := . }}
+{{- if and (index $.Values $appName).enabled (index $.Values $appName).admin_oauth_client }}
+{{- with (index $.Values $appName)  }}
+{{ $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
+{{ $jobName := printf "%s-create-admin-oauth-client" $appName }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $jobName }}-script
+data:
+  job.sh: |
+    #!/bin/sh
+    set -ex
+
+    bin/console alchemy:oauth:create-client "${ADMIN_CLIENT_ID}" \
+      --random-id="${ADMIN_CLIENT_RANDOM_ID}" \
+      --secret="${ADMIN_CLIENT_SECRET}" \
+      --grant-type password \
+      --grant-type authorization_code \
+      --redirect-uri {{ .api.base_url | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $jobName }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      volumes:
+      - name: scripts
+        configMap:
+          name: {{ $jobName }}-script
+          defaultMode: 0777
+      containers:
+      - name: {{ $jobName }}
+        image: {{ $.Values.repository.baseurl }}/ps-auth-api-php:{{ $.Values.repository.tag }}
+        args: ["/setup/job.sh"]
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: scripts
+          mountPath: /setup/job.sh
+          subPath: job.sh
+        envFrom:
+{{- include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "secretRef.rabbitmq" $ | indent 8 }}
+{{- include "secretRef.postgresql" $ | indent 8 }}
+        - secretRef:
+            name: {{ .admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" $appName) }}
+        - configMapRef:
+            name: {{ $appName }}-api-config
+      restartPolicy: Never
+  backoffLimit: 0
+---
+{{- end }}
+{{- end }}
+{{- end }}

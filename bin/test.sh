@@ -42,7 +42,7 @@ done
 
 # TODO make this work in CircleCI (which has no mounted volumes)
 #REACT_SERVICES="
-#expose-front-dev
+#expose-client-dev
 #"
 #for s in ${REACT_SERVICES}; do
 #    # No use of $FILE because we need to load _dev containers (defined in docker-compose.override.yml)

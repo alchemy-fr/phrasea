@@ -85,8 +85,8 @@ resource "kubernetes_deployment" "uploader_api_php" {
               value = "${var.RABBITMQ_DEFAULT_PASS}"
             },
             {
-              name  = "UPLOADER_BASE_URL"
-              value = "${var.UPLOADER_BASE_URL}"
+              name  = "UPLOADER_API_BASE_URL"
+              value = "${var.UPLOADER_API_BASE_URL}"
             },
             {
               name  = "UPLOAD_TEMP_DIR"

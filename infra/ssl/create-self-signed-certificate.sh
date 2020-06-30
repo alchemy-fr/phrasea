@@ -1,10 +1,9 @@
 #!/bin/bash
 set -e
 
-DOMAIN="alchemy.local"
+DOMAIN=${1:-"alchemy.local"}
 
 PROJECT_DIR="$( cd "$(dirname "$0")" && pwd )"
-echo $PROJECT_DIR
 SSL_DIR="/etc/nginx/ssl/${DOMAIN}"
 
 sudo mkdir -p $SSL_DIR

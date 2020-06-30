@@ -1,0 +1,25 @@
+{{- range .Values._internal.services }}
+{{ $appName := . }}
+{{- if (index $.Values $appName).enabled }}
+{{- with (index $.Values $appName)  }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $appName }}-api-nginx-ingress
+spec:
+  rules:
+  - host: {{ .api.hostname }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ $appName }}-api-nginx
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - {{ .api.hostname }}
+    secretName: gateway-tls
+---
+{{- end }}
+{{- end }}
+{{- end }}

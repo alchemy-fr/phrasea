@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uploader-api-config
+data:
+  ASSET_CONSUMER_COMMIT_URI: {{ quote .Values.uploader.api.config.asset_consumer_commit_uri }}
+  ASSET_CONSUMER_ACCESS_TOKEN: {{ quote .Values.uploader.api.config.asset_consumer_access_token }}

@@ -18,7 +18,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
     {
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {
-            $config = json_decode(file_get_contents($jsonConfigSrc), true);
+            $config = \GuzzleHttp\json_decode(file_get_contents($jsonConfigSrc), true);
 
             if (null !== $container) {
                 // Add for fresh cache

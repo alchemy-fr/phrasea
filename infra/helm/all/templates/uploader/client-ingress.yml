@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: uploader-client-ingress
+spec:
+  rules:
+  - host: {{ .Values.uploader.client.hostname }}
+    http:
+      paths:
+      - backend:
+          serviceName: uploader-client
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - {{ .Values.uploader.client.hostname }}
+    secretName: gateway-tls

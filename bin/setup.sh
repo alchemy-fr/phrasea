@@ -51,7 +51,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
     --grant-type client_credentials \
     --scope user:list \
     --scope group:list \
-    --redirect-uri ${UPLOADER_BASE_URL}"
+    --redirect-uri ${UPLOADER_API_BASE_URL}"
 
 
 # Setup Expose
@@ -74,7 +74,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_AD
     --grant-type client_credentials \
     --scope user:list \
     --scope group:list \
-    --redirect-uri ${EXPOSE_BASE_URL}"
+    --redirect-uri ${EXPOSE_API_BASE_URL}"
 ## Create minio bucket
 docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \

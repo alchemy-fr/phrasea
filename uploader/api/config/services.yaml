@@ -51,7 +51,7 @@ services:
             $client: "@eight_points_guzzle.client.consumer_notify"
             $targetUri: '%env(ASSET_CONSUMER_COMMIT_URI)%'
             $targetAccessToken: '%env(ASSET_CONSUMER_ACCESS_TOKEN)%'
-            $uploadBaseUrl: '%env(UPLOADER_BASE_URL)%'
+            $uploadBaseUrl: '%env(UPLOADER_API_BASE_URL)%'
 
     App\Form\FormSchemaManager:
         $defaultSchemaFile: "%app.liform.default_schema.src%"
