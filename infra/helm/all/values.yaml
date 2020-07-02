@@ -199,7 +199,10 @@ matomo:
 ingress:
   tls:
     wildcard:
+      externalSecretName: ""
       enabled: false
+      crt: ""
+      key: ""
 
 global_config:
   external_configmap_name:

@@ -11,7 +11,9 @@ spec:
           serviceName: uploader-client
           servicePort: 80
         path: /
+{{- if .Values.ingress.tls.wildcard.enabled }}
   tls:
   - hosts:
     - {{ .Values.uploader.client.hostname }}
-    secretName: gateway-tls
+    secretName: {{ include "secretRef.ingress.tls.wildcard" . }}
+{{- end }}

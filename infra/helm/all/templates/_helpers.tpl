@@ -26,6 +26,16 @@
     name: {{ .Values.params.admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" .Release.Name) }}
 {{- end }}
 
+{{- define "secretRef.ingress.tls.wildcard" -}}
+{{- with .Values.ingress.tls.wildcard }}
+{{- if and .enabled .externalSecretName -}}
+{{- .externalSecretName -}}
+{{- else -}}
+gateway-tls
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- define "secretRef.rabbitmq" }}
 - secretRef:
     name: {{ .Values.rabbitmq.external_secret_name | default "api-rabbitmq-secret" }}

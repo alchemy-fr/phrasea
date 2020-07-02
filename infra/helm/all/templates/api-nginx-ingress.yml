@@ -22,10 +22,12 @@ spec:
           serviceName: {{ $appName }}-api-nginx
           servicePort: 80
         path: /
+{{- if $.Values.ingress.tls.wildcard.enabled }}
   tls:
   - hosts:
     - {{ .api.hostname }}
-    secretName: gateway-tls
+    secretName: {{ include "secretRef.ingress.tls.wildcard" $ }}
+{{- end }}
 ---
 {{- end }}
 {{- end }}
