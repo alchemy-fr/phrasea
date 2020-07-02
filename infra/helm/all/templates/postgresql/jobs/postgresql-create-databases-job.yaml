@@ -40,6 +40,6 @@ spec:
           subPath: job.sh
         envFrom:
         - secretRef:
-            name: postgresql-secret
+            name: {{ .Values.postgresql.externalSecretName | default "postgresql-secret" }}
       restartPolicy: Never
   backoffLimit: 10

@@ -25,11 +25,11 @@ spec:
         volumeMounts:
         - name: configs
           mountPath: /configs
-{{- include "app.volumes_mounts" $tplArgs | indent 8 }}
+{{- include "app.volumesMounts" $tplArgs | indent 8 }}
         envFrom:
 {{- include "configMapRef.phpApp" $ | indent 8 }}
-{{- include "secretRef.rabbitmq" $ | indent 8 }}
-{{- include "secretRef.postgresql" $ | indent 8 }}
+{{- include "envFrom.rabbitmq" $ | indent 8 }}
+{{- include "envFrom.postgresql" $ | indent 8 }}
         - secretRef:
             name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
         - configMapRef:

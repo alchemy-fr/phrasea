@@ -26,6 +26,13 @@
     name: {{ .Values.params.adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" .Release.Name) }}
 {{- end }}
 
+{{- define "secretName.rabbitmq" -}}
+{{- .Values.rabbitmq.externalSecretName | default "rabbitmq-secret" -}}
+{{- end }}
+{{- define "secretName.postgresql" -}}
+{{- .Values.postgresql.externalSecretName | default "postgresql-secret" -}}
+{{- end }}
+
 {{- define "secretRef.ingress.tls.wildcard" -}}
 {{- with .Values.ingress.tls.wildcard }}
 {{- if and .enabled .externalSecretName -}}
@@ -36,9 +43,18 @@ gateway-tls
 {{- end }}
 {{- end }}
 
-{{- define "secretRef.rabbitmq" }}
+{{- define "envFrom.rabbitmq" }}
+- configMapRef:
+    name: rabbitmq-php-config
 - secretRef:
-    name: {{ .Values.rabbitmq.externalSecretName | default "api-rabbitmq-secret" }}
+    name: {{ include "secretName.rabbitmq" . }}
+{{- end }}
+
+{{- define "envFrom.postgresql" }}
+- configMapRef:
+    name: postgresql-php-config
+- secretRef:
+    name: {{ include "secretName.postgresql" . }}
 {{- end }}
 
 {{- define "secretRef.postgresql" }}
@@ -72,7 +88,7 @@ gateway-tls
 {{- end }}
 {{- end }}
 
-{{- define "app.volumes_mounts" }}
+{{- define "app.volumesMounts" }}
 {{- $appName := .app -}}
 {{- $ctx := .ctx -}}
 {{- $glob := .glob -}}

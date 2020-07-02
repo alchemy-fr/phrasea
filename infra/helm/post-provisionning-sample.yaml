@@ -81,13 +81,17 @@ mailerDsn: ""
 
 postgresql:
   externalSecretName:
-  password: 'iHdB$$tyVGmT9Zj6shv'
+  # Secret must contain:
+  # - POSTGRES_USER
+  # - POSTGRES_PASSWORD
   persistence:
     existingClaim:
 
 rabbitmq:
   externalSecretName:
-  password: '2rlTh4WyhyUZV7fEAnb$u4dqFchQDz'
+  # Secret must contain:
+  # - RABBITMQ_USER
+  # - RABBITMQ_PASSWORD
   persistence:
     existingClaim:
 

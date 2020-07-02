@@ -21,7 +21,7 @@ data:
 {{- if (index $.Values $appName).enabled }}
     VHOST="{{ (index $.Values $appName).rabbitmq.vhost }}"
     rabbitmqctl -n rabbit@rabbitmq add_vhost ${VHOST}
-    rabbitmqctl -n rabbit@rabbitmq set_permissions -p ${VHOST} ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'
+    rabbitmqctl -n rabbit@rabbitmq set_permissions -p ${VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'
 {{- end }}
 {{- end }}
 ---
@@ -50,7 +50,7 @@ spec:
           subPath: job.sh
         envFrom:
         - secretRef:
-            name: rabbitmq-secret
+            name: {{ include "secretName.rabbitmq" . }}
         - configMapRef:
             name: rabbitmq-config
       restartPolicy: Never

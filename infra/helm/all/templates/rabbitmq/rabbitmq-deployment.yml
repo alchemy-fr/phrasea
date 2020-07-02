@@ -1,3 +1,5 @@
+{{- with .Values.rabbitmq }}
+{{- if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,9 +20,9 @@ spec:
     spec:
       volumes:
       - name: data
-      {{- if .Values.rabbitmq.persistence.enabled }}
+      {{- if .persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.rabbitmq.persistence.existingClaim | default (printf "%s-rabbitmq" (include "ps.fullname" .)) }}
+          claimName: {{ .persistence.existingClaim | default (printf "%s-rabbitmq" (include "ps.fullname" $)) }}
       {{- else }}
         emptyDir: {}
       {{- end }}
@@ -35,8 +37,19 @@ spec:
         volumeMounts:
         - name: data
           mountPath: "/var/lib/rabbitmq"
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "secretName.rabbitmq" $ }}
+              key: RABBITMQ_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "secretName.rabbitmq" $ }}
+              key: RABBITMQ_PASSWORD
         envFrom:
         - configMapRef:
             name: rabbitmq-config
-        - secretRef:
-            name: rabbitmq-secret
+{{- end }}
+{{- end }}

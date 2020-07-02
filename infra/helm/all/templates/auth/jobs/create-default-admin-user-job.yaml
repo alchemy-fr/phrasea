@@ -42,15 +42,15 @@ spec:
         - name: scripts
           mountPath: /setup/job.sh
           subPath: job.sh
-{{- include "app.volumes_mounts" $tplArgs | indent 8 }}
+{{- include "app.volumesMounts" $tplArgs | indent 8 }}
         envFrom:
         - secretRef:
             name: {{ .Values.auth.defaultUser.externalSecretName | default "default-admin-user-secret"  }}
         - configMapRef:
             name: auth-api-config
 {{- include "configMapRef.phpApp" $ | indent 8 }}
-{{- include "secretRef.rabbitmq" $ | indent 8 }}
-{{- include "secretRef.postgresql" $ | indent 8 }}
+{{- include "envFrom.rabbitmq" $ | indent 8 }}
+{{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never
   backoffLimit: 0
 {{- end }}

@@ -1,3 +1,5 @@
+{{- with .Values.postgresql }}
+{{- if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,9 +20,9 @@ spec:
     spec:
       volumes:
       - name: data
-      {{- if .Values.postgresql.persistence.enabled }}
+      {{- if .persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.postgresql.persistence.existingClaim | default (printf "%s-postgresql" (include "ps.fullname" .)) }}
+          claimName: {{ .persistence.existingClaim | default (printf "%s-postgresql" (include "ps.fullname" $)) }}
       {{- else }}
         emptyDir: {}
       {{- end }}
@@ -33,4 +35,6 @@ spec:
           mountPath: "/var/lib/postgresql/data"
         envFrom:
         - secretRef:
-            name: postgresql-secret
+            name: {{ include "secretName.postgresql" $ }}
+{{- end }}
+{{- end }}
