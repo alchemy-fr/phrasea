@@ -18,6 +18,14 @@ spec:
         app: phraseanet-services
         tier: {{ $appName }}-api-nginx
     spec:
+    {{- if (index $.Values._internal.hostAliases $appName) }}
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+      {{- range (index $.Values._internal.hostAliases $appName) }}
+        - {{ . }}
+      {{- end }}
+    {{- end }}
       containers:
         - name: {{ $appName }}-api-nginx
           image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-nginx:{{ $.Values.repository.tag }}

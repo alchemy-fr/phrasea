@@ -1,5 +1,6 @@
 parameters:
-  auth_base_url_internal: 'http://auth_api'
+  env(AUTH_API_BASE_URL): 'http://auth-api'
+  alchemy_remote_auth.auth_base_url_internal: '%env(AUTH_API_BASE_URL)%'
 
 services:
   _defaults:
@@ -11,7 +12,7 @@ services:
     class: GuzzleHttp\Client
     arguments:
     -
-      base_uri: "%auth_base_url_internal%"
+      base_uri: "%alchemy_remote_auth.auth_base_url_internal%"
       options:
         timeout: 10
         http_errors: false

@@ -6,9 +6,13 @@ kubectl delete job \
     auth-setup \
     expose-setup \
     notify-setup \
+    uploader-setup \
+    auth-migrate \
+    expose-migrate \
+    notify-migrate \
+    uploader-migrate \
     postgresql-create-databases \
     rabbitmq-vhost-setup \
-    uploader-setup \
     auth-create-admin-oauth-client \
     uploader-create-admin-oauth-client \
     expose-create-admin-oauth-client \

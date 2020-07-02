@@ -104,7 +104,7 @@ postgresql:
   enabled: true
   external_secret_name:
   host: db
-  port: 5672
+  port: 5432
   user: alchemy
   password: 'iHdB$$tyVGmT9Zj6shv'
   persistence:
@@ -197,3 +197,6 @@ _internal:
       data:
         name: uploader-data
         mountPath: /var/data/upload
+  hostAliases:
+    auth:
+    - auth-api

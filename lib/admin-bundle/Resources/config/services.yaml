@@ -27,7 +27,7 @@ services:
     class: GuzzleHttp\Client
     arguments:
       -
-        base_uri: "%auth_base_url_internal%"
+        base_uri: "%alchemy_remote_auth.auth_base_url_internal%"
         options:
           timeout: 10
           http_errors: false

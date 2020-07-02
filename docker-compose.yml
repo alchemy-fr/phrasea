@@ -157,7 +157,7 @@ services:
     networks:
       internal:
         aliases:
-          - auth_api
+          - auth-api
     ports:
       - ${AUTH_PORT}:80
     depends_on:

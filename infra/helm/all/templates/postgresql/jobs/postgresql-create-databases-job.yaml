@@ -10,7 +10,7 @@ data:
 
     DB="report"
 
-    DSN="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432"
+    DSN="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@{{ .Values.postgresql.host }}:{{ .Values.postgresql.port }}"
     psql ${DSN} -tc "SELECT 1 FROM pg_database WHERE datname = '$DB'" | grep -q 1 || psql ${DSN} -c "CREATE DATABASE $DB"
 
 ---
@@ -20,6 +20,7 @@ metadata:
   name: {{ $jobName }}
   annotations:
     "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   template:
