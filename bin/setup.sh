@@ -19,7 +19,7 @@ d-c run --rm dockerize
 
 # Setup Auth
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissions -p auth ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissions -p auth ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container auth-api-php "bin/setup.sh"
 ## Create OAuth client for Admin
@@ -32,7 +32,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMI
 
 # Setup Uploader
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost upload && rabbitmqctl set_permissions -p upload ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost upload && rabbitmqctl set_permissions -p upload ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container uploader-api-php "bin/setup.sh"
 ## Create OAuth client
@@ -53,7 +53,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
 
 # Setup Expose
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost expose && rabbitmqctl set_permissions -p expose ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost expose && rabbitmqctl set_permissions -p expose ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container expose-api-php "bin/setup.sh"
 ## Create OAuth client
@@ -80,7 +80,7 @@ docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
 
 # Setup Notify
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost notify && rabbitmqctl set_permissions -p notify ${RABBITMQ_DEFAULT_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost notify && rabbitmqctl set_permissions -p notify ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container notify-api-php "bin/setup.sh"
 ## Create OAuth client for Notify Admin
