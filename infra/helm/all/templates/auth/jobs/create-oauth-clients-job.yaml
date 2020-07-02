@@ -2,9 +2,9 @@
 {{ $appName := . }}
 {{ $appNode := (index $.Values $appName) }}
 {{- if and $appNode.enabled $appNode.client }}
-{{- if $appNode.client.oauth_client }}
+{{- if $appNode.client.oauthClient }}
 {{ $jobName := printf "%s-create-oauth-client" $appName }}
-{{- with $appNode.client.oauth_client }}
+{{- with $appNode.client.oauthClient }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -23,7 +23,7 @@ data:
     {{- range .scopes }}
       --scope {{ . }} \
     {{- end }}
-      --redirect-uri={{ tpl .redirect_uri $ | quote }}
+      --redirect-uri={{ tpl .redirectUri $ | quote }}
 ---
 apiVersion: v1
 kind: Secret
@@ -31,7 +31,7 @@ metadata:
   name: {{ $jobName }}
 stringData:
   CLIENT_ID: {{ .id | quote }}
-  CLIENT_RANDOM_ID: {{ .random_id | quote }}
+  CLIENT_RANDOM_ID: {{ .randomId | quote }}
   CLIENT_SECRET: {{ .secret | quote }}
 ---
 apiVersion: batch/v1

@@ -24,12 +24,12 @@ spec:
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.postgresql.external_secret_name | default "api-db-secret" }}
+                name: {{ .Values.postgresql.externalSecretName | default "api-db-secret" }}
                 key: DB_USER
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.postgresql.external_secret_name | default "api-db-secret" }}
+                name: {{ .Values.postgresql.externalSecretName | default "api-db-secret" }}
                 key: DB_PASSWORD
           - name: POSTGRES_DATABASE
-            value: {{ quote .Values.report.database_name }}
+            value: {{ quote .Values.report.databaseName }}

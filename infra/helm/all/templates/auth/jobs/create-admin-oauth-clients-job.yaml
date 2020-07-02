@@ -1,6 +1,6 @@
 {{- range .Values._internal.services }}
 {{ $appName := . }}
-{{- if and (index $.Values $appName).enabled (index $.Values $appName).admin_oauth_client }}
+{{- if and (index $.Values $appName).enabled (index $.Values $appName).adminOAuthClient }}
 {{- with (index $.Values $appName)  }}
 {{ $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
 {{ $jobName := printf "%s-create-admin-oauth-client" $appName }}
@@ -16,13 +16,13 @@ data:
     bin/console alchemy:oauth:create-client "${ADMIN_CLIENT_ID}" \
       --random-id="${ADMIN_CLIENT_RANDOM_ID}" \
       --secret="${ADMIN_CLIENT_SECRET}" \
-    {{- range .admin_oauth_client.grantTypes }}
+    {{- range .adminOAuthClient.grantTypes }}
       --grant-type {{ . }} \
     {{- end }}
-    {{- range .admin_oauth_client.scopes }}
+    {{- range .adminOAuthClient.scopes }}
       --scope {{ . }} \
     {{- end }}
-      --redirect-uri {{ .api.base_url | quote }}
+      --redirect-uri {{ .api.baseUrl | quote }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -54,7 +54,7 @@ spec:
 {{- include "secretRef.rabbitmq" $ | indent 8 }}
 {{- include "secretRef.postgresql" $ | indent 8 }}
         - secretRef:
-            name: {{ .admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" $appName) }}
+            name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
         - configMapRef:
             name: {{ $appName }}-api-config
       restartPolicy: Never

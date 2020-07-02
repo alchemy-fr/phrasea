@@ -1,5 +1,5 @@
 {{ $tplArgs := dict "app" "auth" "ctx" .Values.auth "glob" $ }}
-{{- if .Values.auth.default_user }}
+{{- if .Values.auth.defaultUser }}
 {{ $jobName := "auth-create-default-admin-user" }}
 apiVersion: v1
 kind: ConfigMap
@@ -11,8 +11,8 @@ data:
     set -e
 
     bin/console app:user:create \
-      --update-if-exist {{ .Values.auth.default_user.username | quote }} \
-      -p {{ .Values.auth.default_user.password | quote }} \
+      --update-if-exist {{ .Values.auth.defaultUser.username | quote }} \
+      -p {{ .Values.auth.defaultUser.password | quote }} \
       --roles ROLE_SUPER_ADMIN
 
 ---

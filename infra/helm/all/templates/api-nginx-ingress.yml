@@ -8,9 +8,9 @@ metadata:
   name: {{ $appName }}-api-nginx-ingress
   annotations:
     kubernetes.io/ingress.class: "nginx"
-{{- if hasKey $.Values._internal.ingress.maxBodySize $appName }}
-{{- with (index $.Values._internal.ingress.maxBodySize $appName) }}
-    nginx.ingress.kubernetes.io/proxy-body-size: {{ . | quote }}
+{{- if .ingress }}
+{{- if .ingress.maxBodySize }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .ingress.maxBodySize | quote }}
 {{- end }}
 {{- end }}
 spec:

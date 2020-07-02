@@ -36,7 +36,7 @@ spec:
 {{- include "secretRef.rabbitmq" $ | indent 8 }}
 {{- include "secretRef.postgresql" $ | indent 8 }}
         - secretRef:
-            name: {{ .admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" $appName) }}
+            name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
       {{- if eq $appName "expose" }}
         - secretRef:
             name: s3-secret

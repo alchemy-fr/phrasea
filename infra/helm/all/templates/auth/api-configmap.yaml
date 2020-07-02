@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: auth-api-config
 data:
-  REGISTRATION_VALIDATE_EMAIL: {{ ternary "\"true\"" "\"false\"" .Values.auth.api.config.registration_validate_email }}
+  REGISTRATION_VALIDATE_EMAIL: {{ ternary "\"true\"" "\"false\"" .Values.auth.api.config.registrationValidateEmail }}

@@ -4,18 +4,18 @@ repository:
 
 auth:
   enabled: true
-  default_user:
+  defaultUser:
     username: admin@alchemy.fr
     password: obIaHz6cVTkQKHqLBj
   api:
-    hostname: ""
-    base_url: ""
+    hostname:
+    baseUrl:
     config:
-      registration_validate_email: true
-  admin_oauth_client:
-    external_secret_name:
+      registrationValidateEmail: true
+  adminOAuthClient:
+    externalSecretName:
     id: auth-admin
-    random_id: 9mIGK
+    randomId: 9mIGK
     secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
     grantTypes:
     - password
@@ -24,17 +24,19 @@ auth:
 
 expose:
   enabled: true
+  ingress:
+    maxBodySize: 4G
   api:
-    hostname: ""
-    base_url: ""
+    hostname:
+    baseUrl:
     config:
-      expose_request_signature_ttl: 3600
-      storage_base_url: ""
-      storage_bucket_name: expose
-  admin_oauth_client:
-    external_secret_name:
+      exposeRequestSignatureTtl: 3600
+      storageBaseUrl:
+      storageBucketName: expose
+  adminOAuthClient:
+    externalSecretName:
     id: expose-admin
-    random_id: wIB0s
+    randomId: wIB0s
     secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
     grantTypes:
     - password
@@ -43,29 +45,29 @@ expose:
     - user:list
     - group:list
   client:
-    hostname: ""
-    base_url: ""
-    oauth_client:
+    hostname:
+    baseUrl:
+    oauthClient:
       id: expose-app
-      random_id: difnr
+      randomId: difnr
       secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
-      redirect_uri: "{{ .Values.expose.client.base_url }}"
+      redirectUri: "{{ .Values.expose.client.baseUrl }}"
       grantTypes:
       - password
     mapbox:
-      token: ""
+      token:
   rabbitmq:
     vhost: expose
 
 notify:
   enabled: true
   api:
-    hostname: ""
-    base_url: ""
-  admin_oauth_client:
-    external_secret_name:
+    hostname:
+    baseUrl:
+  adminOAuthClient:
+    externalSecretName:
     id: notify-admin
-    random_id: dUdGa
+    randomId: dUdGa
     secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
     grantTypes:
     - password
@@ -74,6 +76,8 @@ notify:
 
 uploader:
   enabled: true
+  ingress:
+    maxBodySize: 4G
   persistence:
     enabled: true
     existingClaim:
@@ -83,15 +87,15 @@ uploader:
     size: 30Gi
     subPath:
   api:
-    hostname: ""
-    base_url: ""
+    hostname:
+    baseUrl:
     config:
-      asset_consumer_commit_uri: ""
-      asset_consumer_access_token: ""
-  admin_oauth_client:
-    external_secret_name:
+      assetConsumerCommitUri: ""
+      assetConsumerAccessToken: ""
+  adminOAuthClient:
+    externalSecretName:
     id: uploader-admin
-    random_id: oqdsq
+    randomId: oqdsq
     secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
     grantTypes:
     - password
@@ -100,12 +104,12 @@ uploader:
     - user:list
     - group:list
   client:
-    hostname: ""
-    oauth_client:
+    hostname:
+    oauthClient:
       id: uploader-app
-      random_id: oqdsq
+      randomId: oqdsq
       secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
-      redirect_uri: "{{ .Values.uploader.client.base_url }}"
+      redirectUri: "{{ .Values.uploader.client.baseUrl }}"
       grantTypes:
       - password
   rabbitmq:
@@ -114,15 +118,15 @@ uploader:
 report:
   enabled: true
   api:
-    hostname: ""
-    base_url: ""
-  database_name: report
+    hostname:
+    baseUrl:
+  databaseName: report
 
-mailer_dsn: ""
+mailerDsn:
 
 postgresql:
   enabled: true
-  external_secret_name:
+  externalSecretName:
   host: db
   port: 5432
   user: alchemy
@@ -138,7 +142,7 @@ postgresql:
 
 rabbitmq:
   enabled: true
-  external_secret_name:
+  externalSecretName:
   host: rabbitmq
   port: 5672
   user: rabbit
@@ -152,28 +156,10 @@ rabbitmq:
     size: 20Gi
     subPath:
 
-mysql:
-  enabled: true
-  external_secret_name:
-  root_password: root
-  user: matomo
-  password: 'YapTAq9yf8DYwYmr@tDoP8ykZ9ZXWb'
-  database: matomo
-  persistence:
-    enabled: true
-    existingClaim:
-    storageClass:
-    annotations: {}
-    accessMode: ReadWriteOnce
-    size: 10Gi
-    subPath:
-  volumes:
-    claim_name: ps-mysql
-
 minio:
   enabled: true
-  hostname: ""
-  base_url: ""
+  hostname:
+  baseUrl:
   accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
   secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
   persistence:
@@ -185,27 +171,16 @@ minio:
     size: 20Gi
     subPath:
 
-matomo:
-  service:
-    db:
-      host: phraseanet-service-mysql
-      user: mysql-user
-      password: mysql-password
-      database: matomo
-  volumes:
-    html:
-      claim_name: ps-matomo
-
 ingress:
   tls:
     wildcard:
-      externalSecretName: ""
+      externalSecretName:
       enabled: false
-      crt: ""
-      key: ""
+      crt:
+      key:
 
-global_config:
-  external_configmap_name:
+globalConfig:
+  externalConfigmapName:
   content: |
     {}
 
@@ -221,7 +196,3 @@ _internal:
         name: uploader-data
         mountPath: /var/data/upload
         uid: 1000
-  ingress:
-    maxBodySize:
-      uploader: 4G
-      expose: 4G

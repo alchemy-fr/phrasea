@@ -14,7 +14,7 @@ data:
     done;
     sleep 5
     mc config host add minio http://minio:80 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
-    mc mb --ignore-existing minio/{{ .Values.expose.api.config.storage_bucket_name }}
+    mc mb --ignore-existing minio/{{ .Values.expose.api.config.storageBucketName }}
 ---
 apiVersion: batch/v1
 kind: Job

@@ -30,6 +30,10 @@ spec:
 {{- include "configMapRef.phpApp" $ | indent 8 }}
 {{- include "secretRef.rabbitmq" $ | indent 8 }}
 {{- include "secretRef.postgresql" $ | indent 8 }}
+        - secretRef:
+            name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
+        - configMapRef:
+            name: {{ $appName }}-api-config
       restartPolicy: Never
   backoffLimit: 0
 ---

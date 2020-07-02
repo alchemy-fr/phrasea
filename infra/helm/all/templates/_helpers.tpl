@@ -18,12 +18,12 @@
 {{- define "volumes.configs" }}
 - name: configs
   configMap:
-    name: {{ .Values.global_config.external_configmap_name | default (printf "%s-configs" .Release.Name) }}
+    name: {{ .Values.globalConfig.externalConfigmapName | default (printf "%s-configs" .Release.Name) }}
 {{- end }}
 
-{{- define "secretRef.admin_oauth_client" }}
+{{- define "secretRef.adminOAuthClient" }}
 - secretRef:
-    name: {{ .Values.params.admin_oauth_client.external_secret_name | default (printf "%s-admin-oauth-client-secret" .Release.Name) }}
+    name: {{ .Values.params.adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" .Release.Name) }}
 {{- end }}
 
 {{- define "secretRef.ingress.tls.wildcard" -}}
@@ -38,12 +38,12 @@ gateway-tls
 
 {{- define "secretRef.rabbitmq" }}
 - secretRef:
-    name: {{ .Values.rabbitmq.external_secret_name | default "api-rabbitmq-secret" }}
+    name: {{ .Values.rabbitmq.externalSecretName | default "api-rabbitmq-secret" }}
 {{- end }}
 
 {{- define "secretRef.postgresql" }}
 - secretRef:
-    name: {{ .Values.postgresql.external_secret_name | default "api-db-secret" }}
+    name: {{ .Values.postgresql.externalSecretName | default "api-db-secret" }}
 {{- end }}
 
 {{- define "configMapRef.phpApp" }}

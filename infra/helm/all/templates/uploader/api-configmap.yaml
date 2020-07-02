@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: uploader-api-config
 data:
-  ASSET_CONSUMER_COMMIT_URI: {{ quote .Values.uploader.api.config.asset_consumer_commit_uri }}
-  ASSET_CONSUMER_ACCESS_TOKEN: {{ quote .Values.uploader.api.config.asset_consumer_access_token }}
+  ASSET_CONSUMER_COMMIT_URI: {{ quote .Values.uploader.api.config.assetConsumerCommitUri }}
+  ASSET_CONSUMER_ACCESS_TOKEN: {{ quote .Values.uploader.api.config.assetConsumerAccessToken }}
   UPLOAD_TEMP_DIR: "/var/data/upload"
