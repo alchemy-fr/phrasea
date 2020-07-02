@@ -32,4 +32,4 @@ spec:
         - configMapRef:
             name: expose-client-config
         - secretRef:
-            name: expose-oauth-client-secret
+            name: {{ $.Values.expose.client.oauthClient.externalSecretName | default "expose-oauth-client-secret" }}

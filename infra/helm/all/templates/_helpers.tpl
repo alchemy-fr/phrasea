@@ -12,7 +12,7 @@
 {{- end -}}
 
 {{- define "ps.name" -}}
-{{- default "ps" .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- .Values.nameOverride | default "ps" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "volumes.configs" }}

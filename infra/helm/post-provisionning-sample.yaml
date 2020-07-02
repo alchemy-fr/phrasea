@@ -1,13 +1,18 @@
 auth:
   defaultUser:
-    username: admin@alchemy.fr
-    password: obIaHz6cVTkQKHqLBj
+    externalSecretName:
+    # Secret must contain:
+    # - DEFAULT_ADMIN_USER_USERNAME
+    # - DEFAULT_ADMIN_USER_PASSWORD
   api:
     hostname: api-auth.phrasea.io
     baseUrl: https://api-auth.phrasea.io
   adminOAuthClient:
     externalSecretName:
-    secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
+    # Secret must contain:
+    # - ADMIN_CLIENT_ID
+    # - ADMIN_CLIENT_RANDOM_ID
+    # - ADMIN_CLIENT_SECRET
 
 expose:
   api:
@@ -18,11 +23,19 @@ expose:
       storageBucketName: expose
   adminOAuthClient:
     externalSecretName:
-    secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
+    # Secret must contain:
+    # - ADMIN_CLIENT_ID
+    # - ADMIN_CLIENT_RANDOM_ID
+    # - ADMIN_CLIENT_SECRET
   client:
     hostname: expose.phrasea.io
     baseUrl: https://expose.phrasea.io
     oauthClient:
+      externalSecretName:
+      # Secret must contain:
+      # - CLIENT_ID
+      # - CLIENT_RANDOM_ID
+      # - CLIENT_SECRET
       secret: ""
     mapbox:
       token: ""
@@ -33,7 +46,10 @@ notify:
     baseUrl: https://api-notify.phrasea.io
   adminOAuthClient:
     externalSecretName:
-    secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
+    # Secret must contain:
+    # - ADMIN_CLIENT_ID
+    # - ADMIN_CLIENT_RANDOM_ID
+    # - ADMIN_CLIENT_SECRET
 
 uploader:
   persistence:
@@ -43,11 +59,18 @@ uploader:
     baseUrl: https://api-uploader.phrasea.io
   adminOAuthClient:
     externalSecretName:
-    secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
+    # Secret must contain:
+    # - ADMIN_CLIENT_ID
+    # - ADMIN_CLIENT_RANDOM_ID
+    # - ADMIN_CLIENT_SECRET
   client:
     hostname: uploader.phrasea.io
     oauthClient:
-      secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
+      externalSecretName:
+      # Secret must contain:
+      # - CLIENT_ID
+      # - CLIENT_RANDOM_ID
+      # - CLIENT_SECRET
 
 report:
   api:
@@ -69,17 +92,15 @@ rabbitmq:
     existingClaim:
 
 minio:
-  hostname: minio.phrasea.io
-  baseUrl: https://minio.phrasea.io
-  accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
-  secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
-  persistence:
-    existingClaim:
+  enabled: false
 
 ingress:
   tls:
     wildcard:
       externalSecretName:
+      # Secret must contain:
+      # - tls.crt
+      # - tls.key
 
 globalConfig:
   externalConfigmapName:

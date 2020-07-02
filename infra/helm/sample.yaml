@@ -1,4 +1,6 @@
 auth:
+  defaultUser:
+    externalSecretName: defaultusersecret
   api:
     hostname: "auth.alchemy.kube"
     baseUrl: "https://auth.alchemy.kube"

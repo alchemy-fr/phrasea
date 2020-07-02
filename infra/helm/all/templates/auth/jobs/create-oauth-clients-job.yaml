@@ -25,6 +25,7 @@ data:
     {{- end }}
       --redirect-uri={{ tpl .redirectUri $ | quote }}
 ---
+{{- if not .externalSecretName }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -34,6 +35,7 @@ stringData:
   CLIENT_RANDOM_ID: {{ .randomId | quote }}
   CLIENT_SECRET: {{ .secret | quote }}
 ---
+{{- end }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -61,7 +63,7 @@ spec:
           subPath: job.sh
         envFrom:
         - secretRef:
-            name: {{ $jobName }}
+            name: {{ .externalSecretName | default $jobName }}
         - configMapRef:
             name: auth-api-config
 {{- include "configMapRef.phpApp" $ | indent 8 }}

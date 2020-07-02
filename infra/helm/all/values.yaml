@@ -5,6 +5,7 @@ repository:
 auth:
   enabled: true
   defaultUser:
+    externalSecretName:
     username: admin@alchemy.fr
     password: obIaHz6cVTkQKHqLBj
   api:
@@ -48,6 +49,7 @@ expose:
     hostname:
     baseUrl:
     oauthClient:
+      externalSecretName:
       id: expose-app
       randomId: difnr
       secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
@@ -106,6 +108,7 @@ uploader:
   client:
     hostname:
     oauthClient:
+      externalSecretName:
       id: uploader-app
       randomId: oqdsq
       secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'

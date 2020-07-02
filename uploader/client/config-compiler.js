@@ -14,7 +14,7 @@
         identityProviders,
         baseUrl: env.UPLOADER_API_BASE_URL,
         authBaseUrl: env.AUTH_BASE_URL,
-        clientId: env.CLIENT_ID,
+        clientId: env.CLIENT_ID+'_'+env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,
         devMode: env.DEV_MODE === 'true',
     };

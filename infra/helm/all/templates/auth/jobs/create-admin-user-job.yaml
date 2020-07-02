@@ -11,8 +11,8 @@ data:
     set -e
 
     bin/console app:user:create \
-      --update-if-exist {{ .Values.auth.defaultUser.username | quote }} \
-      -p {{ .Values.auth.defaultUser.password | quote }} \
+      --update-if-exist "${DEFAULT_ADMIN_USER_USERNAME}" \
+      -p "${DEFAULT_ADMIN_USER_PASSWORD}" \
       --roles ROLE_SUPER_ADMIN
 
 ---
@@ -44,6 +44,8 @@ spec:
           subPath: job.sh
 {{- include "app.volumes_mounts" $tplArgs | indent 8 }}
         envFrom:
+        - secretRef:
+            name: {{ .Values.auth.defaultUser.externalSecretName | default "default-admin-user-secret"  }}
         - configMapRef:
             name: auth-api-config
 {{- include "configMapRef.phpApp" $ | indent 8 }}
