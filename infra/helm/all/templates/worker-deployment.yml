@@ -22,6 +22,7 @@ spec:
       volumes:
 {{- include "volumes.configs" $ | indent 6 }}
 {{- include "app.volumes" $tplArgs | indent 6 }}
+{{- include "app.volumesUidInit" $tplArgs | indent 6 }}
       containers:
       - name: {{ $appName }}-worker
         image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-worker:{{ $.Values.repository.tag }}

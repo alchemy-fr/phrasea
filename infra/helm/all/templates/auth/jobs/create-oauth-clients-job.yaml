@@ -17,9 +17,12 @@ data:
     bin/console alchemy:oauth:create-client "${CLIENT_ID}" \
       --random-id="${CLIENT_RANDOM_ID}" \
       --secret="${CLIENT_SECRET}" \
-      --grant-type password \
-      --grant-type authorization_code \
-      --grant-type client_credentials \
+    {{- range .grantTypes }}
+      --grant-type {{ . }} \
+    {{- end }}
+    {{- range .scopes }}
+      --scope {{ . }} \
+    {{- end }}
       --redirect-uri={{ tpl .redirect_uri $ | quote }}
 ---
 apiVersion: v1

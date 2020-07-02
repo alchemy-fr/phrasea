@@ -11,6 +11,7 @@ kubectl delete job \
     expose-migrate \
     notify-migrate \
     uploader-migrate \
+    minio-create-buckets \
     postgresql-create-databases \
     rabbitmq-vhost-setup \
     auth-create-admin-oauth-client \

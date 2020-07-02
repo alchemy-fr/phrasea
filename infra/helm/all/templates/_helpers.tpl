@@ -75,3 +75,24 @@
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{- define "app.volumesUidInit" }}
+{{- $appName := .app -}}
+{{- $ctx := .ctx -}}
+{{- $glob := .glob -}}
+{{- if hasKey .glob.Values._internal.volumes $appName }}
+{{- with (index .glob.Values._internal.volumes $appName) }}
+{{- range $key, $value := . }}
+{{- if $value.uid }}
+initContainers:
+- name: volume-set-uid-{{ $appName }}-{{ $key }}
+  image: busybox
+  command: ["sh", "-c", "chown -R {{ $value.uid }}:{{ $value.uid }} {{ $value.mountPath }}"]
+  volumeMounts:
+  - name: {{ $key }}
+    mountPath: {{ $value.mountPath }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

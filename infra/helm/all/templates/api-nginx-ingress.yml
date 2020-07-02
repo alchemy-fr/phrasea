@@ -6,6 +6,13 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $appName }}-api-nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+{{- if hasKey $.Values._internal.ingress.maxBodySize $appName }}
+{{- with (index $.Values._internal.ingress.maxBodySize $appName) }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ . | quote }}
+{{- end }}
+{{- end }}
 spec:
   rules:
   - host: {{ .api.hostname }}

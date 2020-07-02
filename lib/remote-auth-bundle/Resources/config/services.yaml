@@ -1,6 +1,6 @@
 parameters:
-  env(AUTH_API_BASE_URL): 'http://auth-api'
-  alchemy_remote_auth.auth_base_url_internal: '%env(AUTH_API_BASE_URL)%'
+  env(AUTH_INTERNAL_API_BASE_URL): 'http://auth-api'
+  alchemy_remote_auth.auth_base_url_internal: '%env(AUTH_INTERNAL_API_BASE_URL)%'
 
 services:
   _defaults:

@@ -17,6 +17,8 @@ auth:
     id: auth-admin
     random_id: 9mIGK
     secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
+    grantTypes:
+    - password
   rabbitmq:
     vhost: auth
 
@@ -34,6 +36,12 @@ expose:
     id: expose-admin
     random_id: wIB0s
     secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
+    grantTypes:
+    - password
+    - client_credentials
+    scopes:
+    - user:list
+    - group:list
   client:
     hostname: ""
     base_url: ""
@@ -42,6 +50,8 @@ expose:
       random_id: difnr
       secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
       redirect_uri: "{{ .Values.expose.client.base_url }}"
+      grantTypes:
+      - password
     mapbox:
       token: ""
   rabbitmq:
@@ -57,6 +67,8 @@ notify:
     id: notify-admin
     random_id: dUdGa
     secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
+    grantTypes:
+    - password
   rabbitmq:
     vhost: notify
 
@@ -81,6 +93,12 @@ uploader:
     id: uploader-admin
     random_id: oqdsq
     secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
+    grantTypes:
+    - password
+    - client_credentials
+    scopes:
+    - user:list
+    - group:list
   client:
     hostname: ""
     oauth_client:
@@ -88,6 +106,8 @@ uploader:
       random_id: oqdsq
       secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
       redirect_uri: "{{ .Values.uploader.client.base_url }}"
+      grantTypes:
+      - password
   rabbitmq:
     vhost: upload
 
@@ -197,6 +217,8 @@ _internal:
       data:
         name: uploader-data
         mountPath: /var/data/upload
-  hostAliases:
-    auth:
-    - auth-api
+        uid: 1000
+  ingress:
+    maxBodySize:
+      uploader: 4G
+      expose: 4G

@@ -27,7 +27,6 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMI
     --random-id=${AUTH_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${AUTH_ADMIN_CLIENT_SECRET} \
     --grant-type password \
-    --grant-type authorization_code \
     --redirect-uri ${AUTH_BASE_URL}"
 
 
@@ -40,14 +39,12 @@ exec_container uploader-api-php "bin/setup.sh"
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_CLIENT_SECRET} \
-    --grant-type password \
-    --grant-type authorization_code"
+    --grant-type password"
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
     --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_ADMIN_CLIENT_SECRET} \
     --grant-type password \
-    --grant-type authorization_code \
     --grant-type client_credentials \
     --scope user:list \
     --scope group:list \
@@ -63,14 +60,12 @@ exec_container expose-api-php "bin/setup.sh"
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_CLIENT_ID} \
     --random-id=${EXPOSE_CLIENT_RANDOM_ID} \
     --secret=${EXPOSE_CLIENT_SECRET} \
-    --grant-type client_credentials \
-    --grant-type authorization_code"
+    --grant-type password"
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_ADMIN_CLIENT_ID} \
     --random-id=${EXPOSE_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${EXPOSE_ADMIN_CLIENT_SECRET} \
     --grant-type password \
-    --grant-type authorization_code \
     --grant-type client_credentials \
     --scope user:list \
     --scope group:list \
@@ -93,7 +88,6 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
     --random-id=${NOTIFY_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${NOTIFY_ADMIN_CLIENT_SECRET} \
     --grant-type password \
-    --grant-type authorization_code \
     --redirect-uri ${NOTIFY_BASE_URL}"
 
 

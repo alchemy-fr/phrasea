@@ -16,8 +16,12 @@ data:
     bin/console alchemy:oauth:create-client "${ADMIN_CLIENT_ID}" \
       --random-id="${ADMIN_CLIENT_RANDOM_ID}" \
       --secret="${ADMIN_CLIENT_SECRET}" \
-      --grant-type password \
-      --grant-type authorization_code \
+    {{- range .admin_oauth_client.grantTypes }}
+      --grant-type {{ . }} \
+    {{- end }}
+    {{- range .admin_oauth_client.scopes }}
+      --scope {{ . }} \
+    {{- end }}
       --redirect-uri {{ .api.base_url | quote }}
 ---
 apiVersion: batch/v1

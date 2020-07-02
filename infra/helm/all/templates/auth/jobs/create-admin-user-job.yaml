@@ -8,7 +8,7 @@ metadata:
 data:
   job.sh: |
     #!/bin/sh
-    set -ex
+    set -e
 
     bin/console app:user:create \
       --update-if-exist {{ .Values.auth.default_user.username | quote }} \
