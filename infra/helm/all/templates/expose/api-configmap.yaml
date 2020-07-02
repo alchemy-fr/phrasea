@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: expose-api-config
 data:
-  STORAGE_BASE_URL: {{ ternary .Values.minio.baseUrl .Values.expose.api.config.storageBaseUrl .Values.minio.enabled }}
+  STORAGE_BASE_URL: {{ tpl .Values.expose.api.config.storageBaseUrl . | quote }}
   STORAGE_BUCKET_NAME: {{ .Values.expose.api.config.storageBucketName }}
   EXPOSE_REQUEST_SIGNATURE_TTL: {{ quote .Values.expose.api.config.exposeRequestSignatureTtl }}

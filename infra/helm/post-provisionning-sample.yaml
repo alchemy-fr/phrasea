@@ -1,0 +1,85 @@
+auth:
+  defaultUser:
+    username: admin@alchemy.fr
+    password: obIaHz6cVTkQKHqLBj
+  api:
+    hostname: api-auth.phrasea.io
+    baseUrl: https://api-auth.phrasea.io
+  adminOAuthClient:
+    externalSecretName:
+    secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
+
+expose:
+  api:
+    hostname: api-expose.phrasea.io
+    baseUrl: https://api-auth.phrasea.io
+    config:
+      storageBaseUrl: https://minio.phrasea.io
+      storageBucketName: expose
+  adminOAuthClient:
+    externalSecretName:
+    secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
+  client:
+    hostname: expose.phrasea.io
+    baseUrl: https://expose.phrasea.io
+    oauthClient:
+      secret: ""
+    mapbox:
+      token: ""
+
+notify:
+  api:
+    hostname: api-notify.phrasea.io
+    baseUrl: https://api-notify.phrasea.io
+  adminOAuthClient:
+    externalSecretName:
+    secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
+
+uploader:
+  persistence:
+    existingClaim:
+  api:
+    hostname: api-uploader.phrasea.io
+    baseUrl: https://api-uploader.phrasea.io
+  adminOAuthClient:
+    externalSecretName:
+    secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
+  client:
+    hostname: uploader.phrasea.io
+    oauthClient:
+      secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
+
+report:
+  api:
+    hostname: report.phrasea.io
+    baseUrl: https://report.phrasea.io
+
+mailerDsn: ""
+
+postgresql:
+  externalSecretName:
+  password: 'iHdB$$tyVGmT9Zj6shv'
+  persistence:
+    existingClaim:
+
+rabbitmq:
+  externalSecretName:
+  password: '2rlTh4WyhyUZV7fEAnb$u4dqFchQDz'
+  persistence:
+    existingClaim:
+
+minio:
+  hostname: minio.phrasea.io
+  baseUrl: https://minio.phrasea.io
+  accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
+  secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
+  persistence:
+    existingClaim:
+
+ingress:
+  tls:
+    wildcard:
+      externalSecretName:
+
+globalConfig:
+  externalConfigmapName:

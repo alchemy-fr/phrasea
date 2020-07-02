@@ -31,7 +31,7 @@ expose:
     baseUrl:
     config:
       exposeRequestSignatureTtl: 3600
-      storageBaseUrl:
+      storageBaseUrl: "{{ .Values.minio.baseUrl }}"
       storageBucketName: expose
   adminOAuthClient:
     externalSecretName:
