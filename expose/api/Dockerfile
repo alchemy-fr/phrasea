@@ -38,7 +38,8 @@ COPY docker/app/conf.d/symfony.ini /usr/local/etc/php-fpm.d/
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
-    && adduser -D -u 1000 app
+    && adduser -D -u 1000 app \
+    && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 WORKDIR /srv/app
 
