@@ -71,7 +71,7 @@ expose:
       grantTypes:
       - password
     mapbox:
-      token:
+      token: "define-me"
   rabbitmq:
     vhost: expose
 
@@ -153,7 +153,7 @@ report:
     baseUrl:
   databaseName: report
 
-mailerDsn:
+mailerDsn: 'null://null'
 
 postgresql:
   enabled: true

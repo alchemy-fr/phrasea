@@ -20,7 +20,7 @@ auth:
 expose:
   api:
     hostname: api-expose.phrasea.io
-    baseUrl: https://api-auth.phrasea.io
+    baseUrl: https://api-expose.phrasea.io
     config:
       storageBaseUrl: https://minio.phrasea.io
       storageBucketName: expose
