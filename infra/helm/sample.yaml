@@ -2,11 +2,16 @@ auth:
   api:
     hostname: "auth.alchemy.kube"
     baseUrl: "https://auth.alchemy.kube"
-
+    ingress:
+      annotations:
+        toto: titi
 expose:
   api:
     hostname: "api-expose.alchemy.kube"
     baseUrl: "https://api-expose.alchemy.kube"
+    ingress:
+      tls:
+        - secretName: fooo
   client:
     hostname: "expose.alchemy.kube"
     baseUrl: "https://expose.alchemy.kube"
@@ -17,9 +22,15 @@ uploader:
   api:
     hostname: "api-uploader.alchemy.kube"
     baseUrl: "https://api-uploader.alchemy.kube"
+    ingress:
+      annotations:
+        toto: titi
   client:
     hostname: "uploader.alchemy.kube"
     baseUrl: "https://uploader.alchemy.kube"
+    ingress:
+      tls:
+        - secretName: yoyo
   persistence:
     enabled: false
 

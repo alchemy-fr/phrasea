@@ -17,7 +17,8 @@ kubectl delete job \
     auth-create-admin-oauth-client \
     uploader-create-admin-oauth-client \
     expose-create-admin-oauth-client \
-    notify-create-admin-oauth-client
+    notify-create-admin-oauth-client \
+    auth-create-default-admin-user
 
 n=0
 until [ "$n" -ge 50 ]; do

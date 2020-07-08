@@ -7,6 +7,9 @@ auth:
   api:
     hostname: api-auth.phrasea.io
     baseUrl: https://api-auth.phrasea.io
+    ingress:
+      annotations: {}
+      tls: []
   adminOAuthClient:
     externalSecretName:
     # Secret must contain:
@@ -21,6 +24,8 @@ expose:
     config:
       storageBaseUrl: https://minio.phrasea.io
       storageBucketName: expose
+    ingress:
+      annotations: {}
   adminOAuthClient:
     externalSecretName:
     # Secret must contain:
@@ -30,6 +35,9 @@ expose:
   client:
     hostname: expose.phrasea.io
     baseUrl: https://expose.phrasea.io
+    ingress:
+      annotations: {}
+      tls: []
     oauthClient:
       externalSecretName:
       # Secret must contain:
@@ -44,6 +52,9 @@ notify:
   api:
     hostname: api-notify.phrasea.io
     baseUrl: https://api-notify.phrasea.io
+    ingress:
+      annotations: {}
+      tls: []
   adminOAuthClient:
     externalSecretName:
     # Secret must contain:
@@ -57,6 +68,8 @@ uploader:
   api:
     hostname: api-uploader.phrasea.io
     baseUrl: https://api-uploader.phrasea.io
+    ingress:
+      annotations: {}
   adminOAuthClient:
     externalSecretName:
     # Secret must contain:
@@ -65,6 +78,9 @@ uploader:
     # - ADMIN_CLIENT_SECRET
   client:
     hostname: uploader.phrasea.io
+    ingress:
+      annotations: {}
+      tls: []
     oauthClient:
       externalSecretName:
       # Secret must contain:
@@ -97,14 +113,6 @@ rabbitmq:
 
 minio:
   enabled: false
-
-ingress:
-  tls:
-    wildcard:
-      externalSecretName:
-      # Secret must contain:
-      # - tls.crt
-      # - tls.key
 
 globalConfig:
   externalConfigmapName:

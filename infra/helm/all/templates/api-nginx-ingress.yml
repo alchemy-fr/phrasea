@@ -1,34 +1,55 @@
 {{- range .Values._internal.services }}
 {{ $appName := . }}
 {{- if (index $.Values $appName).enabled }}
-{{- with (index $.Values $appName)  }}
+{{- with (index $.Values $appName).api  }}
+{{- $ingressNode := . }}
+{{- if .ingress }}
+{{- if .ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $appName }}-api-nginx-ingress
   annotations:
+{{- if .ingress.annotations }}
+{{ toYaml .ingress.annotations | indent 4 }}
+{{- else }}
     kubernetes.io/ingress.class: "nginx"
-{{- if .ingress }}
 {{- if .ingress.maxBodySize }}
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .ingress.maxBodySize | quote }}
 {{- end }}
 {{- end }}
+{{- if .ingress.extraLabels }}
+  labels:
+{{ toYaml .ingress.extraLabels | indent 4 }}
+{{- end }}
 spec:
   rules:
-  - host: {{ .api.hostname }}
+  - host: {{ .hostname }}
     http:
       paths:
       - backend:
           serviceName: {{ $appName }}-api-nginx
           servicePort: 80
         path: /
-{{- if $.Values.ingress.tls.wildcard.enabled }}
+{{- if .ingress.tls }}
+{{- $tlsNode := .ingress.tls -}}
+{{- range $value := $tlsNode }}
+  {{- if not (hasKey $value "hosts") }}
+    {{- $hosts := list $ingressNode.hostname }}
+    {{- $_ := set $value "hosts" $hosts }}
+  {{- end -}}
+{{- end }}
+  tls:
+{{ toYaml $tlsNode | indent 2 }}
+{{- else if $.Values.ingress.tls.wildcard.enabled }}
   tls:
   - hosts:
-    - {{ .api.hostname }}
+    - {{ .hostname }}
     secretName: {{ include "secretRef.ingress.tls.wildcard" $ }}
 {{- end }}
 ---
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
