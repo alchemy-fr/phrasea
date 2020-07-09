@@ -11,20 +11,15 @@ use Symfony\Component\Security\Core\Security;
 
 class ReportUserService
 {
-    /**
-     * @var ReportClient
-     */
-    private $client;
+    private ReportClient $client;
+    private Security $security;
+    private bool $enabled;
 
-    /**
-     * @var Security
-     */
-    private $security;
-
-    public function __construct(ReportClient $client, Security $security)
+    public function __construct(ReportClient $client, Security $security, string $reportBaseUrl)
     {
         $this->client = $client;
         $this->security = $security;
+        $this->enabled = !empty($reportBaseUrl);
     }
 
     public function pushHttpRequestLog(Request $request, string $action, ?string $itemId = null, array $payload = []): void
@@ -38,6 +33,10 @@ class ReportUserService
 
     public function pushLog(string $action, ?string $itemId = null, array $payload = []): void
     {
+        if (!$this->enabled) {
+            return;
+        }
+
         $this->client->pushLog($action, $this->getUserId(), $itemId, $payload);
     }
 
