@@ -9,6 +9,7 @@ use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,11 +19,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CreateUserCommand extends Command
 {
-    private $userManager;
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
+    private UserManager $userManager;
+    private EventProducer $eventProducer;
 
     public function __construct(UserManager $userManager, EventProducer $eventProducer)
     {
@@ -75,6 +73,9 @@ class CreateUserCommand extends Command
 
         $io->title('User Credentials');
         $username = $input->getArgument('username');
+        if (empty($username)) {
+            throw new InvalidArgumentException('Missing or empty username');
+        }
 
         $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
