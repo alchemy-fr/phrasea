@@ -2,7 +2,7 @@
 
 helm uninstall all1
 kubectl delete job \
-    postgesql-create-databases \
+    postgresql-create-databases \
     auth-setup \
     expose-setup \
     notify-setup \
