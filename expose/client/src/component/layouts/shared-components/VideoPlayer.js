@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import Description from "./Description";
-import {Player} from 'video-react';
+import videojs from 'video.js'
 
 export default class VideoPlayer extends PureComponent {
     static propTypes = {
@@ -18,7 +18,7 @@ export default class VideoPlayer extends PureComponent {
         showVideo: false,
     }
 
-    vttAdded = false;
+    player = false;
 
     constructor(props) {
         super(props);
@@ -26,6 +26,56 @@ export default class VideoPlayer extends PureComponent {
         this.videoRef = React.createRef();
     }
 
+    componentDidMount() {
+        if (this.state.showVideo) {
+            this.initPlayer();
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.showVideo) {
+            this.initPlayer();
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.player) {
+            this.player.dispose();
+        }
+    }
+
+    initPlayer() {
+        if (this.player) {
+            return;
+        }
+
+        const {url, webVTTLink} = this.props;
+
+        this.player = videojs(this.videoRef.current, {
+            autoplay: true,
+            controls: true,
+            fluid: true,
+            sources: [{
+                src: url,
+                type: 'video/mp4'
+            }]
+        }, () => {
+            if (webVTTLink) {
+                const trackEl = this.player.addRemoteTextTrack({
+                    src: webVTTLink,
+                    default: true,
+                });
+                //
+                // // Get all text tracks for the current player.
+                // const tracks = this.player.textTracks();
+                //
+                // for (const i = 0; i < tracks.length; i++) {
+                //     const track = tracks[i];
+                //     track.mode = 'showing';
+                // }
+            }
+        });
+    }
 
     onPlay = () => {
         const {onPlay} = this.props;
@@ -35,32 +85,8 @@ export default class VideoPlayer extends PureComponent {
         });
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const {webVTTLink} = this.props;
-        if (!this.vttAdded && webVTTLink) {
-            this.addTextTrack({
-                kind: 'captions',
-                src: webVTTLink,
-                srclang: 'en',
-                label: 'English'
-            });
-        }
-    }
-
-    addTextTrack({kind, label, srclang, src}) {
-        const {document} = window;
-        this.videoRef.addEventListener("loadedmetadata", function() {
-            const track = document.createElement("track");
-            track.kind = kind;
-            track.label = label;
-            track.srclang = srclang;
-            track.src = src;
-        });
-    }
-
     render() {
         const {
-            url,
             thumbUrl,
             title,
             description,
@@ -69,12 +95,13 @@ export default class VideoPlayer extends PureComponent {
         return <div className='video-container'>
             {
                 this.state.showVideo ?
-                    <Player
-                        ref={this.videoRef}
-                        autoPlay={true}
-                    >
-                        <source src={url} type={'video/mp4'}/>
-                    </Player>
+                    <div data-vjs-player>
+                        <video
+                            ref={this.videoRef}
+                            className="video-js"
+                            crossOrigin={'use-credentials'}
+                        />
+                    </div>
                     : <div onClick={this.onPlay}>
                         <div className='play-button'/>
                         <img src={thumbUrl} alt={title}/>

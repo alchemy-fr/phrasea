@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Asset;
-use App\Entity\Publication;
-use App\Security\Voter\PublicationVoter;
+use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{id}.{hash}.vtt", name="asset_webvtt")
+ * @Route("/publications/{id}/vtt/{hash}.vtt", name="asset_webvtt")
  */
 final class GetAssetWebVTTAction extends AbstractController
 {
@@ -27,8 +25,25 @@ final class GetAssetWebVTTAction extends AbstractController
         $this->em = $em;
     }
 
-    public function __invoke(string $id, string $hash): Response
+    public function __invoke(string $id, string $hash, Request $request): Response
     {
+        $corsHeaders = [
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept',
+        ];
+        if ($request->getMethod() === 'OPTIONS') {
+
+            return new Response('', 204, array_merge(
+                $corsHeaders,
+                [
+                    'Content-Type' => 'text/plain charset=UTF-8',
+                    'Content-Length' => 0,
+                ]
+            ));
+        }
+
         /** @var Asset|null $asset */
         $asset = $this->em
             ->getRepository(Asset::class)
@@ -38,9 +53,11 @@ final class GetAssetWebVTTAction extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $response = new Response($asset->getWebVTT(), 200, [
+        $this->denyAccessUnlessGranted(AssetVoter::READ, $asset);
+
+        $response = new Response($asset->getWebVTT(), 200, array_merge($corsHeaders, [
             'Content-Type' => 'text/vtt',
-        ]);
+        ]));
         $response->setCache([
             's_maxage' => 7776000,
             'max_age' => 7776000,

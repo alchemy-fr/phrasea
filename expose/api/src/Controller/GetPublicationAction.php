@@ -33,9 +33,7 @@ final class GetPublicationAction extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (!$this->isGranted(PublicationVoter::READ, $publication)) {
-            throw new AccessDeniedHttpException();
-        }
+        $this->denyAccessUnlessGranted(PublicationVoter::READ, $publication);
 
         return $publication;
     }
