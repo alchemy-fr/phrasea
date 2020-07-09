@@ -1,8 +1,12 @@
+{{- if .Values.uploader.enabled }}
+{{- with .Values.uploader.api }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: uploader-api-config
 data:
-  ASSET_CONSUMER_COMMIT_URI: {{ quote .Values.uploader.api.config.assetConsumerCommitUri }}
-  ASSET_CONSUMER_ACCESS_TOKEN: {{ quote .Values.uploader.api.config.assetConsumerAccessToken }}
+  ASSET_CONSUMER_COMMIT_URI: {{ quote .config.assetConsumerCommitUri }}
+  ASSET_CONSUMER_ACCESS_TOKEN: {{ quote .config.assetConsumerAccessToken }}
   UPLOAD_TEMP_DIR: "/var/data/upload"
+{{- end }}
+{{- end }}

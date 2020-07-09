@@ -36,6 +36,7 @@ services:
       - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - REPORT_BASE_URL
+      - UPLOAD_MAX_FILE_SIZE
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -71,6 +72,8 @@ services:
     build:
       context: ./uploader/api
       target: uploader-api-nginx
+    environment:
+      - UPLOAD_MAX_FILE_SIZE
     networks:
       - internal
     ports:
@@ -234,6 +237,7 @@ services:
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
       - EXPOSE_API_BASE_URL
+      - UPLOAD_MAX_FILE_SIZE
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -275,6 +279,8 @@ services:
       - ${EXPOSE_API_PORT}:80
     depends_on:
       - expose-api-php
+    environment:
+      - UPLOAD_MAX_FILE_SIZE
 
   expose-client:
     image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG

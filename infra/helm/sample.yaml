@@ -16,12 +16,9 @@ uploader:
   api:
     hostname: "api-uploader.alchemy.kube"
     baseUrl: "https://api-uploader.alchemy.kube"
-    ingress:
-      annotations:
-        toto: titi
   client:
     hostname: "uploader.alchemy.kube"
-    baseUrl: "https://uploader.alchemy.kube"*
+    baseUrl: "https://uploader.alchemy.kube"
   persistence:
     enabled: false
 

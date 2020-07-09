@@ -19,9 +19,16 @@ spec:
         tier: {{ $appName }}-api-nginx
     spec:
       containers:
-        - name: {{ $appName }}-api-nginx
-          image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-nginx:{{ $.Values.repository.tag }}
-          terminationMessagePolicy: FallbackToLogsOnError
+      - name: {{ $appName }}-api-nginx
+        image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-nginx:{{ $.Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError
+      {{- if .api.ingress }}
+      {{- if .api.ingress.maxBodySize }}
+        env:
+          - name: UPLOAD_MAX_FILE_SIZE
+            value: {{ .api.ingress.maxBodySize | quote }}
+      {{- end }}
+      {{- end }}
 ---
 {{- end }}
 {{- end }}

@@ -62,10 +62,14 @@ CMD ["php-fpm"]
 
 FROM nginx:1.15.11-alpine AS expose-api-nginx
 
-COPY docker/nginx/conf.d /etc/nginx/conf.d/
 COPY --from=expose-api-php /srv/app/public /srv/app/public
+COPY docker/nginx/entrypoint.sh /entrypoint.sh
+COPY docker/nginx/tpl /etc/nginx/tpl
 
 EXPOSE 80
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+
 
 FROM expose-api-php as expose-worker
 

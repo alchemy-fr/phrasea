@@ -64,6 +64,8 @@ services:
   uploader-api-nginx:
     volumes:
       - ./uploader/api:/srv/app
+      - ./uploader/api/docker/nginx/entrypoint.sh:/entrypoint.sh
+      - ./uploader/api/docker/nginx/tpl:/etc/nginx/tpl
 
   auth-worker:
     volumes:

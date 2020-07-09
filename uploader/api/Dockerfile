@@ -62,10 +62,13 @@ CMD ["php-fpm"]
 
 FROM nginx:1.15.11-alpine AS uploader-api-nginx
 
-COPY docker/nginx/conf.d /etc/nginx/conf.d/
 COPY --from=uploader-api-php /srv/app/public /srv/app/public
+COPY docker/nginx/entrypoint.sh /entrypoint.sh
+COPY docker/nginx/tpl /etc/nginx/tpl
 
 EXPOSE 80
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
 
 FROM uploader-api-php as uploader-worker
 
