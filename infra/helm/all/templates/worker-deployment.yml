@@ -37,6 +37,8 @@ spec:
 {{- include "envFrom.postgresql" $ | indent 8 }}
         - secretRef:
             name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
+        - configMapRef:
+            name: {{ $appName }}-api-config
       {{- if eq $appName "expose" }}
         - secretRef:
             name: s3-secret
