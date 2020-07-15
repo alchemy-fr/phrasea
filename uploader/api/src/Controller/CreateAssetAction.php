@@ -61,14 +61,12 @@ final class CreateAssetAction extends AbstractController
         /** @var RemoteUser $user */
         $user = $this->getUser();
 
-        $asset = $this->assetManager->createAsset(
+        return $this->assetManager->createAsset(
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getSize(),
             $user->getId()
         );
-
-        return $asset;
     }
 }

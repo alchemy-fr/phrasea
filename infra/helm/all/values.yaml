@@ -122,14 +122,13 @@ uploader:
     config:
       assetConsumerCommitUri: ""
       assetConsumerAccessToken: ""
-      config:
-        s3Storage:
-          baseUrl: "{{ .Values.minio.baseUrl }}"
-          endpoint: "http://minio:9000"
-          bucketName: uploader-deposit
-          cnameIsBucket: false
-          accessKey:
-          secretKey:
+      s3Storage:
+        baseUrl: "{{ .Values.minio.baseUrl }}"
+        endpoint: "http://minio:9000"
+        bucketName: uploader-deposit
+        cnameIsBucket: false
+        accessKey:
+        secretKey:
   adminOAuthClient:
     externalSecretName:
     id: uploader-admin
@@ -206,6 +205,12 @@ minio:
   baseUrl:
   accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
   secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
+  ingress:
+    enabled: true
+    annotations: {}
+    extraLabels: {}
+    maxBodySize: 4G
+    tls: []
   persistence:
     enabled: true
     existingClaim:

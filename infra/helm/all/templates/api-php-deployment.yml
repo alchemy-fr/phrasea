@@ -45,9 +45,9 @@ spec:
             name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
         - configMapRef:
             name: {{ $appName }}-api-config
-      {{- if eq $appName "expose" }}
+      {{- if or (eq $appName "uploader") (eq $appName "expose") }}
         - secretRef:
-            name: s3-secret
+            name: {{ $appName }}-s3-secret
       {{- end }}
 ---
 {{- end }}
