@@ -3,7 +3,7 @@ oneup_flysystem:
         asset:
             awss3v3:
                 client: app.s3_client
-                bucket: '%env(STORAGE_BUCKET_NAME)%'
+                bucket: '%env(S3_STORAGE_BUCKET_NAME)%'
                 prefix: ~
 
     filesystems:
