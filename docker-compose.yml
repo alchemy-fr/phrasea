@@ -30,13 +30,16 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - UPLOADER_API_BASE_URL
-      - UPLOAD_TEMP_DIR=/var/data/upload
       - AUTH_BASE_URL
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - REPORT_BASE_URL
       - UPLOAD_MAX_FILE_SIZE
+      - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${UPLOADER_STORAGE_ENDPOINT}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -61,8 +64,11 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - UPLOADER_API_BASE_URL
-      - UPLOAD_TEMP_DIR=/var/data/upload
       - REPORT_BASE_URL
+      - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${UPLOADER_STORAGE_ENDPOINT}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -167,43 +173,6 @@ services:
     depends_on:
       - auth-api-php
 
-  redis:
-    image: redis:5.0.5-alpine
-    networks:
-      - internal
-    volumes:
-      - redis_vol:/data
-
-  db:
-    image: postgres:11.2-alpine
-    hostname: postgres
-    networks:
-      - internal
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-    volumes:
-      - db_vol:/var/lib/postgresql/data
-
-  rabbitmq:
-    image: rabbitmq:3.7.14-management
-    hostname: rabbitmq
-    networks:
-      - internal
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    volumes:
-      - rabbitmq_vol:/var/lib/rabbitmq
-    ports:
-      - ${RABBITMQ_MGT_PORT}:15672
-
-  dockerize:
-    image: jwilder/dockerize
-    networks:
-      - internal
-    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "100s", "--", "echo", "ready"]
-
   expose-api-php:
     image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
     build:
@@ -231,8 +200,8 @@ services:
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${EXPOSE_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
-      - STORAGE_BASE_URL=${MINIO_BASE_URL}
-      - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
+      - S3_STORAGE_BASE_URL=${EXPOSE_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${EXPOSE_STORAGE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - REPORT_BASE_URL
@@ -258,11 +227,11 @@ services:
       - POSTGRES_PASSWORD
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
-      - STORAGE_BASE_URL=${MINIO_BASE_URL}
-      - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
-      - EXPOSE_REQUEST_SIGNATURE_TTL
+      - S3_STORAGE_BASE_URL=${EXPOSE_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${EXPOSE_STORAGE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
+      - EXPOSE_REQUEST_SIGNATURE_TTL
       - REPORT_BASE_URL
       - EXPOSE_API_BASE_URL
 
@@ -366,6 +335,43 @@ services:
       - ${NOTIFY_PORT}:80
     depends_on:
       - notify-api-php
+
+  redis:
+    image: redis:5.0.5-alpine
+    networks:
+      - internal
+    volumes:
+      - redis_vol:/data
+
+  db:
+    image: postgres:11.2-alpine
+    hostname: postgres
+    networks:
+      - internal
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - db_vol:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.7.14-management
+    hostname: rabbitmq
+    networks:
+      - internal
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_vol:/var/lib/rabbitmq
+    ports:
+      - ${RABBITMQ_MGT_PORT}:15672
+
+  dockerize:
+    image: jwilder/dockerize
+    networks:
+      - internal
+    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "100s", "--", "echo", "ready"]
 
   minio:
     image: minio/minio

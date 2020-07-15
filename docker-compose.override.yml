@@ -48,6 +48,23 @@ services:
     ports:
       - ${EXPOSE_FRONT_DEV_PORT}:3000
 
+  expose-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
+    volumes:
+      - ./expose/api:/srv/app
+
+  expose-api-nginx:
+    volumes:
+      - ./expose/api:/srv/app
+
+  expose-worker:
+    volumes:
+      - ./expose/api:/srv/app
+      - ./expose/api/docker/supervisor:/etc/supervisor.d
+
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED
@@ -84,23 +101,6 @@ services:
     volumes:
       - ./auth/api:/srv/app
 
-  expose-api-php:
-    environment:
-      - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
-      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
-    volumes:
-      - ./expose/api:/srv/app
-
-  expose-api-nginx:
-    volumes:
-      - ./expose/api:/srv/app
-
-  expose-worker:
-    volumes:
-      - ./expose/api:/srv/app
-      - ./expose/api/docker/supervisor:/etc/supervisor.d
-
   notify-api-php:
     environment:
       - XDEBUG_ENABLED
@@ -135,8 +135,7 @@ services:
       - RABBITMQ_PASSWORD
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
-      - STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
-      - STORAGE_BASE_URL=${MINIO_BASE_URL}
+      - S3_STORAGE_BASE_URL=${EXPOSE_STORAGE_BASE_URL}
       - AUTH_BASE_URL
       - EXPOSE_API_BASE_URL
       - REPORT_BASE_URL

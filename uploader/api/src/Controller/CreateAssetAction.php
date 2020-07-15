@@ -17,18 +17,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private $validator;
-    private $resourceMetadataFactory;
-
-    /**
-     * @var FileStorageManager
-     */
-    private $storageManager;
-
-    /**
-     * @var AssetManager
-     */
-    private $assetManager;
+    private ValidatorInterface $validator;
+    private ResourceMetadataFactoryInterface $resourceMetadataFactory;
+    private FileStorageManager $storageManager;
+    private AssetManager $assetManager;
 
     public function __construct(
         ValidatorInterface $validator,
@@ -44,6 +36,8 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
+        ini_set('max_execution_time', '600');
+
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('file');
 

@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    env(S3_STORAGE_ENDPOINT): ~
+    env(S3_STORAGE_CNAME_IS_BUCKET): false
 
 services:
     # default configuration for services in *this* file
@@ -11,7 +13,7 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $storageBaseUrl: '%env(STORAGE_BASE_URL)%/%env(STORAGE_BUCKET_NAME)%'
+            $storageBaseUrl: '%env(S3_STORAGE_BASE_URL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -48,8 +50,8 @@ services:
                 version: 'latest'
                 region: "eu-central-1"
                 use_path_style_endpoint: true
-                cname_is_bucket: false
-                endpoint: 'http://minio:9000'
+                cname_is_bucket: '%env(bool:S3_STORAGE_CNAME_IS_BUCKET)%'
+                endpoint: '%env(S3_STORAGE_ENDPOINT)%'
                 credentials:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'

@@ -41,8 +41,13 @@ expose:
     baseUrl:
     config:
       exposeRequestSignatureTtl: 3600
-      storageBaseUrl: "{{ .Values.minio.baseUrl }}"
-      storageBucketName: expose
+      s3Storage:
+        baseUrl: "{{ .Values.minio.baseUrl }}"
+        endpoint: "http://minio:9000"
+        bucketName: expose
+        cnameIsBucket: false
+        accessKey:
+        secretKey:
   adminOAuthClient:
     externalSecretName:
     id: expose-admin
@@ -117,6 +122,14 @@ uploader:
     config:
       assetConsumerCommitUri: ""
       assetConsumerAccessToken: ""
+      config:
+        s3Storage:
+          baseUrl: "{{ .Values.minio.baseUrl }}"
+          endpoint: "http://minio:9000"
+          bucketName: uploader-deposit
+          cnameIsBucket: false
+          accessKey:
+          secretKey:
   adminOAuthClient:
     externalSecretName:
     id: uploader-admin

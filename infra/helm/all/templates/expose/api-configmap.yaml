@@ -1,8 +1,14 @@
+{{- if .Values.expose.enabled }}
+{{- with .Values.expose.api.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: expose-api-config
 data:
-  STORAGE_BASE_URL: {{ tpl .Values.expose.api.config.storageBaseUrl . | quote }}
-  STORAGE_BUCKET_NAME: {{ .Values.expose.api.config.storageBucketName }}
-  EXPOSE_REQUEST_SIGNATURE_TTL: {{ quote .Values.expose.api.config.exposeRequestSignatureTtl }}
+  S3_STORAGE_ENDPOINT: {{ tpl .s3storage.endpoint }}
+  S3_STORAGE_BASE_URL: {{ tpl .s3storage.baseUrl . | quote }}
+  S3_STORAGE_BUCKET_NAME: {{ .s3storage.bucketName | quote }}
+  S3_STORAGE_CNAME_IS_BUCKET: {{ ternary "\"true\"" "\"false\"" .s3storage.cnameIsBucket }}
+  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .exposeRequestSignatureTtl | quote }}
+{{- end }}
+{{- end }}

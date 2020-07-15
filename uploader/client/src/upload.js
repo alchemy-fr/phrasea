@@ -12,6 +12,7 @@ class UploadBatch
     progresses;
     formData;
     progressListeners;
+    errorListeners;
     fileCompleteListeners;
     completeListeners;
     completeEvent;
@@ -44,6 +45,7 @@ class UploadBatch
         this.progressListeners = [];
         this.fileCompleteListeners = [];
         this.completeListeners = [];
+        this.errorListeners = [];
     }
 
     addFiles(files) {
@@ -134,6 +136,9 @@ class UploadBatch
                     return;
                 }
                 this.onUploadProgress(e, index);
+            })
+            .on('error', (err) => {
+                this.errorListeners.forEach(h => h(err));
             })
             .send(formData);
 
@@ -238,6 +243,17 @@ class UploadBatch
         this.progressListeners.forEach((func) => {
             func(e);
         });
+    }
+
+    addErrorListener(handler) {
+        this.errorListeners.push(handler);
+    }
+
+    removeErrorListener(handler) {
+        const index = this.errorListeners.findIndex(h => h === handler);
+        if (index >= 0) {
+            this.errorListeners.slice(index, 1);
+        }
     }
 }
 

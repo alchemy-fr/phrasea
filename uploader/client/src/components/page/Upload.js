@@ -23,7 +23,24 @@ export default class Upload extends Component {
     state = {
         step: SELECT_FILES,
         files: [],
+        errors: [],
     };
+
+    onError = (err) => {
+        this.setState(prevState => {
+            const errors = [...prevState.errors];
+            errors.push(`Upload went wront: ${err.toString()}`);
+            return {errors};
+        })
+    }
+
+    componentDidMount() {
+        uploadBatch.addErrorListener(this.onError);
+    }
+
+    componentWillUnmount() {
+        uploadBatch.removeErrorListener(this.onError);
+    }
 
     removeFile = (index) => {
         this.setState((prevState) => {
@@ -106,6 +123,13 @@ export default class Upload extends Component {
     };
 
     render() {
+        return <Container>
+            {this.renderUploadErrors()}
+            {this.renderContent()}
+        </Container>
+    }
+
+    renderContent() {
         const {step, files} = this.state;
 
         switch (step) {
@@ -128,59 +152,69 @@ export default class Upload extends Component {
                 const errors = [];
                 const canSubmit = this.canSubmit(errors);
 
+                return <div className="upload-container">
+                    <Dropzone
+                        onDrop={this.onDrop}
+                        multiple={maxFileCount !== 1}
+                    >
+                        {({getRootProps, getInputProps, isDragActive}) => {
+                            let classes = ['Upload'];
+                            if (isDragActive) {
+                                classes.push('drag-over');
+                            }
+                            return (
+                                <div {...getRootProps()} className={classes.join(' ')}>
+                                    <input {...getInputProps()} />
+                                    {files.length > 0 ?
+                                        this.renderFiles()
+                                        : <p>Drag 'n' drop some files here, or click to select files</p>
+                                    }
+                                </div>
+                            )
+                        }}
+                    </Dropzone>
 
-                return <Container>
-                    <div className="upload-container">
-                        <Dropzone
-                            onDrop={this.onDrop}
-                            multiple={maxFileCount !== 1}
-                        >
-                            {({getRootProps, getInputProps, isDragActive}) => {
-                                let classes = ['Upload'];
-                                if (isDragActive) {
-                                    classes.push('drag-over');
-                                }
-                                return (
-                                    <div {...getRootProps()} className={classes.join(' ')}>
-                                        <input {...getInputProps()} />
-                                        {files.length > 0 ?
-                                            this.renderFiles()
-                                            : <p>Drag 'n' drop some files here, or click to select files</p>
-                                        }
-                                    </div>
-                                )
-                            }}
-                        </Dropzone>
+                    <ul className="specs">
+                        <li>
+                            {`Files: ${this.state.files.length}`}
+                            {maxFileCount ? ` / ${maxFileCount}` : ''}
+                        </li>
+                        <li>
+                            {`Total size: ${filesize(this.getTotalSize())}`}
+                            {maxCommitSize ? ` / ${filesize(maxCommitSize)}` : ''}
+                        </li>
+                        {maxFileSize ? <li>{`Max file size: ${filesize(maxFileSize)}`}</li> : ''}
+                    </ul>
 
-                        <ul className="specs">
-                            <li>
-                                {`Files: ${this.state.files.length}`}
-                                {maxFileCount ? ` / ${maxFileCount}` : ''}
-                            </li>
-                            <li>
-                                {`Total size: ${filesize(this.getTotalSize())}`}
-                                {maxCommitSize ? ` / ${filesize(maxCommitSize)}` : ''}
-                            </li>
-                            {maxFileSize ? <li>{`Max file size: ${filesize(maxFileSize)}`}</li> : ''}
-                        </ul>
+                    {this.renderErrors(errors)}
+                    <Button
+                        size="lg"
+                        onClick={this.submit}
+                        disabled={!canSubmit}
+                    >
+                        Next
+                    </Button>
 
-                        {this.renderErrors(errors)}
-                        <Button
-                            size="lg"
-                            onClick={this.submit}
-                            disabled={!canSubmit}
-                        >
-                            Next
-                        </Button>
-
-                        <hr/>
-                        <p>
-                            or just{' '}
-                            <Link to="/download">download</Link> URLs.
-                        </p>
-                    </div>
-                </Container>;
+                    <hr/>
+                    <p>
+                        or just{' '}
+                        <Link to="/download">download</Link> URLs.
+                    </p>
+                </div>
         }
+    }
+
+    renderUploadErrors() {
+        const {errors} = this.state;
+        if (errors.length === 0) {
+            return '';
+        }
+
+        return <div className="alert alert-danger">
+            {errors.map((e, i) => <div key={i}>
+                {e}
+            </div>)}
+        </div>
     }
 
     renderErrors(errors) {

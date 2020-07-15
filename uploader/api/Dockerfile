@@ -39,7 +39,8 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \
-    && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+    && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    && printf "\nrequest_terminate_timeout = 600\n" >> /usr/local/etc/php-fpm.d/large-upload.conf
 
 WORKDIR /srv/app
 

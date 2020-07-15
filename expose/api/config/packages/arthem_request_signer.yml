@@ -3,7 +3,7 @@ services:
     class: Aws\S3\S3Client
     arguments:
       -
-        endpoint: '%env(STORAGE_BASE_URL)%'
+        endpoint: '%env(S3_STORAGE_BASE_URL)%'
         region: ''
         version: '2006-03-01'
         bucket_endpoint: true
@@ -16,5 +16,5 @@ arthem_request_signer:
     s3:
       aws_s3:
         ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
-        bucket_name: '%env(STORAGE_BUCKET_NAME)%'
+        bucket_name: '%env(S3_STORAGE_BUCKET_NAME)%'
         service_id: 's3_client'

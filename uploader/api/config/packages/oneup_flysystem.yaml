@@ -2,8 +2,10 @@
 oneup_flysystem:
     adapters:
         upload:
-            local:
-                directory: '%env(UPLOAD_TEMP_DIR)%'
+            awss3v3:
+                client: app.s3_client
+                bucket: '%env(S3_STORAGE_BUCKET_NAME)%'
+                prefix: ~
     filesystems:
         upload:
             adapter: upload

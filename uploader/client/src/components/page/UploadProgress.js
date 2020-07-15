@@ -3,7 +3,6 @@ import '../../scss/Upload.scss';
 import AssetUpload from "../AssetUpload";
 import PropTypes from "prop-types";
 import uploadBatch from "../../upload";
-import Container from "../Container";
 
 export default class UploadProgress extends Component {
     fileRefs = {};
@@ -79,7 +78,7 @@ export default class UploadProgress extends Component {
     render() {
         const {files, onCancel} = this.props;
 
-        return <Container>
+        return <>
             <p>
                 {files.length} selected files.
             </p>
@@ -94,6 +93,6 @@ export default class UploadProgress extends Component {
                     onClick={onCancel}
                 >Cancel</button>
             </div> : ''}
-        </Container>;
+        </>;
     }
 }

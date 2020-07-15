@@ -5,7 +5,8 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    env(UPLOAD_TEMP_DIR): "%kernel.cache_dir%/upload"
+    env(S3_STORAGE_ENDPOINT): ~
+    env(S3_STORAGE_CNAME_IS_BUCKET): false
     env(ASSET_DAYS_RETENTION): 31
     app.liform.default_schema.src: "%kernel.project_dir%/config/liform-schema.json"
 
@@ -64,3 +65,16 @@ services:
         arguments:
             $maxCommitSize: "%app.upload.max_commit_size%"
             $maxFileCount: "%app.upload.max_file_count%"
+
+    app.s3_client:
+        class: Aws\S3\S3Client
+        arguments:
+            -
+                version: 'latest'
+                region: "eu-central-1"
+                use_path_style_endpoint: true
+                cname_is_bucket: '%env(bool:S3_STORAGE_CNAME_IS_BUCKET)%'
+                endpoint: '%env(S3_STORAGE_ENDPOINT)%'
+                credentials:
+                    key: '%env(S3_STORAGE_ACCESS_KEY)%'
+                    secret: '%env(S3_STORAGE_SECRET_KEY)%'
