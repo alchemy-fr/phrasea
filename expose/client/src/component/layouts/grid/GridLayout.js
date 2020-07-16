@@ -6,32 +6,15 @@ import Gallery from 'react-grid-gallery';
 import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import Carousel, {Modal, ModalGateway} from "react-images";
 import moment from "moment";
-import {
-    Magnifier,
-    MOUSE_ACTIVATION,
-    TOUCH_ACTIVATION
-} from "react-image-magnifiers";
 import squareImg from '../../../images/square.svg';
-import VideoPlayer from "../shared-components/VideoPlayer";
 import DownloadButton from "../shared-components/DownloadButton";
 import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../shared-components/DownloadViaEmailProxy";
+import AssetProxy from "../shared-components/AssetProxy";
 
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
-            {0 === data.mimeType.indexOf('video/') ? <VideoPlayer
-                url={data.url}
-                thumbUrl={data.thumbUrl}
-                title={data.title}
-                webVTTLink={data.webVTTLink}
-            /> : <div className="flex-magnifier">
-                <Magnifier
-                    imageSrc={data.url}
-                    imageAlt={data.title}
-                    mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
-                    touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
-                />
-            </div>}
+            <AssetProxy asset={data}/>
         </div>
         <div className="desc">
             <Description

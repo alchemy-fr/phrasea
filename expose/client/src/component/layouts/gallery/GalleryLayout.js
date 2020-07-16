@@ -13,6 +13,7 @@ import {
     renderDownloadTermsModal,
     renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
+import AssetProxy from "../shared-components/AssetProxy";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -234,9 +235,7 @@ class GalleryLayout extends React.Component {
                     onDownload={onDownload.bind(this)}
                 />
             </div> : ''}
-            <img
-                alt={asset.title || 'Image'}
-                src={asset.url}/>
+            <AssetProxy asset={asset}/>
             {asset.description ? <div
                 className="image-gallery-description">
                     <Description descriptionHtml={asset.description}/>
