@@ -8,7 +8,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $appName }}-api-nginx-ingress
+  name: {{ $appName }}-api-ingress
   annotations:
 {{- if .ingress.annotations }}
 {{ toYaml .ingress.annotations | indent 4 }}
@@ -37,7 +37,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{ $appName }}-api-nginx
+          serviceName: {{ $appName }}-api
           servicePort: 80
         path: /
 {{- if .ingress.tls }}
