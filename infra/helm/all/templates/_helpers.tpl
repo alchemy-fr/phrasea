@@ -155,7 +155,7 @@ initContainers:
 {{- $glob := .glob -}}
 S3_STORAGE_ENDPOINT: {{ $ctx.s3Storage.endpoint | default (ternary "http://minio:9000" "" $glob.Values.minio.enabled) | quote }}
 S3_STORAGE_BASE_URL: {{ tpl $ctx.s3Storage.baseUrl $glob | quote }}
-S3_STORAGE_REGION: {{ $ctx.s3Storage.region | default "" | quote }}
+S3_STORAGE_REGION: {{ $ctx.s3Storage.region | default "eu-central-1" | quote }}
 S3_STORAGE_USE_PATH_STYLE_ENDPOINT: {{ ternary "\"true\"" "\"false\"" (or $ctx.s3Storage.usePathSyleEndpoint $glob.Values.minio.enabled) }}
 S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- end }}
