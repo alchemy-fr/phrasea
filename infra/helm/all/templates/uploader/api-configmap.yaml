@@ -1,15 +1,13 @@
 {{- if .Values.uploader.enabled }}
 {{- with .Values.uploader.api.config }}
+{{- $tplArgs := dict "app" "uploader" "ctx" . "glob" $ }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: uploader-api-config
 data:
-  ASSET_CONSUMER_COMMIT_URI: {{ .assetConsumerCommitUri | quote }}
-  ASSET_CONSUMER_ACCESS_TOKEN: {{ .assetConsumerAccessToken | quote }}
-  S3_STORAGE_ENDPOINT: {{ .s3Storage.endpoint | quote }}
-  S3_STORAGE_BASE_URL: {{ tpl .s3Storage.baseUrl $ | quote }}
-  S3_STORAGE_BUCKET_NAME: {{ .s3Storage.bucketName | quote }}
-  S3_STORAGE_CNAME_IS_BUCKET: {{ ternary "\"true\"" "\"false\"" .s3Storage.cnameIsBucket }}
+  ASSET_CONSUMER_COMMIT_URI: {{ .assetConsumerCommitUri | default "" | quote }}
+  ASSET_CONSUMER_ACCESS_TOKEN: {{ .assetConsumerAccessToken | default " | quote }}
+{{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}

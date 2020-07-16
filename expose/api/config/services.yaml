@@ -5,7 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     env(S3_STORAGE_ENDPOINT): ~
-    env(S3_STORAGE_CNAME_IS_BUCKET): false
+    env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
 
 services:
     # default configuration for services in *this* file
@@ -48,10 +48,9 @@ services:
         arguments:
             -
                 version: 'latest'
-                region: "eu-central-1"
-                use_path_style_endpoint: true
-                cname_is_bucket: '%env(bool:S3_STORAGE_CNAME_IS_BUCKET)%'
-                endpoint: '%env(S3_STORAGE_ENDPOINT)%'
+                region: '%env(default::S3_STORAGE_REGION)%'
+                use_path_style_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
+                endpoint: '%env(default::S3_STORAGE_ENDPOINT)%'
                 credentials:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
