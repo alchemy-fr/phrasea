@@ -50,6 +50,9 @@ expose:
         accessKey:
         secretKey:
         externalSecretKey:
+        externalSecretMapping:
+          accessKey: S3_STORAGE_ACCESS_KEY
+          secretKey: S3_STORAGE_SECRET_KEY
   adminOAuthClient:
     externalSecretName:
     id: expose-admin
@@ -125,6 +128,9 @@ uploader:
         accessKey:
         secretKey:
         externalSecretKey:
+        externalSecretMapping:
+          accessKey: S3_STORAGE_ACCESS_KEY
+          secretKey: S3_STORAGE_SECRET_KEY
   adminOAuthClient:
     externalSecretName:
     id: uploader-admin

@@ -44,6 +44,8 @@ spec:
           mountPath: /setup/job.sh
           subPath: job.sh
 {{- include "app.volumesMounts" $tplArgs | indent 8 }}
+        env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
         envFrom:
         - secretRef:
             name: {{ .Values.auth.defaultUser.externalSecretName | default "default-admin-user-secret"  }}

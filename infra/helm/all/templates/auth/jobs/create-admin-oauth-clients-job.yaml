@@ -49,6 +49,8 @@ spec:
         - name: scripts
           mountPath: /setup/job.sh
           subPath: job.sh
+        env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
         envFrom:
 {{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}

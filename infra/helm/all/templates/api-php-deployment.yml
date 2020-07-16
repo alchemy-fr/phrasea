@@ -30,15 +30,16 @@ spec:
         - name: configs
           mountPath: /configs
 {{- include "app.volumesMounts" $tplArgs | indent 8 }}
+        env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
       {{- if .api.ingress }}
       {{- if .api.ingress.maxBodySize }}
-        env:
-          - name: UPLOAD_MAX_FILE_SIZE
-            value: {{ .api.ingress.maxBodySize | quote }}
+        - name: UPLOAD_MAX_FILE_SIZE
+          value: {{ .api.ingress.maxBodySize | quote }}
       {{- end }}
       {{- end }}
         envFrom:
-{{ include "configMapRef.phpApp" $tplArgs | indent 8 }}
+{{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
         - secretRef:

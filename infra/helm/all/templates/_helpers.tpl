@@ -63,20 +63,35 @@ gateway-tls
 {{- end }}
 
 {{- define "configMapRef.phpApp" }}
-{{ $appName := .app -}}
-{{- $ctx := .ctx -}}
-{{- $glob := .glob -}}
+{{- $appName := .app }}
+{{- $ctx := .ctx }}
+{{- $glob := .glob }}
 - configMapRef:
     name: php-config
 - configMapRef:
     name: urls-config
 {{- if or (eq $appName "uploader") (eq $appName "expose") }}
 - secretRef:
-{{- if not $ctx.api.config.s3Storage.externalSecretKey  }}
-    name: {{ $appName }}-s3-secret
-{{- else }}
-    name: {{ $ctx.api.config.s3Storage.externalSecretKey }}
 {{- end }}
+{{- end }}
+
+{{- define "envRef.phpApp" }}
+{{- $appName := .app }}
+{{- $ctx := .ctx }}
+{{- $glob := .glob }}
+{{- if or (eq $appName "uploader") (eq $appName "expose") }}
+{{- $secretName := $ctx.api.config.s3Storage.externalSecretKey | default (printf "%s-s3-secret" $appName) }}
+{{- $mapping := $ctx.api.config.s3Storage.externalSecretMapping }}
+- name: S3_STORAGE_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secretName }}
+      key: {{ $mapping.accessKey }}
+- name: S3_STORAGE_SECRET_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ $secretName }}
+      key: {{ $mapping.secretKey }}
 {{- end }}
 {{- end }}
 

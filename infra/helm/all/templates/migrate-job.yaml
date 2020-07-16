@@ -25,6 +25,8 @@ spec:
         - name: configs
           mountPath: /configs
 {{- include "app.volumesMounts" $tplArgs | indent 8 }}
+        env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
         envFrom:
 {{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
