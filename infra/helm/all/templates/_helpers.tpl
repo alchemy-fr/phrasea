@@ -62,7 +62,7 @@ gateway-tls
     name: {{ .Values.postgresql.externalSecretName | default "api-db-secret" }}
 {{- end }}
 
-{{- define "configMapRef.phpApp" }}
+{{- define "configMapRef.phpApp" -}}
 {{- $appName := .app }}
 {{- $ctx := .ctx }}
 {{- $glob := .glob }}
@@ -70,12 +70,9 @@ gateway-tls
     name: php-config
 - configMapRef:
     name: urls-config
-{{- if or (eq $appName "uploader") (eq $appName "expose") }}
-- secretRef:
-{{- end }}
 {{- end }}
 
-{{- define "envRef.phpApp" }}
+{{- define "envRef.phpApp" -}}
 {{- $appName := .app }}
 {{- $ctx := .ctx }}
 {{- $glob := .glob }}
