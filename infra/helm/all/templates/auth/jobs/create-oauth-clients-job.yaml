@@ -1,9 +1,10 @@
 {{- range .Values._internal.services }}
-{{ $appName := . }}
-{{ $appNode := (index $.Values $appName) }}
+{{- $appName := . }}
+{{- $appNode := (index $.Values $appName) }}
+{{- $tplArgs := dict "app" $appName "ctx" $appNode "glob" $ }}
 {{- if and $appNode.enabled $appNode.client }}
 {{- if $appNode.client.oauthClient }}
-{{ $jobName := printf "%s-create-oauth-client" $appName }}
+{{- $jobName := printf "%s-create-oauth-client" $appName }}
 {{- with $appNode.client.oauthClient }}
 apiVersion: v1
 kind: ConfigMap
@@ -66,7 +67,7 @@ spec:
             name: {{ .externalSecretName | default $jobName }}
         - configMapRef:
             name: auth-api-config
-{{- include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never

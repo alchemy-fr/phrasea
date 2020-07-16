@@ -1,5 +1,5 @@
 {{- range .Values._internal.services }}
-{{ $appName := . }}
+{{- $appName := . }}
 {{- if (index $.Values $appName).enabled }}
 {{- with (index $.Values $appName)  }}
 apiVersion: v1

@@ -1,4 +1,5 @@
-{{ $tplArgs := dict "app" "auth" "ctx" .Values.auth "glob" $ }}
+{{- $appName := "auth" }}
+{{- $tplArgs := dict "app" $appName "ctx" .Values.auth "glob" $ }}
 {{- if .Values.auth.defaultUser }}
 {{ $jobName := "auth-create-default-admin-user" }}
 apiVersion: v1
@@ -48,7 +49,7 @@ spec:
             name: {{ .Values.auth.defaultUser.externalSecretName | default "default-admin-user-secret"  }}
         - configMapRef:
             name: auth-api-config
-{{- include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never

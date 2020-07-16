@@ -1,8 +1,8 @@
 {{- range .Values._internal.services }}
-{{ $appName := . }}
+{{- $appName := . }}
 {{- if (index $.Values $appName).enabled }}
 {{- with (index $.Values $appName).api  }}
-{{- $ingressNode := . }}
+{{- $apiNode := . }}
 {{- if .ingress }}
 {{- if .ingress.enabled }}
 apiVersion: extensions/v1beta1
@@ -16,8 +16,15 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 {{- if .ingress.maxBodySize }}
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .ingress.maxBodySize | quote }}
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+{{- end }}
+{{- with (index $.Values._internal $appName) }}
+{{- if .api }}
+{{- if .api.ingress }}
+{{- if .api.ingress.annotations }}
+{{ toYaml .api.ingress.annotations | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if .ingress.extraLabels }}
@@ -37,7 +44,7 @@ spec:
 {{- $tlsNode := .ingress.tls -}}
 {{- range $value := $tlsNode }}
   {{- if not (hasKey $value "hosts") }}
-    {{- $hosts := list $ingressNode.hostname }}
+    {{- $hosts := list $apiNode.hostname }}
     {{- $_ := set $value "hosts" $hosts }}
   {{- end -}}
 {{- end }}

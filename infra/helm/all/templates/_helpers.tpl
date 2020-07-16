@@ -63,18 +63,30 @@ gateway-tls
 {{- end }}
 
 {{- define "configMapRef.phpApp" }}
+{{ $appName := .app -}}
+{{- $ctx := .ctx -}}
+{{- $glob := .glob -}}
 - configMapRef:
     name: php-config
 - configMapRef:
     name: urls-config
+{{- if or (eq $appName "uploader") (eq $appName "expose") }}
+- secretRef:
+{{- if not $ctx.api.config.s3Storage.externalSecretKey  }}
+    name: {{ $appName }}-s3-secret
+{{- else }}
+    name: {{ $ctx.api.config.s3Storage.externalSecretKey }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- define "app.volumes" }}
 {{- $appName := .app -}}
 {{- $ctx := .ctx -}}
 {{- $glob := .glob -}}
-{{- if hasKey .glob.Values._internal.volumes $appName }}
-{{- with (index .glob.Values._internal.volumes $appName) }}
+{{- if .glob.Values._internal.volumes }}
+{{- if hasKey $glob.Values._internal.volumes $appName }}
+{{- with (index $glob.Values._internal.volumes $appName) }}
 {{- range $key, $value := . }}
 - name: {{ $key }}
 {{- if $ctx.persistence.enabled }}
@@ -87,16 +99,19 @@ gateway-tls
 {{- end }}
 {{- end }}
 {{- end }}
+{{- end }}
 
 {{- define "app.volumesMounts" }}
 {{- $appName := .app -}}
 {{- $ctx := .ctx -}}
 {{- $glob := .glob -}}
+{{- if .glob.Values._internal.volumes }}
 {{- if hasKey .glob.Values._internal.volumes $appName }}
 {{- with (index .glob.Values._internal.volumes $appName) }}
 {{- range $key, $value := . }}
 - name: {{ $key }}
   mountPath: {{ $value.mountPath }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -22,8 +22,16 @@ expose:
     hostname: api-expose.phrasea.io
     baseUrl: https://api-expose.phrasea.io
     config:
-      storageBaseUrl: https://minio.phrasea.io
-      storageBucketName: expose
+      s3Storage:
+        baseUrl: "https://s3.eu-west-1.amazonaws.com/expose"
+        # Leave me empty for AWS S3
+        endpoint: ""
+        bucketName: expose
+        externalSecretKey:
+        # Secret must contain:
+        # - S3_STORAGE_ACCESS_KEY
+        # - S3_STORAGE_SECRET_KEY
+
     ingress:
       annotations: {}
   adminOAuthClient:
@@ -70,6 +78,17 @@ uploader:
     baseUrl: https://api-uploader.phrasea.io
     ingress:
       annotations: {}
+    config:
+      s3Storage:
+        baseUrl: "https://s3.eu-west-1.amazonaws.com/uploader-deposit"
+        # Leave me empty for AWS S3
+        endpoint: ""
+        bucketName: uploader-deposit
+        externalSecretKey:
+        # Secret must contain:
+        # - S3_STORAGE_ACCESS_KEY
+        # - S3_STORAGE_SECRET_KEY
+
   adminOAuthClient:
     externalSecretName:
     # Secret must contain:

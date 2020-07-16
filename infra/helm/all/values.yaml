@@ -48,6 +48,7 @@ expose:
         cnameIsBucket: false
         accessKey:
         secretKey:
+        externalSecretKey:
   adminOAuthClient:
     externalSecretName:
     id: expose-admin
@@ -102,14 +103,6 @@ notify:
 
 uploader:
   enabled: true
-  persistence:
-    enabled: true
-    existingClaim:
-    storageClass:
-    annotations: {}
-    accessMode: ReadWriteOnce
-    size: 30Gi
-    subPath:
   api:
     ingress:
       enabled: true
@@ -129,6 +122,7 @@ uploader:
         cnameIsBucket: false
         accessKey:
         secretKey:
+        externalSecretKey:
   adminOAuthClient:
     externalSecretName:
     id: uploader-admin
@@ -237,11 +231,30 @@ _internal:
   services:
   - auth
   - expose
-  - uploader
   - notify
+  - uploader
   volumes:
-    uploader:
-      data:
-        name: uploader-data
-        mountPath: /var/data/upload
-        uid: 1000
+#    uploader:
+#      data:
+#        name: uploader-data
+#        mountPath: /var/data/upload
+#        uid: 1000
+  auth:
+  expose:
+    api:
+      ingress:
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+          #nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+  notify:
+  uploader:
+    api:
+      ingress:
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+          #nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+  minio:
+    ingress:
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+        #nginx.ingress.kubernetes.io/proxy-request-buffering: "off"

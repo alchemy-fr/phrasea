@@ -1,8 +1,8 @@
 {{- range .Values._internal.services }}
-{{ $appName := . }}
+{{- $appName := . }}
 {{- if (index $.Values $appName).enabled }}
-{{- with (index $.Values $appName)  }}
-{{ $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
+{{- with (index $.Values $appName) }}
+{{- $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,17 +31,13 @@ spec:
           mountPath: /configs
 {{- include "app.volumesMounts" $tplArgs | indent 8 }}
         envFrom:
-{{- include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "configMapRef.phpApp" $tplArgs | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
         - secretRef:
             name: {{ .adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" $appName) }}
         - configMapRef:
             name: {{ $appName }}-api-config
-      {{- if or (eq $appName "uploader") (eq $appName "expose") }}
-        - secretRef:
-            name: {{ $appName }}-s3-secret
-      {{- end }}
 ---
 {{- end }}
 {{- end }}
