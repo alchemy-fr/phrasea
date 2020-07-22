@@ -29,7 +29,7 @@ abstract class AbstractRemoteAuthRepository
 
     protected function getAccessToken(): string
     {
-        return $this->cache->get('remote_auth_access_token2', function (ItemInterface $item) {
+        return $this->cache->get('remote_auth_access_token', function (ItemInterface $item) {
             $response = $this->serviceClient->post('oauth/v2/token', [
                 'json' => [
                     'scope' => 'user:list group:list',

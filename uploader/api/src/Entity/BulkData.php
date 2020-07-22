@@ -40,6 +40,7 @@ class BulkData implements AclObjectInterface
     public function __construct()
     {
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -56,6 +57,16 @@ class BulkData implements AclObjectInterface
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getJsonData(): ?string
+    {
+        return \GuzzleHttp\json_encode($this->data);
+    }
+
+    public function setJsonData(string $jsonData): void
+    {
+        $this->data = \GuzzleHttp\json_decode($jsonData);
     }
 
     public function getCreatedAt(): DateTime
