@@ -238,6 +238,7 @@ services:
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - REPORT_BASE_URL
       - EXPOSE_API_BASE_URL
+      - UPLOAD_MAX_FILE_SIZE
 
   expose-api-nginx:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG

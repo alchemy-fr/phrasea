@@ -43,7 +43,7 @@ export default class AssetUpload extends Component {
     loadIcon() {
         const {file} = this.props;
 
-        if (file.type.indexOf('image/') === 0) {
+        if (file.type.indexOf('image/') === 0 && file.size < 15728640) {
             const reader = new FileReader();
 
             reader.onabort = () => console.log('file reading was aborted');

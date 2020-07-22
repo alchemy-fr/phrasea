@@ -35,7 +35,7 @@ expose:
       enabled: true
       annotations: {}
       extraLabels: {}
-      maxBodySize: 4G
+      maxBodySize: 22G
       tls: []
     hostname:
     baseUrl:
@@ -112,7 +112,7 @@ uploader:
       enabled: true
       annotations: {}
       extraLabels: {}
-      maxBodySize: 4G
+      maxBodySize: 22G
       tls: []
     hostname:
     baseUrl:
@@ -211,7 +211,7 @@ minio:
     enabled: true
     annotations: {}
     extraLabels: {}
-    maxBodySize: 4G
+    maxBodySize: 22G
     tls: []
   persistence:
     enabled: true
