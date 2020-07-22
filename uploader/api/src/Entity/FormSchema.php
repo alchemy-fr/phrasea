@@ -48,6 +48,7 @@ class FormSchema implements AclObjectInterface
     public function __construct(?string $id = null)
     {
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
         $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
 
@@ -69,6 +70,18 @@ class FormSchema implements AclObjectInterface
     public function getData(): array
     {
         return json_decode($this->data, true);
+    }
+
+    public function getJsonData(): ?string
+    {
+        return $this->data;
+    }
+
+    public function setJsonData(?string $jsonData): void
+    {
+        $jsonData ??= '{}';
+
+        $this->data = $jsonData;
     }
 
     public function setData(array $data): void

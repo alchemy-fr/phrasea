@@ -11,6 +11,8 @@ easy_admin:
         - edit
       class: App\Entity\Commit
       list:
+        actions:
+          - triggerAgain
         batch_actions:
           - delete
         sort: [createdAt, DESC]
@@ -43,10 +45,6 @@ easy_admin:
 
     FormSchema:
       class: App\Entity\FormSchema
-      disabled_actions:
-        - new
-        - delete
-        - edit
       list:
         actions:
           - permissions
@@ -55,3 +53,20 @@ easy_admin:
           - id
           - locale
           - createdAt
+      form:
+        fields:
+          - { property: locale }
+          - { property: jsonData }
+
+    BulkData:
+      class: App\Entity\BulkData
+      list:
+        actions:
+          - permissions
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - createdAt
+      form:
+        fields:
+          - { property: jsonData }

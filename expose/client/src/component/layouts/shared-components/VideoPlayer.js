@@ -59,21 +59,6 @@ export default class VideoPlayer extends PureComponent {
                 src: url,
                 type: 'video/mp4'
             }]
-        }, () => {
-            if (webVTTLink) {
-                const trackEl = this.player.addRemoteTextTrack({
-                    src: webVTTLink,
-                    default: true,
-                });
-                //
-                // // Get all text tracks for the current player.
-                // const tracks = this.player.textTracks();
-                //
-                // for (const i = 0; i < tracks.length; i++) {
-                //     const track = tracks[i];
-                //     track.mode = 'showing';
-                // }
-            }
         });
     }
 

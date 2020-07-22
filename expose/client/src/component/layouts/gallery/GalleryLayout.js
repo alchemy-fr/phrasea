@@ -5,7 +5,6 @@ import {PropTypes} from 'prop-types';
 import Description from "../shared-components/Description";
 import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
-import VideoPlayer from "../shared-components/VideoPlayer";
 import DownloadButton from "../shared-components/DownloadButton";
 import DownloadViaEmailModal from "../shared-components/DownloadViaEmailModal";
 import {
@@ -13,6 +12,7 @@ import {
     renderDownloadTermsModal,
     renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
+import AssetProxy from "../shared-components/AssetProxy";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -25,7 +25,6 @@ class GalleryLayout extends React.Component {
     state = {
         showFullscreenButton: true,
         showPlayButton: true,
-        showVideo: {},
         currentIndex: null,
         ...downloadContainerDefaultState,
     };
@@ -94,11 +93,18 @@ class GalleryLayout extends React.Component {
     }
 
     onSlide = (offset) => {
-        this.setState({currentIndex: offset});
-        this.resetVideo();
+        const asset = this.props.data.assets[offset].asset;
+
+        const displayControls = !(asset.mimeType.indexOf('video/') === 0);
+
+        this.setState({
+            currentIndex: offset,
+            showFullscreenButton: displayControls,
+            showPlayButton: displayControls,
+
+        });
 
         if (this.map) {
-            const asset = this.props.data.assets[offset].asset;
             if (asset.lat && asset.lng) {
                 this.map.flyTo({
                     center: [
@@ -110,41 +116,6 @@ class GalleryLayout extends React.Component {
             }
         }
     };
-
-    resetVideo() {
-        this.setState({
-            showVideo: {},
-            showFullscreenButton: true,
-            showPlayButton: true,
-        });
-    }
-
-    toggleShowVideo = (url) => {
-        this.setState(prevState => {
-            const showVideo = {...prevState.showVideo};
-            const wasShown = !!showVideo[url];
-            showVideo[url] = !wasShown;
-
-            return {
-                showVideo,
-                showPlayButton: wasShown,
-                showFullscreenButton: wasShown,
-            }
-        });
-    }
-
-    renderVideo = (item) => {
-        return <div className='image-gallery-image'>
-            <VideoPlayer
-                url={item.url}
-                thumbUrl={item.thumbUrl}
-                title={item.title}
-                description={item.description}
-                webVTTLink={item.webVTTLink}
-                onPlay={() => this.toggleShowVideo(item.url)}
-            />
-        </div>
-    }
 
     render() {
         const {assetId, data, options} = this.props;
@@ -222,10 +193,6 @@ class GalleryLayout extends React.Component {
     }
 
     renderItem = ({asset}) => {
-        if (0 === asset.mimeType.indexOf('video/')) {
-            return this.renderVideo(asset);
-        }
-
         return <div className="image-gallery-image layout-asset-container">
             {asset.downloadUrl ? <div
                 className="download-btn">
@@ -234,13 +201,11 @@ class GalleryLayout extends React.Component {
                     onDownload={onDownload.bind(this)}
                 />
             </div> : ''}
-            <img
-                alt={asset.title || 'Image'}
-                src={asset.url}/>
+            <AssetProxy asset={asset}/>
             {asset.description ? <div
                 className="image-gallery-description">
-                    <Description descriptionHtml={asset.description}/>
-                </div> : ''}
+                <Description descriptionHtml={asset.description}/>
+            </div> : ''}
         </div>;
     }
 }
