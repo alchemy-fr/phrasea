@@ -14,7 +14,10 @@ import AssetProxy from "../shared-components/AssetProxy";
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
-            <AssetProxy asset={data}/>
+            <AssetProxy
+                magnifier={true}
+                asset={data}
+            />
         </div>
         <div className="desc">
             <Description

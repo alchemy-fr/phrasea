@@ -1,24 +1,28 @@
 import React, {PureComponent} from 'react';
 import {Magnifier, MOUSE_ACTIVATION, TOUCH_ACTIVATION} from "react-image-magnifiers";
 import VideoPlayer from "./VideoPlayer";
-import {Document, Page} from 'react-pdf'
 import {PropTypes} from 'prop-types';
+import PDFViewer from "./PDFViewer";
 
 export default class AssetProxy extends PureComponent {
     static propTypes = {
         asset: PropTypes.object.isRequired,
+        magnifier: PropTypes.bool,
     }
 
     render() {
+        return <div className="asset-px">
+            {this.renderContent()}
+        </div>
+    }
+
+    renderContent() {
         const {asset} = this.props;
-        console.log('asset', asset);
         const type = asset.mimeType;
 
         switch (true) {
             case 'application/pdf' === type:
-                return <Document file={asset.url}>
-                    <Page />
-                </Document>
+                return <PDFViewer file={asset.url}/>
             case type.startsWith('video/'):
                 return <VideoPlayer
                     url={asset.url}
@@ -27,11 +31,18 @@ export default class AssetProxy extends PureComponent {
                     webVTTLink={asset.webVTTLink}
                 />
             case type.startsWith('image/'):
-                return <Magnifier
-                    imageSrc={asset.url}
-                    imageAlt={asset.title}
-                    mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
-                    touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
+                if (this.props.magnifier) {
+                    return <Magnifier
+                        imageSrc={asset.url}
+                        imageAlt={asset.title}
+                        mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
+                        touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
+                    />
+                }
+
+                return <img
+                    src={asset.url}
+                    alt={asset.title}
                 />
             default:
                 return <div>Unsupported media type</div>
