@@ -4,6 +4,22 @@ Form are based on LiForm format.
 
 See [LiForm documentation](https://limenius.github.io/liform-react/#/)
 
+## Reserved keyword
+
+- `__notify_email`
+Name your field with this keyword in order to send email to user when upload has been processed.
+
+```json
+{
+    "properties": {
+        "__notify_email": {
+            "title": "Notify me when done!",
+            "type": "boolean"
+        }
+    }
+}
+```
+
 ## Hard coded form data (Bulk data)
 
 Uploader can define custom form data for a specific client.
