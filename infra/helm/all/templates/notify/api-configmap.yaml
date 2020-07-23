@@ -3,4 +3,7 @@ kind: ConfigMap
 metadata:
   name: notify-api-config
 data:
-  MAILER_DSN: {{ required "Missing .mailerDsn value" .Values.mailerDsn }}
+  MAILER_DSN: {{ required "Missing .mailer.dsn value" .Values.mailer.dsn | quote }}
+{{- if .Values.mailer.from }}
+  MAIL_FROM: {{ .Values.mailer.from | quote }}
+{{- end }}

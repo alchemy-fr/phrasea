@@ -112,7 +112,8 @@ report:
     hostname: report.phrasea.io
     baseUrl: https://report.phrasea.io
 
-mailerDsn: ""
+mailer:
+  dsn: ""
 
 postgresql:
   externalSecretName:

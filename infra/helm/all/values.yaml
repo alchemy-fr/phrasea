@@ -167,7 +167,9 @@ report:
     baseUrl:
   databaseName: report
 
-mailerDsn: 'null://null'
+mailer:
+  dns: 'null://null'
+  from: 'no-reply@acme.com'
 
 postgresql:
   enabled: true

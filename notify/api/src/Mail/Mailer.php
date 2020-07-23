@@ -17,24 +17,10 @@ class Mailer implements LoggerAwareInterface
 {
     use LoggableTrait;
 
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
-
-    /**
-     * @var string
-     */
-    private $from;
-
-    /**
-     * @var Environment
-     */
-    private $templating;
-    /**
-     * @var RenderingContext
-     */
-    private $renderingContext;
+    private MailerInterface $mailer;
+    private string $from;
+    private Environment $templating;
+    private RenderingContext $renderingContext;
 
     public function __construct(
         Environment $templating,

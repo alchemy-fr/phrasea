@@ -32,7 +32,8 @@ report:
     hostname: "report.alchemy.kube"
     baseUrl: "https://report.alchemy.kube"
 
-mailerDsn: "smtp://localhost"
+mailer:
+  dsn: "smtp://localhost"
 
 minio:
   enabled: true
