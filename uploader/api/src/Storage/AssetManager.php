@@ -10,14 +10,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var int
-     */
-    private $assetDaysRetention;
+    private EntityManagerInterface $em;
+    private int $assetDaysRetention;
 
     public function __construct(
         EntityManagerInterface $em,

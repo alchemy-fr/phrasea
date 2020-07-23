@@ -14,6 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use App\Controller\DeleteAssetsAction;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -21,8 +22,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
- *         "get"={
- *         },
+ *         "get"={},
+ *         "delete"={},
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
@@ -34,6 +35,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "put"={
  *              "security"="is_granted('EDIT', object)"
  *         },
+ *         "delete_by_asset_id"={
+ *             "controller"=DeleteAssetsAction::class,
+ *             "method"="DELETE",
+ *             "path"="/assets/delete-by-asset-id/{assetId}",
+ *             "swagger_context"={
+ *                  "summary"="Delete all asset by the given assetId",
+ *             },
+ *             "read"=false,
+ *         }
  *     },
  *     collectionOperations={
  *         "post"={
@@ -125,7 +135,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                     },
  *                 }
  *             },
- *         }
+ *         },
  *     }
  * )
  */

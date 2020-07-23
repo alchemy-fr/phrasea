@@ -88,6 +88,20 @@ class AssetManager
         return $asset;
     }
 
+    public function deleteByAssetId(string $assetId): void
+    {
+        $assets = $this->em->getRepository(Asset::class)
+            ->findBy([
+                'assetId' => $assetId,
+            ]);
+
+        foreach ($assets as $asset) {
+            $this->em->remove($asset);
+        }
+
+        $this->em->flush();
+    }
+
     public function createSubDefinition(
         string $name,
         string $path,

@@ -170,6 +170,10 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         $asset->setPath('non-existing-file.jpeg');
         $asset->setMimeType('image/jpeg');
 
+        if (isset($options['asset_id'])) {
+            $asset->setAssetId($options['asset_id']);
+        }
+
         if (isset($options['publication_id'])) {
             $pubAsset = new PublicationAsset();
             $pubAsset->setAsset($asset);
