@@ -12,18 +12,18 @@
                 "3"
             ],
             "enum_titles": [
-                "Collection #1",
-                "Collection #2",
-                "Collection #3"
+                "Test Collection",
+                "Public Collection",
+                "Private Collection"
             ],
             "type": "string",
             "title": "Collection"
         },
-        "metadata-25": {
+        "metadata-1": {
             "type": "string",
             "title": "Title"
         },
-        "metadata-42": {
+        "metadata-4": {
             "type": "string",
             "title": "Description"
         },
