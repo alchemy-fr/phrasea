@@ -8,7 +8,6 @@ easy_admin:
     Commit:
       disabled_actions:
         - new
-        - edit
       class: App\Entity\Commit
       list:
         actions:
@@ -21,10 +20,17 @@ easy_admin:
           - userId
           - assetCount
           - token
-          - acknowledged
+          - { property: acknowledged, type: boolean }
           - { property: totalSize, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - notifyEmail
           - createdAt
+      form:
+        fields:
+          - userId
+          - token
+          - acknowledged
+          - { property: formDataJson, label: Form data, type: textarea }
+          - notifyEmail
 
     Asset:
       class: App\Entity\Asset
