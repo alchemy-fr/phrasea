@@ -177,7 +177,6 @@ dashboard:
     extraLabels: {}
     tls: []
 
-
 mailer:
   dns: 'null://null'
   from: 'no-reply@acme.com'
