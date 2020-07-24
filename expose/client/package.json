@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@alchemy-fr/phraseanet-react-components": "^1.0.1-alpha6",
+    "@alchemy-fr/phraseanet-react-components": "1.0.2-alpha4",
     "@mikecousins/react-pdf": "^5.5.1",
     "@types/jest": "^26.0.0",
     "@types/node": "^14.0.13",

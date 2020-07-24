@@ -17,5 +17,7 @@
         clientId: env.CLIENT_ID+'_'+env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,
         devMode: env.DEV_MODE === 'true',
+        displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
+        dashboardBaseUrl: env.DASHBOARD_BASE_URL
     };
 });

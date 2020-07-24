@@ -2,65 +2,29 @@
 
 namespace App\Admin;
 
-use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
+use Alchemy\AdminBundle\Controller\AbstractAdminController;
 use Alchemy\OAuthServerBundle\Entity\AuthCode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route("/admin")
  */
-class LoginController extends AbstractController
+class AuthCheckController extends AbstractController
 {
-    /**
-     * @var string
-     */
-    private $authClientId;
+    private string $authClientId;
 
     public function __construct(string $authClientId)
     {
         $this->authClientId = $authClientId;
-    }
-
-    /**
-     * @Route("/login", name="login")
-     */
-    public function login(
-        AuthenticationUtils $authenticationUtils,
-        IdentityProvidersRegistry $authRegistry
-    ): Response {
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('@AlchemyAdmin/login.html.twig', [
-            'site_title' => 'Auth',
-            'site_logo' => null,
-            'last_username' => $lastUsername,
-            'error' => $error,
-            'providers' => $authRegistry->getViewProviders($this->getRedirectUrl()),
-        ]);
-    }
-
-    private function getRedirectUrl(): string
-    {
-        return $this->generateUrl(
-            'alchemy_admin_auth_check',
-            [],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
     }
 
     /**

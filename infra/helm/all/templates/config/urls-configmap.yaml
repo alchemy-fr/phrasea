@@ -18,3 +18,7 @@ data:
 {{- if .Values.uploader.enabled }}
   UPLOADER_API_BASE_URL: {{ quote .Values.uploader.api.baseUrl }}
 {{- end }}
+{{- if .Values.dashboard.enabled }}
+  DASHBOARD_BASE_URL: {{ quote .Values.dashboard.baseUrl }}
+  DISPLAY_SERVICES_MENU: "true"
+{{- end }}
