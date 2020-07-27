@@ -10,6 +10,9 @@
 </head>
 <body>
 <div class="container">
+    {% if dashboard_menu_url %}
+        {% include '@AlchemyAdmin/services_menu.html.twig' %}
+    {% endif %}
     {% block body %}{% endblock %}
 </div>
 {% block javascripts %}

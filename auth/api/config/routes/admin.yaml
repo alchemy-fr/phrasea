@@ -10,4 +10,4 @@ easy_admin_bundle:
 
 alchemy_admin_login:
     name_prefix: alchemy_admin_
-    resource: 'App\Admin\LoginController'
+    resource: 'App\Admin\AuthCheckController'

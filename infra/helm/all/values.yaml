@@ -167,6 +167,16 @@ report:
     baseUrl:
   databaseName: report
 
+dashboard:
+  enabled: true
+  hostname:
+  baseUrl:
+  ingress:
+    enabled: true
+    annotations: {}
+    extraLabels: {}
+    tls: []
+
 mailer:
   dns: 'null://null'
   from: 'no-reply@acme.com'

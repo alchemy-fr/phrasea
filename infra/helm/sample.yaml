@@ -32,6 +32,10 @@ report:
     hostname: "report.alchemy.kube"
     baseUrl: "https://report.alchemy.kube"
 
+dashboard:
+  hostname: "dashboard.alchemy.kube"
+  baseUrl: "https://dashboard.alchemy.kube"
+
 mailer:
   dsn: "smtp://localhost"
 

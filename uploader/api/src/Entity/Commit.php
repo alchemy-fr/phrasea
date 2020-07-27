@@ -150,6 +150,16 @@ class Commit
         return $this->formData;
     }
 
+    public function getFormDataJson(): string
+    {
+        return \GuzzleHttp\json_encode($this->formData);
+    }
+
+    public function setFormDataJson(string $data): void
+    {
+        $this->formData = \GuzzleHttp\json_decode($data);
+    }
+
     public function setFormData(array $formData): void
     {
         $this->formData = $formData;

@@ -18,7 +18,7 @@ import BulkDataEditor from "./components/page/BulkDataEditor";
 import Languages from "./components/Languages";
 import {withTranslation} from 'react-i18next';
 import {oauthClient, OAuthRedirect} from "./oauth";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
+import {FullPageLoader, ServicesMenu} from "@alchemy-fr/phraseanet-react-components";
 
 class App extends Component {
     state = {
@@ -74,6 +74,9 @@ class App extends Component {
         const perms = user && user.permissions;
 
         return <Router>
+            {config.get('displayServicesMenu') ? <ServicesMenu
+                dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
+            /> : ''}
             {this.state.authenticating ? <FullPageLoader/> : ''}
             <Route path="/auth/:provider" component={OAuthRedirect}/>
             <Menu

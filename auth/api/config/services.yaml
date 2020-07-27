@@ -69,7 +69,7 @@ services:
     saml_user_factory:
         class: App\Saml\SamlUserFactory
 
-    App\Admin\LoginController:
+    App\Admin\AuthCheckController:
         arguments:
             $authClientId: '%env(ADMIN_CLIENT_ID)%'
 
