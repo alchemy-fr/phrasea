@@ -13,16 +13,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CreateClientCommand extends Command
 {
     private ClientManagerInterface $clientManager;
+    private ValidatorInterface $validator;
 
-    public function __construct(ClientManagerInterface $clientManager)
+    public function __construct(ClientManagerInterface $clientManager, ValidatorInterface $validator)
     {
         parent::__construct();
 
         $this->clientManager = $clientManager;
+        $this->validator = $validator;
     }
 
     /**
@@ -162,6 +165,11 @@ EOT
             )));
         } else {
             $client->setAllowedScopes($input->getOption('scope'));
+        }
+
+        $violations = $this->validator->validate($client);
+        if ($violations->count() > 0) {
+            throw new InvalidArgumentException(sprintf('Client validation failed: %s', $violations[0]->getMessage()));
         }
 
         $this->clientManager->updateClient($client);
