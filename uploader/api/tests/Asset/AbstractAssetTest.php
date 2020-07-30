@@ -41,21 +41,9 @@ abstract class AbstractAssetTest extends ApiTestCase
     {
         /** @var AssetManager $assetManager */
         $assetManager = self::$container->get(AssetManager::class);
-        $storageManager = self::$container->get(FileStorageManager::class);
-        $realPath = self::SAMPLE_FILE;
         $path = 'test/foo.jpg';
-        $asset = $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');
 
-        $stream = fopen($realPath, 'r+');
-        try {
-            $storageManager->storeStream($path, $stream);
-        } catch (FileExistsException $e) {
-            $storageManager->delete($path);
-            $storageManager->storeStream($path, $stream);
-        }
-        fclose($stream);
-
-        return $asset;
+        return $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');
     }
 
     protected function setUp()

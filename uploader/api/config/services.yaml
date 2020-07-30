@@ -42,6 +42,10 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    App\Storage\FileStorageManager:
+        arguments:
+            $filesystem: "@oneup_flysystem.upload_filesystem"
+
     App\Consumer\Handler\DownloadHandler:
         arguments:
             $client: "@eight_points_guzzle.client.download"
