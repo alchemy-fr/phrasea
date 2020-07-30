@@ -40,7 +40,7 @@ expose:
     hostname:
     baseUrl:
     config:
-      exposeRequestSignatureTtl: 3600
+      requestSignatureTtl: 3600
       s3Storage:
         baseUrl: "{{ .Values.minio.baseUrl }}"
         endpoint:
@@ -119,6 +119,7 @@ uploader:
     config:
       assetConsumerCommitUri:
       assetConsumerAccessToken:
+      requestSignatureTtl: 3600
       s3Storage:
         baseUrl: "{{ .Values.minio.baseUrl }}"
         endpoint:

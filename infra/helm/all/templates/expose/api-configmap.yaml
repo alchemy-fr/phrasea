@@ -6,7 +6,7 @@ kind: ConfigMap
 metadata:
   name: expose-api-config
 data:
-  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .exposeRequestSignatureTtl | quote }}
+  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
 {{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}

@@ -6,6 +6,7 @@ kind: ConfigMap
 metadata:
   name: uploader-api-config
 data:
+  UPLOADER_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
   ASSET_CONSUMER_COMMIT_URI: {{ .assetConsumerCommitUri | default "" | quote }}
   ASSET_CONSUMER_ACCESS_TOKEN: {{ .assetConsumerAccessToken | default "" | quote }}
 {{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
