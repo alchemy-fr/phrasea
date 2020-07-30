@@ -37,7 +37,7 @@ class DownloadHandlerTest extends TestCase
             ->with(
                 $this->callback(function ($subject) {
                     return $subject instanceof EventMessage
-                        && is_string($subject->getPayload()['id']);
+                        && is_string($subject->getPayload()['user_id']);
                 })
             );
 

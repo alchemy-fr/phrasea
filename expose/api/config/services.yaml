@@ -43,14 +43,27 @@ services:
 
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
 
-    app.s3_client:
+    app.s3_client.internal:
+        class: Aws\S3\S3Client
+        arguments:
+        -
+            version: 'latest'
+            region: '%env(default::S3_STORAGE_REGION)%'
+            use_path_style_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
+            endpoint: '%env(default::S3_STORAGE_ENDPOINT)%'
+            credentials:
+                key: '%env(S3_STORAGE_ACCESS_KEY)%'
+                secret: '%env(S3_STORAGE_SECRET_KEY)%'
+
+    app.s3_client.external:
         class: Aws\S3\S3Client
         arguments:
             -
                 version: 'latest'
                 region: '%env(default::S3_STORAGE_REGION)%'
                 use_path_style_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
-                endpoint: '%env(default::S3_STORAGE_ENDPOINT)%'
+                bucket: '%env(default::S3_STORAGE_BUCKET_NAME)%'
+                endpoint: '%env(default::S3_STORAGE_BASE_URL)%'
                 credentials:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'

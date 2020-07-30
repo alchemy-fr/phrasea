@@ -2,7 +2,7 @@
     "type": "object",
     "required": [
         "collection_destination",
-        "metadata-25"
+        "metadata-4"
     ],
     "properties": {
         "collection_destination": {

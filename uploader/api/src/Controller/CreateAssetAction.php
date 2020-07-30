@@ -10,6 +10,7 @@ use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
+use App\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,21 +22,28 @@ final class CreateAssetAction extends AbstractController
     private ResourceMetadataFactoryInterface $resourceMetadataFactory;
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
+    private UploadManager $uploadManager;
 
     public function __construct(
         ValidatorInterface $validator,
         ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FileStorageManager $storageManager,
-        AssetManager $assetManager
+        AssetManager $assetManager,
+        UploadManager $uploadManager
     ) {
         $this->validator = $validator;
         $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
+        $this->uploadManager = $uploadManager;
     }
 
     public function __invoke(Request $request): Asset
     {
+        if ($request->request->get('multipart')) {
+            return $this->handleMultipartUpload($request);
+        }
+
         ini_set('max_execution_time', '600');
 
         /** @var UploadedFile $uploadedFile */
@@ -66,6 +74,41 @@ final class CreateAssetAction extends AbstractController
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getSize(),
+            $user->getId()
+        );
+    }
+
+    private function handleMultipartUpload(Request $request): Asset
+    {
+        $multipart = $request->request->get('multipart');
+
+        foreach ([
+            'parts',
+            'filename',
+            'path',
+            'size',
+            'type',
+            'uploadId',
+                 ] as $key) {
+            if (empty($multipart[$key])) {
+                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
+            }
+        }
+
+        $this->uploadManager->markComplete(
+            $multipart['uploadId'],
+            $multipart['path'],
+            $multipart['parts']
+        );
+
+        /** @var RemoteUser $user */
+        $user = $this->getUser();
+
+        return $this->assetManager->createAsset(
+            $multipart['path'],
+            $multipart['type'],
+            $multipart['filename'],
+            $multipart['size'],
             $user->getId()
         );
     }

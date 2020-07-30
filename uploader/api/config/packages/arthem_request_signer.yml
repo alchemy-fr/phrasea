@@ -2,6 +2,6 @@ arthem_request_signer:
   signers:
     s3:
       aws_s3:
-        ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
+        ttl: '%env(UPLOADER_REQUEST_SIGNATURE_TTL)%'
         bucket_name: '%env(S3_STORAGE_BUCKET_NAME)%'
         service_id: 'app.s3_client.external'

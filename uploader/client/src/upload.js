@@ -1,6 +1,7 @@
 import request from "superagent";
 import config from "./config";
 import {oauthClient} from "./oauth";
+import {uploadMultipartFile} from "./multiPartUpload";
 
 class UploadBatch
 {
@@ -120,12 +121,23 @@ class UploadBatch
             });
     }
 
-    uploadFile(index) {
+    async uploadFile(index) {
         const file = this.files[index];
         const formData = new FormData();
         formData.append('file', file.file);
 
         const accessToken = oauthClient.getAccessToken();
+
+        try {
+            const res = await uploadMultipartFile(accessToken, file, (e) => {
+                this.onUploadProgress(e, index);
+            });
+            this.onFileComplete(undefined, res, index);
+        } catch (err) {
+            this.onFileComplete(err, undefined, index);
+        }
+
+        return;
 
         const req = request
             .post(config.getUploadBaseURL() + '/assets')

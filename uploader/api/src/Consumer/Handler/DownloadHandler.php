@@ -80,15 +80,17 @@ class DownloadHandler extends AbstractEntityManagerHandler
 
         $this->storageManager->store($path, $response->getBody()->getContents());
 
+        $size = $response->getBody()->getSize();
         $asset = $this->assetManager->createAsset(
             $path,
             $contentType,
             $originalName,
-            $response->getBody()->getSize(),
+            $size,
             $userId
         );
 
         $commit = new Commit();
+        $commit->setTotalSize($size);
         $commit->setLocale($locale);
         $commit->setFormData($formData);
         $commit->setUserId($userId);
@@ -99,7 +101,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $em->persist($commit);
         $em->flush();
 
-        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, ['id' => $commit->getId()]));
+        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $commit->toArray()));
     }
 
     public static function getHandledEvents(): array
