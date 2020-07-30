@@ -15,7 +15,8 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
+        bind:
+            $storageBaseUrl: '%env(S3_STORAGE_BASE_URL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -29,6 +30,8 @@ services:
         tags: ['controller.service_arguments']
 
     _instanceof:
+        App\Serializer\Normalizer\EntityNormalizerInterface:
+            tags: ['app.entity_normalizer']
         Doctrine\Common\EventSubscriber:
             tags: ['doctrine.event_subscriber']
         App\Form\Resolver\WidgetResolverInterface:
@@ -66,6 +69,8 @@ services:
             $maxCommitSize: "%app.upload.max_commit_size%"
             $maxFileCount: "%app.upload.max_file_count%"
 
+    Aws\S3\S3Client: '@app.s3_client'
+
     app.s3_client:
         class: Aws\S3\S3Client
         arguments:
@@ -77,3 +82,27 @@ services:
                 credentials:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
+
+    App\Upload\UploadManager:
+        arguments:
+            $uploadBucket: '%env(S3_STORAGE_BUCKET_NAME)%'
+
+    App\Serializer\NormalizerDecorator:
+        abstract: true
+        autoconfigure: false
+
+    app.serializer.decorated_item:
+        class: App\Serializer\NormalizerDecorator
+        decorates: 'api_platform.serializer.normalizer.item'
+        arguments: [ '@app.serializer.decorated_item.inner' ]
+        tags:
+            - { name: serializer.normalizer, priority: 255 }
+
+    app.serializer.decorated_object:
+        class: App\Serializer\NormalizerDecorator
+        decorates: 'serializer.normalizer.object'
+        arguments: [ '@app.serializer.decorated_object.inner' ]
+        tags:
+            - { name: serializer.normalizer, priority: -989 }
+
+    Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"

@@ -47,6 +47,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "type"="file",
  *                         "description"="The file to upload",
  *                     },
+ *                     {
+ *                         "in"="json",
+ *                         "name"="multipart",
+ *                         "type"="object",
+ *                         "description"="The multipart payload to complete upload to S3",
+ *                     },
  *                 },
  *             },
  *         }
@@ -71,6 +77,14 @@ class Asset
      * @ORM\Column(type="string", length=255)
      */
     private $path;
+
+    /**
+     * Dynamic signed URL.
+     *
+     * @ApiProperty()
+     * @Groups({"asset_read"})
+     */
+    private ?string $url = null;
 
     /**
      * @var string
@@ -214,5 +228,15 @@ class Asset
     public function setUserId(string $userId): void
     {
         $this->userId = $userId;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): void
+    {
+        $this->url = $url;
     }
 }
