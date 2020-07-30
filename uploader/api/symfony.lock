@@ -255,18 +255,6 @@
     "ocramius/proxy-manager": {
         "version": "2.1.1"
     },
-    "oneup/flysystem-bundle": {
-        "version": "3.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "0eb87bba411c227da027fe5f7c1dc7954b02f242"
-        },
-        "files": [
-            "config/packages/oneup_flysystem.yaml"
-        ]
-    },
     "pagerfanta/pagerfanta": {
         "version": "v2.1.3"
     },

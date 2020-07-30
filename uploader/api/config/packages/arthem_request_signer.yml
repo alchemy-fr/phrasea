@@ -1,21 +1,7 @@
-services:
-  s3_client:
-    class: Aws\S3\S3Client
-    arguments:
-      -
-        endpoint: '%env(default::S3_STORAGE_ENDPOINT)%'
-        region: '%env(default::S3_STORAGE_REGION)%'
-        bucket: '%env(default::S3_STORAGE_BUCKET_NAME)%'
-        version: '2006-03-01'
-        bucket_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
-        credentials:
-          key: '%env(S3_STORAGE_ACCESS_KEY)%'
-          secret: '%env(S3_STORAGE_SECRET_KEY)%'
-
 arthem_request_signer:
   signers:
     s3:
       aws_s3:
         ttl: '%env(UPLOADER_REQUEST_SIGNATURE_TTL)%'
         bucket_name: '%env(S3_STORAGE_BUCKET_NAME)%'
-        service_id: 's3_client'
+        service_id: 'app.s3_client.external'

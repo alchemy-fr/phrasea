@@ -8,18 +8,20 @@ use Aws\S3\S3Client;
 
 class UploadManager
 {
-    private S3Client $client;
+    private S3Client $internalClient;
+    private S3Client $externalClient;
     private string $uploadBucket;
 
-    public function __construct(S3Client $client, string $uploadBucket)
+    public function __construct(S3Client $internalClient, S3Client $externalClient, string $uploadBucket)
     {
-        $this->client = $client;
+        $this->internalClient = $internalClient;
         $this->uploadBucket = $uploadBucket;
+        $this->externalClient = $externalClient;
     }
 
     public function prepareMultipartUpload(string $path, string $contentType)
     {
-        return $this->client->createMultipartUpload([
+        return $this->internalClient->createMultipartUpload([
             'Bucket' => $this->uploadBucket,
             'Key' => $path,
             'ContentType' => $contentType,
@@ -35,9 +37,9 @@ class UploadManager
 			'UploadId' => $uploadId,
         ];
 
-        $cmd = $this->client->getCommand('UploadPart', $params);
+        $cmd = $this->externalClient->getCommand('UploadPart', $params);
 
-        $request = $this->client->createPresignedRequest($cmd, '+30 minutes');
+        $request = $this->externalClient->createPresignedRequest($cmd, '+30 minutes');
 
         return (string) $request->getUri();
     }
@@ -53,6 +55,6 @@ class UploadManager
 			'UploadId' => $uploadId,
         ];
 
-        $this->client->completeMultipartUpload($params);
+        $this->internalClient->completeMultipartUpload($params);
     }
 }

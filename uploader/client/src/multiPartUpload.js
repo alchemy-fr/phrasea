@@ -50,13 +50,12 @@ export async function uploadMultipartFile(accessToken, file, onProgress) {
     const fileChunkSize = 5242880 // Minimum allowed by AWS S3;
     const fileSize = file.file.size;
     const numChunks = Math.floor(fileSize / fileChunkSize) + 1;
-    const promisesArray = [];
-    let start, end, blob;
+    const uploadParts = [];
 
     for (let index = 1; index < numChunks + 1; index++) {
-        start = (index - 1) * fileChunkSize;
-        end = (index) * fileChunkSize;
-        blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
+        const start = (index - 1) * fileChunkSize;
+        const end = (index) * fileChunkSize;
+        const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
 
         const getUploadUrlResp = await asyncRequest('post', `${config.getUploadBaseURL()}/upload/url`, accessToken, {
             filename: path,
@@ -66,39 +65,35 @@ export async function uploadMultipartFile(accessToken, file, onProgress) {
 
         const {url} = getUploadUrlResp.json;
 
-        const uploadResp = asyncRequest('put', url, null, blob, (e) => {
+        const uploadResp = await asyncRequest('put', url, null, blob, (e) => {
             if (e.direction !== 'upload') {
                 return;
             }
 
             const multiPartEvent = {
                 ...e,
-                loaded: e.loaded + (index - 1) * fileChunkSize,
+                loaded: e.loaded + start,
             };
 
             onProgress(multiPartEvent);
         });
 
-        promisesArray.push(uploadResp)
+        uploadParts.push({
+            ETag: uploadResp.res.headers.etag,
+            PartNumber: index,
+        })
     }
 
-    const resolvedArray = await Promise.all(promisesArray)
-    const uploadPartsArray = []
-    resolvedArray.forEach((resolvedPromise, index) => {
-        uploadPartsArray.push({
-            ETag: resolvedPromise.res.headers.etag,
-            PartNumber: index + 1,
-        });
-    })
-
-    return await asyncRequest('post', `${config.getUploadBaseURL()}/assets`, accessToken, {
+    const {res: finalRes} = await asyncRequest('post', `${config.getUploadBaseURL()}/assets`, accessToken, {
         multipart: {
             path,
             uploadId,
-            parts: uploadPartsArray,
+            parts: uploadParts,
             size: file.file.size,
             filename: file.file.name,
             type: file.file.type,
         }
     });
+
+    return finalRes;
 }

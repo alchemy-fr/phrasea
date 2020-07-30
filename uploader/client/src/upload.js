@@ -128,10 +128,14 @@ class UploadBatch
 
         const accessToken = oauthClient.getAccessToken();
 
-        const res = await uploadMultipartFile(accessToken, file, (e) => {
-            this.onUploadProgress(e, index);
-        });
-        console.log('res', res);
+        try {
+            const res = await uploadMultipartFile(accessToken, file, (e) => {
+                this.onUploadProgress(e, index);
+            });
+            this.onFileComplete(undefined, res, index);
+        } catch (err) {
+            this.onFileComplete(err, undefined, index);
+        }
 
         return;
 
