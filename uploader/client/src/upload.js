@@ -3,8 +3,7 @@ import config from "./config";
 import {oauthClient} from "./oauth";
 import {uploadMultipartFile} from "./multiPartUpload";
 
-class UploadBatch
-{
+class UploadBatch {
     files = [];
     uploading;
     batchSize = 2;
@@ -14,9 +13,11 @@ class UploadBatch
     formData;
     progressListeners;
     errorListeners;
+    resumeListeners;
     fileCompleteListeners;
     completeListeners;
     completeEvent;
+    failedUploads;
 
     constructor() {
         this.reset();
@@ -31,7 +32,10 @@ class UploadBatch
         this.totalSize = 0;
         this.progresses = {};
         this.completeEvent = null;
+        this.failedUploads = [];
         this.resetListeners();
+
+        window.addEventListener('online', this.retryUploads);
     }
 
     abort() {
@@ -47,6 +51,21 @@ class UploadBatch
         this.fileCompleteListeners = [];
         this.completeListeners = [];
         this.errorListeners = [];
+        this.resumeListeners = [];
+
+        window.removeEventListener('online', this.retryUploads);
+    }
+
+    retryUploads = () => {
+        this.resumeListeners.forEach((func) => {
+            func();
+        });
+
+        const uploads = [...this.failedUploads];
+        this.failedUploads = [];
+        for (let i = 0; i < uploads.length; i++) {
+            uploads[i]();
+        }
     }
 
     addFiles(files) {
@@ -121,10 +140,8 @@ class UploadBatch
             });
     }
 
-    async uploadFile(index) {
+    async uploadFile(index, retry = 0) {
         const file = this.files[index];
-        const formData = new FormData();
-        formData.append('file', file.file);
 
         const accessToken = oauthClient.getAccessToken();
         const username = oauthClient.getUsername();
@@ -133,13 +150,38 @@ class UploadBatch
             const res = await uploadMultipartFile(username, accessToken, file, (e) => {
                 this.onUploadProgress(e, index);
             });
-            this.onFileComplete(undefined, res, index);
+            this.onFileComplete(res, index);
         } catch (err) {
-            this.onFileComplete(err, undefined, index);
+            if (navigator && !navigator.onLine) {
+                return new Promise((resolve, reject) => {
+                    const retryCallback = async () => {
+                        try {
+                            const res = await this.uploadFile(index, retry + 1);
+                            resolve(res);
+                        } catch (e) {
+                            reject(e);
+                        }
+                    }
+                    this.onFileError(`Your connection seems offline. Upload will resume automatically when back online!`, index);
+                    this.failedUploads.push(retryCallback);
+                });
+            } else if (retry > 10) {
+                return await this.uploadFile(index, retry + 1);
+            }
+
+            this.onFileError(err, index);
         }
     }
 
-    onFileComplete(err, res, index) {
+    onFileError(err, index) {
+        this.files[index].error = err;
+
+        this.errorListeners.forEach((func) => {
+            func(err);
+        });
+    }
+
+    onFileComplete(res, index) {
         const data = JSON.parse(res.text);
         this.files[index].id = data.id;
 
@@ -157,7 +199,6 @@ class UploadBatch
             fileLoaded: fileSize,
             filePercent: 100,
             index,
-            err,
             res
         };
 
@@ -238,6 +279,17 @@ class UploadBatch
         const index = this.errorListeners.findIndex(h => h === handler);
         if (index >= 0) {
             this.errorListeners.slice(index, 1);
+        }
+    }
+
+    addResumeListener(handler) {
+        this.resumeListeners.push(handler);
+    }
+
+    removeResumeListener(handler) {
+        const index = this.resumeListeners.findIndex(h => h === handler);
+        if (index >= 0) {
+            this.resumeListeners.slice(index, 1);
         }
     }
 }

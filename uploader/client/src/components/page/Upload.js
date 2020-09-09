@@ -29,17 +29,23 @@ export default class Upload extends Component {
     onError = (err) => {
         this.setState(prevState => {
             const errors = [...prevState.errors];
-            errors.push(`Upload went wront: ${err.toString()}`);
+            errors.push(`Upload issue: ${err.toString()}`);
             return {errors};
         })
     }
 
+    onResumeUpload = () => {
+        this.setState({errors: []});
+    }
+
     componentDidMount() {
         uploadBatch.addErrorListener(this.onError);
+        uploadBatch.addResumeListener(this.onResumeUpload);
     }
 
     componentWillUnmount() {
         uploadBatch.removeErrorListener(this.onError);
+        uploadBatch.removeResumeListener(this.onResumeUpload);
     }
 
     removeFile = (index) => {

@@ -3,6 +3,8 @@ import config from "./config";
 import {oauthClient} from "./oauth";
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
 
+const fileChunkSize = 5242880 // Minimum allowed by AWS S3;
+
 async function asyncRequest(method, uri, accessToken, postData, onProgress) {
     return new Promise((resolve, reject) => {
         const req = request[method](uri)
@@ -42,7 +44,7 @@ async function asyncRequest(method, uri, accessToken, postData, onProgress) {
 }
 
 export async function uploadMultipartFile(userId, accessToken, file, onProgress) {
-    const fileUID = getUniqueFileId(file.file);
+    const fileUID = getUniqueFileId(file.file, fileChunkSize);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
     const uploadParts = [];
 
@@ -65,19 +67,16 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
         });
         uploadId = res.json.uploadId;
         path = res.json.path;
+        uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
     }
 
-    const fileChunkSize = 5242880 // Minimum allowed by AWS S3;
     const fileSize = file.file.size;
     const numChunks = Math.floor(fileSize / fileChunkSize) + 1;
-
-    uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
 
     for (let index = resumeChunkIndex; index < numChunks + 1; index++) {
         const start = (index - 1) * fileChunkSize;
         const end = (index) * fileChunkSize;
         const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
-
 
         const getUploadUrlResp = await asyncRequest('post', `${config.getUploadBaseURL()}/upload/url`, accessToken, {
             filename: path,

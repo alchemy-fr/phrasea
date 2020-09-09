@@ -2,6 +2,9 @@ const uploadStorage = window.localStorage;
 const key = 'uploadState';
 
 class UploadStateStorage {
+    cache;
+    writeTimeout;
+
     getUpload(userId, fileUID) {
         const d = this.getData();
 
@@ -28,7 +31,6 @@ class UploadStateStorage {
     updateUpload(userId, fileUID, chunkETag) {
         const d = this.getData();
         d[userId][fileUID].c.push(chunkETag);
-
         this.setData(d);
     }
 
@@ -39,19 +41,31 @@ class UploadStateStorage {
     }
 
     getData() {
+        if (this.cache) {
+            return this.cache;
+        }
+
         const item = uploadStorage.getItem(key);
-        return item ? JSON.parse(item) : {};
+        return this.cache = item ? JSON.parse(item) : {};
     }
 
     setData(data) {
-        return uploadStorage.setItem(key, JSON.stringify(data));
+        this.cache = data;
+
+        if (this.writeTimeout) {
+            clearTimeout(this.writeTimeout);
+        }
+
+        this.writeTimeout = setTimeout(() => {
+            uploadStorage.setItem(key, JSON.stringify(data))
+        }, 100);
     }
 }
 
-export function getUniqueFileId(file) {
+export function getUniqueFileId(file, fileChunkSize) {
     const relativePath = file.webkitRelativePath || file.relativePath || file.fileName || file.name;
 
-    return `${file.size}-${relativePath}`;
+    return `${file.size}-${fileChunkSize}-${relativePath}`;
 }
 
 export const uploadStateStorage = new UploadStateStorage();
