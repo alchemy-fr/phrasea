@@ -127,43 +127,16 @@ class UploadBatch
         formData.append('file', file.file);
 
         const accessToken = oauthClient.getAccessToken();
+        const username = oauthClient.getUsername();
 
         try {
-            const res = await uploadMultipartFile(accessToken, file, (e) => {
+            const res = await uploadMultipartFile(username, accessToken, file, (e) => {
                 this.onUploadProgress(e, index);
             });
             this.onFileComplete(undefined, res, index);
         } catch (err) {
             this.onFileComplete(err, undefined, index);
         }
-
-        return;
-
-        const req = request
-            .post(config.getUploadBaseURL() + '/assets')
-            .accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .on('progress', (e) => {
-                if (e.direction !== 'upload') {
-                    return;
-                }
-                this.onUploadProgress(e, index);
-            })
-            .on('error', (err) => {
-                this.errorListeners.forEach(h => h(err));
-            })
-            .send(formData);
-
-        req
-            .end((err, res) => {
-                if (!oauthClient.isResponseValid(err, res)) {
-                    return;
-                }
-
-                this.onFileComplete(err, res, index);
-            });
-
-        file.request = req;
     }
 
     onFileComplete(err, res, index) {
