@@ -47,7 +47,7 @@ class PublicationVoter extends Voter
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
 
-        $isPublicationVisible = $this->isPublicationVisible($subject);
+        $isPublicationVisible = $subject instanceof Publication && $this->isPublicationVisible($subject);
 
         switch ($attribute) {
             case self::CREATE:
@@ -55,7 +55,6 @@ class PublicationVoter extends Voter
             case self::INDEX:
                 return true;
             case self::READ:
-
                 return $isPublicationVisible
                     || $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId());
