@@ -16,7 +16,8 @@ class DateTimePickerType extends AbstractType
                 'widget' => 'single_text',
                 'format' => "dd/MM/yyyy' 'HH:mm",
                 'attr' => [
-                    'class' => 'datetime-picker',
+                    'class' => 'datetimepicker-input',
+                    'data-toggle' => 'datetimepicker',
                 ],
             ]
         );
