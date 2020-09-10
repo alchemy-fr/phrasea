@@ -5,7 +5,7 @@ import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
 
 const fileChunkSize = 5242880 // Minimum allowed by AWS S3;
 
-async function asyncRequest(method, uri, accessToken, postData, onProgress) {
+async function asyncRequest(file, method, uri, accessToken, postData, onProgress) {
     return new Promise((resolve, reject) => {
         const req = request[method](uri)
             .accept('json');
@@ -40,6 +40,10 @@ async function asyncRequest(method, uri, accessToken, postData, onProgress) {
                     resolve({res});
                 }
             });
+
+        if (file) {
+            file.request = req;
+        }
     });
 }
 
@@ -61,10 +65,10 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
             });
         }
     } else {
-        const res = await asyncRequest('post', `${config.getUploadBaseURL()}/upload/start`, accessToken, {
+        const res = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/upload/start`, accessToken, {
             filename: file.file.name,
             type: file.file.type,
-        });
+        }, undefined);
         uploadId = res.json.uploadId;
         path = res.json.path;
         uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
@@ -76,9 +80,8 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
     for (let index = resumeChunkIndex; index < numChunks + 1; index++) {
         const start = (index - 1) * fileChunkSize;
         const end = (index) * fileChunkSize;
-        const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
 
-        const getUploadUrlResp = await asyncRequest('post', `${config.getUploadBaseURL()}/upload/url`, accessToken, {
+        const getUploadUrlResp = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/upload/url`, accessToken, {
             filename: path,
             uploadId,
             part: index,
@@ -86,7 +89,8 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
 
         const {url} = getUploadUrlResp.json;
 
-        const uploadResp = await asyncRequest('put', url, null, blob, (e) => {
+        const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
+        const uploadResp = await asyncRequest(file, 'put', url, null, blob, (e) => {
             if (e.direction !== 'upload') {
                 return;
             }
@@ -108,7 +112,7 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
         uploadStateStorage.updateUpload(userId, fileUID, eTag);
     }
 
-    const {res: finalRes} = await asyncRequest('post', `${config.getUploadBaseURL()}/assets`, accessToken, {
+    const {res: finalRes} = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/assets`, accessToken, {
         multipart: {
             path,
             uploadId,

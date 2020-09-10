@@ -19,12 +19,43 @@ const UPLOAD_DONE = 3;
 
 const {maxFileSize, maxCommitSize, maxFileCount} = config.all();
 
+const quitMsg = `Are you sure you want to cancel the current upload?`;
+function onBeforeUnload(e) {
+        e = e || window.event;
+
+        // For IE and Firefox
+        if (e) {
+            e.returnValue = quitMsg;
+        }
+
+        // For Safari
+        return quitMsg;
+}
+
+function preventQuit() {
+    window.onbeforeunload = onBeforeUnload;
+}
+
+function stopPreventQuit() {
+    window.onbeforeunload = null;
+}
+
 export default class Upload extends Component {
     state = {
         step: SELECT_FILES,
         files: [],
         errors: [],
     };
+
+    componentDidMount() {
+        uploadBatch.addErrorListener(this.onError);
+        uploadBatch.addResumeListener(this.onResumeUpload);
+    }
+
+    componentWillUnmount() {
+        uploadBatch.removeErrorListener(this.onError);
+        uploadBatch.removeResumeListener(this.onResumeUpload);
+    }
 
     onError = (err) => {
         this.setState(prevState => {
@@ -36,16 +67,6 @@ export default class Upload extends Component {
 
     onResumeUpload = () => {
         this.setState({errors: []});
-    }
-
-    componentDidMount() {
-        uploadBatch.addErrorListener(this.onError);
-        uploadBatch.addResumeListener(this.onResumeUpload);
-    }
-
-    componentWillUnmount() {
-        uploadBatch.removeErrorListener(this.onError);
-        uploadBatch.removeResumeListener(this.onResumeUpload);
     }
 
     removeFile = (index) => {
@@ -67,14 +88,16 @@ export default class Upload extends Component {
                     file={file}
                 />
             })}
-        </div>;
+        </div>
     }
 
     reset = () => {
+        stopPreventQuit();
         uploadBatch.reset();
         this.setState({
             step: SELECT_FILES,
             files: [],
+            errors: [],
         });
     };
 
@@ -106,14 +129,15 @@ export default class Upload extends Component {
             return;
         }
         uploadBatch.addFiles(this.state.files);
+        preventQuit();
         uploadBatch.startUpload();
         this.onNext();
     };
 
     onNext = () => {
-        this.setState((state) => {
+        this.setState((prevState) => {
             return {
-                step: state.step + 1
+                step: prevState.step + 1
             }
         });
     };
