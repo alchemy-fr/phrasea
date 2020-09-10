@@ -29,7 +29,7 @@ easy_admin:
           - { property: 'title' }
           - { property: 'slug' }
           - { property: 'profile' }
-          - { property: 'date' }
+          - { property: 'date', type: Alchemy\AdminBundle\Form\DateTimePickerType }
           - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
 

@@ -2016,16 +2016,16 @@
         },
         {
             "name": "easycorp/easyadmin-bundle",
-            "version": "v2.3.8",
+            "version": "v2.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyCorp/EasyAdminBundle.git",
-                "reference": "c28301cc7f7df9531fd3b8b91196ab11a71074c4"
+                "reference": "054efdb6d3f073508be657586406b0eed2a08a41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/c28301cc7f7df9531fd3b8b91196ab11a71074c4",
-                "reference": "c28301cc7f7df9531fd3b8b91196ab11a71074c4",
+                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/054efdb6d3f073508be657586406b0eed2a08a41",
+                "reference": "054efdb6d3f073508be657586406b0eed2a08a41",
                 "shasum": ""
             },
             "require": {
@@ -2097,7 +2097,7 @@
                 "backend",
                 "generator"
             ],
-            "time": "2020-05-07T18:49:31+00:00"
+            "time": "2020-06-14T17:11:08+00:00"
         },
         {
             "name": "exercise/htmlpurifier-bundle",
@@ -3610,12 +3610,12 @@
             "version": "v2.1.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/whiteoctober/Pagerfanta.git",
+                "url": "https://github.com/BabDev/Pagerfanta.git",
                 "reference": "a53ff01d521648d9dbca19b93ac6bc75a59b0972"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/whiteoctober/Pagerfanta/zipball/a53ff01d521648d9dbca19b93ac6bc75a59b0972",
+                "url": "https://api.github.com/repos/BabDev/Pagerfanta/zipball/a53ff01d521648d9dbca19b93ac6bc75a59b0972",
                 "reference": "a53ff01d521648d9dbca19b93ac6bc75a59b0972",
                 "shasum": ""
             },
@@ -4117,12 +4117,12 @@
             "version": "v1.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nrk/predis.git",
+                "url": "https://github.com/predis/predis.git",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "url": "https://api.github.com/repos/predis/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "shasum": ""
             },

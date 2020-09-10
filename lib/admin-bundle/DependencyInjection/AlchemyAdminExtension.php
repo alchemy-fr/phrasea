@@ -106,6 +106,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 ],
                 'design' => [
                     'templates' => [
+                        'layout' => '@AlchemyAdmin/layout.html.twig',
                         'list' => '@AlchemyAdmin/list.html.twig',
                     ],
                 ],
@@ -129,6 +130,10 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                     'form_themes' => [
                         'bootstrap_4_layout.html.twig',
                     ],
+                    'globals' => [
+                        'dashboard_menu_url' => '%alchemy_admin.dashboard_menu_url%',
+                        'services_menu_enabled' => '%env(bool:DISPLAY_SERVICES_MENU)%',
+                    ]
                 ]
             );
         }

@@ -1,0 +1,41 @@
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block header %}
+    {{ parent() }}
+    {% include '@AlchemyAdmin/services_menu.html.twig' %}
+{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.1/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-viBXoWkG5RIDmt8k/uxdpd9TqgQC040cCf1VCM9eQFvUJIaDrTyMk+WlrObmp+mMkunCC+hqF48F4m5Rck8Lew==" crossorigin="anonymous" />
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+            integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.1/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-ugYHWSb0a7WzXb+yw+cdYxb3r3UEqQmcpQ8A9j/t6a7QJfMaHntJxEMTEWEK8jDGL52CIq/LUIdFhy9BbQA6FA==" crossorigin="anonymous"></script>
+    <script>
+        function init($input, options) {
+            $input.datetimepicker(options);
+            $input.on('focus', function () {
+                $input.datetimepicker('show');
+            });
+            $input.on('blur', function () {
+                $input.datetimepicker('hide');
+            });
+        }
+
+        $('.datetime-picker').each(function () {
+            init($(this), {
+                format: 'DD/MM/YYYY HH:mm',
+            });
+        });
+        $('.date-picker').each(function () {
+            init($(this), {
+                format: 'DD/MM/YYYY',
+            });
+        });
+    </script>
+{% endblock %}

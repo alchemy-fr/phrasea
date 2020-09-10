@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use Alchemy\AdminBundle\Form\DateTimePickerType;
 use App\Entity\PublicationConfig;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -20,6 +21,12 @@ class PublicationConfigType extends AbstractType
             ->add('layoutOptions', LayoutOptionsType::class)
             ->add('theme', ThemeChoiceType::class)
             ->add('enabled')
+            ->add('beginsAt', DateTimePickerType::class, [
+                'required' => false,
+            ])
+            ->add('expiresAt', DateTimePickerType::class, [
+                'required' => false,
+            ])
             ->add('publiclyListed')
             ->add('css', TextareaType::class)
             ->add('securityMethod', SecurityMethodChoiceType::class, [

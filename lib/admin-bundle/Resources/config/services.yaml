@@ -1,6 +1,8 @@
 parameters:
   alchemy_admin.auth_base_url: '%env(AUTH_BASE_URL)%'
   '%env(DASHBOARD_BASE_URL)%': ~
+  '%env(DISPLAY_SERVICES_MENU)%': false
+  alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_BASE_URL)%/menu.html'
 
 services:
   _defaults:
@@ -12,8 +14,6 @@ services:
     arguments:
       $siteTitle: '%alchemy_admin.site_title%'
       $siteLogo: '%alchemy_admin.site_logo%'
-      $dashBoardBaseUrl: '%env(default::DASHBOARD_BASE_URL)%'
-      $servicesMenuEnabled: '%env(bool:DISPLAY_SERVICES_MENU)%'
     tags: ['controller.service_arguments']
 
   Alchemy\AdminBundle\Auth\IdentityProvidersRegistry:

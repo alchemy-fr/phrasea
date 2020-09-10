@@ -25,7 +25,7 @@ class ResetPasswordController extends AbstractAdminController
             $authServiceClient->post('/en/password/reset-request', [
                 'json' => [
                     'username' => $form->get('email')->getData(),
-                ]
+                ],
             ]);
 
             return $this->redirectToRoute('alchemy_admin_reset_password_requested');
