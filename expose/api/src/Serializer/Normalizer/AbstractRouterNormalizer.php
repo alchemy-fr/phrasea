@@ -47,11 +47,11 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
      */
     protected function generateAssetUrlOrVideoPreviewUrl(MediaInterface $media): string
     {
-        if (strpos($media->getMimeType(), 'video/') === 0) {
+        if (0 === strpos($media->getMimeType(), 'video/')) {
             return $this->packages->getUrl('/images/player.webp', 'assets');
-        } elseif (strpos($media->getMimeType(), 'application/pdf') === 0) {
+        } elseif (0 === strpos($media->getMimeType(), 'application/pdf')) {
             return $this->packages->getUrl('/images/pdf-icon.jpg', 'assets');
-        } elseif (strpos($media->getMimeType(), 'image/') === 0) {
+        } elseif (0 === strpos($media->getMimeType(), 'image/')) {
             return $this->generateAssetUrl($media);
         }
 

@@ -11,6 +11,7 @@ use App\Entity\Publication;
 use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
+use DateTime;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -25,10 +26,7 @@ class PublicationVoter extends Voter
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {
@@ -49,30 +47,40 @@ class PublicationVoter extends Voter
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
 
+        $isPublicationVisible = $this->isPublicationVisible($subject);
+
         switch ($attribute) {
             case self::CREATE:
                 return $isAdmin || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::INDEX:
                 return true;
             case self::READ:
-                return $subject->isEnabled()
+
+                return $isPublicationVisible
                     || $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId());
             case self::READ_DETAILS:
-                return $isAdmin || ($subject->isEnabled() && $this->securityMethodPasses($subject, $token));
+                return $isAdmin || ($isPublicationVisible && $this->securityMethodPasses($subject, $token));
             case self::DELETE:
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                    ;
+                    || $this->security->isGranted(PermissionInterface::DELETE, $subject);
             case self::EDIT:
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                    ;
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             default:
                 return false;
         }
+    }
+
+    public function isPublicationVisible(Publication $publication): bool
+    {
+        $now = new DateTime();
+
+        return $publication->isEnabled()
+            && (null === $publication->getBeginsAt() || $publication->getBeginsAt() < $now)
+            && (null === $publication->getExpiresAt() || $publication->getExpiresAt() > $now);
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
@@ -117,6 +125,7 @@ class PublicationVoter extends Voter
                 } else {
                     return true;
                 }
+                // no break
             default:
                 return false;
         }

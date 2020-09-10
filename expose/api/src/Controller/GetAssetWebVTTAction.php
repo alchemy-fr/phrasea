@@ -33,8 +33,7 @@ final class GetAssetWebVTTAction extends AbstractController
             'Access-Control-Allow-Methods' => 'GET, OPTIONS',
             'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept',
         ];
-        if ($request->getMethod() === 'OPTIONS') {
-
+        if ('OPTIONS' === $request->getMethod()) {
             return new Response('', 204, array_merge(
                 $corsHeaders,
                 [

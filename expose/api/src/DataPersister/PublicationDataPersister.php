@@ -13,7 +13,6 @@ use App\Entity\PublicationAsset;
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use HTMLPurifier;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;

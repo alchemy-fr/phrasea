@@ -53,7 +53,6 @@ final class SortAssetsAction extends AbstractController
                         'pubId' => $publication->getId(),
                         'assetId' => $id,
                     ]);
-
             }
             $this->em->commit();
         } catch (Throwable $e) {

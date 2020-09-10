@@ -625,6 +625,32 @@ class Publication implements AclObjectInterface
         $this->cover = $cover;
     }
 
+    public function getBeginsAt(): ?DateTime
+    {
+        if (null !== $this->config->getBeginsAt()) {
+            return $this->config->getBeginsAt();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getBeginsAt();
+        }
+
+        return null;
+    }
+
+    public function getExpiresAt(): ?DateTime
+    {
+        if (null !== $this->config->getExpiresAt()) {
+            return $this->config->getExpiresAt();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getExpiresAt();
+        }
+
+        return null;
+    }
+
     public function getDate(): ?DateTime
     {
         return $this->date;

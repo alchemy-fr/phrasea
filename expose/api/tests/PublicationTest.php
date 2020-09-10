@@ -7,6 +7,8 @@ namespace App\Tests;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
+use DateInterval;
+use DateTime;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class PublicationTest extends AbstractExposeTestCase
@@ -101,99 +103,151 @@ class PublicationTest extends AbstractExposeTestCase
     public function publicationAndProfilesProvider(): array
     {
         return [
-          [[], [], [
-              'enabled' => true,
-          ]],
-          [[
-              'enabled' => false,
-          ], [], [
-              'enabled' => false,
-          ]],
+            [
+                [],
+                [],
+                [
+                    'enabled' => true,
+                ],
+            ],
+            [
+                [
+                    'enabled' => false,
+                ],
+                [],
+                [
+                    'enabled' => false,
+                ],
+            ],
 
-          [[
-              'enabled' => true,
-          ], [
-              'enabled' => false,
-          ], [
-              'enabled' => false,
-          ]],
+            [
+                [
+                    'enabled' => true,
+                ],
+                [
+                    'enabled' => false,
+                ],
+                [
+                    'enabled' => false,
+                ],
+            ],
 
-          [[
-              'enabled' => false,
-          ], [
-              'enabled' => false,
-          ], [
-              'enabled' => false,
-              'securityMethod' => null,
-          ]],
+            [
+                [
+                    'enabled' => false,
+                ],
+                [
+                    'enabled' => false,
+                ],
+                [
+                    'enabled' => false,
+                    'securityMethod' => null,
+                ],
+            ],
 
-          [[
-              'password' => 'xxx',
-          ], [
-          ], [
-              'securityMethod' => 'password',
-          ]],
+            [
+                [
+                    'password' => 'xxx',
+                ],
+                [
+                ],
+                [
+                    'securityMethod' => 'password',
+                ],
+            ],
 
-          [[
-          ], [
-              'password' => 'xxx',
-          ], [
-              'securityMethod' => 'password',
-          ]],
+            [
+                [
+                ],
+                [
+                    'password' => 'xxx',
+                ],
+                [
+                    'securityMethod' => 'password',
+                ],
+            ],
 
-          [[
-              'css' => '.publication {}',
-          ], [
-              'css' => '.profile {}',
-          ], [
-              'css' => '.publication {}'."\n".'.profile {}',
-          ]],
+            [
+                [
+                    'css' => '.publication {}',
+                ],
+                [
+                    'css' => '.profile {}',
+                ],
+                [
+                    'css' => '.publication {}'."\n".'.profile {}',
+                ],
+            ],
 
-          [[
-              'copyrightText' => 'Publication',
-          ], [
-              'copyrightText' => 'Profile',
-          ], [
-              'copyrightText' => 'Publication',
-          ]],
+            [
+                [
+                    'copyrightText' => 'Publication',
+                ],
+                [
+                    'copyrightText' => 'Profile',
+                ],
+                [
+                    'copyrightText' => 'Publication',
+                ],
+            ],
 
-          [[
-          ], [
-              'copyrightText' => 'Profile',
-          ], [
-              'copyrightText' => 'Profile',
-          ]],
+            [
+                [
+                ],
+                [
+                    'copyrightText' => 'Profile',
+                ],
+                [
+                    'copyrightText' => 'Profile',
+                ],
+            ],
 
-          [[
-              'mapOptions' => ['lat' => 2.31],
-          ], [
-              'mapOptions' => ['lat' => 2.32],
-          ], [
-              'mapOptions' => ['lat' => 2.31],
-          ]],
+            [
+                [
+                    'mapOptions' => ['lat' => 2.31],
+                ],
+                [
+                    'mapOptions' => ['lat' => 2.32],
+                ],
+                [
+                    'mapOptions' => ['lat' => 2.31],
+                ],
+            ],
 
-          [[
-              'mapOptions' => [],
-          ], [
-              'mapOptions' => [],
-          ], [
-              'mapOptions' => [],
-          ]],
+            [
+                [
+                    'mapOptions' => [],
+                ],
+                [
+                    'mapOptions' => [],
+                ],
+                [
+                    'mapOptions' => [],
+                ],
+            ],
 
-          [[
-              'mapOptions' => [],
-          ], [
-              'mapOptions' => ['lat' => 2.32],
-          ], [
-              'mapOptions' => ['lat' => 2.32],
-          ]],
+            [
+                [
+                    'mapOptions' => [],
+                ],
+                [
+                    'mapOptions' => ['lat' => 2.32],
+                ],
+                [
+                    'mapOptions' => ['lat' => 2.32],
+                ],
+            ],
 
-          [[
-              'mapOptions' => ['lat' => 2.31],
-          ], [
-          ], [
-              'mapOptions' => ['lat' => 2.31],
-          ]],
+            [
+                [
+                    'mapOptions' => ['lat' => 2.31],
+                ],
+                [
+                ],
+                [
+                    'mapOptions' => ['lat' => 2.31],
+                ],
+            ],
         ];
     }
 
@@ -228,6 +282,85 @@ class PublicationTest extends AbstractExposeTestCase
         $id = $this->createPublication(['enabled' => false]);
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider getPublicationVisibilityData
+     */
+    public function testPublicationVisibility(bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
+    {
+        $options = [
+            'enabled' => $enabled,
+        ];
+        if (null !== $start) {
+            $startDate = new DateTime();
+            $startDate->add(DateInterval::createFromDateString($start));
+            $options['startDate'] = $startDate;
+        }
+        if (null !== $end) {
+            $endDate = new DateTime();
+            $endDate->add(DateInterval::createFromDateString($end));
+            $options['endDate'] = $endDate;
+        }
+        $id = $this->createPublication($options);
+        $response = $this->request(null, 'GET', '/publications/'.$id);
+        $this->assertEquals($shouldBeVisible ? 200 : 401, $response->getStatusCode());
+    }
+
+    public function getPublicationVisibilityData(): array
+    {
+        return [
+            [false, null, null, false],
+            [true, null, null, true],
+            [true, '-1 day', null, true],
+            [true, '-1 day', '+1 day', true],
+            [true, '+1 day', '+2 day', false],
+            [true, '-2 day', '-1 day', false],
+        ];
+    }
+
+    /**
+     * @dataProvider getPublicationPubliclyListedData
+     */
+    public function testPublicationPubliclyListed(bool $listed, bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
+    {
+        $options = [
+            'enabled' => $enabled,
+            'publiclyListed' => $listed,
+        ];
+        if (null !== $start) {
+            $startDate = new DateTime();
+            $startDate->add(DateInterval::createFromDateString($start));
+            $options['startDate'] = $startDate;
+        }
+        if (null !== $end) {
+            $endDate = new DateTime();
+            $endDate->add(DateInterval::createFromDateString($end));
+            $options['endDate'] = $endDate;
+        }
+        $id = $this->createPublication($options);
+        $response = $this->request(null, 'GET', '/publications');
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($shouldBeVisible ? 1 : 0, count($json));
+    }
+
+    public function getPublicationPubliclyListedData(): array
+    {
+        return [
+            [true, false, null, null, false],
+            [true, false, null, null, false],
+            [true, true, null, null, true],
+            [false, true, null, null, false],
+            [true, true, '-1 day', null, true],
+            [false, true, '-1 day', null, false],
+            [true, true, '-1 day', '+1 day', true],
+            [false, true, '-1 day', '+1 day', false],
+            [true, true, '+1 day', '+2 day', false],
+            [false, true, '+1 day', '+2 day', false],
+            [true, true, '-2 day', '-1 day', false],
+            [false, true, '-2 day', '-1 day', false],
+        ];
     }
 
     public function testDeletePublicationAsAdmin(): void
@@ -280,7 +413,7 @@ class PublicationTest extends AbstractExposeTestCase
             'description' => <<<DESC
 <div><a onclick="alert('ok')">B</a></div>
 DESC
-,
+            ,
         ]);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(201, $response->getStatusCode());

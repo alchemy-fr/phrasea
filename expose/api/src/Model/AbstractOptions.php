@@ -16,7 +16,7 @@ abstract class AbstractOptions implements JsonSerializable, MergeableValueObject
         }
     }
 
-    abstract public function fromJson(array $options): void ;
+    abstract public function fromJson(array $options): void;
 
     public function applyDefaults(): void
     {

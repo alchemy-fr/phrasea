@@ -31,7 +31,7 @@ class DownloadRequestVoter extends Voter
     protected function supports($attribute, $subject)
     {
         return $subject instanceof DownloadRequest
-            || $attribute === self::LIST;
+            || self::LIST === $attribute;
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Asset;
 
@@ -47,11 +46,11 @@ class AssetDeleteTest extends AbstractExposeTestCase
             'publication_id' => $id,
             'asset_id' => 'foo',
         ]);
-        $deletedIds[] =$this->createAsset([
+        $deletedIds[] = $this->createAsset([
             'publication_id' => $id,
             'asset_id' => 'foo',
         ]);
-        $notDeletedIds[] =$this->createAsset([
+        $notDeletedIds[] = $this->createAsset([
             'publication_id' => $id,
             'asset_id' => 'bar',
         ]);

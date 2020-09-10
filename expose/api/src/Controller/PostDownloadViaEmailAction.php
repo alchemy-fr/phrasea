@@ -38,7 +38,7 @@ final class PostDownloadViaEmailAction extends AbstractController
             ->getRepository(PublicationAsset::class)
             ->findOneBy([
                 'publication' => $id,
-                'asset'=> $assetId,
+                'asset' => $assetId,
             ]);
 
         if (!$publicationAsset instanceof PublicationAsset) {

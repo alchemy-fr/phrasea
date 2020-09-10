@@ -21,7 +21,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
 
         if (!$downloadViaEmail) {
             $object->setDownloadUrl($this->generateAssetUrl($object, true));
-        } else if ($publicationAsset instanceof PublicationAsset) {
+        } elseif ($publicationAsset instanceof PublicationAsset) {
             $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
         }
 

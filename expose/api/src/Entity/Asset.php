@@ -8,13 +8,13 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\CreateAssetAction;
+use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use App\Controller\DeleteAssetsAction;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**

@@ -12,13 +12,11 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 class Url implements \JsonSerializable
 {
     /**
-     * @var string|null
      * @ApiProperty()
      */
     private ?string $text;
 
     /**
-     * @var string|null
      * @ApiProperty(writable=true)
      */
     private ?string $url;
@@ -84,6 +82,7 @@ class Url implements \JsonSerializable
             if ($url instanceof self) {
                 return $url;
             }
+
             return new self($url['text'] ?? null, $url['url'] ?? null);
         }, $urls);
     }
