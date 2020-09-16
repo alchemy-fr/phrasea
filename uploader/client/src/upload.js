@@ -156,7 +156,7 @@ class UploadBatch {
                 return new Promise((resolve, reject) => {
                     const retryCallback = async () => {
                         try {
-                            const res = await this.uploadFile(index, retry + 1);
+                            const res = await this.uploadFile(index, retry);
                             resolve(res);
                         } catch (e) {
                             reject(e);
@@ -165,7 +165,7 @@ class UploadBatch {
                     this.onFileError(`Your connection seems offline. Upload will resume automatically when back online!`, index);
                     this.failedUploads.push(retryCallback);
                 });
-            } else if (retry > 10) {
+            } else if (retry < 10) {
                 return await this.uploadFile(index, retry + 1);
             }
 
