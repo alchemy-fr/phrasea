@@ -13,6 +13,7 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -58,7 +59,11 @@ class SamlController extends AbstractIdentityProviderController
 
         $session->set(SamlListener::IDP_NAME_SESSION_NAME, $provider);
 
-        $loginAuthRegistry->getIdpAuth($provider)->login();
+        $returnTo = $this->generateUrl('saml_authorize', [
+            'provider' => $provider,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $loginAuthRegistry->getIdpAuth($provider)->login($returnTo);
     }
 
     /**
