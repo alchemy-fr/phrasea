@@ -60,6 +60,25 @@ final class MultiPartUploadController extends AbstractController
     }
 
     /**
+     * @Route("/stop", methods={"POST"})
+     */
+    public function stop(Request $request)
+    {
+        $uploadId = $request->request->get('uploadId');
+        if (empty($uploadId)) {
+            throw new BadRequestHttpException('Missing uploadId');
+        }
+        $path = $request->request->get('path');
+        if (empty($path)) {
+            throw new BadRequestHttpException('Missing path');
+        }
+
+        $this->uploadManager->cancelMultipartUpload($path, $uploadId);
+
+        return new JsonResponse(true);
+    }
+
+    /**
      * @Route("/url", methods={"POST"})
      */
     public function getUploadUrl(Request $request)

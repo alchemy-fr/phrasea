@@ -28,6 +28,15 @@ class UploadManager
         ]);
     }
 
+    public function cancelMultipartUpload(string $path, string $uploadId): void
+    {
+        $this->internalClient->abortMultipartUpload([
+            'Bucket' => $this->uploadBucket,
+            'Key' => $path,
+            'UploadId' => $uploadId,
+        ]);
+    }
+
     public function getSignedUrl(string $uploadId, string $path, int $partNumber): string
     {
         $params = [
