@@ -7,7 +7,10 @@ use App\User\UserManager;
 
 class UserPasswordFactory
 {
-    private UserManager $userManager;
+    /**
+     * @var UserManager
+     */
+    private $userManager;
 
     public function __construct(UserManager $userManager)
     {
