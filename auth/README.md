@@ -29,3 +29,4 @@ Then refer to the Auth API [documentation](./api/README.md)
 # Further reading
 
 - [User import](./doc/user-import.md)
+- [Configuring SAML IdP](./doc/saml.md)
