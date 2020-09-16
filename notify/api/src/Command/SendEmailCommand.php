@@ -14,10 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SendEmailCommand extends Command
 {
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
+    private EventProducer $eventProducer;
 
     public function __construct(EventProducer $eventProducer)
     {
