@@ -1,16 +1,23 @@
-{% extends 'base.html.twig' %}
+{% extends 'form_layout.html.twig' %}
 
-{% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-5 mx-auto">
-                <p>
-                    Authenticated as <b>{{ app.user.username }}</b>
-                </p>
-                <p>
-                    <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
-                </p>
-            </div>
-        </div>
-    </div>
+{% block title %}
+    Auth
+{% endblock %}
+
+{% block form_title %}
+    Auth
+{% endblock %}
+
+{% block form_content %}
+    <p>
+        Authenticated as <b>{{ app.user.username }}</b>
+    </p>
+    <ul>
+        <li>
+            <a href="{{ path('security_password_change') }}">Change password</a>
+        </li>
+    </ul>
+    <p>
+        <a href="{{ path('security_logout') }}" class="btn btn-danger">Logout</a>
+    </p>
 {% endblock %}

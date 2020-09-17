@@ -1,65 +1,74 @@
-{% extends 'base.html.twig' %}
+{% extends 'form_layout.html.twig' %}
 
-{% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-5 mx-auto">
-                <div class="form">
-                    <div class="logo mb-3">
-                        <div class="col-md-12 text-center">
-                            <h1>Login</h1>
-                        </div>
-                    </div>
+{% block title %}
+    {{ 'login.title'|trans }}
+{% endblock %}
 
-                    {% if error %}
-                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                    {% endif %}
+{% block form_title %}
+    {{ 'login.title'|trans }}
+{% endblock %}
 
-                    <form method="post" name="login" novalidate="novalidate">
-                        <input type="hidden" name="_csrf_token"
-                               value="{{ csrf_token('authenticate') }}"
-                        >
-                        <div class="form-group">
-                            <label for="email">Email address</label>
-                            <input
-                                    value="{{ last_username }}"
-                                    type="text" name="username" class="form-control" id="email"
-                                   aria-describedby="emailHelp" placeholder="Enter username"
-                                    required
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" name="password" id="password" class="form-control"
-                                   aria-describedby="emailHelp" placeholder="Enter Password"
-                                   required
-                            />
-                        </div>
-                        <div class="form-group">
-                            <p class="text-center">By signing up you accept our <a href="#">Terms Of Use</a></p>
-                        </div>
-                        <div class="col-md-12 text-center ">
-                            <button type="submit" class=" btn btn-block mybtn btn-primary tx-tfm">Login</button>
-                        </div>
-                        <div class="col-md-12 ">
-                            <div class="login-or">
-                                <hr class="hr-or">
-                                <span class="span-or">or</span>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <p class="text-center">
-                                <a href="" class="google btn mybtn"><i class="fa fa-google-plus">
-                                    </i> Signup using Google
-                                </a>
-                            </p>
-                        </div>
-                        <div class="form-group">
-                            <p class="text-center">Don't have account? <a href="#" id="signup">Sign up here</a></p>
-                        </div>
-                    </form>
+{% block form_content %}
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <form method="post" name="login" novalidate="novalidate">
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+        <div class="form-group">
+            <label for="email">{{ 'form.login.username'|trans }}</label>
+            <input
+                    value="{{ last_username }}"
+                    type="text" name="username" class="form-control" id="email"
+                    aria-describedby="emailHelp" placeholder="{{ 'form.login.username_ph'|trans }}"
+                    required
+            />
+        </div>
+        <div class="form-group">
+            <label for="password">{{ 'form.login.password'|trans }}</label>
+            <input type="password" name="password" id="password" class="form-control"
+                   aria-describedby="emailHelp" placeholder="{{ 'form.login.password_ph'|trans }}"
+                   required
+            />
+        </div>
+        <div class="col-md-12 text-center ">
+            <button type="submit"
+                    class=" btn btn-block mybtn btn-primary tx-tfm">{{ 'form.login.submit'|trans }}</button>
+        </div>
+        {% if providers|length > 0 %}
+            <div class="col-md-12 ">
+                <div class="login-or">
+                    <hr class="hr-or">
+                    <span class="span-or">{{ 'login.or'|trans }}</span>
                 </div>
             </div>
+
+            {% for provider in providers %}
+                <div class="col-md-12 mb-3">
+                    <p class="text-center">
+                        <a href="{{ provider.entrypoint }}" class="google btn mybtn"><i
+                                    class="fa fa-google-plus">
+                            </i> Signup using {{ provider.title }}
+                        </a>
+                    </p>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="form-group">
+            <p class="text-center">{{ 'login.no_account'|trans }}
+                <a href="{{ path('registration_register') }}"
+                   id="signup">{{ 'login.signup_here'|trans }}</a></p>
         </div>
-    </div>
+
+        <div class="form-group">
+            <p class="text-center">
+                <a href="{{ path('password_reset_request') }}">
+                    {{ 'login.forgot_password'|trans }}
+                </a>
+            </p>
+        </div>
+    </form>
 {% endblock %}

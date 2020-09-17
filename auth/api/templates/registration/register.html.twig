@@ -1,10 +1,19 @@
-{% extends 'base.html.twig' %}
+{% extends 'form_layout.html.twig' %}
 
 {% block title %}
     {{ 'registration.sign_up'|trans }}
 {% endblock %}
 
-{% block body %}
-    <h1>{{ 'registration.sign_up'|trans }}</h1>
+{% block form_title %}
+    {{ 'registration.sign_up'|trans }}
+{% endblock %}
+
+{% block form_content %}
     {{ form(form) }}
+
+    <div class="form-group">
+        <p class="text-center">{{ 'registration.already_have_account'|trans }}
+            <a href="{{ path('security_login') }}"
+               id="signup">{{ 'registration.login_here'|trans }}</a></p>
+    </div>
 {% endblock %}

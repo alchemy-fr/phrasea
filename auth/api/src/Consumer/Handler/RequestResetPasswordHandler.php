@@ -16,18 +16,9 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'request_reset_password';
 
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private UserManager $userManager;
+    private NotifierInterface $notifier;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(
         UserManager $userManager,
@@ -74,7 +65,7 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
         $this->notifier->notifyUser(
             $user->getId(),
             'auth/reset_password', [
-                'reset_url' => $this->urlGenerator->generate('reset_password', [
+                'reset_url' => $this->urlGenerator->generate('password_reset_reset', [
                     '_locale' => $locale,
                     'id' => $request->getId(),
                     'token' => $request->getToken(),
