@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@alchemy-fr/liform-react": "^0.9.3",
-    "@alchemy-fr/phraseanet-react-components": "1.0.2-alpha4",
+    "@alchemy-fr/phraseanet-react-components": "1.0.4-alpha4",
     "connected-react-router": "^5.0",
     "filesize": "^4.2.1",
     "i18next-browser-languagedetector": "^3.0.3",
