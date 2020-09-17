@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mx-auto">
+                <p>
+                    Authenticated as <b>{{ app.user.username }}</b>
+                </p>
+                <p>
+                    <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

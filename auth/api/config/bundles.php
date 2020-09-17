@@ -27,4 +27,5 @@ return [
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     App\AppBundle::class => ['all' => true],
+    Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
 ];

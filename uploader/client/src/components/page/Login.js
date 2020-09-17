@@ -58,62 +58,72 @@ export default class Login extends Component {
             return <Redirect to={from}/>
         }
 
-        return <Translation>
-            {t => <>
-                <Logo/>
-                <Container title="Please sign in">
-                    <div className="form-container login-form">
-                        <form onSubmit={this.handleSubmit}>
-                            <FormGroup controlId="username">
-                                <FormLabel>
-                                    {t('form.email.label')}
-                                </FormLabel>
-                                <FormControl
-                                    disabled={submitting}
-                                    autoFocus
-                                    type="username"
-                                    value={this.state.username}
-                                    onChange={this.handleChange}
-                                />
-                            </FormGroup>
-                            <FormGroup controlId="password">
-                                <FormLabel>{t('form.password.label')}</FormLabel>
-                                <FormControl
-                                    disabled={submitting}
-                                    value={this.state.password}
-                                    onChange={this.handleChange}
-                                    type="password"
-                                />
-                            </FormGroup>
-                            {error ? <div className="error text-danger">{error}</div> : ''}
-                            <Button
-                                block
-                                disabled={!this.isFormValid() || submitting}
-                                type="submit"
-                            >
-                                {t('form.submit_button')}
-                            </Button>
-                        </form>
+        const host = [
+            window.location.protocol,
+            '//',
+            window.location.hostname,
+        ].join('');
 
-                        <p>
-                            <Link to="/forgot-password">{t('login.forgot_password')}</Link>
-                        </p>
-                        {config.getSignUpURL() ?
-                            <p>
-                                {t('login.not_registered_yet')} <a target="_new" href={config.getSignUpURL()}>
-                                {t('login.sign_up_link')}
-                            </a>
-                            </p> : ''}
-                    </div>
+        const url = `${config.getAuthBaseUrl()}/oauth/v2/auth?response_type=code&client_id=${config.getClientCredential().clientId}&redirect_uri=${host}/auth`;
 
-                    <OAuthProviders
-                        authBaseUrl={config.getAuthBaseUrl()}
-                        authClientId={config.getClientCredential().clientId}
-                        providers={config.get('identityProviders')}
-                    />
-                </Container>
-            </>
-            }
-        </Translation>;
+        document.location.href = url;
+
+        // return <Translation>
+        //     {t => <>
+        //         <Logo/>
+        //         <Container title="Please sign in">
+        //             <div className="form-container login-form">
+        //                 <form onSubmit={this.handleSubmit}>
+        //                     <FormGroup controlId="username">
+        //                         <FormLabel>
+        //                             {t('form.email.label')}
+        //                         </FormLabel>
+        //                         <FormControl
+        //                             disabled={submitting}
+        //                             autoFocus
+        //                             type="username"
+        //                             value={this.state.username}
+        //                             onChange={this.handleChange}
+        //                         />
+        //                     </FormGroup>
+        //                     <FormGroup controlId="password">
+        //                         <FormLabel>{t('form.password.label')}</FormLabel>
+        //                         <FormControl
+        //                             disabled={submitting}
+        //                             value={this.state.password}
+        //                             onChange={this.handleChange}
+        //                             type="password"
+        //                         />
+        //                     </FormGroup>
+        //                     {error ? <div className="error text-danger">{error}</div> : ''}
+        //                     <Button
+        //                         block
+        //                         disabled={!this.isFormValid() || submitting}
+        //                         type="submit"
+        //                     >
+        //                         {t('form.submit_button')}
+        //                     </Button>
+        //                 </form>
+        //
+        //                 <p>
+        //                     <Link to="/forgot-password">{t('login.forgot_password')}</Link>
+        //                 </p>
+        //                 {config.getSignUpURL() ?
+        //                     <p>
+        //                         {t('login.not_registered_yet')} <a target="_new" href={config.getSignUpURL()}>
+        //                         {t('login.sign_up_link')}
+        //                     </a>
+        //                     </p> : ''}
+        //             </div>
+        //
+        //             <OAuthProviders
+        //                 authBaseUrl={config.getAuthBaseUrl()}
+        //                 authClientId={config.getClientCredential().clientId}
+        //                 providers={config.get('identityProviders')}
+        //             />
+        //         </Container>
+        //     </>
+        //     }
+        // </Translation>;
     }
 }

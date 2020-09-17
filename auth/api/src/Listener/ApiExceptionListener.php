@@ -19,18 +19,10 @@ class ApiExceptionListener implements EventSubscriberInterface
         BadRequestHttpException::class => 'bad_request',
         AccessDeniedHttpException::class => 'access_denied',
     ];
-
     const DEFAULT_ERROR = 'internal_error';
 
-    /**
-     * @var bool
-     */
-    private $debug = false;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private bool $debug = false;
+    private LoggerInterface $logger;
 
     public function __construct(bool $debug, LoggerInterface $logger)
     {

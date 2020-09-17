@@ -78,7 +78,7 @@ class App extends Component {
                 dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
             /> : ''}
             {this.state.authenticating ? <FullPageLoader/> : ''}
-            <Route path="/auth/:provider" component={OAuthRedirect}/>
+            <Route path="/auth" component={OAuthRedirect}/>
             <Menu
                 pageWrapId="page-wrap"
                 isOpen={this.state.menuOpen}
