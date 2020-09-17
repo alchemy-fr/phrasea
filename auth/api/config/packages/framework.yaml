@@ -7,7 +7,7 @@ framework:
         name: auth_sess
         cookie_secure: auto
         cookie_httponly: true
-        cookie_samesite: lax
+        cookie_samesite: none
 
     php_errors:
         log: true
