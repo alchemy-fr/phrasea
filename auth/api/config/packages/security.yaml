@@ -19,7 +19,7 @@ security:
             id: App\Saml\SamlUserProvider
     firewalls:
         anonymous:
-            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|_healthcheck|oauth|_wdt/|_profiler/)
+            pattern: ^/(_healthcheck|_wdt/|_profiler/)
             security: false
         oauth_token:
             pattern:    ^/oauth/v2/token
@@ -48,6 +48,13 @@ security:
                 login_path: /admin/login
             logout:
                 path: /saml/logout
+        auth:
+            pattern: ^/(login|register|password/reset|_healthcheck|oauth)
+            provider: user_password
+            fos_oauth:
+            stateless:  false
+            anonymous:  true
+            user_checker: App\Security\UserChecker
         api:
             pattern:    ^/
             provider: user_password
@@ -57,6 +64,7 @@ security:
             user_checker: App\Security\UserChecker
 
     access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

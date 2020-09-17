@@ -13,10 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ChangePasswordAction extends AbstractController
 {
-    /**
-     * @var PasswordManager
-     */
-    private $resetPasswordManager;
+    private PasswordManager $resetPasswordManager;
 
     public function __construct(PasswordManager $resetPasswordManager)
     {
