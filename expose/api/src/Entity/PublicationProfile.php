@@ -54,7 +54,7 @@ class PublicationProfile implements AclObjectInterface
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"profile:read", "publication:read"})
+     * @Groups({"profile:index", "profile:read", "publication:read"})
      *
      * @var Uuid
      *
