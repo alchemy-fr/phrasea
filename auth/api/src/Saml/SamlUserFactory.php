@@ -11,18 +11,9 @@ use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-    /**
-     * @var SamlGroupManager
-     */
-    private $groupManager;
+    private EntityManagerInterface $em;
+    private UserManager $userManager;
+    private SamlGroupManager $groupManager;
 
     public function __construct(EntityManagerInterface $em, UserManager $userManager, SamlGroupManager $groupManager)
     {

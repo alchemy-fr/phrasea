@@ -78,7 +78,7 @@
         "arthem/locale-bundle": "^0",
         "arthem/rabbit-bundle": "^0.0.7",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
-        "hslavich/oneloginsaml-bundle": "dev-fix-multiple-idp",
+        "hslavich/oneloginsaml-bundle": "dev-attributes-mapping",
         "hwi/oauth-bundle": "^0.6.3",
         "nelmio/cors-bundle": "1.5.6",
         "php-http/guzzle6-adapter": "^2|^1",

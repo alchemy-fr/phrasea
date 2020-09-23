@@ -42,7 +42,7 @@ security:
             pattern: ^/saml/
             provider: saml_user
             saml:
-                username_attribute: email
+                username_attribute: username
                 user_factory: saml_user_factory
                 check_path: /saml/acs
                 login_path: /admin/login

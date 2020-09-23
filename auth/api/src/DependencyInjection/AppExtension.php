@@ -108,6 +108,10 @@ class AppExtension extends Extension implements PrependExtensionInterface
                     ];
                 }
 
+                if (isset($options['attributes_map'])) {
+                    $idp['attributesMap'] = $options['attributes_map'];
+                }
+
                 $idps[$provider['name']] = $idp;
             }
         }
