@@ -28,7 +28,7 @@ class ResetPasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/reset/{id}/{token}", name="reset", methods={"GET", "POST"})
+     * @Route(path="/{id}/{token}", name="reset", methods={"GET", "POST"})
      */
     public function reset(string $id, string $token, Request $request)
     {
@@ -53,7 +53,7 @@ class ResetPasswordAction extends AbstractController
     }
 
     /**
-     * @Route(path="/reset/changed", name="changed", methods={"GET"})
+     * @Route(path="/changed", name="changed", methods={"GET"})
      */
     public function changed()
     {

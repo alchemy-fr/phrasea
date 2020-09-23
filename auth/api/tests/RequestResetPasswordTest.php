@@ -8,47 +8,39 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 {
     public function testRequestResetPasswordWithExistingEmail(): void
     {
-        $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'username' => 'foo@bar.com',
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $client = static::createClient();
+        $client->disableReboot();
 
-        $this->assertEquals(true, $json);
-        $this->assertPasswordResetRequestCount(1);
-    }
+        $client->request('GET', '/en/security/password-reset/request');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
-    public function testMultipleRequestsWillGenerateOnlyOneRequest(): void
-    {
-        $this->request(null, 'POST', '/en/password/reset-request', [
-            'username' => 'foo@bar.com',
+        $client->submitForm('request_password_reset_form[submit]', [
+            'request_password_reset_form[username]' => 'foo@bar.com',
         ]);
-        $this->request(null, 'POST', '/en/password/reset-request', [
-            'username' => 'foo@bar.com',
-        ]);
+
+        $this->assertTrue(
+            $client->getResponse()->isRedirect('/en/security/password-reset/requested')
+        );
+
         $this->assertPasswordResetRequestCount(1);
     }
 
     public function testRequestResetPasswordWithNonExistingEmail(): void
     {
-        $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'username' => 'baz@bar.com',
-        ]);
-        // Must return 200 otherwise it would allow attackers to scan usernames in database.
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $client = static::createClient();
+        $client->disableReboot();
 
-        $this->assertEquals(true, $json);
+        $client->request('GET', '/en/security/password-reset/request');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $client->submitForm('request_password_reset_form[submit]', [
+            'request_password_reset_form[username]' => 'baz@bar.com',
+        ]);
+
+        $this->assertTrue(
+            $client->getResponse()->isRedirect('/en/security/password-reset/requested')
+        );
+
         $this->assertPasswordResetRequestCount(0);
-    }
-
-    public function testRequestResetPasswordWillSendEmail(): void
-    {
-        $response = $this->request(null, 'POST', '/en/password/reset-request', [
-            'username' => 'foo@bar.com',
-        ]);
-        $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
-        $this->assertEquals(true, $json);
     }
 }

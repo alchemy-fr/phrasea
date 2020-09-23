@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Api;
+
+use App\Tests\AbstractPasswordTest;
 
 class ChangePasswordTest extends AbstractPasswordTest
 {
-    public function testChangePasswordOK(): void
+    public function testApiChangePasswordOK(): void
     {
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
@@ -27,7 +29,7 @@ class ChangePasswordTest extends AbstractPasswordTest
         $this->assertPasswordIsValid('foo@bar.com', 'secret2');
     }
 
-    public function testChangePasswordWillInvalidResetPasswordRequests(): void
+    public function testApiChangePasswordWillInvalidResetPasswordRequests(): void
     {
         $this->createResetPasswordRequest('foo@bar.com');
         $this->assertPasswordResetRequestCount(1);
@@ -42,7 +44,7 @@ class ChangePasswordTest extends AbstractPasswordTest
         $this->assertPasswordResetRequestCount(0);
     }
 
-    public function testChangePasswordWithInvalidOldPassword(): void
+    public function testApiChangePasswordWithInvalidOldPassword(): void
     {
         $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
 
