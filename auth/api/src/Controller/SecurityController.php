@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,10 +15,12 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class SecurityController extends AbstractController
 {
+    const SESSION_REDIRECT_KEY = 'auth.redirect_uri';
+
     /**
      * @Route("/", name="index")
      */
-    public function index(AuthenticationUtils $authenticationUtils): Response
+    public function index(): Response
     {
         return $this->render('security/index.html.twig');
     }
@@ -24,23 +28,37 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="login")
      */
-    public function login(string $_locale, AuthenticationUtils $authenticationUtils, Request $request): Response
+    public function login(AuthenticationUtils $authenticationUtils, array $identityProviders, Request $request): Response
     {
-         if ($this->getUser()) {
-             return $this->redirectToRoute('app_index');
-         }
+        if ($this->getUser() instanceof User) {
+            return $this->redirectToRoute('security_index');
+        }
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
+        $session = $request->getSession();
 
-        $providers = [];
+        $redirectUri = $request->get('redirect_uri');
+        if (null === $redirectUri) {
+            $redirectUri = $session->get(self::SESSION_REDIRECT_KEY);
+            $redirectUri ??= $this->generateUrl('security_index');
+        } else {
+            $session->set(self::SESSION_REDIRECT_KEY, $redirectUri);
+        }
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            'providers' => $providers,
+            'providers' => array_map(function (array $idp) use ($redirectUri): array {
+                return array_merge($idp, [
+                    'entrypoint' => $this->generateUrl(sprintf('%s_entrypoint', $idp['type']), [
+                        'provider' => $idp['name'],
+                        'redirect_uri' => $redirectUri,
+                    ]),
+                ]);
+            }, $identityProviders),
         ]);
     }
 
@@ -49,6 +67,6 @@ class SecurityController extends AbstractController
      */
     public function logout()
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

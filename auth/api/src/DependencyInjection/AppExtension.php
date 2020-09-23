@@ -50,6 +50,8 @@ class AppExtension extends Extension implements PrependExtensionInterface
         });
         $this->loadSamlProviders($container, $samlProviders);
 
+        $this->loadIdentityProviders($container, $config['auth']['identity_providers'] ?? []);
+
         if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
                 '<img src="%s" width="%s" alt="Admin" />',
@@ -61,6 +63,11 @@ class AppExtension extends Extension implements PrependExtensionInterface
         }
 
         $container->setParameter('easy_admin.site_name', $siteName);
+    }
+
+    private function loadIdentityProviders(ContainerBuilder $container, array $providers): void
+    {
+        $container->setParameter('app.identity_providers', $providers);
     }
 
     private function loadSamlProviders(ContainerBuilder $container, array $samlProviders): void

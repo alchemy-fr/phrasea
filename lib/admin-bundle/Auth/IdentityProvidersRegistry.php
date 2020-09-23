@@ -6,20 +6,9 @@ namespace Alchemy\AdminBundle\Auth;
 
 class IdentityProvidersRegistry
 {
-    /**
-     * @var array
-     */
-    private $identityProviders;
-
-    /**
-     * @var string
-     */
-    private $authBaseUrl;
-
-    /**
-     * @var string
-     */
-    private $authClientId;
+    private array $identityProviders;
+    private string $authBaseUrl;
+    private string $authClientId;
 
     public function __construct(array $identityProviders, string $authBaseUrl, string $authClientId)
     {

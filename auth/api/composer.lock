@@ -2145,12 +2145,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/OneloginSamlBundle.git",
-                "reference": "075902c4064f266c3b8c97ba3d5554354d1192d0"
+                "reference": "3d7254f045dc416510da40acf84106be90d55007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/OneloginSamlBundle/zipball/075902c4064f266c3b8c97ba3d5554354d1192d0",
-                "reference": "075902c4064f266c3b8c97ba3d5554354d1192d0",
+                "url": "https://api.github.com/repos/4rthem/OneloginSamlBundle/zipball/3d7254f045dc416510da40acf84106be90d55007",
+                "reference": "3d7254f045dc416510da40acf84106be90d55007",
                 "shasum": ""
             },
             "require": {
@@ -2191,7 +2191,7 @@
             "support": {
                 "source": "https://github.com/4rthem/OneloginSamlBundle/tree/attributes-mapping"
             },
-            "time": "2020-09-23T10:09:14+00:00"
+            "time": "2020-09-23T16:18:29+00:00"
         },
         {
             "name": "hwi/oauth-bundle",

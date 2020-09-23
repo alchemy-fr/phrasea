@@ -13,6 +13,11 @@
         Authenticated as <b>{{ app.user.username }}</b>
     </p>
     <ul>
+        {% if is_granted('ROLE_ADMIN') %}
+            <li>
+                <a href="{{ path('easyadmin') }}">Admin</a>
+            </li>
+        {% endif %}
         <li>
             <a href="{{ path('security_password_change') }}">Change password</a>
         </li>

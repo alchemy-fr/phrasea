@@ -33,13 +33,13 @@
                    required
             />
         </div>
-        <div class="col-md-12 text-center ">
+        <div class="col-md-12 text-center">
             <button type="submit"
                     class=" btn btn-block mybtn btn-primary tx-tfm">{{ 'form.login.submit'|trans }}</button>
         </div>
         {% if providers|length > 0 %}
-            <div class="col-md-12 ">
-                <div class="login-or">
+            <div class="col-md-12">
+                <div class="login-or text-center">
                     <hr class="hr-or">
                     <span class="span-or">{{ 'login.or'|trans }}</span>
                 </div>
@@ -48,7 +48,7 @@
             {% for provider in providers %}
                 <div class="col-md-12 mb-3">
                     <p class="text-center">
-                        <a href="{{ provider.entrypoint }}" class="google btn mybtn"><i
+                        <a href="{{ provider.entrypoint }}" class="google btn btn-light"><i
                                     class="fa fa-google-plus">
                             </i> Signup using {{ provider.title }}
                         </a>

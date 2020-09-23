@@ -39,17 +39,17 @@ security:
                 - App\Security\LoginFormAuthenticator
         saml:
             anonymous: ~
+            context: auth
             pattern: ^/saml/
             provider: saml_user
             saml:
                 username_attribute: username
                 user_factory: saml_user_factory
                 check_path: /saml/acs
-                login_path: /security/login
             logout:
                 path: /saml/logout
         auth:
-            pattern: ^/([a-z-]{2,5}/security(/|$)|oauth/v2/auth)
+            pattern: ^/([a-z-]{2,5}/security(/|$)|oauth/)
             provider: user_password
             stateless:  false
             anonymous: ~
@@ -70,7 +70,7 @@ security:
 
     access_control:
         - { path: '^/[a-z-]{2,5}/security/(login$|register|password-reset)', roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: '^/[a-z-]{2,5}/security', roles: ROLE_USER }
+        - { path: '^/[a-z-]{2,5}/security/', roles: ROLE_USER }
         - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
