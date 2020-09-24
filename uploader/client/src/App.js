@@ -68,8 +68,7 @@ class App extends Component {
 
     logout() {
         oauthClient.logout();
-
-        if (config.isDirectLoginForm()) {
+        if (!config.isDirectLoginForm()) {
             document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
         }
     }

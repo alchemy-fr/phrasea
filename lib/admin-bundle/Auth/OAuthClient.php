@@ -12,24 +12,20 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 
 class OAuthClient
 {
-    /**
-     * @var string
-     */
-    private $clientId;
-    /**
-     * @var string
-     */
-    private $clientSecret;
-    /**
-     * @var Client
-     */
-    private $client;
+    private string $clientId;
+    private string $clientSecret;
+    private Client $client;
 
     public function __construct(string $clientId, string $clientSecret, Client $client)
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->client = $client;
+    }
+
+    public function getAuthorizeUrl(string $redirectUri): string
+    {
+
     }
 
     public function getAccessTokenFromAuthorizationCode(string $code, string $redirectUri): string

@@ -60,7 +60,7 @@ export default class Login extends Component {
             return <Redirect to={from}/>
         }
 
-        if (config.isDirectLoginForm()) {
+        if (!config.isDirectLoginForm()) {
             document.location.href = createAuthorizeUrl(config.getAuthBaseUrl(), config.getClientCredential().clientId);
 
             return '';
