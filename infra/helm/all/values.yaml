@@ -24,7 +24,7 @@ auth:
     randomId: 9mIGK
     secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
     grantTypes:
-    - password
+    - authorization_code
   rabbitmq:
     vhost: auth
 
@@ -59,7 +59,7 @@ expose:
     randomId: wIB0s
     secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
     grantTypes:
-    - password
+    - authorization_code
     - client_credentials
     scopes:
     - user:list
@@ -101,7 +101,7 @@ notify:
     randomId: dUdGa
     secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
     grantTypes:
-    - password
+    - authorization_code
   rabbitmq:
     vhost: notify
 
@@ -138,7 +138,7 @@ uploader:
     randomId: oqdsq
     secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
     grantTypes:
-    - password
+    - authorization_code
     - client_credentials
     scopes:
     - user:list
@@ -157,7 +157,7 @@ uploader:
       secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
       redirectUri: "{{ .Values.uploader.client.baseUrl }}"
       grantTypes:
-      - password
+      - authorization_code
   rabbitmq:
     vhost: upload
 
