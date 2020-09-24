@@ -16,6 +16,7 @@ export class OAuthRedirect extends PureComponent
         return <BaseOAuthRedirect
             {...this.props}
             oauthClient={oauthClient}
+            errorUri={'/auth-error'}
         />
     }
 }

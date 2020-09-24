@@ -22,6 +22,50 @@ use Symfony\Component\Security\Core\Security;
 class SamlController extends AbstractIdentityProviderController
 {
     /**
+     * Used direct authentication in Auth service.
+     *
+     * @Route(path="/{provider}/entrypoint", name="entrypoint")
+     */
+    public function entrypoint(string $provider, OneLoginAuthRegistry $loginAuthRegistry, Request $request)
+    {
+        $session = $request->getSession();
+        $authErrorKey = Security::AUTHENTICATION_ERROR;
+
+        if ($request->attributes->has($authErrorKey)) {
+            $error = $request->attributes->get($authErrorKey);
+        } elseif (null !== $session && $session->has($authErrorKey)) {
+            $error = $session->get($authErrorKey);
+            $session->remove($authErrorKey);
+        } else {
+            $error = null;
+        }
+
+        if ($error) {
+            $this->addFlash('error', $error->getMessage());
+
+            return $this->redirectToRoute('security_login');
+        }
+
+        $redirectUri = $session->get(SecurityController::SESSION_REDIRECT_KEY);
+        $redirectUri ??= $this->generateUrl('security_index');
+
+        $session->set('_security.saml.target_path', $redirectUri);
+        $session->set(SamlListener::IDP_NAME_SESSION_NAME, $provider);
+
+        $returnTo = $this->generateUrl('saml_entrypoint', [
+            'provider' => $provider,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return $this->redirect(
+            $loginAuthRegistry
+                ->getIdpAuth($provider)
+                ->login($returnTo, [], false, false, true)
+        );
+    }
+
+    /**
+     * Used for redirecting to client app (not Auth service).
+     *
      * @Route(path="/{provider}/authorize", name="authorize")
      */
     public function authorize(string $provider, OneLoginAuthRegistry $loginAuthRegistry, Request $request)

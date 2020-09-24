@@ -15,14 +15,8 @@ use Symfony\Component\Security\Http\SecurityEvents;
 
 class SamlAuthenticationListener implements EventSubscriberInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var SamlGroupManager
-     */
-    private $groupManager;
+    private EntityManagerInterface $em;
+    private SamlGroupManager $groupManager;
 
     public function __construct(EntityManagerInterface $em, SamlGroupManager $groupManager)
     {

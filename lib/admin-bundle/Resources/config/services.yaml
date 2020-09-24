@@ -31,7 +31,8 @@ services:
     class: GuzzleHttp\Client
     arguments:
       -
-        base_uri: "%alchemy_remote_auth.auth_base_url_internal%"
+        base_uri: "%alchemy_admin.auth_base_url%"
+        verify: false # TODO configure it for prod
         options:
           timeout: 10
           http_errors: false
@@ -43,5 +44,9 @@ services:
       $client: "@alchemy_admin.http_client"
       $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
       $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
+      $authBaseUrl: '%env(AUTH_BASE_URL)%'
 
   Alchemy\AclBundle\Controller\PermissionController: ~
+
+  alchemy_admin.logout.success_handler:
+    class: Alchemy\AdminBundle\Security\LogoutSuccessHandler

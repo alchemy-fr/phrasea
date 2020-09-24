@@ -19,7 +19,7 @@ class RegistrationConfirmationTest extends WebTestCase
         $user = $this->createUser();
 
         $client->request('GET', sprintf(
-            '/en/register/confirm/%s/%s',
+            '/en/security/register/confirm/%s/%s',
             $user->getId(),
             $user->getSecurityToken()
         ));
@@ -38,7 +38,7 @@ class RegistrationConfirmationTest extends WebTestCase
         $user = $this->createUser();
 
         $client->request('GET', sprintf(
-            '/en/register/confirm/%s/%s',
+            '/en/security/register/confirm/%s/%s',
             $user->getId(),
             'invalid_token'
         ));
@@ -52,7 +52,7 @@ class RegistrationConfirmationTest extends WebTestCase
         $user = $this->createUser();
 
         $client->request('GET', sprintf(
-            '/en/register/confirm/%s/%s',
+            '/en/security/register/confirm/%s/%s',
             'invalid_user_id',
             $user->getSecurityToken()
         ));

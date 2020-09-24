@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,22 +12,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RequestResetPasswordAction extends AbstractController
 {
-    /**
-     * @var PasswordManager
-     */
-    private $resetPasswordManager;
+    private PasswordManager $passwordManager;
 
-    public function __construct(PasswordManager $resetPasswordManager)
+    public function __construct(PasswordManager $passwordManager)
     {
-        $this->resetPasswordManager = $resetPasswordManager;
+        $this->passwordManager = $passwordManager;
     }
 
     /**
-     * @Route(path="/{_locale}/password/reset-request", methods={"POST"})
+     * @Route(path="/{_locale}/password-reset/request", methods={"POST"})
      */
     public function __invoke(Request $request)
     {
-        $this->resetPasswordManager->requestPasswordResetForLogin(
+        $this->passwordManager->requestPasswordResetForLogin(
             $request->request->get('username'),
             $request->getLocale() ?? $request->getDefaultLocale() ?? 'en'
         );

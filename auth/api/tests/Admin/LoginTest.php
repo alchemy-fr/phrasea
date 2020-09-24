@@ -11,34 +11,9 @@ class LoginTest extends AbstractStateFullTestCase
     public function testLoginAndRedirectToAdmin(): void
     {
         $client = $this->client;
-        $client->followRedirects();
+        $client->request('GET', '/admin/login');
 
-        $crawler = $client->request('GET', '/admin/login');
-
-        $form = $crawler->selectButton('login_submit')->form();
-        $form['username'] = 'foo@bar.com';
-        $form['password'] = 'secret';
-        $client->submit($form);
-
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertContains(
-            '<meta name="generator" content="EasyAdmin"',
-            $client->getResponse()->getContent()
-        );
-    }
-
-    public function testLoginWithANonAdminUserGenerates403(): void
-    {
-        $client = $this->client;
-        $client->followRedirects();
-
-        $crawler = $client->request('GET', '/admin/login');
-
-        $form = $crawler->selectButton('login_submit')->form();
-        $form['username'] = 'enabled@bar.com';
-        $form['password'] = 'secret';
-        $client->submit($form);
-
-        $this->assertEquals(403, $client->getResponse()->getStatusCode());
+        $response = $client->getResponse();
+        $this->assertEquals(302, $response->getStatusCode());
     }
 }

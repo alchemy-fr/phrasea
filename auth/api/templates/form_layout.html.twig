@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mx-auto">
+                <div class="form-container">
+                    <div class="logo mb-3">
+                        <div class="col-md-12 text-center">
+                            <h1>
+                                {%- block form_title %}
+                                {{- 'login.title'|trans -}}
+                                {% endblock -%}
+                            </h1>
+                        </div>
+                    </div>
+
+                    {% block form_content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

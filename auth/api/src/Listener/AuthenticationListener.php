@@ -15,20 +15,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AuthenticationListener implements EventSubscriberInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var ReportUserService
-     */
-    private $reportUser;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private EntityManagerInterface $em;
+    private ReportUserService $reportUser;
+    private RequestStack $requestStack;
 
     public function __construct(
         EntityManagerInterface $em,

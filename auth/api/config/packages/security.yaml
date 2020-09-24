@@ -19,7 +19,7 @@ security:
             id: App\Saml\SamlUserProvider
     firewalls:
         anonymous:
-            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/(register|password/reset)|_healthcheck|oauth|_wdt/|_profiler/)
+            pattern: ^/(([a-z]{2}(\-[a-zA-Z]{2})?/password-reset)|_healthcheck|_wdt/|_profiler/)
             security: false
         oauth_token:
             pattern:    ^/oauth/v2/token
@@ -33,21 +33,34 @@ security:
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
+                success_handler: alchemy_admin.logout.success_handler
             provider: user_password
             guard:
                 authenticators:
                 - App\Security\LoginFormAuthenticator
         saml:
             anonymous: ~
+            context: auth
             pattern: ^/saml/
             provider: saml_user
             saml:
                 username_attribute: username
                 user_factory: saml_user_factory
                 check_path: /saml/acs
-                login_path: /admin/login
             logout:
                 path: /saml/logout
+        auth:
+            pattern: ^/([a-z-]{2,5}/security(/|$)|oauth/)
+            provider: user_password
+            stateless:  false
+            anonymous: ~
+            user_checker: App\Security\UserChecker
+            guard:
+                authenticators:
+                    - App\Security\AppCustomAuthenticator
+            logout:
+                path: security_logout
+                target: security_index
         api:
             pattern:    ^/
             provider: user_password
@@ -57,6 +70,8 @@ security:
             user_checker: App\Security\UserChecker
 
     access_control:
+        - { path: '^/[a-z-]{2,5}/security/(login$|register|password-reset)', roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: '^/[a-z-]{2,5}/security/', roles: ROLE_USER }
         - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

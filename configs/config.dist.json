@@ -71,7 +71,20 @@
           }
         }
       }
-    ]
+    ],
+    "admin": {
+      "logo": {
+        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
+        "with": "80px"
+      }
+    },
+    "client": {
+      "logo": {
+        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
+        "with": "80px"
+      },
+      "name": "Alchemy"
+    }
   },
   "uploader": {
     "max_upload_file_size": null,

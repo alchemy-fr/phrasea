@@ -6,6 +6,8 @@ import Container from "../Container";
 import Logo from "../Logo";
 import {Translation} from "react-i18next";
 import {OAuthProviders} from "@alchemy-fr/phraseanet-react-components";
+import {createAuthorizeUrl} from "@alchemy-fr/phraseanet-react-components/dist/oauth/funcs";
+
 import {oauthClient} from "../../oauth";
 
 export default class Login extends Component {
@@ -56,6 +58,12 @@ export default class Login extends Component {
 
         if (oauthClient.isAuthenticated() || redirectToReferrer === true) {
             return <Redirect to={from}/>
+        }
+
+        if (!config.isDirectLoginForm()) {
+            document.location.href = createAuthorizeUrl(config.getAuthBaseUrl(), config.getClientCredential().clientId);
+
+            return '';
         }
 
         return <Translation>

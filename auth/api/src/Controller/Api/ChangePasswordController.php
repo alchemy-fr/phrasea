@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Security\PasswordManager;
@@ -11,16 +11,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ChangePasswordAction extends AbstractController
+class ChangePasswordController extends AbstractController
 {
-    /**
-     * @var PasswordManager
-     */
-    private $resetPasswordManager;
+    private PasswordManager $passwordManager;
 
-    public function __construct(PasswordManager $resetPasswordManager)
+    public function __construct(PasswordManager $passwordManager)
     {
-        $this->resetPasswordManager = $resetPasswordManager;
+        $this->passwordManager = $passwordManager;
     }
 
     /**
@@ -31,7 +28,7 @@ class ChangePasswordAction extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $this->resetPasswordManager->changePassword($user, $request->request->get('old_password', ''), $request->request->get('new_password', ''));
+        $this->passwordManager->changePassword($user, $request->request->get('old_password', ''), $request->request->get('new_password', ''));
 
         return new JsonResponse(true);
     }

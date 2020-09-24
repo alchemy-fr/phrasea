@@ -14,7 +14,7 @@ class RegistrationTest extends WebTestCase
     public function testRegistrationSuccess(): void
     {
         $client = static::createClient();
-        $crawler = $client->request('GET', '/en/register');
+        $crawler = $client->request('GET', '/en/security/register');
 
         $form = $crawler->selectButton('register_form[submit]')->form();
         $form['register_form[username]'] = 'test@test.com';
@@ -34,7 +34,7 @@ class RegistrationTest extends WebTestCase
     public function testRegistrationUniqueEmail(): void
     {
         $client = static::createClient();
-        $crawler = $client->request('GET', '/en/register');
+        $crawler = $client->request('GET', '/en/security/register');
 
         $form = $crawler->selectButton('register_form[submit]')->form();
         $form['register_form[username]'] = 'enabled@bar.com';

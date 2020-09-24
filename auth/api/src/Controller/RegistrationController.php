@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(path="/{_locale}/register", name="registration_")
+ * @Route(path="/{_locale}/security/register", name="registration_")
  */
 class RegistrationController extends AbstractController
 {

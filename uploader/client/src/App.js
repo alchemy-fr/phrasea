@@ -19,6 +19,7 @@ import Languages from "./components/Languages";
 import {withTranslation} from 'react-i18next';
 import {oauthClient, OAuthRedirect} from "./oauth";
 import {FullPageLoader, ServicesMenu} from "@alchemy-fr/phraseanet-react-components";
+import AuthError from "./components/page/AuthError";
 
 class App extends Component {
     state = {
@@ -36,10 +37,13 @@ class App extends Component {
             });
         });
         oauthClient.registerListener('login', authenticate);
+
         oauthClient.registerListener('logout', () => {
-            this.setState({
-                user: null,
-            });
+            if (config.isDirectLoginForm()) {
+                this.setState({
+                    user: null,
+                });
+            }
         });
     }
 
@@ -65,8 +69,13 @@ class App extends Component {
         this.setState({menuOpen: false})
     }
 
-    logout() {
+    logout = () => {
         oauthClient.logout();
+        if (!config.isDirectLoginForm()) {
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
+        } else {
+            this.closeMenu();
+        }
     }
 
     render() {
@@ -78,7 +87,7 @@ class App extends Component {
                 dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
             /> : ''}
             {this.state.authenticating ? <FullPageLoader/> : ''}
-            <Route path="/auth/:provider" component={OAuthRedirect}/>
+            <Route path={`/auth`} component={OAuthRedirect}/>
             <Menu
                 pageWrapId="page-wrap"
                 isOpen={this.state.menuOpen}
@@ -98,10 +107,7 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                     : ''}
                 {oauthClient.isAuthenticated() ?
-                    <Link onClick={() => {
-                        this.logout();
-                        this.closeMenu()
-                    }} to={'#'}>Logout</Link>
+                    <a onClick={this.logout} href={'javascript:void(0)'}>Logout</a>
                     : ''}
                 <Languages/>
             </Menu>
@@ -111,6 +117,7 @@ class App extends Component {
                 <Route path="/login" exact component={Login}/>
                 <Route path="/forgot-password" exact component={ResetPassword}/>
                 <Route path="/about" exact component={About}/>
+                <Route path="/auth-error" exact component={AuthError}/>
                 <PrivateRoute path="/settings" exact component={Settings}/>
                 {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
                 {perms && perms.bulk_data ?

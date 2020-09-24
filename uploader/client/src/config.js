@@ -16,6 +16,14 @@ class Config {
         store.set(key, value);
     }
 
+    isDirectLoginForm() {
+        return this.get('directLoginForm') ? this.get('directLoginForm') === 'true' : false;
+    }
+
+    setDirectLoginForm(directLoginForm) {
+        return this.set('directLoginForm', directLoginForm ? 'true' : 'false');
+    }
+
     getUploadBaseURL() {
         return this.get('baseUrl');
     }

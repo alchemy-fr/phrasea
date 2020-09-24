@@ -12,10 +12,10 @@
     deepmerge "^2.0.1"
     prop-types "^15.5.10"
 
-"@alchemy-fr/phraseanet-react-components@1.0.2-alpha4":
-  version "1.0.2-alpha4"
-  resolved "https://registry.yarnpkg.com/@alchemy-fr/phraseanet-react-components/-/phraseanet-react-components-1.0.2-alpha4.tgz#8971dfc0dad61ec8a3633fa12a844ea54239bef5"
-  integrity sha512-tQNrSdyo7JnjYoQ8Sp8RQC5NnM9Z48ptoCCgvjkQuUuu42tpAmK2KbHzmH2pBcgXPSNca/q1cB7VH5tAS7PnMA==
+"@alchemy-fr/phraseanet-react-components@1.0.4-alpha4":
+  version "1.0.4-alpha4"
+  resolved "https://registry.yarnpkg.com/@alchemy-fr/phraseanet-react-components/-/phraseanet-react-components-1.0.4-alpha4.tgz#d0576148d59731a10b0e03a4e22aab7fc48b37a7"
+  integrity sha512-m24ZpG0AJa/IHUJovG62XklP/OVdDemXZKsVjU1dmZH7ibmVL4ctcNfS3gXkG5Sz8B4OEAczR+ZlZNHrg0M2Bw==
   dependencies:
     querystring "^0.2.0"
     react-loader-spinner "^3.1.14"

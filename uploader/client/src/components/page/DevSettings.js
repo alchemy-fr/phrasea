@@ -12,6 +12,7 @@ export default class DevSettings extends Component {
         this.state = {
             uploadBaseUrl: config.getUploadBaseURL() || '',
             authBaseUrl: config.getAuthBaseUrl() || '',
+            directLoginForm: !!config.isDirectLoginForm(),
             clientId: clientId || '',
             clientSecret: clientSecret || '',
             saved: false,
@@ -19,8 +20,12 @@ export default class DevSettings extends Component {
     }
 
     handleChange = event => {
+        const value = event.target.type === 'checkbox'
+        ? !!event.target.checked
+            : event.target.value;
+
         this.setState({
-            [event.target.id]: event.target.value,
+            [event.target.id]: value,
             saved: false,
         });
     };
@@ -34,6 +39,7 @@ export default class DevSettings extends Component {
             clientId: this.state.clientId,
             clientSecret: this.state.clientSecret,
         });
+        config.setDirectLoginForm(this.state.directLoginForm);
 
         this.setState({
             saved: true,
@@ -80,6 +86,14 @@ export default class DevSettings extends Component {
                             value={this.state.clientSecret}
                             onChange={this.handleChange}
                             type="text"
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="directLoginForm">
+                        <Form.Label>Direct login form?</Form.Label>
+                        <Form.Control
+                            checked={this.state.directLoginForm}
+                            onChange={this.handleChange}
+                            type="checkbox"
                         />
                     </Form.Group>
                     <Button

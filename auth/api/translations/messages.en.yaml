@@ -1,5 +1,13 @@
 registration:
   sign_up: Sign up
+  already_have_account: Already have an account?
+  login_here: Login here!
+login:
+  title: Login
+  or: or
+  no_account: Don't have account?
+  signup_here: Sign up here
+  forgot_password: Forgot password?
 form:
   register:
     username: Username
@@ -7,3 +15,9 @@ form:
       first: Choose a password
       second: Confirm password
     submit: Sign up
+  login:
+    username: Username
+    username_ph: Enter your email
+    password: Password
+    password_ph: Enter your password
+    submit: Sign in
