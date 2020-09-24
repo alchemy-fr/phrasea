@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;

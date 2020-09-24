@@ -16,7 +16,7 @@ class ConsoleFilterHandler extends FilterHandler
     {
         parent::__construct($handler, Logger::DEBUG, Logger::EMERGENCY, $bubble);
 
-        $this->enabled = php_sapi_name() !== 'cli';
+        $this->enabled = 'cli' !== php_sapi_name();
     }
 
     public function isHandling(array $record): bool

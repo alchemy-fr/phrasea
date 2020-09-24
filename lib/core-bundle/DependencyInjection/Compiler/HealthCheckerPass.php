@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\DependencyInjection\Compiler;
 
 use Alchemy\CoreBundle\Health\Checker\PredisConnectionChecker;
-use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Alchemy\CoreBundle\Health\HealthChecker;
+use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Predis\Client;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\RouterInterface;
 
 class LocaleRewriteListener implements EventSubscriberInterface
 {
@@ -22,7 +22,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
     public function __construct(
         RouterInterface $router,
         $defaultLocale = 'en',
-        array $supportedLocales = array('en'),
+        array $supportedLocales = ['en'],
         $localeRouteParam = '_locale'
     ) {
         $this->router = $router;
@@ -55,7 +55,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
 
         if ($routeExists) {
             $locale = $request->getPreferredLanguage();
-            if ($locale == '' || $this->isLocaleSupported($locale) == false) {
+            if ('' == $locale || false == $this->isLocaleSupported($locale)) {
                 $locale = $request->getDefaultLocale();
             }
 
@@ -67,7 +67,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
     {
         return [
             // must be registered before the default Locale listener
-            KernelEvents::REQUEST => array(array('onKernelRequest', 18)),
+            KernelEvents::REQUEST => [['onKernelRequest', 18]],
         ];
     }
 }

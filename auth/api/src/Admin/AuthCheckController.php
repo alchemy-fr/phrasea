@@ -2,7 +2,6 @@
 
 namespace App\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminController;
 use Alchemy\OAuthServerBundle\Entity\AuthCode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

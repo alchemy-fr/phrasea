@@ -24,8 +24,7 @@ class PresignedUrlTest extends TestCase
         string $region,
         string $bucketName,
         bool $usePathStyleEndpoint
-    ): void
-    {
+    ): void {
         $accessKey = 'ACCESS_KEY';
         $secretKey = 'SECRET_KEY';
 
@@ -57,7 +56,6 @@ class PresignedUrlTest extends TestCase
             $bucketName,
             $filePath
         ), (string) $request->getUri());
-
 
         $psr17Factory = new Psr17Factory();
         $psrHttpFactory = new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);

@@ -76,5 +76,4 @@ class PermissionView
             'groups' => $groups,
         ];
     }
-
 }

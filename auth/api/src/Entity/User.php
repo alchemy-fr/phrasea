@@ -302,7 +302,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
     }
 
     /**
-     * Return groups indexed by id
+     * Return groups indexed by id.
      */
     public function getIndexedGroups(): array
     {
@@ -310,6 +310,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         foreach ($this->getGroups() as $group) {
             $groups[$group->getId()] = $group->getName();
         }
+
         return $groups;
     }
 

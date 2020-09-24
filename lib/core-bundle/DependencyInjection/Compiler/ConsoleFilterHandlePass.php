@@ -20,12 +20,12 @@ class ConsoleFilterHandlePass implements CompilerPassInterface
         }
 
         $definition = $container->getDefinition($serviceId);
-        $cacheId = $serviceId . '.wrapper';
+        $cacheId = $serviceId.'.wrapper';
 
         $container
             ->setDefinition($cacheId, new Definition(ConsoleFilterHandler::class))
             ->setArguments($definition->getArguments())
-            ->replaceArgument(0, new Reference($cacheId . '.inner'))
+            ->replaceArgument(0, new Reference($cacheId.'.inner'))
             ->setDecoratedService($serviceId);
     }
 }

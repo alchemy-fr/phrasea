@@ -163,7 +163,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $container->prependExtensionConfig('twig', [
                 'globals' => [
                     'app_client_config' => '%app.client.config%',
-                ]
+                ],
             ]
         );
     }

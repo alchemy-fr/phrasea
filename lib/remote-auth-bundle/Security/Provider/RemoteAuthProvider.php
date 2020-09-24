@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security\Provider;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;

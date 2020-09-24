@@ -22,8 +22,7 @@ class OAuthClient
         string $clientSecret,
         Client $client,
         string $authBaseUrl
-    )
-    {
+    ) {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->client = $client;

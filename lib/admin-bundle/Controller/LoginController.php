@@ -2,7 +2,6 @@
 
 namespace Alchemy\AdminBundle\Controller;
 
-use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
 use Alchemy\AdminBundle\Auth\OAuthClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
@@ -10,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractAdminController
 {

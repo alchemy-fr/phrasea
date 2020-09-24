@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\AclBundle\Form;
 
-use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

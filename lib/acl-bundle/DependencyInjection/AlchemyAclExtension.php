@@ -27,7 +27,7 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
         $mapperDef = $container->findDefinition(ObjectMapping::class);
@@ -51,7 +51,7 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         if (isset($bundles['EasyAdminBundle'])) {
-            $data = (new Parser())->parse(file_get_contents(__DIR__ . '/../Resources/config/easy_admin_entities.yaml'));
+            $data = (new Parser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));
             $container->prependExtensionConfig('easy_admin', $data['easy_admin']);
         }
     }

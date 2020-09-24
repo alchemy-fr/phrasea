@@ -26,9 +26,9 @@ class RabbitMQConnectionChecker implements HealthCheckerInterface
     public function check(): bool
     {
         $amqpContainer = $this->container->get('old_sound_rabbit_mq.parts_holder');
-        foreach (array('base_amqp', 'binding') as $key) {
+        foreach (['base_amqp', 'binding'] as $key) {
             /** @var BaseAmqp $baseAmqp */
-            foreach ($amqpContainer->getParts('old_sound_rabbit_mq.' . $key) as $baseAmqp) {
+            foreach ($amqpContainer->getParts('old_sound_rabbit_mq.'.$key) as $baseAmqp) {
                 if ($baseAmqp instanceof DynamicConsumer) {
                     continue;
                 }

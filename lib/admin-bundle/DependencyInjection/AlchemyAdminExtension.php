@@ -133,7 +133,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                     'globals' => [
                         'dashboard_menu_url' => '%alchemy_admin.dashboard_menu_url%',
                         'services_menu_enabled' => '%alchemy_admin.services_menu_enabled%',
-                    ]
+                    ],
                 ]
             );
         }

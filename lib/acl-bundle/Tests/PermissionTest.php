@@ -41,6 +41,7 @@ class PermissionTest extends TestCase
 
         $this->assertEquals($expectedResult, $permissionManager->isGranted($user, $object, $permissionToTest));
     }
+
     /**
      * @dataProvider permissionProvider
      */

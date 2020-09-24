@@ -22,7 +22,7 @@ class ChangePasswordForm extends AbstractType
                 'mapped' => false,
                 'constraints' => [
                     new UserPassword(),
-                ]
+                ],
             ])
             ->add('new_password', RepeatedType::class, [
                 'type' => PasswordType::class,

@@ -19,8 +19,7 @@ class AssetNormalizer implements EntityNormalizerInterface
         RequestSigner $requestSigner,
         RequestStack $requestStack,
         string $storageBaseUrl
-    )
-    {
+    ) {
         $this->requestSigner = $requestSigner;
         $this->requestStack = $requestStack;
         $this->storageBaseUrl = $storageBaseUrl;

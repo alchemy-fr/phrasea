@@ -99,7 +99,6 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator implements P
         }
 
         return new RedirectResponse('/security/');
-
     }
 
     protected function getLoginUrl()

@@ -41,9 +41,9 @@ class UploadManager
     {
         $params = [
             'Bucket' => $this->uploadBucket,
-			'Key' => $path,
-			'PartNumber' => $partNumber,
-			'UploadId' => $uploadId,
+            'Key' => $path,
+            'PartNumber' => $partNumber,
+            'UploadId' => $uploadId,
         ];
 
         $cmd = $this->externalClient->getCommand('UploadPart', $params);
@@ -57,11 +57,11 @@ class UploadManager
     {
         $params = [
             'Bucket' => $this->uploadBucket,
-			'Key' => $filename,
-			'MultipartUpload' => [
-			    'Parts' => $parts,
+            'Key' => $filename,
+            'MultipartUpload' => [
+                'Parts' => $parts,
             ],
-			'UploadId' => $uploadId,
+            'UploadId' => $uploadId,
         ];
 
         $this->internalClient->completeMultipartUpload($params);

@@ -26,8 +26,7 @@ final class MultiPartUploadController extends AbstractController
         UploadManager $uploadManager,
         FileStorageManager $storageManager,
         AssetManager $assetManager
-    )
-    {
+    ) {
         $this->uploadManager = $uploadManager;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;

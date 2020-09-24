@@ -37,7 +37,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
 
     public function updateOrCreateAce(string $userType, ?string $userId, string $objectType, ?string $objectId, int $mask): ?AccessControlEntryInterface
     {
-        $userId = $userId === AccessControlEntry::USER_WILDCARD ? null : $userId;
+        $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
 
         $ace = $this->em->getRepository(AccessControlEntry::class)
@@ -66,7 +66,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
 
     public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): void
     {
-        $userId = $userId === AccessControlEntry::USER_WILDCARD ? null : $userId;
+        $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
 
         $ace = $this->em->getRepository(AccessControlEntry::class)
