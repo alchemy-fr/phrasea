@@ -37,10 +37,13 @@ class App extends Component {
             });
         });
         oauthClient.registerListener('login', authenticate);
+
         oauthClient.registerListener('logout', () => {
-            this.setState({
-                user: null,
-            });
+            if (config.isDirectLoginForm()) {
+                this.setState({
+                    user: null,
+                });
+            }
         });
     }
 
@@ -66,10 +69,12 @@ class App extends Component {
         this.setState({menuOpen: false})
     }
 
-    logout() {
+    logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
             document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
+        } else {
+            this.closeMenu();
         }
     }
 
@@ -102,10 +107,7 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                     : ''}
                 {oauthClient.isAuthenticated() ?
-                    <Link onClick={() => {
-                        this.logout();
-                        this.closeMenu()
-                    }} to={'#'}>Logout</Link>
+                    <a onClick={this.logout} href={'javascript:void(0)'}>Logout</a>
                     : ''}
                 <Languages/>
             </Menu>
