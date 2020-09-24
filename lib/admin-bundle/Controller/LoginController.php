@@ -17,23 +17,11 @@ class LoginController extends AbstractAdminController
     /**
      * @Route("/login", name="login")
      */
-    public function login(AuthenticationUtils $authenticationUtils, IdentityProvidersRegistry $authRegistry): Response
+    public function login(OAuthClient $OAuthClient, Request $request): Response
     {
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
+        $redirectUri = $this->getRedirectUrl($request->get('r'));
 
-        return $this->render('@AlchemyAdmin/login.html.twig', array_merge($this->getLayoutParams(), [
-            'providers' => $authRegistry->getViewProviders($this->getRedirectUrl()),
-            'last_username' => $lastUsername,
-            'error' => $error,
-        ]));
-    }
-
-    private function getRedirectUrl(): string
-    {
-        return $this->generateUrl('alchemy_admin_auth_check', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->redirect($OAuthClient->getAuthorizeUrl($redirectUri));
     }
 
     /**
@@ -56,5 +44,15 @@ class LoginController extends AbstractAdminController
         $authenticator->authenticateUser($request, $accessToken, $tokenInfo, $user, 'admin');
 
         return $this->redirectToRoute('easyadmin');
+    }
+
+    private function getRedirectUrl(?string $redirectUri = null): string
+    {
+        $parameters = [];
+        if (!empty($redirectUri)) {
+            $parameters['r'] = $redirectUri;
+        }
+
+        return $this->generateUrl('alchemy_admin_auth_check', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }

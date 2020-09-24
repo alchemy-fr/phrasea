@@ -33,6 +33,7 @@ security:
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
+                success_handler: alchemy_admin.logout.success_handler
             provider: user_password
             guard:
                 authenticators:

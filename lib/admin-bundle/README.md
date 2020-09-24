@@ -37,6 +37,7 @@ security:
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
+                success_handler: alchemy_admin.logout.success_handler
             guard:
                 authenticators:
                     - 'alchemy_remote.login_form.admin'

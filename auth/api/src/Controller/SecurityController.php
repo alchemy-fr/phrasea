@@ -30,14 +30,6 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils, array $identityProviders, Request $request): Response
     {
-        if ($this->getUser() instanceof User) {
-            return $this->redirectToRoute('security_index');
-        }
-
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
         $session = $request->getSession();
 
         $redirectUri = $request->get('redirect_uri');
@@ -47,6 +39,15 @@ class SecurityController extends AbstractController
         } else {
             $session->set(self::SESSION_REDIRECT_KEY, $redirectUri);
         }
+
+        if ($this->getUser() instanceof User) {
+            return $this->redirect($redirectUri);
+        }
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,

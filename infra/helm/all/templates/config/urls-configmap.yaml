@@ -12,9 +12,6 @@ data:
 {{- if .Values.auth.enabled }}
   AUTH_BASE_URL: {{ quote .Values.auth.api.baseUrl }}
 {{- end }}
-{{- if .Values.auth.enabled }}
-  AUTH_INTERNAL_API_BASE_URL: http://auth-api
-{{- end }}
 {{- if .Values.expose.enabled }}
   EXPOSE_API_BASE_URL: {{ quote .Values.expose.api.baseUrl }}
   EXPOSE_FRONT_BASE_URL: {{ quote .Values.expose.client.baseUrl }}
