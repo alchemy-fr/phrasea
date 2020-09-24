@@ -124,14 +124,20 @@
             </li>
         </ul>
 
-        <ul class="other-svc">
-            <li><a target="_blank" href="${PGADMIN_BASE_URL}">PG Admin</a></li>
-            <li><a target="_blank" href="${PHPMYADMIN_BASE_URL}">PHPMyAdmin</a></li>
-            <li><a target="_blank" href="${WEBLATE_BASE_URL}">Weblate</a></li>
-            <li><a target="_blank" href="${MAILHOG_BASE_URL}">MailHog</a></li>
-            <li><a target="_blank" href="${SAML_BASE_URL}">SAML IdP</a></li>
-            <li><a target="_blank" href="${SAML2_BASE_URL}">SAML IdP 2</a></li>
-        </ul>
+
+        <div class="other-svc">
+            <button class="btn btn-secondary">
+                Advanced
+            </button>
+            <ul style="display:none">
+                <li><a target="_blank" href="${PGADMIN_BASE_URL}">PG Admin</a></li>
+                <li><a target="_blank" href="${PHPMYADMIN_BASE_URL}">PHPMyAdmin</a></li>
+                <li><a target="_blank" href="${WEBLATE_BASE_URL}">Weblate</a></li>
+                <li><a target="_blank" href="${MAILHOG_BASE_URL}">MailHog</a></li>
+                <li><a target="_blank" href="${SAML_BASE_URL}">SAML IdP</a></li>
+                <li><a target="_blank" href="${SAML2_BASE_URL}">SAML IdP 2</a></li>
+            </ul>
+        </div>
 
 <!--        <div class="env">-->
 <!--            <h3>Stack environment variables:</h3>-->
@@ -145,5 +151,16 @@
         <span class="text-muted">phraseanet-services.</span>
     </div>
 </footer>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        $('.other-svc').each(function () {
+           var o = $(this);
+            o.find('.btn').on('click', function () {
+                o.find('ul').show();
+            });
+        });
+    })
+</script>
 </body>
 </html>
