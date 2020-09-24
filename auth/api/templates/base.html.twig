@@ -15,6 +15,15 @@
     {% endblock %}
 </head>
 <body>
+{% if app_client_config.logo is defined %}
+    <div class="logo" style="{{ app_client_config.logo.style ?? '' }}">
+        <img
+            src="{{ app_client_config.logo.src }}"
+            width="{{ app_client_config.logo.width }}"
+             alt="{{ app_client_config.name ?? '' }}"
+        />
+    </div>
+{% endif %}
 <div class="container">
     {% for label, messages in app.flashes %}
         {% for message in messages %}

@@ -28,7 +28,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
             $config = [];
         }
 
-        return $config;
+        return $config['auth'] ?? [];
     }
 
     public function load(array $configs, ContainerBuilder $container)
@@ -38,7 +38,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $def = new Definition(OAuthProviderFactory::class);
         $def->setAutowired(true);
         $def->setAutoconfigured(true);
-        $providers = $config['auth']['identity_providers'] ?? [];
+        $providers = $config['identity_providers'] ?? [];
         $oauthProviders = array_filter($providers, function (array $provider) {
             return 'oauth' === $provider['type'];
         });
@@ -50,7 +50,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
         });
         $this->loadSamlProviders($container, $samlProviders);
 
-        $this->loadIdentityProviders($container, $config['auth']['identity_providers'] ?? []);
+        $this->loadIdentityProviders($container, $config['identity_providers'] ?? []);
 
         if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
@@ -93,7 +93,10 @@ class AppExtension extends Extension implements PrependExtensionInterface
     public function prepend(ContainerBuilder $container)
     {
         $config = $this->getGlobalConfig();
-        $providers = $config['auth']['identity_providers'] ?? [];
+
+        $this->configureClientConfig($container, $config);
+
+        $providers = $config['identity_providers'] ?? [];
         $idps = [];
         foreach ($providers as $provider) {
             if ('saml' === $provider['type']) {
@@ -152,5 +155,16 @@ class AppExtension extends Extension implements PrependExtensionInterface
             $container->prependExtensionConfig('hslavich_onelogin_saml', $samlConfig);
         }
         $container->setParameter('has_saml_provider', !empty($idps));
+    }
+
+    private function configureClientConfig(ContainerBuilder $container, array $config): void
+    {
+        $container->setParameter('app.client.config', $config['client'] ?? null);
+        $container->prependExtensionConfig('twig', [
+                'globals' => [
+                    'app_client_config' => '%app.client.config%',
+                ]
+            ]
+        );
     }
 }
