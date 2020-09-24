@@ -45,10 +45,65 @@ class PublicationTest extends AbstractExposeTestCase
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
+            'publiclyListed' => false,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #3',
+            'enabled' => true,
             'publiclyListed' => true,
         ]);
 
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertEquals(2, count($json));
+        $this->assertEquals('Pub #1', $json[0]['title']);
+        $this->assertEquals('Pub #3', $json[1]['title']);
+    }
+
+    public function testListPublicationsAsAdmin(): void
+    {
+        $this->createPublication([
+            'title' => 'Pub #1',
+            'enabled' => true,
+            'publiclyListed' => true,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #2',
+            'enabled' => true,
+            'publiclyListed' => false,
+        ]);
+
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertEquals(2, count($json));
+        $this->assertEquals('Pub #1', $json[0]['title']);
+        $this->assertEquals('Pub #2', $json[1]['title']);
+    }
+
+    public function testListPublicationsAsOwner(): void
+    {
+        $this->createPublication([
+            'title' => 'Pub #1',
+            'enabled' => true,
+            'publiclyListed' => true,
+            'ownerId' => '123',
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #2',
+            'enabled' => true,
+            'publiclyListed' => false,
+            'ownerId' => '123',
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
