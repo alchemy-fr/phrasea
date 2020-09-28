@@ -627,6 +627,8 @@ services:
       - db
     environment:
       - APP_ENV
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
 
   databox-api-php:
     image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
@@ -639,7 +641,8 @@ services:
           - databox-api-php
     environment:
       - APP_ENV
-      - DATABASE_URL=postgre://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${DATABOX_DB_NAME}?serverVersion=11.2&charset=utf8
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
       - TRUSTED_PROXIES=${PS_SUBNET}
     depends_on:
       - redis
