@@ -49,8 +49,6 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
     image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
@@ -174,8 +172,6 @@ services:
       - redis
       - rabbitmq
       - db
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   auth-api-nginx:
     image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
@@ -230,8 +226,6 @@ services:
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -334,8 +328,6 @@ services:
       - MAIL_FROM
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   notify-worker:
     image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
