@@ -21,7 +21,7 @@ services:
       - db
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES=${PS_SUBNET}
+      - TRUSTED_PROXIES
       - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
@@ -154,7 +154,7 @@ services:
           - auth-api-php
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES=${PS_SUBNET}
+      - TRUSTED_PROXIES
       - APP_ID=auth
       - AUTH_BASE_URL
       - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
@@ -207,7 +207,7 @@ services:
       - db
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES=${PS_SUBNET}
+      - TRUSTED_PROXIES
       - APP_ID=expose
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -319,7 +319,7 @@ services:
       - rabbitmq
     environment:
       - APP_ENV
-      - TRUSTED_PROXIES=${PS_SUBNET}
+      - TRUSTED_PROXIES
       - APP_ID=notify
       - POSTGRES_USER
       - POSTGRES_PASSWORD
