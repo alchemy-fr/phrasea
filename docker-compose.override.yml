@@ -130,6 +130,23 @@ services:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
 
+  databox-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
+    volumes:
+      - ./databox/api:/srv/app
+
+  databox-api-nginx:
+    volumes:
+      - ./databox/api:/srv/app
+
+  databox-worker:
+    volumes:
+      - ./databox/api:/srv/app
+      - ./databox/api/docker/supervisor:/etc/supervisor.d
+
   dev:
     build: infra/docker/dev
     networks:

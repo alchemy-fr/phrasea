@@ -20,6 +20,7 @@ uploader-api-php
 auth-api-php
 expose-api-php
 notify-api-php
+databox-api-php
 "
 
 for s in ${SF_SERVICES}; do

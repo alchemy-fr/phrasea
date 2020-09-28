@@ -106,6 +106,10 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
     --grant-type authorization_code \
     --redirect-uri ${NOTIFY_BASE_URL}"
 
+# Setup Databox
+## Setup container
+exec_container databox-api-php "bin/setup.sh"
+
 
 # Setup Report
 ## Create DB

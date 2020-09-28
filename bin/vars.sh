@@ -2,6 +2,7 @@
 
 SYMFONY_PROJECTS="
 auth/api
+databox/api
 expose/api
 uploader/api
 notify/api

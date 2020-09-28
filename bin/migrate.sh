@@ -21,6 +21,7 @@ APPS="
 auth-api-php
 expose-api-php
 notify-api-php
+databox-api-php
 uploader-api-php
 "
 
