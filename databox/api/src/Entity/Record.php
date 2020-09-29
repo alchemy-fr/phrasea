@@ -6,7 +6,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use DateTime;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -18,6 +19,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Record
 {
+    use CreatedAtTrait;
+    use UpdatedAtTrait;
+
     /**
      * @ORM\Id
      * @ApiProperty(identifier=true)
@@ -33,35 +37,20 @@ class Record
     /**
      * Dynamic signed URL.
      *
-     * @ApiProperty()
-     * @Groups({"asset_read"})
+     * @ApiProperty(writable=false)
+     * @Groups({"record_read"})
      */
     private ?string $url = null;
 
     /**
-     * @ORM\Column(type="datetime")
-     * @ApiProperty()
-     * @Groups("asset_read")
-     */
-    private DateTime $createdAt;
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @ApiProperty()
-     * @Groups("asset_read")
-     */
-    private DateTime $updatedAt;
-
-    /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"record_read"})
      */
     private ?string $ownerId = null;
 
     public function __construct()
     {
         $this->id = Uuid::uuid4();
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
     }
 
     public function getId(): string
@@ -87,26 +76,6 @@ class Record
     public function setUrl(?string $url): void
     {
         $this->url = $url;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getOwnerId(): ?string

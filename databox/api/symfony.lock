@@ -16,6 +16,9 @@
             "src/Entity/.gitignore"
         ]
     },
+    "behat/transliterator": {
+        "version": "v1.3.0"
+    },
     "brick/math": {
         "version": "0.9.1"
     },
@@ -104,6 +107,9 @@
     "fig/link-util": {
         "version": "1.1.1"
     },
+    "gedmo/doctrine-extensions": {
+        "version": "v2.4.42"
+    },
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
@@ -186,6 +192,18 @@
         },
         "files": [
             "config/packages/snc_redis.yaml"
+        ]
+    },
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.2",
+            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
+        },
+        "files": [
+            "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
     "symfony/asset": {
@@ -272,6 +290,9 @@
             "src/Controller/.gitignore",
             "src/Kernel.php"
         ]
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.2.0"
     },
     "symfony/http-foundation": {
         "version": "v5.1.5"
