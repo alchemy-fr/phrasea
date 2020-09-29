@@ -19,8 +19,8 @@
     <div class="logo" style="{{ app_client_config.logo.style ?? '' }}">
         <img
             src="{{ app_client_config.logo.src }}"
-            width="{{ app_client_config.logo.width }}"
-             alt="{{ app_client_config.name ?? '' }}"
+            style="{{ app_client_config.logo.image_style ?? '' }}"
+            alt="{{ app_client_config.name ?? '' }}"
         />
     </div>
 {% endif %}

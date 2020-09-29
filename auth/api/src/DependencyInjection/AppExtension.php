@@ -175,7 +175,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
     {
         $availableLocales = $config['available_locales'] ?? ['en'];
 
-        $container->setParameter('app.client.config', $config['client'] ?? null);
+        $container->setParameter('app.client.config', $config['auth']['client'] ?? null);
         $container->prependExtensionConfig('arthem_locale', [
                 'locales' => array_map(function (string $locale): string {
                     return str_replace('_', '-', $locale);
