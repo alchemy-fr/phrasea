@@ -10,6 +10,6 @@ body {
     box-shadow: 0 0 15px rgba(0,0,0, 0.2);
 }
 
-{% if app_client_config.css -%}
+{% if app_client_config.css is defined -%}
 {{ app_client_config.css|raw }}
 {% endif %}
