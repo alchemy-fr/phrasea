@@ -23,6 +23,8 @@ Add the following entries to your `/etc/hosts` file:
 127.0.0.1 minio.alchemy.local
 127.0.0.1 matomo.alchemy.local
 127.0.0.1 notify.alchemy.local
+127.0.0.1 databox-1.alchemy.local
+127.0.0.1 databox-2.alchemy.local
 127.0.0.1 saml-idp.alchemy.local
 127.0.0.1 pma.alchemy.local
 127.0.0.1 mailhog.alchemy.local

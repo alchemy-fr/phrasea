@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -13,11 +14,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ * @ApiResource()
  */
 class Record
 {
     /**
      * @ORM\Id
+     * @ApiProperty(identifier=true)
      * @ORM\Column(type="uuid", unique=true)
      */
     protected UuidInterface $id;
