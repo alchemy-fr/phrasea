@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7847f4d19855802f7cfc40a5de725cff",
+    "content-hash": "c61e83f19c1c2663207ec9dc23772c84",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
@@ -347,21 +347,21 @@
         },
         {
             "name": "arthem/locale-bundle",
-            "version": "0.0.3",
+            "version": "0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/locale-bundle.git",
-                "reference": "fd180d6d71221b8f204d6ef3ea6edd2f2612f896"
+                "reference": "f2b6f3aba0c5fd859905f5cf2f6f6d9138d049fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/locale-bundle/zipball/fd180d6d71221b8f204d6ef3ea6edd2f2612f896",
-                "reference": "fd180d6d71221b8f204d6ef3ea6edd2f2612f896",
+                "url": "https://api.github.com/repos/4rthem/locale-bundle/zipball/f2b6f3aba0c5fd859905f5cf2f6f6d9138d049fd",
+                "reference": "f2b6f3aba0c5fd859905f5cf2f6f6d9138d049fd",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.1",
+                "php": ">=7.4",
                 "symfony/framework-bundle": "^4.0",
                 "symfony/security-bundle": "^4.0",
                 "symfony/translation": "^4.0",
@@ -378,7 +378,7 @@
                 "MIT"
             ],
             "description": "Arthem Locale bundle",
-            "time": "2019-12-13T17:47:06+00:00"
+            "time": "2020-09-29T09:55:02+00:00"
         },
         {
             "name": "arthem/rabbit-bundle",

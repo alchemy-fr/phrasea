@@ -28,12 +28,13 @@ class AppExtension extends Extension implements PrependExtensionInterface
             $config = [];
         }
 
-        return $config['auth'] ?? [];
+        return $config;
     }
 
     public function load(array $configs, ContainerBuilder $container)
     {
         $config = $this->getGlobalConfig($container);
+        $config = $config['auth'] ?? [];
 
         $def = new Definition(OAuthProviderFactory::class);
         $def->setAutowired(true);
@@ -92,9 +93,11 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
     public function prepend(ContainerBuilder $container)
     {
-        $config = $this->getGlobalConfig();
+        $globalConfig = $this->getGlobalConfig();
+        $config = $globalConfig['auth'] ?? [];
 
         $this->configureClientConfig($container, $config);
+        $this->configureArthemLocale($container, $globalConfig);
 
         $providers = $config['identity_providers'] ?? [];
         $idps = [];
@@ -164,6 +167,19 @@ class AppExtension extends Extension implements PrependExtensionInterface
                 'globals' => [
                     'app_client_config' => '%app.client.config%',
                 ],
+            ]
+        );
+    }
+
+    private function configureArthemLocale(ContainerBuilder $container, array $config): void
+    {
+        $availableLocales = $config['available_locales'] ?? [];
+
+        $container->setParameter('app.client.config', $config['client'] ?? null);
+        $container->prependExtensionConfig('arthem_locale', [
+                'locales' => array_map(function (string $locale): string {
+                    return str_replace('_', '-', $locale);
+                }, $availableLocales),
             ]
         );
     }

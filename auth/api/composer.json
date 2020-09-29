@@ -75,7 +75,7 @@
         "alchemy/notify-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
-        "arthem/locale-bundle": "^0",
+        "arthem/locale-bundle": "^0.0.4",
         "arthem/rabbit-bundle": "^0.0.7",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hslavich/oneloginsaml-bundle": "dev-attributes-mapping",
