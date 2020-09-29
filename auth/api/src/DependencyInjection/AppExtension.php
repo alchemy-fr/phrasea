@@ -173,7 +173,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
     private function configureArthemLocale(ContainerBuilder $container, array $config): void
     {
-        $availableLocales = $config['available_locales'] ?? [];
+        $availableLocales = $config['available_locales'] ?? ['en'];
 
         $container->setParameter('app.client.config', $config['client'] ?? null);
         $container->prependExtensionConfig('arthem_locale', [
