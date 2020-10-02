@@ -1,9 +1,11 @@
 (function (config, env) {
-    const identityProviders = config.auth.identity_providers.map(idp => {
+    config = config || {};
+
+    const identityProviders = config.auth && config.auth.identity_providers ? config.auth.identity_providers.map(idp => {
         delete idp.options;
 
         return idp;
-    });
+    }) : [];
 
     return {
         matomoHost: env.MATOMO_HOST,

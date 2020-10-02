@@ -69,4 +69,29 @@ class PublicationAssetTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(403, $response->getStatusCode());
     }
+
+    public function testDeletePublicationAsset(): void
+    {
+        $publicationId = $this->createPublication();
+        $assetId = $this->createAsset([
+            'publication_id' => $publicationId,
+            'description' => 'asset desc',
+        ]);
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(1, count($json['assets']));
+
+        $response = $this->request(
+            AuthServiceClientTestMock::ADMIN_TOKEN,
+            'DELETE',
+            '/publication-assets/'.$publicationId.'/'.$assetId
+        );
+        $this->assertEquals(204, $response->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(0, count($json['assets']));
+    }
 }

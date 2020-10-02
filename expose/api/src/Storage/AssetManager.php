@@ -102,6 +102,21 @@ class AssetManager
         $this->em->flush();
     }
 
+    public function deletePublicationAssertsByPublicationAndAsset(string $publicationId, string $assetId): void
+    {
+        $publicationAssets = $this->em->getRepository(PublicationAsset::class)
+            ->findBy([
+                'publication' => $publicationId,
+                'asset' => $assetId,
+            ]);
+
+        foreach ($publicationAssets as $publicationAsset) {
+            $this->em->remove($publicationAsset);
+        }
+
+        $this->em->flush();
+    }
+
     public function createSubDefinition(
         string $name,
         string $path,

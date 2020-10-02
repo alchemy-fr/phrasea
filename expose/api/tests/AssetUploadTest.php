@@ -30,9 +30,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
 
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
-        $em->clear();
+        $this->clearEmBeforeApiCall();
 
         // Test the asset is added to the publication
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
@@ -41,6 +39,7 @@ class AssetUploadTest extends AbstractExposeTestCase
 
         $this->assertEquals('Foo', $json['title']);
         $this->assertEquals(1, count($json['assets']));
+        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['assets'][0]['id']);
         $this->assertEquals('image/jpeg', $json['assets'][0]['asset']['mimeType']);
     }
 

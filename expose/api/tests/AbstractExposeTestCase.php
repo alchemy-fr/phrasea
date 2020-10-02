@@ -10,6 +10,7 @@ use App\Entity\Publication;
 use App\Entity\PublicationAsset;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
+use App\Entity\SubDefinition;
 use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
@@ -191,5 +192,27 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         $em->flush();
 
         return $asset->getId();
+    }
+
+    protected function createSubDefinition(string $assetId, array $options = []): string
+    {
+        $em = self::$container->get(EntityManagerInterface::class);
+
+        $subDefinition = new SubDefinition();
+        $subDefinition->setName($options['name'] ?? 'thumb');
+        $subDefinition->setSize(42);
+        $subDefinition->setPath('non-existing-file.jpeg');
+        $subDefinition->setMimeType('image/jpeg');
+        $subDefinition->setAsset($em->find(Asset::class, $assetId));
+
+        $em->persist($subDefinition);
+        $em->flush();
+
+        return $subDefinition->getId();
+    }
+
+    protected function clearEmBeforeApiCall(): void
+    {
+        self::$container->get(EntityManagerInterface::class)->clear();
     }
 }

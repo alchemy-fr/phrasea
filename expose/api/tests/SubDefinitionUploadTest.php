@@ -31,9 +31,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
 
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
-        $em->clear();
+        $this->clearEmBeforeApiCall();
 
         // Test the sub definition is added to the asset
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');

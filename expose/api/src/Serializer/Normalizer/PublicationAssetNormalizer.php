@@ -17,9 +17,6 @@ class PublicationAssetNormalizer extends AbstractRouterNormalizer
         $context['publication_asset'] = $object;
 
         if (in_array(PublicationAsset::GROUP_READ, $context['groups'], true)) {
-            if (!in_array(PublicationAsset::GROUP_READ, $context['groups'], true)) {
-                $context['groups'][] = PublicationAsset::GROUP_READ;
-            }
             if (!in_array(Publication::GROUP_READ, $context['groups'], true)) {
                 $context['groups'][] = Publication::GROUP_READ;
             }

@@ -9,6 +9,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use App\Controller\DeletePublicationAssetsAction;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -29,7 +30,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         }
  *     },
  *     collectionOperations={
- *         "post"={}
+ *         "post"={},
+ *         "delete_by_pub_and_asset"={
+ *             "controller"=DeletePublicationAssetsAction::class,
+ *             "method"="DELETE",
+ *             "path"="/publication-assets/{publicationId}/{assetId}",
+ *             "swagger_context"={
+ *                  "summary"="Delete all association between publication and asset",
+ *             },
+ *             "read"=false,
+ *         }
  *     }
  * )
  */

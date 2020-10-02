@@ -285,7 +285,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @return Asset[]
+     * @return PublicationAsset[]
      */
     public function getAssets(): Collection
     {

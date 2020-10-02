@@ -123,6 +123,11 @@ class PublicationTest extends AbstractExposeTestCase
     public function testGetPublicationFromAdmin(): void
     {
         $id = $this->createPublication();
+        $this->createAsset(['publication_id' => $id]);
+        $this->createAsset(['publication_id' => $id]);
+
+        $this->clearEmBeforeApiCall();
+
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
@@ -130,6 +135,10 @@ class PublicationTest extends AbstractExposeTestCase
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
+        $this->assertArrayHasKey('assets', $json);
+        $this->assertEquals(2, count($json['assets']));
+        $this->assertArrayHasKey('id', $json['assets'][0]);
+        $this->assertNotNull($json['assets'][0]['id']);
         $this->assertEquals(null, $json['ownerId']);
     }
 

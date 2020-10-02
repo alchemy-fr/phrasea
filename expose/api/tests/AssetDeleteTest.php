@@ -6,6 +6,7 @@ namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Asset;
+use App\Entity\SubDefinition;
 
 class AssetDeleteTest extends AbstractExposeTestCase
 {
@@ -24,6 +25,35 @@ class AssetDeleteTest extends AbstractExposeTestCase
         );
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertNotAssetExist($assetId);
+    }
+
+    public function testDeleteAssetWithSubDefinitionsOK(): void
+    {
+        $id = $this->createPublication();
+        $assetId = $this->createAsset([
+            'publication_id' => $id,
+        ]);
+        $subDef1Id = $this->createSubDefinition($assetId, [
+            'name' => 'thumb',
+        ]);
+        $subDef2Id = $this->createSubDefinition($assetId, [
+            'name' => 'preview',
+        ]);
+
+        $this->clearEmBeforeApiCall();
+
+        $this->assertAssetExist($assetId);
+        $this->assertSubDefinitionExist($subDef1Id);
+        $this->assertSubDefinitionExist($subDef2Id);
+        $response = $this->request(
+            AuthServiceClientTestMock::ADMIN_TOKEN,
+            'DELETE',
+            '/assets/'.$assetId
+        );
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertNotAssetExist($assetId);
+        $this->assertNotSubDefinitionExist($subDef1Id);
+        $this->assertNotSubDefinitionExist($subDef2Id);
     }
 
     public function testDeleteNonExistingAssetWillReturn404(): void
@@ -72,13 +102,25 @@ class AssetDeleteTest extends AbstractExposeTestCase
 
     private function assertAssetExist(string $id): void
     {
-        $asset = self::getEntityManager()->find(Asset::class, $id);
-        $this->assertInstanceOf(Asset::class, $asset);
+        $obj = self::getEntityManager()->find(Asset::class, $id);
+        $this->assertInstanceOf(Asset::class, $obj);
+    }
+
+    private function assertSubDefinitionExist(string $id): void
+    {
+        $obj = self::getEntityManager()->find(SubDefinition::class, $id);
+        $this->assertInstanceOf(SubDefinition::class, $obj);
     }
 
     private function assertNotAssetExist(string $id): void
     {
-        $asset = self::getEntityManager()->find(Asset::class, $id);
-        $this->assertNull($asset);
+        $obj = self::getEntityManager()->find(Asset::class, $id);
+        $this->assertNull($obj);
+    }
+
+    private function assertNotSubDefinitionExist(string $id): void
+    {
+        $obj = self::getEntityManager()->find(SubDefinition::class, $id);
+        $this->assertTrue(null === $obj, 'Sub def not removed');
     }
 }
