@@ -21,6 +21,9 @@ class AssetUploadTest extends AbstractExposeTestCase
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
+        if ($response->getStatusCode() === 500) {
+            var_dump($response->getContent());
+        }
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));

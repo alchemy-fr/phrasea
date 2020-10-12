@@ -54,9 +54,6 @@ class PublicationExtension implements QueryCollectionExtensionInterface
 
             $queryBuilder->setParameter('now', date('Y-m-d H:i:s'));
         }
-
-        $queryBuilder->andWhere(sprintf('%s.parent IS NULL', $rootAlias));
-        $queryBuilder->addOrderBy(sprintf('%s.title', $rootAlias), 'ASC');
     }
 
     private function createDateClause(string $rootAlias, string $column, int $way): string

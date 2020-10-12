@@ -20,13 +20,15 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected function createPublication(array $options = []): string
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $publication = new Publication();
         $this->configurePublication($publication, $options);
 
         $em->persist($publication);
-        $em->flush();
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
 
         return $publication->getId();
     }
@@ -95,7 +97,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected function createProfile(array $options = []): string
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $profile = new PublicationProfile();
         $this->configureProfile($profile, $options);
@@ -125,7 +127,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     private function findProfile(string $id): ?PublicationProfile
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
         /** @var PublicationProfile $profile */
         $profile = $em->find(PublicationProfile::class, $id);
 
@@ -134,7 +136,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     private function findPublication(string $id): ?Publication
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
         /** @var Publication $publication */
         $publication = $em->find(Publication::class, $id);
 
@@ -143,7 +145,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected function addPublicationChild($parentId, $childId): void
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
         /** @var Publication $parent */
         $parent = $em->find(Publication::class, $parentId);
         /** @var Publication $child */
@@ -166,7 +168,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected function createAsset(array $options = []): string
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $asset = new Asset();
         if (isset($options['description'])) {
@@ -189,14 +191,17 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         }
 
         $em->persist($asset);
-        $em->flush();
+
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
 
         return $asset->getId();
     }
 
     protected function createSubDefinition(string $assetId, array $options = []): string
     {
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $subDefinition = new SubDefinition();
         $subDefinition->setName($options['name'] ?? 'thumb');
@@ -213,6 +218,6 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected function clearEmBeforeApiCall(): void
     {
-        self::$container->get(EntityManagerInterface::class)->clear();
+        self::getEntityManager()->clear();
     }
 }

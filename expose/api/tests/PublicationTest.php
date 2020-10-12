@@ -37,7 +37,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testListPublications(): void
     {
-        $this->createPublication([
+        $pub1 = $this->createPublication([
             'title' => 'Pub #1',
             'enabled' => true,
             'publiclyListed' => true,
@@ -52,6 +52,12 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => true,
             'publiclyListed' => true,
         ]);
+        $this->createPublication([
+            'title' => 'Pub #1.1',
+            'enabled' => true,
+            'publiclyListed' => true,
+            'parent_id' => $pub1
+        ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
         $json = json_decode($response->getContent(), true);
@@ -62,6 +68,45 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(2, count($json));
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #3', $json[1]['title']);
+    }
+
+
+    public function testListFlattenPublications(): void
+    {
+        $pub1 = $this->createPublication([
+            'title' => 'Pub #1',
+            'enabled' => true,
+            'publiclyListed' => true,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #2',
+            'enabled' => true,
+            'publiclyListed' => false,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #3',
+            'enabled' => true,
+            'publiclyListed' => true,
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #1.1',
+            'enabled' => true,
+            'publiclyListed' => true,
+            'parent_id' => $pub1
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(2, count($json));
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?flatten=true', []);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(3, count($json));
+        $this->assertEquals('Pub #1', $json[0]['title']);
+        $this->assertEquals('Pub #1.1', $json[1]['title']);
+        $this->assertEquals('Pub #3', $json[2]['title']);
     }
 
     public function testListPublicationsAsAdmin(): void

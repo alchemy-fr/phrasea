@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\GetPublicationAction;
@@ -17,10 +18,15 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use App\Filter\PublicationFilter;
 
 /**
  * @ORM\Entity()
+ * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
+ * @ApiFilter(PublicationFilter::class, properties={"flatten"})
  * @ApiResource(
+ *     attributes={"order"={"title": "ASC"}},
  *     normalizationContext=Publication::API_READ,
  *     itemOperations={
  *         "get"={
