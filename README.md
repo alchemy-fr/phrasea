@@ -144,8 +144,14 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 
 # Further reading
 
-- [Dev with NGINX](./doc/dev-with-nginx.md)
 - [Private/public networks](./doc/networks.md)
+- [S3 Storage](./doc/storage/s3.md)
+
+## Dev
+
+- [Local NGINX](./doc/dev-with-nginx.md)
+- [Configure SSL](./doc/configure-ssl.md)
+- [Debug application with XDEBUG](./doc/xdebug.md)
 
 ## Infra
 

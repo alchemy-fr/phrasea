@@ -35,6 +35,9 @@
               "email": "support@alchemy.fr"
             }
           },
+          "group_map": {
+            "groupA": "group1"
+          },
           "organization": {
             "en": {
               "name": "Alchemy",

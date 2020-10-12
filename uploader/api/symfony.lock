@@ -43,6 +43,9 @@
     "arthem/request-signer-bundle": {
         "version": "1.0.4"
     },
+    "aws/aws-sdk-php": {
+        "version": "3.147.8"
+    },
     "composer/semver": {
         "version": "1.5.0"
     },
@@ -156,6 +159,9 @@
             "config/packages/eight_points_guzzle.yaml"
         ]
     },
+    "fig/link-util": {
+        "version": "1.1.1"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -200,14 +206,26 @@
             "fixtures/.gitignore"
         ]
     },
+    "laminas/laminas-code": {
+        "version": "3.4.1"
+    },
+    "laminas/laminas-eventmanager": {
+        "version": "3.2.1"
+    },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.2"
     },
     "league/flysystem": {
         "version": "1.0.51"
     },
+    "league/flysystem-aws-s3-v3": {
+        "version": "1.0.25"
+    },
     "monolog/monolog": {
         "version": "1.24.0"
+    },
+    "mtdowling/jmespath.php": {
+        "version": "2.5.0"
     },
     "myclabs/deep-copy": {
         "version": "1.9.1"
