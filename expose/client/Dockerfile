@@ -1,6 +1,6 @@
 FROM node:13.10.1-alpine3.11 as expose-client-build
 
-RUN apk add --no-cache --virtual .gyp \
+RUN apk add --no-cache \
         python \
         make \
         g++ \
@@ -19,8 +19,7 @@ WORKDIR /usr/src/app
 
 RUN yarn install \
     && mv public/index.tpl.html public/index.html \
-    && yarn run build \
-    && apk del .gyp
+    && yarn run build
 
 EXPOSE 3000
 

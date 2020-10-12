@@ -21,7 +21,7 @@ d-c run --rm dockerize
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissions -p auth ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
-exec_container auth-api-php "bin/setup.sh"
+exec_container_as auth-api-php "bin/setup.sh" app
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMIN_CLIENT_ID} \
     --random-id=${AUTH_ADMIN_CLIENT_RANDOM_ID} \
@@ -34,7 +34,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMI
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost upload && rabbitmqctl set_permissions -p upload ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
-exec_container uploader-api-php "bin/setup.sh"
+exec_container_as uploader-api-php "bin/setup.sh" app
 ## Create OAuth client
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
@@ -61,7 +61,7 @@ docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost expose && rabbitmqctl set_permissions -p expose ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
-exec_container expose-api-php "bin/setup.sh"
+exec_container_as expose-api-php "bin/setup.sh" app
 ## Create OAuth client
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_CLIENT_ID} \
     --random-id=${EXPOSE_CLIENT_RANDOM_ID} \
@@ -88,7 +88,7 @@ docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost notify && rabbitmqctl set_permissions -p notify ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
-exec_container notify-api-php "bin/setup.sh"
+exec_container_as notify-api-php "bin/setup.sh" app
 ## Create OAuth client for Notify Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_ADMIN_CLIENT_ID} \
     --random-id=${NOTIFY_ADMIN_CLIENT_RANDOM_ID} \

@@ -48,6 +48,10 @@ function exec_container() {
     d-c exec -T "$1" sh -c "$2"
 }
 
+function exec_container_as() {
+    d-c exec -T "$1" su "$3" sh -c "$2"
+}
+
 function create_db() {
     exec_container db "psql -U \"${POSTGRES_USER}\" -tc \"SELECT 1 FROM pg_database WHERE datname = '$1'\" | grep -q 1 || psql -U \"${POSTGRES_USER}\" -c \"CREATE DATABASE $1\""
 }

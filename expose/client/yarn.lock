@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@alchemy-fr/phraseanet-react-components@^1.0.2-alpha4":
+"@alchemy-fr/phraseanet-react-components@1.0.2-alpha4":
   version "1.0.2-alpha4"
   resolved "https://registry.yarnpkg.com/@alchemy-fr/phraseanet-react-components/-/phraseanet-react-components-1.0.2-alpha4.tgz#8971dfc0dad61ec8a3633fa12a844ea54239bef5"
   integrity sha512-tQNrSdyo7JnjYoQ8Sp8RQC5NnM9Z48ptoCCgvjkQuUuu42tpAmK2KbHzmH2pBcgXPSNca/q1cB7VH5tAS7PnMA==
