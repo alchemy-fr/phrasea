@@ -94,42 +94,35 @@ class SubDefinition implements MediaInterface
     protected $id;
 
     /**
-     * @var Asset
-     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Asset", inversedBy="subDefinitions")
      * @ORM\JoinColumn(nullable=false)
      */
-    protected $asset;
+    protected ?Asset $asset = null;
 
     /**
-     * @var string
      * @ApiProperty()
      * @Groups({"asset:read", "publication:read", "subdef:read"})
      * @ORM\Column(type="string", length=30)
      */
-    private $name;
+    private ?string $name = null;
 
     /**
-     * @var string
      * @ORM\Column(type="string", length=255)
      */
-    private $path;
+    private ?string $path = null;
 
     /**
-     * @var int
      * @Groups({"subdef:read", "publication:read"})
      * @ORM\Column(type="integer")
      */
-    private $size;
+    private ?int $size = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
      * @Groups({"subdef:read", "asset:read"})
      */
-    private $mimeType;
+    private ?string $mimeType = null;
 
     /**
      * @var DateTime
@@ -138,23 +131,19 @@ class SubDefinition implements MediaInterface
      * @ApiProperty()
      * @Groups({"subdef:read"})
      */
-    private $createdAt;
+    private ?DateTime $createdAt = null;
 
     /**
      * @ApiProperty()
      * @Groups({"subdef:read", "asset:read", "publication:read"})
-     *
-     * @var string
      */
-    private $url;
+    private ?string $url = null;
 
     /**
      * @ApiProperty()
      * @Groups({"subdef:read", "asset:read", "publication:read"})
-     *
-     * @var string
      */
-    private $downloadUrl;
+    private ?string $downloadUrl = null;
 
     public function __construct()
     {

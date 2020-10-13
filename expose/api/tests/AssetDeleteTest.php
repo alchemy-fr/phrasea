@@ -39,7 +39,6 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $subDef2Id = $this->createSubDefinition($assetId, [
             'name' => 'preview',
         ]);
-
         $this->clearEmBeforeApiCall();
 
         $this->assertAssetExist($assetId);
@@ -50,6 +49,9 @@ class AssetDeleteTest extends AbstractExposeTestCase
             'DELETE',
             '/assets/'.$assetId
         );
+        if (500 === $response->getStatusCode()) {
+            var_dump($response->getContent());
+        }
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertNotAssetExist($assetId);
         $this->assertNotSubDefinitionExist($subDef1Id);

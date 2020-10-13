@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\GetPublicationAction;
 use App\Controller\SortAssetsAction;
 use App\Model\LayoutOptions;
@@ -57,6 +58,12 @@ use App\Filter\PublicationFilter;
  *          },
  *         "post"={
  *             "security"="is_granted('publication:create')"
+ *         }
+ *     },
+ *     subresourceOperations={
+ *         "api_publication_assets_get_subresource"={
+ *             "method"="GET",
+ *             "normalization_context"={"groups"={"foobar"}}
  *         }
  *     }
  * )
@@ -111,6 +118,7 @@ class Publication implements AclObjectInterface
     /**
      * @var PublicationAsset[]|Collection
      *
+     * @ApiSubresource(maxDepth=1)
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
