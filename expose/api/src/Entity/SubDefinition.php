@@ -77,6 +77,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class SubDefinition implements MediaInterface
 {
+    const THUMBNAIL = 'thumbnail';
+    const PREVIEW = 'preview';
+
     const API_READ = [
         'groups' => ['subdef:read'],
         'swagger_definition_name' => 'Read',
