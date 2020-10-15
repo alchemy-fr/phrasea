@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
- *              "path"="/publications/{publicationSlug}/{assetSlug}",
+ *              "path"="/publications/{publicationSlug}/assets/{assetSlug}",
  *              "defaults"={
  *                   "_api_receive"=false
  *              },
@@ -235,18 +235,6 @@ class Asset implements MediaInterface
      * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset", cascade={"remove"})
      */
     private ?Collection $subDefinitions = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?SubDefinition $previewDefinition = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\SubDefinition")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?SubDefinition $thumbnailDefinition = null;
 
     /**
      * Location latitude.
@@ -461,22 +449,36 @@ class Asset implements MediaInterface
 
     public function getPreviewDefinition(): ?SubDefinition
     {
-        return $this->previewDefinition;
+        foreach ($this->getSubDefinitions() as $subDefinition) {
+            if ($subDefinition->getName() === SubDefinition::PREVIEW) {
+                return $subDefinition;
+            }
+        }
+
+        return null;
     }
 
     public function setPreviewDefinition(?SubDefinition $previewDefinition): void
     {
-        $this->previewDefinition = $previewDefinition;
+        $previewDefinition->setName(SubDefinition::PREVIEW);
+        $previewDefinition->setAsset($this);
     }
 
     public function getThumbnailDefinition(): ?SubDefinition
     {
-        return $this->thumbnailDefinition;
+        foreach ($this->getSubDefinitions() as $subDefinition) {
+            if ($subDefinition->getName() === SubDefinition::THUMBNAIL) {
+                return $subDefinition;
+            }
+        }
+
+        return null;
     }
 
     public function setThumbnailDefinition(?SubDefinition $thumbnailDefinition): void
     {
-        $this->thumbnailDefinition = $thumbnailDefinition;
+        $thumbnailDefinition->setName(SubDefinition::THUMBNAIL);
+        $thumbnailDefinition->setAsset($this);
     }
 
     public function getOwnerId(): ?string
