@@ -30,6 +30,10 @@ jobs:
           command: |-
             docker-compose down
       - run:
+          name: Docker login
+          command: |-
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
+      - run:
           name: Build application images
           command: |-
             bin/build.sh
