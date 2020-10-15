@@ -7,6 +7,9 @@ framework:
         name: auth_sess
         cookie_secure: auto
         cookie_httponly: true
+
+        # Must be None for SAML POST requests
+        # See PS-254 for more info
         cookie_samesite: none
 
     php_errors:
