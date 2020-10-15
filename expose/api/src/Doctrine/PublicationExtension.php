@@ -35,7 +35,10 @@ class PublicationExtension implements QueryCollectionExtensionInterface
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (!$this->security->isGranted('ROLE_ADMIN')) {
+        if (
+            !$this->security->isGranted('ROLE_ADMIN')
+            && !$this->security->isGranted('ROLE_PUBLISH')
+        ) {
             $queryBuilder->leftJoin($rootAlias.'.profile', 'p');
 
             $visibleConditions = implode(' AND ', [

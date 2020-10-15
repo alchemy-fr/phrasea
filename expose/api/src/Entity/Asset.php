@@ -255,8 +255,6 @@ class Asset implements MediaInterface
     private ?float $lng = null;
 
     /**
-     * Location longitude.
-     *
      * @ApiProperty()
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"asset:admin:read"})

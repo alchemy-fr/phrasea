@@ -53,6 +53,11 @@ class PublicationTest extends AbstractExposeTestCase
             'publiclyListed' => true,
         ]);
         $this->createPublication([
+            'title' => 'Pub #4',
+            'enabled' => false,
+            'publiclyListed' => true,
+        ]);
+        $this->createPublication([
             'title' => 'Pub #1.1',
             'enabled' => true,
             'publiclyListed' => true,
@@ -70,6 +75,42 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals('Pub #3', $json[1]['title']);
     }
 
+    public function testUserCanListItsDisabledPublications(): void
+    {
+        $pub1 = $this->createPublication([
+            'title' => 'Pub #1',
+            'enabled' => true,
+            'publiclyListed' => true,
+            'ownerId' => '123',
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #2',
+            'enabled' => true,
+            'publiclyListed' => false,
+            'ownerId' => '123',
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #3',
+            'enabled' => false,
+            'publiclyListed' => true,
+            'ownerId' => '123',
+        ]);
+        $this->createPublication([
+            'title' => 'Pub #1.1',
+            'enabled' => true,
+            'publiclyListed' => true,
+            'parent_id' => $pub1,
+            'ownerId' => '123',
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(3, count($json));
+        $this->assertEquals('Pub #1', $json[0]['title']);
+        $this->assertEquals('Pub #2', $json[1]['title']);
+        $this->assertEquals('Pub #3', $json[2]['title']);
+    }
 
     public function testListFlattenPublications(): void
     {
