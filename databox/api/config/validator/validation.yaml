@@ -1,0 +1,6 @@
+App\Entity\Collection:
+  properties:
+    title:
+      - NotBlank: ~
+      - Length:
+          max: 100

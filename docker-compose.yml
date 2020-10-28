@@ -638,11 +638,19 @@ services:
     networks:
       internal:
         aliases:
-          - databox-api-php
+          - databox-php
     environment:
       - APP_ENV
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+      - S3_STORAGE_BASE_URL=${DATABOX_1_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${DATABOX_1_STORAGE_ENDPOINT}
+      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_1_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${DATABOX_1_STORAGE_BUCKET_NAME}
+      - DATABOX_1_REQUEST_SIGNATURE_TTL
       - TRUSTED_PROXIES=${PS_SUBNET}
     depends_on:
       - redis
@@ -658,7 +666,7 @@ services:
         aliases:
           - databox-api
     ports:
-      - ${DATABOX_PORT}:80
+      - ${DATABOX_1_PORT}:80
     depends_on:
       - databox-api-php
 

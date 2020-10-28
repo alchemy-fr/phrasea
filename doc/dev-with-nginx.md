@@ -30,6 +30,8 @@ Add the following entries to your `/etc/hosts` file:
 127.0.0.1 mailhog.alchemy.local
 127.0.0.1 weblate.alchemy.local
 127.0.0.1 dashboard.alchemy.local
+127.0.0.1 databox-1.alchemy.local
+127.0.0.1 databox-2.alchemy.local
 ```
 
 Next you can [enable SSL](./configure-ssl.md).
