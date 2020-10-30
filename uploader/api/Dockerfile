@@ -32,7 +32,7 @@ RUN set -eux \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& apk del .build-deps
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
 COPY docker/app/conf.d/symfony.ini /usr/local/etc/php-fpm.d/
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \

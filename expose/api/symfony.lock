@@ -245,6 +245,9 @@
     "league/flysystem-aws-s3-v3": {
         "version": "1.0.23"
     },
+    "league/mime-type-detection": {
+        "version": "1.5.1"
+    },
     "monolog/monolog": {
         "version": "1.25.1"
     },
@@ -473,6 +476,9 @@
     "symfony/dependency-injection": {
         "version": "v4.3.4"
     },
+    "symfony/deprecation-contracts": {
+        "version": "v2.2.0"
+    },
     "symfony/doctrine-bridge": {
         "version": "v4.3.4"
     },
@@ -534,6 +540,9 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/http-client-contracts": {
+        "version": "v2.3.1"
+    },
     "symfony/http-foundation": {
         "version": "v4.3.4"
     },
@@ -594,6 +603,9 @@
     "symfony/polyfill-intl-idn": {
         "version": "v1.12.0"
     },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.20.0"
+    },
     "symfony/polyfill-mbstring": {
         "version": "v1.12.0"
     },
@@ -602,6 +614,9 @@
     },
     "symfony/polyfill-php73": {
         "version": "v1.12.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.20.0"
     },
     "symfony/process": {
         "version": "v4.3.7"
@@ -659,6 +674,9 @@
     },
     "symfony/serializer": {
         "version": "v4.3.4"
+    },
+    "symfony/serializer-pack": {
+        "version": "v1.0.4"
     },
     "symfony/service-contracts": {
         "version": "v1.1.6"
