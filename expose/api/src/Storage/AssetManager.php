@@ -102,7 +102,7 @@ class AssetManager
         $this->em->flush();
     }
 
-    public function deletePublicationAssertsByPublicationAndAsset(string $publicationId, string $assetId): void
+    public function deletePublicationAssetsByPublicationAndAsset(string $publicationId, string $assetId): void
     {
         $publicationAssets = $this->em->getRepository(PublicationAsset::class)
             ->findBy([

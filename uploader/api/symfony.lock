@@ -221,6 +221,9 @@
     "league/flysystem-aws-s3-v3": {
         "version": "1.0.25"
     },
+    "league/mime-type-detection": {
+        "version": "1.5.1"
+    },
     "monolog/monolog": {
         "version": "1.24.0"
     },
@@ -515,6 +518,9 @@
             "src/Controller/.gitignore",
             "src/Kernel.php"
         ]
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.3.1"
     },
     "symfony/http-foundation": {
         "version": "v4.2.5"
