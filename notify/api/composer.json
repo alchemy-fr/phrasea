@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/core-bundle",
             "options": {
                 "symlink": true
