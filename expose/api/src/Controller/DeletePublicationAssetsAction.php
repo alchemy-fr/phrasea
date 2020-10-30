@@ -19,6 +19,6 @@ final class DeletePublicationAssetsAction extends AbstractController
 
     public function __invoke(string $publicationId, string $assetId, Request $request): void
     {
-        $this->assetManager->deletePublicationAssertsByPublicationAndAsset($publicationId, $assetId);
+        $this->assetManager->deletePublicationAssetsByPublicationAndAsset($publicationId, $assetId);
     }
 }

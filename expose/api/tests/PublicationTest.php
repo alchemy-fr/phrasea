@@ -556,6 +556,38 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
+    public function testDeletePublicationWillRemoveOrphanAssets(): void
+    {
+        $pub1 = $this->createPublication([
+            'no_flush' => true,
+        ]);
+        $pub2 = $this->createPublication([
+            'no_flush' => true,
+        ]);
+        $asset1 = $this->createAsset([
+            'publication_id' => $pub1,
+            'no_flush' => true,
+        ]);
+        $asset2 = $this->createAsset([
+            'publication_id' => $pub1,
+            'no_flush' => true,
+        ]);
+        $this->addAssetToPublication($pub2, $asset1);
+
+        $em = $this->getEntityManager();
+        $em->clear();
+
+        $this->assertAssetExists($asset1);
+        $this->assertAssetExists($asset2);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$pub1);
+        $this->assertEquals(204, $response->getStatusCode());
+
+        $this->assertPublicationDoesNotExist($pub1);
+        $this->assertAssetExists($asset1);
+        $this->assertAssetDoesNotExist($asset2);
+    }
+
     public function testPublicationWillHaveSafeHtmlDescription(): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [

@@ -10,10 +10,7 @@ use RuntimeException;
 
 class FileStorageManager
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
     public function __construct(FilesystemInterface $filesystem)
     {

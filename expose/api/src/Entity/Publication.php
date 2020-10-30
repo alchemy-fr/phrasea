@@ -127,7 +127,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
-     * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication")
+     * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication", cascade={"remove"})
      * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
     private Collection $assets;

@@ -33,6 +33,22 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         return $publication->getId();
     }
 
+    protected function addAssetToPublication(string $publicationId, string $assetId, array $options = []): string
+    {
+        $em = self::getEntityManager();
+
+        $publicationAsset = new PublicationAsset();
+        $publicationAsset->setPublication($em->getReference(Publication::class, $publicationId));
+        $publicationAsset->setAsset($em->getReference(Asset::class, $assetId));
+
+        $em->persist($publicationAsset);
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $publicationAsset->getId();
+    }
+
     protected function configurePublication(Publication $publication, array $options): void
     {
         $options = array_merge([
@@ -143,6 +159,15 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         return $publication;
     }
 
+    private function findAsset(string $id): ?Asset
+    {
+        $em = self::getEntityManager();
+        /** @var Asset $asset */
+        $asset = $em->find(Asset::class, $id);
+
+        return $asset;
+    }
+
     protected function addPublicationChild($parentId, $childId): void
     {
         $em = self::getEntityManager();
@@ -164,6 +189,16 @@ abstract class AbstractExposeTestCase extends ApiTestCase
     protected function assertPublicationDoesNotExist(string $id): void
     {
         $this->assertTrue(null === $this->findPublication($id), 'Publication exists.');
+    }
+
+    protected function assertAssetExists(string $id): void
+    {
+        $this->assertTrue(null !== $this->findAsset($id), 'Asset does not exist.');
+    }
+
+    protected function assertAssetDoesNotExist(string $id): void
+    {
+        $this->assertTrue(null === $this->findAsset($id), 'Asset exists.');
     }
 
     protected function createAsset(array $options = []): string
