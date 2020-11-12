@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
@@ -13,7 +14,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class PublicationTest extends AbstractExposeTestCase
 {
-    public function testCreatePublicationOK(): void
+    public function testCreatePublicationAsAdmin(): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
             'title' => 'Foo',
@@ -29,7 +30,37 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Foo', $json['title']);
-        $this->assertEquals('123', $json['ownerId']);
+        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
+        $this->assertArrayHasKey('config', $json);
+        $this->assertEquals('download', $json['config']['layout']);
+        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+    }
+
+    public function testCreatePublicationAsUser(): void
+    {
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'objectType' => 'publication',
+            'mask' => PermissionInterface::CREATE,
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'config' => [
+                'layout' => 'download',
+            ],
+        ]);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertArrayHasKey('id', $json);
+        $this->assertArrayHasKey('title', $json);
+        $this->assertEquals('Foo', $json['title']);
+        $this->assertEquals(AuthServiceClientTestMock::USER_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
@@ -81,26 +112,26 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1',
             'enabled' => true,
             'publiclyListed' => true,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
             'publiclyListed' => false,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
         $this->createPublication([
             'title' => 'Pub #3',
             'enabled' => false,
             'publiclyListed' => true,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
         $this->createPublication([
             'title' => 'Pub #1.1',
             'enabled' => true,
             'publiclyListed' => true,
             'parent_id' => $pub1,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
@@ -180,13 +211,13 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1',
             'enabled' => true,
             'publiclyListed' => true,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
             'publiclyListed' => false,
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);

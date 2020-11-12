@@ -13,6 +13,14 @@ class AuthServiceClientTestMock extends Client
     const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
     const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
 
+    const USER_UID = '123';
+    const ADMIN_UID = '4242';
+
+    const USERS_ID = [
+        self::USER_TOKEN => self::USER_UID,
+        self::ADMIN_TOKEN => self::ADMIN_UID,
+    ];
+
     public function request($method, $uri = '', array $options = [])
     {
         $accessToken = explode(' ', $options['headers']['Authorization'], 2)[1];
@@ -31,6 +39,8 @@ class AuthServiceClientTestMock extends Client
             ]);
         }
 
+        $userId = self::USERS_ID[$accessToken];
+
         $roles = ['ROLE_USER'];
         if (self::ADMIN_TOKEN === $accessToken) {
             $roles[] = 'ROLE_SUPER_ADMIN';
@@ -39,7 +49,7 @@ class AuthServiceClientTestMock extends Client
         switch ($uri) {
             case '/me':
                 return $this->createResponse(200, [
-                    'user_id' => '123',
+                    'user_id' => $userId,
                     'username' => $accessToken,
                     'roles' => $roles,
                     'groups' => [],
@@ -48,7 +58,7 @@ class AuthServiceClientTestMock extends Client
                 return $this->createResponse(200, [
                     'scopes' => [],
                     'user' => [
-                        'id' => '123',
+                        'id' => $userId,
                         'username' => $accessToken,
                         'roles' => $roles,
                         'groups' => [],
