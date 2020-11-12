@@ -11,7 +11,7 @@ use App\Entity\PublicationAsset;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Storage\FileStorageManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
 abstract class AbstractExposeTestCase extends ApiTestCase
@@ -196,9 +196,38 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         $this->assertTrue(null !== $this->findAsset($id), 'Asset does not exist.');
     }
 
-    protected function assertAssetDoesNotExist(string $id): void
+    protected function assertAssetFileExists(string $path): void
     {
-        $this->assertTrue(null === $this->findAsset($id), 'Asset exists.');
+        $this->assertTrue(self::getStorageManager()->has($path), 'Asset file does not exist.');
+    }
+
+    protected function assertAssetFileDoesNotExist(string $path): void
+    {
+        $this->assertFalse(self::getStorageManager()->has($path), 'Asset file does exist.');
+    }
+
+    protected function assertAssetExist(string $id, bool $testStorage = false): Asset
+    {
+        /** @var Asset $obj */
+        $obj = self::getEntityManager()->find(Asset::class, $id);
+        $this->assertInstanceOf(Asset::class, $obj);
+
+        if ($testStorage) {
+            $this->assertAssetFileExists($obj->getPath());
+        }
+
+        return $obj;
+    }
+
+    protected function assertNotAssetExist(string $id): void
+    {
+        $obj = self::getEntityManager()->find(Asset::class, $id);
+        $this->assertNull($obj, 'Asset exists.');
+    }
+
+    protected static function getStorageManager(): FileStorageManager
+    {
+        return self::$container->get(FileStorageManager::class);
     }
 
     protected function createAsset(array $options = []): string
@@ -211,7 +240,6 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         }
         $asset->setOriginalName('Foo.jpeg');
         $asset->setSize(42);
-        $asset->setPath('non-existing-file.jpeg');
         $asset->setMimeType('image/jpeg');
 
         if (isset($options['asset_id'])) {
@@ -224,6 +252,11 @@ abstract class AbstractExposeTestCase extends ApiTestCase
             $pubAsset->setPublication($em->find(Publication::class, $options['publication_id']));
             $em->persist($pubAsset);
         }
+
+        $storageManager = self::getStorageManager();
+        $path = $storageManager->generatePath('jpg');
+        $storageManager->store($path, 'Dummy content');
+        $asset->setPath($path);
 
         $em->persist($asset);
 

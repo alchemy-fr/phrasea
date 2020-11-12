@@ -616,7 +616,7 @@ class PublicationTest extends AbstractExposeTestCase
 
         $this->assertPublicationDoesNotExist($pub1);
         $this->assertAssetExists($asset1);
-        $this->assertAssetDoesNotExist($asset2);
+        $this->assertNotAssetExist($asset2);
     }
 
     public function testPublicationWillHaveSafeHtmlDescription(): void
