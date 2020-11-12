@@ -39,6 +39,11 @@ class FileStorageManager
         $this->filesystem->write($path, $content);
     }
 
+    public function has(string $path): bool
+    {
+        return $this->filesystem->has($path);
+    }
+
     /**
      * @param $content resource
      */

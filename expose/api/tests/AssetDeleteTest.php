@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use App\Entity\Asset;
 use App\Entity\SubDefinition;
 
 class AssetDeleteTest extends AbstractExposeTestCase
@@ -15,9 +14,11 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $id = $this->createPublication();
         $assetId = $this->createAsset([
             'publication_id' => $id,
+            'persist_file' => true,
         ]);
 
-        $this->assertAssetExist($assetId);
+        $asset = $this->assertAssetExist($assetId, true);
+        $path = $asset->getPath();
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
             'DELETE',
@@ -25,6 +26,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         );
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertNotAssetExist($assetId);
+        $this->assertAssetFileDoesNotExist($path);
     }
 
     public function testDeleteAssetWithSubDefinitionsOK(): void
@@ -102,22 +104,10 @@ class AssetDeleteTest extends AbstractExposeTestCase
         }
     }
 
-    private function assertAssetExist(string $id): void
-    {
-        $obj = self::getEntityManager()->find(Asset::class, $id);
-        $this->assertInstanceOf(Asset::class, $obj);
-    }
-
     private function assertSubDefinitionExist(string $id): void
     {
         $obj = self::getEntityManager()->find(SubDefinition::class, $id);
         $this->assertInstanceOf(SubDefinition::class, $obj);
-    }
-
-    private function assertNotAssetExist(string $id): void
-    {
-        $obj = self::getEntityManager()->find(Asset::class, $id);
-        $this->assertNull($obj);
     }
 
     private function assertNotSubDefinitionExist(string $id): void
