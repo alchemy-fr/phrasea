@@ -66,6 +66,7 @@ class DownloadRequest
      *     }
      * )
      * @ORM\ManyToOne(targetEntity="Publication")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private ?Publication $publication = null;
 
