@@ -11,7 +11,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'ownerId' => '123',
+            'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
         ]);
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
@@ -37,12 +37,12 @@ class NestedPublicationTest extends AbstractExposeTestCase
             '#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#',
             $json['id']
         );
-        $this->assertEquals('123', $json['ownerId']);
+        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
 
         $this->assertArrayHasKey('parent', $json);
         $this->assertEquals($id, $json['parent']['id']);
         $this->assertArrayHasKey('title', $json['parent']);
-        $this->assertEquals('123', $json['parent']['ownerId']);
+        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
     }
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void

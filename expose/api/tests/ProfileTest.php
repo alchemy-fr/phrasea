@@ -25,7 +25,7 @@ class ProfileTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
         $this->assertEquals('profile_1', $json['name']);
-        $this->assertEquals('123', $json['ownerId']);
+        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
         $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);

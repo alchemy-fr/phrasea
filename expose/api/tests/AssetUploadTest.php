@@ -16,7 +16,7 @@ class AssetUploadTest extends AbstractExposeTestCase
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [
             'publication_id' => $id,
-            'asset_id' => '123',
+            'asset_id' => AuthServiceClientTestMock::ADMIN_UID,
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);

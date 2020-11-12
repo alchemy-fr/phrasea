@@ -51,7 +51,8 @@ class PublicationVoter extends Voter
 
         switch ($attribute) {
             case self::CREATE:
-                return $isAdmin || $this->security->isGranted(PermissionInterface::EDIT, $subject);
+                return $isAdmin
+                    || $this->security->isGranted(PermissionInterface::CREATE, new Publication());
             case self::INDEX:
                 return true;
             case self::READ:
