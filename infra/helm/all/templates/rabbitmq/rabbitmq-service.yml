@@ -15,6 +15,9 @@ spec:
   - name: rabbitmqctl
     port: 4369
     targetPort: 4369
+  - name: rabbitmq-mgmt
+    port: 15672
+    targetPort: 15672
   - name: rabbitmq-clust
     port: 55950
     targetPort: 55950
