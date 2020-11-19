@@ -53,7 +53,7 @@ class AssetUrlGenerator
 
         return $this->requestSigner->signUri(
             $this->storageBaseUrl.'/'.$path,
-            $this->requestStack->getCurrentRequest() ?? Request::createFromGlobals(),
+            $this->requestStack->getCurrentRequest() ?? Request::create('/'),
             $options
         );
     }
