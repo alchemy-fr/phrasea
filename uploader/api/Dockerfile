@@ -82,4 +82,4 @@ COPY docker/supervisor/* /etc/supervisor.d/
 
 ENTRYPOINT []
 
-CMD ["/usr/bin/supervisord", "-n"]
+CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && /usr/bin/supervisord -n"]

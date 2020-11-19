@@ -78,8 +78,8 @@ RUN apk add --no-cache \
     && mkdir -p /var/log/supervisor \
     && chown -R app: /var/log/supervisor
 
-COPY docker /etc/supervisor.d/
+COPY docker/supervisor/* /etc/supervisor.d/
 
 ENTRYPOINT []
 
-CMD ["/usr/bin/supervisord", "-n"]
+CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && /usr/bin/supervisord -n"]
