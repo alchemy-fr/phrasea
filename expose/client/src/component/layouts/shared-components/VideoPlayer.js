@@ -49,7 +49,7 @@ export default class VideoPlayer extends PureComponent {
             return;
         }
 
-        const {url, webVTTLink} = this.props;
+        const {url} = this.props;
 
         this.player = videojs(this.videoRef.current, {
             autoplay: true,
