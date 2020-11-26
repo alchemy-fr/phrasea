@@ -43,23 +43,18 @@ class LocaleRewriteListener implements EventSubscriberInterface
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        $routeExists = false; //by default assume route does not exist.
-
         foreach ($this->routeCollection as $routeObject) {
             $routePath = $routeObject->getPath();
             if ($routePath === '/{_locale}'.$path) {
-                $routeExists = true;
+                $locale = $request->getPreferredLanguage();
+                if ('' == $locale || false == $this->isLocaleSupported($locale)) {
+                    $locale = $request->getDefaultLocale();
+                }
+
+                $locale = str_replace('_', '-', $locale);
+                $event->setResponse(new RedirectResponse('/'.$locale.$path));
                 break;
             }
-        }
-
-        if ($routeExists) {
-            $locale = $request->getPreferredLanguage();
-            if ('' == $locale || false == $this->isLocaleSupported($locale)) {
-                $locale = $request->getDefaultLocale();
-            }
-
-            $event->setResponse(new RedirectResponse('/'.$locale.$path));
         }
     }
 
