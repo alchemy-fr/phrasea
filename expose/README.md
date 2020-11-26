@@ -87,6 +87,23 @@ EXPOSE_CLIENT_RANDOM_ID=<A_RANDOM_HASH>
 EXPOSE_CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 ```
 
+## Analytics
+
+```json
+// configs/config.json
+{
+  "expose": {
+    "analytics": {
+      "provider": "google_analytics|matomo",
+      "options": {
+        "propertyId": "GA123", // google_analytics
+        "siteId": "4242" // For matomo
+      }
+    }
+  }
+}
+```
+
 ## Direct URL access
 
 Publications and assets can be accessed directly with slugs:
