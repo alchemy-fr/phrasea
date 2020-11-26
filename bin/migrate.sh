@@ -25,5 +25,5 @@ uploader-api-php
 "
 
 for app in ${APPS}; do
-    exec_container $app "echo y | bin/console doctrine:migrations:migrate"
+    exec_container $app "bin/migrate.sh"
 done
