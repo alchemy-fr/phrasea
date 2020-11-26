@@ -553,7 +553,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    public function testPutPublication(): void
+    public function testPutAsAdminPublication(): void
     {
         $id = $this->createPublication([
             'publiclyListed' => true,
@@ -561,6 +561,43 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$id, [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => true,
+            ],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(true, $json['config']['enabled']);
+        $this->assertEquals(true, $json['config']['publiclyListed']);
+    }
+
+    public function testPutAsNonOwnerUserWillGet403Publication(): void
+    {
+        $id = $this->createPublication([
+            'publiclyListed' => true,
+            'enabled' => false,
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => true,
+            ],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    public function testPutAsOwnerUserPublication(): void
+    {
+        $id = $this->createPublication([
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
+            'publiclyListed' => true,
+            'enabled' => false,
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,

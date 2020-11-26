@@ -4,6 +4,22 @@ alchemy_admin:
     name: uploader
 
 easy_admin:
+  design:
+    menu:
+      - label: 'Permissions'
+        children:
+          - { label: 'Bulk data permissions', route: admin_global_permissions, params: { type: bulk_data } }
+          - { label: 'Form schema permissions', route: admin_global_permissions, params: { type: form_schema } }
+          - { label: 'All permissions (advanced)', entity: AccessControlEntry }
+      - label: 'Uploads'
+        children:
+          - Commit
+          - Asset
+      - label: 'Data'
+        children:
+          - FormSchema
+          - BulkData
+      - OAuthClient
   entities:
     Commit:
       disabled_actions:

@@ -28,7 +28,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
             ]);
     }
 
-    public function getAces(string $userId, array $groupIds, string $objectType, string $objectId): array
+    public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
     {
         return $this->em
             ->getRepository(AccessControlEntry::class)
@@ -37,6 +37,9 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
 
     public function updateOrCreateAce(string $userType, ?string $userId, string $objectType, ?string $objectId, int $mask): ?AccessControlEntryInterface
     {
+        if (null !== $objectId && empty($objectId)) {
+            throw new \InvalidArgumentException('Empty objectId');
+        }
         $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
 

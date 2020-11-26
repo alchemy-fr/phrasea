@@ -4,6 +4,19 @@ alchemy_admin:
     name: expose
 
 easy_admin:
+  design:
+    menu:
+      - label: 'Permissions'
+        children:
+          - { label: 'Publication permissions', route: admin_global_permissions, params: {type: publication} }
+          - { label: 'Profile permissions', route: admin_global_permissions, params: {type: profile} }
+          - { label: 'All permissions (advanced)', entity: AccessControlEntry }
+      - label: 'Publications'
+        children:
+          - Publication
+          - Asset
+          - PublicationAsset
+      - OAuthClient
   entities:
     Publication:
       class: App\Entity\Publication

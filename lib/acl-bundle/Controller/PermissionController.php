@@ -39,6 +39,8 @@ class PermissionController extends AbstractController
         $userId = $request->request->get('userId');
         $mask = (int) $request->request->get('mask', 0);
 
+        $objectId = !empty($objectId) ? $objectId : null;
+
         $repository->updateOrCreateAce($userType, $userId, $objectType, $objectId, $mask);
 
         return new JsonResponse(true);
@@ -54,6 +56,8 @@ class PermissionController extends AbstractController
         $objectId = $request->request->get('objectId');
         $userType = $request->request->get('userType');
         $userId = $request->request->get('userId');
+
+        $objectId = !empty($objectId) ? $objectId : null;
 
         $repository->deleteAce($userType, $userId, $objectType, $objectId);
 
