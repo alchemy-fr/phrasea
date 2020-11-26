@@ -30,11 +30,19 @@ class PermissionView
         $this->groupRepository = $groupRepository;
     }
 
-    public function getAclViewParameters(string $entityClass, string $id): array
+    public function getObjectKey(string $entityClass): string
     {
-        $objectKey = $this->objectMapping->getObjectKey($entityClass);
+        return $this->objectMapping->getObjectKey($entityClass);
+    }
+
+    public function getViewParameters(string $objectKey, ?string $id): array
+    {
         $permissions = PermissionInterface::PERMISSIONS;
-        $aces = $this->repository->getObjectAces($objectKey, $id);
+        $aces = [];
+        if (null !== $id) {
+            $aces = array_merge($aces, $this->repository->getObjectAces($objectKey, null));
+        }
+        $aces = array_merge($aces, $this->repository->getObjectAces($objectKey, $id));
 
         $users = [
             AccessControlEntry::USER_WILDCARD => 'All users',
@@ -62,18 +70,24 @@ class PermissionView
                 'userType' => $ace->getUserTypeString(),
                 'userId' => $ace->getUserId() ?? AccessControlEntry::USER_WILDCARD,
                 'name' => $name,
+                'objectId' => $ace->getObjectId(),
                 'permissions' => array_map(fn (int $p): bool => $ace->hasPermission($p), $permissions),
             ];
         }, $aces);
 
-        return [
+        $params = [
             'USER_WILDCARD' => AccessControlEntry::USER_WILDCARD,
-            'object_type' => $objectKey,
-            'object_id' => $id,
             'permissions' => $permissions,
             'aces' => $aces,
             'users' => $users,
             'groups' => $groups,
+            'object_type' => $objectKey,
         ];
+
+        if(null !== $id) {
+            $params['object_id'] = $id;
+        }
+
+        return $params;
     }
 }

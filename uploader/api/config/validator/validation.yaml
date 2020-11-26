@@ -4,3 +4,8 @@ App\Entity\FormSchema:
         fields: locale
         message: Form schema for this locale already exists
         ignoreNull: false
+  properties:
+    locale:
+      - NotBlank: ~
+    data:
+      - NotBlank: ~

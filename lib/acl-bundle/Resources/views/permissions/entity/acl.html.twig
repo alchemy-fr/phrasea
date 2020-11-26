@@ -90,19 +90,27 @@
             </th>
             <th>
             </th>
+            {% block warning_case %}{% endblock %}
         </tr>
         </thead>
         <tbody>
         {% for ace in aces %}
+            {% set is_global = object_id is defined and ace.objectId is null %}
             <tr data-id="{{ ace.userId }}" data-type="{{ ace.userType }}"
-                class="type-{{ ace.userType }}{% if ace.name == USER_WILDCARD %} type-wildcard{% endif %}"
+                class="type-{{ ace.userType }}
+{%- if ace.name == USER_WILDCARD %} type-wildcard{% endif -%}
+{%- if is_global %} type-global{% endif -%}"
             >
                 <td class="entity-name">
                     {{ ace.name == USER_WILDCARD ? 'All users' : ace.name }}
+                    {% if is_global %}
+                    <span class="global-desc">on all {{ object_type }}</span>
+                    {% endif %}
                 </td>
                 {% for perm,k in permissions %}
                     <td class="perm">
                         <input type="checkbox"
+                               {% if is_global %}disabled{% endif %}
                                value="{{ k }}"
                                name="perm"{% if ace.permissions[perm] %} checked{% endif %}>
                     </td>
@@ -111,7 +119,15 @@
                     <input type="checkbox" name="all">
                 </td>
                 <td>
-                    <button class="delete btn btn-danger">Delete</button>
+                    <button
+                            {% if is_global %}disabled{% endif %}
+                            class="delete btn btn-danger"
+                    >Delete</button>
+                    {% if is_global %}
+                        <a href="{{ path('admin_global_permissions', {type: object_type}) }}" class="btn btn-info">
+                            Edit global permissions
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

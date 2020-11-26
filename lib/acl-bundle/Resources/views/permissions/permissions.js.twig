@@ -48,7 +48,7 @@ $(function () {
             url: '{{ path('alchemy_acl_admin_ace') }}',
             data: {
                 objectType: '{{ object_type }}',
-                objectId: '{{ object_id }}',
+                objectId: {{ object_id is defined ? ("'"~object_id~"'")|raw : 'null' }},
                 userId: userId,
                 userType: userType,
                 mask: mask
@@ -62,7 +62,7 @@ $(function () {
             url: '{{ path('alchemy_acl_admin_ace_delete') }}',
             data: {
                 objectType: '{{ object_type }}',
-                objectId: '{{ object_id }}',
+                objectId: {{ object_id is defined ? ("'"~object_id~"'")|raw : 'null' }},
                 userId: userId,
                 userType: userType
             }

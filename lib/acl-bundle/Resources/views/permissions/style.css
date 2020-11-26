@@ -7,10 +7,20 @@ input {
     padding: 15px;
 }
 
+.global-desc {
+    font-size: 12px;
+}
+
 tr.type-group td.entity-name {
     font-weight: bold;
 }
 
+tr.type-warning th {
+    background: #ffdf7a;
+}
+tr.type-warning:hover th {
+    background: #ffdf7a !important;
+}
 tr.type-wildcard td {
     background: #fcd8d8;
 }
@@ -19,6 +29,16 @@ tr.type-wildcard td.entity-name {
 }
 tr.type-wildcard:hover td {
     background: #ffcccc !important;
+}
+
+tr.type-global td {
+    background: #e5e5e5;
+}
+tr.type-global td.entity-name {
+    color: #222;
+}
+tr.type-global:hover td {
+    background: #e5e5e5 !important;
 }
 
 span.disabled {
