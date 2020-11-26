@@ -23,7 +23,21 @@ class AuthServiceClientTestMock extends Client
 
     public function request($method, $uri = '', array $options = [])
     {
-        $accessToken = explode(' ', $options['headers']['Authorization'], 2)[1];
+        if ('oauth/v2/token' === $uri) {
+            if ($options['json']['grant_type'] === 'client_credentials') {
+                return $this->createResponse(200, [
+                    'access_token' => self::ADMIN_TOKEN,
+                    'expires_in' => time() + 3600,
+                ]);
+            }
+            $this->createResponse(401, [
+                'error' => 'invalid_grant_type_for_test',
+            ]);
+        }
+
+        $accessToken = isset($options['headers']['Authorization'])
+            ? explode(' ', $options['headers']['Authorization'], 2)[1]
+        : null;
         if (empty($accessToken)) {
             return $this->createResponse(401, [
                 'error' => 'missing_token',
@@ -64,11 +78,13 @@ class AuthServiceClientTestMock extends Client
                         'groups' => [],
                     ],
                 ]);
+            case '/users':
+            case '/groups':
+                return $this->createResponse(200, [
+                ]);
+            default:
+                throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $uri));
         }
-
-        return $this->createResponse(404, [
-            'error' => 'not_found',
-        ]);
     }
 
     private function createResponse(int $code, array $data): Response
