@@ -2,23 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Entity\Core;
 
+use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @ORM\Entity()
+ */
 class CollectionAsset extends AbstractUuidEntity
 {
     use CreatedAtTrait;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Collection", inversedBy="assets")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="assets")
      * @ORM\JoinColumn(nullable=false)
      */
     private Collection $collection;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Asset", inversedBy="collections")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="collections")
      * @ORM\JoinColumn(nullable=false)
      */
     private Asset $asset;

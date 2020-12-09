@@ -147,6 +147,10 @@ services:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
 
+  elasticsearch:
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
+
   dev:
     build: infra/docker/dev
     networks:
@@ -160,8 +164,14 @@ services:
       - UPLOADER_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+      - MARIADB_NAME=databox
+      - MARIADB_USER=root
+      - MARIADB_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_HOST
+      - MARIADB_PORT
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
+      - ELASTICSEARCH_URL
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
@@ -195,6 +205,18 @@ services:
     - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - internal
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    ports:
+      - 127.0.0.1:8105:80
+
 
 volumes:
   dev_vol:

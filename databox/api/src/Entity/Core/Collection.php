@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\TranslationInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,25 +39,30 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
     private ?string $ownerId = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Workspace", inversedBy="children")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $public = false;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
+     * @ORM\JoinColumn(nullable=false)
      */
     private ?Workspace $workspace = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Collection", inversedBy="children")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?self $parent = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Collection", mappedBy="parent", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $children = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\CollectionAsset", mappedBy="collection", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $assets = null;
@@ -86,12 +93,17 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
         $this->titleTranslations[$locale] = $title;
     }
 
-    public function getParent(): self
+    public function setTitleEN(string $title): void
+    {
+        $this->setTitle('en', $title);
+    }
+
+    public function getParent(): ?self
     {
         return $this->parent;
     }
 
-    public function setParent(self $parent): void
+    public function setParent(?self $parent): void
     {
         $this->parent = $parent;
     }
@@ -112,5 +124,33 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
     public function setOwnerId(?string $ownerId): void
     {
         $this->ownerId = $ownerId;
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace(?Workspace $workspace): void
+    {
+        $this->workspace = $workspace;
+    }
+
+    /**
+     * @return CollectionAsset[]
+     */
+    public function getAssets(): DoctrineCollection
+    {
+        return $this->assets;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
     }
 }

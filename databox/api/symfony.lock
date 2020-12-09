@@ -1,4 +1,7 @@
 {
+    "alchemy/core-bundle": {
+        "version": "dev-ps-248-databox"
+    },
     "api-platform/api-pack": {
         "version": "v1.3.0"
     },
@@ -51,6 +54,9 @@
     },
     "doctrine/common": {
         "version": "3.0.2"
+    },
+    "doctrine/data-fixtures": {
+        "version": "1.4.4"
     },
     "doctrine/dbal": {
         "version": "2.11.1"
@@ -110,6 +116,18 @@
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
+    "elasticsearch/elasticsearch": {
+        "version": "v7.10.0"
+    },
+    "ezimuel/guzzlestreams": {
+        "version": "3.0.1"
+    },
+    "ezimuel/ringphp": {
+        "version": "1.1.2"
+    },
+    "fakerphp/faker": {
+        "version": "v1.12.0"
+    },
     "fig/link-util": {
         "version": "1.1.1"
     },
@@ -125,8 +143,34 @@
             ".php_cs.dist"
         ]
     },
+    "friendsofsymfony/elastica-bundle": {
+        "version": "5.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "5.0",
+            "ref": "46c9cd2c1e07f0fcfd97e96f12b03b2e0845c4cd"
+        },
+        "files": [
+            "config/packages/fos_elastica.yaml"
+        ]
+    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.42"
+    },
+    "hautelook/alice-bundle": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.1",
+            "ref": "71822522faf7ed2792d86b7f94ce73443358ccb9"
+        },
+        "files": [
+            "config/packages/dev/hautelook_alice.yaml",
+            "config/packages/test/hautelook_alice.yaml",
+            "fixtures/.gitignore"
+        ]
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -136,6 +180,22 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
+    },
+    "myclabs/deep-copy": {
+        "version": "1.10.2"
+    },
+    "nelmio/alice": {
+        "version": "3.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.2",
+            "ref": "0b9900ece737bec7752e4155c0164639dd9b0cb0"
+        },
+        "files": [
+            "config/packages/dev/nelmio_alice.yaml",
+            "config/packages/test/nelmio_alice.yaml"
+        ]
     },
     "nelmio/cors-bundle": {
         "version": "1.5",
@@ -151,6 +211,9 @@
     },
     "ocramius/proxy-manager": {
         "version": "2.8.0"
+    },
+    "pagerfanta/pagerfanta": {
+        "version": "v2.5.1"
     },
     "php": {
         "version": "7.4"
@@ -202,6 +265,24 @@
         "files": [
             "config/packages/ramsey_uuid_doctrine.yaml"
         ]
+    },
+    "react/promise": {
+        "version": "v2.8.0"
+    },
+    "ruflin/elastica": {
+        "version": "7.0.0"
+    },
+    "sebastian/comparator": {
+        "version": "4.0.6"
+    },
+    "sebastian/diff": {
+        "version": "4.0.4"
+    },
+    "sebastian/exporter": {
+        "version": "4.0.3"
+    },
+    "sebastian/recursion-context": {
+        "version": "4.0.4"
     },
     "snc/redis-bundle": {
         "version": "2.0",
@@ -448,6 +529,15 @@
     },
     "symfony/yaml": {
         "version": "v5.1.5"
+    },
+    "theofidry/alice-data-fixtures": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
+        }
     },
     "twig/twig": {
         "version": "v3.0.5"

@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\AbstractUuidEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+/**
+ * @ORM\Entity()
+ */
 class Workspace extends AbstractUuidEntity
 {
     /**

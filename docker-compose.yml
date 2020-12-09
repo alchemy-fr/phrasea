@@ -383,6 +383,17 @@ services:
     volumes:
       - db_vol:/var/lib/postgresql/data
 
+  mariadb:
+    image: mariadb:10.3.18
+    networks:
+      - internal
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD
+      - MYSQL_USER=$MARIADB_USER
+      - MYSQL_PASSWORD=$MARIADB_PASSWORD
+    volumes:
+      - mariadb_vol:/var/lib/mysql
+
   rabbitmq:
     image: rabbitmq:3.7.14-management
     hostname: rabbitmq
@@ -457,6 +468,7 @@ services:
     ports:
       - ${MATOMO_PORT}:80
 
+  # TODO merge with mariadb
   matomo-db:
     image: mariadb:10.4.10-bionic
     command:
@@ -472,7 +484,7 @@ services:
       - MYSQL_USER=$MATOMO_DATABASE_USERNAME
       - MYSQL_PASSWORD=$MATOMO_DATABASE_PASSWORD
     volumes:
-      - mariadb_vol:/var/lib/mysql
+      - matomodb_vol:/var/lib/mysql
 
   weblate:
     image: weblate/weblate:3.8-4
@@ -615,21 +627,6 @@ services:
       - SAML_BASE_URL
       - SAML2_BASE_URL
 
-  databox-worker:
-    image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
-    build:
-      context: ./databox/api
-      target: databox-worker
-    networks:
-      - internal
-    depends_on:
-      - rabbitmq
-      - db
-    environment:
-      - APP_ENV
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-
   databox-api-php:
     image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
     build:
@@ -641,8 +638,15 @@ services:
           - databox-php
     environment:
       - APP_ENV
+      - AUTH_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+      - MARIADB_USER
+      - MARIADB_PASSWORD
+      - MARIADB_HOST
+      - MARIADB_PORT
+      - MARIADB_NAME=databox
+      - ELASTICSEARCH_URL
       - S3_STORAGE_BASE_URL=${DATABOX_1_STORAGE_BASE_URL}
       - S3_STORAGE_ENDPOINT=${DATABOX_1_STORAGE_ENDPOINT}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_1_STORAGE_USE_PATH_STYLE_ENDPOINT}
@@ -653,8 +657,10 @@ services:
       - DATABOX_1_REQUEST_SIGNATURE_TTL
       - TRUSTED_PROXIES=${PS_SUBNET}
     depends_on:
+      - rabbitmq
       - redis
       - db
+      - elasticsearch
 
   databox-api-nginx:
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
@@ -670,6 +676,46 @@ services:
     depends_on:
       - databox-api-php
 
+  databox-worker:
+    image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
+    build:
+      context: ./databox/api
+      target: databox-worker
+    networks:
+      - internal
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+      - elasticsearch
+    environment:
+      - APP_ENV
+      - AUTH_BASE_URL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - MARIADB_USER
+      - MARIADB_PASSWORD
+      - MARIADB_HOST
+      - MARIADB_PORT
+      - MARIADB_NAME=databox
+      - ELASTICSEARCH_URL
+
+  elasticsearch:
+    image: elasticsearch:7.9.3
+    networks:
+      - internal
+    volumes:
+      - elasticsearch_vol:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
 volumes:
   weblate_vol:
   db_vol:
@@ -677,6 +723,8 @@ volumes:
   uploader_vol: # rw-many
   s3_vol:
   matomo_vol:
+  matomodb_vol:
   mariadb_vol:
   pgadmin_vol:
   rabbitmq_vol:
+  elasticsearch_vol:

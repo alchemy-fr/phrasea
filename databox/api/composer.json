@@ -1,16 +1,28 @@
 {
     "type": "project",
     "license": "proprietary",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "alchemy/core-bundle": "@dev",
         "api-platform/core": "^2.5",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "friendsofsymfony/elastica-bundle": "^6@dev",
+        "hautelook/alice-bundle": "^2.8",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",

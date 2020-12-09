@@ -1,0 +1,39 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+    clients:
+        default: { url: '%env(ELASTICSEARCH_URL)%' }
+    indexes:
+        asset:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            path:
+                                tokenizer: path
+                        tokenizer:
+                            path:
+                                type: path_hierarchy
+                                delimiter: /
+            properties:
+                title: ~
+                collectionPaths:
+                    property_path: false
+                    type: text
+                    analyzer: path
+                public:
+                    property_path: false
+                    type: boolean
+                workspaceId:
+                    type: keyword
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Asset
+                listener: ~
