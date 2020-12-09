@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Alchemy\AclBundle\Controller;
 
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
+use Alchemy\AclBundle\Serializer\AceSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PermissionController extends AbstractController
@@ -44,6 +47,45 @@ class PermissionController extends AbstractController
         $repository->updateOrCreateAce($userType, $userId, $objectType, $objectId, $mask);
 
         return new JsonResponse(true);
+    }
+
+    /**
+     * @Route("/aces", methods={"GET"}, name="aces_index")
+     */
+    public function indexAces(
+        Request $request,
+        PermissionRepositoryInterface $repository,
+        AceSerializer $aceSerializer
+    ): Response
+    {
+        $this->validateAuthorization();
+
+        $params = [
+            'objectType' => $request->query->get('objectType', false),
+            'objectId' => $request->query->get('objectId', false),
+            'userType' => $request->query->get('userType', false),
+            'userId' => $request->query->get('userId', false),
+        ];
+
+        $params = array_filter($params, function ($entry): bool {
+            return false !== $entry;
+        });
+        $params = array_map(function ($p): ?string {
+            return '' === $p || 'null' === $p ? null: $p;
+        }, $params);
+
+        if (!empty($params['userType'])) {
+            $params['userType'] = AccessControlEntryInterface::USER_TYPES[$params['userType']] ?? false;
+            if (false === $params['userType']) {
+                throw new BadRequestHttpException('Invalid userType');
+            }
+        }
+
+        $aces = $repository->findAces($params);
+
+        return new JsonResponse(array_map(function (AccessControlEntryInterface $ace) use ($aceSerializer): array {
+            return $aceSerializer->serialize($ace);
+        }, $aces));
     }
 
     /**

@@ -10,23 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
 /**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ace", columns={"user_type", "user_id", "object_type", "object_id"})})
+ * @ORM\Table(
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ace", columns={"user_type", "user_id", "object_type", "object_id"})},
+ *     indexes={
+ *         @ORM\Index(name="user_idx", columns={"user_type", "user_id"}),
+ *         @ORM\Index(name="object_idx", columns={"object_type", "object_id"}),
+ *         @ORM\Index(name="user_type_idx", columns={"user_type"}),
+ *         @ORM\Index(name="object_type_idx", columns={"object_type"}),
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="AccessControlEntryRepository")
  */
 class AccessControlEntry implements AccessControlEntryInterface
 {
-    const USER_WILDCARD = '__ALL_USERS__';
-
-    const TYPE_USER_VALUE = 0;
-    const TYPE_GROUP_VALUE = 1;
-    const TYPE_USER = 'user';
-    const TYPE_GROUP = 'group';
-
-    const USER_TYPES = [
-        self::TYPE_USER => self::TYPE_USER_VALUE,
-        self::TYPE_GROUP => self::TYPE_GROUP_VALUE,
-    ];
-
     /**
      * @var Uuid
      *
@@ -92,9 +88,9 @@ class AccessControlEntry implements AccessControlEntryInterface
         return $this->id->__toString();
     }
 
-    public function getUserType(): ?int
+    public function getUserType(): int
     {
-        return $this->userType;
+        return $this->userType ?? self::TYPE_USER_VALUE;
     }
 
     public function setUserType(int $userType): void
@@ -117,9 +113,9 @@ class AccessControlEntry implements AccessControlEntryInterface
         return $this->objectType;
     }
 
-    public function setObjectType(string $object): void
+    public function setObjectType(string $objectType): void
     {
-        $this->objectType = $object;
+        $this->objectType = $objectType;
     }
 
     public function getObjectId(): ?string
