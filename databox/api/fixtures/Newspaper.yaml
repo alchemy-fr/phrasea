@@ -44,50 +44,64 @@ App\Entity\Core\Collection:
   c_{sport, entertainment}:
     workspace: '@w_newspaper'
     ownerId: super_user
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_sport_{football, rugby, tennis}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_sport'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_sport_football_{league, worldcup}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_sport_football'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_entertainment_{archives}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_entertainment_{public_videos}:
     workspace: '@w_newspaper'
     ownerId: super_user
     public: true
     parent: '@c_entertainment'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_entertainment_public_videos_{movies, series, shows}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment_public_videos'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
   c_entertainment_archives_{movies, series, shows}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment_archives'
-    titleEN: '<current()>'
+    titleEN: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
-  asset{1..100}:
-    title: '<firstName()>'
+  asset{1..80}:
+    title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
     __calls:
-      - setPublic (55%?): [true]
       - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+  asset{81..100}:
+    title: 'Asset #<ucwords($current)>'
+    ownerId: super_user
+    workspace: '@w_newspaper'
+    __calls:
+      - setPublic: [true]
+      - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+App\Entity\Core\Tag:
+  tag_{offline, online, embargo_it, embargo_fr}:
+    name: '<current()>'
+    workspace: '@w_newspaper'

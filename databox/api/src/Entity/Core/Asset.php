@@ -51,6 +51,11 @@ class Asset extends AbstractUuidEntity
     private ?DoctrineCollection $collections = null;
 
     /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
+     */
+    private ?DoctrineCollection $tags = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
      * @ORM\JoinColumn(nullable=true)
      */
@@ -78,6 +83,7 @@ class Asset extends AbstractUuidEntity
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getOwnerId(): ?string
@@ -188,5 +194,25 @@ class Asset extends AbstractUuidEntity
         $collection->getAssets()->add($assetCollection);
 
         return $assetCollection;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    public function getTags(): DoctrineCollection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): void
+    {
+        $this->tags->add($tag);
+    }
+
+    public function getTagIds(): array
+    {
+        return $this->tags->map(function (Tag $tag): string {
+           return $tag->getESId();
+        })->getValues();
     }
 }

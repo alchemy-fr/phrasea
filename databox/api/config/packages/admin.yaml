@@ -1,0 +1,51 @@
+alchemy_admin:
+  service:
+    title: Databox
+    name: databox
+
+easy_admin:
+  design:
+    menu:
+      - label: 'Permissions'
+        children:
+          - { label: 'Asset permissions', route: admin_global_permissions, params: {type: asset} }
+          - { label: 'Collection permissions', route: admin_global_permissions, params: {type: collection} }
+          - { label: 'All permissions (advanced)', entity: AccessControlEntry }
+      - label: 'Core'
+        children:
+          - Asset
+          - Collection
+      - OAuthClient
+  entities:
+    Asset:
+      class: App\Entity\Core\Asset
+      list:
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'public' }
+          - { property: 'parent', label: Parent }
+          - { property: 'collections.count', label: '# Colls' }
+          - createdAt
+
+    Collection:
+      class: App\Entity\Core\Collection
+      list:
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: 'title[en]', label: Title }
+          - { property: 'parent', label: Parent }
+          - { property: 'public' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'titleEN' }
+          - { property: 'public' }

@@ -9,8 +9,8 @@
   "license": "MIT",
   "require": {
     "php": "^7.4",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
-    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5",
+    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5",
     "guzzlehttp/guzzle": "^6.3"
   },
   "config": {

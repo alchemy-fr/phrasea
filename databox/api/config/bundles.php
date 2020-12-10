@@ -15,4 +15,10 @@ return [
     Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle::class => ['dev' => true, 'test' => true],
     Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => ['dev' => true, 'test' => true],
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['dev' => true, 'test' => true],
+    Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
+    Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
+    Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
+    Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
+    FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
+    EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
 ];

@@ -8,14 +8,47 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/acl-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/admin-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/oauth-server-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
         "php": ">=7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "alchemy/acl-bundle": "@dev",
+        "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/oauth-server-bundle": "@dev",
+        "alchemy/remote-auth-bundle": "*",
         "api-platform/core": "^2.5",
+        "friendsofsymfony/oauth-server-bundle": "dev-master as 1.6.99",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.1",
@@ -84,6 +117,8 @@
             "@auto-scripts"
         ]
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "conflict": {
         "symfony/symfony": "*"
     },

@@ -32,3 +32,28 @@ Elasticsearch query: "collection:Appl"
      (title[fr]=Appl)_boost=100,
      (title[_]=Appl) _boost=50,
      (title=Appl) _boost=1 (? try in another language)
+
+
+## Metadata
+
+- Title
+- Length : [00:31:01] [X] Overrive value
+
+
+METADATA_MAPPING:
+Title -> file.filename (editable=true)
+Taille du fichier -> file.size (editable=false)
+Durée du film -> file.length (editable=true, keep_on_new_version=true)
+Durée réelle du film (editable=true, keep_on_new_version=true)
+
+METADATA:
+Title: "Mon fichier"
+
+FILE:
+- filename
+- size
+- length
+- width
+- height
+
+tech.length

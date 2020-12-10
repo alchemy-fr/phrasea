@@ -33,6 +33,9 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
+                tags:
+                    property_path: tagIds
+                    type: keyword
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset
