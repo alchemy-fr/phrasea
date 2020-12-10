@@ -4,20 +4,27 @@ declare(strict_types=1);
 
 namespace App\Doctrine;
 
+use Alchemy\AclBundle\Entity\AccessControlEntry;
+use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Entity\Publication;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationExtension implements QueryCollectionExtensionInterface
 {
     private Security $security;
+    private ObjectMapping $objectMapping;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, ObjectMapping $objectMapping)
     {
         $this->security = $security;
+        $this->objectMapping = $objectMapping;
     }
 
     public function applyToCollection(
@@ -31,6 +38,10 @@ class PublicationExtension implements QueryCollectionExtensionInterface
         }
 
         $user = $this->security->getUser();
+        $groups = [];
+        if ($user instanceof RemoteUser) {
+            $groups = $user->getGroupIds();
+        }
         $ownerId = $user instanceof RemoteUser ? $user->getId() : null;
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
@@ -49,8 +60,40 @@ class PublicationExtension implements QueryCollectionExtensionInterface
             ]);
 
             if (null !== $ownerId) {
-                $queryBuilder->andWhere(sprintf('(%s.ownerId = :ownerId) OR (%s)', $rootAlias, $visibleConditions));
-                $queryBuilder->setParameter('ownerId', $ownerId);
+                $aclConditions = [
+                    sprintf('%s.ownerId = :uid', $rootAlias),
+                    sprintf('ace.mask >= :edit_mask'),
+                ];
+                $queryBuilder->setParameter('uid', $ownerId);
+
+                $aclUserGroupConditions = [
+                    'ace.userType = :ut AND (ace.userId IS NULL OR ace.userId = :uid)',
+                ];
+                if (!empty($groups)) {
+                    $aclUserGroupConditions[] = 'ace.userType = :gt AND ace.userId IN (:gids)';
+                    $queryBuilder->setParameter('gt', AccessControlEntryInterface::TYPE_GROUP_VALUE);
+                    $queryBuilder->setParameter('gids', $groups);
+                }
+
+                $queryBuilder->leftJoin(
+                    AccessControlEntry::class,
+                    'ace',
+                    Join::WITH,
+                    sprintf(
+                        'ace.objectType = :ot AND (%s) AND (ace.objectId IS NULL OR ace.objectId = %s.id)',
+                        implode(' OR ', $aclUserGroupConditions),
+                        $rootAlias
+                    )
+                );
+                $queryBuilder->setParameter('ut', AccessControlEntryInterface::TYPE_USER_VALUE);
+                $queryBuilder->setParameter('ot', $this->objectMapping->getObjectKey(Publication::class));
+                $queryBuilder->setParameter('ot', $this->objectMapping->getObjectKey(Publication::class));
+                $queryBuilder->setParameter('edit_mask', PermissionInterface::EDIT);
+
+                $queryBuilder->andWhere(sprintf('(%s) OR (%s)',
+                    $visibleConditions,
+                    implode(' OR ', $aclConditions)
+                ));
             } else {
                 $queryBuilder->andWhere($visibleConditions);
             }

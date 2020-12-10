@@ -53,7 +53,7 @@ class AccessControlEntry implements AccessControlEntryInterface
     /**
      * The full object URI (publication:5cd05ab6-e4d8-4f2b-aa44-f0944148ae5f).
      *
-     * @ORM\Column(type="string", length=36, nullable=true)
+     * @ORM\Column(type="uuid", nullable=true)
      */
     protected ?string $objectId = null;
 
