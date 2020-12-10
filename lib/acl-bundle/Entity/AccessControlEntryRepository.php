@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityRepository;
 
 class AccessControlEntryRepository extends EntityRepository
 {
-    public function findAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
+    public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
     {
         $queryBuilder = $this
             ->createQueryBuilder('a')
@@ -39,6 +39,37 @@ class AccessControlEntryRepository extends EntityRepository
                 ->setParameter('oid', $objectId);
         } else {
             $queryBuilder->andWhere('a.objectId IS NULL');
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAces(array $params = []): array
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('a');
+
+        foreach ([
+            'objectType' => 'ot',
+            'userType' => 'ut',
+            'objectId' => 'oid',
+            'userId' => 'uid',
+                 ] as $col => $alias) {
+            if (isset($params[$col])) {
+                $queryBuilder
+                    ->andWhere(sprintf('a.%s = :%s', $col, $alias))
+                    ->setParameter($alias, $params[$col]);
+            }
+        }
+        foreach ([
+            'objectId' => 'oid',
+            'userId' => 'uid',
+                 ] as $col => $alias) {
+            if (array_key_exists($col, $params) && null === $params[$col]) {
+                $queryBuilder->andWhere(sprintf('a.%s IS NULL', $col));
+            }
         }
 
         return $queryBuilder

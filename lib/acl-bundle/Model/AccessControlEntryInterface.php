@@ -6,7 +6,23 @@ namespace Alchemy\AclBundle\Model;
 
 interface AccessControlEntryInterface
 {
+    const USER_WILDCARD = '__ALL_USERS__';
+
+    const TYPE_USER_VALUE = 0;
+    const TYPE_GROUP_VALUE = 1;
+    const TYPE_USER = 'user';
+    const TYPE_GROUP = 'group';
+
+    const USER_TYPES = [
+        self::TYPE_USER => self::TYPE_USER_VALUE,
+        self::TYPE_GROUP => self::TYPE_GROUP_VALUE,
+    ];
+
     public function getId(): string;
+
+    public function getUserType(): int;
+
+    public function setUserType(int $userType): void;
 
     public function getUserId(): ?string;
 
@@ -14,7 +30,11 @@ interface AccessControlEntryInterface
 
     public function getObjectType(): ?string;
 
-    public function setObjectType(string $object): void;
+    public function setObjectType(string $objectType): void;
+
+    public function getObjectId(): ?string;
+
+    public function setObjectId(?string $objectId): void;
 
     public function getMask(): int;
 
