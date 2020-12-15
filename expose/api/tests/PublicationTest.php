@@ -10,6 +10,7 @@ use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use DateInterval;
 use DateTime;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class PublicationTest extends AbstractExposeTestCase
@@ -608,6 +609,97 @@ class PublicationTest extends AbstractExposeTestCase
 
         $this->assertEquals(true, $json['config']['enabled']);
         $this->assertEquals(true, $json['config']['publiclyListed']);
+    }
+
+    public function testPutAsOwnerUserPublicationProtectedWithPassword(): void
+    {
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'objectType' => 'publication',
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'mask' => 2,
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => false,
+                'securityMethod' => 'password',
+                'securityOptions' => [
+                    'password' => '$3cr3t!',
+                ],
+            ],
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(false, $json['config']['enabled']);
+        $id = $json['id'];
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => true,
+            ],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(true, $json['config']['enabled']);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/assets', [
+            'publication_id' => $id,
+        ], [
+            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+        if ($response->getStatusCode() === 500) {
+            var_dump($response->getContent());
+        }
+    }
+
+    public function testUserWithACECanEditPublication(): void
+    {
+        $id = $this->createPublication([
+            'title' => 'Pub',
+            'enabled' => false,
+        ]);
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'objectType' => 'publication',
+            'objectId' => $id,
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'mask' => 1+2+4,
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications/'.$id);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('createdAt', $json);
+        $this->assertEquals('Pub', $json['title']);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/assets', [
+            'publication_id' => $id,
+        ], [
+            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+        if ($response->getStatusCode() === 500) {
+            var_dump($response->getContent());
+        }
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+            'title' => 'Foo',
+            'config' => [
+                'enabled' => true,
+            ],
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(true, $json['config']['enabled']);
     }
 
     public function testDeletePublicationAsAnonymous(): void

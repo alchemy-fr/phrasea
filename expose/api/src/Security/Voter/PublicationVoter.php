@@ -58,9 +58,12 @@ class PublicationVoter extends Voter
             case self::READ:
                 return $isPublicationVisible
                     || $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId());
+                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::READ_DETAILS:
-                return $isAdmin || ($isPublicationVisible && $this->securityMethodPasses($subject, $token));
+                return $isAdmin
+                    || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::DELETE:
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
