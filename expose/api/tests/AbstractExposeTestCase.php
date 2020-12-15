@@ -13,6 +13,7 @@ use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
 use App\Storage\FileStorageManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use InvalidArgumentException;
 
 abstract class AbstractExposeTestCase extends ApiTestCase
 {
@@ -249,7 +250,14 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['publication_id'])) {
             $pubAsset = new PublicationAsset();
             $pubAsset->setAsset($asset);
-            $pubAsset->setPublication($em->find(Publication::class, $options['publication_id']));
+            $publication = $em->find(Publication::class, $options['publication_id']);
+            if (!$publication instanceof Publication) {
+                throw new InvalidArgumentException('Publication not found');
+            }
+            $pubAsset->setPublication($publication);
+            if (isset($options['position'])) {
+                $pubAsset->setPosition($options['position']);
+            }
             $em->persist($pubAsset);
         }
 
