@@ -255,9 +255,6 @@ abstract class AbstractExposeTestCase extends ApiTestCase
                 throw new InvalidArgumentException('Publication not found');
             }
             $pubAsset->setPublication($publication);
-            if (isset($options['position'])) {
-                $pubAsset->setPosition($options['position']);
-            }
             $em->persist($pubAsset);
         }
 
