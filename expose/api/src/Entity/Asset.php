@@ -62,8 +62,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "in"="formData",
  *                         "name"="file",
  *                         "type"="file",
- *                         "required"=true,
- *                         "description"="The file to upload",
+ *                         "required"=false,
+ *                         "description"="The file to upload [required if no upload payload is provided]",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="upload",
+ *                         "type"="object",
+ *                         "required"=false,
+ *                         "description"="The upload payload [required if no file is uploaded]. When provided, you receive a signed URL for uploading the file.
+Available options:
+ * type - the file MIME type (required)
+ * name - the original client name (optional)
+ * size - the file size (defaults to 0 if not provided)
+",
  *                     },
  *                     {
  *                         "in"="formData",
@@ -300,6 +312,12 @@ class Asset implements MediaInterface
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $thumbUrl = null;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"asset:read"})
+     */
+    private ?string $uploadURL = null;
 
     public function __construct()
     {
@@ -542,6 +560,16 @@ class Asset implements MediaInterface
     public function setWebVTTLink(?string $webVTTLink): void
     {
         $this->webVTTLink = $webVTTLink;
+    }
+
+    public function getUploadURL(): ?string
+    {
+        return $this->uploadURL;
+    }
+
+    public function setUploadURL(?string $uploadURL): void
+    {
+        $this->uploadURL = $uploadURL;
     }
 
     public function __toString()

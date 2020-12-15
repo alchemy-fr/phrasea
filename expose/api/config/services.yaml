@@ -68,6 +68,11 @@ services:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
 
+    App\Upload\UploadManager:
+        arguments:
+            $client: '@app.s3_client.external'
+            $uploadBucket: '%env(S3_STORAGE_BUCKET_NAME)%'
+
     App\Serializer\NormalizerDecorator:
         abstract: true
         autoconfigure: false
