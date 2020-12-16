@@ -78,10 +78,20 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_AD
     --redirect-uri ${EXPOSE_API_BASE_URL}"
 ## Create minio bucket
 docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
-  sleep 5 && \
-  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
-  mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME \
+  i=0
+  while ! nc -z minio 9000; do \
+    echo 'Wait for minio to startup...'; \
+    echo \$i; \
+    if [ \$i -gt 180 ]; then \
+      echo 'Timeout'; \
+      exit 1; \
+    fi; \
+    i=\$((i+1)); \
+    sleep 0.1; \
+  done; \
+  sleep 3 \
+  && mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
+  && mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME \
 "
 
 # Setup Notify
