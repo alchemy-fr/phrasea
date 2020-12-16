@@ -13,6 +13,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class PublicationAssetListener implements EventSubscriber
 {
+    private array $positionCache = [];
+
     public function preRemove(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
@@ -22,6 +24,44 @@ class PublicationAssetListener implements EventSubscriber
                 $em->remove($entity->getAsset());
             }
         }
+    }
+
+    public function prePersist(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        if ($entity instanceof PublicationAsset) {
+            if (0 === $entity->getPosition()) {
+                $em = $args->getObjectManager();
+
+                $pos = $this->getNextPublicationAssetPosition(
+                    $em,
+                    $entity->getPublication()->getId()
+                );
+                $entity->setPosition($pos);
+            }
+        }
+    }
+
+    /**
+     * @param EntityManagerInterface $em
+     */
+    public function getNextPublicationAssetPosition(ObjectManager $em, string $publicationId): int
+    {
+        if (isset($this->positionCache[$publicationId])) {
+            return ++$this->positionCache[$publicationId];
+        }
+
+        $position = $em->createQueryBuilder()
+            ->select('MAX(pa.position)')
+            ->from(PublicationAsset::class, 'pa')
+            ->andWhere('pa.publication = :p')
+            ->setParameter('p', $publicationId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $this->positionCache[$publicationId] = $position ?? 0;
+
+        return ++$this->positionCache[$publicationId];
     }
 
     /**
@@ -46,6 +86,7 @@ class PublicationAssetListener implements EventSubscriber
     {
         return [
             Events::preRemove,
+            Events::prePersist,
         ];
     }
 }

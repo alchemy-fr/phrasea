@@ -82,6 +82,7 @@ easy_admin:
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - geoPoint
+          - path
           - createdAt
       form:
         fields:

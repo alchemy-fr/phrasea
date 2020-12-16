@@ -60,6 +60,9 @@ class AssetManager
             $publicationAsset = new PublicationAsset();
             $publicationAsset->setPublication($publication);
             $publicationAsset->setAsset($asset);
+            if (isset($options['position'])) {
+                $publicationAsset->setPosition((int) $options['position']);
+            }
             $asset->addPublication($publicationAsset);
 
             if (isset($options['slug'])) {

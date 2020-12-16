@@ -94,4 +94,98 @@ class PublicationAssetTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(0, count($json['assets']));
     }
+
+    public function testPublicationAssetDefaultOrder(): void
+    {
+        $publicationId = $this->createPublication();
+        $assetIds = [];
+        $assets = [
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+        ];
+        foreach ($assets as $assetName) {
+            $assetIds[] = $assetId = $this->createAsset([
+                'description' => $assetName,
+            ]);
+            $this->clearEmBeforeApiCall();
+            $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-assets', [
+                'asset' => '/assets/'.$assetId,
+                'publication' => '/publications/'.$publicationId,
+            ]);
+            $this->assertEquals(201, $response->getStatusCode());
+        }
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($publicationId, $json['id']);
+        $this->assertArrayHasKey('assets', $json);
+        $this->assertNotEmpty($json['assets']);
+        $this->assertEquals(count($assets), count($json['assets']));
+        $this->assertOrder($assets, $json['assets']);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId.'/assets');
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(count($assets), count($json));
+        $this->assertNotEmpty($json);
+        $this->assertOrder($assets, $json);
+    }
+
+    public function testPublicationAssetDefinedOrder(): void
+    {
+        $publicationId = $this->createPublication();
+        $assetIds = [];
+        $assets = [
+            3 => 'a',
+            2 => 'b',
+            5 => 'c',
+            1 => 'd',
+            20 => 'e',
+        ];
+        foreach ($assets as $position => $assetName) {
+            $assetIds[] = $assetId = $this->createAsset([
+                'description' => $assetName,
+            ]);
+            $this->clearEmBeforeApiCall();
+            $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-assets', [
+                'asset' => '/assets/'.$assetId,
+                'publication' => '/publications/'.$publicationId,
+                'position' => $position,
+            ]);
+            $this->assertEquals(201, $response->getStatusCode());
+        }
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId);
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($publicationId, $json['id']);
+        $this->assertArrayHasKey('assets', $json);
+        $this->assertNotEmpty($json['assets']);
+        $this->assertEquals(count($assets), count($json['assets']));
+        $this->assertOrder($assets, $json['assets']);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$publicationId.'/assets');
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(count($assets), count($json));
+        $this->assertNotEmpty($json);
+        $this->assertOrder($assets, $json);
+    }
+
+    private function assertOrder(array $order, array $assets): void
+    {
+        $sorted = $order;
+        ksort($sorted);
+        $i = 0;
+        foreach ($sorted as $position => $assetName) {
+            $this->assertEquals($assetName, $assets[$i]['asset']['description']);
+            $i++;
+        }
+    }
 }

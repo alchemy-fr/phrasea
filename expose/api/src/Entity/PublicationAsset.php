@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_url", columns={"publication_id", "slug"})})
  * @ApiResource(
+ *     attributes={"order"={"position": "ASC", "createdAt": "ASC"}},
  *     normalizationContext=PublicationAsset::API_READ,
  *     iri="http://alchemy.fr/PublicationAsset",
  *     itemOperations={

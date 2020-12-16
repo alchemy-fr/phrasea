@@ -416,7 +416,7 @@ services:
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
   minio-mc:
-    image: minio/mc
+    image: minio/mc:RELEASE.2020-09-18T00-13-21Z
     networks:
       - internal
     command: exit 0

@@ -39,7 +39,7 @@ spec:
           defaultMode: 0777
       containers:
       - name: {{ $jobName }}
-        image: minio/mc
+        image: minio/mc:RELEASE.2020-09-18T00-13-21Z
         command: ["sh", "-c"]
         args: ["/setup/job.sh"]
         terminationMessagePolicy: FallbackToLogsOnError
