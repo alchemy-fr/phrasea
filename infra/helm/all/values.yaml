@@ -40,7 +40,7 @@ expose:
     hostname:
     baseUrl:
     config:
-      requestSignatureTtl: 3600
+      requestSignatureTtl: 86400
       s3Storage:
         baseUrl: "{{ .Values.minio.baseUrl }}"
         endpoint:
