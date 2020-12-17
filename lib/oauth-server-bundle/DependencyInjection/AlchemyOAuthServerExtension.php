@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Yaml\Parser as YamlParser;
 
 /**
@@ -79,11 +80,13 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
             ],
         ]);
 
-        $container->prependExtensionConfig('framework', [
-            'templating' => [
-                'engine' => 'twig',
-            ],
-        ]);
+        if (Kernel::VERSION_ID < 50000) {
+            $container->prependExtensionConfig('framework', [
+                'templating' => [
+                    'engine' => 'twig',
+                ],
+            ]);
+        }
 
         if (isset($bundles['EasyAdminBundle'])) {
             $data = (new YamlParser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));

@@ -31,6 +31,9 @@
             "src/Entity/.gitignore"
         ]
     },
+    "arthem/rabbit-bundle": {
+        "version": "dev-master"
+    },
     "behat/transliterator": {
         "version": "v1.3.0"
     },
@@ -143,6 +146,9 @@
     },
     "elasticsearch/elasticsearch": {
         "version": "v7.10.0"
+    },
+    "emag-tech-labs/rabbitmq-bundle": {
+        "version": "2.4.0"
     },
     "ezimuel/guzzlestreams": {
         "version": "3.0.1"
@@ -258,6 +264,9 @@
     "php": {
         "version": "7.4"
     },
+    "php-amqplib/php-amqplib": {
+        "version": "v2.12.1"
+    },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },
@@ -269,6 +278,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.4.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.30"
     },
     "predis/predis": {
         "version": "v1.1.6"

@@ -383,17 +383,6 @@ services:
     volumes:
       - db_vol:/var/lib/postgresql/data
 
-  mariadb:
-    image: mariadb:10.3.18
-    networks:
-      - internal
-    environment:
-      - MYSQL_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD
-      - MYSQL_USER=$MARIADB_USER
-      - MYSQL_PASSWORD=$MARIADB_PASSWORD
-    volumes:
-      - mariadb_vol:/var/lib/mysql
-
   rabbitmq:
     image: rabbitmq:3.7.14-management
     hostname: rabbitmq
@@ -468,7 +457,6 @@ services:
     ports:
       - ${MATOMO_PORT}:80
 
-  # TODO merge with mariadb
   matomo-db:
     image: mariadb:10.4.10-bionic
     command:
@@ -641,20 +629,18 @@ services:
       - AUTH_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - MARIADB_USER
-      - MARIADB_PASSWORD
-      - MARIADB_HOST
-      - MARIADB_PORT
-      - MARIADB_NAME=databox
+      - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
-      - S3_STORAGE_BASE_URL=${DATABOX_1_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${DATABOX_1_STORAGE_ENDPOINT}
-      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_1_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_STORAGE_BASE_URL=${DATABOX_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${DATABOX_STORAGE_ENDPOINT}
+      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
-      - S3_STORAGE_BUCKET_NAME=${DATABOX_1_STORAGE_BUCKET_NAME}
-      - DATABOX_1_REQUEST_SIGNATURE_TTL
+      - S3_STORAGE_BUCKET_NAME=${DATABOX_STORAGE_BUCKET_NAME}
+      - DATABOX_REQUEST_SIGNATURE_TTL
       - TRUSTED_PROXIES=${PS_SUBNET}
     depends_on:
       - rabbitmq
@@ -672,7 +658,7 @@ services:
         aliases:
           - databox-api
     ports:
-      - ${DATABOX_1_PORT}:80
+      - ${DATABOX_PORT}:80
     depends_on:
       - databox-api-php
 
@@ -693,11 +679,6 @@ services:
       - AUTH_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - MARIADB_USER
-      - MARIADB_PASSWORD
-      - MARIADB_HOST
-      - MARIADB_PORT
-      - MARIADB_NAME=databox
       - ELASTICSEARCH_URL
 
   elasticsearch:
@@ -724,7 +705,6 @@ volumes:
   s3_vol:
   matomo_vol:
   matomodb_vol:
-  mariadb_vol:
   pgadmin_vol:
   rabbitmq_vol:
   elasticsearch_vol:

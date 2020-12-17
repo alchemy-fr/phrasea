@@ -1,3 +1,7 @@
+parameters:
+  user_alice: alice
+  user_jack: jack
+
 App\Entity\Core\Workspace:
   w_newspaper:
     name: Newspaper

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\OAuthServerBundle\Listener;
 
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use function json_last_error;
 use function json_last_error_msg;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -20,7 +20,7 @@ class JsonConverterSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function convertJsonStringToArray(FilterControllerEvent $event)
+    public function convertJsonStringToArray(ControllerEvent $event)
     {
         $request = $event->getRequest();
         if ('json' !== $request->getContentType() || empty($request->getContent())) {
