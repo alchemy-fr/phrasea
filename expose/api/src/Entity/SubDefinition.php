@@ -38,7 +38,19 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "name"="file",
  *                         "type"="file",
  *                         "required"=true,
- *                         "description"="The file to upload",
+ *                         "description"="The file to upload [required if no upload payload is provided]",
+ *                     },
+ *                     {
+ *                         "in"="formData",
+ *                         "name"="upload",
+ *                         "type"="object",
+ *                         "required"=false,
+ *                         "description"="The upload payload [required if no file is uploaded]. When provided, you receive a signed URL for uploading the file.
+Available options:
+ * type - the file MIME type (required)
+ * name - the original client name (optional)
+ * size - the file size (defaults to 0 if not provided)
+",
  *                     },
  *                     {
  *                         "in"="formData",
@@ -148,6 +160,12 @@ class SubDefinition implements MediaInterface
      */
     private ?string $downloadUrl = null;
 
+    /**
+     * @ApiProperty()
+     * @Groups({"subdef:read", "asset:read"})
+     */
+    private ?string $uploadURL = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -232,5 +250,15 @@ class SubDefinition implements MediaInterface
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getUploadURL(): ?string
+    {
+        return $this->uploadURL;
+    }
+
+    public function setUploadURL(?string $uploadURL): void
+    {
+        $this->uploadURL = $uploadURL;
     }
 }
