@@ -128,7 +128,7 @@ class SubDefinition implements MediaInterface
 
     /**
      * @Groups({"subdef:read", "publication:read"})
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private ?int $size = null;
 
