@@ -5,7 +5,7 @@
 Add the entities you want to extend with ACL:
 
 ```yaml
-# config/packages/alchemy_acl.yml
+# config/packages/alchemy_acl.yaml
 alchemy_acl:
   objects:
     publication: App\Entity\Publication
@@ -40,7 +40,7 @@ easy_admin_bundle:
 ```
 
 ```yaml
-# config/routes/alchemy_acl.yml
+# config/routes/alchemy_acl.yaml
 alchemy_acl_api:
   resource: "@AlchemyAclBundle/Resources/routing/permissions_api.yaml"
   prefix: /permissions

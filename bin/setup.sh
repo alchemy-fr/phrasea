@@ -111,12 +111,14 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
 exec_container rabbitmq "rabbitmqctl add_vhost databox && rabbitmqctl set_permissions -p databox ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as databox-api-php "bin/setup.sh" app
-
-## Create OAuth client for Notify Admin
+## Create OAuth client for Databox Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_ADMIN_CLIENT_ID} \
     --random-id=${DATABOX_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${DATABOX_ADMIN_CLIENT_SECRET} \
     --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope user:list \
+    --scope group:list \
     --redirect-uri ${DATABOX_BASE_URL}"
 
 # Setup Report

@@ -137,6 +137,8 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   databox-api-nginx:
     volumes:
@@ -146,6 +148,8 @@ services:
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   elasticsearch:
     ports:
