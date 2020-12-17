@@ -166,6 +166,7 @@ services:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
       - UPLOADER_API_BASE_URL
+      - DATABOX_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - MARIADB_NAME=databox

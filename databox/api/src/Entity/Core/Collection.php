@@ -93,6 +93,11 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
         $this->titleTranslations[$locale] = $title;
     }
 
+    public function getTitleEN(): string
+    {
+        return $this->getTitle('en');
+    }
+
     public function setTitleEN(string $title): void
     {
         $this->setTitle('en', $title);

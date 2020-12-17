@@ -627,6 +627,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
+      - DATABOX_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_USER
@@ -679,6 +680,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
+      - DATABOX_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_USER

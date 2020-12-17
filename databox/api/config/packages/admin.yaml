@@ -28,7 +28,6 @@ easy_admin:
         fields:
           - { property: 'title', label: Title }
           - { property: 'public' }
-          - { property: 'parent', label: Parent }
           - { property: 'collections.count', label: '# Colls' }
           - createdAt
 
@@ -41,7 +40,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: 'title[en]', label: Title }
+          - { property: 'titleEN', label: Title }
           - { property: 'parent', label: Parent }
           - { property: 'public' }
           - createdAt

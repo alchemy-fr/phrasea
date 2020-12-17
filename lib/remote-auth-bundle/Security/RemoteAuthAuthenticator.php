@@ -15,18 +15,9 @@ use Symfony\Component\Security\Http\SecurityEvents;
 
 class RemoteAuthAuthenticator
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private TokenStorageInterface $tokenStorage;
+    private SessionInterface $session;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         TokenStorageInterface $tokenStorage,
@@ -55,6 +46,6 @@ class RemoteAuthAuthenticator
         $this->session->set('_security_'.$providerKey, serialize($securityToken));
 
         $event = new InteractiveLoginEvent($request, $securityToken);
-        $this->eventDispatcher->dispatch(SecurityEvents::INTERACTIVE_LOGIN, $event);
+        $this->eventDispatcher->dispatch($event);
     }
 }
