@@ -48,44 +48,44 @@ App\Entity\Core\Collection:
   c_{sport, entertainment}:
     workspace: '@w_newspaper'
     ownerId: super_user
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_sport_{football, rugby, tennis}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_sport'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_sport_football_{league, worldcup}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_sport_football'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_entertainment_{archives}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_entertainment_{public_videos}:
     workspace: '@w_newspaper'
     ownerId: super_user
     public: true
     parent: '@c_entertainment'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_entertainment_public_videos_{movies, series, shows}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment_public_videos'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
   c_entertainment_archives_{movies, series, shows}:
     workspace: '@w_newspaper'
     ownerId: super_user
     parent: '@c_entertainment_archives'
-    titleEN: '<ucwords($current)>'
+    title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
   asset{1..80}:

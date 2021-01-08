@@ -45,4 +45,26 @@ class PermissionManager
 
         return false;
     }
+
+    public function getAllowedUsers(AclObjectInterface $object, int $permission): array
+    {
+        $objectKey = $this->objectMapper->getObjectKey($object);
+
+        return $this->repository->getAllowedUserIds(
+            $objectKey,
+            $object->getId(),
+            $permission
+        );
+    }
+
+    public function getAllowedGroups(AclObjectInterface $object, int $permission): array
+    {
+        $objectKey = $this->objectMapper->getObjectKey($object);
+
+        return $this->repository->getAllowedGroupIds(
+            $objectKey,
+            $object->getId(),
+            $permission
+        );
+    }
 }

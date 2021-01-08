@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity\Basket;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
- * @ApiResource()
  */
 class Basket extends AbstractUuidEntity
 {
@@ -21,9 +19,9 @@ class Basket extends AbstractUuidEntity
      */
     private Collection $collection;
 
-    public function getTitle(string $locale): string
+    public function getTitle(): ?string
     {
-        return $this->collection->getTitle($locale);
+        return $this->collection->getTitle();
     }
 
     public function getCollection(): Collection

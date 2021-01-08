@@ -15,6 +15,10 @@ interface PermissionRepositoryInterface
 
     public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array;
 
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array;
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array;
+
     /**
      * @return AccessControlEntryInterface[]
      */

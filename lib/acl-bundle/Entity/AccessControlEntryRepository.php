@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Alchemy\AclBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class AccessControlEntryRepository extends EntityRepository
 {
     public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
     {
         $queryBuilder = $this
-            ->createQueryBuilder('a')
+            ->createBaseQueryBuilder()
             ->andWhere('a.objectType = :ot')
             ->setParameter('ot', $objectType);
 
@@ -48,8 +49,7 @@ class AccessControlEntryRepository extends EntityRepository
 
     public function findAces(array $params = []): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('a');
+        $queryBuilder = $this->createBaseQueryBuilder();
 
         foreach ([
             'objectType' => 'ot',
@@ -75,5 +75,46 @@ class AccessControlEntryRepository extends EntityRepository
         return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this
+            ->createBaseQueryBuilder()
+            ->select('DISTINCT a.userId')
+            ->andWhere(sprintf('a.objectType = :ot'))
+            ->andWhere(sprintf('a.objectId = :oid OR a.objectId IS NULL'))
+            ->andWhere('BIT_AND(a.mask, :p) = :p')
+            ->andWhere('a.userType = :ut')
+            ->setParameter('ut', AccessControlEntry::TYPE_USER_VALUE)
+            ->setParameter('ot', $objectType)
+            ->setParameter('oid', $objectId)
+            ->setParameter('p', $permission)
+            ->getQuery()
+            ->getScalarResult()
+        ;
+    }
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this
+            ->createBaseQueryBuilder()
+            ->select('DISTINCT a.userId')
+            ->andWhere(sprintf('a.objectType = :ot'))
+            ->andWhere(sprintf('a.objectId = :oid OR a.objectId IS NULL'))
+            ->andWhere('BIT_AND(a.mask, :p) = :p')
+            ->andWhere('a.userType = :ut')
+            ->setParameter('ut', AccessControlEntry::TYPE_GROUP_VALUE)
+            ->setParameter('ot', $objectType)
+            ->setParameter('oid', $objectId)
+            ->setParameter('p', $permission)
+            ->getQuery()
+            ->getScalarResult()
+        ;
+    }
+
+    private function createBaseQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('a');
     }
 }

@@ -127,6 +127,9 @@
             ".php_cs.dist"
         ]
     },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.2"
+    },
     "guzzlehttp/guzzle": {
         "version": "6.3.3"
     },

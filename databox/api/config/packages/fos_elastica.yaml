@@ -4,6 +4,7 @@ fos_elastica:
         default: { url: '%env(ELASTICSEARCH_URL)%' }
     indexes:
         asset:
+            index_name: "asset_%kernel.environment%"
             settings:
                 index:
                     analysis:

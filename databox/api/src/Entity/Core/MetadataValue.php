@@ -4,28 +4,21 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ApiResource()
  */
-class MetadataValue extends AbstractUuidEntity
+class MetadataValue extends AbstractUuidEntity implements TranslatableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private Workspace $workspace;
+    use TranslatableTrait;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")

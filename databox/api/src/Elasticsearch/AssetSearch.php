@@ -17,8 +17,8 @@ class AssetSearch
     }
 
     public function search(
-        string $queryString,
-        string $userId,
+        ?string $queryString,
+        ?string $userId,
         array $groupIds,
         array $options = []
     ): array {
@@ -29,10 +29,13 @@ class AssetSearch
 
         $shoulds = [
             new Query\Term(['public' => true]),
-            new Query\Term(['ownerId' => $userId]),
-            new Query\Term(['users' => $userId]),
-            new Query\Terms('groups', $groupIds),
         ];
+
+        if (null !== $userId) {
+            $shoulds[] = new Query\Term(['ownerId' => $userId]);
+            $shoulds[] = new Query\Term(['users' => $userId]);
+            $shoulds[] = new Query\Terms('groups', $groupIds);
+        }
 
         foreach ($shoulds as $query) {
             $aclBoolQuery->addShould($query);

@@ -4,23 +4,35 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\Traits\WorkspaceTrait;
+use App\Entity\TranslatableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Input\AssetInput;
 
 /**
+ * @ApiResource(
+ *  shortName="asset",
+ *  normalizationContext={"groups"={"_", "asset:index"}},
+ *  output=AssetOutput::class,
+ *  input=AssetInput::class,
+ * )
  * @ORM\Entity()
- * @ApiResource()
  */
-class Asset extends AbstractUuidEntity
+class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use WorkspaceTrait;
+    use TranslatableTrait;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -34,15 +46,8 @@ class Asset extends AbstractUuidEntity
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"asset_read"})
      */
     private ?string $ownerId = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private ?Workspace $workspace = null;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="asset", cascade={"remove"})
@@ -106,16 +111,6 @@ class Asset extends AbstractUuidEntity
         $this->file = $file;
     }
 
-    public function getWorkspace(): ?Workspace
-    {
-        return $this->workspace;
-    }
-
-    public function setWorkspace(?Workspace $workspace): void
-    {
-        $this->workspace = $workspace;
-    }
-
     public function getStoryCollection(): ?DoctrineCollection
     {
         return $this->storyCollection;
@@ -177,11 +172,6 @@ class Asset extends AbstractUuidEntity
     public function setPublic(bool $public): void
     {
         $this->public = $public;
-    }
-
-    public function getWorkspaceId(): string
-    {
-        return $this->workspace->getId();
     }
 
     public function addToCollection(Collection $collection): CollectionAsset

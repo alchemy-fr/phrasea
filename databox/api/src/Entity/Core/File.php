@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ApiResource()
  */
 class File extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use WorkspaceTrait;
 
     /**
      * The MIME type.
@@ -43,14 +41,6 @@ class File extends AbstractUuidEntity
      */
     private ?string $path = null;
 
-    /**
-     * Dynamic signed URL.
-     *
-     * @ApiProperty(writable=false)
-     * @Groups({"record_read"})
-     */
-    private ?string $url = null;
-
     public function getPath(): ?string
     {
         return $this->path;
@@ -59,15 +49,5 @@ class File extends AbstractUuidEntity
     public function setPath(?string $path): void
     {
         $this->path = $path;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(?string $url): void
-    {
-        $this->url = $url;
     }
 }

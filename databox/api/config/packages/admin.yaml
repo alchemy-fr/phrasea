@@ -40,11 +40,11 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: 'titleEN', label: Title }
+          - { property: 'title' }
           - { property: 'parent', label: Parent }
           - { property: 'public' }
           - createdAt
       form:
         fields:
-          - { property: 'titleEN' }
+          - { property: 'title' }
           - { property: 'public' }

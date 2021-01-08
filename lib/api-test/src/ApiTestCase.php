@@ -6,17 +6,12 @@ namespace Alchemy\ApiTest;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Client;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    const ADMIN_USER = 'admin@alchemy.fr';
-
-    /**
-     * @var Client
-     */
-    protected $client;
+    protected AbstractBrowser $client;
 
     /**
      * @param string|array|null $accessToken

@@ -46,5 +46,4 @@ class CollectionAsset extends AbstractUuidEntity
     {
         $this->asset = $asset;
     }
-
 }

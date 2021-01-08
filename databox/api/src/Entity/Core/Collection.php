@@ -4,34 +4,42 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\TranslationInterface;
+use App\Entity\Traits\WorkspaceTrait;
+use App\Entity\TranslatableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Api\Model\Output\CollectionOutput;
 
 /**
  * @ORM\Entity()
- * @ApiResource()
+ * @ApiResource(
+ *  shortName="collection",
+ *  normalizationContext={"groups"={"_", "collection:index"}},
+ *  output=CollectionOutput::class,
+ *  input=false,
+ * )
  */
-class Collection extends AbstractUuidEntity implements TranslationInterface
+class Collection extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use WorkspaceTrait;
+    use TranslatableTrait;
 
     /**
-     * @Assert\Count(min=1)
-     * @Assert\All({
-     *     @Assert\NotBlank,
-     *     @Assert\Length(max=100)
-     * })
-     * @ORM\Column(type="json", nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(max=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private array $titleTranslations = [];
+    private ?string $title = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -42,12 +50,6 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $public = false;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private ?Workspace $workspace = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
@@ -74,33 +76,14 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
         $this->assets = new ArrayCollection();
     }
 
-    public function getTitle(string $locale): string
+    public function getTitle(): ?string
     {
-        if (!empty($this->titleTranslations[$locale])) {
-            return $this->titleTranslations[$locale];
-        }
-
-        $fallback = reset($this->titleTranslations);
-        if (false === $fallback) {
-            return 'Unamed';
-        }
-
-        return $fallback;
+        return $this->title;
     }
 
-    public function setTitle(string $locale, string $title): void
+    public function setTitle(?string $title): void
     {
-        $this->titleTranslations[$locale] = $title;
-    }
-
-    public function getTitleEN(): string
-    {
-        return $this->getTitle('en');
-    }
-
-    public function setTitleEN(string $title): void
-    {
-        $this->setTitle('en', $title);
+        $this->title = $title;
     }
 
     public function getParent(): ?self
@@ -129,16 +112,6 @@ class Collection extends AbstractUuidEntity implements TranslationInterface
     public function setOwnerId(?string $ownerId): void
     {
         $this->ownerId = $ownerId;
-    }
-
-    public function getWorkspace(): ?Workspace
-    {
-        return $this->workspace;
-    }
-
-    public function setWorkspace(?Workspace $workspace): void
-    {
-        $this->workspace = $workspace;
     }
 
     /**

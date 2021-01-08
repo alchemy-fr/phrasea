@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Core\Asset;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AssetPostTransformListener implements EventSubscriberInterface
 {
+    private PermissionManager $permissionManager;
+
+    public function __construct(PermissionManager $permissionManager)
+    {
+        $this->permissionManager = $permissionManager;
+    }
+
     public function hydrateAssetDocument(PostTransformEvent $event): void
     {
         /** @var Asset $asset */
@@ -32,14 +41,15 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 $isPublic = true;
             }
 
-            // Check ACE on collection
-//            $users = [];
-//            $groups = [];
+            if (!$isPublic) {
+                $users = array_merge($users, $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW));
+                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW));
+            }
 
-            $path = $collection->getTitle('en');
+            $path = $collection->getTitle();
             $parent = $collection;
             while ($parent = $parent->getParent()) {
-                $path = $parent->getTitle('en').'/'.$path;
+                $path = $parent->getTitle().'/'.$path;
 
                 if ($parent->isPublic()) {
                     $isPublic = true;
@@ -49,12 +59,9 @@ class AssetPostTransformListener implements EventSubscriberInterface
             $collectionsPaths[] = $path;
         }
 
-        $users = ['alice', 'jack'];
-        $groups = ['reporter_sport_tennis'];
-
         $document->set('public', $isPublic);
-        $document->set('users', $users);
-        $document->set('groups', $groups);
+        $document->set('users', array_values(array_unique($users)));
+        $document->set('groups', array_values(array_unique($groups)));
         $document->set('collectionPaths', $collectionsPaths);
     }
 

@@ -43,6 +43,20 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
             ->findAces($params);
     }
 
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->em
+            ->getRepository(AccessControlEntry::class)
+            ->getAllowedUserIds($objectType, $objectId, $permission);
+    }
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->em
+            ->getRepository(AccessControlEntry::class)
+            ->getAllowedGroupIds($objectType, $objectId, $permission);
+    }
+
     public function updateOrCreateAce(string $userType, ?string $userId, string $objectType, ?string $objectId, int $mask): ?AccessControlEntryInterface
     {
         if (null !== $objectId && empty($objectId)) {

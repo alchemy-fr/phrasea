@@ -136,6 +136,9 @@
             "config/routes/easy_admin.yaml"
         ]
     },
+    "fakerphp/faker": {
+        "version": "v1.13.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -147,6 +150,9 @@
         "files": [
             ".php_cs.dist"
         ]
+    },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.2"
     },
     "friendsofsymfony/oauth-server-bundle": {
         "version": "1.6.2"
