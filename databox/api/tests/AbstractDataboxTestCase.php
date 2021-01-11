@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -16,27 +18,27 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 {
     use ReloadDatabaseTrait;
 
-    protected function createAsset(array $options = []): string
+    private ?Workspace $defaultWorkspaceId = null;
+
+    protected function createAsset(array $options = []): Asset
     {
         $em = self::getEntityManager();
 
         $asset = new Asset();
         $asset->setTitle($options['title'] ?? null);
         $asset->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
-        $asset->setOwnerId($options['ownerId'] ?? 'admin');
+        $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         if (isset($options['public'])) {
             $asset->setPublic($options['public']);
         }
 
         if (isset($options['collectionId'])) {
-            $collectionAsset = new CollectionAsset();
-            $collectionAsset->setAsset($asset);
-            $collection = $em->find(Collection::class, $options['collection_id']);
+            $collection = $em->find(Collection::class, $options['collectionId']);
             if (!$collection instanceof Collection) {
                 throw new InvalidArgumentException('Collection not found');
             }
-            $collectionAsset->setCollection($collection);
+            $collectionAsset = $asset->addToCollection($collection);
             $em->persist($collectionAsset);
         }
 
@@ -46,22 +48,18 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
             $em->flush();
         }
 
-        return $asset->getId();
+        return $asset;
     }
 
-    private ?Workspace $defaultWorkspaceId = null;
-
-    protected function createCollection(array $options = []): string
+    protected function createCollection(array $options = []): Collection
     {
         $em = self::getEntityManager();
 
         $collection = new Collection();
-
         $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
-
         $collection->setTitle($options['title'] ?? null);
         $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
-        $collection->setOwnerId($options['ownerId'] ?? 'admin');
+        $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         if (isset($options['public'])) {
             $collection->setPublic($options['public']);
@@ -72,7 +70,12 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
             $em->flush();
         }
 
-        return $collection->getId();
+        return $collection;
+    }
+
+    protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission, array $options = []): void
+    {
+        self::getPermissionManager()->grantUserOnObject($userId, $object, $permission);
     }
 
     protected function getDataFromResponse($response, ?int $expectedCode)
@@ -95,6 +98,11 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $workspace;
+    }
+
+    protected static function getPermissionManager(): PermissionManager
+    {
+        return self::$container->get(PermissionManager::class);
     }
 
     protected function addAssetToCollection(string $collectionId, string $assetId, array $options = []): string

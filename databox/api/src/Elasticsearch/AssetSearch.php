@@ -58,14 +58,18 @@ class AssetSearch
             }
         }
 
-        $limit = $options['limit'] ?? 500;
+        $maxLimit = 100;
+        $limit = $options['limit'] ?? $maxLimit;
+        if ($limit > $maxLimit) {
+            $limit = $maxLimit;
+        }
 
         $filterQuery = new Query\BoolQuery();
         foreach ($mustQueries as $query) {
-            $filterQuery->addMust($query);
+            $filterQuery->addFilter($query);
         }
 
-//        print_r($filterQuery->toArray());
+//        dump($filterQuery->toArray());
 
         $data = $this->finder->find($filterQuery, $limit);
 

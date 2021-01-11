@@ -12,12 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
-                "reference": "cb819fd04bac8d2fce03f754be8c91f7fdcc3a98"
+                "reference": "60fe9c0256e6981646479081fd28032adc156fa8"
             },
             "require": {
                 "doctrine/orm": "^2.6",
                 "php": "^7.4",
                 "ramsey/uuid-doctrine": "^1.5",
+                "symfony/event-dispatcher": "^4.0||^5",
                 "symfony/framework-bundle": "^4.0||^5",
                 "symfony/security-bundle": "^4.0||^5"
             },
@@ -409,12 +410,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "3fda7b28bf3732c1cc92ab0b9f6a879718af854f"
+                "reference": "7fb264aadb99a288457fadcbc5a947256f560be8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/3fda7b28bf3732c1cc92ab0b9f6a879718af854f",
-                "reference": "3fda7b28bf3732c1cc92ab0b9f6a879718af854f",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/7fb264aadb99a288457fadcbc5a947256f560be8",
+                "reference": "7fb264aadb99a288457fadcbc5a947256f560be8",
                 "shasum": ""
             },
             "require": {
@@ -450,7 +451,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2020-12-17T15:29:23+00:00"
+            "time": "2021-01-11T18:09:42+00:00"
         },
         {
             "name": "behat/transliterator",

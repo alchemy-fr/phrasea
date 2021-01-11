@@ -17,6 +17,10 @@ services:
     _instanceof:
         Doctrine\Common\EventSubscriber:
             tags: ['doctrine.event_subscriber']
+        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
+            tags: ['arthem_rabbit.event_handler']
+        Symfony\Component\EventDispatcher\EventSubscriberInterface:
+            tags: ['kernel.event_subscriber']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -40,3 +44,9 @@ services:
     App\Elasticsearch\AssetSearch:
         arguments:
             - '@fos_elastica.finder.asset'
+
+    App\Elasticsearch\Listener\DeferredIndexListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate }
+            - { name: kernel.event_listener, event: console.terminate }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onHandlerTerminate }

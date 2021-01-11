@@ -40,4 +40,4 @@ fos_elastica:
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset
-                listener: ~
+                listener: { enabled: false }

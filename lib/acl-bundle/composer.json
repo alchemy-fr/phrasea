@@ -9,6 +9,7 @@
     "php": "^7.4",
     "symfony/framework-bundle": "^4.0||^5",
     "symfony/security-bundle": "^4.0||^5",
+    "symfony/event-dispatcher": "^4.0||^5",
     "ramsey/uuid-doctrine": "^1.5",
     "doctrine/orm": "^2.6"
   },

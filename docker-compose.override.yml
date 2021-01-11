@@ -64,7 +64,7 @@ services:
 
   expose-api-nginx:
     volumes:
-      - ./expose/api:/srv/app
+      - ./expose/api/public:/srv/app/public
 
   expose-worker:
     volumes:
@@ -88,7 +88,7 @@ services:
 
   uploader-api-nginx:
     volumes:
-      - ./uploader/api:/srv/app
+      - ./uploader/api/public:/srv/app/public
       - ./uploader/api/docker/nginx/entrypoint.sh:/entrypoint.sh
       - ./uploader/api/docker/nginx/tpl:/etc/nginx/tpl
 
@@ -123,7 +123,7 @@ services:
 
   notify-api-nginx:
     volumes:
-      - ./notify/api:/srv/app
+      - ./notify/api/public:/srv/app/public
 
   notify-worker:
     volumes:

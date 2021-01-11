@@ -26,5 +26,8 @@ interface PermissionRepositoryInterface
 
     public function updateOrCreateAce(string $userType, string $userId, string $objectType, ?string $objectId, int $permissions): ?AccessControlEntryInterface;
 
-    public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): void;
+    /**
+     * @return bool Whether the ACE has been deleted
+     */
+    public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): bool;
 }

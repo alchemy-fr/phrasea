@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -25,9 +26,9 @@ use App\Api\Model\Input\AssetInput;
  *  output=AssetOutput::class,
  *  input=AssetInput::class,
  * )
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
  */
-class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface
+class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

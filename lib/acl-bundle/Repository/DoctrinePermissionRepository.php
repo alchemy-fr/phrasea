@@ -62,6 +62,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         if (null !== $objectId && empty($objectId)) {
             throw new InvalidArgumentException('Empty objectId');
         }
+
         $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
 
@@ -89,7 +90,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         return $ace;
     }
 
-    public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): void
+    public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): bool
     {
         $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
@@ -105,6 +106,10 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         if ($ace instanceof AccessControlEntry) {
             $this->em->remove($ace);
             $this->em->flush();
+
+            return true;
         }
+
+        return false;
     }
 }

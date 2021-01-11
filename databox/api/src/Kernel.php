@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\SearchIndexPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -22,6 +24,12 @@ class Kernel extends BaseKernel
         } elseif (is_file($path = \dirname(__DIR__).'/config/services.php')) {
             (require $path)($container->withPath($path), $this);
         }
+    }
+
+    protected function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+        $container->addCompilerPass(new SearchIndexPass());
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

@@ -79,7 +79,9 @@ class AccessControlEntryRepository extends EntityRepository
 
     public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
     {
-        return $this
+        return array_map(function (array $row): string {
+            return $row['userId'];
+        }, $this
             ->createBaseQueryBuilder()
             ->select('DISTINCT a.userId')
             ->andWhere(sprintf('a.objectType = :ot'))
@@ -92,12 +94,14 @@ class AccessControlEntryRepository extends EntityRepository
             ->setParameter('p', $permission)
             ->getQuery()
             ->getScalarResult()
-        ;
+        );
     }
 
     public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
     {
-        return $this
+        return array_map(function (array $row): string {
+            return $row['userId'];
+        }, $this
             ->createBaseQueryBuilder()
             ->select('DISTINCT a.userId')
             ->andWhere(sprintf('a.objectType = :ot'))
@@ -110,7 +114,7 @@ class AccessControlEntryRepository extends EntityRepository
             ->setParameter('p', $permission)
             ->getQuery()
             ->getScalarResult()
-        ;
+        );
     }
 
     private function createBaseQueryBuilder(): QueryBuilder

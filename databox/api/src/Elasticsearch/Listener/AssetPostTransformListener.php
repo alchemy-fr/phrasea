@@ -30,9 +30,13 @@ class AssetPostTransformListener implements EventSubscriberInterface
 
         $isPublic = $asset->isPublic();
 
-        $users = [];
-        $groups = [];
+        $users = $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW);
+        $groups = $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW);
         // Check ACE on asset
+
+        if (null !== $asset->getOwnerId()) {
+            $users[] = $asset->getOwnerId();
+        }
 
         $collectionsPaths = [];
         foreach ($asset->getCollections() as $collectionAsset) {
@@ -41,9 +45,13 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 $isPublic = true;
             }
 
+            if (null !== $collection->getOwnerId()) {
+                $users[] = $collection->getOwnerId();
+            }
+
             if (!$isPublic) {
-                $users = array_merge($users, $this->permissionManager->getAllowedUsers($asset, PermissionInterface::VIEW));
-                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($asset, PermissionInterface::VIEW));
+                $users = array_merge($users, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
+                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
             }
 
             $path = $collection->getTitle();

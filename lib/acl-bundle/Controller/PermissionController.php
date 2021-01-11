@@ -10,6 +10,7 @@ use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AclBundle\Serializer\AceSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,13 +23,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PermissionController extends AbstractController
 {
-    private PermissionRepositoryInterface $repository;
+    private PermissionManager $permissionManager;
     private EntityManagerInterface $em;
     private ObjectMapping $objectMapping;
 
-    public function __construct(PermissionRepositoryInterface $repository, EntityManagerInterface $em, ObjectMapping $objectMapping)
+    public function __construct(PermissionManager $permissionManager, EntityManagerInterface $em, ObjectMapping $objectMapping)
     {
-        $this->repository = $repository;
+        $this->permissionManager = $permissionManager;
         $this->em = $em;
         $this->objectMapping = $objectMapping;
     }
@@ -60,7 +61,7 @@ class PermissionController extends AbstractController
     /**
      * @Route("/ace", methods={"PUT"}, name="ace")
      */
-    public function setAce(Request $request, PermissionRepositoryInterface $repository): Response
+    public function setAce(Request $request): Response
     {
         $this->validateAuthorization($request);
         $objectType = $request->request->get('objectType');
@@ -71,7 +72,7 @@ class PermissionController extends AbstractController
 
         $objectId = !empty($objectId) ? $objectId : null;
 
-        $repository->updateOrCreateAce($userType, $userId, $objectType, $objectId, $mask);
+        $this->permissionManager->updateOrCreateAce($userType, $userId, $objectType, $objectId, $mask);
 
         return new JsonResponse(true);
     }
@@ -118,7 +119,7 @@ class PermissionController extends AbstractController
     /**
      * @Route("/ace", methods={"DELETE"}, name="ace_delete")
      */
-    public function deleteAce(Request $request, PermissionRepositoryInterface $repository): Response
+    public function deleteAce(Request $request): Response
     {
         $this->validateAuthorization($request);
         $objectType = $request->request->get('objectType');
@@ -128,7 +129,7 @@ class PermissionController extends AbstractController
 
         $objectId = !empty($objectId) ? $objectId : null;
 
-        $repository->deleteAce($userType, $userId, $objectType, $objectId);
+        $this->permissionManager->deleteAce($userType, $userId, $objectType, $objectId);
 
         return new JsonResponse(true);
     }

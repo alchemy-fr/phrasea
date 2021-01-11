@@ -6,20 +6,30 @@ namespace Alchemy\AclBundle\Security;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Entity\AccessControlEntry;
+use Alchemy\AclBundle\Event\AclDeleteEvent;
+use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\UserInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PermissionManager
 {
     private ObjectMapping $objectMapper;
     private PermissionRepositoryInterface $repository;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(ObjectMapping $objectMapper, PermissionRepositoryInterface $repository)
+    public function __construct(
+        ObjectMapping $objectMapper,
+        PermissionRepositoryInterface $repository,
+        EventDispatcherInterface $eventDispatcher
+    )
     {
         $this->objectMapper = $objectMapper;
         $this->repository = $repository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -66,5 +76,58 @@ class PermissionManager
             $object->getId(),
             $permission
         );
+    }
+
+    public function grantUserOnObject(string $userId, AclObjectInterface $object, int $permissions): void
+    {
+        $objectKey = $this->objectMapper->getObjectKey($object);
+
+        $this->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER,
+            $userId,
+            $objectKey,
+            $object->getId(),
+            $permissions
+        );
+    }
+
+    public function grantGroupOnObject(string $userId, AclObjectInterface $object, int $permissions): void
+    {
+        $objectKey = $this->objectMapper->getObjectKey($object);
+
+        $this->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_GROUP,
+            $userId,
+            $objectKey,
+            $object->getId(),
+            $permissions
+        );
+    }
+
+    public function updateOrCreateAce(string $userType, string $userId, string $objectType, ?string $objectId, int $permissions): ?AccessControlEntryInterface
+    {
+        $ace = $this->repository->updateOrCreateAce(
+            $userType,
+            $userId,
+            $objectType,
+            $objectId,
+            $permissions
+        );
+
+        $this->eventDispatcher->dispatch(new AclUpsertEvent($objectType, $objectId), AclUpsertEvent::NAME);
+
+        return $ace;
+    }
+
+    public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): void
+    {
+        if ($this->repository->deleteAce(
+            $userType,
+            $userId,
+            $objectType,
+            $objectId
+        )) {
+            $this->eventDispatcher->dispatch(new AclDeleteEvent($objectType, $objectId), AclDeleteEvent::NAME);
+        }
     }
 }
