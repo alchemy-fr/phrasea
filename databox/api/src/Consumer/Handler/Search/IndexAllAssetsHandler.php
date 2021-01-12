@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
+use App\Consumer\Handler\AbstractBatchHandler;
 use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Asset;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
-class IndexAllAssetsHandler extends AbstractEntityManagerHandler
+class IndexAllAssetsHandler extends AbstractBatchHandler
 {
     const EVENT = 'index_all_assets';
 
@@ -20,35 +19,17 @@ class IndexAllAssetsHandler extends AbstractEntityManagerHandler
         $this->searchIndexer = $searchIndexer;
     }
 
-    public function handle(EventMessage $message): void
+    protected function getIterator(): iterable
     {
-        $em = $this->getEntityManager();
-
-        $iterator = $em->createQueryBuilder()
+        return $this->getEntityManager()
+            ->createQueryBuilder()
             ->select('a.id')
             ->from(Asset::class, 'a')
             ->getQuery()
             ->iterate();
-
-        $batchSize = 200;
-        $stack = [];
-
-        $i = 0;
-        foreach ($iterator as $asset) {
-            $stack[] = $asset[0]['id'];
-            if ($i++ > $batchSize) {
-                $this->flushIndexStack($stack);
-                $stack = [];
-                $i = 0;
-            }
-        }
-
-        if (!empty($stack)) {
-            $this->flushIndexStack($stack);
-        }
     }
 
-    private function flushIndexStack(array $stack): void
+    protected function flushIndexStack(array $stack): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Asset::class, $stack, ESSearchIndexer::ACTION_UPSERT);
     }

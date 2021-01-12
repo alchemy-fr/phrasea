@@ -33,14 +33,14 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
     {
         return $this->em
             ->getRepository(AccessControlEntry::class)
-            ->getAces($userId, $groupIds, $objectType, $objectId);
+            ->getRules($userId, $groupIds, $objectType, $objectId);
     }
 
     public function findAces(array $params = []): array
     {
         return $this->em
             ->getRepository(AccessControlEntry::class)
-            ->findAces($params);
+            ->findRules($params);
     }
 
     public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array

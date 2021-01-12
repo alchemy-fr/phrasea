@@ -9,10 +9,10 @@ fos_elastica:
                 index:
                     analysis:
                         analyzer:
-                            path:
-                                tokenizer: path
+                            collection_path:
+                                tokenizer: collection_path
                         tokenizer:
-                            path:
+                            collection_path:
                                 type: path_hierarchy
                                 delimiter: /
             properties:
@@ -20,7 +20,7 @@ fos_elastica:
                 collectionPaths:
                     property_path: false
                     type: text
-                    analyzer: path
+                    analyzer: collection_path
                 public:
                     property_path: false
                     type: boolean

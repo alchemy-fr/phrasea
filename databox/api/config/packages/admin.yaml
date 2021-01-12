@@ -28,8 +28,14 @@ easy_admin:
         fields:
           - { property: 'title', label: Title }
           - { property: 'public' }
+          - { property: 'ownerId' }
           - { property: 'collections.count', label: '# Colls' }
           - createdAt
+      form:
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'public' }
+          - { property: 'ownerId' }
 
     Collection:
       class: App\Entity\Core\Collection

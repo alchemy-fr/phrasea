@@ -203,7 +203,7 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     public function getTagIds(): array
     {
         return $this->tags->map(function (Tag $tag): string {
-           return $tag->getESId();
+           return $tag->getId();
         })->getValues();
     }
 }

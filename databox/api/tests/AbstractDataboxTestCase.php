@@ -10,9 +10,12 @@ use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Security\TagFilterManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
+use Ramsey\Uuid\Uuid;
 
 abstract class AbstractDataboxTestCase extends ApiTestCase
 {
@@ -26,11 +29,30 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
         $asset = new Asset();
         $asset->setTitle($options['title'] ?? null);
-        $asset->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $workspace = $options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace();
+        $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         if (isset($options['public'])) {
             $asset->setPublic($options['public']);
+        }
+
+        foreach ($options['tags'] ?? [] as $tagName) {
+            $repo = $em->getRepository(Tag::class);
+            if (Uuid::isValid($tagName)) {
+                $tag = $repo->find($tagName);
+            } else {
+                if (null === $tag = $repo->findOneBy([
+                    'workspace' => $workspace->getId(),
+                    'name' => $tagName,
+                ])) {
+                    $tag = new Tag();
+                    $tag->setName($tagName);
+                    $tag->setWorkspace($workspace);
+                    $em->persist($tag);
+                }
+            }
+            $asset->addTag($tag);
         }
 
         if (isset($options['collectionId'])) {
@@ -105,6 +127,11 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return self::$container->get(PermissionManager::class);
     }
 
+    protected static function getTagFilterManager(): TagFilterManager
+    {
+        return self::$container->get(TagFilterManager::class);
+    }
+
     protected function addAssetToCollection(string $collectionId, string $assetId, array $options = []): string
     {
         $em = self::getEntityManager();
@@ -121,13 +148,25 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return $collectionAsset->getId();
     }
 
-    private function findAsset(string $id): ?Asset
+    protected function findAsset(string $id): ?Asset
     {
         $em = self::getEntityManager();
         /** @var Asset $asset */
         $asset = $em->find(Asset::class, $id);
 
         return $asset;
+    }
+
+    protected function findTagByName(string $name): ?Tag
+    {
+        $em = self::getEntityManager();
+        /** @var Tag $tag */
+        $tag = $em->getRepository(Tag::class)->findOneBy([
+            'workspace' => $this->defaultWorkspaceId,
+            'name' => $name,
+        ]);
+
+        return $tag;
     }
 
     protected function getOrCreateDefaultWorkspace(): Workspace

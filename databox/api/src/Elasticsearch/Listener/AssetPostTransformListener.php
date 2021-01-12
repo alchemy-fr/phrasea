@@ -54,17 +54,11 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
             }
 
-            $path = $collection->getTitle();
-            $parent = $collection;
-            while ($parent = $parent->getParent()) {
-                $path = $parent->getTitle().'/'.$path;
-
-                if ($parent->isPublic()) {
-                    $isPublic = true;
-                }
+            if ($collection->isPublicOrHasPublicParent()) {
+                $isPublic = true;
             }
 
-            $collectionsPaths[] = $path;
+            $collectionsPaths[] = $collection->getAbsolutePath();
         }
 
         $document->set('public', $isPublic);

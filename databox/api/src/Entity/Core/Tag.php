@@ -51,11 +51,4 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     {
         $this->workspace = $workspace;
     }
-
-    public function getESId(): string
-    {
-        return $this->getName();
-        // TODO remove name
-        return sprintf('%s-%s', $this->getName(), $this->getId());
-    }
 }
