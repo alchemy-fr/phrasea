@@ -1,0 +1,75 @@
+span {
+    display: inline-block;
+    vertical-align:baseline;
+    border: 2px solid #CCCCCC;
+    padding: 0px 2px 2px;
+    border-top: 0px solid #000000;
+    margin: 0px 2px 2px;
+}
+span.string {
+    border-color: tan;
+}
+span.binary {
+    background-color:deepskyblue;
+}
+span.compare {
+    background-color: aquamarine;
+}
+span.space {
+    background-color: lightpink;
+}
+span.unary {
+    background-color: yellowgreen;
+}
+span.sub_char {
+    background-color: yellow;
+}
+span.fake_sub_char {
+    color: darkgrey;
+}
+span.prefix {
+    background-color: blanchedalmond;
+}
+span.word {
+    background-color: tan;
+}
+span.keyword {
+    background-color: olive;
+    color: white;
+}
+
+#DUMP_TOKENS {
+    font-family: monospace;
+    font-size: 16px;
+    padding:5px;
+}
+
+#DUMP_JSON {
+    white-space: pre;
+    font-family: monospace;
+}
+
+#DUMP_TREE {
+    font-family: monospace;
+    font-size: 20px;
+}
+
+#DUMP_TREE TABLE {
+    margin-left: auto;
+    margin-right: auto;
+    border: grey 1px solid;
+    border-collapse: collapse;
+}
+
+#DUMP_TREE TD {
+    font-family: monospace;
+    font-size: 18px;
+    text-align: center;
+    border: grey 1px solid;
+    padding: 5px;
+}
+
+#DUMP_TREE SUB {
+    font-size: 8px;
+}
+

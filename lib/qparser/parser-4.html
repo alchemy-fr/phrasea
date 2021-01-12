@@ -1,0 +1,174 @@
+<html lang="en" style="overflow: hidden; width: 100vw; height:100vh; margin: 0px; padding: 0px;">
+    <head>
+        <meta charset="UTF-8">
+        <title>Qparser WIP</title>
+        <link rel="stylesheet" href="parser4.css">
+        <script rel="script" src="jquery-3.5.1.min.js"></script>
+
+        <script type="module">
+            import {Parser} from './parser4.js';
+
+            let parser = new Parser;
+
+            $("#QUERY").keyup(
+                function() {
+                    const $in = $("#QUERY");
+                    const debug = $("#CK_DEBUG").is(':checked');
+
+                    parser.setDebug(debug).parse($in.val(), $in.selectionStart, $in.selectionEnd);
+
+                    const jsTree = parser.getTree();
+
+                    $("#ERROR").html(jsTree.error);
+                    $("#DUMP_TOKENS").html(parser.dumpTokens());
+                    $("#DUMP_JSON").html(JSON.stringify(jsTree, null, 2));
+                    $("#DUMP_TREE").html(parser.dumpTree());
+
+                    $(window).resize();
+                }
+            );
+        </script>
+
+        <script type="text/javascript">
+        const examples = [
+            { h: "text" },
+
+            {t: "chien", h: ""},
+            {t: "poisson chat", h: ""},
+            {t: "marchAND OReille ANDouille", h: ""},
+            {t: "orange (couleur)", h: "\"contexte\" à implémenter ?"},
+            {t: "(chat) chien", h: "concat"},
+
+            { h: "escape char (anti-slash)" },
+
+            {t: "\\\" ; \\( ; \\= ; \\and ...", h: ""},
+
+            { h: "operators and parenthesis" },
+
+            {t: "chien et chat", h: ""},
+            {t: "chien and chat", h: ""},
+            {t: "chien et chat sauf oiseau", h: ""},
+            {t: "(chien et chat) sauf oiseau", h: ""},
+            {t: "chien et (chat sauf oiseau)", h: ""},
+            {t: "chat dans titre", h: ""},
+
+            { h: "quoting" },
+
+            {t: "bel or massif", h: "attention au \"or\" !"},
+            {t: "\"bel or massif\"", h: ""},
+            {t: "or massif", h: "!! erreur !!"},
+            {t: "\"or massif\"", h: ""},
+            {t: "tas d'or massif", h: "le \"'\" (apostrophe) n'est pas dans la grammaire"},
+            {t: "r\"raw text\"", h: "on peut typer les quotes"},
+            {t: "z\"zorro\"", h: "!! type de quote inconnu !!"},
+            {t: "chien \"chat\"", h: "concat"},
+
+            { h: "auto close"},
+
+            {t: "(chien et (chat sauf oiseau", h: "parenthèses fermées automatiquement"},
+            {t: "\"(chien et chats", h: "quotes fermés automatiquement"},
+
+            { h: "priority (auto-parenthesis)"},
+
+            {t: "a and b or c", h: ""},
+            {t: "a and b > c", h: ""},
+            {t: "a and meta.b = c", h: ""},
+            {t: "meta.b = c and a", h: ""},
+
+            { h: "comparators" },
+
+            {t: "size=1", h: "sans espaces"},
+            {t: "size = 2", h: "avec espaces"},
+            {t: "size > 3", h: ""},
+            {t: "size < 4", h: ""},
+            {t: "size >= 5", h: ""},
+            {t: "size <= 6", h: ""},
+            {t: "size != 7", h: ""},
+            {t: "keyword : chien errant", h: ""},
+            {t: "titre is chien", h: "même que ':' ou '=' ?"},
+            {t: "titre is not chat", h: "même que '!=' ?"},
+            {t: "author is empty", h: "'empty' est un mot-clé"},
+
+
+            { h: "prefix" },
+
+            {t: "meta.titre : chien", h: ""},
+            {t: "field.titre : chien", h: ""},
+            {t: "m.titre : chien", h: "le \".\" (point) n'est pas dans la grammaire"},
+
+            { h: "to be fixed... ?" },
+
+            {t: "a in x y", h: " x y : un nom de champ avec des espaces ?"},
+            {t: "a = b dans c", h: "?"},
+            {t: "a et b dans c", h: "?"}
+        ];
+        </script>
+
+    </head>
+
+
+    <body style="overflow: hidden; width: 100vw; height:100vh; margin: 0px; padding: 0px;">
+        <div style="position:absolute; top:0px; left:0px; height: 100%; right:40%; overflow: hidden;">
+            <div id="TOP">
+                <div id="FORM" style="padding: 5px;">
+                    <form onsubmit="return false;" style="margin:0px;">
+                        <label for="QUERY"></label>
+                        <input id="QUERY" style="position:relative; width:95%; left:5px; font-size: 18px;" type="text" placeholder="type query or click on a sample">
+                        <div style="text-align: right">
+                            <label for="CK_DEBUG">console trace </label><input id="CK_DEBUG" type="checkbox">
+                        </div>
+                    </form>
+                    <div id="ERROR" style="color:red"></div>
+                </div>
+
+                <div id="DUMP_TOKENS"></div>
+            </div>
+            <div id="BOT" style="position:absolute; width: 100%; bottom: 0px; border-top: darkgray 1px solid;">
+                <div id="DUMP_JSON" style="position: relative; overflow: auto; float: left; height: 100%; width: 35%; padding-top:5px;box-sizing: border-box">
+                </div>
+                <div id="DUMP_TREE" style="overflow: auto; height: 100%; padding-top:5px; border-left: dashed 1px darkgray; box-sizing: border-box">
+                </div>
+            </div>
+        </div>
+
+        <div id="EXAMPLES" style="position:absolute; top:0px; right:0px; left:60%; height: 100%; overflow-y: scroll; padding-left: 5px; border-left: dashed 1px black">
+        </div>
+
+    </body>
+
+
+	<script type="text/javascript">
+
+        $(window).resize(
+            function() {
+                $("#BOT").css('top', $("#TOP").height());
+            }
+        );
+
+        function clickExample(e)
+        {
+            $("#QUERY").val(e.innerText).keyup();
+        }
+
+        // enforce placing divs
+        $(window).resize();
+
+        // fill examples
+        let s = "";
+        examples.forEach(function (ex) {
+            if(ex.t) {
+                s += "<a onclick='clickExample(this);return false;' href='#'>" + ex.t + "</a>";
+                if(ex.h) {
+                    s += "&nbsp;&nbsp;(" + ex.h + ")";
+                }
+                s += "<br/>";
+            }
+            else {
+                s += "<div style='margin-top:6px; margin-bottom:2px; font-weight: bold;'>" + ex.h + "</div>";
+            }
+        });
+        $("#EXAMPLES").html(s);
+
+    </script>
+</html>
+
