@@ -179,6 +179,12 @@ services:
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
 
+  qparser:
+      volumes:
+          - ./qparser/docker/root/entrypoint.sh:/entrypoint.sh
+          - ./qparser/src:/var/app
+          - ./qparser/src/public:/usr/share/nginx/html
+
 volumes:
   dev_vol:
     driver: local

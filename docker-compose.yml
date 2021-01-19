@@ -615,6 +615,26 @@ services:
       - SAML_BASE_URL
       - SAML2_BASE_URL
 
+  qparser:
+      image: ${REGISTRY_NAMESPACE}qparser:$DOCKER_TAG
+      build: qparser
+      networks:
+          - internal
+      ports:
+          - ${QPARSER_PORT}:80
+      environment:
+          - COMPOSE_PROJECT_NAME
+          - QPARSER_BASE_URL
+          - REGISTRY_NAMESPACE
+          - DOCKER_TAG
+          - APP_ENV
+          - DEV_MODE
+          - PS_SUBNET
+          - PS_GATEWAY_IP
+          - IDE_KEY
+          - XDEBUG_ENABLED
+          - PS_DEBUG_SERVER_NAME_PREFIX
+
 volumes:
   weblate_vol:
   db_vol:

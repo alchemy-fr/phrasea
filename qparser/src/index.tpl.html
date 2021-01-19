@@ -1,35 +1,97 @@
-<html lang="en" style="overflow: hidden; width: 100vw; height:100vh; margin: 0px; padding: 0px;">
-    <head>
-        <meta charset="UTF-8">
-        <title>Qparser WIP</title>
-        <link rel="stylesheet" href="parser4.css">
-        <script rel="script" src="jquery-3.5.1.min.js"></script>
+<!doctype html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>[Dashboard] ${COMPOSE_PROJECT_NAME}</title>
 
-        <script type="module">
-            import {Parser} from './parser4.js';
+    <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <meta name="theme-color" content="#563d7c">
+    <link rel="stylesheet" href="parser4.css">
 
-            let parser = new Parser;
+    <style>
+        h1 {
+            margin: 15px 0;
+        }
 
-            $("#QUERY").keyup(
-                function() {
-                    const $in = $("#QUERY");
-                    const debug = $("#CK_DEBUG").is(':checked');
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-                    parser.setDebug(debug).parse($in.val(), $in.selectionStart, $in.selectionEnd);
+        .services {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 30px;
+            grid-auto-rows: minmax(100px, auto);
+        }
 
-                    const jsTree = parser.getTree();
+        .services > li {
+            border-radius: 15px;
+            border: 1px solid #DDD;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0, .1);
+        }
 
-                    $("#ERROR").html(jsTree.error);
-                    $("#DUMP_TOKENS").html(parser.dumpTokens());
-                    $("#DUMP_JSON").html(JSON.stringify(jsTree, null, 2));
-                    $("#DUMP_TREE").html(parser.dumpTree());
+        .services > li > img {
+            display: inline-block;
+            max-width: 50px;
+        }
 
-                    $(window).resize();
-                }
-            );
-        </script>
+        .other-svc {
+            margin-top: 30px;
+        }
 
-        <script type="text/javascript">
+        .other-svc > li {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background-color: #f5f5f5;
+        }
+
+        .env h3 {
+            margin-top: 30px;
+        }
+
+        .env pre {
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid #CCC;
+            background: #f5f5f5;
+        }
+    </style>
+
+    <script type="module">
+        import {Parser} from './parser4.js';
+
+        let parser = new Parser;
+
+        $("#QUERY").keyup(
+            function() {
+                const _$in = $("#QUERY");
+                const debug = $("#CK_DEBUG").is(':checked');
+
+                parser.setDebug(debug).parse(_$in.val(), _$in.selectionStart, _$in.selectionEnd);
+
+                const jsTree = parser.getTree();
+
+                $("#ERROR").html(jsTree.error);
+                $("#DUMP_TOKENS").html(parser.dumpTokens());
+                $("#DUMP_JSON").html(JSON.stringify(jsTree, null, 2));
+                $("#DUMP_TREE").html(parser.dumpTree());
+
+                $(window).resize();
+            }
+        );
+    </script>
+
+    <script type="text/javascript">
         const examples = [
             { h: "text" },
 
@@ -102,12 +164,19 @@
             {t: "a = b dans c", h: "?"},
             {t: "a et b dans c", h: "?"}
         ];
-        </script>
+    </script>
 
-    </head>
+</head>
 
 
-    <body style="overflow: hidden; width: 100vw; height:100vh; margin: 0px; padding: 0px;">
+<body class="d-flex flex-column h-100">
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+    <div class="container">
+        <h1>
+            QParser test
+        </h1>
+
         <div style="position:absolute; top:0px; left:0px; height: 100%; right:40%; overflow: hidden;">
             <div id="TOP">
                 <div id="FORM" style="padding: 5px;">
@@ -134,41 +203,54 @@
         <div id="EXAMPLES" style="position:absolute; top:0px; right:0px; left:60%; height: 100%; overflow-y: scroll; padding-left: 5px; border-left: dashed 1px black">
         </div>
 
-    </body>
+<!--        <div class="env">-->
+<!--            <h3>Stack environment variables:</h3>-->
+<!--            <pre>${ALL_ENV}</pre>-->
+<!--        </div>-->
+    </div>
+</main>
 
+<footer class="footer mt-auto py-3">
+    <div class="container">
+        <span class="text-muted">phraseanet-services.</span>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        console.log('hello');
+    });
 
-	<script type="text/javascript">
-
-        $(window).resize(
-            function() {
-                $("#BOT").css('top', $("#TOP").height());
-            }
-        );
-
-        function clickExample(e)
-        {
-            $("#QUERY").val(e.innerText).keyup();
+    $(window).resize(
+        function() {
+            $("#BOT").css('top', $("#TOP").height());
         }
+    );
 
-        // enforce placing divs
-        $(window).resize();
+    function clickExample(e)
+    {
+        $("#QUERY").val(e.innerText).keyup();
+    }
 
-        // fill examples
-        let s = "";
-        examples.forEach(function (ex) {
-            if(ex.t) {
-                s += "<a onclick='clickExample(this);return false;' href='#'>" + ex.t + "</a>";
-                if(ex.h) {
-                    s += "&nbsp;&nbsp;(" + ex.h + ")";
-                }
-                s += "<br/>";
+    // enforce placing divs
+    $(window).resize();
+
+    // fill examples
+    let s = "";
+    examples.forEach(function (ex) {
+        if(ex.t) {
+            s += "<a onclick='clickExample(this);return false;' href='#'>" + ex.t + "</a>";
+            if(ex.h) {
+                s += "&nbsp;&nbsp;(" + ex.h + ")";
             }
-            else {
-                s += "<div style='margin-top:6px; margin-bottom:2px; font-weight: bold;'>" + ex.h + "</div>";
-            }
-        });
-        $("#EXAMPLES").html(s);
+            s += "<br/>";
+        }
+        else {
+            s += "<div style='margin-top:6px; margin-bottom:2px; font-weight: bold;'>" + ex.h + "</div>";
+        }
+    });
+    $("#EXAMPLES").html(s);
 
-    </script>
+</script>
+</body>
 </html>
-
