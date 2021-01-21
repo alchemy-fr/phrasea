@@ -39,7 +39,8 @@ exec_container_as uploader-api-php "bin/setup.sh" app
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_CLIENT_SECRET} \
-    --grant-type authorization_code"
+    --grant-type authorization_code \
+    --redirect-uri ${UPLOADER_FRONT_BASE_URL}"
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
     --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
