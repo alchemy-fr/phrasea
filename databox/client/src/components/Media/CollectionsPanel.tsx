@@ -12,6 +12,7 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
         data: [],
     };
 
+
     componentDidMount() {
         this.load();
     }
