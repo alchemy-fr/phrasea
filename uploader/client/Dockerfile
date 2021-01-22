@@ -27,7 +27,7 @@ CMD ["/bin/sh", "-c", "/var/docker/generate-env ./public && yarn start"]
 
 ############
 
-FROM nginx:1.17.6-alpine as uploader-client_nginx
+FROM nginx:1.17.6-alpine as uploader-client-nginx
 
 COPY --from=uploader-client-build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d

@@ -101,7 +101,7 @@ services:
     image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
     build:
       context: ./uploader/client
-      target: uploader-client_nginx
+      target: uploader-client-nginx
     volumes:
       - ./configs:/configs
     ports:
@@ -278,7 +278,7 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
     build:
       context: ./expose/client
-      target: expose-client_nginx
+      target: expose-client-nginx
     volumes:
       - ./configs:/configs
     ports:
@@ -627,7 +627,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
-      - DATABOX_BASE_URL
+      - DATABOX_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_USER
@@ -661,7 +661,7 @@ services:
         aliases:
           - databox-api
     ports:
-      - ${DATABOX_PORT}:80
+      - ${DATABOX_API_PORT}:80
     depends_on:
       - databox-api-php
 
@@ -680,7 +680,7 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
-      - DATABOX_BASE_URL
+      - DATABOX_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_USER
@@ -697,6 +697,29 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${DATABOX_STORAGE_BUCKET_NAME}
       - DATABOX_REQUEST_SIGNATURE_TTL
+
+  databox-client:
+    image: ${REGISTRY_NAMESPACE}databox-client:$DOCKER_TAG
+    build:
+      context: ./databox/client
+      target: databox-client-nginx
+    volumes:
+      - ./configs:/configs
+    ports:
+      - ${DATABOX_CLIENT_PORT}:80
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - DATABOX_API_BASE_URL
+      - DATABOX_REQUEST_SIGNATURE_TTL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
 
   elasticsearch:
     image: elasticsearch:7.9.3

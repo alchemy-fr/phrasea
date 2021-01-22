@@ -120,7 +120,13 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_A
     --grant-type client_credentials \
     --scope user:list \
     --scope group:list \
-    --redirect-uri ${DATABOX_BASE_URL}"
+    --redirect-uri ${DATABOX_API_BASE_URL}"
+## Create OAuth client
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_CLIENT_ID} \
+    --random-id=${DATABOX_CLIENT_RANDOM_ID} \
+    --secret=${DATABOX_CLIENT_SECRET} \
+    --grant-type authorization_code \
+    --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
 
 # Setup Report
 ## Create DB

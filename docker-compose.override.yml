@@ -7,6 +7,9 @@ services:
   expose-client:
     command: ["/bin/sh", "-c", "exit"]
 
+  databox-client:
+    command: ["/bin/sh", "-c", "exit"]
+
   uploader-client-dev:
     build:
       context: ./uploader/client
@@ -51,6 +54,29 @@ services:
       - DASHBOARD_BASE_URL
     ports:
       - ${EXPOSE_FRONT_DEV_PORT}:3000
+
+  databox-client-dev:
+    build:
+      context: ./databox/client
+      target: databox-client-build
+    networks:
+      - internal
+    volumes:
+      - ./databox/client:/usr/src/app
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - DATABOX_API_BASE_URL
+      - AUTH_BASE_URL
+      - DATABOX_REQUEST_SIGNATURE_TTL
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
+    ports:
+      - ${DATABOX_CLIENT_DEV_PORT}:3000
 
   expose-api-php:
     environment:
@@ -166,7 +192,7 @@ services:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
       - UPLOADER_API_BASE_URL
-      - DATABOX_BASE_URL
+      - DATABOX_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - MARIADB_NAME=databox
