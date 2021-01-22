@@ -9,20 +9,22 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Elasticsearch\AssetSearch;
+use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use Symfony\Component\Security\Core\Security;
 
-class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class CollectionCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private AssetSearch $assetSearch;
+    private CollectionSearch $search;
     /**
      * @var Security
      */
     private Security $security;
 
-    public function __construct(AssetSearch $assetSearch, Security $security)
+    public function __construct(CollectionSearch $search, Security $security)
     {
-        $this->assetSearch = $assetSearch;
+        $this->search = $search;
         $this->security = $security;
     }
 
@@ -32,12 +34,12 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
 
-        return $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        return $this->search->search($userId, $groupIds, $context['filters'] ?? []);
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
-        return Asset::class === $resourceClass;
+        return Collection::class === $resourceClass;
     }
 
 }

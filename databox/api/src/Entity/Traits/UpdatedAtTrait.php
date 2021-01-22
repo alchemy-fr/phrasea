@@ -14,7 +14,7 @@ trait UpdatedAtTrait
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="update")
      */
-    private DateTime $updatedAt;
+    private ?DateTime $updatedAt = null;
 
     public function getUpdatedAt(): DateTime
     {

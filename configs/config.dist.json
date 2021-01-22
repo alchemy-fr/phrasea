@@ -124,5 +124,14 @@
         "with": "80px"
       }
     }
+  },
+  "databox": {
+    "analytics": false,
+    "admin": {
+      "logo": {
+        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
+        "with": "80px"
+      }
+    }
   }
 }

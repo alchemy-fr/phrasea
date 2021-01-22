@@ -14,7 +14,7 @@ trait CreatedAtTrait
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
      */
-    private DateTime $createdAt;
+    private ?DateTime $createdAt = null;
 
     public function getCreatedAt(): DateTime
     {

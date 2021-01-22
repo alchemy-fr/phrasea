@@ -1,11 +1,5 @@
 import {PureComponent} from "react";
-
-type Props = {
-    title: string;
-    description: string;
-};
-type State = {
-};
+import {Asset} from "../../types";
 
 const imagePlaceholder = <svg className="bd-placeholder-img card-img-top" width="100%" height="180"
                               xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap"
@@ -14,7 +8,7 @@ const imagePlaceholder = <svg className="bd-placeholder-img card-img-top" width=
     <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
 </svg>;
 
-export default class AssetItem extends PureComponent<Props, State> {
+export default class AssetItem extends PureComponent<Asset, {}> {
     render() {
         return <div className="asset-item">
             <div className="card">

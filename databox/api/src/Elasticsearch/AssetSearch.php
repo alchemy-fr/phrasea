@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 
-class AssetSearch
+class AssetSearch extends AbstractSearch
 {
     private PaginatedFinderInterface $finder;
     private TagFilterManager $tagFilterManager;
@@ -28,29 +28,14 @@ class AssetSearch
     }
 
     public function search(
-        ?string $queryString,
         ?string $userId,
         array $groupIds,
         array $options = []
     ): array {
         $mustQueries = [];
 
-        $aclBoolQuery = new Query\BoolQuery();
+        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
         $mustQueries[] = $aclBoolQuery;
-
-        $shoulds = [
-            new Query\Term(['public' => true]),
-        ];
-
-        if (null !== $userId) {
-            $shoulds[] = new Query\Term(['ownerId' => $userId]);
-            $shoulds[] = new Query\Term(['users' => $userId]);
-            $shoulds[] = new Query\Terms('groups', $groupIds);
-        }
-
-        foreach ($shoulds as $query) {
-            $aclBoolQuery->addShould($query);
-        }
 
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();

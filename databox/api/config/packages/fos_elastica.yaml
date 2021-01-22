@@ -41,3 +41,40 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Core\Asset
                 listener: { enabled: false }
+
+        collection:
+            index_name: "collection_%kernel.environment%"
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            collection_path:
+                                tokenizer: collection_path
+                        tokenizer:
+                            collection_path:
+                                type: path_hierarchy
+                                delimiter: /
+            properties:
+                title: ~
+                absolutePath:
+                    type: text
+                    analyzer: collection_path
+                root:
+                    type: boolean
+                public:
+                    property_path: false
+                    type: boolean
+                workspaceId:
+                    type: keyword
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Collection
+                listener: { enabled: false }

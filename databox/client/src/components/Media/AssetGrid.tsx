@@ -1,16 +1,17 @@
 import {PureComponent} from "react";
 import AssetItem from "./AssetItem";
 import {getAssets} from "../../api/asset";
+import {Asset} from "../../types";
 
 type Props = {
     query: string;
 };
 type State = {
-    data: any[];
+    data: Asset[];
 };
 
-export default class AssetsResult extends PureComponent<Props, State> {
-    state = {
+export default class AssetGrid extends PureComponent<Props, State> {
+    state: State = {
         data: [],
     };
 
@@ -20,7 +21,7 @@ export default class AssetsResult extends PureComponent<Props, State> {
 
     async load() {
         const data = await getAssets({
-            query: ``,
+            query: this.props.query,
             workspaces: null,
         });
 
@@ -40,6 +41,7 @@ export default class AssetsResult extends PureComponent<Props, State> {
 
         return data.map(a => <AssetItem
             {...a}
+            key={a.id}
         />);
     }
 }

@@ -144,6 +144,11 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
         return $path;
     }
 
+    public function isRoot(): bool
+    {
+        return null === $this->parent;
+    }
+
     public function isPublicOrHasPublicParent(): bool
     {
         if ($this->isPublic()) {

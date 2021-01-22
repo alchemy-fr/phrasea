@@ -19,7 +19,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
         $this->permissionManager = $permissionManager;
     }
 
-    public function hydrateAssetDocument(PostTransformEvent $event): void
+    public function hydrateDocument(PostTransformEvent $event): void
     {
         /** @var Asset $asset */
         if (!($asset = $event->getObject()) instanceof Asset) {
@@ -70,7 +70,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PostTransformEvent::class => 'hydrateAssetDocument',
+            PostTransformEvent::class => 'hydrateDocument',
         ];
     }
 

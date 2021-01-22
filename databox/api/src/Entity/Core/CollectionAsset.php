@@ -19,13 +19,13 @@ class CollectionAsset extends AbstractUuidEntity
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="assets")
      * @ORM\JoinColumn(nullable=false)
      */
-    private Collection $collection;
+    private ?Collection $collection = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="collections")
      * @ORM\JoinColumn(nullable=false)
      */
-    private Asset $asset;
+    private ?Asset $asset = null;
 
     public function getCollection(): Collection
     {
