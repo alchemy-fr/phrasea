@@ -1,7 +1,7 @@
 import {PureComponent} from "react";
 import {Collection} from "../../types";
 import {getCollections} from "../../api/collection";
-import CollectionItem from "./CollectionItem";
+import CollectionMenuItem from "./CollectionMenuItem";
 
 type State = {
     data: Collection[];
@@ -12,15 +12,12 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
         data: [],
     };
 
-
     componentDidMount() {
         this.load();
     }
 
     async load() {
-        const data = await getCollections({
-            query: ``,
-        });
+        const data = await getCollections({});
 
         this.setState({data});
     }
@@ -34,9 +31,10 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     renderResult() {
         const {data} = this.state;
 
-        return data.map(c => <CollectionItem
+        return data.map(c => <CollectionMenuItem
             {...c}
             key={c.id}
+            level={0}
         />);
     }
 }

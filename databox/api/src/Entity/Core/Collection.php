@@ -144,6 +144,17 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
         return $path;
     }
 
+    public function getPathDepth(): int
+    {
+        $depth = 0;
+        $ptr = $this;
+        while (null !== $ptr = $ptr->parent) {
+            ++$depth;
+        }
+
+        return $depth;
+    }
+
     public function isRoot(): bool
     {
         return null === $this->parent;
@@ -159,5 +170,35 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
         }
 
         return false;
+    }
+
+    public function isPublicOrHasPublicChild(): bool
+    {
+        if ($this->isPublic()) {
+            return true;
+        }
+
+        foreach ($this->children as $child) {
+            if ($child->isPublicOrHasPublicChild()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAbsoluteTitle(): string
+    {
+        $path = $this->getTitle();
+        if (null !== $this->parent) {
+            return $this->parent->getAbsoluteTitle().' / '.$path;
+        }
+
+        return $path;
+    }
+
+    public function __toString()
+    {
+        return $this->getAbsoluteTitle() ?? $this->getId();
     }
 }

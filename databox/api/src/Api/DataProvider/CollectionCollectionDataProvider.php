@@ -34,6 +34,7 @@ class CollectionCollectionDataProvider implements ContextAwareCollectionDataProv
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
 
+
         return $this->search->search($userId, $groupIds, $context['filters'] ?? []);
     }
 

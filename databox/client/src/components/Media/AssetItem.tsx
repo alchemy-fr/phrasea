@@ -16,6 +16,7 @@ export default class AssetItem extends PureComponent<Asset, {}> {
                 <div className="card-body">
                     <h5 className="card-title">{this.props.title}</h5>
                     <p className="card-text">{this.props.description}</p>
+                    <p className="card-text">{this.props.public ? 'Public' : 'Private'}</p>
                 </div>
             </div>
         </div>

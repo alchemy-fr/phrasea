@@ -7,6 +7,7 @@ import Login from "./Security/Login";
 import {authenticate} from "../auth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from "../config";
+import apiClient from "../api/api-client";
 
 export default class Root extends PureComponent {
     state = {
@@ -17,6 +18,7 @@ export default class Root extends PureComponent {
         super(props);
 
         oauthClient.registerListener('authentication', (evt: {user: object}) => {
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()}`;
             this.setState({
                 user: evt.user,
             });

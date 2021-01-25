@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use App\Consumer\Handler\Search\IndexAllAssetsHandler;
 use App\Consumer\Handler\Search\IndexAllCollectionsHandler;
+use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
 use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -56,7 +57,13 @@ class AclListener implements EventSubscriberInterface
             return;
         }
 
-        $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], ESSearchIndexer::ACTION_UPSERT);
+        if (Collection::class === $objectClass) {
+            $this->eventProducer->publish(new EventMessage(IndexCollectionBranchHandler::EVENT, [
+                'id' => $objectId,
+            ]));
+        } else {
+            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], ESSearchIndexer::ACTION_UPSERT);
+        }
     }
 
     public static function getSubscribedEvents()

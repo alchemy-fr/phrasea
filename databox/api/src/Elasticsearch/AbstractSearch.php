@@ -19,7 +19,9 @@ abstract class AbstractSearch
         if (null !== $userId) {
             $shoulds[] = new Query\Term(['ownerId' => $userId]);
             $shoulds[] = new Query\Term(['users' => $userId]);
-            $shoulds[] = new Query\Terms('groups', $groupIds);
+            if (!empty($groupIds)) {
+                $shoulds[] = new Query\Terms('groups', $groupIds);
+            }
         }
 
         foreach ($shoulds as $query) {

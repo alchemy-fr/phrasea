@@ -29,18 +29,40 @@ class CollectionPostTransformListener implements EventSubscriberInterface
 
         $document = $event->getDocument();
 
-        $isPublic = $collection->isPublicOrHasPublicParent();
+        $isPublic = $collection->isPublicOrHasPublicParent()
+            || $collection->isPublicOrHasPublicChild();
 
-        $users = $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW);
-        $groups = $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW);
+        [$users, $groups] = $this->discoverChildren($collection);
 
-        if (null !== $collection->getOwnerId()) {
-            $users[] = $collection->getOwnerId();
+        $parent = $collection->getParent();
+        while (null !== $parent) {
+            $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
+            $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
+            $parent = $parent->getParent();
         }
 
         $document->set('public', $isPublic);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));
+    }
+
+    private function discoverChildren(Collection $collection): array
+    {
+        $users = [];
+        if (null !== $collection->getOwnerId()) {
+            $users[] = $collection->getOwnerId();
+        }
+
+        $users = array_merge($users, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
+        $groups = $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW);
+
+        foreach ($collection->getChildren() as $child) {
+            [$u, $g] = $this->discoverChildren($child);
+            $users = array_merge($users, $u);
+            $groups = array_merge($groups, $g);
+        }
+
+        return [array_values(array_unique($users)), array_values(array_unique($groups))];
     }
 
     public static function getSubscribedEvents()

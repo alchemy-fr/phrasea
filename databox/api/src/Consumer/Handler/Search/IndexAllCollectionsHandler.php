@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Search;
 use App\Consumer\Handler\AbstractBatchHandler;
 use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Collection;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class IndexAllCollectionsHandler extends AbstractBatchHandler
 {
@@ -19,7 +20,7 @@ class IndexAllCollectionsHandler extends AbstractBatchHandler
         $this->searchIndexer = $searchIndexer;
     }
 
-    protected function getIterator(): iterable
+    protected function getIterator(EventMessage $message): iterable
     {
         return $this
             ->getEntityManager()

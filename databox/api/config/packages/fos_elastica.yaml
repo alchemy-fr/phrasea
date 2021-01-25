@@ -61,6 +61,8 @@ fos_elastica:
                     analyzer: collection_path
                 root:
                     type: boolean
+                pathDepth:
+                    type: integer
                 public:
                     property_path: false
                     type: boolean

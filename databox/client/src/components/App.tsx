@@ -4,10 +4,6 @@ import {oauthClient} from "../oauth";
 import config from "../config";
 import CollectionsPanel from "./Media/CollectionsPanel";
 
-interface Collection {
-    title: string;
-}
-
 export default class App extends PureComponent {
     logout = () => {
         oauthClient.logout();
@@ -17,19 +13,15 @@ export default class App extends PureComponent {
     }
 
     render() {
-        const collections: Collection[] = [
-            {title: 'Collection #1'},
-            {title: 'Collection #2'},
-            {title: 'Collection #3'},
-            {title: 'Collection #4'},
-        ];
-
         return <div className="App">
             <nav className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
                 <div className="navbar-brand col-sm-3 col-md-2 mr-0">Databox Client.</div>
                 <input className="form-control form-control-dark w-100" type="text" placeholder="Search"
                        aria-label="Search"/>
                 <ul className="navbar-nav px-3">
+                    <li className="nav-item text-nowrap">
+                        {}
+                    </li>
                     <li className="nav-item text-nowrap">
                         <a className="nav-link"
                             onClick={this.logout}

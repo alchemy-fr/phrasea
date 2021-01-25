@@ -11,13 +11,13 @@ abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
 {
     public function handle(EventMessage $message): void
     {
-        $iterator = $this->getIterator();
+        $iterator = $this->getIterator($message);
         $batchSize = $this->getBatchSize();
 
         $stack = [];
         $i = 0;
-        foreach ($iterator as $asset) {
-            $stack[] = $asset[0]['id'];
+        foreach ($iterator as $item) {
+            $stack[] = $item[0]['id'];
             if ($i++ > $batchSize) {
                 $this->flushIndexStack($stack);
                 $stack = [];
@@ -30,7 +30,7 @@ abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
         }
     }
 
-    abstract protected function getIterator(): iterable;
+    abstract protected function getIterator(EventMessage $message): iterable;
     abstract protected function flushIndexStack(array $stack): void;
 
     protected function getBatchSize(): int

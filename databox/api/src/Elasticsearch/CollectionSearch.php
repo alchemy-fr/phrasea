@@ -45,16 +45,23 @@ class CollectionSearch extends AbstractSearch
             $filterQuery->addFilter($query);
         }
 
+        if (isset($options['parent'])) {
+            $options['parents'] = [$options['parent']];
+        }
         if (isset($options['parents'])) {
-            $parentCollections = $this->findCollections($options['parent']);
-            $paths = array_map(function (Collection $parentCollection): string {
-                return $parentCollection->getAbsolutePath();
+            $parentCollections = $this->findCollections($options['parents']);
+            $parentsBoolQuery = new Query\BoolQuery();
+            array_map(function (Collection $parentCollection) use ($parentsBoolQuery): void {
+                $q = new Query\BoolQuery();
+                $q->addFilter(new Query\Term(['absolutePath' => $parentCollection->getAbsolutePath()]));
+                $q->addFilter(new Query\Term(['pathDepth' => $parentCollection->getPathDepth() + 1]));
+
+                $parentsBoolQuery->addShould($q);
             }, $parentCollections);
-            $filterQuery->addFilter(
-                new Query\Terms('absolutePath', $paths)
-            );
+
+            $filterQuery->addFilter($parentsBoolQuery);
         } else {
-            $filterQuery->addFilter(new Query\Term(['root' => true]));
+            $filterQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
         if (isset($options['workspaces'])) {
@@ -80,6 +87,11 @@ class CollectionSearch extends AbstractSearch
     private function findCollections(array $ids): array
     {
         return $this->findEntityByIds(Collection::class, $ids);
+    }
+
+    private function findCollection(string $id): Collection
+    {
+        return $this->em->find(Collection::class, $id);
     }
 
     /**

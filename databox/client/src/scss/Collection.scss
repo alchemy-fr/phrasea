@@ -1,0 +1,22 @@
+.collection-menu-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: px2rem(10);
+  cursor: pointer;
+
+  .expand {
+    svg {
+      transform: rotateZ(-90deg);
+    }
+  }
+
+  &.expanded {
+    .expand {
+      svg {
+        transform: rotateZ(0);
+      }
+    }
+  }
+
+}
