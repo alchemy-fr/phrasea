@@ -54,3 +54,8 @@ services:
             - { name: kernel.event_listener, event: kernel.terminate }
             - { name: kernel.event_listener, event: console.terminate }
             - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onHandlerTerminate }
+
+    App\Api\Serializer\SecurityContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]
+        autoconfigure: false

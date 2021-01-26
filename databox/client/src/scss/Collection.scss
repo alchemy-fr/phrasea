@@ -1,3 +1,12 @@
+.collections {
+  margin-left: px2rem(-15);
+  margin-right: px2rem(-15);
+}
+
+.collection-menu-wrapper {
+
+}
+
 .collection-menu-item {
   display: flex;
   flex-direction: row;
@@ -9,6 +18,14 @@
     svg {
       transform: rotateZ(-90deg);
     }
+  }
+
+  &.current {
+    background-color: rgba(#000, 0.05);
+  }
+
+  &.selected {
+    background-color: rgba(#000, 0.2);
   }
 
   &.expanded {

@@ -1,7 +1,41 @@
-.asset-item {
+$assetMargin: px2rem(15);
 
+.asset-item {
+  cursor: pointer;
+  border: px2rem(2) solid #CCC;
+  width: px2rem(200);
+  margin: $assetMargin;
+  box-shadow: 0 0 px2rem(4) rgba(#000, 0.2);
+
+  &.selected {
+    border-color: #000;
+  }
+
+  .a-thumb {
+    vertical-align: center;
+    min-height: px2rem(100);
+    img {
+      max-width: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .a-footer {
+    padding: px2rem(10);
+  }
+
+  .a-title {
+    font-weight: 700;
+  }
+  .a-desc {
+    font-size: px2rem(14);
+  }
 }
 
-.assets-result {
-  display: grid;
+.asset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  margin: -$assetMargin;
 }

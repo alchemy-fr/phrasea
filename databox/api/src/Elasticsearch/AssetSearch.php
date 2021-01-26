@@ -37,6 +37,19 @@ class AssetSearch extends AbstractSearch
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
         $mustQueries[] = $aclBoolQuery;
 
+        if (isset($options['parent'])) {
+            $options['parents'] = [$options['parent']];
+        }
+        if (isset($options['parents'])) {
+            $parentCollections = $this->findCollections($options['parents']);
+            $parentsBoolQuery = new Query\BoolQuery();
+            $paths = array_map(function (Collection $parentCollection): string {
+                return $parentCollection->getAbsolutePath();
+            }, $parentCollections);
+
+            $mustQueries[] = new Query\Terms('collectionPaths', $paths);
+        }
+
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
             $mustQueries[] = $tagsBoolQuery;
@@ -72,6 +85,26 @@ class AssetSearch extends AbstractSearch
         $data = $this->finder->find($filterQuery, $limit);
 
         return $data;
+    }
+
+    /**
+     * @return Collection[]
+     */
+    private function findCollections(array $ids): array
+    {
+        return $this->findEntityByIds(Collection::class, $ids);
+    }
+
+    private function findEntityByIds(string $entityName, array $ids): array
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('t')
+            ->from($entityName, 't')
+            ->where('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
     }
 
     private function buildTagFilterQuery(?string $userId, array $groupIds): Query\BoolQuery

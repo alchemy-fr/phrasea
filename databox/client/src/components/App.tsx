@@ -3,6 +3,7 @@ import AssetGrid from "./Media/AssetGrid";
 import {oauthClient} from "../oauth";
 import config from "../config";
 import CollectionsPanel from "./Media/CollectionsPanel";
+import MediaSelection from "./Media/MediaSelection";
 
 export default class App extends PureComponent {
     logout = () => {
@@ -24,41 +25,29 @@ export default class App extends PureComponent {
                     </li>
                     <li className="nav-item text-nowrap">
                         <a className="nav-link"
-                            onClick={this.logout}
+                           onClick={this.logout}
                         >Sign out</a>
                     </li>
                 </ul>
             </nav>
 
-            <div className="container-fluid">
-                <div className="row">
-                    <nav className="col-md-2 d-none d-md-block bg-light sidebar">
-                        <div className="sidebar-sticky">
-                            <ul className="nav flex-column">
-                                <CollectionsPanel />
-                            </ul>
-                        </div>
-                    </nav>
+            <MediaSelection>
+                <div className="container-fluid">
+                    <div className="row">
+                        <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+                            <CollectionsPanel/>
+                        </nav>
 
-                    <main role="main" className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-                        <div
-                            className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                            <h1 className="h2">Dashboard</h1>
-                            <div className="btn-toolbar mb-2 mb-md-0">
-                                <div className="btn-group mr-2">
-                                    <button className="btn btn-sm btn-outline-secondary">Share</button>
-                                    <button className="btn btn-sm btn-outline-secondary">Export</button>
-                                </div>
+                        <main role="main" className="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                            <div>
+                                <AssetGrid
+                                    query={'toto'}
+                                />
                             </div>
-                        </div>
-                        <div>
-                            <AssetGrid
-                                query={'toto'}
-                            />
-                        </div>
-                    </main>
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </MediaSelection>
         </div>
     }
 }

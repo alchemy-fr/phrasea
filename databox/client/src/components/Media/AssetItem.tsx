@@ -1,23 +1,36 @@
-import {PureComponent} from "react";
+import {MouseEvent, PureComponent} from "react";
 import {Asset} from "../../types";
 
-const imagePlaceholder = <svg className="bd-placeholder-img card-img-top" width="100%" height="180"
-                              xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap"
-                              preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title>
-    <rect width="100%" height="100%" fill="#868e96" />
-    <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
-</svg>;
+type Props = {
+    selected?: boolean;
+    onClick?: (id: string, e: MouseEvent) => void;
+}
 
-export default class AssetItem extends PureComponent<Asset, {}> {
+export default class AssetItem extends PureComponent<Props & Asset> {
+    onClick = (e: MouseEvent): void => {
+        const {onClick} = this.props;
+
+        onClick && onClick(this.props.id, e);
+    }
+
     render() {
-        return <div className="asset-item">
-            <div className="card">
-                {imagePlaceholder}
-                <div className="card-body">
-                    <h5 className="card-title">{this.props.title}</h5>
-                    <p className="card-text">{this.props.description}</p>
-                    <p className="card-text">{this.props.public ? 'Public' : 'Private'}</p>
+        return <div
+            onClick={this.onClick}
+
+            className={`asset-item ${this.props.selected ? 'selected' : ''}`}>
+            <div className="a-thumb">
+                <img
+                    src="https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png"
+                    alt="Placeholder"/>
+            </div>
+            <div className="a-footer">
+                <div className="a-title">
+                    {this.props.title}
                 </div>
+                <p className="a-desc">
+                    {this.props.description}
+                    {this.props.public ? 'Public' : 'Private'}
+                </p>
             </div>
         </div>
     }

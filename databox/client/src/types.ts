@@ -8,4 +8,9 @@ export interface Asset {
 export interface Collection {
     id: string;
     title: string;
+    children?: Collection[];
+    capabilities: {
+        canEdit: boolean,
+        canDelete: boolean,
+    };
 }

@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 class CollectionOutput extends AbstractUuidDTO
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
+    use CapabilitiesDTOTrait;
 
     /**
      * @Groups({"collection:index", "collection:read"})
@@ -39,7 +42,7 @@ class CollectionOutput extends AbstractUuidDTO
     /**
      * @Groups({"collection:index", "collection:children"})
      */
-    private array $children;
+    private ?array $children = null;
 
     /**
      * @Groups({"collection:assets"})
@@ -96,7 +99,7 @@ class CollectionOutput extends AbstractUuidDTO
         $this->assets = $assets;
     }
 
-    public function getChildren(): array
+    public function getChildren(): ?array
     {
         return $this->children;
     }
