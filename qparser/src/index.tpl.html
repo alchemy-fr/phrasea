@@ -3,18 +3,43 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>[Dashboard] ${COMPOSE_PROJECT_NAME}</title>
+    <title>[QParser] ${COMPOSE_PROJECT_NAME}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link href="./jquery.splitter.css" rel="stylesheet">
+
     <meta name="theme-color" content="#563d7c">
     <link rel="stylesheet" href="parser4.css">
 
     <style>
-        h1 {
-            margin: 15px 0;
+        * {
+            box-sizing: border-box;
         }
+        h1 {
+            padding: 5px;
+        }
+
+        .splitter_panel .vsplitter {
+            background-color: lightgrey;
+            width: 3px;
+            color: black;
+            font-size: 5px;
+            writing-mode: tb;
+            text-align: center;
+            overflow: hidden;
+            line-height: 1;
+        }
+
+        .splitter_panel .vsplitter::before {
+            content: '\25CF\25CF\25CF\25CF\25CF';
+            position: relative;
+            left: 1px;
+        }
+
+
 
         ul {
             list-style: none;
@@ -169,16 +194,12 @@
 </head>
 
 
-<body class="d-flex flex-column h-100">
-<!-- Begin page content -->
-<main role="main" class="flex-shrink-0">
-    <div class="container">
-        <h1>
+<body style="height: 100vh; overflow: hidden">
+       <h1 id="TITLE">
             QParser test
         </h1>
-
-        <div style="position:absolute; top:0px; left:0px; height: 100%; right:40%; overflow: hidden;">
-            <div id="TOP">
+        <div id="CONTENT" class="xsplitted" data-xsplitter='{"orientation":"vertical", "limit":10, "position":"75%"}' style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; overflow: hidden">
+            <div>
                 <div id="FORM" style="padding: 5px;">
                     <form onsubmit="return false;" style="margin:0px;">
                         <label for="QUERY"></label>
@@ -188,42 +209,38 @@
                         </div>
                     </form>
                     <div id="ERROR" style="color:red"></div>
+                    <div id="DUMP_TOKENS"></div>
+                </div>
+                <div id="TREES" class="xsplitted" data-xsplitter='{"orientation":"vertical", "limit":50, "position":"50%"}' style="position:absolute; width: 100%; bottom: 0px; border-top: darkgray 1px solid;">
+                    <div id="DUMP_JSON" style="overflow: auto; height: 100%; padding-top:5px;">json</div>
+                    <div id="DUMP_TREE" style="overflow: auto; height: 100%; padding-top:5px;">
+                        tree
+                    </div>
                 </div>
 
-                <div id="DUMP_TOKENS"></div>
             </div>
-            <div id="BOT" style="position:absolute; width: 100%; bottom: 0px; border-top: darkgray 1px solid;">
-                <div id="DUMP_JSON" style="position: relative; overflow: auto; float: left; height: 100%; width: 35%; padding-top:5px;box-sizing: border-box">
-                </div>
-                <div id="DUMP_TREE" style="overflow: auto; height: 100%; padding-top:5px; border-left: dashed 1px darkgray; box-sizing: border-box">
-                </div>
-            </div>
+            <div id="EXAMPLES" style="white-space: nowrap; padding-left: 5px;"></div>
         </div>
 
-        <div id="EXAMPLES" style="position:absolute; top:0px; right:0px; left:60%; height: 100%; overflow-y: scroll; padding-left: 5px; border-left: dashed 1px black">
-        </div>
+</body>
 
-<!--        <div class="env">-->
-<!--            <h3>Stack environment variables:</h3>-->
-<!--            <pre>${ALL_ENV}</pre>-->
-<!--        </div>-->
-    </div>
-</main>
 
-<footer class="footer mt-auto py-3">
-    <div class="container">
-        <span class="text-muted">phraseanet-services.</span>
-    </div>
-</footer>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="./jquery.splitter.js"></script>
 <script>
     $(function () {
-        console.log('hello');
+        $(window).resize();
+
+        $(".xsplitted").each(function() {
+            let o = $(this);
+            o.split(JSON.parse(o.attr('data-xsplitter')));
+        });
     });
 
     $(window).resize(
         function() {
-            $("#BOT").css('top', $("#TOP").height());
+            $("#CONTENT").css('top', $("#TITLE").outerHeight(true));
+            $("#TREES").css('top', $("#FORM").outerHeight(true));
         }
     );
 
@@ -252,5 +269,4 @@
     $("#EXAMPLES").html(s);
 
 </script>
-</body>
 </html>
