@@ -13,7 +13,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-class CollectionOutput extends AbstractUuidDTO
+class CollectionOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
@@ -21,6 +21,11 @@ class CollectionOutput extends AbstractUuidDTO
 
     /**
      * @Groups({"collection:index", "collection:read"})
+     */
+    protected array $capabilities = [];
+
+    /**
+     * @Groups({"collection:index", "collection:read", "asset:index", "asset:read"})
      */
     private ?string $title = null;
 

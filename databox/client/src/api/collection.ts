@@ -14,7 +14,5 @@ export async function getCollections(options: CollectionOptions): Promise<Collec
         },
     });
 
-    console.log('res.data', res.data);
-
     return res.data;
 }

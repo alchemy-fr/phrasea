@@ -8,6 +8,7 @@
 }
 
 .collection-menu-item {
+  @include noUserSelect();
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -28,6 +29,14 @@
     background-color: rgba(#000, 0.2);
   }
 
+  .c-title {
+    flex-grow: 1;
+  }
+
+  .actions {
+
+  }
+
   &.expanded {
     .expand {
       svg {
@@ -35,5 +44,4 @@
       }
     }
   }
-
 }

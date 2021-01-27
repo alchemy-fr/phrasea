@@ -7,7 +7,7 @@ namespace App\Api\Model\Output;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-abstract class AbstractUuidDTO
+abstract class AbstractUuidOutput
 {
     /**
      * The unique resource ID (UUID form).

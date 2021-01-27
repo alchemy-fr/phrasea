@@ -20,6 +20,7 @@ easy_admin:
     Asset:
       class: App\Entity\Core\Asset
       list:
+        max_results: 100
         actions:
           - permissions
         batch_actions:
@@ -40,6 +41,7 @@ easy_admin:
     Collection:
       class: App\Entity\Core\Collection
       list:
+        max_results: 100
         actions:
           - permissions
         batch_actions:
@@ -54,3 +56,4 @@ easy_admin:
         fields:
           - { property: 'title' }
           - { property: 'public' }
+          - { property: 'ownerId' }

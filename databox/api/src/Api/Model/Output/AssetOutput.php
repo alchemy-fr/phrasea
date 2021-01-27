@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use DateTime;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class AssetOutput extends AbstractUuidDTO
+class AssetOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
+    use CapabilitiesDTOTrait;
 
     /**
      * @Groups({"asset:index", "asset:read"})
@@ -32,12 +34,17 @@ class AssetOutput extends AbstractUuidDTO
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private bool $public = false;
+    private bool $public;
 
     /**
-     * @Groups({"asset:read"})
+     * @Groups({"asset:index", "asset:read"})
      */
     private array $tags;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private array $collections;
 
     /**
      * @Groups({"asset:read"})
@@ -105,7 +112,7 @@ class AssetOutput extends AbstractUuidDTO
     }
 
     /**
-     * @return TagDTO[]
+     * @return TagOutput[]
      */
     public function getTags(): array
     {
@@ -115,5 +122,15 @@ class AssetOutput extends AbstractUuidDTO
     public function setTags(array $tags): void
     {
         $this->tags = $tags;
+    }
+
+    public function getCollections(): array
+    {
+        return $this->collections;
+    }
+
+    public function setCollections(array $collections): void
+    {
+        $this->collections = $collections;
     }
 }

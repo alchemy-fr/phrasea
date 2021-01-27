@@ -135,7 +135,7 @@ services:
 
   auth-api-nginx:
     volumes:
-      - ./auth/api:/srv/app
+      - ./auth/api/public:/srv/app/public
 
   notify-api-php:
     environment:
@@ -168,7 +168,7 @@ services:
 
   databox-api-nginx:
     volumes:
-      - ./databox/api:/srv/app
+      - ./databox/api/public:/srv/app/public
 
   databox-worker:
     volumes:

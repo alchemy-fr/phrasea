@@ -14,9 +14,8 @@ export default class Root extends PureComponent {
         user: null,
         authenticating: false,
     }
-    constructor(props: {}) {
-        super(props);
 
+    componentDidMount() {
         oauthClient.registerListener('authentication', (evt: {user: object}) => {
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()}`;
             this.setState({
@@ -32,9 +31,7 @@ export default class Root extends PureComponent {
                 });
             }
         });
-    }
 
-    componentDidMount() {
         this.authenticate();
     }
 

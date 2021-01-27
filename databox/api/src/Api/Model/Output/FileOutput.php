@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *  normalizationContext="file:read",
  * )
  */
-class FileOutput extends AbstractUuidDTO
+class FileOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;

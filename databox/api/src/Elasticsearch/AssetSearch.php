@@ -80,9 +80,16 @@ class AssetSearch extends AbstractSearch
 
         $filterQuery->addFilter($this->buildTagFilterQuery($userId, $groupIds));
 
+        $query = new Query();
+        $query->setQuery($filterQuery);
+//        $query->setSort([
+//            '_score',
+//            ['title' => 'ASC']
+//        ]);
+
 //        dump($filterQuery->toArray());
 
-        $data = $this->finder->find($filterQuery, $limit);
+        $data = $this->finder->find($query, $limit);
 
         return $data;
     }

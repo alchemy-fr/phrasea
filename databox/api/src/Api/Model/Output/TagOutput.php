@@ -7,18 +7,12 @@ namespace App\Api\Model\Output;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     shortName="tag"
- * )
- */
-class TagDTO extends AbstractUuidDTO
+class TagOutput extends AbstractUuidOutput
 {
-    use CreatedAtDTOTrait;
-    use UpdatedAtDTOTrait;
-
     /**
+     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
      */
     private string $name;
 

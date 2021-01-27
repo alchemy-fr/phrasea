@@ -11,7 +11,5 @@ export async function getAssets(options: AssetOptions) {
         params: options,
     });
 
-    console.log('res.data', res.data);
-
     return res.data;
 }

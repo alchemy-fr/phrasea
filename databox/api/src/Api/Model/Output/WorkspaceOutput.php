@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext="workspace:read",
  * )
  */
-class WorkspaceOutput extends AbstractUuidDTO
+class WorkspaceOutput extends AbstractUuidOutput
 {
     /**
      * @ApiProperty(writable=false)

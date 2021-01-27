@@ -11,7 +11,6 @@ trait CapabilitiesDTOTrait
 {
     /**
      * @ApiProperty()
-     * @Groups({"_"})
      */
     protected array $capabilities = [];
 

@@ -3,6 +3,13 @@ export interface Asset {
     title: string;
     description?: string;
     public: boolean;
+    tags: Tag[];
+    collections: Collection[];
+}
+
+export interface Tag {
+    id: string;
+    name: string;
 }
 
 export interface Collection {

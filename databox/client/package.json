@@ -11,6 +11,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "@types/react-select": "^4.0.4",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "node-sass": "^4.0.0",
@@ -20,6 +21,7 @@
     "react-i18next": "^11.8.5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
+    "react-select": "^4.0.2",
     "typescript": "^4.0.3",
     "web-vitals": "^0.2.4"
   },

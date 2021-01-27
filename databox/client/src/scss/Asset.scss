@@ -1,9 +1,11 @@
 $assetMargin: px2rem(15);
 
 .asset-item {
+  @include noUserSelect();
   cursor: pointer;
   border: px2rem(2) solid #CCC;
   width: px2rem(200);
+  height: px2rem(200);
   margin: $assetMargin;
   box-shadow: 0 0 px2rem(4) rgba(#000, 0.2);
 
@@ -12,11 +14,10 @@ $assetMargin: px2rem(15);
   }
 
   .a-thumb {
-    vertical-align: center;
-    min-height: px2rem(100);
     img {
       max-width: 100%;
-      object-fit: contain;
+      min-height: px2rem(115);
+      object-fit: cover;
     }
   }
 
@@ -29,6 +30,10 @@ $assetMargin: px2rem(15);
   }
   .a-desc {
     font-size: px2rem(14);
+
+    .badge {
+      margin-right: px2rem(5);
+    }
   }
 }
 

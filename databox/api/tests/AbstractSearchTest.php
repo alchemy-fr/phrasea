@@ -25,6 +25,7 @@ abstract class AbstractSearchTest extends AbstractDataboxTestCase
 
         $indexes = [
             'asset',
+            'collection',
         ];
         self::$documentIndices = [];
         foreach ($indexes as $indexName) {

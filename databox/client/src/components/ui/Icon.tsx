@@ -1,10 +1,12 @@
 import React, {ComponentType, PureComponent} from "react";
 
+type Variant = 'sm' | 'xs' | 'lg';
+
 type Props = {
     src?: string;
     component?: ComponentType;
     alt?: string;
-    variant?: string;
+    variant?: Variant;
     className?: string;
 };
 

@@ -1,5 +1,6 @@
 import {MouseEvent, PureComponent} from "react";
 import {Asset} from "../../types";
+import {Badge} from "react-bootstrap";
 
 type Props = {
     selected?: boolean;
@@ -14,10 +15,19 @@ export default class AssetItem extends PureComponent<Props & Asset> {
     }
 
     render() {
+        const {
+            title,
+            description,
+            tags,
+            public: isPublic,
+            selected,
+            collections,
+        } = this.props;
+
         return <div
             onClick={this.onClick}
 
-            className={`asset-item ${this.props.selected ? 'selected' : ''}`}>
+            className={`asset-item ${selected ? 'selected' : ''}`}>
             <div className="a-thumb">
                 <img
                     src="https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png"
@@ -25,12 +35,27 @@ export default class AssetItem extends PureComponent<Props & Asset> {
             </div>
             <div className="a-footer">
                 <div className="a-title">
-                    {this.props.title}
+                    {title}
                 </div>
-                <p className="a-desc">
-                    {this.props.description}
-                    {this.props.public ? 'Public' : 'Private'}
-                </p>
+                <div>
+                    {collections.map(c => <div>{c.title}</div>)}
+                </div>
+                <div className="a-desc">
+                    {description ? <p>{description}</p> : ''}
+
+                    {tags.map(t => <Badge
+                        variant={'info'}
+                        key={t.id}
+                    >{t.name}</Badge>)}
+
+                    {isPublic ? <Badge
+                        key={'public'}
+                        variant={'success'}
+                    >Public</Badge> : <Badge
+                        key={'private'}
+                        variant={'danger'}
+                    >Private</Badge>}
+                </div>
             </div>
         </div>
     }

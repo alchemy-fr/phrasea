@@ -12,12 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 class UserDeleteListener
 {
-    private $deletedUsers = [];
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
+    private array $deletedUsers = [];
+    private EventProducer $eventProducer;
 
     public function __construct(EventProducer $eventProducer)
     {
