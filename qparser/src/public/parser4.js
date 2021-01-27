@@ -574,24 +574,20 @@ class _Parser {
                 return "ø";
             }
             let s = "";
-            // wip new format (no more nodeType, just class)
             if(typeof(node.class) !== 'undefined') {
                 switch (node.class) {
                     case "KEYWORD":
                         s += "<span class='" + node.class + "'>" + node.text + "</span>"
                             + _dumpPos(node);
-                        return s;
                         break;
                     case "WORD":
                         s += "<span class='" + node.class + "'>" + node.text + "</span>"
                             + _dumpPos(node);
-                        return s;
                         break;
                     case "STRING":
                         for (let i = 0; i < node._sub.length; i++) {
                             s += _dumpTree(node._sub[i]);
                         }
-                        return s;
                         break;
                     case 'LOGICAL':
                     case 'COMPARE':
@@ -600,44 +596,14 @@ class _Parser {
                             + _dumpPos(node)
                             + "</td></tr>"
                             + "<tr><td>" + _dumpTree(node.l) + "</td><td>" + _dumpTree(node.r) + "</td></tr></table>";
-                        return s;
                         break;
                     case 'PREFIX':
                         s = "<table><tr><td style='border-bottom: none'><span class='" + node.class + "'>" + node.type + "</span>"
                             + _dumpPos(node)
                             + "</td></tr>"
                             + "<tr><td style='border-top: 1px dashed'>" + _dumpTree(node.suffix) + "</td></tr></table>";
-                        return s;
                         break;
                 }
-            }
-            // old formal (with nodeType)
-            switch (node.nodeType) {
-                case "KEYWORD":
-                    s += "<span class='" + node.token.class + "'>" + node.token.text + "</span>"
-                        + _dumpPos(t.token);
-                    break;
-                case "STRING":
-                    for (let i = 0; i < node.token._sub.length; i++) {
-                        s += _dumpTree(node.token._sub[i]);
-                    //    s += (s ? " " : "") + "<span class='" + t.token._sub[i].class + "'>" + t.token._sub[i].text + "</span>"
-                    //        + _dumpPos(t.token._sub[i]);
-                    }
-                    break;
-                case 'CONCAT':
-                case 'LOGICAL':
-                case 'COMPARE':
-                    s = "<table><tr><td colspan=\"2\"><span class='" + node.class + "'>" + node.type + "</span>"
-                        + _dumpPos(node)
-                        + "</td></tr>"
-                        + "<tr><td>" + _dumpTree(node.l) + "</td><td>" + _dumpTree(node.r) + "</td></tr></table>";
-                    break;
-                case 'PREFIX':
-                    s = "<table><tr><td style='border-bottom: none'><span class='" + node.prefix.class + "'>" + node.prefix.type + "</span>"
-                        + _dumpPos(node.prefix)
-                        + "</td></tr>"
-                        + "<tr><td style='border-top: 1px dashed'>" + _dumpTree(node.r) + "</td></tr></table>";
-                    break;
             }
             return s;
         };
@@ -654,18 +620,10 @@ class _Parser {
 
         const _addKeyword = (tree, token) => {
             if (tree == null) {
-                // return {
-                //     'nodeType': 'KEYWORD',
-                //     'token':    token
-                // };
                 return token.toNode();
             }
             if (tree.class === 'LOGICAL' || tree.class === 'COMPARE') {
                 if (tree.r == null) {
-                    // tree.r = {
-                    //     'nodeType': 'KEYWORD',
-                    //     'token':    token
-                    // };
                     tree.r = token.toNode();
                     return tree;
                 }
@@ -675,18 +633,10 @@ class _Parser {
 
         const _addString = (tree, token) => {
             if (tree == null) {
-                // return {
-                //     'nodeType': 'STRING',
-                //     'token':    token
-                // };
                 return token.toNode();
             }
             if (tree.class === 'LOGICAL' || tree.class === 'COMPARE' || tree.class === 'CONCAT') {
                 if (tree.r == null) {
-                    // tree.r = {
-                    //     'nodeType': 'STRING',
-                    //     'token':    token
-                    // };
                     tree.r = token.toNode();
                     return tree;
                 }
@@ -707,24 +657,19 @@ class _Parser {
             if (tree != null) {
                 if(tree.class !== 'PREFIX') {
                     let n      = binaryToken.toNode();
-                    n.nodeType = 'LOGICAL';
                     n.l        = tree;
                     n.r        = null;
 
                     return n;
                 }
-                else {
-                    throw new SyntaxError("A logical operator can't follow a identifier", binaryToken);
-                }
-            }
-
+                throw new SyntaxError("A logical operator can't follow a identifier", binaryToken);
+             }
             throw new SyntaxError("A query can't start with an operator ", binaryToken);
         };
 
         const _addCompare = (tree, compareToken) => {
             if (tree != null) {
                 let n = compareToken.toNode();
-                n.nodeType = 'COMPARE';
                 n.l = tree;
                 n.r = null;
 
@@ -735,12 +680,6 @@ class _Parser {
         };
 
         const _addPrefix = (tree, prefixToken, suffixToken, depth) => {
-            // let node = {
-            //     'class': 'PREFIXED',
-            //     'type': 'Prefixed',
-            //     'prefix':   Object.assign({}, prefixToken),
-            //     'r':        suffixToken ? _toTree([suffixToken], depth + 1) : null
-            // };
             let node = Object.assign({}, prefixToken);
             node.suffix = suffixToken ? _toTree([suffixToken], depth + 1) : null;
             if (tree == null) {
