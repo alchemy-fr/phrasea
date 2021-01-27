@@ -6,34 +6,38 @@ span {
     border-top: 0px solid #000000;
     margin: 0px 2px 2px;
 }
-span.string {
+span.STRING {
     border-color: tan;
 }
-span.binary {
+span.LOGICAL {
     background-color:deepskyblue;
 }
-span.compare {
+span.CONCAT {
+    background-color: dodgerblue;
+    color:white;
+}
+span.COMPARE {
     background-color: aquamarine;
 }
-span.space {
+span.SPACE {
     background-color: lightpink;
 }
-span.unary {
+span.UNARY {
     background-color: yellowgreen;
 }
-span.sub_char {
+span.SUB_CHAR {
     background-color: yellow;
 }
-span.fake_sub_char {
+span.FAKE_SUB_CHAR {
     color: darkgrey;
 }
-span.prefix {
+span.PREFIX {
     background-color: blanchedalmond;
 }
-span.word {
+span.WORD {
     background-color: tan;
 }
-span.keyword {
+span.KEYWORD {
     background-color: olive;
     color: white;
 }

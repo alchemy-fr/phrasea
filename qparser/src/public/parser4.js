@@ -2,17 +2,23 @@
  * class Token
  */
 class Token {
-    constructor(val, tok, cla, typ, sub, end) {
-        this._value = val;
-        this._token = tok;
-        this._class = cla;
-        this._type  = typ;
-        if (typeof sub != "undefined") {
+    constructor(text, match, cla, typ, sub, end) {
+        this.text = text;
+        this.match = match;
+        this.class = cla;
+        this.type  = typ;
+        if (typeof sub != "undefined" && sub !== null) {
             this._sub = sub;
         }
         if (typeof end != "undefined") {
             this._endWith = end;
         }
+    }
+
+    toNode() {
+        // for now, a "node" is the same as a "token" (easy)
+        // but properties can be added after (l, r, ...)
+        return Object.assign({}, this);
     }
 }
 
@@ -43,191 +49,193 @@ class _Parser {
 
         this._languageTokens = [
             {
-                '_token':    " ",
-                '_class':    "space",
-                '_type':     "Space",
+                'match':    " ",
+                'class':    "SPACE",
+                'type':     "Space",
                 'RTerminal': true,
                 'LTerminal': true,
                 'okInQuote': true
             },
             {
-                '_token':    "\t",
-                '_class':    "space",
-                '_type':     "Space",
+                'match':    "\t",
+                'class':    "SPACE",
+                'type':     "Space",
                 'RTerminal': true,
                 'LTerminal': true,
                 'okInQuote': true
             },
             {
-                '_token':    "(",
-                '_class':    "sub",
-                '_type':     "OpenPar",
+                'match':    "(",
+                'class':    "SUB",
+                'type':     "OpenPar",
                 'RTerminal': true,
                 'LTerminal': true,
                 '_endWith':  ')'
             },
             {
-                '_token':    ")",
-                '_class':    null,
-                '_type':     "ClosePar",
+                'match':    ")",
+                'class':    null,
+                'type':     "ClosePar",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    "R\"",
-                '_class':    "sub",
-                '_type':     "QuoteRaw",
+                'match':    "R\"",
+                'class':    "SUB",
+                'type':     "QuoteRaw",
                 'RTerminal': false,
                 'LTerminal': true,
                 '_endWith':  '"',
                 'okInQuote': false
             },
             {
-                '_token':    "\"",
-                '_class':    "sub",
-                '_type':     "Quote",
+                'match':    "\"",
+                'class':    "SUB",
+                'type':     "Quote",
                 'RTerminal': true,
                 'LTerminal': true,
                 '_endWith':  '"',
                 'okInQuote': true
             },
             {
-                '_token':    "EMPTY",
-                '_class':    "keyword",
-                '_type':     "Empty",
+                'match':    "EMPTY",
+                'class':    "KEYWORD",
+                'type':     "Empty",
             },
             {
-                '_token':    "IS NOT",
-                '_class':    "compare",
-                '_type':     "IsNot",
+                'match':    "IS NOT",
+                'class':    "COMPARE",
+                'type':     "IsNot",
             },
             {
-                '_token':    "IS",
-                '_class':    "compare",
-                '_type':     "Is",
+                'match':    "IS",
+                'class':    "COMPARE",
+                'type':     "Is",
             },
             {
-                '_token':    "<=",
-                '_class':    "compare",
-                '_type':     "LtEq",
+                'match':    "<=",
+                'class':    "COMPARE",
+                'type':     "LtEq",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    ">=",
-                '_class':    "compare",
-                '_type':     "GtEq",
+                'match':    ">=",
+                'class':    "COMPARE",
+                'type':     "GtEq",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    "!=",
-                '_class':    "compare",
-                '_type':     "NotEq",
+                'match':    "!=",
+                'class':    "COMPARE",
+                'type':     "NotEq",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    "<",
-                '_class':    "compare",
-                '_type':     "Lt",
+                'match':    "<",
+                'class':    "COMPARE",
+                'type':     "Lt",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    ">",
-                '_class':    "compare",
-                '_type':     "Gt",
+                'match':    ">",
+                'class':    "COMPARE",
+                'type':     "Gt",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token':    "=",
-                '_class':    "compare",
-                '_type':     "Eq",
+                'match':    "=",
+                'class':    "COMPARE",
+                'type':     "Eq",
                 'RTerminal': true,
                 'LTerminal': true
             },
-            // { '_token': "!",      '_class': "unary",  '_type': "Not",         'RTerminal':true, 'LTerminal':true },
-            // { '_token': "NOT",    '_class': "unary",  '_type': "Not",         'RTerminal':true, 'LTerminal':true },
+            // { 'match': "!",      'class': "UNARY",  'type': "Not",         'RTerminal':true, 'LTerminal':true },
+            // { 'match': "NOT",    'class': "UNARY",  'type': "Not",         'RTerminal':true, 'LTerminal':true },
             {
-                '_token':    "\0",
-                '_class':    null,
-                '_type':     "Nul",
+                'match':    "\0",
+                'class':    null,
+                'type':     "Nul",
                 'RTerminal': true,
                 'LTerminal': true,
                 '_endWith':  '\0'
             },
             {
-                '_token': "AND",
-                '_class': "binary",
-                '_type':  "And"
+                'match': "AND",
+                'class': "LOGICAL",
+                'type':  "And"
             },
             {
-                '_token':    "FIELD.",
-                '_class':    "prefix",
-                '_type':     "FieldPrefix",
+                'match':    "FIELD.",
+                'class':    "PREFIX",
+                'type':     "FieldPrefix",
                 'RTerminal': false,
                 'LTerminal': true
             },
             {
-                '_token':    "META.",
-                '_class':    "prefix",
-                '_type':     "MetaPrefix",
+                'match':    "META.",
+                'class':    "PREFIX",
+                'type':     "MetaPrefix",
                 'RTerminal': false,
                 'LTerminal': true
             },
             {
-                '_token':    ":",
-                '_class':    "compare",
-                '_type':     "Column",
+                'match':    ":",
+                'class':    "COMPARE",
+                'type':     "Column",
                 'RTerminal': true,
                 'LTerminal': true
             },
             {
-                '_token': "ET",
-                '_class': "binary",
-                '_type':  "And"
+                'match': "ET",
+                'class': "LOGICAL",
+                'type':  "And"
             },
             {
-                '_token': "OR",
-                '_class': "binary",
-                '_type':  "Or"
+                'match': "OR",
+                'class': "LOGICAL",
+                'type':  "Or"
             },
             {
-                '_token': "OU",
-                '_class': "binary",
-                '_type':  "Or"
+                'match': "OU",
+                'class': "LOGICAL",
+                'type':  "Or"
             },
             {
-                '_token': "EXCEPT",
-                '_class': "binary",
-                '_type':  "Except"
+                'match': "EXCEPT",
+                'class': "LOGICAL",
+                'type':  "Except"
             },
             {
-                '_token': "SAUF",
-                '_class': "binary",
-                '_type':  "Except"
+                'match': "SAUF",
+                'class': "LOGICAL",
+                'type':  "Except"
             },
             {
-                '_token': "IN",
-                '_class': "binary",
-                '_type':  "In"
+                'match': "IN",
+                'class': "LOGICAL",
+                'type':  "In"
             },
             {
-                '_token': "DANS",
-                '_class': "binary",
-                '_type':  "In"
+                'match': "DANS",
+                'class': "LOGICAL",
+                'type':  "In"
             }
         ];
 
-        this._specialTokens = {
+        this._specialNodes = {
             'concat' : {
-                '_token': "+",
-                '_class': "binary",
-                '_type':  "Concat",
-                'pstart': null,
-                'pend': null,
+                'class': "CONCAT",
+                'type':  "Concat",
+                'text': null,
+                'position': {
+                    'start': null,
+                    'end':   null
+                }
             }
         };
     }
@@ -254,29 +262,31 @@ class _Parser {
 
     _pushToken(tokens, token, pstart, pend) {
         if (typeof token == "string") {  // yes we can push a typeof string (buff)
-            token = new Token(token, null, "word", "Word", null);
+            token = new Token(token, null, "WORD", "Word", null);
         }
-        token.pstart = pstart - 1;    // -1 because we added a nul in the begining (and in the end)
-        token.pend   = pend - 1;
+        token.position = {
+            'start': pstart - 1,    // -1 because we added a nul in the begining (and in the end),
+            'end': pend -1
+        }
 
         // wip/tryout : "spaces" are NOT pushed anymore
 
         // words and spaces go to the same "string" token
         let p;
-        if (token._type === "Word" || token._type === "Space") {
-            if (tokens.length === 0 || tokens[p = (tokens.length - 1)]._type !== "String") {
+        if (token.type === "Word" || token.type === "Space") {
+            if (tokens.length === 0 || tokens[p = (tokens.length - 1)].type !== "String") {
                 // previous token is not "string", create a new one
-                p = tokens.push(new Token("", null, "string", "String", [])) - 1;
+                p = tokens.push(new Token("", null, "STRING", "String", [])) - 1;
             }
-            // consecutives "space" tokens are merged
-            if (token._type === "Space" && tokens[p]._sub.length > 0 && tokens[p]._sub[tokens[p]._sub.length - 1]._type === "Space") {
-                tokens[p]._sub[tokens[p]._sub.length - 1]._value += token._value;
+            // consecutives "SPACE" tokens are merged
+            if (token.type === "Space" && tokens[p]._sub.length > 0 && tokens[p]._sub[tokens[p]._sub.length - 1].type === "Space") {
+                tokens[p]._sub[tokens[p]._sub.length - 1].text += token.text;
             }
             else {
                 tokens[p]._sub.push(token);
             }
             // be nice, set main token ("string") value
-            tokens[p]._value += (tokens[p]._value ? " " : "") + token._value;
+            tokens[p].text += (tokens[p].text ? " " : "") + token.text;
         }
         else {
             // neither "word" or "space", just push
@@ -328,14 +338,14 @@ class _Parser {
             for (let i=0; !found && i < this._languageTokens.length; i++) {
 
                 const t = this._languageTokens[i];
-                const s = this._str.substr(this._p, t._token.length);
+                const s = this._str.substr(this._p, t.match.length);
 
-                if (s.toUpperCase() === t._token) {
+                if (s.toUpperCase() === t.match) {
 
-                    this._log("\"" + this._str.substr(this._p) + "\" match token " + t._token);
+                    this._log("\"" + this._str.substr(this._p) + "\" match token " + t.match);
 
                     const c_before = this._str.charAt(this._p - 1);
-                    const c_after = this._str.charAt(this._p + t._token.length);
+                    const c_after = this._str.charAt(this._p + t.match.length);
 
                     this._log("before:" + c_before + " after:" + c_after + " endWith:" + endWith);
 
@@ -349,10 +359,10 @@ class _Parser {
                         }
 
                         buff_pstart = this._p;
-                        this._p += t._token.length;
+                        this._p += t.match.length;
                         buff_pend   = this._p - 1;
 
-                        if (t._token === endWith) { // ... end of recursion char
+                        if (t.match === endWith) { // ... end of recursion char
                             this._log("< quit recursion");
                             // return from recursion
                             again = false;
@@ -363,12 +373,12 @@ class _Parser {
                                 // enter recursion
                                 sub = this._tokenize(t._endWith);
                             }
-                            if (t._class !== "space") {   // no need to push spaces
+                            if (t.class !== "SPACE") {   // no need to push spaces
                                 this._pushToken(tokens, new Token(
                                     s,
-                                    t._token,
-                                    t._class,
-                                    t._type,
+                                    t.match,
+                                    t.class,
+                                    t.type,
                                     sub,
                                     t._endWith
                                 ), buff_pstart, buff_pend);
@@ -442,13 +452,13 @@ class _Parser {
 
         for (let i = 0; i < tokens.length; i++) {
             const t = tokens[i];
-            if (t._class === 'sub') {
+            if (t.class === 'SUB') {
                 // recurse
                 ret.push(new Token(
-                    t._value,
-                    t._token,
-                    t._class,
-                    t._type,
+                    t.text,
+                    t.match,
+                    t.class,
+                    t.type,
                     this._fixPriority(t._sub),
                     t._endWith
                 ));
@@ -456,7 +466,7 @@ class _Parser {
             else {
                 // meta.field=x --> ( meta. ( field = x ) )     // wrong !
                 // meta.field=x --> ( ( meta. field ) = x )     // fixed !
-                if (t._class === "prefix" && i < tokens.length - 1) {
+                if (t.class === "PREFIX" && i < tokens.length - 1) {
                     // very high priority token, attached to next one (normally a field name)
                     let sub = [
                         t,
@@ -466,14 +476,14 @@ class _Parser {
                     ret.push(new Token(
                         '(',
                         '(',
-                        'fake_sub',
+                        'FAKE_SUB',
                         'openPar',
                         sub,
                         ')'
                     ));
                     continue;
                 }
-                if (t._class === 'compare' && i > 0) {
+                if (t.class === 'COMPARE' && i > 0) {
                     // high priority token, add fake parenthesis (=fake_sub)
                     let sub = [
                         ret.pop(),  // the token before the "=" was already pushed
@@ -488,7 +498,7 @@ class _Parser {
                     ret.push(new Token(
                         '(',
                         '(',
-                        'fake_sub',
+                        'FAKE_SUB',
                         'openPar',
                         sub,
                         ')'
@@ -512,29 +522,29 @@ class _Parser {
      */
     dumpTokens() {
         const _dumpToken = function (t) {
-            let s = "<span class=\"" + t._class + "\">";
-            switch (t._class) {
-                case "sub":
-                case "fake_sub":
-                    s += "<span class=\"" + t._class + "_char\">" + t._token + "</span>";
+            let s = "<span class=\"" + t.class + "\">";
+            switch (t.class) {
+                case "SUB":
+                case "FAKE_SUB":
+                    s += "<span class=\"" + t.class + "_CHAR\">" + t.match + "</span>";
                     for (let i = 0; i < t._sub.length; i++) {
                         s += _dumpToken(t._sub[i]);
                     }
-                    s += "<span class=\"" + t._class + "_char\">" + t._endWith + "</span>";
+                    s += "<span class=\"" + t.class + "_CHAR\">" + t._endWith + "</span>";
                     break;
-                case "string":
+                case "STRING":
                     for (let i = 0; i < t._sub.length; i++) {
                         s += _dumpToken(t._sub[i]);
                     }
                     break;
-                case "word":
-                    s += t._value;
+                case "WORD":
+                    s += t.text;
                     break;
-                case "space":
+                case "SPACE":
                     s += "&nbsp;";
                     break;
                 default:
-                    s += t._token;
+                    s += t.match;
                     break;
             }
             s += "</span>";
@@ -556,37 +566,77 @@ class _Parser {
      * @returns {string}
      */
     dumpTree() {
-        const _dumpPos = function (t) {
-            return "<sub>" + (t.pstart) + "," + (t.pend) + "</sub>";
+        const _dumpPos = function (node) {
+            return "<sub>" + (node.position.start) + "," + (node.position.end) + "</sub>";
         };
-        const _dumpTree = function (t) {
-            if (t == null) {
+        const _dumpTree = function (node) {
+            if (node == null) {
                 return "ø";
             }
             let s = "";
-            switch (t.nodeType) {
+            // wip new format (no more nodeType, just class)
+            if(typeof(node.class) !== 'undefined') {
+                switch (node.class) {
+                    case "KEYWORD":
+                        s += "<span class='" + node.class + "'>" + node.text + "</span>"
+                            + _dumpPos(node);
+                        return s;
+                        break;
+                    case "WORD":
+                        s += "<span class='" + node.class + "'>" + node.text + "</span>"
+                            + _dumpPos(node);
+                        return s;
+                        break;
+                    case "STRING":
+                        for (let i = 0; i < node._sub.length; i++) {
+                            s += _dumpTree(node._sub[i]);
+                        }
+                        return s;
+                        break;
+                    case 'LOGICAL':
+                    case 'COMPARE':
+                    case 'CONCAT':
+                        s = "<table><tr><td colspan=\"2\"><span class='" + node.class + "'>" + node.type + "</span>"
+                            + _dumpPos(node)
+                            + "</td></tr>"
+                            + "<tr><td>" + _dumpTree(node.l) + "</td><td>" + _dumpTree(node.r) + "</td></tr></table>";
+                        return s;
+                        break;
+                    case 'PREFIX':
+                        s = "<table><tr><td style='border-bottom: none'><span class='" + node.class + "'>" + node.type + "</span>"
+                            + _dumpPos(node)
+                            + "</td></tr>"
+                            + "<tr><td style='border-top: 1px dashed'>" + _dumpTree(node.suffix) + "</td></tr></table>";
+                        return s;
+                        break;
+                }
+            }
+            // old formal (with nodeType)
+            switch (node.nodeType) {
                 case "KEYWORD":
-                    s += "<span class='" + t.token._class + "'>" + t.token._value + "</span>"
+                    s += "<span class='" + node.token.class + "'>" + node.token.text + "</span>"
                         + _dumpPos(t.token);
                     break;
                 case "STRING":
-                    for (let i = 0; i < t.token._sub.length; i++) {
-                        s += (s ? " " : "") + "<span class='" + t.token._sub[i]._class + "'>" + t.token._sub[i]._value + "</span>"
-                            + _dumpPos(t.token._sub[i]);
+                    for (let i = 0; i < node.token._sub.length; i++) {
+                        s += _dumpTree(node.token._sub[i]);
+                    //    s += (s ? " " : "") + "<span class='" + t.token._sub[i].class + "'>" + t.token._sub[i].text + "</span>"
+                    //        + _dumpPos(t.token._sub[i]);
                     }
                     break;
-                case 'BINARY':
+                case 'CONCAT':
+                case 'LOGICAL':
                 case 'COMPARE':
-                    s = "<table><tr><td colspan=\"2\"><span class='" + t.token._class + "'>" + t.token._type + "</span>"
-                        + _dumpPos(t.token)
+                    s = "<table><tr><td colspan=\"2\"><span class='" + node.class + "'>" + node.type + "</span>"
+                        + _dumpPos(node)
                         + "</td></tr>"
-                        + "<tr><td>" + _dumpTree(t.l) + "</td><td>" + _dumpTree(t.r) + "</td></tr></table>";
+                        + "<tr><td>" + _dumpTree(node.l) + "</td><td>" + _dumpTree(node.r) + "</td></tr></table>";
                     break;
                 case 'PREFIX':
-                    s = "<table><tr><td style='border-bottom: none'><span class='" + t.prefix._class + "'>" + t.prefix._type + "</span>"
-                        + _dumpPos(t.prefix)
+                    s = "<table><tr><td style='border-bottom: none'><span class='" + node.prefix.class + "'>" + node.prefix.type + "</span>"
+                        + _dumpPos(node.prefix)
                         + "</td></tr>"
-                        + "<tr><td style='border-top: 1px dashed'>" + _dumpTree(t.r) + "</td></tr></table>";
+                        + "<tr><td style='border-top: 1px dashed'>" + _dumpTree(node.r) + "</td></tr></table>";
                     break;
             }
             return s;
@@ -604,17 +654,19 @@ class _Parser {
 
         const _addKeyword = (tree, token) => {
             if (tree == null) {
-                return {
-                    'nodeType': 'KEYWORD',
-                    'token':    token
-                };
+                // return {
+                //     'nodeType': 'KEYWORD',
+                //     'token':    token
+                // };
+                return token.toNode();
             }
-            if (tree.nodeType === 'BINARY' || tree.nodeType === 'COMPARE') {
+            if (tree.class === 'LOGICAL' || tree.class === 'COMPARE') {
                 if (tree.r == null) {
-                    tree.r = {
-                        'nodeType': 'KEYWORD',
-                        'token':    token
-                    };
+                    // tree.r = {
+                    //     'nodeType': 'KEYWORD',
+                    //     'token':    token
+                    // };
+                    tree.r = token.toNode();
                     return tree;
                 }
             }
@@ -623,30 +675,29 @@ class _Parser {
 
         const _addString = (tree, token) => {
             if (tree == null) {
-                return {
-                    'nodeType': 'STRING',
-                    'token':    token
-                };
+                // return {
+                //     'nodeType': 'STRING',
+                //     'token':    token
+                // };
+                return token.toNode();
             }
-            if (tree.nodeType === 'BINARY' || tree.nodeType === 'COMPARE') {
+            if (tree.class === 'LOGICAL' || tree.class === 'COMPARE' || tree.class === 'CONCAT') {
                 if (tree.r == null) {
-                    tree.r = {
-                        'nodeType': 'STRING',
-                        'token':    token
-                    };
+                    // tree.r = {
+                    //     'nodeType': 'STRING',
+                    //     'token':    token
+                    // };
+                    tree.r = token.toNode();
                     return tree;
                 }
             }
             // allow to add consecutives strings with a concat operator (so the string types are preserved)
-            if(tree.nodeType === 'STRING') {
-                let node = {
-                    'nodeType': 'BINARY',
-                    'token':   this._specialTokens.concat,
-                    'l' : tree,
-                    'r' : null
-                };
-                _addString(node, token); // recursive
-                return node;
+            if(tree.class === 'STRING') {
+                let n = Object.assign({}, this._specialNodes.concat);
+                n.l = tree;
+                n.r = null;
+                _addString(n, token); // recursive
+                return n;
             }
 
             throw new SyntaxError("a string can't come after", tree);
@@ -654,12 +705,17 @@ class _Parser {
 
         const _addBinary = (tree, binaryToken) => {
             if (tree != null) {
-                return {
-                    'nodeType': 'BINARY',
-                    'token':    binaryToken,
-                    'l':        tree,
-                    'r':        null
-                };
+                if(tree.class !== 'PREFIX') {
+                    let n      = binaryToken.toNode();
+                    n.nodeType = 'LOGICAL';
+                    n.l        = tree;
+                    n.r        = null;
+
+                    return n;
+                }
+                else {
+                    throw new SyntaxError("A logical operator can't follow a identifier", binaryToken);
+                }
             }
 
             throw new SyntaxError("A query can't start with an operator ", binaryToken);
@@ -667,27 +723,30 @@ class _Parser {
 
         const _addCompare = (tree, compareToken) => {
             if (tree != null) {
-                return {
-                    'nodeType': 'COMPARE',
-                    'token':    compareToken,
-                    'l':        tree,
-                    'r':        null
-                };
+                let n = compareToken.toNode();
+                n.nodeType = 'COMPARE';
+                n.l = tree;
+                n.r = null;
+
+                return n;
             }
 
             throw new SyntaxError("A query can't start with an operator ", compareToken);
         };
 
         const _addPrefix = (tree, prefixToken, suffixToken, depth) => {
-            let node = {
-                'nodeType': 'PREFIX',
-                'prefix':   prefixToken,
-                'r':        suffixToken ? _toTree([suffixToken], depth + 1) : null
-            };
+            // let node = {
+            //     'class': 'PREFIXED',
+            //     'type': 'Prefixed',
+            //     'prefix':   Object.assign({}, prefixToken),
+            //     'r':        suffixToken ? _toTree([suffixToken], depth + 1) : null
+            // };
+            let node = Object.assign({}, prefixToken);
+            node.suffix = suffixToken ? _toTree([suffixToken], depth + 1) : null;
             if (tree == null) {
                 return node;
             }
-            if (tree.nodeType === 'BINARY') {
+            if (tree.class === 'LOGICAL') {
                 if (tree.r == null) {
                     tree.r = node;
                     return tree;
@@ -701,19 +760,16 @@ class _Parser {
             if (tree == null) {
                 return subTree;
             }
-            if (tree.nodeType === 'BINARY' && tree.r == null) {
+            if (tree.class === 'LOGICAL' && tree.r == null) {
                 tree.r = subTree;
                 return tree;
             }
             // allow to add consecutives strings with a concat operator (so the string types are preserved)
-            if(tree.nodeType === 'STRING' && (subTree === null || subTree.nodeType === 'STRING')) {
-                let node = {
-                    'nodeType': 'BINARY',
-                    'token':   this._specialTokens.concat,
-                    'l' : tree,
-                    'r' : subTree
-                };
-                return node;
+            if(tree.class === 'STRING' && (subTree === null || subTree.class === 'STRING')) {
+                let n =  Object.assign({}, this._specialNodes.concat);
+                n.l = tree;
+                n.r = subTree;
+                return n;
             }
 
             throw new SyntaxError("A subtree can't come after ", tree);
@@ -727,24 +783,26 @@ class _Parser {
             for (let i = 0; i < tokens.length; i++) {
                 this._log(" ==", tokens);
                 const t = tokens[i];
-                if (this._selectionStart > t.pstart) {
-
-                }
+                // --- wip code to handle cursor position
+                // if (this._selectionStart > t.position.start) {
+                //
+                // }
+                // ---
                 this._log("  -", t);
-                switch (t._class) {
-                    case "string":
+                switch (t.class) {
+                    case "STRING":
                         tree = _addString(tree, t);
                         break;
-                    case "keyword":
+                    case "KEYWORD":
                         tree = _addKeyword(tree, t);
                         break;
-                    case "binary":
+                    case "LOGICAL":
                         tree = _addBinary(tree, t);
                         break;
-                    case "compare":
+                    case "COMPARE":
                         tree = _addCompare(tree, t);
                         break;
-                    case "prefix":
+                    case "PREFIX":
                         let sfx = null;
                         if (i >= tokens.length - 1) {
                             throw new SyntaxError("something must follow the prefix ", t);
@@ -754,8 +812,8 @@ class _Parser {
                         }
                         tree = _addPrefix(tree, t, sfx, depth);
                         break;
-                    case "sub":
-                    case "fake_sub":
+                    case "SUB":
+                    case "FAKE_SUB":
                         tree = _addSub(tree, _toTree(t._sub, depth + 1));
                         break;
                 }
