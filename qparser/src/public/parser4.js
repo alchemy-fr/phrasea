@@ -49,6 +49,29 @@ class _Parser {
 
         this._languageTokens = [
             {
+                'match':    /^([0-9]*)\s*(days|day)/i,
+                'class':    "DELAY",
+                'type':     "Delay",
+                'value':    null,
+                'unit':     null,
+                'tokenBuilder':  function(match) {
+                    let t = new Token(
+                        match[0],
+                        this.match,
+                        this.class,
+                        this.type,
+                    );
+                    // add custom properties
+                    t.value = parseInt(match[1]);
+                    t.unit =  {'day':'DAY', 'days':'DAY'}[match[2].toLowerCase()];
+                    return t;
+                }
+                // 'RTerminal': true,
+                // 'LTerminal': true,
+                // 'okInQuote': true
+            },
+
+            {
                 'match':    " ",
                 'class':    "SPACE",
                 'type':     "Space",
@@ -112,6 +135,24 @@ class _Parser {
                 'class':    "COMPARE",
                 'type':     "Is",
             },
+
+
+            {
+                'match':    "+",
+                'class':    "ARITHMETIC",
+                'type':     "PLUS",
+                'RTerminal': true,
+                'LTerminal': true
+            },
+            {
+                'match':    "-",
+                'class':    "ARITHMETIC",
+                'type':     "MINUS",
+                'RTerminal': true,
+                'LTerminal': true
+            },
+
+
             {
                 'match':    "<=",
                 'class':    "COMPARE",
@@ -338,14 +379,32 @@ class _Parser {
             for (let i=0; !found && i < this._languageTokens.length; i++) {
 
                 const t = this._languageTokens[i];
-                const s = this._str.substr(this._p, t.match.length);
 
-                if (s.toUpperCase() === t.match) {
+                let match = false;  // true if the current lng token (t) matches the query string at offset _p
+                let text = "";      // the begining of query that matches
+                let tokenBuilderArg = null;   // the argument to pass to the token builder if it exists (regexp tokens)
 
-                    this._log("\"" + this._str.substr(this._p) + "\" match token " + t.match);
+                if(t.match instanceof RegExp) {
+                    // test using regexp
+                    let  r = this._str.substr(this._p).match(t.match);
+                    if(r !== null) {
+                        match = true;
+                        text = r[0];    // the full match
+                        tokenBuilderArg = r;
+                    }
+                }
+                else {
+                    // test using simple string equality
+                    text = this._str.substr(this._p, t.match.length);
+                    match = (text.toUpperCase() === t.match);
+                }
+
+                if (match) {
+
+                    this._log("\"" + this._str.substr(this._p) + "\" match token " + t.match.toString());
 
                     const c_before = this._str.charAt(this._p - 1);
-                    const c_after = this._str.charAt(this._p + t.match.length);
+                    const c_after = this._str.charAt(this._p + text.length);
 
                     this._log("before:" + c_before + " after:" + c_after + " endWith:" + endWith);
 
@@ -359,10 +418,10 @@ class _Parser {
                         }
 
                         buff_pstart = this._p;
-                        this._p += t.match.length;
+                        this._p += text.length;
                         buff_pend   = this._p - 1;
 
-                        if (t.match === endWith) { // ... end of recursion char
+                        if (text === endWith) { // ... end of recursion char
                             this._log("< quit recursion");
                             // return from recursion
                             again = false;
@@ -374,14 +433,23 @@ class _Parser {
                                 sub = this._tokenize(t._endWith);
                             }
                             if (t.class !== "SPACE") {   // no need to push spaces
-                                this._pushToken(tokens, new Token(
-                                    s,
-                                    t.match,
-                                    t.class,
-                                    t.type,
-                                    sub,
-                                    t._endWith
-                                ), buff_pstart, buff_pend);
+                                let token = null;
+                                if(typeof t.tokenBuilder !== "undefined") {
+                                    // this vocab (regexp) has his own builder
+                                    token = t.tokenBuilder(tokenBuilderArg);
+                                }
+                                else {
+                                    // simple vocab (string), simple
+                                    token = new Token(
+                                        text,
+                                        t.match,
+                                        t.class,
+                                        t.type,
+                                        sub,
+                                        t._endWith
+                                    );
+                                }
+                                this._pushToken(tokens, token, buff_pstart, buff_pend);
                             }
                             buff_pstart = -1;
                         }
@@ -540,6 +608,9 @@ class _Parser {
                 case "WORD":
                     s += t.text;
                     break;
+                case "DELAY":
+                    s += t.text;
+                    break;
                 case "SPACE":
                     s += "&nbsp;";
                     break;
@@ -576,6 +647,10 @@ class _Parser {
             let s = "";
             if(typeof(node.class) !== 'undefined') {
                 switch (node.class) {
+                    case "DELAY":
+                        s += "<span class='" + node.class + "'>" + node.text + "</span>"
+                            + _dumpPos(node);
+                        break;
                     case "KEYWORD":
                         s += "<span class='" + node.class + "'>" + node.text + "</span>"
                             + _dumpPos(node);
@@ -592,6 +667,7 @@ class _Parser {
                     case 'LOGICAL':
                     case 'COMPARE':
                     case 'CONCAT':
+                    case 'ARITHMETIC':
                         s = "<table><tr><td colspan=\"2\"><span class='" + node.class + "'>" + node.type + "</span>"
                             + _dumpPos(node)
                             + "</td></tr>"
@@ -618,28 +694,41 @@ class _Parser {
      */
     getTree() {
 
+        const _addDelay = (tree, token) => {
+            if (tree == null) {
+                return token.toNode();
+            }
+            if (tree.class === 'ARITHMETIC' && tree.r == null) {
+                tree.r = token.toNode();
+                return tree;
+            }
+
+            throw new SyntaxError("a delay can't come after", tree);
+        };
+
         const _addKeyword = (tree, token) => {
             if (tree == null) {
                 return token.toNode();
             }
-            if (tree.class === 'LOGICAL' || tree.class === 'COMPARE') {
-                if (tree.r == null) {
-                    tree.r = token.toNode();
-                    return tree;
-                }
+            // allow to add consecutives strings with a concat operator (so the string types are preserved)
+            if(tree.class === 'STRING') {
+                let n = Object.assign({}, this._specialNodes.concat);
+                n.l = tree;
+                n.r = null;
+                _addKeyword(n, token); // recursive
+                return n;
             }
+            if (typeof(tree.r) != "undefined" && tree.r == null) {
+                tree.r = token.toNode();
+                return tree;
+            }
+
             throw new SyntaxError("a keyword can't come after", tree);
         };
 
         const _addString = (tree, token) => {
             if (tree == null) {
                 return token.toNode();
-            }
-            if (tree.class === 'LOGICAL' || tree.class === 'COMPARE' || tree.class === 'CONCAT') {
-                if (tree.r == null) {
-                    tree.r = token.toNode();
-                    return tree;
-                }
             }
             // allow to add consecutives strings with a concat operator (so the string types are preserved)
             if(tree.class === 'STRING') {
@@ -649,34 +738,24 @@ class _Parser {
                 _addString(n, token); // recursive
                 return n;
             }
+            if (typeof(tree.r) != "undefined" && tree.r == null) {
+                tree.r = token.toNode();
+                return tree;
+            }
 
             throw new SyntaxError("a string can't come after", tree);
         };
 
-        const _addBinary = (tree, binaryToken) => {
+        const _addBinary = (tree, token) => {
             if (tree != null) {
-                if(tree.class !== 'PREFIX') {
-                    let n      = binaryToken.toNode();
-                    n.l        = tree;
-                    n.r        = null;
-
-                    return n;
-                }
-                throw new SyntaxError("A logical operator can't follow a identifier", binaryToken);
-             }
-            throw new SyntaxError("A query can't start with an operator ", binaryToken);
-        };
-
-        const _addCompare = (tree, compareToken) => {
-            if (tree != null) {
-                let n = compareToken.toNode();
+                let n = token.toNode();
                 n.l = tree;
                 n.r = null;
 
                 return n;
             }
 
-            throw new SyntaxError("A query can't start with an operator ", compareToken);
+            throw new SyntaxError("A query can't start with ", token);
         };
 
         const _addPrefix = (tree, prefixToken, suffixToken, depth) => {
@@ -685,11 +764,9 @@ class _Parser {
             if (tree == null) {
                 return node;
             }
-            if (tree.class === 'LOGICAL') {
-                if (tree.r == null) {
-                    tree.r = node;
-                    return tree;
-                }
+            if (typeof(tree.r) != "undefined" && tree.r == null) {
+                tree.r = node;
+                return tree;
             }
 
             throw new SyntaxError("a prefix can't come after", tree);
@@ -699,16 +776,16 @@ class _Parser {
             if (tree == null) {
                 return subTree;
             }
-            if (tree.class === 'LOGICAL' && tree.r == null) {
-                tree.r = subTree;
-                return tree;
-            }
             // allow to add consecutives strings with a concat operator (so the string types are preserved)
             if(tree.class === 'STRING' && (subTree === null || subTree.class === 'STRING')) {
                 let n =  Object.assign({}, this._specialNodes.concat);
                 n.l = tree;
                 n.r = subTree;
                 return n;
+            }
+            if (typeof(tree.r) != "undefined" && tree.r == null) {
+                tree.r = subTree;
+                return tree;
             }
 
             throw new SyntaxError("A subtree can't come after ", tree);
@@ -735,11 +812,13 @@ class _Parser {
                     case "KEYWORD":
                         tree = _addKeyword(tree, t);
                         break;
-                    case "LOGICAL":
-                        tree = _addBinary(tree, t);
+                    case "DELAY":
+                        tree = _addDelay(tree, t);
                         break;
+                    case "LOGICAL":
                     case "COMPARE":
-                        tree = _addCompare(tree, t);
+                    case "ARITHMETIC":
+                        tree = _addBinary(tree, t);
                         break;
                     case "PREFIX":
                         let sfx = null;
