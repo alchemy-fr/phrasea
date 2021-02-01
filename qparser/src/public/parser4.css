@@ -71,6 +71,7 @@ span.KEYWORD {
     text-align: center;
     border: grey 1px solid;
     padding: 5px;
+    white-space: nowrap;
 }
 
 #DUMP_TREE SUB {
