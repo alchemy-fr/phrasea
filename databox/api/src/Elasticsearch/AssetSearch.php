@@ -50,6 +50,10 @@ class AssetSearch extends AbstractSearch
             $mustQueries[] = new Query\Terms('collectionPaths', $paths);
         }
 
+        if (isset($options['workspaces'])) {
+            $mustQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
+        }
+
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
             $mustQueries[] = $tagsBoolQuery;
@@ -82,10 +86,10 @@ class AssetSearch extends AbstractSearch
 
         $query = new Query();
         $query->setQuery($filterQuery);
-//        $query->setSort([
-//            '_score',
-//            ['title' => 'ASC']
-//        ]);
+        $query->setSort([
+            '_score',
+            ['createdAt' => 'DESC']
+        ]);
 
 //        dump($filterQuery->toArray());
 

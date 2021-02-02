@@ -5,6 +5,7 @@ parameters:
 App\Entity\Core\Workspace:
   w_newspaper:
     name: Newspaper
+    ownerId: super_user
 
 # Groups:
 # reporter_sport_football_league
@@ -71,7 +72,7 @@ App\Entity\Core\Collection:
   c_entertainment_{public_videos}:
     workspace: '@w_newspaper'
     ownerId: super_user
-    public: true
+    privacy: 3
     parent: '@c_entertainment'
     title: '<ucwords($current)>'
 
@@ -88,11 +89,29 @@ App\Entity\Core\Collection:
     title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
-  asset{1..80}:
+  asset{1..30}:
     title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
     __calls:
+      - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+  asset{31..50}:
+    title: 'Asset #<ucwords($current)>'
+    ownerId: super_user
+    workspace: '@w_newspaper'
+    __calls:
+      - setPrivacy: [1]
+      - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+  asset{51..80}:
+    title: 'Asset #<ucwords($current)>'
+    ownerId: super_user
+    workspace: '@w_newspaper'
+    __calls:
+      - setPrivacy: [2]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
@@ -101,9 +120,10 @@ App\Entity\Core\Asset:
     ownerId: super_user
     workspace: '@w_newspaper'
     __calls:
-      - setPublic: [true]
+      - setPrivacy: [3]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
+
 
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:

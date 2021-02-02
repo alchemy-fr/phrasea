@@ -7,7 +7,7 @@ import {OAuthProviders} from "@alchemy-fr/phraseanet-react-components";
 import {createAuthorizeUrl} from "@alchemy-fr/phraseanet-react-components/dist/oauth/funcs";
 
 import {oauthClient} from "../../oauth";
-import Container from "../Layout/Container";
+import Container from "../Layout/Container.tsx";
 
 export default class Login extends PureComponent {
     state = {

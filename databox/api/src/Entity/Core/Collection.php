@@ -12,6 +12,7 @@ use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -35,6 +36,7 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use TranslatableTrait;
+    use WorkspacePrivacyTrait;
 
     /**
      * @Assert\NotBlank
@@ -44,14 +46,9 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     private ?string $title = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=36)
      */
     private ?string $ownerId = null;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private bool $public = false;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
@@ -70,6 +67,12 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $assets = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected ?Workspace $workspace = null;
 
     public function __construct()
     {
@@ -122,16 +125,6 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     public function getAssets(): DoctrineCollection
     {
         return $this->assets;
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): void
-    {
-        $this->public = $public;
     }
 
     public function getAbsolutePath(): string

@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use App\Api\Model\Output\TagFilterRuleOutput;
 
 /**
  * @ORM\Table(
@@ -19,6 +23,12 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\TagFilterRuleRepository")
+ * @ApiResource(
+ *  shortName="tag-filter-rule",
+ *  normalizationContext={"groups"={"_", "tfr:read"}},
+ *  output=TagFilterRuleOutput::class,
+ *  input=false,
+ * )
  */
 class TagFilterRule extends AbstractUuidEntity
 {
@@ -51,14 +61,24 @@ class TagFilterRule extends AbstractUuidEntity
     protected string $objectId;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
+     * @ORM\JoinTable(name="tfr_includes")
      */
-    protected array $include = [];
+    protected ?DoctrineCollection $include = null;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
+     * @ORM\JoinTable(name="tfr_excludes")
      */
-    protected array $exclude = [];
+    protected ?DoctrineCollection $exclude = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->include = new ArrayCollection();
+        $this->exclude = new ArrayCollection();
+    }
 
     public function getUserType(): ?int
     {

@@ -92,11 +92,11 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
         >
             <div
                 onClick={this.onClick}
-                className={`collection-menu-item ${this.state.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${currentInSelectedHierarchy ? 'current' : ''}`}
+                className={`menu-item ${this.state.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${currentInSelectedHierarchy ? 'current' : ''}`}
 
             >
                 <div
-                    className="c-title"
+                    className="i-title"
                     style={{
                         paddingLeft: (level * 10),
                     }}
@@ -116,7 +116,7 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
                         component={TrashImg}
                     /></Button> : ''}
                 </div>
-                {children!.length > 0 ? <div
+                {children && children.length > 0 ? <div
                     className="expand"
                     onClick={this.onExpandClick}
                 >

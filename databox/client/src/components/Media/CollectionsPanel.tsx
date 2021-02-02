@@ -1,11 +1,11 @@
-import React, {MouseEvent, PureComponent} from "react";
-import {Collection} from "../../types";
-import {getCollections} from "../../api/collection";
-import CollectionMenuItem, {CollectionMenuItemProps} from "./CollectionMenuItem";
+import React, {PureComponent} from "react";
+import {Workspace} from "../../types";
+import {getCollections, getWorkspaces} from "../../api/collection";
 import {SelectionContext} from "./SelectionContext";
+import WorkspaceMenuItem from "./WorkspaceMenuItem";
 
 type State = {
-    data: Collection[];
+    workspaces: Workspace[];
 };
 
 export default class CollectionsPanel extends PureComponent<{}, State> {
@@ -13,7 +13,7 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     context: React.ContextType<typeof SelectionContext>;
 
     state: State = {
-        data: [],
+        workspaces: [],
     };
 
     componentDidMount() {
@@ -21,13 +21,9 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     }
 
     async load() {
-        const data = await getCollections({});
+        const data = await getWorkspaces();
 
-        this.setState({data});
-    }
-
-    onSelect = (collection: CollectionMenuItemProps, e: MouseEvent): void => {
-        this.context.selectCollection(collection.absolutePath);
+        this.setState({workspaces: data});
     }
 
     render() {
@@ -37,15 +33,11 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     }
 
     renderResult() {
-        const {data} = this.state;
+        const {workspaces} = this.state;
 
-        return data.map(c => <CollectionMenuItem
+        return workspaces.map(c => <WorkspaceMenuItem
             {...c}
             key={c.id}
-            absolutePath={c.id}
-            selectedPath={this.context.selectedCollection}
-            onClick={this.onSelect}
-            level={0}
         />);
     }
 }

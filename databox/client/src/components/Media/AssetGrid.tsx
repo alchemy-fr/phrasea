@@ -55,6 +55,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
         const data = await getAssets({
             query: this.props.query,
             parents,
+            workspaces: this.context.selectedWorkspace ? [this.context.selectedWorkspace] : undefined,
         });
 
         this.setState({data});

@@ -11,6 +11,7 @@ use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\TranslatableTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -28,12 +29,13 @@ use App\Api\Model\Input\AssetInput;
  * )
  * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
  */
-class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface
+class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use TranslatableTrait;
+    use WorkspacePrivacyTrait;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -41,12 +43,7 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     private ?string $title = null;
 
     /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private bool $public = false;
-
-    /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=36)
      */
     private ?string $ownerId = null;
 
@@ -163,16 +160,6 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     public function setTitle(?string $title): void
     {
         $this->title = $title;
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): void
-    {
-        $this->public = $public;
     }
 
     public function addToCollection(Collection $collection): CollectionAsset

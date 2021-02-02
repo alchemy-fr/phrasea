@@ -4,6 +4,7 @@ fos_elastica:
         default: { url: '%env(ELASTICSEARCH_URL)%' }
     indexes:
         asset:
+            use_alias: true
             index_name: "asset_%kernel.environment%"
             settings:
                 index:
@@ -21,7 +22,7 @@ fos_elastica:
                     property_path: false
                     type: text
                     analyzer: collection_path
-                public:
+                privacy:
                     property_path: false
                     type: boolean
                 workspaceId:
@@ -37,12 +38,15 @@ fos_elastica:
                 tags:
                     property_path: tagIds
                     type: keyword
+                createdAt:
+                    type: date
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset
                 listener: { enabled: false }
 
         collection:
+            use_alias: true
             index_name: "collection_%kernel.environment%"
             settings:
                 index:
@@ -63,7 +67,7 @@ fos_elastica:
                     type: boolean
                 pathDepth:
                     type: integer
-                public:
+                privacy:
                     property_path: false
                     type: boolean
                 workspaceId:

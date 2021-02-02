@@ -20,22 +20,22 @@ class CollectionOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
 
     /**
-     * @Groups({"collection:index", "collection:read"})
+     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
     protected array $capabilities = [];
 
     /**
-     * @Groups({"collection:index", "collection:read", "asset:index", "asset:read"})
+     * @Groups({"collection:index", "collection:read", "asset:index", "asset:read", "workspace:index", "workspace:read"})
      */
     private ?string $title = null;
 
     /**
-     * @Groups({"collection:index", "collection:read"})
+     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
     private ?string $ownerId = null;
 
     /**
-     * @Groups({"collection:index", "collection:read"})
+     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
     private bool $public = false;
 
@@ -45,7 +45,7 @@ class CollectionOutput extends AbstractUuidOutput
     private ?self $parent = null;
 
     /**
-     * @Groups({"collection:index", "collection:children"})
+     * @Groups({"collection:index", "collection:children", "workspace:index"})
      */
     private ?array $children = null;
 

@@ -1,6 +1,8 @@
-#App\Entity\Core\Workspace:
-#  w_marketplace:
-#    name: Marketplace
+App\Entity\Core\Workspace:
+  w_marketplace:
+    name: Marketplace
+    ownerId: super_user
+
 #
 #App\Entity\User\User:
 #  u_:

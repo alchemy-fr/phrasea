@@ -3,6 +3,7 @@ import {SelectionContext} from "./SelectionContext";
 import {CollectionMenuItemProps} from "./CollectionMenuItem";
 
 type State = {
+    selectedWorkspace?: string;
     selectedCollection?: string;
     selectedAssets: string[];
 };
@@ -17,6 +18,13 @@ export default class MediaSelection extends PureComponent<{}, State>
         this.setState({selectedCollection: absolutePath});
     }
 
+    selectWorkspace = (id: string): void => {
+        this.setState({
+            selectedWorkspace: id,
+            selectedCollection: undefined
+        });
+    }
+
     selectAssets = (ids: string[]): void => {
         this.setState({selectedAssets: ids});
     }
@@ -24,6 +32,7 @@ export default class MediaSelection extends PureComponent<{}, State>
     render() {
         return <SelectionContext.Provider value={{
             ...this.state,
+            selectWorkspace: this.selectWorkspace,
             selectCollection: this.selectCollection,
             selectAssets: this.selectAssets,
         }}>

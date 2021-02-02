@@ -1,37 +1,36 @@
 import {PureComponent} from "react";
 import Modal from "../../Layout/Modal";
 import Button from "../../ui/Button";
-import AsyncSelect from 'react-select/async';
-import {Form} from "react-bootstrap";
 import apiClient from "../../../api/api-client";
-import {Tag} from "../../../types";
+import TagFilterRule, {TagFilterRuleType} from "./TagFilterRule";
 
 type Props = {
     id: string,
     onClose: () => void;
 }
 
-export default class EditCollection extends PureComponent<Props> {
-    loadOptions = async () => {
-        const res: {data: Tag[]} = await apiClient.get(`/tags`);
+type State = {
+    rules?: TagFilterRuleType[],
+}
 
-        return res.data.map(t => ({
-            label: t.name,
-            value: t.id,
-        }));
-    }
+export default class EditCollection extends PureComponent<Props, State> {
+    state: State = {};
 
     loadRules = async () => {
-        const res = await apiClient.get(`/tags-filter-rules?collection=${this.props.id}`);
+        const res: TagFilterRuleType[] = await apiClient.get(`/tags-filter-rules?collection=${this.props.id}`);
+
+        this.setState({
+            rules: res,
+        });
     }
 
-    handleInputChange = (newValue: string) => {
-        const inputValue = newValue.replace(/\W/g, '');
-        this.setState({inputValue});
-        return inputValue;
-    };
+    componentDidMount() {
+        this.loadRules();
+    }
 
     render() {
+        const {rules} = this.state;
+
         return <Modal
             onClose={this.props.onClose}
             header={() => <h4>Edit</h4>}
@@ -50,20 +49,10 @@ export default class EditCollection extends PureComponent<Props> {
                 </Button>
             </>}
         >
-            <Form>
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Tags to include</Form.Label>
-                    <AsyncSelect
-                        isMulti
-                        cacheOptions
-                        loadOptions={this.loadOptions}
-                        defaultOptions
-                    />
-                    <Form.Text className="text-muted">
-                        Assets in this collection will only be visible if they contains theses tags.
-                    </Form.Text>
-                </Form.Group>
-            </Form>
+            {rules && rules.map(r => <TagFilterRule
+                {...r}
+                key={r.id}
+            />)}
         </Modal>
     }
 }

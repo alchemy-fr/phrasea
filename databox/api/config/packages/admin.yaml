@@ -10,11 +10,13 @@ easy_admin:
         children:
           - { label: 'Asset permissions', route: admin_global_permissions, params: {type: asset} }
           - { label: 'Collection permissions', route: admin_global_permissions, params: {type: collection} }
+          - { label: 'Workspace permissions', route: admin_global_permissions, params: {type: workspace} }
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Core'
         children:
           - Asset
           - Collection
+          - Workspace
       - OAuthClient
   entities:
     Asset:
@@ -56,4 +58,21 @@ easy_admin:
         fields:
           - { property: 'title' }
           - { property: 'public' }
+          - { property: 'ownerId' }
+
+    Workspace:
+      class: App\Entity\Core\Workspace
+      list:
+        max_results: 100
+        actions:
+          - permissions
+        sort: [name, ASC]
+        fields:
+          - { property: 'name' }
+          - { property: 'ownerId' }
+          - updatedAt
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
           - { property: 'ownerId' }

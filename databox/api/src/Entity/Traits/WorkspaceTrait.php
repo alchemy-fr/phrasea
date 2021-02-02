@@ -13,7 +13,7 @@ trait WorkspaceTrait
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
      * @ORM\JoinColumn(nullable=false)
      */
-    private ?Workspace $workspace = null;
+    protected ?Workspace $workspace = null;
 
     public function getWorkspace(): ?Workspace
     {

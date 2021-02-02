@@ -108,6 +108,7 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./uploader/api:/srv/app
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
@@ -119,6 +120,7 @@ services:
       - ./uploader/api/docker/nginx/tpl:/etc/nginx/tpl
 
   auth-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./auth/api:/srv/app
       - ./auth/api/docker/supervisor:/etc/supervisor.d
@@ -152,6 +154,7 @@ services:
       - ./notify/api/public:/srv/app/public
 
   notify-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
@@ -171,6 +174,7 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d

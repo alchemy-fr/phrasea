@@ -33,3 +33,4 @@ installComposer expose-api-php
 
 installNodeModules expose-client-dev
 installNodeModules uploader-client-dev
+installNodeModules databox-client-dev

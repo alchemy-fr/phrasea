@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Collection} from "../types";
+import {Collection, Workspace} from "../types";
 
 type CollectionOptions = {
     query?: string;
@@ -13,6 +13,13 @@ export async function getCollections(options: CollectionOptions): Promise<Collec
             ...options,
         },
     });
+
+    return res.data;
+}
+
+
+export async function getWorkspaces(): Promise<Workspace[]> {
+    const res = await apiClient.get('/workspaces', {});
 
     return res.data;
 }

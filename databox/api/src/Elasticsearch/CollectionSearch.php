@@ -65,12 +65,8 @@ class CollectionSearch extends AbstractSearch
         }
 
         if (isset($options['workspaces'])) {
-            $workspaces = $this->findWorkspaces($options['workspaces']);
-            $ids = array_map(function (Workspace $workspace): string {
-                return $workspace->getId();
-            }, $workspaces);
             $filterQuery->addFilter(
-                new Query\Terms('workspaceId', $ids)
+                new Query\Terms('workspaceId', $options['workspaces'])
             );
         }
 
