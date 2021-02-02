@@ -35,7 +35,7 @@ class SyntaxError extends Error {
 class _Parser {
     constructor() {
         String.prototype.isTerminal = function () {
-            return "()<>!=\" \t\0:".indexOf(this) !== -1;
+            return "()<>!=+-\" \t\0:".indexOf(this) !== -1;
         }
 
         this._debug          = false;
@@ -49,7 +49,7 @@ class _Parser {
 
         this._languageTokens = [
             {
-                'match':    /^([0-9]*)\s*(days|day)/i,
+                'match':    /^([0-9]+)\s*(days|day)/i,
                 'class':    "DELAY",
                 'type':     "Delay",
                 'value':    null,
@@ -636,7 +636,7 @@ class _Parser {
      *
      * @returns {string}
      */
-    dumpTree() {
+    dumpAST() {
         const _dumpPos = function (node) {
             return "<sub>" + (node.position.start) + "," + (node.position.end) + "</sub>";
         };
@@ -690,9 +690,9 @@ class _Parser {
     /**
      * returns the ast as json
      *
-     * @returns {{tree: json, error: string}}
+     * @returns {{ast: json, error: string}}
      */
-    getTree() {
+    getAST() {
 
         const _addDelay = (tree, token) => {
             if (tree == null) {
@@ -851,7 +851,7 @@ class _Parser {
         }
         return {
             'error' : errormsg,
-            'tree' : this._tree,
+            'ast' : this._tree,
         }
     }
 
@@ -892,10 +892,10 @@ export class Parser {
     /**
      * returns the ast as json
      *
-     * @returns {{tree: json, error: string}}
+     * @returns {{ast: json, error: string}}
      */
-    getTree() {
-        return this._p.getTree();
+    getAST() {
+        return this._p.getAST();
     }
 
     /**
@@ -904,8 +904,8 @@ export class Parser {
      *
      * @returns {string}
      */
-    dumpTree() {
-        return this._p.dumpTree();
+    dumpAST() {
+        return this._p.dumpAST();
     }
 
     /**

@@ -104,12 +104,12 @@
 
                 parser.setDebug(debug).parse(_$in.val(), _$in.selectionStart, _$in.selectionEnd);
 
-                const jsTree = parser.getTree();
+                const ast = parser.getAST();
 
-                $("#ERROR").html(jsTree.error);
+                $("#ERROR").html(ast.error);
                 $("#DUMP_TOKENS").html(parser.dumpTokens());
-                $("#DUMP_JSON").html(JSON.stringify(jsTree, null, 2));
-                $("#DUMP_TREE").html(parser.dumpTree());
+                $("#DUMP_JSON").html(JSON.stringify(ast, null, 2));
+                $("#DUMP_TREE").html(parser.dumpAST());
 
                 $(window).resize();
             }
@@ -141,11 +141,11 @@
 
             { h: "quoting" },
 
-            {t: "bel or massif", h: "attention au \"or\" !"},
-            {t: "\"bel or massif\"", h: ""},
+            {t: "en or massif", h: "attention au \"or\" !"},
+            {t: "\"en or massif\"", h: ""},
             {t: "or massif", h: "!! erreur !!"},
             {t: "\"or massif\"", h: ""},
-            {t: "tas d'or massif", h: "le \"'\" (apostrophe) n'est pas dans la grammaire"},
+            {t: "lingot d'or pur", h: "le \"'\" (apostrophe) n'est pas dans la grammaire"},
             {t: "r\"raw text\"", h: "on peut typer les quotes"},
             {t: "z\"zorro\"", h: "!! type de quote inconnu !!"},
             {t: "chien \"chat\"", h: "concat"},
@@ -162,10 +162,23 @@
             {t: "a and meta.b = c", h: ""},
             {t: "meta.b = c and a", h: ""},
 
+            { h: "arithmetic" },
+
+            {t: "size+10", h: "sans espaces"},
+            {t: "size + 10", h: "avec espaces"},
+            {t: "x-y", h: ""},
+
+            { h: "numerical units" },
+
+            {t: "1 day", h: "done : parsed as \"delay\" type"},
+            {t: "10 days", h: ""},
+            {t: "1 hour", h: "todo: implement other units"},
+            {t: "10", h: "todo ? : move to \"integer\" type (wo/w unit) ?"},
+
             { h: "comparators" },
 
-            {t: "size=1", h: "sans espaces"},
-            {t: "size = 2", h: "avec espaces"},
+            {t: "size=1", h: ""},
+            {t: "size = 2", h: ""},
             {t: "size > 3", h: ""},
             {t: "size < 4", h: ""},
             {t: "size >= 5", h: ""},
@@ -175,7 +188,6 @@
             {t: "titre is chien", h: "même que ':' ou '=' ?"},
             {t: "titre is not chat", h: "même que '!=' ?"},
             {t: "author is empty", h: "'empty' est un mot-clé"},
-
 
             { h: "prefix" },
 
@@ -187,7 +199,13 @@
 
             {t: "a in x y", h: " x y : un nom de champ avec des espaces ?"},
             {t: "a = b dans c", h: "?"},
-            {t: "a et b dans c", h: "?"}
+            {t: "a et b dans c", h: "?"},
+            {t: "x > y+1", h: "fix priority"},
+
+            { h: "to be implemented: identifiers ?" },
+
+            {t: "titre:bla bla", h: "ici \"titre\" serait un identifiant"},
+            {t: "ce vin titre 13°", h: "ici \"titre\" resterait du texte"},
         ];
     </script>
 
