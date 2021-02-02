@@ -1,7 +1,19 @@
 {% extends 'base.html.twig' %}
 
+{% set classes = {
+    'success': 'success',
+    'error': 'danger',
+    'warning': 'warning',
+    'info': 'info',
+} %}
+
 {% block body %}
     <div class="container">
+        {% for type,message in app.flashes() %}
+            <div class="alert alert-{{ classes[type] }}">
+                {{ message }}
+            </div>
+        {% endfor %}
         <div class="row">
             <div class="col-md-5 mx-auto">
                 <div class="form-container">
