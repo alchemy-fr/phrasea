@@ -5,7 +5,16 @@ import {Badge} from "react-bootstrap";
 type Props = {
     selected?: boolean;
     onClick?: (id: string, e: MouseEvent) => void;
-}
+};
+
+const privacyIndices = [
+    'Secret',
+    'Private in workspace',
+    'Public in workspace',
+    'Private',
+    'Public for users',
+    'Public',
+];
 
 export default class AssetItem extends PureComponent<Props & Asset> {
     onClick = (e: MouseEvent): void => {
@@ -23,6 +32,8 @@ export default class AssetItem extends PureComponent<Props & Asset> {
             selected,
             collections,
         } = this.props;
+
+        const privacyLabel = privacyIndices[privacy];
 
         return <div
             onClick={this.onClick}
@@ -49,14 +60,9 @@ export default class AssetItem extends PureComponent<Props & Asset> {
                         variant={'info'}
                         key={t.id}
                     >{t.name}</Badge>)}
-
-                    {privacy >= 5 ? <Badge
-                        key={'public'}
-                        variant={'success'}
-                    >Public</Badge> : <Badge
-                        key={'private'}
-                        variant={'danger'}
-                    >Private</Badge>}
+                    <Badge
+                        variant={'info'}
+                    >{privacyLabel}</Badge>
                 </div>
             </div>
         </div>

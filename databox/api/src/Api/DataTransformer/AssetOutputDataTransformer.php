@@ -28,7 +28,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
             return $collectionAsset->getCollection();
         })->filter(function (Collection $collection): bool {
-            return $this->isGranted(CollectionVoter::READ, $collection);
+            return true;// $this->isGranted(CollectionVoter::READ, $collection);
         })->getValues());
 
         $output->setCapabilities([

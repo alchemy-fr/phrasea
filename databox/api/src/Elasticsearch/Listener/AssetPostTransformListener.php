@@ -43,8 +43,8 @@ class AssetPostTransformListener implements EventSubscriberInterface
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
 
-            if (($collBestPrivacy = $collection->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
-                $bestPrivacy = $collBestPrivacy;
+            if (($hierarchyBestPrivacy = $collection->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
+                $bestPrivacy = $hierarchyBestPrivacy;
             }
 
             if ($bestPrivacy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
@@ -54,10 +54,6 @@ class AssetPostTransformListener implements EventSubscriberInterface
 
                 $users = array_merge($users, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
                 $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
-
-                if (($hierarchyBestPrivacy = $collection->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
-                    $bestPrivacy = $hierarchyBestPrivacy;
-                }
             }
 
             $collectionsPaths[] = $collection->getAbsolutePath();
