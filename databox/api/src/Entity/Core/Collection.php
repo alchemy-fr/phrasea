@@ -57,6 +57,8 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     private ?self $parent = null;
 
     /**
+     * @var self[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -153,31 +155,49 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
         return null === $this->parent;
     }
 
-    public function isPublicOrHasPublicParent(): bool
+    public function getBestPrivacyInParentHierarchy(): int
     {
-        if ($this->isPublic()) {
-            return true;
-        }
-        if ($this->parent && $this->parent->isPublicOrHasPublicParent()) {
-            return true;
+        $bestPrivacy = $this->privacy;
+
+        // Early return if best
+        if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
+            return $this->privacy;
         }
 
-        return false;
+        if (
+            null !== $this->parent
+            && ($better = $this->parent->getBestPrivacyInParentHierarchy()) > $bestPrivacy
+        ) {
+            return $better;
+        }
+
+        return $bestPrivacy;
     }
 
-    public function isPublicOrHasPublicChild(): bool
+    public function getBestPrivacyInDescendantHierarchy(): int
     {
-        if ($this->isPublic()) {
-            return true;
+        $bestPrivacy = $this->privacy;
+        // Early return if best
+        if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
+            return $this->privacy;
         }
 
         foreach ($this->children as $child) {
-            if ($child->isPublicOrHasPublicChild()) {
-                return true;
+            if (($better = $child->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
+                // Early return if best
+                if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
+                    return $this->privacy;
+                }
+                $bestPrivacy = $better;
             }
         }
 
-        return false;
+        return $bestPrivacy;
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->privacy >= WorkspaceItemPrivacyInterface::PRIVATE;
     }
 
     public function getAbsoluteTitle(): string

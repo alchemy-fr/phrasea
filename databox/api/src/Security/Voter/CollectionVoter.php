@@ -7,23 +7,13 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Collection;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
 
-class CollectionVoter extends Voter
+class CollectionVoter extends AbstractVoter
 {
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
-
-    private Security $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
-
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Collection;
@@ -36,11 +26,15 @@ class CollectionVoter extends Voter
     {
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
-        $isOwner = $subject->getOwnerId() === $userId;
+        $isOwner = $userId && $subject->getOwnerId() === $userId;
+
+        $workspaceIds = $userId ? $this->getAllowedWorkspaceIds($userId, $user->getGroupIds()) : [];
 
         switch ($attribute) {
             case self::READ:
-                return $subject->isPublic()
+                return $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
+                    || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject);
             case self::EDIT:

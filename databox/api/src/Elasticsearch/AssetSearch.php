@@ -42,7 +42,6 @@ class AssetSearch extends AbstractSearch
         }
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
-            $parentsBoolQuery = new Query\BoolQuery();
             $paths = array_map(function (Collection $parentCollection): string {
                 return $parentCollection->getAbsolutePath();
             }, $parentCollections);

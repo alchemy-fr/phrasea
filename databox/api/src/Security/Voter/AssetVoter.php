@@ -8,11 +8,8 @@ use App\Entity\Core\Asset;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class AssetVoter extends Voter
+class AssetVoter extends AbstractVoter
 {
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Asset;

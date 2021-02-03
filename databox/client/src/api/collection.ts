@@ -19,7 +19,20 @@ export async function getCollections(options: CollectionOptions): Promise<Collec
 
 
 export async function getWorkspaces(): Promise<Workspace[]> {
-    const res = await apiClient.get('/workspaces', {});
+    const collections = await getCollections({});
 
-    return res.data;
+    const workspaces: {[key: string]: Workspace} = {};
+
+    collections.forEach((c: Collection) => {
+        if (!workspaces[c.workspace.id]) {
+            workspaces[c.workspace.id] = {
+                ...c.workspace,
+                collections: [],
+            }
+        }
+
+        workspaces[c.workspace.id].collections.push(c);
+    });
+
+    return (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);
 }

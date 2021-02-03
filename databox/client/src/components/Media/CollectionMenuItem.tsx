@@ -29,13 +29,14 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
     };
 
     expandCollection = async (force = false): Promise<void> => {
+        const {children} = this.props;
+
         this.setState((prevState: State) => {
             return {
                 expanded: !prevState.expanded || force,
             };
         }, async (): Promise<void> => {
-            if (this.state.expanded) {
-
+            if (this.state.expanded && children && children.length > 0) {
                 const data = await getCollections({
                     parent: this.props.id,
                 });

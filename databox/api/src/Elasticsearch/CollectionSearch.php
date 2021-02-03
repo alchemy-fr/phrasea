@@ -55,8 +55,7 @@ class CollectionSearch extends AbstractSearch
                 $q = new Query\BoolQuery();
                 $q->addFilter(new Query\Term(['absolutePath' => $parentCollection->getAbsolutePath()]));
                 $q->addFilter(new Query\Term(['pathDepth' => $parentCollection->getPathDepth() + 1]));
-
-                $parentsBoolQuery->addShould($q);
+                $parentsBoolQuery->addMust($q);
             }, $parentCollections);
 
             $filterQuery->addFilter($parentsBoolQuery);

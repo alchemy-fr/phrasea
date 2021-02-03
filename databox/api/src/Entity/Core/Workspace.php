@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use App\Api\Model\Output\WorkspaceOutput;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\WorkspaceRepository")
  *
  * @ApiResource(
  *  shortName="workspace",

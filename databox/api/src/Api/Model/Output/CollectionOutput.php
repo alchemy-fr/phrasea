@@ -37,7 +37,7 @@ class CollectionOutput extends AbstractUuidOutput
     /**
      * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
-    private bool $public = false;
+    private int $privacy;
 
     /**
      * @Groups({"collection:parent"})
@@ -53,6 +53,12 @@ class CollectionOutput extends AbstractUuidOutput
      * @Groups({"collection:assets"})
      */
     private array $assets;
+
+    /**
+     * @MaxDepth(1)
+     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
+     */
+    private $workspace;
 
     public function getTitle(): ?string
     {
@@ -84,14 +90,14 @@ class CollectionOutput extends AbstractUuidOutput
         $this->ownerId = $ownerId;
     }
 
-    public function isPublic(): bool
+    public function setPrivacy(int $privacy): void
     {
-        return $this->public;
+        $this->privacy = $privacy;
     }
 
-    public function setPublic(bool $public): void
+    public function getPrivacy(): int
     {
-        $this->public = $public;
+        return $this->privacy;
     }
 
     public function getAssets(): array
@@ -112,5 +118,15 @@ class CollectionOutput extends AbstractUuidOutput
     public function setChildren(array $children): void
     {
         $this->children = $children;
+    }
+
+    public function getWorkspace()
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace($workspace): void
+    {
+        $this->workspace = $workspace;
     }
 }

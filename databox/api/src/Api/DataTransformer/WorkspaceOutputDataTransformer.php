@@ -36,12 +36,6 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
             'canDelete' => $this->isGranted(WorkspaceVoter::DELETE, $object),
         ]);
 
-        $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
-            'workspaces' => [$object->getId()],
-        ]);
-
-        $output->setCollections($collections);
-
         return $output;
     }
 

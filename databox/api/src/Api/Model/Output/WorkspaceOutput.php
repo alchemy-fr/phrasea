@@ -21,20 +21,14 @@ class WorkspaceOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
 
     /**
-     * @Groups({"workspace:index", "workspace:read"})
+     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})
      */
     protected array $capabilities = [];
 
     /**
-     * @Groups({"workspace:index", "workspace:read"})
+     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})
      */
     private string $name;
-
-    /**
-     * @var Collection[]
-     * @Groups({"workspace:index"})
-     */
-    private ?array $collections = null;
 
     public function getName(): string
     {
@@ -44,15 +38,5 @@ class WorkspaceOutput extends AbstractUuidOutput
     public function setName(string $name): void
     {
         $this->name = $name;
-    }
-
-    public function getCollections(): ?array
-    {
-        return $this->collections;
-    }
-
-    public function setCollections(?array $collections): void
-    {
-        $this->collections = $collections;
     }
 }

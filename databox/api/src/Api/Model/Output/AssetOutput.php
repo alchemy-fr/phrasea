@@ -34,7 +34,7 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private bool $public;
+    private int $privacy;
 
     /**
      * @Groups({"asset:index", "asset:read"})
@@ -101,14 +101,14 @@ class AssetOutput extends AbstractUuidOutput
         $this->title = $title;
     }
 
-    public function isPublic(): bool
+    public function getPrivacy(): int
     {
-        return $this->public;
+        return $this->privacy;
     }
 
-    public function setPublic(bool $public): void
+    public function setPrivacy(int $privacy): void
     {
-        $this->public = $public;
+        $this->privacy = $privacy;
     }
 
     /**

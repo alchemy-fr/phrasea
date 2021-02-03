@@ -19,15 +19,15 @@ export default class AssetItem extends PureComponent<Props & Asset> {
             title,
             description,
             tags,
-            public: isPublic,
+            privacy,
             selected,
             collections,
         } = this.props;
 
         return <div
             onClick={this.onClick}
-
-            className={`asset-item ${selected ? 'selected' : ''}`}>
+            className={`asset-item ${selected ? 'selected' : ''}`}
+        >
             <div className="a-thumb">
                 <img
                     src="https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png"
@@ -38,7 +38,9 @@ export default class AssetItem extends PureComponent<Props & Asset> {
                     {title}
                 </div>
                 <div>
-                    {collections.map(c => <div>{c.title}</div>)}
+                    {collections.map(c => <div
+                        key={c.id}
+                    >{c.title}</div>)}
                 </div>
                 <div className="a-desc">
                     {description ? <p>{description}</p> : ''}
@@ -48,7 +50,7 @@ export default class AssetItem extends PureComponent<Props & Asset> {
                         key={t.id}
                     >{t.name}</Badge>)}
 
-                    {isPublic ? <Badge
+                    {privacy >= 5 ? <Badge
                         key={'public'}
                         variant={'success'}
                     >Public</Badge> : <Badge

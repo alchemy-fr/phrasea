@@ -252,6 +252,12 @@ services:
     ports:
       - 127.0.0.1:8105:80
 
+  elastichq:
+    image: elastichq/elasticsearch-hq
+    networks:
+      - internal
+    ports:
+      - 127.0.0.1:8106:5000
 
 volumes:
   dev_vol:

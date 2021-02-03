@@ -30,14 +30,14 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: 'title', label: Title }
-          - { property: 'public' }
+          - { property: 'privacy' }
           - { property: 'ownerId' }
           - { property: 'collections.count', label: '# Colls' }
           - createdAt
       form:
         fields:
           - { property: 'title', label: Title }
-          - { property: 'public' }
+          - { property: 'privacy' }
           - { property: 'ownerId' }
 
     Collection:
@@ -52,12 +52,12 @@ easy_admin:
         fields:
           - { property: 'title' }
           - { property: 'parent', label: Parent }
-          - { property: 'public' }
+          - { property: 'privacy' }
           - createdAt
       form:
         fields:
           - { property: 'title' }
-          - { property: 'public' }
+          - { property: 'privacy' }
           - { property: 'ownerId' }
 
     Workspace:

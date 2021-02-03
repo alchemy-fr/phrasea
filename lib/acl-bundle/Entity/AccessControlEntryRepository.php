@@ -5,10 +5,48 @@ declare(strict_types=1);
 namespace Alchemy\AclBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 class AccessControlEntryRepository extends EntityRepository
 {
+    public static function joinAcl(
+        QueryBuilder $queryBuilder,
+        string $userId,
+        array $groupIds,
+        string $objectType,
+        string $objectTableAlias,
+        int $permission
+    ): void
+    {
+        $hasGroups = !empty($groupIds);
+
+        $queryBuilder
+            ->innerJoin(
+                AccessControlEntry::class,
+                'ace',
+                Join::WITH,
+                sprintf(
+                    'ace.objectType = :ot AND ace.objectId = %s.id AND BIT_AND(ace.mask, :perm) = :perm'
+                    .' AND ((ace.userType = :uty AND ace.userId = :uid)'
+                    .($hasGroups ? ' OR (ace.userType = :gty AND ace.userId IN (:gids))' : '')
+                    .')',
+                    $objectTableAlias
+                )
+            )
+            ->setParameter('uty', AccessControlEntry::TYPE_USER_VALUE)
+            ->setParameter('ot', $objectType)
+            ->setParameter('uid', $userId)
+            ->setParameter('perm', $permission)
+        ;
+
+        if ($hasGroups) {
+            $queryBuilder
+                ->setParameter('gty', AccessControlEntry::TYPE_GROUP_VALUE)
+                ->setParameter('gids', $groupIds);
+        }
+    }
+
     public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
     {
         $queryBuilder = $this

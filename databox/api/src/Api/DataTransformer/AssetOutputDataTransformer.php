@@ -22,7 +22,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
         $output->setTitle($object->getTitle());
-        $output->setPublic($object->isPublic());
+        $output->setPrivacy($object->getPrivacy());
         $output->setTags($object->getTags()->getValues());
 
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {

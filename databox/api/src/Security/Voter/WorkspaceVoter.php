@@ -11,19 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
 
-class WorkspaceVoter extends Voter
+class WorkspaceVoter extends AbstractVoter
 {
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
-
-    private Security $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
-
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Workspace;

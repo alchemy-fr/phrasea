@@ -89,7 +89,7 @@ App\Entity\Core\Collection:
     title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
-  asset{1..30}:
+  asset{1..10}:
     title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
@@ -97,7 +97,7 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
-  asset{31..50}:
+  asset{11..20}:
     title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
@@ -106,7 +106,7 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
-  asset{51..80}:
+  asset{21..30}:
     title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
@@ -115,12 +115,30 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
-  asset{81..100}:
+  asset{31..40}:
     title: 'Asset #<ucwords($current)>'
     ownerId: super_user
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [3]
+      - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+  asset{41..70}:
+    title: 'Asset #<ucwords($current)>'
+    ownerId: super_user
+    workspace: '@w_newspaper'
+    __calls:
+      - setPrivacy: [4]
+      - addToCollection: ['@c_*']
+      - addTag (80%?): ['@tag_*']
+
+  asset{71..100}:
+    title: 'Asset #<ucwords($current)>'
+    ownerId: super_user
+    workspace: '@w_newspaper'
+    __calls:
+      - setPrivacy: [5]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 

@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -29,8 +30,13 @@ class CollectionPostTransformListener implements EventSubscriberInterface
 
         $document = $event->getDocument();
 
-        $isPublic = $collection->isPublicOrHasPublicParent()
-            || $collection->isPublicOrHasPublicChild();
+        $bestPrivacy = $collection->getBestPrivacyInParentHierarchy();
+
+        if ($bestPrivacy < WorkspaceItemPrivacyInterface::PUBLIC) {
+            if (($descendantBestPrivacy = $collection->getBestPrivacyInDescendantHierarchy()) > $bestPrivacy) {
+                $bestPrivacy = $descendantBestPrivacy;
+            }
+        }
 
         [$users, $groups] = $this->discoverChildren($collection);
 
@@ -41,7 +47,7 @@ class CollectionPostTransformListener implements EventSubscriberInterface
             $parent = $parent->getParent();
         }
 
-        $document->set('public', $isPublic);
+        $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));
     }

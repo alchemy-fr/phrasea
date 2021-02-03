@@ -24,7 +24,7 @@ fos_elastica:
                     analyzer: collection_path
                 privacy:
                     property_path: false
-                    type: boolean
+                    type: byte
                 workspaceId:
                     type: keyword
                 ownerId:
@@ -69,7 +69,7 @@ fos_elastica:
                     type: integer
                 privacy:
                     property_path: false
-                    type: boolean
+                    type: byte
                 workspaceId:
                     type: keyword
                 ownerId:

@@ -28,6 +28,8 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
         $output->setTitle($object->getTitle());
+        $output->setPrivacy($object->getPrivacy());
+        $output->setWorkspace($object->getWorkspace());
 
         if (($context['depth'] ?? 0) < 1) {
             $output->setChildren(array_map(function (Collection $child) use ($context): CollectionOutput {

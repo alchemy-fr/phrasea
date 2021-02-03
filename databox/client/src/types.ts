@@ -2,7 +2,7 @@ export interface Asset {
     id: string;
     title: string;
     description?: string;
-    public: boolean;
+    privacy: number;
     tags: Tag[];
     collections: Collection[];
 }
@@ -21,6 +21,7 @@ export interface Collection {
     id: string;
     title: string;
     children?: Collection[];
+    workspace: Workspace;
     capabilities: {
         canEdit: boolean,
         canDelete: boolean,
