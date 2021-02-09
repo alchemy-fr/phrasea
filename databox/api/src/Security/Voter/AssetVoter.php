@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Asset;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AssetVoter extends AbstractVoter
 {
@@ -15,18 +16,30 @@ class AssetVoter extends AbstractVoter
         return $subject instanceof Asset;
     }
 
+    /**
+     * @param Asset $subject
+     */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
+        $user = $token->getUser();
+        $userId = $user instanceof RemoteUser ? $user->getId() : false;
+        $isOwner = $userId && $subject->getOwnerId() === $userId;
+
         switch ($attribute) {
             case self::READ:
                 // isGranted VIEW on asset
                 // AND validate permissions on tags
                 break;
             case self::EDIT:
-                // isGranted EDIT on asset
-                // BUT bypass permissions on tags (EDIT perms is sufficient)
-                break;
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
+                    );
         }
+
+        return false;
     }
 
 }

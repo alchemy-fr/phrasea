@@ -20,7 +20,11 @@ export default class Modal extends PureComponent<Props>
     render() {
         const {children, footer, header} = this.props;
 
-        return <BModal show={true} onHide={this.handleClose}>
+        return <BModal
+            size={'lg'}
+            show={true}
+            onHide={this.handleClose}
+        >
             {header ? <BModal.Header closeButton>
                 <BModal.Title>{header({
                     onClose: this.handleClose,

@@ -48,7 +48,7 @@ class PermissionController extends AbstractController
                 $object = $this->em->find($this->objectMapping->getClassName($objectType), $objectId);
                 if (
                     $object instanceof AccessControlEntryInterface
-                    && $this->isGranted($object, PermissionInterface::OPERATOR)
+                    && $this->isGranted($object, PermissionInterface::OWNER)
                 ) {
                     return;
                 }
@@ -64,6 +64,7 @@ class PermissionController extends AbstractController
     public function setAce(Request $request): Response
     {
         $this->validateAuthorization($request);
+
         $objectType = $request->request->get('objectType');
         $objectId = $request->request->get('objectId');
         $userType = $request->request->get('userType');

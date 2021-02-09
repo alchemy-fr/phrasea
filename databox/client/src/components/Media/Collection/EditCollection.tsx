@@ -3,6 +3,7 @@ import Modal from "../../Layout/Modal";
 import Button from "../../ui/Button";
 import apiClient from "../../../api/api-client";
 import TagFilterRule, {TagFilterRuleType} from "./TagFilterRule";
+import AclForm from "../../Acl/AclForm";
 
 type Props = {
     id: string,
@@ -49,6 +50,11 @@ export default class EditCollection extends PureComponent<Props, State> {
                 </Button>
             </>}
         >
+            <AclForm
+                objectId={this.props.id}
+                objectType={'collection'}
+            />
+
             {rules && rules.map(r => <TagFilterRule
                 {...r}
                 key={r.id}

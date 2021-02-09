@@ -5,6 +5,7 @@ import {RouteComponentProps} from "react-router-dom";
 import {getWorkspace} from "../../../api/workspace";
 import WorkspaceForm from "./WorkspaceForm";
 import AclForm from "../../Acl/AclForm";
+import {Link} from 'react-router-dom';
 
 type Props = {
     id: string,
@@ -37,6 +38,7 @@ export default class EditWorkspace extends PureComponent<Props, State> {
         }
 
         return <div className={'container'}>
+            <Link to={'/'}>Back</Link>
             <h2>Edit workspace <b>{data.name}</b></h2>
             <WorkspaceForm data={data} />
             <AclForm

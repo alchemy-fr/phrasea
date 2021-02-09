@@ -19,6 +19,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Input\AssetInput;
+use LogicException;
 
 /**
  * @ApiResource(
@@ -63,6 +64,14 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $storyCollection = null;
+
+    /**
+     * Asset will inherits permissions from this collection.
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?Collection $referenceCollection = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
@@ -184,6 +193,10 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
 
     public function addTag(Tag $tag): void
     {
+        if ($tag->getWorkspace() !== $this->workspace) {
+            throw new LogicException('Cannot add a tag that comes from a different workspace');
+        }
+
         $this->tags->add($tag);
     }
 
@@ -192,5 +205,15 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
         return $this->tags->map(function (Tag $tag): string {
            return $tag->getId();
         })->getValues();
+    }
+
+    public function getReferenceCollection(): ?Collection
+    {
+        return $this->referenceCollection;
+    }
+
+    public function setReferenceCollection(?Collection $referenceCollection): void
+    {
+        $this->referenceCollection = $referenceCollection;
     }
 }
