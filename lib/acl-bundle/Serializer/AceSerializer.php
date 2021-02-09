@@ -11,6 +11,7 @@ class AceSerializer
     public function serialize(AccessControlEntryInterface $ace): array
     {
         return [
+            'id' => $ace->getId(),
             'userType' => array_search($ace->getUserType(), AccessControlEntryInterface::USER_TYPES, true),
             'userId' => $ace->getUserId(),
             'objectType' => $ace->getObjectType(),

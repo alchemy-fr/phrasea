@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import {BrowserRouter as Router, Route, RouteComponentProps} from "react-router-dom";
 import {oauthClient, OAuthRedirect} from "../oauth";
 import PrivateRoute from "./PrivateRoute";
 import App from "./App";
@@ -8,26 +8,47 @@ import {authenticate} from "../auth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from "../config";
 import apiClient from "../api/api-client";
+import EditWorkspace from "./Media/Workspace/EditWorkspace";
+import {User} from "../types";
 
-export default class Root extends PureComponent {
+type IdRouteProps = RouteComponentProps<{
+    id: string,
+}, {}, {
+    attrs: object,
+}>;
+
+const mapProps = (props: IdRouteProps) => ({
+    ...props,
+    id: props.match.params.id,
+    attrs: props.location.state ? props.location.state.attrs : null,
+});
+
+function createRouteComponent(C: React.ComponentType<RouteComponentProps<any>> | React.ComponentType<any>) {
+    return (props: IdRouteProps) => <C {...mapProps(props)} />
+}
+
+export default class Root extends PureComponent<{}, {
+    user?: User,
+    authenticating: boolean,
+}> {
     state = {
-        user: null,
-        authenticating: false,
+        authenticating: true,
     }
 
     componentDidMount() {
-        oauthClient.registerListener('authentication', (evt: {user: object}) => {
+        oauthClient.registerListener('authentication', (evt: {user: User}) => {
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()}`;
             this.setState({
                 user: evt.user,
+                authenticating: false,
             });
         });
-        oauthClient.registerListener('login', authenticate);
+        // oauthClient.registerListener('login', authenticate);
 
         oauthClient.registerListener('logout', () => {
             if (config.isDirectLoginForm()) {
                 this.setState({
-                    user: null,
+                    user: undefined,
                 });
             }
         });
@@ -35,21 +56,21 @@ export default class Root extends PureComponent {
         this.authenticate();
     }
 
-    authenticate = (): Promise<void> => {
-        return new Promise<void>((resolve: () => void) => {
-            this.setState({authenticating: true}, () => {
-                authenticate().then(() => {
-                    this.setState({authenticating: false}, resolve);
-                });
-            });
+    authenticate = (): void => {
+        authenticate().then(() => {
+            this.setState({authenticating: false});
         });
     }
 
     render() {
+        const authenticated = oauthClient.isAuthenticated();
+        console.log('render Root', this.state.authenticating, authenticated);
+
         return <>
             {this.state.authenticating ? <FullPageLoader/> : ''}
             <Router>
-                <PrivateRoute path={'/'} exact={true} component={App}/>
+                <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)} authenticated={authenticated}/>
+                <PrivateRoute path={'/'} exact={true} component={App} authenticated={authenticated}/>
                 <Route path={`/auth`} component={OAuthRedirect}/>
                 <Route path="/login" exact component={Login}/>
             </Router>

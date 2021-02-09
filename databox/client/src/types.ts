@@ -37,3 +37,10 @@ export interface Workspace {
         canDelete: boolean,
     };
 }
+
+export interface Ace {
+    id: string;
+    userType: string;
+    userId: string;
+    mask: number;
+}

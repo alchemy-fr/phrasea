@@ -1,13 +1,10 @@
 import React, {PureComponent, MouseEvent} from "react";
-import {Collection, Workspace} from "../../types";
-import {getCollections} from "../../api/collection";
+import {Workspace} from "../../types";
+import {Link} from 'react-router-dom'
 import {ReactComponent as ArrowDownImg} from '../../images/icons/arrow-down.svg';
 import {ReactComponent as EditImg} from '../../images/icons/edit.svg';
-import {ReactComponent as TrashImg} from '../../images/icons/trash.svg';
 import Icon from "../ui/Icon";
 import Button from "../ui/Button";
-import apiClient from "../../api/api-client";
-import EditCollection from "./Collection/EditCollection";
 import {SelectionContext} from "./SelectionContext";
 import CollectionMenuItem, {CollectionMenuItemProps} from "./CollectionMenuItem";
 
@@ -42,10 +39,6 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
         this.expandWorkspace();
     }
 
-    edit = () => {
-        // TODO
-    }
-
     render() {
         const {
             id,
@@ -71,11 +64,10 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
                     {name}
                 </div>
                 <div className="actions">
-                    {capabilities.canEdit ? <Button
-                        size={"sm"}
-                        onClick={this.edit}
+                    {capabilities.canEdit ? <Link
+                        to={`/workspaces/${this.props.id}/edit`}
                     ><Icon
-                        component={EditImg}/></Button> : ''}
+                        component={EditImg}/></Link> : ''}
                 </div>
                 {collections && collections.length > 0 ? <div
                     className="expand"

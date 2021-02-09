@@ -30,7 +30,7 @@ class WorkspaceRepository extends EntityRepository
         );
 
         return array_map(function (array $row): string {
-            return $row['id'];
+            return (string) $row['id'];
         }, $queryBuilder
             ->getQuery()
             ->getResult()

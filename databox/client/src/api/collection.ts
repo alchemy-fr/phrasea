@@ -17,7 +17,6 @@ export async function getCollections(options: CollectionOptions): Promise<Collec
     return res.data;
 }
 
-
 export async function getWorkspaces(): Promise<Workspace[]> {
     const collections = await getCollections({});
 
