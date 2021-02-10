@@ -43,7 +43,7 @@ export default class Root extends PureComponent<{}, {
                 authenticating: false,
             });
         });
-        // oauthClient.registerListener('login', authenticate);
+        oauthClient.registerListener('login', authenticate);
 
         oauthClient.registerListener('logout', () => {
             if (config.isDirectLoginForm()) {
@@ -57,6 +57,9 @@ export default class Root extends PureComponent<{}, {
     }
 
     authenticate = (): void => {
+        if (!oauthClient.hasAccessToken()) {
+            return;
+        }
         authenticate().then(() => {
             this.setState({authenticating: false});
         });

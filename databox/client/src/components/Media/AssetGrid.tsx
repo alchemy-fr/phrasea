@@ -36,6 +36,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
     lastContext: TSelectionContext;
 
     componentDidMount() {
+        this.lastContext = this.context;
         this.load();
     }
 

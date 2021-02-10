@@ -29,7 +29,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
     ports:
-      - ${UPLOADER_CLIENT_DEV_PORT}:3000
+      - ${UPLOADER_CLIENT_PORT}:3000
 
   expose-client-dev:
     build:
@@ -53,7 +53,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
     ports:
-      - ${EXPOSE_FRONT_DEV_PORT}:3000
+      - ${EXPOSE_FRONT_PORT}:3000
 
   databox-client-dev:
     build:
@@ -76,7 +76,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
     ports:
-      - ${DATABOX_CLIENT_DEV_PORT}:3000
+      - ${DATABOX_CLIENT_PORT}:3000
 
   expose-api-php:
     environment:
@@ -85,8 +85,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   expose-api-nginx:
     volumes:
@@ -104,8 +102,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
     command: [ "/bin/sh", "-c", "exit" ]
@@ -132,8 +128,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   auth-api-nginx:
     volumes:
@@ -146,8 +140,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   notify-api-nginx:
     volumes:
@@ -166,8 +158,6 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   databox-api-nginx:
     volumes:
@@ -178,8 +168,6 @@ services:
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   elasticsearch:
     ports:
