@@ -30,6 +30,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: 'title', label: Title }
+          - { property: 'workspace' }
           - { property: 'privacy' }
           - { property: 'ownerId' }
           - { property: 'collections.count', label: '# Colls' }
@@ -37,8 +38,9 @@ easy_admin:
       form:
         fields:
           - { property: 'title', label: Title }
-          - { property: 'privacy' }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId' }
+          - workspace
 
     Collection:
       class: App\Entity\Core\Collection
@@ -52,12 +54,14 @@ easy_admin:
         fields:
           - { property: 'title' }
           - { property: 'parent', label: Parent }
+          - { property: 'workspace' }
           - { property: 'privacy' }
+          - { property: 'ownerId' }
           - createdAt
       form:
         fields:
           - { property: 'title' }
-          - { property: 'privacy' }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId' }
 
     Workspace:

@@ -43,6 +43,9 @@ class CollectionVoter extends AbstractVoter
             case self::DELETE:
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::DELETE, $subject);
+            case self::EDIT_PERMISSIONS:
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::OWNER, $subject);
         }
     }
 

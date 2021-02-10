@@ -6,6 +6,7 @@ import {getWorkspace} from "../../../api/workspace";
 import WorkspaceForm from "./WorkspaceForm";
 import AclForm from "../../Acl/AclForm";
 import {Link} from 'react-router-dom';
+import TagList from "../Tag/TagList";
 
 type Props = {
     id: string,

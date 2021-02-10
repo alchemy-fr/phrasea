@@ -44,6 +44,7 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setCapabilities([
             'canEdit' => $this->isGranted(CollectionVoter::EDIT, $object),
             'canDelete' => $this->isGranted(CollectionVoter::DELETE, $object),
+            'canEditPermissions' => $this->isGranted(CollectionVoter::EDIT_PERMISSIONS, $object),
         ]);
 
         return $output;

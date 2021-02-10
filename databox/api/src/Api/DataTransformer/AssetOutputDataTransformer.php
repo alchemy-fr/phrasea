@@ -8,6 +8,7 @@ use App\Api\Model\Output\AssetOutput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
@@ -24,6 +25,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTitle($object->getTitle());
         $output->setPrivacy($object->getPrivacy());
         $output->setTags($object->getTags()->getValues());
+        $output->setWorkspace($object->getWorkspace());
 
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
             return $collectionAsset->getCollection();
@@ -32,8 +34,9 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         })->getValues());
 
         $output->setCapabilities([
-            'canEdit' => $this->isGranted(CollectionVoter::EDIT, $object),
-            'canDelete' => $this->isGranted(CollectionVoter::DELETE, $object),
+            'canEdit' => $this->isGranted(AssetVoter::EDIT, $object),
+            'canDelete' => $this->isGranted(AssetVoter::DELETE, $object),
+            'canEditPermissions' => $this->isGranted(AssetVoter::EDIT_PERMISSIONS, $object),
         ]);
 
         return $output;

@@ -1,0 +1,70 @@
+version: '3.4'
+
+services:
+  uploader-client:
+    image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
+    build:
+      context: ./uploader/client
+      target: uploader-client-nginx
+    volumes:
+      - ./configs:/configs
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - UPLOADER_API_BASE_URL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
+    ports:
+      - ${UPLOADER_CLIENT_PORT}:80
+
+  expose-client:
+    image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
+    build:
+      context: ./expose/client
+      target: expose-client-nginx
+    volumes:
+      - ./configs:/configs
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - EXPOSE_API_BASE_URL
+      - EXPOSE_REQUEST_SIGNATURE_TTL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+      - MATOMO_HOST
+      - MAPBOX_TOKEN
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
+    ports:
+      - ${EXPOSE_FRONT_PORT}:80
+
+  databox-client:
+    image: ${REGISTRY_NAMESPACE}databox-client:$DOCKER_TAG
+    build:
+      context: ./databox/client
+      target: databox-client-nginx
+    volumes:
+      - ./configs:/configs
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - DATABOX_API_BASE_URL
+      - DATABOX_REQUEST_SIGNATURE_TTL
+      - AUTH_BASE_URL
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
+    ports:
+      - ${DATABOX_CLIENT_PORT}:80

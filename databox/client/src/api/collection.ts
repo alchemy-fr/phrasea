@@ -35,3 +35,9 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
     return (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);
 }
+
+export async function getCollection(id: string) {
+    const res = await apiClient.get(`/collections/${id}`);
+
+    return res.data;
+}

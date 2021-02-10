@@ -14,6 +14,7 @@ abstract class AbstractVoter extends Voter
     const READ = 'READ';
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
+    const EDIT_PERMISSIONS = 'EDIT_PERMISSIONS';
 
     protected EntityManagerInterface $em;
     protected Security $security;

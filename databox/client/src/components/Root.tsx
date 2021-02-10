@@ -10,6 +10,7 @@ import config from "../config";
 import apiClient from "../api/api-client";
 import EditWorkspace from "./Media/Workspace/EditWorkspace";
 import {User} from "../types";
+import {UserContext} from "./Security/UserContext";
 
 type IdRouteProps = RouteComponentProps<{
     id: string,
@@ -27,11 +28,13 @@ function createRouteComponent(C: React.ComponentType<RouteComponentProps<any>> |
     return (props: IdRouteProps) => <C {...mapProps(props)} />
 }
 
-export default class Root extends PureComponent<{}, {
+type State = {
     user?: User,
     authenticating: boolean,
-}> {
-    state = {
+};
+
+export default class Root extends PureComponent<{}, State> {
+    state: State = {
         authenticating: true,
     }
 
@@ -67,9 +70,10 @@ export default class Root extends PureComponent<{}, {
 
     render() {
         const authenticated = oauthClient.isAuthenticated();
-        console.log('render Root', this.state.authenticating, authenticated);
 
-        return <>
+        return <UserContext.Provider value={{
+            user: this.state.user,
+        }}>
             {this.state.authenticating ? <FullPageLoader/> : ''}
             <Router>
                 <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)} authenticated={authenticated}/>
@@ -77,6 +81,6 @@ export default class Root extends PureComponent<{}, {
                 <Route path={`/auth`} component={OAuthRedirect}/>
                 <Route path="/login" exact component={Login}/>
             </Router>
-        </>
+        </UserContext.Provider>
     }
 }

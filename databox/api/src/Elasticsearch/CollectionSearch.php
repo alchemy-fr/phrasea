@@ -34,7 +34,7 @@ class CollectionSearch extends AbstractSearch
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
         $mustQueries[] = $aclBoolQuery;
 
-        $maxLimit = 100;
+        $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;

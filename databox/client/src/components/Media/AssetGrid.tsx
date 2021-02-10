@@ -35,6 +35,8 @@ export default class AssetGrid extends PureComponent<Props, State> {
 
     lastContext: TSelectionContext;
 
+    lastSearch: string = '';
+
     componentDidMount() {
         this.lastContext = this.context;
         this.load();
@@ -53,11 +55,19 @@ export default class AssetGrid extends PureComponent<Props, State> {
     async load() {
         const parents = this.context.selectedCollection ? [extractCollectionIdFromPath(this.context.selectedCollection)] : undefined;
 
-        const data = await getAssets({
+        const options = {
             query: this.props.query,
             parents,
             workspaces: this.context.selectedWorkspace ? [this.context.selectedWorkspace] : undefined,
-        });
+        };
+
+        const searchHash = JSON.stringify(options);
+
+        if (searchHash === this.lastSearch) {
+            return;
+        }
+        this.lastSearch = searchHash;
+        const data = await getAssets(options);
 
         this.setState({data});
     }

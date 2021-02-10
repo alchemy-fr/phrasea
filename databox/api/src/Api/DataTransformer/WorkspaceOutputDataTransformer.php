@@ -34,6 +34,7 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setCapabilities([
             'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $object),
             'canDelete' => $this->isGranted(WorkspaceVoter::DELETE, $object),
+            'canEditPermissions' => $this->isGranted(WorkspaceVoter::EDIT_PERMISSIONS, $object),
         ]);
 
         return $output;

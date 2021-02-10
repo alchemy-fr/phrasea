@@ -14,10 +14,17 @@ $assetMargin: px2rem(15);
   }
 
   .a-thumb {
+    position: relative;
     img {
       max-width: 100%;
       min-height: px2rem(115);
       object-fit: cover;
+    }
+
+    .actions {
+      position: absolute;
+      right: px2rem(3);
+      top: px2rem(3);
     }
   }
 

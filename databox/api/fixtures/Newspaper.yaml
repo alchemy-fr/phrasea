@@ -142,7 +142,6 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
-
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:
     name: '<current()>'

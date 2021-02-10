@@ -48,7 +48,10 @@ class PermissionController extends AbstractController
                 $object = $this->em->find($this->objectMapping->getClassName($objectType), $objectId);
                 if (
                     $object instanceof AccessControlEntryInterface
-                    && $this->isGranted($object, PermissionInterface::OWNER)
+                    && (
+                        $this->isGranted('ROLE_ADMIN')
+                        || $this->isGranted($object, PermissionInterface::OWNER)
+                    )
                 ) {
                     return;
                 }

@@ -47,6 +47,7 @@ bin/migrate.sh
     * [notify](./notify/README.md)
     * [notify](./databox/README.md)
     * [uploader](./uploader/README.md)
+    * [databox](./databox/README.md)
     * [expose](./expose/README.md)
 
 * Start the whole stack:
@@ -68,6 +69,7 @@ Configure your local env var:
 ```dotenv
 APP_ENV=dev
 DEV_MODE=true
+COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
 ```
 
 ```bash

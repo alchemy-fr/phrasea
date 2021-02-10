@@ -13,3 +13,9 @@ export async function getAssets(options: AssetOptions) {
 
     return res.data;
 }
+
+export async function getAsset(id: string) {
+    const res = await apiClient.get(`/assets/${id}`);
+
+    return res.data;
+}

@@ -19,6 +19,11 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
+    protected array $capabilities = [];
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
     protected DateTime $createdAt;
 
     /**
@@ -35,6 +40,11 @@ class AssetOutput extends AbstractUuidOutput
      * @Groups({"asset:index", "asset:read"})
      */
     private int $privacy;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private $workspace;
 
     /**
      * @Groups({"asset:index", "asset:read"})
@@ -132,5 +142,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setCollections(array $collections): void
     {
         $this->collections = $collections;
+    }
+
+    public function getWorkspace()
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace($workspace): void
+    {
+        $this->workspace = $workspace;
     }
 }

@@ -70,7 +70,7 @@ class AssetSearch extends AbstractSearch
             }
         }
 
-        $maxLimit = 100;
+        $maxLimit = 30;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
@@ -82,6 +82,24 @@ class AssetSearch extends AbstractSearch
         }
 
         $filterQuery->addFilter($this->buildTagFilterQuery($userId, $groupIds));
+
+        if ($options['query']) {
+            $weights = [
+                'title' => 10,
+            ];
+
+            $multiMatch = new Query\MultiMatch();
+            $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+            $multiMatch->setQuery($options['query']);
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+            $multiMatch->setParam('boost', 1);
+            $fields = [];
+            foreach ($weights as $field => $boost) {
+                $fields[] = $field.'^'.$boost;
+            }
+            $multiMatch->setFields($fields);
+            $filterQuery->addMust($multiMatch);
+        }
 
         $query = new Query();
         $query->setQuery($filterQuery);

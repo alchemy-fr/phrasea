@@ -8,6 +8,7 @@ if [ ! -d "${BASEDIR}/../vendor" ]; then
   (cd "${BASEDIR}/.." && composer install)
 fi
 
+"${BASEDIR}/console" fos:elastica:create
 "${BASEDIR}/console" rabbitmq:setup-fabric
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" doctrine:schema:update -f

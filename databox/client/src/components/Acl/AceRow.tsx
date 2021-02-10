@@ -32,8 +32,6 @@ export default class AceRow extends PureComponent<Props, State> {
         const {checked} = e.target;
         const value = parseInt(e.target.value);
 
-        console.log('checked', checked, value);
-
         this.setState(prevState => ({
             mask: prevState.mask + (checked ? value : -value),
         }), () => {
@@ -43,7 +41,6 @@ export default class AceRow extends PureComponent<Props, State> {
 
     render() {
         const {mask} = this.state;
-        console.log('mask', mask);
 
         return <tr>
             <td>

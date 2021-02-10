@@ -1,10 +1,19 @@
-export interface Asset {
+export interface Asset extends IPermissions {
     id: string;
     title: string;
     description?: string;
     privacy: number;
     tags: Tag[];
+    workspace: Workspace;
     collections: Collection[];
+}
+
+export interface IPermissions {
+    capabilities: {
+        canEdit: boolean,
+        canDelete: boolean,
+        canEditPermissions: boolean,
+    };
 }
 
 export interface Tag {
@@ -17,25 +26,17 @@ export interface User {
     username: string;
 }
 
-export interface Collection {
+export interface Collection extends IPermissions {
     id: string;
     title: string;
     children?: Collection[];
     workspace: Workspace;
-    capabilities: {
-        canEdit: boolean,
-        canDelete: boolean,
-    };
 }
 
-export interface Workspace {
+export interface Workspace extends IPermissions {
     id: string;
     name: string;
     collections: Collection[];
-    capabilities: {
-        canEdit: boolean,
-        canDelete: boolean,
-    };
 }
 
 export interface Ace {

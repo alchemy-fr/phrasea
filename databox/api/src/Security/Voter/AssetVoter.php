@@ -37,6 +37,20 @@ class AssetVoter extends AbstractVoter
                         null !== $subject->getReferenceCollection()
                         && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
                     );
+            case self::DELETE:
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::DELETE, $subject->getReferenceCollection())
+                    );
+            case self::EDIT_PERMISSIONS:
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::OWNER, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::OWNER, $subject->getReferenceCollection())
+                    );
         }
 
         return false;

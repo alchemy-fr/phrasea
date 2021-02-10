@@ -1,15 +1,6 @@
 version: '3.4'
 
 services:
-  uploader-client:
-    command: ["/bin/sh", "-c", "exit"]
-
-  expose-client:
-    command: ["/bin/sh", "-c", "exit"]
-
-  databox-client:
-    command: ["/bin/sh", "-c", "exit"]
-
   uploader-client-dev:
     build:
       context: ./uploader/client

@@ -20,7 +20,7 @@ export default class Button extends PureComponent<Props> {
         } = this.props;
 
         return <button
-            className={`btn ${className} ${size ? `btn-${size}` : ''}`}
+            className={`btn ${className || ''} ${size ? `btn-${size}` : ''}`}
             disabled={disabled}
             onClick={onClick}
         >
