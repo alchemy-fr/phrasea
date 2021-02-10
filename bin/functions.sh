@@ -36,11 +36,7 @@ function load-env {
 # Run docker-compose depending on the APP_ENV value
 # If APP_ENV = PROD, then only use docker-compose.yml file
 function d-c {
-    if [ "${APP_ENV}" == "prod" ]; then
-        docker-compose -f docker-compose.yml "$@"
-    else
-        docker-compose "$@"
-    fi
+    docker-compose "$@"
 }
 
 # execute a shell commmand in a container defined in docker-compose.yml

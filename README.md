@@ -52,7 +52,7 @@ bin/migrate.sh
 
 * Start the whole stack:
 ```bash
-docker-compose -f docker-compose.yml up -d
+docker-compose up -d
 ```
 
 #### Run SAML test providers
@@ -61,7 +61,7 @@ docker-compose -f docker-compose.yml up -d
 docker-compose -f docker-compose.saml.yml up -d
 ```
 
-If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose -f docker-compose.yml up -d` again.
+If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose up -d` again.
 
 ## Development
 

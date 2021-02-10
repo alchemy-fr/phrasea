@@ -11,7 +11,7 @@ export XDEBUG_ENABLED=0
 
 FILE=""
 if [[ -z "$1" ]]; then
-    FILE=" -f docker-compose.yml"
+    FILE=" -f docker-compose.yml -f docker-compose.prod.yml"
 fi
 
 
