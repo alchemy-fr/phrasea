@@ -13,4 +13,4 @@ sudo service nginx configtest
 sudo service nginx reload
 ```
 
-Then you can add the AlchemyRootCA (located at `~/ssl/AlchemyRootCA.pem`) in your favorite browser. 
+Then you can add the AlchemyRootCA (located at `~/ssl/AlchemyRootCA.p12`) in your favorite browser. 
