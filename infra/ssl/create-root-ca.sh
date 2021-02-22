@@ -10,11 +10,5 @@ openssl req -x509 -new -nodes -key ~/ssl/AlchemyRootCA.key -sha256 -days 1825 \
     -passin pass:${pass} \
     -out ~/ssl/AlchemyRootCA.pem
 
-openssl pkcs12 -export -in ~/ssl/AlchemyRootCA.pem \
-    -passin pass:${pass} \
-    -passout pass:${pass} \
-    -inkey ~/ssl/AlchemyRootCA.key \
-    -out ~/ssl/AlchemyRootCA.p12
-
 echo "Done."
 
