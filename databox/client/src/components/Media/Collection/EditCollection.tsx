@@ -10,4 +10,8 @@ export default class EditCollection extends AbstractEdit<Collection> {
     renderForm(): React.ReactNode {
         return '';
     }
+
+    handleSave(): Promise<boolean> {
+        return Promise.resolve(false);
+    }
 }

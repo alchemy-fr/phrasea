@@ -4,18 +4,20 @@ import Button from "../ui/Button";
 import {IPermissions} from "../../types";
 import AclForm from "../Acl/AclForm";
 
-type Props = {
+export type AbstractEditProps = {
     id: string,
     onClose: () => void;
 }
 
 type State<T extends IPermissions> = {
     loading: boolean;
+    saving: boolean;
     data: T | undefined;
 };
 
-export default abstract class AbstractEdit<T extends IPermissions> extends PureComponent<Props, State<T>> {
+export default abstract class AbstractEdit<T extends IPermissions> extends PureComponent<AbstractEditProps, State<T>> {
     state = {
+        saving: false,
         loading: true,
         data: undefined,
     };
@@ -34,12 +36,23 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
     }
 
     abstract loadItem(): Promise<T>;
+    abstract handleSave(): Promise<boolean>;
 
     renderModalHeader() {
         return <h4>Edit</h4>
     }
 
+    save = async (): Promise<void> => {
+        if (!await this.handleSave()) {
+            return;
+        }
+
+        this.props.onClose();
+    }
+
     render() {
+        const {saving} = this.state;
+
         return <Modal
             onClose={this.props.onClose}
             header={this.renderModalHeader}
@@ -47,12 +60,14 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
                 <Button
                     onClick={onClose}
                     className={'btn-secondary'}
+                    disabled={saving}
                 >
                     Close
                 </Button>
                 <Button
-                    onClick={onClose}
+                    onClick={this.save}
                     className={'btn-primary'}
+                    disabled={saving}
                 >
                     Save changes
                 </Button>

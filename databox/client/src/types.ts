@@ -26,6 +26,11 @@ export interface User {
     username: string;
 }
 
+export interface Group {
+    id: string;
+    name: string;
+}
+
 export interface Collection extends IPermissions {
     id: string;
     title: string;

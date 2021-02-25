@@ -1,4 +1,5 @@
 import apiClient from "./api-client";
+import {Asset} from "../types";
 
 interface AssetOptions {
     query?: string;
@@ -16,6 +17,12 @@ export async function getAssets(options: AssetOptions) {
 
 export async function getAsset(id: string) {
     const res = await apiClient.get(`/assets/${id}`);
+
+    return res.data;
+}
+
+export async function patchAsset(id: string, data: Partial<Asset>) {
+    const res = await apiClient.patch(`/assets/${id}`, data);
 
     return res.data;
 }
