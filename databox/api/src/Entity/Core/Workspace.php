@@ -81,4 +81,9 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface
     {
         $this->ownerId = $ownerId;
     }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->getOwnerId() ?? '';
+    }
 }

@@ -50,7 +50,7 @@ security:
             logout:
                 path: /saml/logout
         auth:
-            pattern: ^/([a-zA-Z-]{2,5}/security(/|$)|oauth/)
+            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/security(/|$)|oauth/)
             provider: user_password
             stateless:  false
             anonymous: ~
@@ -71,7 +71,7 @@ security:
 
     access_control:
         - { path: '^/[a-zA-Z-]{2,5}/security/(login$|register|password-reset)', roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: '^/[a-zA-Z-]{2,5}/security/', roles: ROLE_USER }
+        - { path: '^/[a-zA-Z-]{2,5}/security(/|$)', roles: ROLE_USER }
         - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

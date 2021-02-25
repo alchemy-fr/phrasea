@@ -37,6 +37,10 @@ class PermissionManager
      */
     public function isGranted($user, AclObjectInterface $object, int $permission): bool
     {
+        if ($object->getAclOwnerId() === $user->getId()) {
+            return true;
+        }
+
         $objectKey = $this->objectMapper->getObjectKey($object);
 
         /** @var AccessControlEntry[] $aces */

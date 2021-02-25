@@ -1,6 +1,8 @@
 parameters:
-  user_alice: alice
-  user_jack: jack
+  user_admin: 97594c35-0486-48df-a581-734be0a9530e
+  user_alice: b5bb691d-4a0b-447c-acc2-abed6b0d7887
+  user_bob: 8a93be06-613d-4b32-8abb-7eb747898333
+  user_jack: 74f21e72-3c42-4f17-abc3-e74ec61b0e15
 
 App\Entity\Core\Workspace:
   w_newspaper:
@@ -48,50 +50,50 @@ App\Entity\Core\Workspace:
 App\Entity\Core\Collection:
   c_{sport, entertainment}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_admin}>
     title: '<ucwords($current)>'
 
   c_sport_{football, rugby, tennis}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_admin}>
     parent: '@c_sport'
     title: '<ucwords($current)>'
 
   c_sport_football_{league, worldcup}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_admin}>
     parent: '@c_sport_football'
     title: '<ucwords($current)>'
 
   c_entertainment_{archives}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_admin}>
     parent: '@c_entertainment'
     title: '<ucwords($current)>'
 
   c_entertainment_{public_videos}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_alice}>
     privacy: 3
     parent: '@c_entertainment'
     title: '<ucwords($current)>'
 
   c_entertainment_public_videos_{movies, series, shows}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_alice}>
     parent: '@c_entertainment_public_videos'
     title: '<ucwords($current)>'
 
   c_entertainment_archives_{movies, series, shows}:
     workspace: '@w_newspaper'
-    ownerId: super_user
+    ownerId: <{user_alice}>
     parent: '@c_entertainment_archives'
     title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
   asset{1..10}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
       - addToCollection: ['@c_*']
@@ -99,7 +101,7 @@ App\Entity\Core\Asset:
 
   asset{11..20}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [1]
@@ -108,7 +110,7 @@ App\Entity\Core\Asset:
 
   asset{21..30}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [2]
@@ -117,7 +119,7 @@ App\Entity\Core\Asset:
 
   asset{31..40}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [3]
@@ -126,7 +128,7 @@ App\Entity\Core\Asset:
 
   asset{41..70}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [4]
@@ -135,7 +137,7 @@ App\Entity\Core\Asset:
 
   asset{71..100}:
     title: 'Asset #<ucwords($current)>'
-    ownerId: super_user
+    ownerId: <{user_jack}>
     workspace: '@w_newspaper'
     __calls:
       - setPrivacy: [5]

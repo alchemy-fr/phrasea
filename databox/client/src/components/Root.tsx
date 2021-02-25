@@ -53,6 +53,8 @@ export default class Root extends PureComponent<{}, State> {
                 this.setState({
                     user: undefined,
                 });
+            } else {
+                document.location.reload();
             }
         });
 
@@ -65,6 +67,9 @@ export default class Root extends PureComponent<{}, State> {
         }
         authenticate().then(() => {
             this.setState({authenticating: false});
+        }, (e: any) => {
+            console.log('e', e);
+            oauthClient.logout();
         });
     }
 

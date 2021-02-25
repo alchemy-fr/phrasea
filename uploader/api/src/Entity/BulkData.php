@@ -83,4 +83,9 @@ class BulkData implements AclObjectInterface
     {
         $this->updatedAt = $updatedAt;
     }
+
+    public function getAclOwnerId(): string
+    {
+        return '';
+    }
 }

@@ -216,4 +216,9 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     {
         $this->referenceCollection = $referenceCollection;
     }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->getOwnerId() ?? '';
+    }
 }

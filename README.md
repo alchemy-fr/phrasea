@@ -41,6 +41,13 @@ If the stack is already deployed, you should use migrate after a fresh build:
 bin/migrate.sh
 ```
 
+#### Using fixtures
+
+You may want to popupate databases with a set of fixtures:
+```bash
+# Be careful! This will empty the databases, insert fixtures and run bin/setup.sh again
+bin/install-fixtures.sh
+```
 
 * Read group of services documentation to customize environment variables:
     * [auth](./auth/README.md)

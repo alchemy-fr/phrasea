@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AclBundle\Controller;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
@@ -41,17 +42,15 @@ class PermissionController extends AbstractController
         }
 
         if ($request instanceof Request) {
-            $objectType = $request->request->get('objectType');
-            $objectId = $request->request->get('objectId');
+            $objectType = $request->get('objectType');
+            $objectId = $request->get('objectId');
 
             if ($objectType && $objectId) {
                 $object = $this->em->find($this->objectMapping->getClassName($objectType), $objectId);
+
                 if (
-                    $object instanceof AccessControlEntryInterface
-                    && (
-                        $this->isGranted('ROLE_ADMIN')
-                        || $this->isGranted($object, PermissionInterface::OWNER)
-                    )
+                    $object instanceof AclObjectInterface
+                    && $this->isGranted(PermissionInterface::OWNER, $object)
                 ) {
                     return;
                 }

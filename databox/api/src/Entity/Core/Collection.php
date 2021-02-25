@@ -210,6 +210,11 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
         return $path;
     }
 
+    public function getAclOwnerId(): string
+    {
+        return $this->getOwnerId() ?? '';
+    }
+
     public function __toString()
     {
         return $this->getAbsoluteTitle() ?? $this->getId();
