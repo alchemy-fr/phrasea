@@ -1,3 +1,5 @@
+import {ApiHydraObjectResponse} from "./api/hydra";
+
 export interface Asset extends IPermissions {
     id: string;
     title: string;
@@ -8,7 +10,7 @@ export interface Asset extends IPermissions {
     collections: Collection[];
 }
 
-export interface IPermissions {
+export interface IPermissions extends ApiHydraObjectResponse {
     capabilities: {
         canEdit: boolean,
         canDelete: boolean,
@@ -16,7 +18,7 @@ export interface IPermissions {
     };
 }
 
-export interface Tag {
+export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;
 }

@@ -5,6 +5,7 @@ import {aclPermissions} from "./AclForm";
 
 type Props = {
     onMaskChange: (userType: string, userId: string, mask: number) => void;
+    onDelete: (userType: string, userId: string) => void;
 } & Ace;
 
 type State = {
@@ -39,6 +40,10 @@ export default class AceRow extends PureComponent<Props, State> {
         });
     }
 
+    delete = (): void => {
+        this.props.onDelete(this.props.userType, this.props.userId);
+    }
+
     render() {
         const {mask} = this.state;
 
@@ -61,6 +66,7 @@ export default class AceRow extends PureComponent<Props, State> {
             <td>
                 <Button
                     className={'btn-danger'}
+                    onClick={this.delete}
                 >
                     Delete
                 </Button>

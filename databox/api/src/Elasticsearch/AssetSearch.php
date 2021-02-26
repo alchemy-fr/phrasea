@@ -10,6 +10,7 @@ use App\Security\TagFilterManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use Pagerfanta\Pagerfanta;
 
 class AssetSearch extends AbstractSearch
 {
@@ -31,7 +32,7 @@ class AssetSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = []
-    ): array {
+    ): Pagerfanta {
         $mustQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
@@ -110,9 +111,11 @@ class AssetSearch extends AbstractSearch
 
 //        dump($filterQuery->toArray());
 
-        $data = $this->finder->find($query, $limit);
+        $result = $this->finder->findPaginated($query);
+        $result->setMaxPerPage($limit);
+        $result->setCurrentPage($options['page'] ?? 1);
 
-        return $data;
+        return $result;
     }
 
     /**

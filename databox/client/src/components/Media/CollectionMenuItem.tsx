@@ -37,9 +37,9 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
             };
         }, async (): Promise<void> => {
             if (this.state.expanded && children && children.length > 0) {
-                const data = await getCollections({
+                const data = (await getCollections({
                     parent: this.props.id,
-                });
+                })).result;
                 this.setState({collections: data});
             }
         });

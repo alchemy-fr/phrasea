@@ -1,4 +1,4 @@
-import {PureComponent} from "react";
+import React, {PureComponent} from "react";
 import Modal from "../Layout/Modal";
 import Button from "../ui/Button";
 import {IPermissions} from "../../types";
@@ -36,18 +36,22 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
     }
 
     abstract loadItem(): Promise<T>;
+
     abstract handleSave(): Promise<boolean>;
 
     renderModalHeader() {
         return <h4>Edit</h4>
     }
 
-    save = async (): Promise<void> => {
-        if (!await this.handleSave()) {
-            return;
-        }
+    save = (): void => {
+        this.setState({saving: true}, async (): Promise<void> => {
+            if (!await this.handleSave()) {
+                this.setState({saving: false});
+                return;
+            }
 
-        this.props.onClose();
+            this.props.onClose();
+        });
     }
 
     render() {
@@ -90,10 +94,13 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
         return <div>
             {this.renderForm()}
             <hr/>
-            {data.capabilities.canEditPermissions ? <AclForm
-                objectId={this.props.id}
-                objectType={'asset'}
-                /> : ''}
+            {data.capabilities.canEditPermissions ? <div>
+                <h4>Permissions</h4>
+                <AclForm
+                    objectId={this.props.id}
+                    objectType={'asset'}
+                />
+            </div> : ''}
         </div>;
     }
 

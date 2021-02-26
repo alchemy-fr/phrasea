@@ -32,13 +32,15 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setWorkspace($object->getWorkspace());
 
         if (($context['depth'] ?? 0) < 1) {
+            $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
+                'parent' => $object->getId(),
+            ]);
+
             $output->setChildren(array_map(function (Collection $child) use ($context): CollectionOutput {
                 return $this->transform($child, CollectionOutput::class, array_merge($context, [
                     'depth' => ($context['depth'] ?? 0) + 1,
                 ]));
-            }, $this->collectionSearch->search($context['userId'], $context['groupIds'], [
-                'parent' => $object->getId(),
-            ])));
+            }, $collections->getIterator()->getArrayCopy()));
         }
 
         $output->setCapabilities([

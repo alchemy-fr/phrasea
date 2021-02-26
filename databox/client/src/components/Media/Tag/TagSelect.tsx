@@ -7,6 +7,7 @@ import {OptionsType, ValueType} from "react-select";
 type TagOption = {
     label: string;
     value: string;
+    data: Tag,
 };
 
 type Props = {
@@ -40,6 +41,7 @@ export default class TagSelect extends PureComponent<Props, State> {
                 value: props.value.map(t => ({
                     label: t.name,
                     value: t.id,
+                    data: t,
                 })),
             };
         }
@@ -48,21 +50,19 @@ export default class TagSelect extends PureComponent<Props, State> {
     }
 
     getData(): Tag[] {
-        return this.state.value.map(t => ({
-            id: t.value,
-            name: t.label,
-        }));
+        return this.state.value.map(t => t.data);
     }
 
-    loadTags = async (inputValue: string) => {
-        const data = await getTags({
+    loadTags = async (inputValue: string): Promise<ValueType<TagOption, true>> => {
+        const data = (await getTags({
             //query: inputValue,
             workspaceId: this.props.workspaceId,
-        });
+        })).result;
 
         return data.map((t: Tag) => ({
             value: t.id,
             label: t.name,
+            data: t,
         })).filter(i =>
             i.label.toLowerCase().includes(inputValue.toLowerCase())
         );

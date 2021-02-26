@@ -25,6 +25,7 @@ use LogicException;
  * @ApiResource(
  *  shortName="asset",
  *  normalizationContext={"groups"={"_", "asset:index"}},
+ *  denormalizationContext={"groups"={"asset:write"}},
  *  output=AssetOutput::class,
  *  input=AssetInput::class,
  * )

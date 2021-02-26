@@ -3,6 +3,7 @@ import AbstractEdit, {AbstractEditProps} from "../AbstractEdit";
 import {getAsset, patchAsset} from "../../../api/asset";
 import {Asset} from "../../../types";
 import TagSelect from "../Tag/TagSelect";
+import {ApiHydraObjectResponse} from "../../../api/hydra";
 
 export default class EditAsset extends AbstractEdit<Asset> {
     private readonly tagRef: RefObject<TagSelect>;
@@ -17,6 +18,7 @@ export default class EditAsset extends AbstractEdit<Asset> {
         const data: Asset = this.state.data!;
 
         return <div>
+            <h4>Tags</h4>
             <TagSelect
                 ref={this.tagRef}
                 value={data.tags}
@@ -31,10 +33,9 @@ export default class EditAsset extends AbstractEdit<Asset> {
 
     async handleSave(): Promise<boolean> {
         await patchAsset(this.props.id, {
-            tags: this.tagRef!.current!.getData(),
+            tags: this.tagRef!.current!.getData().map(t => t['@id']),
         });
 
         return true;
     }
-
 }

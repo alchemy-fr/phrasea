@@ -27,3 +27,19 @@ export async function putAce(
         mask,
     });
 }
+
+export async function deleteAce(
+    userType: string,
+    userId: string | undefined,
+    objectType: string,
+    objectId: string | undefined
+): Promise<void> {
+    await apiClient.delete(`/permissions/ace`, {
+        data: {
+            userType,
+            userId,
+            objectType,
+            objectId,
+        }
+    });
+}

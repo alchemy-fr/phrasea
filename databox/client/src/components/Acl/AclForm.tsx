@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import AceRow from "./AceRow";
 import {Ace, Group, User} from "../../types";
-import {getAces, putAce} from "../../api/acl";
+import {deleteAce, getAces, putAce} from "../../api/acl";
 import {getGroups, getUsers} from "../../api/user";
 import UserSelect from "../User/UserSelect";
 import GroupSelect from "../User/GroupSelect";
@@ -48,8 +48,17 @@ export default class AclForm extends PureComponent<Props, State> {
 
     render() {
         return <div>
-            <div>
-
+            <div className={'row'}>
+                <div className="col-md-6">
+                    <GroupSelect
+                        onSelect={this.onSelectGroup}
+                    />
+                </div>
+                <div className="col-md-6">
+                    <UserSelect
+                        onSelect={this.onSelectUser}
+                    />
+                </div>
             </div>
             {this.renderAces()}
         </div>
@@ -59,12 +68,46 @@ export default class AclForm extends PureComponent<Props, State> {
         await putAce(userType, userId, this.props.objectType, this.props.objectId, mask);
     }
 
-    onSelectUser = (a: User) => {
-        console.log('u', a);
+    onDelete = async (userType: string, userId: string) => {
+        this.setState(prevState => {
+            return {
+                aces: prevState.aces!.filter((ace: Ace) => !(ace.userType === userType && ace.userId === userId)),
+            };
+        });
+
+        await deleteAce(userType, userId, this.props.objectType, this.props.objectId);
     }
 
-    onSelectGroup = (a: Group) => {
-        console.log('g', a);
+    onSelectUser = (user: User) => {
+        this.addEntry({
+            type: 'user',
+            id: user.id,
+        }, 1);
+    }
+
+    onSelectGroup = (group: Group) => {
+        this.addEntry({
+            type: 'group',
+            id: group.id,
+        }, 1);
+    }
+
+    addEntry(entry: { id: string, type: string }, mask: number) {
+        putAce(entry.type, entry.id, this.props.objectType, this.props.objectId, mask);
+
+        this.setState(prevState => {
+            const aces = [...(prevState.aces || [])];
+
+            aces.push({
+                mask: mask,
+                userId: entry.id,
+                userType: entry.type,
+            } as Ace);
+
+            return {
+                aces,
+            };
+        });
     }
 
     renderAces() {
@@ -74,37 +117,28 @@ export default class AclForm extends PureComponent<Props, State> {
             return 'Loading permissions...';
         }
 
-        return <div>
-            <div>
-                <UserSelect
-                    onSelect={this.onSelectUser}
-                />
-                <GroupSelect
-                    onSelect={this.onSelectGroup}
-                />
-            </div>
-            <table>
-                <thead>
-                <tr>
-                    <th>User/Group</th>
-                    {Object.keys(aclPermissions).map(k => {
-                        return <th
-                            key={k}
-                        >
-                            {k}
-                        </th>
-                    })}
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {aces.map((ace) => <AceRow
-                    onMaskChange={this.onMaskChange}
-                    {...ace}
-                    key={ace.id}
-                />)}
-                </tbody>
-            </table>
-        </div>
+        return <table>
+            <thead>
+            <tr>
+                <th>User/Group</th>
+                {Object.keys(aclPermissions).map(k => {
+                    return <th
+                        key={k}
+                    >
+                        {k}
+                    </th>
+                })}
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {aces.map((ace) => <AceRow
+                onMaskChange={this.onMaskChange}
+                onDelete={this.onDelete}
+                {...ace}
+                key={ace.id}
+            />)}
+            </tbody>
+        </table>
     }
 }

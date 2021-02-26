@@ -6,10 +6,10 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
-use App\Security\TagFilterManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use Pagerfanta\Pagerfanta;
 
 class CollectionSearch extends AbstractSearch
 {
@@ -28,7 +28,7 @@ class CollectionSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = []
-    ): array {
+    ): Pagerfanta {
         $mustQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
@@ -71,7 +71,9 @@ class CollectionSearch extends AbstractSearch
 
 //        dump($filterQuery->toArray());
 
-        $data = $this->finder->find($filterQuery, $limit);
+        $data = $this->finder->findPaginated($filterQuery);
+        $data->setCurrentPage($options['page'] ?? 1);
+        $data->setMaxPerPage($limit);
 
         return $data;
     }

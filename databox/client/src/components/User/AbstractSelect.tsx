@@ -1,5 +1,6 @@
 import {PureComponent} from "react";
 import AsyncSelect from "react-select/async";
+import {ActionMeta, OptionsType, ValueType} from "react-select";
 
 export type UserOrGroupOption = {
     label: string;
@@ -25,6 +26,8 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
 
     abstract load(): Promise<T[]>;
 
+    abstract getType(): string;
+
     handleInputChange = (newValue: string) => {
         const inputValue = newValue.replace(/\W/g, '');
         this.setState({inputValue});
@@ -38,7 +41,7 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
             .filter(i => i.label.toLowerCase().includes(inputValue.toLowerCase()));
     }
 
-    onChange = (data: UserOrGroupOption | null): void => {
+    onChange = (data: ValueType<UserOrGroupOption, false>): void => {
         if (data) {
             this.props.onSelect(this.optionToData(data));
         }
@@ -46,11 +49,12 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
 
     render() {
         return <AsyncSelect
-            isClearable={true}
             cacheOptions
             defaultOptions
+            placeholder={`Select a ${this.getType()}`}
             onChange={this.onChange}
             loadOptions={this.handleLoad}
+            value={null as ValueType<UserOrGroupOption, false>}
         />
     }
 }

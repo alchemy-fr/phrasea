@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\DataProvider;
 
-use Alchemy\AclBundle\UserInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
@@ -15,9 +14,6 @@ use Symfony\Component\Security\Core\Security;
 class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
     private AssetSearch $assetSearch;
-    /**
-     * @var Security
-     */
     private Security $security;
 
     public function __construct(AssetSearch $assetSearch, Security $security)
@@ -32,7 +28,9 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
 
-        return $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        $result = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+
+        return new PagerFantaApiPlatformPaginator($result);
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

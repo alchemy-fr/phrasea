@@ -1,6 +1,7 @@
 api_platform:
     formats:
-        json: [ 'application/json' ]
+        jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
+        json: [ 'application/json', 'application/merge-patch+json' ]
         html: [ 'text/html' ]
     version: '0.0.1'
     mapping:

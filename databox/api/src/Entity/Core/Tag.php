@@ -20,7 +20,7 @@ use App\Api\Model\Output\TagOutput;
  *  shortName="tag",
  *  normalizationContext={"groups"={"_", "tag:index"}},
  *  output=TagOutput::class,
- *  input=false,
+ *  input=false
  * )
  */
 class Tag extends AbstractUuidEntity implements TranslatableInterface

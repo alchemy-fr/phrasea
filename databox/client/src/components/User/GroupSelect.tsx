@@ -17,6 +17,10 @@ export default class GroupSelect extends AbstractSelect<Group> {
         };
     }
 
+    getType(): string {
+        return "group";
+    }
+
     async load() {
         return await getGroups();
     }

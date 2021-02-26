@@ -3,6 +3,7 @@ import AssetItem from "./AssetItem";
 import {getAssets} from "../../api/asset";
 import {Asset} from "../../types";
 import {SelectionContext, TSelectionContext} from "./SelectionContext";
+import Button from "../ui/Button";
 
 type Props = {
     query: string;
@@ -10,6 +11,8 @@ type Props = {
 
 type State = {
     data: Asset[];
+    total?: number;
+    next?: string | null;
 };
 
 function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
@@ -52,13 +55,14 @@ export default class AssetGrid extends PureComponent<Props, State> {
         }
     }
 
-    async load() {
+    async load(url?: string) {
         const parents = this.context.selectedCollection ? [extractCollectionIdFromPath(this.context.selectedCollection)] : undefined;
 
         const options = {
             query: this.props.query,
             parents,
             workspaces: this.context.selectedWorkspace ? [this.context.selectedWorkspace] : undefined,
+            url,
         };
 
         const searchHash = JSON.stringify(options);
@@ -67,9 +71,26 @@ export default class AssetGrid extends PureComponent<Props, State> {
             return;
         }
         this.lastSearch = searchHash;
-        const data = await getAssets(options);
+        const result = await getAssets(options);
 
-        this.setState({data});
+        // Append?
+        if (url) {
+            this.setState(prevState => ({
+                data: prevState.data.concat(result.result),
+                total: result.total,
+                next: result.next,
+            }));
+        } else {
+            this.setState({
+                data: result.result,
+                total: result.total,
+                next: result.next,
+            });
+        }
+    }
+
+    loadMore = (): void => {
+        this.load('/..'+this.state.next!);
     }
 
     onSelect = (id: string, e: MouseEvent): void => {
@@ -79,8 +100,22 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     render() {
-        return <div className="asset-grid">
-            {this.renderResult()}
+        const {total, next} = this.state;
+
+        return <div>
+            <div>
+                {total ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
+            </div>
+            <div className="asset-grid">
+                {this.renderResult()}
+            </div>
+            <div>
+                {next ? <Button
+                    onClick={this.loadMore}
+                >
+                    Load more
+                </Button> : ''}
+            </div>
         </div>
     }
 
