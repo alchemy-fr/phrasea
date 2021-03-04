@@ -91,8 +91,8 @@ class TagFilterManager
         $exclude = [];
 
         foreach ($rules as $rule) {
-            $include = array_merge($include, $rule->getInclude());
-            $exclude = array_merge($exclude, $rule->getExclude());
+            $include = array_merge($include, $rule->getInclude()->getValues());
+            $exclude = array_merge($exclude, $rule->getExclude()->getValues());
         }
 
         return [

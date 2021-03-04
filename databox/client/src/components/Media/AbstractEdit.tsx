@@ -39,8 +39,15 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
 
     abstract handleSave(): Promise<boolean>;
 
+    abstract getType(): string;
+    abstract getTitle(): string | null;
+
+    getData(): T | null {
+        return this.state.data || null;
+    }
+
     renderModalHeader() {
-        return <h4>Edit</h4>
+        return <h4>Edit {this.getTitle()}</h4>
     }
 
     save = (): void => {
@@ -59,7 +66,7 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
 
         return <Modal
             onClose={this.props.onClose}
-            header={this.renderModalHeader}
+            header={this.renderModalHeader.bind(this)}
             footer={({onClose}) => <>
                 <Button
                     onClick={onClose}
@@ -98,7 +105,7 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
                 <h4>Permissions</h4>
                 <AclForm
                     objectId={this.props.id}
-                    objectType={'asset'}
+                    objectType={this.getType()}
                 />
             </div> : ''}
         </div>;

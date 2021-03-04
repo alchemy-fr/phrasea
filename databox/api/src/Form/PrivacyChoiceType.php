@@ -13,18 +13,10 @@ class PrivacyChoiceType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choices = [
-            'Secret' => WorkspaceItemPrivacyInterface::SECRET,
-            'Private in workspace' => WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
-            'Public in workspace' => WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
-            'Private' => WorkspaceItemPrivacyInterface::PRIVATE,
-            'Public for users' => WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
-            'Public' => WorkspaceItemPrivacyInterface::PUBLIC,
-        ];
+        $choices = array_flip(WorkspaceItemPrivacyInterface::LABELS);
 
         $resolver->setDefault('choices', $choices);
     }
-
 
     public function getParent()
     {

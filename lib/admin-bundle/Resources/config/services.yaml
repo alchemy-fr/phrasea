@@ -50,3 +50,5 @@ services:
 
   alchemy_admin.logout.success_handler:
     class: Alchemy\AdminBundle\Security\LogoutSuccessHandler
+
+  Alchemy\AdminBundle\Form\UserChoiceType: ~

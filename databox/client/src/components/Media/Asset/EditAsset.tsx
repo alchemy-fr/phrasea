@@ -14,6 +14,15 @@ export default class EditAsset extends AbstractEdit<Asset> {
         this.tagRef = React.createRef<TagSelect>();
     }
 
+    getType(): string {
+        return 'asset';
+    }
+
+    getTitle(): string | null {
+        const d = this.getData();
+        return d ? d.title : null;
+    }
+
     renderForm() {
         const data: Asset = this.state.data!;
 

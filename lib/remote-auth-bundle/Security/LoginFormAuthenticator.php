@@ -28,39 +28,17 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    private $entityManager;
-    private $router;
-    private $csrfTokenManager;
-    private $passwordEncoder;
-
-    /**
-     * @var AuthServiceClient
-     */
-    private $client;
-    /**
-     * @var string
-     */
-    private $clientId;
-    /**
-     * @var string
-     */
-    private $clientSecret;
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-    /**
-     * @var RemoteAuthProvider
-     */
-    private $userProvider;
-    /**
-     * @var string
-     */
-    private $routeName;
-    /**
-     * @var string
-     */
-    private $defaultTargetPath;
+    private EntityManagerInterface $entityManager;
+    private RouterInterface $router;
+    private CsrfTokenManagerInterface $csrfTokenManager;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private AuthServiceClient $client;
+    private string $clientId;
+    private string $clientSecret;
+    private SessionInterface $session;
+    private RemoteAuthProvider $userProvider;
+    private string $routeName;
+    private string $defaultTargetPath;
 
     public function __construct(
         EntityManagerInterface $entityManager,

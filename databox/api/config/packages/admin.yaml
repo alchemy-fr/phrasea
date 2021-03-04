@@ -17,6 +17,7 @@ easy_admin:
           - Asset
           - Collection
           - Workspace
+          - Tag
       - OAuthClient
   entities:
     Asset:
@@ -31,15 +32,14 @@ easy_admin:
         fields:
           - { property: 'title', label: Title }
           - { property: 'workspace' }
-          - { property: 'privacy' }
-          - { property: 'ownerId' }
+          - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - { property: 'collections.count', label: '# Colls' }
           - createdAt
       form:
         fields:
           - { property: 'title', label: Title }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
-          - { property: 'ownerId' }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
 
     Collection:
@@ -55,14 +55,13 @@ easy_admin:
           - { property: 'title' }
           - { property: 'parent', label: Parent }
           - { property: 'workspace' }
-          - { property: 'privacy' }
-          - { property: 'ownerId' }
+          - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - createdAt
       form:
         fields:
           - { property: 'title' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
-          - { property: 'ownerId' }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
 
     Workspace:
       class: App\Entity\Core\Workspace
@@ -73,10 +72,23 @@ easy_admin:
         sort: [name, ASC]
         fields:
           - { property: 'name' }
-          - { property: 'ownerId' }
           - updatedAt
           - createdAt
       form:
         fields:
           - { property: 'name' }
-          - { property: 'ownerId' }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+
+    Tag:
+      class: App\Entity\Core\Tag
+      list:
+        max_results: 100
+        sort: [name, ASC]
+        fields:
+          - { property: 'name' }
+          - { property: 'workspace' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
+          - { property: 'workspace' }

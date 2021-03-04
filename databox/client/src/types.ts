@@ -18,6 +18,16 @@ export interface IPermissions extends ApiHydraObjectResponse {
     };
 }
 
+export interface TagFilterRule extends ApiHydraObjectResponse {
+    id: string;
+    userId?: string;
+    groupId?: string;
+    workspaceId?: string;
+    collectionId?: string;
+    include: Tag[];
+    exclude: Tag[];
+}
+
 export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;

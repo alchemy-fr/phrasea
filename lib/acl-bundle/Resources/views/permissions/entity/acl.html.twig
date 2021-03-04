@@ -23,7 +23,7 @@
 {% block content_title %}
     <a href="{{ path('easyadmin', _request_parameters|merge({ action: 'list' })) }}">Back</a>
     |
-    Manage permissions for <b>{{ object_type }} #{{ object_id }}</b>
+    Manage permissions for <b>{{ object_type }} {{ object_title }}</b> #{{ object_id }}
 {% endblock %}
 
 {% block main %}

@@ -18,6 +18,8 @@ class TagFilterRuleOutputDataTransformer implements DataTransformerInterface
     public function transform($object, string $to, array $context = [])
     {
         $output = new TagFilterRuleOutput();
+        $output->setId($object->getId());
+        $output->setCreatedAt($object->getCreatedAt());
         if ($object->getUserType() === TagFilterRule::TYPE_USER) {
             $output->setUserId($object->getUserId());
         } elseif ($object->getUserType() === TagFilterRule::TYPE_GROUP) {
@@ -30,8 +32,8 @@ class TagFilterRuleOutputDataTransformer implements DataTransformerInterface
             $output->setWorkspaceId($object->getObjectId());
         }
 
-        $output->setInclude($object->getInclude());
-        $output->setExclude($object->getExclude());
+        $output->setInclude($object->getInclude()->getValues());
+        $output->setExclude($object->getExclude()->getValues());
 
         return $output;
     }

@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use App\Api\Model\Output\TagFilterRuleOutput;
+use App\Api\Model\Input\TagFilterRuleInput;
 
 /**
  * @ORM\Table(
@@ -25,9 +26,9 @@ use App\Api\Model\Output\TagFilterRuleOutput;
  * @ORM\Entity(repositoryClass="App\Repository\TagFilterRuleRepository")
  * @ApiResource(
  *  shortName="tag-filter-rule",
- *  normalizationContext={"groups"={"_", "tfr:read"}},
+ *  normalizationContext={"groups"={"_", "tfr:read", "tag:read"}},
  *  output=TagFilterRuleOutput::class,
- *  input=false,
+ *  input=TagFilterRuleInput::class,
  * )
  */
 class TagFilterRule extends AbstractUuidEntity
@@ -120,23 +121,14 @@ class TagFilterRule extends AbstractUuidEntity
         $this->objectId = $objectId;
     }
 
-    public function getInclude(): array
+    public function getInclude(): DoctrineCollection
     {
         return $this->include;
     }
 
-    public function setInclude(array $include): void
-    {
-        $this->include = $include;
-    }
 
-    public function getExclude(): array
+    public function getExclude(): DoctrineCollection
     {
         return $this->exclude;
-    }
-
-    public function setExclude(array $exclude): void
-    {
-        $this->exclude = $exclude;
     }
 }
