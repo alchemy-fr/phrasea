@@ -1,6 +1,6 @@
 import {PureComponent} from "react";
 import AsyncSelect from "react-select/async";
-import {ActionMeta, OptionsType, ValueType} from "react-select";
+import {ValueType} from "react-select";
 
 export type UserOrGroupOption = {
     label: string;
@@ -9,6 +9,8 @@ export type UserOrGroupOption = {
 
 type Props<T> = {
     onSelect?: (item: T) => void;
+    clearOnSelect?: boolean;
+    disabledValues?: string[];
 };
 
 type State = {
@@ -39,12 +41,23 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
     handleLoad = async (inputValue: string): Promise<UserOrGroupOption[]> => {
         const data = await this.load();
 
-        return data.map(this.dataToOption)
+        const values = data.map(this.dataToOption)
             .filter(i => i.label.toLowerCase().includes(inputValue.toLowerCase()));
+
+        const {disabledValues} = this.props;
+        if (disabledValues) {
+            console.log('disabledValues', disabledValues);
+            return values.map(i => ({
+                ...i,
+                isDisabled: disabledValues.includes(i.value),
+            }))
+        }
+
+        return values;
     }
 
     onChange = (data: ValueType<UserOrGroupOption, false>): void => {
-        this.setState({value: data}, () => {
+        this.setState({value: this.props.clearOnSelect ? null : data}, () => {
             if (data) {
                 const {onSelect} = this.props;
                 onSelect && onSelect(this.optionToData(data));
@@ -57,6 +70,10 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
     }
 
     render() {
+        const {disabledValues} = this.props;
+
+        const isOptionDisabled = disabledValues ? (o: UserOrGroupOption) => disabledValues!.includes(o.value) : undefined;
+
         return <AsyncSelect
             cacheOptions
             defaultOptions
@@ -64,6 +81,7 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
             onChange={this.onChange}
             loadOptions={this.handleLoad}
             value={this.state.value}
+            isOptionDisabled={isOptionDisabled}
         />
     }
 }

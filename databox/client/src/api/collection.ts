@@ -42,3 +42,23 @@ export async function getCollection(id: string): Promise<Collection> {
 
     return res.data;
 }
+
+export async function patchCollection(id: string, data: Partial<Collection>): Promise<Collection> {
+    const res = await apiClient.patch(`/collections/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/merge-patch+json',
+        },
+    });
+
+    return res.data;
+}
+
+export async function patchWorkspace(id: string, data: Partial<Workspace>): Promise<Workspace> {
+    const res = await apiClient.patch(`/workspaces/${id}`, data, {
+        headers: {
+            'Content-Type': 'application/merge-patch+json',
+        },
+    });
+
+    return res.data;
+}

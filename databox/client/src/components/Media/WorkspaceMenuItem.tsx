@@ -7,9 +7,12 @@ import Icon from "../ui/Icon";
 import Button from "../ui/Button";
 import {SelectionContext} from "./SelectionContext";
 import CollectionMenuItem, {CollectionMenuItemProps} from "./CollectionMenuItem";
+import EditCollection from "./Collection/EditCollection";
+import EditWorkspace from "./Workspace/EditWorkspace";
 
 type State = {
     expanded: boolean,
+    editing: boolean,
 }
 
 export type WorkspaceMenuItemProps = {
@@ -21,6 +24,7 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
 
     state: State = {
         expanded: true,
+        editing: false,
     };
 
     expandWorkspace = async (force = false): Promise<void> => {
@@ -39,6 +43,15 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
         this.expandWorkspace();
     }
 
+    edit = (e: MouseEvent): void => {
+        e.stopPropagation();
+        this.setState({editing: true});
+    }
+
+    closeEdit = () => {
+        this.setState({editing: false});
+    }
+
     render() {
         const {
             id,
@@ -46,6 +59,7 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
             collections,
             capabilities,
         } = this.props;
+        const {editing} = this.state;
 
         const selected = this.context.selectedWorkspace === id;
         const currentInSelectedHierarchy = !!this.context.selectedCollection;
@@ -64,10 +78,10 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
                     {name}
                 </div>
                 <div className="actions">
-                    {capabilities.canEdit ? <Link
-                        to={`/workspaces/${this.props.id}/edit`}
+                    {capabilities.canEdit ? <Button
+                        onClick={this.edit}
                     ><Icon
-                        component={EditImg}/></Link> : ''}
+                        component={EditImg}/></Button> : ''}
                 </div>
                 {collections && collections.length > 0 ? <div
                     className="expand"
@@ -79,6 +93,10 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
                     />
                 </div> : ''}
             </div>
+            {editing ? <EditWorkspace
+                id={this.props.id}
+                onClose={this.closeEdit}
+            /> : ''}
             {this.renderChildren()}
         </div>
     }

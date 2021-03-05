@@ -1,51 +1,79 @@
-import {PureComponent} from "react";
 import {Workspace} from "../../../types";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
-import {RouteComponentProps} from "react-router-dom";
 import {getWorkspace} from "../../../api/workspace";
-import WorkspaceForm from "./WorkspaceForm";
-import AclForm from "../../Acl/AclForm";
-import {Link} from 'react-router-dom';
-import TagList from "../Tag/TagList";
+import AbstractEdit from "../AbstractEdit";
+import React from "react";
+import {Field, Form, Formik} from "formik";
+import {TextField} from "formik-material-ui";
+import {patchCollection, patchWorkspace} from "../../../api/collection";
+import TagManager from "../Collection/TagManager";
+import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
-type Props = {
-    id: string,
-} & RouteComponentProps;
+type FormProps = {
+    name: string;
+}
 
-type State = {
-    data?: Workspace;
-};
-
-export default class EditWorkspace extends PureComponent<Props, State> {
-    state: State = {};
-
-    load = async () => {
-        const res: Workspace = await getWorkspace(this.props.id);
-
-        this.setState({
-            data: res,
-        });
+export default class EditWorkspace extends AbstractEdit<Workspace, FormProps> {
+    async loadItem(): Promise<Workspace> {
+        return await getWorkspace(this.props.id);
     }
 
-    componentDidMount() {
-        this.load();
+    getTitle(): string | null {
+        const d = this.getData();
+        return d ? d.name : null;
     }
 
-    render() {
-        const {data} = this.state;
+    getType(): string {
+        return 'workspace';
+    }
 
-        if (!data) {
-            return <FullPageLoader />;
+
+    renderForm(): React.ReactNode {
+        const data: Workspace | null = this.getData();
+        if (null === data) {
+            return '';
         }
 
-        return <div className={'container'}>
-            <Link to={'/'}>Back</Link>
-            <h2>Edit workspace <b>{data.name}</b></h2>
-            <WorkspaceForm data={data} />
-            <AclForm
-                objectId={data.id}
-                objectType={'workspace'}
-            />
+        const initialValues: FormProps = {
+            name: data!.name,
+        };
+
+        return <div>
+            <Formik
+                innerRef={this.formRef}
+                initialValues={initialValues}
+                onSubmit={ (values, actions) => {
+                    this.onSubmit(values, actions);
+                }}
+            >
+                <Form>
+                    <Field
+                        component={TextField}
+                        name="name"
+                        type="text"
+                        label="Workspace name"
+                    />
+                </Form>
+            </Formik>
+            <hr/>
+            <div>
+                <h4>Manage tags</h4>
+                <TagManager workspaceId={this.getData()!['@id']} />
+            </div>
+            <hr/>
+            <div>
+                <h4>Tag filter rules</h4>
+                <TagFilterRules
+                    id={this.props.id}
+                    workspaceId={this.props.id}
+                    type={'workspace'}
+                />
+            </div>
         </div>
+    }
+
+    async handleSave(data: FormProps): Promise<boolean> {
+        await patchWorkspace(this.props.id, data);
+
+        return true;
     }
 }

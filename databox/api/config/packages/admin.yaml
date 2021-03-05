@@ -18,6 +18,7 @@ easy_admin:
           - Collection
           - Workspace
           - Tag
+          - TagFilterRule
       - OAuthClient
   entities:
     Asset:
@@ -92,3 +93,17 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'workspace' }
+
+    TagFilterRule:
+      class: App\Entity\Core\TagFilterRule
+      list:
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'userType' }
+          - { property: 'userId' }
+          - { property: 'objectType' }
+          - { property: 'objectId', type: string }
+          - { property: 'include' }
+          - { property: 'exclude' }
+          - createdAt

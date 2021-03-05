@@ -13,7 +13,7 @@ type Props = {
     onClick?: (id: string, e: MouseEvent) => void;
 };
 
-const privacyIndices = [
+export const privacyIndices = [
     'Secret',
     'Private in workspace',
     'Public in workspace',
@@ -97,7 +97,7 @@ export default class AssetItem extends PureComponent<Props & Asset, State> {
                         key={c.id}
                     >{c.title}</div>)}
                 </div>
-                <div className="a-desc">
+                <div className="a-desc tag-container">
                     {description ? <p>{description}</p> : ''}
 
                     {tags.map(t => <Badge

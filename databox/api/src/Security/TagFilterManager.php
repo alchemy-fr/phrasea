@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
@@ -91,8 +92,12 @@ class TagFilterManager
         $exclude = [];
 
         foreach ($rules as $rule) {
-            $include = array_merge($include, $rule->getInclude()->getValues());
-            $exclude = array_merge($exclude, $rule->getExclude()->getValues());
+            $include = array_merge($include, $rule->getInclude()->map(function (Tag $tag): string {
+                return $tag->getId();
+            })->getValues());
+            $exclude = array_merge($exclude, $rule->getExclude()->map(function (Tag $tag): string {
+                return $tag->getId();
+            })->getValues());
         }
 
         return [

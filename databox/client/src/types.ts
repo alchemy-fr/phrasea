@@ -48,6 +48,7 @@ export interface Collection extends IPermissions {
     title: string;
     children?: Collection[];
     workspace: Workspace;
+    privacy: number;
 }
 
 export interface Workspace extends IPermissions {

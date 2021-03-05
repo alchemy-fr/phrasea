@@ -84,14 +84,15 @@ class AssetSearch extends AbstractSearch
 
         $filterQuery->addFilter($this->buildTagFilterQuery($userId, $groupIds));
 
-        if ($options['query']) {
+        $queryString = trim($options['query'] ?? '');
+        if (!empty($queryString)) {
             $weights = [
                 'title' => 10,
             ];
 
             $multiMatch = new Query\MultiMatch();
             $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
-            $multiMatch->setQuery($options['query']);
+            $multiMatch->setQuery($queryString);
             $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
             $multiMatch->setParam('boost', 1);
             $fields = [];

@@ -1,8 +1,9 @@
-import React, {PureComponent} from "react";
+import React, {PureComponent, RefObject} from "react";
 import Modal from "../Layout/Modal";
 import Button from "../ui/Button";
 import {IPermissions} from "../../types";
 import AclForm from "../Acl/AclForm";
+import {FormikHelpers, FormikProps} from "formik";
 
 export type AbstractEditProps = {
     id: string,
@@ -15,12 +16,20 @@ type State<T extends IPermissions> = {
     data: T | undefined;
 };
 
-export default abstract class AbstractEdit<T extends IPermissions> extends PureComponent<AbstractEditProps, State<T>> {
+export default abstract class AbstractEdit<T extends IPermissions, FP> extends PureComponent<AbstractEditProps, State<T>> {
+    protected readonly formRef: RefObject<FormikProps<FP>>;
+
     state = {
         saving: false,
         loading: true,
         data: undefined,
     };
+
+    constructor(props: AbstractEditProps) {
+        super(props);
+
+        this.formRef = React.createRef();
+    }
 
     componentDidMount() {
         this.load();
@@ -37,7 +46,7 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
 
     abstract loadItem(): Promise<T>;
 
-    abstract handleSave(): Promise<boolean>;
+    abstract handleSave(data: FP): Promise<boolean>;
 
     abstract getType(): string;
     abstract getTitle(): string | null;
@@ -51,9 +60,15 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
     }
 
     save = (): void => {
+        this.formRef.current!.submitForm();
+    }
+
+    protected async onSubmit(data: FP, actions: FormikHelpers<FP>) {
         this.setState({saving: true}, async (): Promise<void> => {
-            if (!await this.handleSave()) {
+            const res = await this.handleSave(data);
+            if (!res) {
                 this.setState({saving: false});
+                actions.setSubmitting(false);
                 return;
             }
 
@@ -65,6 +80,7 @@ export default abstract class AbstractEdit<T extends IPermissions> extends PureC
         const {saving} = this.state;
 
         return <Modal
+            loading={saving}
             onClose={this.props.onClose}
             header={this.renderModalHeader.bind(this)}
             footer={({onClose}) => <>

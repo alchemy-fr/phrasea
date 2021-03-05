@@ -18,7 +18,7 @@ export default class GroupSelect extends AbstractSelect<Group> {
     }
 
     getType(): string {
-        return "group";
+        return 'group';
     }
 
     async load() {

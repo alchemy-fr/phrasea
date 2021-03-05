@@ -117,7 +117,7 @@ class AccessControlEntryRepository extends EntityRepository
 
     public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
     {
-        return array_map(function (array $row): string {
+        return array_map(function (array $row): ?string {
             return $row['userId'];
         }, $this
             ->createBaseQueryBuilder()

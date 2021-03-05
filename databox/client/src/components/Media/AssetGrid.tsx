@@ -12,6 +12,7 @@ type Props = {
 type State = {
     data: Asset[];
     total?: number;
+    loading: boolean;
     next?: string | null;
 };
 
@@ -34,6 +35,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
 
     state: State = {
         data: [],
+        loading: true,
     };
 
     lastContext: TSelectionContext;
@@ -42,7 +44,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
 
     componentDidMount() {
         this.lastContext = this.context;
-        this.load();
+        this.search();
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
@@ -51,8 +53,17 @@ export default class AssetGrid extends PureComponent<Props, State> {
         ) {
             this.lastContext = this.context;
 
-            this.load();
+            this.search();
         }
+    }
+
+    search() {
+        this.setState({
+            loading: true,
+            total: undefined,
+        }, () => {
+            this.load();
+        });
     }
 
     async load(url?: string) {
@@ -76,12 +87,14 @@ export default class AssetGrid extends PureComponent<Props, State> {
         // Append?
         if (url) {
             this.setState(prevState => ({
+                loading: false,
                 data: prevState.data.concat(result.result),
                 total: result.total,
                 next: result.next,
             }));
         } else {
             this.setState({
+                loading: false,
                 data: result.result,
                 total: result.total,
                 next: result.next,
@@ -90,7 +103,9 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     loadMore = (): void => {
-        this.load('/..'+this.state.next!);
+        this.setState({loading: true}, () => {
+            this.load('/..'+this.state.next!);
+        });
     }
 
     onSelect = (id: string, e: MouseEvent): void => {
@@ -100,11 +115,11 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     render() {
-        const {total, next} = this.state;
+        const {total, next, loading} = this.state;
 
         return <div>
             <div>
-                {total ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
+                {total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
             </div>
             <div className="asset-grid">
                 {this.renderResult()}
@@ -112,8 +127,9 @@ export default class AssetGrid extends PureComponent<Props, State> {
             <div>
                 {next ? <Button
                     onClick={this.loadMore}
+                    disabled={loading}
                 >
-                    Load more
+                    {loading ? 'Loading...' : 'Load more'}
                 </Button> : ''}
             </div>
         </div>

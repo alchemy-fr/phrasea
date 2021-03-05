@@ -25,6 +25,9 @@ class AssetInputDataTransformer extends AbstractSecurityDataTransformer
     {
         $asset = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
         $asset->setTitle($data->title);
+        if (null !== $data->privacy) {
+            $asset->setPrivacy($data->privacy);
+        }
 
         if (isset($data->tags)) {
             $asset->getTags()->clear();

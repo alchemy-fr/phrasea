@@ -1,10 +1,10 @@
 import apiClient from "./api-client";
-import {Collection, TagFilterRule, Workspace} from "../types";
+import {TagFilterRule} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
-import {FilterRuleProps} from "../components/Media/TagFilterRule/FilterRule";
 
 type TagFilterRuleOptions = {
     collectionId?: string,
+    workspaceId?: string,
 }
 
 export async function getTagFilterRules(options: TagFilterRuleOptions): Promise<ApiCollectionResponse<TagFilterRule>> {
@@ -25,7 +25,7 @@ export async function saveTagFilterRule(data: {
     workspaceId?: string,
     include?: string[],
     exclude?: string[],
-}): Promise<ApiCollectionResponse<TagFilterRule>> {
+}): Promise<TagFilterRule> {
     let res;
 
     if (data.id) {

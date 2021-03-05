@@ -3,7 +3,10 @@
 @import "functions";
 @import "App";
 @import "Collection";
+@import "Acl";
 @import "Asset";
+@import "TagFilterRule";
+@import "Tag";
 @import "ui";
 @import "~@alchemy-fr/phraseanet-react-components/dist/scss/FullPageLoader.scss";
 @import "~@alchemy-fr/phraseanet-react-components/dist/scss/ServicesMenu.scss";

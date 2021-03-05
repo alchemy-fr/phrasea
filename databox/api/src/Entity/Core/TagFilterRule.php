@@ -26,6 +26,16 @@ use App\Api\Model\Input\TagFilterRuleInput;
  * @ORM\Entity(repositoryClass="App\Repository\TagFilterRuleRepository")
  * @ApiResource(
  *  shortName="tag-filter-rule",
+ *  attributes={"security"="is_granted('ROLE_USER')"},
+ *  collectionOperations={
+ *       "get",
+ *       "post" = { "security_post_denormalize" = "is_granted('CREATE', object)" }
+ *  },
+ *  itemOperations={
+ *       "get" = { "security" = "is_granted('READ', object)" },
+ *       "put" = { "security" = "is_granted('EDIT', object)" },
+ *       "delete" = { "security" = "is_granted('DELETE', object)" }
+ *  },
  *  normalizationContext={"groups"={"_", "tfr:read", "tag:read"}},
  *  output=TagFilterRuleOutput::class,
  *  input=TagFilterRuleInput::class,
@@ -40,6 +50,11 @@ class TagFilterRule extends AbstractUuidEntity
     const TYPE_GROUP = 1;
     const TYPE_WORKSPACE = 0;
     const TYPE_COLLECTION = 1;
+
+    const OBJECT_CLASSES = [
+        self::TYPE_WORKSPACE => Workspace::class,
+        self::TYPE_COLLECTION => Collection::class,
+    ];
 
     /**
      * @ORM\Column(type="smallint")

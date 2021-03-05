@@ -29,7 +29,6 @@ abstract class AbstractSearch
             ]);
 
             $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
-
             if (!empty($allowedWorkspaceIds)) {
                 $workspaceBoolQuery = new Query\BoolQuery();
 

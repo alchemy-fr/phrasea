@@ -11,7 +11,7 @@ export default class UserSelect extends AbstractSelect<User> {
     }
 
     getType(): string {
-        return "user";
+        return 'user';
     }
 
     dataToOption(data: User): UserOrGroupOption {

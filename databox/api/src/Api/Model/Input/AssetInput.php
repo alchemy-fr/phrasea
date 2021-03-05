@@ -15,6 +15,11 @@ class AssetInput
     public ?string $title = null;
 
     /**
+     * @Groups({"asset:write"})
+     */
+    public ?int $privacy = null;
+
+    /**
      * @var Tag[]
      * @Groups({"asset:write"})
      */

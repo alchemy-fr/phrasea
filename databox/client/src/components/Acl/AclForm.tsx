@@ -47,16 +47,21 @@ export default class AclForm extends PureComponent<Props, State> {
     }
 
     render() {
+        const {aces} = this.state;
         return <div>
             <div className={'row'}>
                 <div className="col-md-6">
                     <GroupSelect
+                        clearOnSelect={true}
                         onSelect={this.onSelectGroup}
+                        disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}
                     />
                 </div>
                 <div className="col-md-6">
                     <UserSelect
+                        clearOnSelect={true}
                         onSelect={this.onSelectUser}
+                        disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}
                     />
                 </div>
             </div>
@@ -117,15 +122,16 @@ export default class AclForm extends PureComponent<Props, State> {
             return 'Loading permissions...';
         }
 
-        return <table>
+        return <table className={'table acl-table'}>
             <thead>
             <tr>
                 <th>User/Group</th>
                 {Object.keys(aclPermissions).map(k => {
                     return <th
                         key={k}
+                        className={'perm'}
                     >
-                        {k}
+                        <span>{k}</span>
                     </th>
                 })}
                 <th>Actions</th>
@@ -136,7 +142,7 @@ export default class AclForm extends PureComponent<Props, State> {
                 onMaskChange={this.onMaskChange}
                 onDelete={this.onDelete}
                 {...ace}
-                key={ace.id}
+                key={ace.id || `${ace.userId}::${ace.userType}`}
             />)}
             </tbody>
         </table>
