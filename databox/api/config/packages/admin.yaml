@@ -61,6 +61,7 @@ easy_admin:
       form:
         fields:
           - { property: 'title' }
+          - { property: 'workspace' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
 
