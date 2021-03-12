@@ -1,13 +1,14 @@
-import {PureComponent, MouseEvent} from "react";
+import React, {PureComponent, MouseEvent} from "react";
 import {Collection} from "../../types";
 import {getCollections} from "../../api/collection";
-import {ReactComponent as ArrowDownImg} from '../../images/icons/arrow-down.svg';
-import {ReactComponent as EditImg} from '../../images/icons/edit.svg';
-import {ReactComponent as TrashImg} from '../../images/icons/trash.svg';
-import Icon from "../ui/Icon";
-import Button from "../ui/Button";
 import apiClient from "../../api/api-client";
 import EditCollection from "./Collection/EditCollection";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import {Collapse, IconButton, ListItemSecondaryAction} from "@material-ui/core";
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import {ExpandLess, ExpandMore} from "@material-ui/icons";
 
 type State = {
     collections?: Collection[],
@@ -83,55 +84,51 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
             capabilities,
             level,
         } = this.props;
-        const {editing} = this.state;
+        const {editing, expanded} = this.state;
 
         const selected = selectedPath === absolutePath;
         const currentInSelectedHierarchy = selectedPath && selectedPath.startsWith(absolutePath);
 
         return <div
-            className={`collection-menu-wrapper`}
+            className={'collection-item'}
         >
-            <div
+            <ListItem
+                button
+                selected={Boolean(selected || currentInSelectedHierarchy)}
                 onClick={this.onClick}
-                className={`menu-item ${this.state.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${currentInSelectedHierarchy ? 'current' : ''}`}
-
+                style={{paddingLeft: `${10 + level * 10}px`}}
             >
-                <div
-                    className="i-title"
-                    style={{
-                        paddingLeft: (level * 10),
-                    }}
-                >
-                    {title}
-                </div>
-                <div className="actions">
-                    {capabilities.canEdit ? <Button
-                        size={"sm"}
+                <ListItemText primary={title}/>
+                <ListItemSecondaryAction>
+                    {capabilities.canEdit && <IconButton
                         onClick={this.edit}
-                    ><Icon
-                        component={EditImg}/></Button> : ''}
-                    {capabilities.canDelete ? <Button
-                        size={"sm"}
+                        className={'c-action'}
+                        aria-label="edit">
+                        <EditIcon/>
+                    </IconButton>}
+                    {capabilities.canDelete && <IconButton
                         onClick={this.delete}
-                    ><Icon
-                        component={TrashImg}
-                    /></Button> : ''}
-                </div>
-                {children && children.length > 0 ? <div
-                    className="expand"
-                    onClick={this.onExpandClick}
-                >
-                    <Icon
-                        variant={'xs'}
-                        component={ArrowDownImg}
-                    />
-                </div> : ''}
-            </div>
+                        className={'c-action'}
+                        aria-label="delete">
+                        <DeleteIcon/>
+                    </IconButton>}
+                    {children && children.length > 0 ? <IconButton
+                        onClick={this.onExpandClick}
+                        aria-label="expand-toggle">
+                        {!expanded ? <ExpandLess
+                            onClick={this.onExpandClick}
+                        /> : <ExpandMore/>}
+                    </IconButton> : ''}
+                </ListItemSecondaryAction>
+            </ListItem>
+
+            <Collapse in={expanded} timeout="auto" unmountOnExit>
+                {this.renderChildren()}
+            </Collapse>
             {editing ? <EditCollection
                 id={this.props.id}
                 onClose={this.closeEdit}
             /> : ''}
-            {this.renderChildren()}
         </div>
     }
 

@@ -3,7 +3,7 @@ import AssetItem from "./AssetItem";
 import {getAssets} from "../../api/asset";
 import {Asset} from "../../types";
 import {SelectionContext, TSelectionContext} from "./SelectionContext";
-import Button from "../ui/Button";
+import {Button, GridList, GridListTile, LinearProgress, ListSubheader} from "@material-ui/core";
 
 type Props = {
     query: string;
@@ -14,6 +14,19 @@ type State = {
     total?: number;
     loading: boolean;
     next?: string | null;
+};
+
+const classes = {
+    root: {
+        display: 'flex',
+        flexWrap: 'wrap' as 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        width: '100%',
+    },
+    gridList: {
+        width: '100%',
+    },
 };
 
 function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
@@ -58,12 +71,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     search() {
-        this.setState({
-            loading: true,
-            total: undefined,
-        }, () => {
-            this.load();
-        });
+        this.load();
     }
 
     async load(url?: string) {
@@ -77,34 +85,39 @@ export default class AssetGrid extends PureComponent<Props, State> {
         };
 
         const searchHash = JSON.stringify(options);
-
         if (searchHash === this.lastSearch) {
             return;
         }
-        this.lastSearch = searchHash;
-        const result = await getAssets(options);
 
-        // Append?
-        if (url) {
-            this.setState(prevState => ({
-                loading: false,
-                data: prevState.data.concat(result.result),
-                total: result.total,
-                next: result.next,
-            }));
-        } else {
-            this.setState({
-                loading: false,
-                data: result.result,
-                total: result.total,
-                next: result.next,
-            });
-        }
+        this.setState({
+            loading: true,
+            total: undefined,
+        }, async () => {
+            this.lastSearch = searchHash;
+            const result = await getAssets(options);
+
+            // Append?
+            if (url) {
+                this.setState(prevState => ({
+                    loading: false,
+                    data: prevState.data.concat(result.result),
+                    total: result.total,
+                    next: result.next,
+                }));
+            } else {
+                this.setState({
+                    loading: false,
+                    data: result.result,
+                    total: result.total,
+                    next: result.next,
+                });
+            }
+        });
     }
 
     loadMore = (): void => {
         this.setState({loading: true}, () => {
-            this.load('/..'+this.state.next!);
+            this.load('/..' + this.state.next!);
         });
     }
 
@@ -117,21 +130,35 @@ export default class AssetGrid extends PureComponent<Props, State> {
     render() {
         const {total, next, loading} = this.state;
 
-        return <div>
-            <div>
-                {total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
+        return <div style={{position: 'relative', width: '100%'}}>
+            {loading && <div style={{
+                position: 'absolute',
+                left: '0',
+                right: '0',
+                top: '0',
+            }}>
+                <LinearProgress/>
+            </div>}
+            <div style={classes.root}>
+                <GridList cellHeight={180} style={classes.gridList}>
+                    <GridListTile key="Subheader" cols={2} style={{height: 'auto'}}>
+                        <ListSubheader component="div">
+                            {!loading && total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
+                        </ListSubheader>
+                    </GridListTile>
+                    {this.renderResult()}
+                </GridList>
             </div>
-            <div className="asset-grid">
-                {this.renderResult()}
-            </div>
-            <div>
-                {next ? <Button
-                    onClick={this.loadMore}
+            {next ? <div className={'text-center mb-3'}>
+                <Button
                     disabled={loading}
+                    onClick={this.loadMore}
+                    variant="contained"
+                    color="secondary"
                 >
                     {loading ? 'Loading...' : 'Load more'}
-                </Button> : ''}
-            </div>
+                </Button>
+            </div> : ''}
         </div>
     }
 

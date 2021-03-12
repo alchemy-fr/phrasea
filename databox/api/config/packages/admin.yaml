@@ -39,6 +39,8 @@ easy_admin:
       form:
         fields:
           - { property: 'title', label: Title }
+          - { property: 'workspace' }
+          - { property: 'tags' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
@@ -62,6 +64,7 @@ easy_admin:
         fields:
           - { property: 'title' }
           - { property: 'workspace' }
+          - { property: 'parent' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
 

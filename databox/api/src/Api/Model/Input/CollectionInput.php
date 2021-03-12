@@ -9,7 +9,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class AssetInput
+class CollectionInput
 {
     /**
      * @Groups({"asset:write"})
@@ -42,5 +42,5 @@ class AssetInput
      * @var Collection|null
      * @Groups({"asset:write"})
      */
-    public ?Collection $collection = null;
+    public ?Collection $parent = null;
 }

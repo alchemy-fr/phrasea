@@ -40,11 +40,23 @@ class CollectionPostTransformListener implements EventSubscriberInterface
 
         [$users, $groups] = $this->discoverChildren($collection);
 
-        $parent = $collection->getParent();
-        while (null !== $parent) {
-            $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
-            $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
-            $parent = $parent->getParent();
+        if (!in_array(null, $users, true)) {
+            $parent = $collection->getParent();
+            while (null !== $parent) {
+                $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
+                if (in_array(null, $users, true)) {
+                    break;
+                }
+
+                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
+                $parent = $parent->getParent();
+            }
+        }
+
+        if (in_array(null, $users, true)) {
+            $users = ['*'];
+            $groups = [];
+            $bestPrivacy = WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS;
         }
 
         $document->set('privacy', $bestPrivacy);

@@ -27,8 +27,8 @@ class AccessControlEntryRepository extends EntityRepository
                 'ace',
                 Join::WITH,
                 sprintf(
-                    'ace.objectType = :ot AND ace.objectId = %s.id AND BIT_AND(ace.mask, :perm) = :perm'
-                    .' AND ((ace.userType = :uty AND ace.userId = :uid)'
+                    'ace.objectType = :ot AND (ace.objectId = %s.id OR ace.objectId IS NULL) AND BIT_AND(ace.mask, :perm) = :perm'
+                    .' AND (ace.userId IS NULL OR (ace.userType = :uty AND ace.userId = :uid)'
                     .($hasGroups ? ' OR (ace.userType = :gty AND ace.userId IN (:gids))' : '')
                     .')',
                     $objectTableAlias
@@ -117,36 +117,26 @@ class AccessControlEntryRepository extends EntityRepository
 
     public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
     {
+        return $this->getAllowedIds(AccessControlEntry::TYPE_USER_VALUE, $objectType, $objectId, $permission);
+    }
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->getAllowedIds(AccessControlEntry::TYPE_GROUP_VALUE, $objectType, $objectId, $permission);
+    }
+
+    private function getAllowedIds(int $userType, string $objectType, string $objectId, int $permission): array
+    {
         return array_map(function (array $row): ?string {
             return $row['userId'];
         }, $this
             ->createBaseQueryBuilder()
             ->select('DISTINCT a.userId')
-            ->andWhere(sprintf('a.objectType = :ot'))
-            ->andWhere(sprintf('a.objectId = :oid OR a.objectId IS NULL'))
+            ->andWhere('a.objectType = :ot')
+            ->andWhere('a.objectId = :oid OR a.objectId IS NULL')
             ->andWhere('BIT_AND(a.mask, :p) = :p')
             ->andWhere('a.userType = :ut')
-            ->setParameter('ut', AccessControlEntry::TYPE_USER_VALUE)
-            ->setParameter('ot', $objectType)
-            ->setParameter('oid', $objectId)
-            ->setParameter('p', $permission)
-            ->getQuery()
-            ->getScalarResult()
-        );
-    }
-
-    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
-    {
-        return array_map(function (array $row): string {
-            return $row['userId'];
-        }, $this
-            ->createBaseQueryBuilder()
-            ->select('DISTINCT a.userId')
-            ->andWhere(sprintf('a.objectType = :ot'))
-            ->andWhere(sprintf('a.objectId = :oid OR a.objectId IS NULL'))
-            ->andWhere('BIT_AND(a.mask, :p) = :p')
-            ->andWhere('a.userType = :ut')
-            ->setParameter('ut', AccessControlEntry::TYPE_GROUP_VALUE)
+            ->setParameter('ut', $userType)
             ->setParameter('ot', $objectType)
             ->setParameter('oid', $objectId)
             ->setParameter('p', $permission)

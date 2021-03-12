@@ -55,6 +55,12 @@ services:
             - { name: kernel.event_listener, event: console.terminate }
             - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onHandlerTerminate }
 
+    App\Listener\TerminateStackListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
+            - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }
+
     App\Api\Serializer\SecurityContextBuilder:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]

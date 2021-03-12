@@ -12,38 +12,4 @@ $assetMargin: px2rem(15);
   &.selected {
     border-color: #000;
   }
-
-  .a-thumb {
-    position: relative;
-    img {
-      max-width: 100%;
-      min-height: px2rem(115);
-      object-fit: cover;
-    }
-
-    .actions {
-      position: absolute;
-      right: px2rem(3);
-      top: px2rem(3);
-    }
-  }
-
-  .a-footer {
-    padding: px2rem(10);
-  }
-
-  .a-title {
-    font-weight: 700;
-  }
-  .a-desc {
-    font-size: px2rem(14);
-  }
-}
-
-.asset-grid {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  margin: -$assetMargin;
 }

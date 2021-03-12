@@ -7,36 +7,36 @@ namespace App\Api\DataTransformer;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Entity\Core\Asset;
-use Doctrine\ORM\EntityManagerInterface;
 
-class AssetInputDataTransformer extends AbstractSecurityDataTransformer
+class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
-
     /**
      * @param AssetInput $data
      */
     public function transform($data, string $to, array $context = [])
     {
-        $asset = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
-        $asset->setTitle($data->title);
-        if (null !== $data->privacy) {
-            $asset->setPrivacy($data->privacy);
+        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
+        $object->setTitle($data->title);
+        $this->transformPrivacy($data, $object);
+
+        if ($isNew) {
+            $object->setWorkspace($data->workspace);
+            $object->setOwnerId($this->getStrictUser()->getId());
         }
 
         if (isset($data->tags)) {
-            $asset->getTags()->clear();
+            $object->getTags()->clear();
             foreach ($data->tags as $tag) {
-                $asset->addTag($tag);
+                $object->addTag($tag);
             }
         }
 
-        return $asset;
+        if (null !== $data->collection) {
+            $object->addToCollection($data->collection);
+        }
+
+        return $object;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

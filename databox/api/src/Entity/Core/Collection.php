@@ -6,6 +6,7 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Api\Model\Input\CollectionInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
@@ -25,9 +26,9 @@ use App\Api\Model\Output\CollectionOutput;
  * @ORM\Entity()
  * @ApiResource(
  *  shortName="collection",
- *  normalizationContext={"groups"={"_", "collection:index"}},
+ *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children"}},
  *  output=CollectionOutput::class,
- *  input=false,
+ *  input=CollectionInput::class,
  * )
  */
 class Collection extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface

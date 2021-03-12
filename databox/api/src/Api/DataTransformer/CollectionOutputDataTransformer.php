@@ -31,7 +31,7 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setPrivacy($object->getPrivacy());
         $output->setWorkspace($object->getWorkspace());
 
-        if (($context['depth'] ?? 0) < 1) {
+        if (in_array('collection:include_children', $context['groups'], true) && ($context['depth'] ?? 0) < 1) {
             $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
                 'parent' => $object->getId(),
             ]);

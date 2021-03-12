@@ -75,6 +75,8 @@ class ReportClient
             $log['payload'] = $payload;
         }
 
+        $log['eventDate'] = time();
+
         $log = $this->logValidator->validate($log);
 
         try {

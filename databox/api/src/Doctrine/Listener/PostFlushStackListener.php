@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use App\Listener\TerminateStackListener;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 
-abstract class PostFlushStackListener implements EventSubscriber
+class PostFlushStackListener implements EventSubscriber
 {
     private array $callbacks = [];
     private array $events = [];
     private EventProducer $eventProducer;
+    private TerminateStackListener $terminateStackListener;
 
     /**
      * @required
@@ -22,6 +24,14 @@ abstract class PostFlushStackListener implements EventSubscriber
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;
+    }
+
+    /**
+     * @required
+     */
+    public function setTerminateStackListener(TerminateStackListener $terminateStackListener)
+    {
+        $this->terminateStackListener = $terminateStackListener;
     }
 
     public function addCallback(callable $callback): void
@@ -46,6 +56,19 @@ abstract class PostFlushStackListener implements EventSubscriber
 
         $this->callbacks = [];
         $this->events = [];
+
+        $em = $args->getEntityManager();
+        if ($em->getConnection()->getTransactionNestingLevel() > 0) {
+            while ($callback = array_shift($callbacks)) {
+                $this->terminateStackListener->addCallback($callback);
+            }
+
+            while ($event = array_shift($events)) {
+                $this->terminateStackListener->addEvent($event);
+            }
+
+            return;
+        }
 
         while ($callback = array_shift($callbacks)) {
             $callback();

@@ -1,0 +1,13 @@
+App\Entity\Core\Asset:
+  properties:
+    title:
+      - NotBlank: ~
+    workspace:
+      - NotNull: ~
+
+App\Entity\Core\Collection:
+  properties:
+    title:
+      - NotBlank: ~
+    workspace:
+      - NotNull: ~

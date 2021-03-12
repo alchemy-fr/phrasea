@@ -1,73 +1,12 @@
-.collections {
-  margin-left: px2rem(-15);
-  margin-right: px2rem(-15);
-}
 
-.menu-item {
-  @include noUserSelect();
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: px2rem(10);
-  cursor: pointer;
+.collection-item {
+  .c-action {
+    visibility: hidden;
+  }
 
-  .expand {
-    svg {
-      transform: rotateZ(-90deg);
+  &:hover {
+    > li > .MuiListItemSecondaryAction-root .c-action {
+      visibility: visible;
     }
   }
-
-  &.current {
-    background-color: rgba($primary, 0.05);
-  }
-
-  &.selected {
-    background-color: rgba($primary, 0.2);
-  }
-
-  .i-title {
-    flex-grow: 1;
-  }
-
-  .actions {
-
-  }
-
-  &.expanded {
-    .expand {
-      svg {
-        transform: rotateZ(0);
-      }
-    }
-  }
-}
-
-.workspace-menu-wrapper {
-  border-bottom: px2rem(1) solid lighten($primary, 20);
-
-  > .menu-item {
-    color: #FFF;
-    background-color: $primary;
-    padding: px2rem(5) px2rem(10);
-
-    &.selected {
-      background-color: rgba($primary, 0.8);
-    }
-
-    &.current {
-      background-color: rgba($primary, 0.5);
-    }
-
-    > .i-title {
-      font-weight: 700;
-      font-size: px2rem(14);
-    }
-  }
-}
-
-.collection-menu-wrapper {
-}
-
-.collection-menu-item {
-  @extend .menu-item;
 }
