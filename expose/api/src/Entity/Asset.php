@@ -37,7 +37,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         },
  *         "delete_by_asset_id"={
  *             "controller"=DeleteAssetsAction::class,
- *             // TODO add security
  *             "method"="DELETE",
  *             "path"="/assets/delete-by-asset-id/{assetId}",
  *             "swagger_context"={
