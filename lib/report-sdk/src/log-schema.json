@@ -38,12 +38,16 @@
     },
     "payload": {
       "type": "object"
+    },
+    "eventDate": {
+      "type": "object"
     }
   },
   "required": [
     "action",
     "appName",
-    "appId"
+    "appId",
+    "eventDate"
   ],
   "additionalProperties": false
 }
