@@ -40,7 +40,7 @@
       "type": "object"
     },
     "eventDate": {
-      "type": "object"
+      "type": "number"
     }
   },
   "required": [
