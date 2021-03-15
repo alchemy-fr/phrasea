@@ -21,14 +21,18 @@ class CollectionInputDataTransformer extends AbstractInputDataTransformer
         $this->transformPrivacy($data, $object);
 
         if ($isNew) {
-            $object->setWorkspace($data->workspace);
+            if ($data->workspace) {
+                $object->setWorkspace($data->workspace);
+            } elseif (null !== $data->parent) {
+                $object->setWorkspace($data->parent->getWorkspace());
+            }
         }
         if ($isNew) {
             $object->setOwnerId($this->getStrictUser()->getId());
         }
 
         if (null !== $data->parent) {
-            $object->set($data->parent);
+            $object->setParent($data->parent);
         }
 
         return $object;

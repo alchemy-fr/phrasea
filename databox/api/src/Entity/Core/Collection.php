@@ -19,6 +19,7 @@ use App\Entity\TranslatableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Api\Model\Output\CollectionOutput;
 
@@ -101,6 +102,10 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
 
     public function setParent(?self $parent): void
     {
+        if ($parent->getWorkspace() !== $this->getWorkspace()) {
+            throw new BadRequestHttpException('Cannot add a sub-collection in a different workspace');
+        }
+
         $this->parent = $parent;
     }
 

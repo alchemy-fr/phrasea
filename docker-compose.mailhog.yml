@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  mailhog:
+    image: mailhog/mailhog
+    networks:
+      - internal
+    ports:
+      - ${MAILHOG_PORT}:8025

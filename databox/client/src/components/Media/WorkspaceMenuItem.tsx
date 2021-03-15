@@ -1,22 +1,22 @@
 import React, {PureComponent, MouseEvent} from "react";
 import {Workspace} from "../../types";
-import {Link} from 'react-router-dom'
-import {ReactComponent as ArrowDownImg} from '../../images/icons/arrow-down.svg';
-import {ReactComponent as EditImg} from '../../images/icons/edit.svg';
-import Icon from "../ui/Icon";
-import Button from "../ui/Button";
 import {SelectionContext} from "./SelectionContext";
-import CollectionMenuItem, {CollectionMenuItemProps} from "./CollectionMenuItem";
-import EditCollection from "./Collection/EditCollection";
+import CollectionMenuItem from "./CollectionMenuItem";
 import EditWorkspace from "./Workspace/EditWorkspace";
+import CreateCollection from "./Collection/CreateCollection";
+import {IconButton, ListItem, ListItemSecondaryAction} from "@material-ui/core";
+import CreateNewFolder from "@material-ui/icons/CreateNewFolder";
+import EditIcon from "@material-ui/icons/Edit";
+import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import ListSubheader from "@material-ui/core/ListSubheader";
+
+export type WorkspaceMenuItemProps = {} & Workspace;
 
 type State = {
     expanded: boolean,
     editing: boolean,
+    addCollection: boolean,
 }
-
-export type WorkspaceMenuItemProps = {
-} & Workspace;
 
 export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemProps, State> {
     static contextType = SelectionContext;
@@ -25,6 +25,7 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
     state: State = {
         expanded: true,
         editing: false,
+        addCollection: false,
     };
 
     expandWorkspace = async (force = false): Promise<void> => {
@@ -52,75 +53,78 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
         this.setState({editing: false});
     }
 
+    addCollection = (e: MouseEvent): void => {
+        e.stopPropagation();
+        this.setState({addCollection: true});
+    }
+
+    closeCollection = () => {
+        this.setState({addCollection: false});
+    }
+
     render() {
         const {
             id,
             name,
-            collections,
             capabilities,
+            collections,
         } = this.props;
-        const {editing} = this.state;
+        const {editing, expanded, addCollection} = this.state;
 
         const selected = this.context.selectedWorkspace === id;
-        const currentInSelectedHierarchy = !!this.context.selectedCollection;
 
-        return <div
-            className={`workspace-menu-wrapper`}
-        >
-            <div
-                onClick={this.onClick}
-                className={`menu-item ${this.state.expanded ? 'expanded' : ''} ${selected ? 'selected' : ''} ${currentInSelectedHierarchy ? 'current' : ''}`}
-
+        return <>
+            <ListSubheader
+                disableGutters={true}
+                className={'workspace-item'}
             >
-                <div
-                    className="i-title"
-                >
-                    {name}
-                </div>
-                <div className="actions">
-                    {capabilities.canEdit ? <Button
-                        onClick={this.edit}
-                    ><Icon
-                        component={EditImg}/></Button> : ''}
-                </div>
-                {collections && collections.length > 0 ? <div
-                    className="expand"
-                    onClick={this.onExpandClick}
-                >
-                    <Icon
-                        variant={'xs'}
-                        component={ArrowDownImg}
-                    />
-                </div> : ''}
-            </div>
-            {editing ? <EditWorkspace
+                <ul>
+                    <ListItem
+                        onClick={this.onClick}
+                        selected={selected}
+                        button
+                    >
+                        {name}
+                        <ListItemSecondaryAction>
+                            {capabilities.canEdit && <IconButton
+                                title={'Add collection in this workspace'}
+                                onClick={this.addCollection}
+                                className={'c-action'}
+                                aria-label="add-child">
+                                <CreateNewFolder/>
+                            </IconButton>}
+                            {capabilities.canEdit && <IconButton
+                                title={'Edit this workspace'}
+                                onClick={this.edit}
+                                className={'c-action'}
+                                aria-label="edit">
+                                <EditIcon/>
+                            </IconButton>}
+                            {collections.length > 0 ? <IconButton
+                                onClick={this.onExpandClick}
+                                aria-label="expand-toggle">
+                                {!expanded ? <ExpandLess
+                                    onClick={this.onExpandClick}
+                                /> : <ExpandMore/>}
+                            </IconButton> : ''}
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                </ul>
+            </ListSubheader>
+            {editing && <EditWorkspace
                 id={this.props.id}
                 onClose={this.closeEdit}
-            /> : ''}
-            {this.renderChildren()}
-        </div>
-    }
-
-    onCollectionSelect = (collection: CollectionMenuItemProps, e: MouseEvent): void => {
-        this.context.selectCollection(collection.absolutePath);
-    }
-
-    renderChildren() {
-        const {collections} = this.props;
-        const {expanded} = this.state;
-        if (!expanded || !collections) {
-            return '';
-        }
-
-        return <div>
-            {collections.map(c => <CollectionMenuItem
+            />}
+            {addCollection && <CreateCollection
+                workspaceId={this.props['@id']}
+                onClose={this.closeCollection}
+            />}
+            {expanded && collections.map(c => <CollectionMenuItem
                 {...c}
                 key={c.id}
                 absolutePath={c.id}
-                selectedPath={this.context.selectedCollection}
-                onClick={this.onCollectionSelect}
                 level={0}
             />)}
-        </div>
+        </>
     }
 }

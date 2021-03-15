@@ -174,6 +174,10 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
 
     public function addToCollection(Collection $collection): CollectionAsset
     {
+        if ($collection->getWorkspace() !== $this->getWorkspace()) {
+            throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
+        }
+
         $assetCollection = new CollectionAsset();
         $assetCollection->setAsset($this);
         $assetCollection->setCollection($collection);

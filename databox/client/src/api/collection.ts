@@ -53,6 +53,20 @@ export async function patchCollection(id: string, data: Partial<Collection>): Pr
     return res.data;
 }
 
+type CollectionPostType = {
+    parent?: string,
+    title: string;
+    children?: Collection[];
+    workspace?: string;
+    privacy: number;
+}
+
+export async function postCollection(data: CollectionPostType): Promise<Collection> {
+    const res = await apiClient.post(`/collections`, data);
+
+    return res.data;
+}
+
 export async function patchWorkspace(id: string, data: Partial<Workspace>): Promise<Workspace> {
     const res = await apiClient.patch(`/workspaces/${id}`, data, {
         headers: {

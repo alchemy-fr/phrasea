@@ -7,26 +7,36 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import {Collapse, IconButton, ListItemSecondaryAction} from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
+import CreateNewFolder from '@material-ui/icons/CreateNewFolder';
+import AddPhotoAlternate from '@material-ui/icons/AddPhotoAlternate';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import CreateCollection from "./Collection/CreateCollection";
+import {SelectionContext} from "./SelectionContext";
+import CreateAsset from "./Asset/CreateAsset";
+
+export type CollectionMenuItemProps = {
+    level: number;
+    absolutePath: string,
+} & Collection;
 
 type State = {
     collections?: Collection[],
     expanded: boolean,
     editing: boolean,
+    addSubCollection: boolean,
+    addAsset: boolean,
 }
 
-export type CollectionMenuItemProps = {
-    level: number;
-    onClick: Function,
-    absolutePath: string,
-    selectedPath?: string,
-} & Collection;
-
 export default class CollectionMenuItem extends PureComponent<CollectionMenuItemProps, State> {
+    static contextType = SelectionContext;
+    context: React.ContextType<typeof SelectionContext>;
+
     state: State = {
         expanded: false,
         editing: false,
+        addSubCollection: false,
+        addAsset: false,
     };
 
     expandCollection = async (force = false): Promise<void> => {
@@ -47,16 +57,31 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
     }
 
     onClick = (e: MouseEvent): void => {
-        const {onClick} = this.props;
-
-        onClick && onClick(this.props, e);
-
+        this.context.selectCollection(this.props.absolutePath);
         this.expandCollection(true);
     }
 
     onExpandClick = (e: MouseEvent) => {
         e.stopPropagation();
         this.expandCollection();
+    }
+
+    addSubCollection = (e: MouseEvent): void => {
+        e.stopPropagation();
+        this.setState({addSubCollection: true});
+    }
+
+    closeSubCollection = () => {
+        this.setState({addSubCollection: false});
+    }
+
+    addAsset = (e: MouseEvent): void => {
+        e.stopPropagation();
+        this.setState({addAsset: true});
+    }
+
+    closeAsset = () => {
+        this.setState({addAsset: false});
     }
 
     edit = (e: MouseEvent): void => {
@@ -80,47 +105,63 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
             title,
             children,
             absolutePath,
-            selectedPath,
             capabilities,
             level,
         } = this.props;
-        const {editing, expanded} = this.state;
+        const {editing, addSubCollection, expanded, addAsset} = this.state;
 
-        const selected = selectedPath === absolutePath;
-        const currentInSelectedHierarchy = selectedPath && selectedPath.startsWith(absolutePath);
+        const selected = this.context.selectedCollection === absolutePath;
+        const currentInSelectedHierarchy = this.context.selectedCollection && this.context.selectedCollection.startsWith(absolutePath);
 
-        return <div
-            className={'collection-item'}
-        >
-            <ListItem
-                button
-                selected={Boolean(selected || currentInSelectedHierarchy)}
-                onClick={this.onClick}
-                style={{paddingLeft: `${10 + level * 10}px`}}
-            >
-                <ListItemText primary={title}/>
-                <ListItemSecondaryAction>
-                    {capabilities.canEdit && <IconButton
-                        onClick={this.edit}
-                        className={'c-action'}
-                        aria-label="edit">
-                        <EditIcon/>
-                    </IconButton>}
-                    {capabilities.canDelete && <IconButton
-                        onClick={this.delete}
-                        className={'c-action'}
-                        aria-label="delete">
-                        <DeleteIcon/>
-                    </IconButton>}
-                    {children && children.length > 0 ? <IconButton
-                        onClick={this.onExpandClick}
-                        aria-label="expand-toggle">
-                        {!expanded ? <ExpandLess
-                            onClick={this.onExpandClick}
-                        /> : <ExpandMore/>}
-                    </IconButton> : ''}
-                </ListItemSecondaryAction>
-            </ListItem>
+        return <>
+            <li className={'collection-item'}>
+                <ul>
+                    <ListItem
+                        button
+                        selected={Boolean(selected || currentInSelectedHierarchy)}
+                        onClick={this.onClick}
+                        style={{paddingLeft: `${10 + level * 10}px`}}
+                    >
+                        <ListItemText primary={title}/>
+                        <ListItemSecondaryAction>
+                            {capabilities.canEdit && <IconButton
+                                onClick={this.addAsset}
+                                className={'c-action'}
+                                title={'Add new asset to collection'}
+                                aria-label="create-asset">
+                                <AddPhotoAlternate/>
+                            </IconButton>}
+                            {capabilities.canEdit && <IconButton
+                                onClick={this.addSubCollection}
+                                className={'c-action'}
+                                title={'Create new collection in this one'}
+                                aria-label="add-child">
+                                <CreateNewFolder/>
+                            </IconButton>}
+                            {capabilities.canEdit && <IconButton
+                                title={'Edit this collection'}
+                                onClick={this.edit}
+                                className={'c-action'}
+                                aria-label="edit">
+                                <EditIcon/>
+                            </IconButton>}
+                            {capabilities.canDelete && <IconButton
+                                onClick={this.delete}
+                                className={'c-action'}
+                                aria-label="delete">
+                                <DeleteIcon/>
+                            </IconButton>}
+                            {children && children.length > 0 ? <IconButton
+                                onClick={this.onExpandClick}
+                                aria-label="expand-toggle">
+                                {!expanded ? <ExpandLess
+                                    onClick={this.onExpandClick}
+                                /> : <ExpandMore/>}
+                            </IconButton> : ''}
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                </ul>
+            </li>
 
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 {this.renderChildren()}
@@ -129,7 +170,17 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
                 id={this.props.id}
                 onClose={this.closeEdit}
             /> : ''}
-        </div>
+            {addSubCollection ? <CreateCollection
+                parent={this.props['@id']}
+                parentTitle={this.props.title}
+                onClose={this.closeSubCollection}
+            /> : ''}
+            {addAsset ? <CreateAsset
+                collectionId={this.props['@id']}
+                collectionTitle={this.props.title}
+                onClose={this.closeAsset}
+            /> : ''}
+        </>
     }
 
     renderChildren() {
@@ -143,8 +194,6 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
                 {...c}
                 key={c.id}
                 absolutePath={`${this.props.absolutePath}/${c.id}`}
-                selectedPath={this.props.selectedPath}
-                onClick={this.props.onClick}
                 level={this.props.level + 1}
             />)}
         </div>

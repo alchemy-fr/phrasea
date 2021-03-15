@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Asset} from "../types";
+import {Asset, Collection} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
 interface AssetOptions {
@@ -29,6 +29,19 @@ export async function patchAsset(id: string, data: Partial<any>): Promise<Asset>
             'Content-Type': 'application/merge-patch+json',
         },
     });
+
+    return res.data;
+}
+
+type AssetPostType = {
+    title: string;
+    privacy: number;
+    collection?: string,
+    workspace?: string;
+}
+
+export async function postAsset(data: AssetPostType): Promise<Asset> {
+    const res = await apiClient.post(`/assets`, data);
 
     return res.data;
 }

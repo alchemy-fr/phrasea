@@ -21,7 +21,11 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $this->transformPrivacy($data, $object);
 
         if ($isNew) {
-            $object->setWorkspace($data->workspace);
+            if ($data->workspace) {
+                $object->setWorkspace($data->workspace);
+            } elseif (null !== $data->collection) {
+                $object->setWorkspace($data->collection->getWorkspace());
+            }
             $object->setOwnerId($this->getStrictUser()->getId());
         }
 
