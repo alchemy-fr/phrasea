@@ -12,10 +12,10 @@ load-env
 
 set -ex
 
-d-c up -d
+docker-compose up -d
 
 # Wait for services to be ready
-d-c run --rm dockerize
+docker-compose run --rm dockerize
 
 # Setup Auth
 ## Create rabbitmq vhost
