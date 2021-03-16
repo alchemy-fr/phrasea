@@ -1,0 +1,14 @@
+
+@mixin svgFill($color) {
+  svg:not(.no-fill) {
+    path, circle, polygon {
+      &:not(.no-fill) {
+        fill: $color;
+      }
+
+      &.fill-stroke {
+        stroke: $color;
+      }
+    }
+  }
+}

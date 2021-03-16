@@ -8,6 +8,8 @@ class RemoteAuthGroupRepository extends AbstractRemoteAuthRepository implements 
 {
     public function getGroups(?int $limit = null, ?int $offset = null): array
     {
-        return $this->serviceClient->getGroups($this->getAccessToken(), $limit, $offset);
+        return $this->executeWithAccessToken(function (string $accessToken) use ($limit, $offset): array {
+            return $this->serviceClient->getGroups($accessToken, $limit, $offset);
+        });
     }
 }

@@ -29,6 +29,10 @@
   background-color: #3f51b5 !important;
   padding: 0;
 
+  .icon {
+    @include svgFill(#FFF);
+  }
+
   .MuiListItem-root {
     color: #FFF;
   }

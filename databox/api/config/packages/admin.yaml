@@ -41,6 +41,16 @@ easy_admin:
           - { property: 'title', label: Title }
           - { property: 'workspace' }
           - { property: 'tags' }
+          - { property: 'startingCollections', label: Collections, type: App\Form\CollectionAssetType, type_options: { expanded: false, disabled: true } }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - workspace
+      new:
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'workspace' }
+          - { property: 'startingCollections', label: Add to collections, type: App\Form\CollectionAssetType }
+          - { property: 'tags' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace

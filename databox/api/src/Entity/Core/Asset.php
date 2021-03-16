@@ -189,6 +189,23 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     }
 
     /**
+     * @internal For admin only
+     */
+    public function setStartingCollections(DoctrineCollection $collections): void
+    {
+        foreach ($collections as $collection) {
+            $this->addToCollection($collection);
+        }
+    }
+
+    public function getStartingCollections(): DoctrineCollection
+    {
+        return $this->collections->map(function (CollectionAsset $collectionAsset): Collection {
+            return $collectionAsset->getCollection();
+        });
+    }
+
+    /**
      * @return Tag[]
      */
     public function getTags(): DoctrineCollection

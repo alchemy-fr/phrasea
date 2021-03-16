@@ -13,6 +13,8 @@ import {
 } from "@material-ui/core";
 import InfoIcon from '@material-ui/icons/Info';
 import EditAsset from "./Asset/EditAsset";
+import Icon from "../ui/Icon";
+import {ReactComponent as FolderImg} from '../../images/icons/folder.svg';
 
 type Props = {
     selected?: boolean;
@@ -103,17 +105,24 @@ export default class AssetItem extends PureComponent<Props, State> {
             <GridListTileBar
                 title={title}
                 subtitle={<div>
-                    <div>{description}</div>
-                    {collections.map(c => <div
-                        key={c.id}
-                    >{c.title}</div>)}
+                    <div className={'a-desc'}>{description}</div>
+                    <ul className={'a-colls'}>
+                        {collections.map(c => <li
+                            key={c.id}
+                        >
+                            <Icon
+                                variant={'xs'}
+                                component={FolderImg}/>
+                            {c.title}
+                        </li>)}
+                    </ul>
                     <div>
                         {tags.map(t => <Badge
                             variant={'success'}
                             key={t.id}
                         >{t.name}</Badge>)}
                         <Badge
-                            variant={'info'}
+                            variant={'secondary'}
                         >{privacyLabel}</Badge>
                     </div>
                 </div>}

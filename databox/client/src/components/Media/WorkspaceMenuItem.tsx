@@ -9,6 +9,8 @@ import CreateNewFolder from "@material-ui/icons/CreateNewFolder";
 import EditIcon from "@material-ui/icons/Edit";
 import {ExpandLess, ExpandMore} from "@material-ui/icons";
 import ListSubheader from "@material-ui/core/ListSubheader";
+import {ReactComponent as WorkspaceImg} from "../../images/icons/workspace.svg";
+import Icon from "../ui/Icon";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -84,6 +86,9 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
                         selected={selected}
                         button
                     >
+                        <Icon
+                            component={WorkspaceImg}
+                        />
                         {name}
                         <ListItemSecondaryAction>
                             {capabilities.canEdit && <IconButton

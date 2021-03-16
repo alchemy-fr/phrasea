@@ -18,8 +18,8 @@ abstract class AbstractRemoteAuthRepository
         $this->serviceClient = $serviceClient;
     }
 
-    protected function getAccessToken(): string
+    protected function executeWithAccessToken(callable $callback)
     {
-        return $this->adminClient->getAccessToken();
+        return $this->adminClient->executeWithAccessToken($callback);
     }
 }

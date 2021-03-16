@@ -63,6 +63,10 @@ export default class AssetGrid extends PureComponent<Props, State> {
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
         if (
             this.lastContext !== this.context
+            && (
+                this.lastContext.selectedCollection !== this.context.selectedCollection
+                || this.lastContext.selectedWorkspace !== this.context.selectedWorkspace
+            )
         ) {
             this.lastContext = this.context;
 
@@ -70,11 +74,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
         }
     }
 
-    search() {
-        this.load();
-    }
-
-    async load(url?: string) {
+    async search(url?: string) {
         const parents = this.context.selectedCollection ? [extractCollectionIdFromPath(this.context.selectedCollection)] : undefined;
 
         const options = {
@@ -117,7 +117,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
 
     loadMore = (): void => {
         this.setState({loading: true}, () => {
-            this.load('/..' + this.state.next!);
+            this.search('/..' + this.state.next!);
         });
     }
 

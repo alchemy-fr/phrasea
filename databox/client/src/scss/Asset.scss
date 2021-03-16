@@ -12,4 +12,17 @@ $assetMargin: px2rem(15);
   &.selected {
     border-color: #000;
   }
+
+  .badge {
+    margin-right: px2rem(5);
+  }
+
+  .a-colls {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin: px2rem(3) 0;
+    }
+  }
 }

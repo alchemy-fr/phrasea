@@ -8,6 +8,8 @@ class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements U
 {
     public function getUsers(?int $limit = null, ?int $offset = null): array
     {
-        return $this->serviceClient->getUsers($this->getAccessToken(), $limit, $offset);
+        return $this->executeWithAccessToken(function (string $accessToken) use ($limit, $offset): array {
+            return $this->serviceClient->getUsers($accessToken, $limit, $offset);
+        });
     }
 }

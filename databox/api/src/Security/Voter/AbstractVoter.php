@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractVoter extends Voter
 {
+    const LIST = 'LIST';
     const READ = 'READ';
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
