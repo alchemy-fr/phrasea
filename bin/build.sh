@@ -29,6 +29,5 @@ docker-compose build databox-api-nginx
 docker-compose build databox-client
 docker-compose build minio
 docker-compose build minio-mc
-docker-compose build weblate
 docker-compose build report-api
 docker-compose build dashboard
