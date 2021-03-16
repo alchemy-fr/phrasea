@@ -36,7 +36,7 @@ easy_admin:
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - { property: 'collections.count', label: '# Colls' }
           - createdAt
-      form:
+      edit:
         fields:
           - { property: 'title', label: Title }
           - { property: 'workspace' }
