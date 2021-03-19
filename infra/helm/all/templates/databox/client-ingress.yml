@@ -1,11 +1,11 @@
-{{- if .Values.expose.enabled }}
-{{- with .Values.expose.client }}
+{{- if .Values.databox.enabled }}
+{{- with .Values.databox.client }}
 {{- if .ingress.enabled }}
 {{- $ingressNode := . }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: expose-client-ingress
+  name: databox-client-ingress
 {{- if .ingress.annotations }}
   annotations:
 {{ toYaml .ingress.annotations | indent 4 }}
@@ -16,11 +16,11 @@ metadata:
 {{- end }}
 spec:
   rules:
-  - host: {{ required "Missing .Values.expose.client.hostname" .hostname }}
+  - host: {{ required "Missing .Values.databox.client.hostname" .hostname | quote }}
     http:
       paths:
       - backend:
-          serviceName: expose-client
+          serviceName: databox-client
           servicePort: 80
         path: /
 {{- if .ingress.tls }}

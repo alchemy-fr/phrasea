@@ -1,7 +1,19 @@
+repository:
+  baseurl: localhost:5000
+
 auth:
   api:
     hostname: "auth.alchemy.kube"
     baseUrl: "https://auth.alchemy.kube"
+
+databox:
+  api:
+    hostname: "api-databox.alchemy.kube"
+    baseUrl: "https://api-databox.alchemy.kube"
+  client:
+    hostname: "databox.alchemy.kube"
+    baseUrl: "https://databox.alchemy.kube"
+
 expose:
   api:
     hostname: "api-expose.alchemy.kube"
@@ -138,6 +150,15 @@ globalConfig:
         }
       },
       "expose": {
+        "admin": {
+          "logo": {
+            "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
+            "with": "80px"
+          }
+        }
+      },
+      "databox": {
+        "analytics": false,
         "admin": {
           "logo": {
             "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",

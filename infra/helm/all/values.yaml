@@ -28,6 +28,61 @@ auth:
   rabbitmq:
     vhost: auth
 
+databox:
+  enabled: true
+  api:
+    ingress:
+      enabled: true
+      annotations: {}
+      extraLabels: {}
+      maxBodySize: 22G
+      tls: []
+    hostname:
+    baseUrl:
+    config:
+      requestSignatureTtl: 86400
+      s3Storage:
+        baseUrl: "{{ .Values.minio.baseUrl }}"
+        endpoint:
+        region:
+        bucketName: databox
+        usePathSyleEndpoint: false
+        accessKey:
+        secretKey:
+        externalSecretKey:
+        externalSecretMapping:
+          accessKey: S3_STORAGE_ACCESS_KEY
+          secretKey: S3_STORAGE_SECRET_KEY
+  adminOAuthClient:
+    externalSecretName:
+    id: databox-admin
+    randomId: fiMPj
+    secret: 'gdvnoRkX19jZuZqkwf9qW881jTqG'
+    grantTypes:
+    - authorization_code
+    - client_credentials
+    scopes:
+    - user:list
+    - group:list
+  client:
+    hostname:
+    baseUrl:
+    ingress:
+      enabled: true
+      annotations: {}
+      extraLabels: {}
+      tls: []
+    oauthClient:
+      externalSecretName:
+      id: databox-app
+      randomId: difnr
+      secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
+      redirectUri: "{{ .Values.databox.client.baseUrl }}"
+      grantTypes:
+      - password
+  rabbitmq:
+    vhost: databox
+
 expose:
   enabled: true
   api:
@@ -164,8 +219,8 @@ uploader:
 report:
   enabled: true
   api:
-    hostname:
-    baseUrl:
+    hostname: report-api
+    baseUrl: http://report-api
   databaseName: report
 
 dashboard:
@@ -185,7 +240,7 @@ mailer:
 postgresql:
   enabled: true
   externalSecretName:
-  host: db
+  host: postgresql
   port: 5432
   user: alchemy
   password: 'iHdB$$tyVGmT9Zj6shv'
@@ -251,6 +306,7 @@ globalConfig:
 _internal:
   services:
   - auth
+  - databox
   - expose
   - notify
   - uploader
@@ -279,3 +335,12 @@ _internal:
       annotations:
         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
         #nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+
+elasticsearch:
+  enabled: true
+  replicas: 1
+  minimumMasterNodes: 1
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 5Gi

@@ -1,0 +1,37 @@
+{{- if .Values.databox.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: databox-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phraseanet-services
+      tier: databox-client
+  template:
+    metadata:
+      labels:
+        app: phraseanet-services
+        tier: databox-client
+    spec:
+      volumes:
+{{- include "volumes.configs" $ | indent 8 }}
+      containers:
+      - name: databox-client
+        image: {{ $.Values.repository.baseurl }}/ps-databox-client:{{ $.Values.repository.tag }}
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - name: configs
+          mountPath: /configs
+        env:
+        - name: DEV_MODE
+          value: "false"
+        envFrom:
+        - configMapRef:
+            name: urls-config
+        - configMapRef:
+            name: databox-client-config
+        - secretRef:
+            name: {{ $.Values.databox.client.oauthClient.externalSecretName | default "databox-oauth-client-secret" }}
+{{- end }}

@@ -17,6 +17,43 @@ auth:
     # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
 
+databox:
+  api:
+    hostname: api-databox.phrasea.io
+    baseUrl: https://api-databox.phrasea.io
+    config:
+      s3Storage:
+        baseUrl: "https://s3.eu-west-1.amazonaws.com/databox"
+        # Leave me empty for AWS S3
+        endpoint: ""
+        bucketName: databox
+        externalSecretKey:
+        # Secret must contain:
+        # - S3_STORAGE_ACCESS_KEY
+        # - S3_STORAGE_SECRET_KEY
+
+    ingress:
+      annotations: {}
+  adminOAuthClient:
+    externalSecretName:
+    # Secret must contain:
+    # - ADMIN_CLIENT_ID
+    # - ADMIN_CLIENT_RANDOM_ID
+    # - ADMIN_CLIENT_SECRET
+  client:
+    hostname: databox.phrasea.io
+    baseUrl: https://databox.phrasea.io
+    ingress:
+      annotations: {}
+      tls: []
+    oauthClient:
+      externalSecretName:
+      # Secret must contain:
+      # - CLIENT_ID
+      # - CLIENT_RANDOM_ID
+      # - CLIENT_SECRET
+      secret: ""
+
 expose:
   api:
     hostname: api-expose.phrasea.io

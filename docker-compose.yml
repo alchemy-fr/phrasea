@@ -446,6 +446,8 @@ services:
           - report-api
     environment:
       - APP_ENV
+      - POSTGRES_HOST
+      - POSTGRES_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
@@ -630,7 +632,7 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   elasticsearch:
-    image: elasticsearch:7.9.3
+    image: elasticsearch:7.11.2
     networks:
       - internal
     volumes:

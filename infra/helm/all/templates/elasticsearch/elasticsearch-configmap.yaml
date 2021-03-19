@@ -1,0 +1,9 @@
+{{- with .Values.elasticsearch }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+data:
+  elasticsearch.yml: |
+    xpack.security.enabled: false
+{{- end }}

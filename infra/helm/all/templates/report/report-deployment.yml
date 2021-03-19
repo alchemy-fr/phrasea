@@ -1,3 +1,5 @@
+{{- with .Values.report }}
+{{- if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,13 +18,12 @@ spec:
     spec:
       containers:
       - name: report-api
-        image: {{ .Values.repository.baseurl }}/ps-report-api:{{ .Values.repository.tag }}
+        image: {{ $.Values.repository.baseurl }}/ps-report-api:{{ $.Values.repository.tag }}
         terminationMessagePolicy: FallbackToLogsOnError
-        env:
-        - name: APP_ENV
-          value: prod
-        - name: POSTGRES_DATABASE
-          value: {{ .Values.report.databaseName | quote }}
         envFrom:
+        - configMapRef:
+            name: report-config
         - secretRef:
-            name: {{ include "secretName.postgresql" . }}
+            name: {{ include "secretName.postgresql" $ }}
+{{- end }}
+{{- end }}

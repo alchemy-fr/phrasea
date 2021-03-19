@@ -1,7 +1,9 @@
+{{- with .Values.postgresql }}
+{{- if .enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: db
+  name: postgresql
 spec:
   ports:
   - name: postgre
@@ -10,3 +12,5 @@ spec:
   selector:
     app: phraseanet-services
     tier: postgresql
+{{- end }}
+{{- end }}

@@ -1,0 +1,73 @@
+{{- with .Values.elasticsearch }}
+{{- if .enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  labels:
+    app: phraseanet-services
+    tier: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  updateStrategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: phraseanet-services
+      tier: elasticsearch
+  template:
+    metadata:
+      name: elasticsearch
+      labels:
+        app: phraseanet-services
+        tier: elasticsearch
+    spec:
+      volumes:
+        - name: elasticsearch-storage
+        {{- if .persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .persistence.existingClaim | default (printf "%s-elasticsearch" (include "ps.fullname" $)) }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: elasticsearch-config
+          configMap:
+            name: elasticsearch-config
+            items:
+              - key: elasticsearch.yml
+                path: elasticsearch.yml
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: init-sysctl
+          image: busybox:1.27.2
+          imagePullPolicy: IfNotPresent
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+      containers:
+        - name: elasticsearch
+          image: elasticsearch:7.9.3
+          terminationMessagePolicy: FallbackToLogsOnError
+          securityContext:
+            privileged: true
+            runAsUser: 1000
+            capabilities:
+              add:
+                - IPC_LOCK
+                - SYS_RESOURCE
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+          volumeMounts:
+            - name: elasticsearch-storage
+              mountPath: "/var/lib/elasticsearch"
+            - name: elasticsearch-config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+{{- end }}
+{{- end }}

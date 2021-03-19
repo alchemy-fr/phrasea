@@ -1,0 +1,13 @@
+{{- if .Values.databox.enabled }}
+{{- with .Values.databox.api.config }}
+{{- $tplArgs := dict "app" "databox" "ctx" . "glob" $ }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: databox-api-config
+data:
+  DATABOX_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
+  ELASTICSEARCH_URL: http://elasticsearch-master:9200/
+{{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
+{{- end }}
+{{- end }}

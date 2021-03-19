@@ -8,7 +8,7 @@ data:
     #!/bin/sh
     set -ex
 
-    DB="report"
+    DB="{{ .Values.report.databaseName }}"
 
     DSN="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@{{ .Values.postgresql.host }}:{{ .Values.postgresql.port }}"
     psql ${DSN} -tc "SELECT 1 FROM pg_database WHERE datname = '$DB'" | grep -q 1 || psql ${DSN} -c "CREATE DATABASE $DB"
