@@ -1,0 +1,75 @@
+version: '3.2'
+
+services:
+  report-elasticsearch:
+    build:
+      context: infra/docker/elk/elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./infra/docker/elk/elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: report_elasticsearch
+        target: /usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    networks:
+      - internal
+
+  report-logstash:
+    build:
+      context: infra/docker/elk/logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./infra/docker/elk/logstash/files:/usr/share/logstash/files
+      - type: bind
+        source: ./infra/docker/elk/logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./infra/docker/elk/logstash/pipeline/logstash.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+        read_only: true
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      - LS_JAVA_OPTS=-Xmx256m -Xms256m
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DATABASE=${REPORT_DB_NAME}
+    networks:
+      - internal
+    depends_on:
+      - report-elasticsearch
+
+  report-kibana:
+    build:
+      context: infra/docker/elk/kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./infra/docker/elk/kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "${PS_REPORT_KIBANA_PORT}:5601"
+    networks:
+      - internal
+    depends_on:
+      - report-elasticsearch
+
+volumes:
+  report_elasticsearch:
