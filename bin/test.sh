@@ -11,10 +11,10 @@ export APP_ENV=test
 export XDEBUG_ENABLED=0
 
 SF_SERVICES="
+expose-api-php
 databox-api-php
 auth-api-php
 uploader-api-php
-expose-api-php
 notify-api-php
 "
 
