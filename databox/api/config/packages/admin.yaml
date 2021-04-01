@@ -1,0 +1,123 @@
+alchemy_admin:
+  service:
+    title: Databox
+    name: databox
+
+easy_admin:
+  design:
+    menu:
+      - label: 'Permissions'
+        children:
+          - { label: 'Asset permissions', route: admin_global_permissions, params: {type: asset} }
+          - { label: 'Collection permissions', route: admin_global_permissions, params: {type: collection} }
+          - { label: 'Workspace permissions', route: admin_global_permissions, params: {type: workspace} }
+          - { label: 'All permissions (advanced)', entity: AccessControlEntry }
+      - label: 'Core'
+        children:
+          - Asset
+          - Collection
+          - Workspace
+          - Tag
+          - TagFilterRule
+      - OAuthClient
+  entities:
+    Asset:
+      class: App\Entity\Core\Asset
+      list:
+        max_results: 100
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'workspace' }
+          - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
+          - { property: 'collections.count', label: '# Colls' }
+          - createdAt
+      edit:
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'workspace' }
+          - { property: 'tags' }
+          - { property: 'startingCollections', label: Collections, type: App\Form\CollectionAssetType, type_options: { expanded: false, disabled: true } }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - workspace
+      new:
+        fields:
+          - { property: 'title', label: Title }
+          - { property: 'workspace' }
+          - { property: 'startingCollections', label: Add to collections, type: App\Form\CollectionAssetType }
+          - { property: 'tags' }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - workspace
+
+    Collection:
+      class: App\Entity\Core\Collection
+      list:
+        max_results: 100
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: 'title' }
+          - { property: 'parent', label: Parent }
+          - { property: 'workspace' }
+          - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'title' }
+          - { property: 'workspace' }
+          - { property: 'parent' }
+          - { property: 'privacy', type: App\Form\PrivacyChoiceType }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+
+    Workspace:
+      class: App\Entity\Core\Workspace
+      list:
+        max_results: 100
+        actions:
+          - permissions
+        sort: [name, ASC]
+        fields:
+          - { property: 'name' }
+          - updatedAt
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
+          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+
+    Tag:
+      class: App\Entity\Core\Tag
+      list:
+        max_results: 100
+        sort: [name, ASC]
+        fields:
+          - { property: 'name' }
+          - { property: 'workspace' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'name' }
+          - { property: 'workspace' }
+
+    TagFilterRule:
+      class: App\Entity\Core\TagFilterRule
+      list:
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'userType' }
+          - { property: 'userId' }
+          - { property: 'objectType' }
+          - { property: 'objectId', type: string }
+          - { property: 'include' }
+          - { property: 'exclude' }
+          - createdAt

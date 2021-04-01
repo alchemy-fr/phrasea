@@ -699,6 +699,11 @@ class Publication implements AclObjectInterface
         return $this->config->getLayoutOptions();
     }
 
+    public function getAclOwnerId(): string
+    {
+        return $this->getOwnerId() ?? '';
+    }
+
     // @see https://github.com/doctrine/orm/issues/7944
     public function __sleep()
     {

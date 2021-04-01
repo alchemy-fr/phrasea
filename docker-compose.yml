@@ -49,6 +49,8 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
     image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
@@ -96,27 +98,6 @@ services:
       - ${UPLOADER_API_PORT}:80
     depends_on:
       - uploader-api-php
-
-  uploader-client:
-    image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
-    build:
-      context: ./uploader/client
-      target: uploader-client_nginx
-    volumes:
-      - ./configs:/configs
-    ports:
-      - ${UPLOADER_CLIENT_PORT}:80
-    networks:
-      - internal
-    environment:
-      - DEV_MODE
-      - UPLOADER_API_BASE_URL
-      - AUTH_BASE_URL
-      - CLIENT_ID=${UPLOADER_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
 
   auth-worker:
     image: ${REGISTRY_NAMESPACE}auth-worker:$DOCKER_TAG
@@ -172,6 +153,8 @@ services:
       - redis
       - rabbitmq
       - db
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   auth-api-nginx:
     image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
@@ -226,6 +209,8 @@ services:
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -274,30 +259,6 @@ services:
     environment:
       - UPLOAD_MAX_FILE_SIZE
 
-  expose-client:
-    image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
-    build:
-      context: ./expose/client
-      target: expose-client_nginx
-    volumes:
-      - ./configs:/configs
-    ports:
-      - ${EXPOSE_FRONT_PORT}:80
-    networks:
-      - internal
-    environment:
-      - DEV_MODE
-      - EXPOSE_API_BASE_URL
-      - EXPOSE_REQUEST_SIGNATURE_TTL
-      - AUTH_BASE_URL
-      - CLIENT_ID=${EXPOSE_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
-      - MATOMO_HOST
-      - MAPBOX_TOKEN
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
-
   notify-api-php:
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
     build:
@@ -328,6 +289,8 @@ services:
       - MAIL_FROM
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   notify-worker:
     image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
@@ -472,38 +435,7 @@ services:
       - MYSQL_USER=$MATOMO_DATABASE_USERNAME
       - MYSQL_PASSWORD=$MATOMO_DATABASE_PASSWORD
     volumes:
-      - mariadb_vol:/var/lib/mysql
-
-  weblate:
-    image: weblate/weblate:3.8-4
-    volumes:
-      - weblate_vol:/app/data
-    networks:
-      - internal
-    ports:
-      - ${WEBLATE_PORT}:8080
-    depends_on:
-      - db
-      - redis
-    environment:
-      - WEBLATE_EMAIL_HOST
-      - WEBLATE_EMAIL_PORT
-      - WEBLATE_EMAIL_HOST_USER
-      - WEBLATE_EMAIL_HOST_PASSWORD
-      - WEBLATE_ALLOWED_HOSTS
-      - WEBLATE_ADMIN_PASSWORD
-      - WEBLATE_EMAIL_USE_TLS=0
-      - WEBLATE_EMAIL_USE_SSL=0
-      - WEBLATE_ADMIN_EMAIL
-      - WEBLATE_ADMIN_NAME
-      - WEBLATE_SERVER_EMAIL=$WEBLATE_SERVER_EMAIL
-      - WEBLATE_DEFAULT_FROM_EMAIL=weblate@example.com
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - matomodb_vol:/var/lib/mysql
 
   report-api:
     image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
@@ -514,16 +446,11 @@ services:
           - report-api
     environment:
       - APP_ENV
+      - POSTGRES_HOST
+      - POSTGRES_PORT
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
-
-  mailhog:
-    image: mailhog/mailhog
-    networks:
-      - internal
-    ports:
-      - ${MAILHOG_PORT}:8025
 
   pgadmin:
     image: dpage/pgadmin4:4.14
@@ -558,70 +485,175 @@ services:
     ports:
       - ${DASHBOARD_PORT}:80
     environment:
+      - APP_ENV
+      - ASSET_CONSUMER_ACCESS_TOKEN
+      - ASSET_CONSUMER_COMMIT_URI
+      - AUTH_BASE_URL
+      - AUTH_PORT
+      - AUTH_REGISTRATION_VALIDATE_EMAIL
       - COMPOSE_PROJECT_NAME
       - DASHBOARD_BASE_URL
-      - REGISTRY_NAMESPACE
-      - DOCKER_TAG
-      - APP_ENV
+      - DATABOX_API_BASE_URL
+      - DATABOX_CLIENT_BASE_URL
       - DEV_MODE
-      - AUTH_PORT
-      - AUTH_BASE_URL
-      - AUTH_REGISTRATION_VALIDATE_EMAIL
-      - ASSET_CONSUMER_COMMIT_URI
-      - ASSET_CONSUMER_ACCESS_TOKEN
-      - UPLOADER_API_PORT
-      - UPLOADER_API_BASE_URL
-      - UPLOADER_FRONT_BASE_URL
-      - EXPOSE_API_PORT
-      - EXPOSE_FRONT_PORT
+      - DOCKER_TAG
       - EXPOSE_API_BASE_URL
+      - EXPOSE_API_PORT
       - EXPOSE_FRONT_BASE_URL
-      - EXPOSE_STORAGE_ROOT_URL
+      - EXPOSE_FRONT_PORT
       - EXPOSE_STORAGE_BUCKET_NAME
-      - NOTIFY_PORT
-      - NOTIFY_BASE_URL
-      - RABBITMQ_MGT_PORT
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - PGADMIN_PORT
-      - PGADMIN_BASE_URL
+      - EXPOSE_STORAGE_ROOT_URL
+      - IDE_KEY
       - MAILER_DSN
+      - MAILHOG_BASE_URL
+      - MAILHOG_PORT
+      - MATOMO_DATABASE_DBNAME
+      - MATOMO_HOST
+      - MATOMO_MYSQL_ROOT_PASSWORD
+      - MATOMO_PORT
       - MINIO_PORT
-      - WEBLATE_PORT
+      - NOTIFY_BASE_URL
+      - NOTIFY_PORT
+      - PGADMIN_BASE_URL
+      - PGADMIN_PORT
+      - PHPMYADMIN_BASE_URL
+      - PHPMYADMIN_PORT
+      - PS_DEBUG_SERVER_NAME_PREFIX
+      - PS_GATEWAY_IP
+      - PS_SUBNET
+      - RABBITMQ_MGT_PORT
+      - RABBITMQ_PASSWORD
+      - RABBITMQ_USER
+      - REGISTRY_NAMESPACE
+      - REPORT_BASE_URL
+      - REPORT_DB_NAME
+      - SAML2_BASE_URL
+      - SAML_BASE_URL
+      - UPLOADER_API_BASE_URL
+      - UPLOADER_API_PORT
+      - UPLOADER_FRONT_BASE_URL
+      - WEBLATE_ADMIN_EMAIL
+      - WEBLATE_ADMIN_NAME
+      - WEBLATE_ADMIN_PASSWORD
+      - WEBLATE_ALLOWED_HOSTS
       - WEBLATE_BASE_URL
       - WEBLATE_EMAIL_HOST
       - WEBLATE_EMAIL_PORT
-      - WEBLATE_ALLOWED_HOSTS
-      - WEBLATE_ADMIN_EMAIL
-      - WEBLATE_ADMIN_PASSWORD
-      - WEBLATE_SERVER_EMAIL
+      - WEBLATE_PORT
       - WEBLATE_POSTGRES_DB
-      - WEBLATE_ADMIN_NAME
-      - MATOMO_HOST
-      - MATOMO_PORT
-      - MATOMO_MYSQL_ROOT_PASSWORD
-      - MATOMO_DATABASE_DBNAME
-      - PHPMYADMIN_PORT
-      - PHPMYADMIN_BASE_URL
-      - REPORT_DB_NAME
-      - REPORT_BASE_URL
-      - PS_SUBNET
-      - PS_GATEWAY_IP
-      - IDE_KEY
+      - WEBLATE_SERVER_EMAIL
       - XDEBUG_ENABLED
-      - PS_DEBUG_SERVER_NAME_PREFIX
-      - MAILHOG_PORT
-      - MAILHOG_BASE_URL
-      - SAML_BASE_URL
-      - SAML2_BASE_URL
+
+  databox-api-php:
+    image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
+    build:
+      context: ./databox/api
+      target: databox-api-php
+    networks:
+      internal:
+        aliases:
+          - databox-php
+    environment:
+      - APP_ENV
+      - AUTH_BASE_URL
+      - DATABOX_API_BASE_URL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+      - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      - ELASTICSEARCH_URL
+      - S3_STORAGE_BASE_URL=${DATABOX_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${DATABOX_STORAGE_ENDPOINT}
+      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${DATABOX_STORAGE_BUCKET_NAME}
+      - DATABOX_REQUEST_SIGNATURE_TTL
+      - TRUSTED_PROXIES=${PS_SUBNET}
+    depends_on:
+      - rabbitmq
+      - redis
+      - db
+      - elasticsearch
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+
+  databox-api-nginx:
+    image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
+    build:
+      context: ./databox/api
+      target: databox-api-nginx
+    networks:
+      internal:
+        aliases:
+          - databox-api
+    ports:
+      - ${DATABOX_API_PORT}:80
+    depends_on:
+      - databox-api-php
+
+  databox-worker:
+    image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
+    build:
+      context: ./databox/api
+      target: databox-worker
+    networks:
+      - internal
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+      - elasticsearch
+    environment:
+      - APP_ENV
+      - AUTH_BASE_URL
+      - DATABOX_API_BASE_URL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+      - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
+      - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      - ELASTICSEARCH_URL
+      - S3_STORAGE_BASE_URL=${DATABOX_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=${DATABOX_STORAGE_ENDPOINT}
+      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${DATABOX_STORAGE_BUCKET_NAME}
+      - DATABOX_REQUEST_SIGNATURE_TTL
+    extra_hosts:
+      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+
+  elasticsearch:
+    image: elasticsearch:7.11.2
+    networks:
+      - internal
+    volumes:
+      - elasticsearch_vol:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
 volumes:
-  weblate_vol:
   db_vol:
   redis_vol:
   uploader_vol: # rw-many
   s3_vol:
   matomo_vol:
-  mariadb_vol:
+  matomodb_vol:
   pgadmin_vol:
   rabbitmq_vol:
+  elasticsearch_vol:

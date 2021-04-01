@@ -1,0 +1,28 @@
+$assetMargin: px2rem(15);
+
+.asset-item {
+  @include noUserSelect();
+  cursor: pointer;
+  border: px2rem(2) solid #CCC;
+  width: px2rem(200);
+  height: px2rem(200);
+  margin: $assetMargin;
+  box-shadow: 0 0 px2rem(4) rgba(#000, 0.2);
+
+  &.selected {
+    border-color: #000;
+  }
+
+  .badge {
+    margin-right: px2rem(5);
+  }
+
+  .a-colls {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin: px2rem(3) 0;
+    }
+  }
+}

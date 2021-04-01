@@ -1,0 +1,10 @@
+App\Entity\Group:
+  g_admin:
+    id: cd29d2da-5652-4403-b178-2984bd537568
+    name: Admin
+  g_marketing:
+    id: 74ed59a9-f86d-4b47-a261-6b4de0fd1699
+    name: Marketing
+  g_sales:
+    id: ff0cfc10-e20b-4c5d-8008-2480ab2934cc
+    name: Sales

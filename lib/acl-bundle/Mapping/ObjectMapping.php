@@ -2,7 +2,7 @@
 
 namespace Alchemy\AclBundle\Mapping;
 
-use Doctrine\Common\Persistence\Proxy;
+use Doctrine\Persistence\Proxy;
 use InvalidArgumentException;
 use ReflectionClass;
 

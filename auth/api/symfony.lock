@@ -63,7 +63,7 @@
         "version": "v2.10.0"
     },
     "doctrine/data-fixtures": {
-        "version": "v1.3.1"
+        "version": "1.5.0"
     },
     "doctrine/dbal": {
         "version": "v2.9.2"
@@ -136,6 +136,9 @@
             "config/routes/easy_admin.yaml"
         ]
     },
+    "fakerphp/faker": {
+        "version": "v1.13.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -147,6 +150,9 @@
         "files": [
             ".php_cs.dist"
         ]
+    },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.2"
     },
     "friendsofsymfony/oauth-server-bundle": {
         "version": "1.6.2"
@@ -205,7 +211,7 @@
         "version": "1.25.4"
     },
     "myclabs/deep-copy": {
-        "version": "1.9.1"
+        "version": "1.10.2"
     },
     "nelmio/alice": {
         "version": "3.2",
@@ -350,16 +356,16 @@
         "version": "3.0.4"
     },
     "sebastian/comparator": {
-        "version": "3.0.2"
+        "version": "4.0.6"
     },
     "sebastian/diff": {
-        "version": "3.0.2"
+        "version": "4.0.4"
     },
     "sebastian/exporter": {
-        "version": "3.1.0"
+        "version": "4.0.3"
     },
     "sebastian/recursion-context": {
-        "version": "3.0.0"
+        "version": "4.0.4"
     },
     "snc/redis-bundle": {
         "version": "2.0",

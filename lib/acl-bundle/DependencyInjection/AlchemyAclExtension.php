@@ -32,15 +32,6 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
 
         $mapperDef = $container->findDefinition(ObjectMapping::class);
         $mapperDef->setArgument('$mapping', $config['objects']);
-
-        foreach ([
-                     RemoteAuthUserRepository::class,
-                     RemoteAuthGroupRepository::class,
-                 ] as $serviceId) {
-            $mapperDef = $container->findDefinition($serviceId);
-            $mapperDef->setArgument('$clientId', $config['auth']['client_id']);
-            $mapperDef->setArgument('$clientSecret', $config['auth']['client_secret']);
-        }
     }
 
     public function prepend(ContainerBuilder $container)

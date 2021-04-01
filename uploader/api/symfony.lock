@@ -159,6 +159,9 @@
             "config/packages/eight_points_guzzle.yaml"
         ]
     },
+    "fakerphp/faker": {
+        "version": "v1.13.0"
+    },
     "fig/link-util": {
         "version": "1.1.1"
     },
@@ -173,6 +176,9 @@
         "files": [
             ".php_cs.dist"
         ]
+    },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.2"
     },
     "friendsofsymfony/oauth-server-bundle": {
         "version": "1.6.2"

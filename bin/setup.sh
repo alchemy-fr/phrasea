@@ -12,10 +12,10 @@ load-env
 
 set -ex
 
-d-c up -d
+docker-compose up -d
 
 # Wait for services to be ready
-d-c run --rm dockerize
+docker-compose run --rm dockerize
 
 # Setup Auth
 ## Create rabbitmq vhost
@@ -39,7 +39,8 @@ exec_container_as uploader-api-php "bin/setup.sh" app
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_CLIENT_SECRET} \
-    --grant-type authorization_code"
+    --grant-type authorization_code \
+    --redirect-uri ${UPLOADER_FRONT_BASE_URL}"
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
     --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
@@ -106,6 +107,26 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
     --grant-type authorization_code \
     --redirect-uri ${NOTIFY_BASE_URL}"
 
+# Setup Databox
+## Create rabbitmq vhost
+exec_container rabbitmq "rabbitmqctl add_vhost databox && rabbitmqctl set_permissions -p databox ${RABBITMQ_USER} '.*' '.*' '.*'"
+## Setup container
+exec_container_as databox-api-php "bin/setup.sh" app
+## Create OAuth client for Databox Admin
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_ADMIN_CLIENT_ID} \
+    --random-id=${DATABOX_ADMIN_CLIENT_RANDOM_ID} \
+    --secret=${DATABOX_ADMIN_CLIENT_SECRET} \
+    --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope user:list \
+    --scope group:list \
+    --redirect-uri ${DATABOX_API_BASE_URL}"
+## Create OAuth client
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_CLIENT_ID} \
+    --random-id=${DATABOX_CLIENT_RANDOM_ID} \
+    --secret=${DATABOX_CLIENT_SECRET} \
+    --grant-type authorization_code \
+    --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
 
 # Setup Report
 ## Create DB

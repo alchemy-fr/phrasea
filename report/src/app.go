@@ -22,6 +22,7 @@ type logJson struct {
     BaseId string
     Item string
     User string
+    EventDate string
     Payload map[string]string
 }
 
@@ -48,7 +49,7 @@ func logHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
 
 func addAction(log logJson) error {
 	_, err := conn.Exec(context.Background(),
-        "INSERT INTO logs(app_name, app_id, action, databox_id, base_id, item, user_id, payload) values($1, $2, $3, $4, $5, $6, $7, $8)",
+        "INSERT INTO logs(app_name, app_id, action, databox_id, base_id, item, user_id, payload, event_date) values($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         log.AppName,
         log.AppId,
         log.Action,
@@ -56,13 +57,14 @@ func addAction(log logJson) error {
         log.BaseId,
         log.Item,
         log.User,
-        log.Payload)
+        log.Payload,
+        log.EventDate)
 	return err
 }
 
 func main() {
-    connStr := fmt.Sprintf("host=db port=5432 user=%s password=%s dbname=%s sslmode=disable",
-        os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DATABASE"))
+    connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+        os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DATABASE"))
 
     var err error
     conn, err = pgx.Connect(context.Background(), connStr)

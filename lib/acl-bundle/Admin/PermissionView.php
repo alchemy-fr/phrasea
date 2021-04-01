@@ -10,6 +10,7 @@ use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 class PermissionView
 {
@@ -17,17 +18,20 @@ class PermissionView
     private PermissionRepositoryInterface $repository;
     private UserRepositoryInterface $userRepository;
     private GroupRepositoryInterface $groupRepository;
+    private EntityManagerInterface $em;
 
     public function __construct(
         ObjectMapping $objectMapping,
         PermissionRepositoryInterface $repository,
         UserRepositoryInterface $userRepository,
-        GroupRepositoryInterface $groupRepository
+        GroupRepositoryInterface $groupRepository,
+        EntityManagerInterface $em
     ) {
         $this->objectMapping = $objectMapping;
         $this->repository = $repository;
         $this->userRepository = $userRepository;
         $this->groupRepository = $groupRepository;
+        $this->em = $em;
     }
 
     public function getObjectKey(string $entityClass): string
@@ -71,9 +75,17 @@ class PermissionView
                 'userId' => $ace->getUserId() ?? AccessControlEntry::USER_WILDCARD,
                 'name' => $name,
                 'objectId' => $ace->getObjectId(),
-                'permissions' => array_map(fn (int $p): bool => $ace->hasPermission($p), $permissions),
+                'permissions' => array_map(fn(int $p): bool => $ace->hasPermission($p), $permissions),
             ];
         }, $aces);
+
+        $objectTitle = null;
+        if ($id) {
+            $object = $this->em->getRepository($this->objectMapping->getClassName($objectKey))->find($id);
+            if (null !== $object && method_exists($object, '__toString')) {
+                $objectTitle = (string)$object;
+            }
+        }
 
         $params = [
             'USER_WILDCARD' => AccessControlEntry::USER_WILDCARD,
@@ -82,9 +94,10 @@ class PermissionView
             'users' => $users,
             'groups' => $groups,
             'object_type' => $objectKey,
+            'object_title' => $objectTitle,
         ];
 
-        if(null !== $id) {
+        if (null !== $id) {
             $params['object_id'] = $id;
         }
 

@@ -1,4 +1,4 @@
-FROM node:13.10.1-alpine3.11 as uploader-client-build
+FROM node:14.15.4-alpine3.12 as uploader-client-build
 
 RUN apk add --virtual .build \
         wget \
@@ -13,7 +13,7 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 
 RUN apk add --no-cache --virtual .gyp \
-        python \
+        python3 \
         make \
         g++ \
     && yarn install \
@@ -27,7 +27,7 @@ CMD ["/bin/sh", "-c", "/var/docker/generate-env ./public && yarn start"]
 
 ############
 
-FROM nginx:1.17.6-alpine as uploader-client_nginx
+FROM nginx:1.17.6-alpine as uploader-client-nginx
 
 COPY --from=uploader-client-build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d

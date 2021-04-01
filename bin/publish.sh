@@ -3,4 +3,4 @@
 set -e
 
 docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
-docker-compose -f docker-compose.yml push
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml push

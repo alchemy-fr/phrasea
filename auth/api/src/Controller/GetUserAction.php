@@ -13,10 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GetUserAction extends AbstractController
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {

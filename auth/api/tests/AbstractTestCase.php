@@ -6,7 +6,6 @@ namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
-use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractTestCase extends ApiTestCase
@@ -15,11 +14,6 @@ abstract class AbstractTestCase extends ApiTestCase
 
     const CLIENT_ID = 'mobile-app_12345';
     const CLIENT_SECRET = 'cli3nt_s3cr3t';
-
-    /**
-     * @var Client
-     */
-    protected $client;
 
     /**
      * @return string The access token

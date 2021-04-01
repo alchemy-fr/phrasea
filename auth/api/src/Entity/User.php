@@ -63,21 +63,16 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
     protected array $roles = [];
 
     /**
-     * @var string|null
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $password;
+    protected ?string $password = null;
 
     /**
-     * @var string|null
      * @ORM\Column(type="string", length=5, nullable=true)
      */
-    protected $locale;
+    protected ?string $locale = null;
 
-    /**
-     * @var string
-     */
-    protected $plainPassword;
+    protected ?string $plainPassword = null;
 
     /**
      * @var DateTime
@@ -127,6 +122,15 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         return $this->id->__toString();
     }
 
+    public function setId($id): void
+    {
+        if ($id instanceof Uuid) {
+            $this->id = $id;
+        } else {
+            $this->id = Uuid::fromString($id);
+        }
+    }
+
     public function getUsername()
     {
         return $this->username;
@@ -164,6 +168,10 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
 
     public function getUserRoles(): array
     {
+        if (!in_array('ROLE_USER', $this->roles)) {
+            $this->roles[] = 'ROLE_USER';
+        }
+
         return $this->roles;
     }
 

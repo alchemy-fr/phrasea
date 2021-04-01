@@ -1,0 +1,86 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+    clients:
+        default: { url: '%env(ELASTICSEARCH_URL)%' }
+    indexes:
+        asset:
+            use_alias: true
+            index_name: "asset_%kernel.environment%"
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            collection_path:
+                                tokenizer: collection_path
+                        tokenizer:
+                            collection_path:
+                                type: path_hierarchy
+                                delimiter: /
+            properties:
+                title: ~
+                collectionPaths:
+                    property_path: false
+                    type: text
+                    analyzer: collection_path
+                privacy:
+                    property_path: false
+                    type: byte
+                workspaceId:
+                    type: keyword
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+                tags:
+                    property_path: tagIds
+                    type: keyword
+                createdAt:
+                    type: date
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Asset
+                listener: { enabled: false }
+
+        collection:
+            use_alias: true
+            index_name: "collection_%kernel.environment%"
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            collection_path:
+                                tokenizer: collection_path
+                        tokenizer:
+                            collection_path:
+                                type: path_hierarchy
+                                delimiter: /
+            properties:
+                title: ~
+                absolutePath:
+                    type: text
+                    analyzer: collection_path
+                root:
+                    type: boolean
+                pathDepth:
+                    type: integer
+                privacy:
+                    property_path: false
+                    type: byte
+                workspaceId:
+                    type: keyword
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Collection
+                listener: { enabled: false }

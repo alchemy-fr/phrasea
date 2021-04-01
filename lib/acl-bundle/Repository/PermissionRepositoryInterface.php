@@ -15,6 +15,10 @@ interface PermissionRepositoryInterface
 
     public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array;
 
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array;
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array;
+
     /**
      * @return AccessControlEntryInterface[]
      */
@@ -22,5 +26,8 @@ interface PermissionRepositoryInterface
 
     public function updateOrCreateAce(string $userType, string $userId, string $objectType, ?string $objectId, int $permissions): ?AccessControlEntryInterface;
 
-    public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): void;
+    /**
+     * @return bool Whether the ACE has been deleted
+     */
+    public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): bool;
 }

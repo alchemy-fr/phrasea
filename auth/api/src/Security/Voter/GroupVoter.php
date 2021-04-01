@@ -27,10 +27,12 @@ class GroupVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if (self::LIST_GROUPS === $attribute && $this->security->isGranted('ROLE_GROUP:LIST')) {
-            return true;
+        switch ($attribute) {
+            case self::LIST_GROUPS:
+                return $this->security->isGranted('ROLE_USER')
+                    || $this->security->isGranted('ROLE_GROUP:LIST');
+            default:
+                return false;
         }
-
-        return false;
     }
 }

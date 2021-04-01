@@ -2,6 +2,7 @@
 
 namespace Alchemy\RemoteAuthBundle\DependencyInjection;
 
+use Alchemy\RemoteAuthBundle\Client\AdminClient;
 use Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -39,5 +40,9 @@ class AlchemyRemoteAuthExtension extends Extension
             $def->setArgument('$defaultTargetPath', $loginForm['default_target_path']);
             $container->setDefinition('alchemy_remote.login_form.'.$name, $def);
         }
+
+        $mapperDef = $container->findDefinition(AdminClient::class);
+        $mapperDef->setArgument('$clientId', $config['admin_auth']['client_id']);
+        $mapperDef->setArgument('$clientSecret', $config['admin_auth']['client_secret']);
     }
 }

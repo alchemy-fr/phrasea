@@ -1,0 +1,22 @@
+a {
+  cursor: pointer;
+}
+
+.MuiAppBar-root {
+  z-index: 1000 !important;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: row;
+}
+
+.main-left-menu {
+  width: px2rem(360);
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex-grow: 1;
+}

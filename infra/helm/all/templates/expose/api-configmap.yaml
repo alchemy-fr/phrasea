@@ -1,6 +1,6 @@
 {{- if .Values.expose.enabled }}
 {{- with .Values.expose.api.config }}
-{{- $tplArgs := dict "app" "uploader" "ctx" . "glob" $ }}
+{{- $tplArgs := dict "app" "expose" "ctx" . "glob" $ }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

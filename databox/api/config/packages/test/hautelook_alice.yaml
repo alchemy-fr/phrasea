@@ -1,0 +1,3 @@
+hautelook_alice:
+    root_dirs:
+        - '%kernel.project_dir%/tests'

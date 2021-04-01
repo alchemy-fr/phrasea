@@ -1,0 +1,39 @@
+.collections {
+  &, & ul {
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.collection-item, .workspace-item {
+  .c-action {
+    visibility: hidden;
+  }
+
+  .MuiListItemSecondaryAction-root {
+    z-index: 1;
+    right: 0;
+    border-radius: px2rem(40);
+
+    &:hover {
+      background-color: rgba(#DDD, 0.9);
+
+      .c-action {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.workspace-item {
+  background-color: #3f51b5 !important;
+  padding: 0;
+
+  .icon {
+    @include svgFill(#FFF);
+  }
+
+  .MuiListItem-root {
+    color: #FFF;
+  }
+}

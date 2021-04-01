@@ -15,6 +15,7 @@
     {% endblock %}
 </head>
 <body>
+{% include '@AlchemyAdmin/services_menu.html.twig' %}
 {% if app_client_config.logo is defined %}
     <div class="logo" style="{{ app_client_config.logo.style ?? '' }}">
         <img

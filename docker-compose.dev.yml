@@ -1,12 +1,6 @@
 version: '3.4'
 
 services:
-  uploader-client:
-    command: ["/bin/sh", "-c", "exit"]
-
-  expose-client:
-    command: ["/bin/sh", "-c", "exit"]
-
   uploader-client-dev:
     build:
       context: ./uploader/client
@@ -26,7 +20,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
     ports:
-      - ${UPLOADER_CLIENT_DEV_PORT}:3000
+      - ${UPLOADER_CLIENT_PORT}:3000
 
   expose-client-dev:
     build:
@@ -50,7 +44,30 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
     ports:
-      - ${EXPOSE_FRONT_DEV_PORT}:3000
+      - ${EXPOSE_FRONT_PORT}:3000
+
+  databox-client-dev:
+    build:
+      context: ./databox/client
+      target: databox-client-build
+    networks:
+      - internal
+    volumes:
+      - ./databox/client:/usr/src/app
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - DATABOX_API_BASE_URL
+      - AUTH_BASE_URL
+      - DATABOX_REQUEST_SIGNATURE_TTL
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL
+    ports:
+      - ${DATABOX_CLIENT_PORT}:3000
 
   expose-api-php:
     environment:
@@ -59,12 +76,10 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   expose-api-nginx:
     volumes:
-      - ./expose/api:/srv/app
+      - ./expose/api/public:/srv/app/public
 
   expose-worker:
     volumes:
@@ -78,21 +93,21 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./uploader/api:/srv/app
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-nginx:
     volumes:
-      - ./uploader/api:/srv/app
+      - ./uploader/api/public:/srv/app/public
       - ./uploader/api/docker/nginx/entrypoint.sh:/entrypoint.sh
       - ./uploader/api/docker/nginx/tpl:/etc/nginx/tpl
 
   auth-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./auth/api:/srv/app
       - ./auth/api/docker/supervisor:/etc/supervisor.d
@@ -104,12 +119,10 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   auth-api-nginx:
     volumes:
-      - ./auth/api:/srv/app
+      - ./auth/api/public:/srv/app/public
 
   notify-api-php:
     environment:
@@ -118,17 +131,38 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
-    extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   notify-api-nginx:
     volumes:
-      - ./notify/api:/srv/app
+      - ./notify/api/public:/srv/app/public
 
   notify-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
+
+  databox-api-php:
+    environment:
+      - XDEBUG_ENABLED
+      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
+    volumes:
+      - ./databox/api:/srv/app
+
+  databox-api-nginx:
+    volumes:
+      - ./databox/api/public:/srv/app/public
+
+  databox-worker:
+    command: [ "/bin/sh", "-c", "exit" ]
+    volumes:
+      - ./databox/api:/srv/app
+      - ./databox/api/docker/supervisor:/etc/supervisor.d
+
+  elasticsearch:
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
 
   dev:
     build: infra/docker/dev
@@ -141,10 +175,17 @@ services:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
       - UPLOADER_API_BASE_URL
+      - DATABOX_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
+      - MARIADB_NAME=databox
+      - MARIADB_USER=root
+      - MARIADB_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_HOST
+      - MARIADB_PORT
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
+      - ELASTICSEARCH_URL
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
@@ -178,6 +219,24 @@ services:
     - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - internal
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=${MARIADB_ROOT_PASSWORD}
+    ports:
+      - 127.0.0.1:8105:80
+
+  elastichq:
+    image: elastichq/elasticsearch-hq
+    networks:
+      - internal
+    ports:
+      - 127.0.0.1:8106:5000
 
 volumes:
   dev_vol:

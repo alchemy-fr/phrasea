@@ -23,7 +23,7 @@
 {% block content_title %}
     <a href="{{ path('easyadmin', _request_parameters|merge({ action: 'list' })) }}">Back</a>
     |
-    Manage permissions for <b>{{ object_type }} #{{ object_id }}</b>
+    Manage permissions for <b>{{ object_type }} {{ object_title }}</b> #{{ object_id }}
 {% endblock %}
 
 {% block main %}
@@ -50,15 +50,6 @@
 
     <div class="row">
         <div class="col-sm-6">
-            <h3>Add user</h3>
-            <select id="user-select" name="users">
-                <option value=""></option>
-                {% for id, user in users %}
-                    <option value="{{ id }}">{{ user }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-sm-6">
             <h3>Add group</h3>
             <select id="group-select" name="groups">
                 <option value=""></option>
@@ -67,9 +58,17 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-sm-6">
+            <h3>Add user</h3>
+            <select id="user-select" name="users">
+                <option value=""></option>
+                {% for id, user in users %}
+                    <option value="{{ id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
-        <hr>
-
+    <hr>
     <table id="aces" class="table datagrid">
         <thead>
         <tr>

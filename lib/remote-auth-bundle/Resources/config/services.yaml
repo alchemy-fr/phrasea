@@ -1,5 +1,7 @@
 parameters:
   alchemy_remote_auth.auth_base_url: '%env(AUTH_BASE_URL)%'
+  alchemy_remote_auth.admin_client_id: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+  alchemy_remote_auth.admin_client_secret: '%env(ADMIN_CLIENT_SECRET)%'
 
 services:
   _defaults:
@@ -19,6 +21,7 @@ services:
         headers:
           Accept: "application/json"
 
+
   Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
     arguments:
       $client: "@alchemy.remote_client"
@@ -26,11 +29,12 @@ services:
   Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator:
     abstract: true
     arguments:
-      $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
-      $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
+      $clientId: '%alchemy_remote_auth.admin_client_id%'
+      $clientSecret: '%alchemy_remote_auth.admin_client_secret%'
 
   Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener: ~
 
   Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator: ~
+  Alchemy\RemoteAuthBundle\Client\AdminClient: ~

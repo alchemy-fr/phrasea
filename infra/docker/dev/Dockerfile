@@ -50,7 +50,7 @@ RUN set -eux \
 
 COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
 
-ENV NODE_VERSION 13.10.1
+ENV NODE_VERSION 14.15.4
 
 RUN apk add --no-cache \
         libstdc++ \
@@ -60,7 +60,7 @@ RUN apk add --no-cache \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="b5b1af4f97bf8759e0de58e0d659ffa81db4857500e56e2b0b3f5948351a9bfa" \
+          CHECKSUM="dd4f335ff962a0ca5bd80b536a54f4844cb820bff3aa24cfd7e2edb00385b625" \
           ;; \
         *) ;; \
       esac \

@@ -43,11 +43,26 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
             ->findAces($params);
     }
 
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->em
+            ->getRepository(AccessControlEntry::class)
+            ->getAllowedUserIds($objectType, $objectId, $permission);
+    }
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->em
+            ->getRepository(AccessControlEntry::class)
+            ->getAllowedGroupIds($objectType, $objectId, $permission);
+    }
+
     public function updateOrCreateAce(string $userType, ?string $userId, string $objectType, ?string $objectId, int $mask): ?AccessControlEntryInterface
     {
         if (null !== $objectId && empty($objectId)) {
             throw new InvalidArgumentException('Empty objectId');
         }
+
         $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
 
@@ -75,7 +90,7 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         return $ace;
     }
 
-    public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): void
+    public function deleteAce(string $userType, ?string $userId, string $objectType, ?string $objectId): bool
     {
         $userId = AccessControlEntry::USER_WILDCARD === $userId ? null : $userId;
         $userType = AccessControlEntry::getUserTypeFromString($userType);
@@ -91,6 +106,10 @@ class DoctrinePermissionRepository implements PermissionRepositoryInterface
         if ($ace instanceof AccessControlEntry) {
             $this->em->remove($ace);
             $this->em->flush();
+
+            return true;
         }
+
+        return false;
     }
 }

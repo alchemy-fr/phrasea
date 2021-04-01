@@ -19,4 +19,9 @@ class ObjectMock implements AclObjectInterface
     {
         return $this->id;
     }
+
+    public function getAclOwnerId(): string
+    {
+        return '';
+    }
 }

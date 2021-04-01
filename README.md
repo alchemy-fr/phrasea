@@ -41,16 +41,25 @@ If the stack is already deployed, you should use migrate after a fresh build:
 bin/migrate.sh
 ```
 
+#### Using fixtures
+
+You may want to popupate databases with a set of fixtures:
+```bash
+# Be careful! This will empty the databases, insert fixtures and run bin/setup.sh again
+bin/install-fixtures.sh
+```
 
 * Read group of services documentation to customize environment variables:
     * [auth](./auth/README.md)
     * [notify](./notify/README.md)
+    * [notify](./databox/README.md)
     * [uploader](./uploader/README.md)
+    * [databox](./databox/README.md)
     * [expose](./expose/README.md)
 
 * Start the whole stack:
 ```bash
-docker-compose -f docker-compose.yml up -d
+docker-compose up -d
 ```
 
 #### Run SAML test providers
@@ -59,7 +68,7 @@ docker-compose -f docker-compose.yml up -d
 docker-compose -f docker-compose.saml.yml up -d
 ```
 
-If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose -f docker-compose.yml up -d` again.
+If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose up -d` again.
 
 ## Development
 
@@ -67,6 +76,7 @@ Configure your local env var:
 ```dotenv
 APP_ENV=dev
 DEV_MODE=true
+COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
 ```
 
 ```bash

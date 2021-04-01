@@ -1,0 +1,5 @@
+alchemy_acl:
+  objects:
+    asset: App\Entity\Core\Asset
+    collection: App\Entity\Core\Collection
+    workspace: App\Entity\Core\Workspace

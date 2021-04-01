@@ -5,13 +5,52 @@ declare(strict_types=1);
 namespace Alchemy\AclBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 
 class AccessControlEntryRepository extends EntityRepository
 {
+    public static function joinAcl(
+        QueryBuilder $queryBuilder,
+        string $userId,
+        array $groupIds,
+        string $objectType,
+        string $objectTableAlias,
+        int $permission
+    ): void
+    {
+        $hasGroups = !empty($groupIds);
+
+        $queryBuilder
+            ->innerJoin(
+                AccessControlEntry::class,
+                'ace',
+                Join::WITH,
+                sprintf(
+                    'ace.objectType = :ot AND (ace.objectId = %s.id OR ace.objectId IS NULL) AND BIT_AND(ace.mask, :perm) = :perm'
+                    .' AND (ace.userId IS NULL OR (ace.userType = :uty AND ace.userId = :uid)'
+                    .($hasGroups ? ' OR (ace.userType = :gty AND ace.userId IN (:gids))' : '')
+                    .')',
+                    $objectTableAlias
+                )
+            )
+            ->setParameter('uty', AccessControlEntry::TYPE_USER_VALUE)
+            ->setParameter('ot', $objectType)
+            ->setParameter('uid', $userId)
+            ->setParameter('perm', $permission)
+        ;
+
+        if ($hasGroups) {
+            $queryBuilder
+                ->setParameter('gty', AccessControlEntry::TYPE_GROUP_VALUE)
+                ->setParameter('gids', $groupIds);
+        }
+    }
+
     public function getAces(string $userId, array $groupIds, string $objectType, ?string $objectId): array
     {
         $queryBuilder = $this
-            ->createQueryBuilder('a')
+            ->createBaseQueryBuilder()
             ->andWhere('a.objectType = :ot')
             ->setParameter('ot', $objectType);
 
@@ -48,8 +87,7 @@ class AccessControlEntryRepository extends EntityRepository
 
     public function findAces(array $params = []): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('a');
+        $queryBuilder = $this->createBaseQueryBuilder();
 
         foreach ([
             'objectType' => 'ot',
@@ -75,5 +113,40 @@ class AccessControlEntryRepository extends EntityRepository
         return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    public function getAllowedUserIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->getAllowedIds(AccessControlEntry::TYPE_USER_VALUE, $objectType, $objectId, $permission);
+    }
+
+    public function getAllowedGroupIds(string $objectType, string $objectId, int $permission): array
+    {
+        return $this->getAllowedIds(AccessControlEntry::TYPE_GROUP_VALUE, $objectType, $objectId, $permission);
+    }
+
+    private function getAllowedIds(int $userType, string $objectType, string $objectId, int $permission): array
+    {
+        return array_map(function (array $row): ?string {
+            return $row['userId'];
+        }, $this
+            ->createBaseQueryBuilder()
+            ->select('DISTINCT a.userId')
+            ->andWhere('a.objectType = :ot')
+            ->andWhere('a.objectId = :oid OR a.objectId IS NULL')
+            ->andWhere('BIT_AND(a.mask, :p) = :p')
+            ->andWhere('a.userType = :ut')
+            ->setParameter('ut', $userType)
+            ->setParameter('ot', $objectType)
+            ->setParameter('oid', $objectId)
+            ->setParameter('p', $permission)
+            ->getQuery()
+            ->getScalarResult()
+        );
+    }
+
+    private function createBaseQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('a');
     }
 }

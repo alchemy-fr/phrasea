@@ -27,8 +27,10 @@ function installNodeModules() {
 
 installComposer auth-api-php
 installComposer notify-api-php
+installComposer databox-api-php
 installComposer uploader-api-php
 installComposer expose-api-php
 
 installNodeModules expose-client-dev
 installNodeModules uploader-client-dev
+installNodeModules databox-client-dev

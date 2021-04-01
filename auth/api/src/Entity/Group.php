@@ -63,6 +63,15 @@ class Group
         return $this->id->__toString();
     }
 
+    public function setId($id): void
+    {
+        if ($id instanceof Uuid) {
+            $this->id = $id;
+        } else {
+            $this->id = Uuid::fromString($id);
+        }
+    }
+
     public function getName(): ?string
     {
         return $this->name;

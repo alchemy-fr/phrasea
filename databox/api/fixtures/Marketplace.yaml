@@ -1,0 +1,31 @@
+App\Entity\Core\Workspace:
+  w_marketplace:
+    name: Marketplace
+    ownerId: super_user
+
+#
+#App\Entity\User\User:
+#  u_:
+#
+#App\Entity\User\Group:
+#  g_admin:
+#  g_admin_sport:
+#  g_editor_sport:
+#
+#App\Entity\Core\Collection:
+#  __defaults:
+#    workspace: '@w_marketplace'
+#  c_
+#    title: '<current()>'
+#    ownerId: '<username()>'
+#    workspace: '@main_ws'
+#    __calls:
+#      - setPublic (55%?): [true]
+#
+#App\Entity\Core\Asset:
+#  asset{1..100}:
+#    title: '<firstName()>'
+#    ownerId: '<username()>'
+#    workspace: '@main_ws'
+#    __calls:
+#      - setPublic (55%?): [true]

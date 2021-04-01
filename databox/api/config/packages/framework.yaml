@@ -1,0 +1,17 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    #csrf_protection: true
+    #http_method_override: true
+
+    session:
+        handler_id: snc_redis.session.handler
+        name: auth_sess
+        cookie_secure: auto
+        cookie_httponly: true
+        cookie_samesite: strict
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true

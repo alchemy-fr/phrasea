@@ -6,17 +6,12 @@ namespace Alchemy\ApiTest;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Client;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    const ADMIN_USER = 'admin@alchemy.fr';
-
-    /**
-     * @var Client
-     */
-    protected $client;
+    protected ?AbstractBrowser $client = null;
 
     /**
      * @param string|array|null $accessToken
@@ -59,6 +54,17 @@ abstract class ApiTestCase extends WebTestCase
 
         $this->client = static::createClient();
         $this->client->disableReboot();
+    }
+
+    protected function tearDown(): void
+    {
+        $em = self::getEntityManager();
+        $em->close();
+        $this->client = null;
+
+        parent::tearDown();
+
+        gc_collect_cycles();
     }
 
     protected static function getEntityManager(): EntityManagerInterface

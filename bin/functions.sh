@@ -33,23 +33,13 @@ function load-env {
     export_env_from_file "$BASEDIR/../.env"
 }
 
-# Run docker-compose depending on the APP_ENV value
-# If APP_ENV = PROD, then only use docker-compose.yml file
-function d-c {
-    if [ "${APP_ENV}" == "prod" ]; then
-        docker-compose -f docker-compose.yml "$@"
-    else
-        docker-compose "$@"
-    fi
-}
-
 # execute a shell commmand in a container defined in docker-compose.yml
 function exec_container() {
-    d-c exec -T "$1" sh -c "$2"
+    docker-compose exec -T "$1" sh -c "$2"
 }
 
 function exec_container_as() {
-    d-c exec -T "$1" su "$3" sh -c "$2"
+    docker-compose exec -T "$1" su "$3" sh -c "$2"
 }
 
 function create_db() {

@@ -142,4 +142,9 @@ class PublicationProfile implements AclObjectInterface
     {
         return $this->getName() ?? $this->getId();
     }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->getOwnerId() ?? '';
+    }
 }
