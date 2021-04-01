@@ -29,7 +29,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             null,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -51,7 +51,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             null,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -70,7 +70,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -91,7 +91,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -117,7 +117,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -146,7 +146,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/collections'
+            '/collections'
         );
 
         $data = $this->getDataFromResponse($response, 200);

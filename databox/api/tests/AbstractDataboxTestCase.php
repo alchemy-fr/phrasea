@@ -12,6 +12,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
@@ -21,7 +22,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 {
     use ReloadDatabaseTrait;
 
-    private ?Workspace $defaultWorkspaceId = null;
+    private ?Workspace $defaultWorkspace = null;
 
     protected function createAsset(array $options = []): Asset
     {
@@ -33,8 +34,8 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
-        if (isset($options['public'])) {
-            $asset->setPublic($options['public']);
+        if ($options['public'] ?? false) {
+            $asset->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
         }
 
         foreach ($options['tags'] ?? [] as $tagName) {
@@ -83,8 +84,8 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
-        if (isset($options['public'])) {
-            $collection->setPublic($options['public']);
+        if ($options['public'] ?? false) {
+            $collection->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
         }
 
         $em->persist($collection);
@@ -113,6 +114,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
         $workspace = new Workspace();
         $workspace->setName($options['name'] ?? 'My workspace');
+        $workspace->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         $em->persist($workspace);
         if (!($options['no_flush'] ?? false)) {
@@ -157,25 +159,34 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return $asset;
     }
 
-    protected function findTagByName(string $name): ?Tag
+    protected function findOrCreateTagByName(string $name): ?Tag
     {
         $em = self::getEntityManager();
         /** @var Tag $tag */
         $tag = $em->getRepository(Tag::class)->findOneBy([
-            'workspace' => $this->defaultWorkspaceId,
+            'workspace' => $this->defaultWorkspace,
             'name' => $name,
         ]);
+
+        if (null === $tag) {
+            $tag = new Tag();
+            $tag->setWorkspace($this->defaultWorkspace);
+            $tag->setName($name);
+
+            $em->persist($tag);
+            $em->flush();
+        }
 
         return $tag;
     }
 
     protected function getOrCreateDefaultWorkspace(): Workspace
     {
-        if (null !== $this->defaultWorkspaceId) {
-            return $this->defaultWorkspaceId;
+        if (null !== $this->defaultWorkspace) {
+            return $this->defaultWorkspace;
         }
 
-        return $this->defaultWorkspaceId = $this->createWorkspace();
+        return $this->defaultWorkspace = $this->createWorkspace();
     }
 
     protected function clearEmBeforeApiCall(): void

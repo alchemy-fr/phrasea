@@ -141,9 +141,24 @@ class TagFilterRule extends AbstractUuidEntity
         return $this->include;
     }
 
-
     public function getExclude(): DoctrineCollection
     {
         return $this->exclude;
+    }
+
+    public function setInclude(iterable $include): void
+    {
+        $this->include->clear();
+        foreach ($include as $item) {
+            $this->include->add($item);
+        }
+    }
+
+    public function setExclude(iterable $exclude): void
+    {
+        $this->exclude->clear();
+        foreach ($exclude as $item) {
+            $this->exclude->add($item);
+        }
     }
 }
