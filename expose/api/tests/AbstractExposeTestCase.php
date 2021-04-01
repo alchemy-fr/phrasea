@@ -293,10 +293,4 @@ abstract class AbstractExposeTestCase extends ApiTestCase
     {
         self::getEntityManager()->clear();
     }
-
-    protected function tearDown(): void
-    {
-        self::getEntityManager()->clear();
-        parent::tearDown();
-    }
 }
