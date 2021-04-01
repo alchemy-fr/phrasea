@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 
 class TagFilterManager
 {
@@ -46,8 +46,13 @@ class TagFilterManager
 
         $filter->setObjectType($objectType);
         $filter->setObjectId($objectId);
-        $filter->setInclude($include);
-        $filter->setExclude($exclude);
+
+        $filter->setInclude(array_map(function (string $id): Tag {
+            return $this->em->getReference(Tag::class, Uuid::fromString($id));
+        }, $include));
+        $filter->setExclude(array_map(function (string $id): Tag {
+            return $this->em->getReference(Tag::class, Uuid::fromString($id));
+        }, $exclude));
 
         $this->em->persist($filter);
         $this->em->flush();

@@ -29,7 +29,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             null,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -51,7 +51,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             null,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -70,7 +70,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -91,7 +91,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -113,7 +113,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -137,7 +137,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -165,7 +165,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -197,7 +197,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -228,7 +228,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -260,7 +260,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
@@ -291,11 +291,8 @@ class AssetSearchTest extends AbstractSearchTest
         }
         self::releaseIndex();
 
-        $resolveTag = function (string $tagName): string {
-            $tag = $this->findTagByName($tagName);
-            if (null === $tag) {
-                return $tagName;
-            }
+        $resolveTag = function (string $tagName) use ($collection): string {
+            $tag = $this->findOrCreateTagByName($tagName);
 
             return $tag->getId();
         };
@@ -315,7 +312,7 @@ class AssetSearchTest extends AbstractSearchTest
         $response = $this->request(
             AuthServiceClientTestMock::USER_TOKEN,
             'GET',
-            '/api/assets'
+            '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);

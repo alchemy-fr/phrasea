@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    protected AbstractBrowser $client;
+    protected ?AbstractBrowser $client = null;
 
     /**
      * @param string|array|null $accessToken
@@ -54,6 +54,17 @@ abstract class ApiTestCase extends WebTestCase
 
         $this->client = static::createClient();
         $this->client->disableReboot();
+    }
+
+    protected function tearDown(): void
+    {
+        $em = self::getEntityManager();
+        $em->close();
+        $this->client = null;
+
+        parent::tearDown();
+
+        gc_collect_cycles();
     }
 
     protected static function getEntityManager(): EntityManagerInterface
