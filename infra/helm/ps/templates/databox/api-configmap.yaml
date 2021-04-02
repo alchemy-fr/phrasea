@@ -5,8 +5,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: databox-api-config
-  annotations:
-    "helm.sh/hook": pre-upgrade
 data:
   DATABOX_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
   ELASTICSEARCH_URL: http://elasticsearch-master:9200/
