@@ -1,0 +1,12 @@
+ARG ELK_VERSION
+
+# https://www.docker.elastic.co/
+FROM docker.elastic.co/logstash/logstash:${ELK_VERSION}
+
+RUN logstash-plugin install logstash-integration-jdbc
+
+RUN mkdir /opt/logstash/vendor/jdbc \
+    && curl -Lo /opt/logstash/vendor/jdbc/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.2.18.jar
+
+COPY ./config/logstash.yml /usr/share/logstash/config/logstash.yml
+COPY data/report.sql /usr/share/logstash/data/logstash.yml

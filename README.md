@@ -166,3 +166,11 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 ## Infra
 
 - [Operating tasks](./doc/infra-operating-tasks.md)
+
+## Logs
+
+Install ELK stack to get report-api logs available in Kibana.
+
+```bash
+docker-compose -f docker-compose.elk.yml up -d
+```

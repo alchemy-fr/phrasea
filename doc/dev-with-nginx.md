@@ -32,6 +32,7 @@ Add the following entries to your `/etc/hosts` file:
 127.0.0.1 dashboard.alchemy.local
 127.0.0.1 databox.alchemy.local
 127.0.0.1 elastichq.alchemy.local
+127.0.0.1 report-kibana.alchemy.local
 ```
 
 Next you can [enable SSL](./configure-ssl.md).
