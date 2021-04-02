@@ -1,0 +1,45 @@
+
+# https://github.com/elastic/helm-charts/blob/master/logstash/README.md
+logstash:
+  imageTag: latest
+  image: alchemyfr/ps-report-logstash
+  extraEnv:
+    - name: ELASTICSEARCH_HOST
+      value: elasticsearch-report:9200
+  envFrom:
+  - secretRef:
+      name: postgresql-secret
+  - configMapRef:
+      name: postgresql-php-config
+
+elasticsearch:
+  nodeGroup: report
+  maxUnavailable: '' # Prevent conflict with others elasticsearch installs
+  enabled: true
+  replicas: 1
+  minimumMasterNodes: 1
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 5Gi
+
+kibana:
+  kibanaConfig:
+     kibana.yml: |
+       server.name: kibana
+       server.host: 0.0.0.0
+       elasticsearch.hosts: [ "http://elasticsearch-report:9200" ]
+       monitoring.ui.container.elasticsearch.enabled: false
+       elasticsearch.username: elastic
+       elasticsearch.password: changeme
+       xpack.security.enabled: false
+  ingress:
+    enabled: true
+    hosts:
+      - host: report-kibana.alchemy.kube
+        paths:
+          - path: /
+    tls:
+      - secretName: gateway-tls
+        hosts:
+          - report-kibana.alchemy.kube

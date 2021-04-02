@@ -20,7 +20,11 @@ services:
       - internal
 
   report-logstash:
-    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
+    image: ${REGISTRY_NAMESPACE}report-logstash:$DOCKER_TAG
+    build:
+      context: infra/docker/report-elk/logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
     volumes:
       - ./infra/docker/report-elk/logstash/files:/usr/share/logstash/files
       - type: bind
@@ -49,10 +53,7 @@ services:
       - report-elasticsearch
 
   report-kibana:
-    build:
-      context: infra/docker/elk/kibana/
-      args:
-        ELK_VERSION: $ELK_VERSION
+    image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
     volumes:
       - type: bind
         source: ./infra/docker/report-elk/kibana/config/kibana.yml

@@ -31,3 +31,4 @@ docker-compose build minio
 docker-compose build minio-mc
 docker-compose build report-api
 docker-compose build dashboard
+docker-compose -f docker-compose.yml -f docker-compose.report-elk.yml build report-logstash
