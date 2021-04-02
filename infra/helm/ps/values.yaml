@@ -35,7 +35,7 @@ databox:
       enabled: true
       annotations: {}
       extraLabels: {}
-      maxBodySize: 22G
+      maxBodySize: 2G
       tls: []
     hostname:
     baseUrl:
@@ -79,7 +79,7 @@ databox:
       secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
       redirectUri: "{{ .Values.databox.client.baseUrl }}"
       grantTypes:
-      - password
+      - authorization_code
   rabbitmq:
     vhost: databox
 
