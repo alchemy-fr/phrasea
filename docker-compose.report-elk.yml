@@ -2,13 +2,10 @@ version: '3.2'
 
 services:
   report-elasticsearch:
-    build:
-      context: infra/docker/elk/elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     volumes:
       - type: bind
-        source: ./infra/docker/elk/elasticsearch/config/elasticsearch.yml
+        source: ./infra/docker/report-elk/elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -23,18 +20,15 @@ services:
       - internal
 
   report-logstash:
-    build:
-      context: infra/docker/elk/logstash/
-      args:
-        ELK_VERSION: $ELK_VERSION
+    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
     volumes:
-      - ./infra/docker/elk/logstash/files:/usr/share/logstash/files
+      - ./infra/docker/report-elk/logstash/files:/usr/share/logstash/files
       - type: bind
-        source: ./infra/docker/elk/logstash/config/logstash.yml
+        source: ./infra/docker/report-elk/logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
       - type: bind
-        source: ./infra/docker/elk/logstash/pipeline/logstash.conf
+        source: ./infra/docker/report-elk/logstash/pipeline/logstash.conf
         target: /usr/share/logstash/pipeline/logstash.conf
         read_only: true
     ports:
@@ -61,7 +55,7 @@ services:
         ELK_VERSION: $ELK_VERSION
     volumes:
       - type: bind
-        source: ./infra/docker/elk/kibana/config/kibana.yml
+        source: ./infra/docker/report-elk/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
