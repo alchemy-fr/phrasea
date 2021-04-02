@@ -35,7 +35,7 @@ databox:
       enabled: true
       annotations: {}
       extraLabels: {}
-      maxBodySize: 22G
+      maxBodySize: 2G
       tls: []
     hostname:
     baseUrl:
