@@ -3,9 +3,12 @@
 logstash:
   imageTag: latest
   image: alchemyfr/ps-report-logstash
-  extraEnv:
+  imagePullPolicy: Always
+  extraEnvs:
     - name: ELASTICSEARCH_HOST
       value: elasticsearch-report:9200
+    - name: POSTGRES_DATABASE
+      value: report
   envFrom:
   - secretRef:
       name: postgresql-secret
@@ -28,11 +31,12 @@ kibana:
      kibana.yml: |
        server.name: kibana
        server.host: 0.0.0.0
-       elasticsearch.hosts: [ "http://elasticsearch-report:9200" ]
+       elasticsearch.hosts: [ "${ELASTICSEARCH_HOST}" ]
        monitoring.ui.container.elasticsearch.enabled: false
-       elasticsearch.username: elastic
-       elasticsearch.password: changeme
        xpack.security.enabled: false
+  extraEnvs:
+    - name: ELASTICSEARCH_HOST
+      value: elasticsearch-report:9200
   ingress:
     enabled: true
     hosts:

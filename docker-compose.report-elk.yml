@@ -41,6 +41,7 @@ services:
       - "5000:5000/udp"
       - "9600:9600"
     environment:
+      - ELASTICSEARCH_HOST=report-elasticsearch:9200
       - LS_JAVA_OPTS=-Xmx256m -Xms256m
       - POSTGRES_HOST
       - POSTGRES_PORT
@@ -59,6 +60,8 @@ services:
         source: ./infra/docker/report-elk/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
+    environment:
+      - ELASTICSEARCH_HOST=report-elasticsearch:9200
     ports:
       - "${PS_REPORT_KIBANA_PORT}:5601"
     networks:
