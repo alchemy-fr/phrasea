@@ -8,6 +8,7 @@ use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 class ReportUserService
 {
@@ -46,6 +47,7 @@ class ReportUserService
 
         switch (true) {
             case $token instanceof RemoteAuthToken:
+            case $token instanceof PostAuthenticationGuardToken:
                 return $token->getUser()->getId();
         }
 

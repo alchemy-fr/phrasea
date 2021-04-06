@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
 use App\Form\FormValidator;
+use App\Report\UploaderLogActionInterface;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -19,35 +21,24 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CommitAction extends AbstractController
 {
-    /**
-     * @var AssetManager
-     */
-    private $assetManager;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    /**
-     * @var FormValidator
-     */
-    private $formValidator;
-    /**
-     * @var CommitValidator
-     */
-    private $commitValidator;
+    private AssetManager $assetManager;
+    private EventProducer $eventProducer;
+    private FormValidator $formValidator;
+    private CommitValidator $commitValidator;
+    private ReportUserService $reportClient;
 
     public function __construct(
         AssetManager $assetManager,
         EventProducer $eventProducer,
         FormValidator $formValidator,
-        CommitValidator $commitValidator
+        CommitValidator $commitValidator,
+        ReportUserService $reportClient
     ) {
         $this->assetManager = $assetManager;
         $this->eventProducer = $eventProducer;
         $this->formValidator = $formValidator;
         $this->commitValidator = $commitValidator;
+        $this->reportClient = $reportClient;
     }
 
     public function __invoke(Commit $data, Request $request)
@@ -75,6 +66,11 @@ final class CommitAction extends AbstractController
         $data->setFormData(FormValidator::cleanExtraFields($formData));
 
         $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $data->toArray()));
+
+        $this->reportClient->pushHttpRequestLog(
+            $request,
+            UploaderLogActionInterface::UPLOAD_COMMIT
+        );
 
         return new JsonResponse(true);
     }

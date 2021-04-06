@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportUserService;
 use App\Form\RequestPasswordResetForm;
+use App\Report\AuthLogActionInterface;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +27,7 @@ class RequestResetPasswordController extends AbstractController
     /**
      * @Route(path="/request", name="request", methods={"GET", "POST"})
      */
-    public function requestAction(Request $request)
+    public function requestAction(Request $request, ReportUserService $reportClient)
     {
         $form = $this->createForm(RequestPasswordResetForm::class);
 
@@ -36,6 +38,13 @@ class RequestResetPasswordController extends AbstractController
             $this->resetPasswordManager->requestPasswordResetForLogin(
                 $username,
                 $request->getLocale() ?? $request->getDefaultLocale() ?? 'en'
+            );
+
+            $reportClient->pushHttpRequestLog(
+                $request,
+                AuthLogActionInterface::REQUEST_RESET_PASSWORD,
+                null,
+                ['username' => $username],
             );
 
             return $this->redirectToRoute('password_reset_requested');

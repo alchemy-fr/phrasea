@@ -50,6 +50,20 @@
         },
         {
             "type": "path",
+            "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-sdk",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/core-bundle",
             "options": {
                 "symlink": true
@@ -68,6 +82,7 @@
         "alchemy/notify-bundle": "*",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
+        "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "api-platform/core": "2.4.2",
         "arthem/rabbit-bundle": "@dev",

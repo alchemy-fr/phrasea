@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\DownloadRequestHandler;
 use App\Entity\DownloadRequest;
 use App\Entity\PublicationAsset;
+use App\Report\ExposeLogActionInterface;
 use App\Security\Voter\PublicationVoter;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -25,10 +27,12 @@ use Symfony\Component\Routing\Annotation\Route;
 final class PostDownloadViaEmailAction extends AbstractController
 {
     private EntityManagerInterface $em;
+    private ReportUserService $reportClient;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, ReportUserService $reportClient)
     {
         $this->em = $em;
+        $this->reportClient = $reportClient;
     }
 
     public function __invoke(string $id, string $assetId, Request $request, EventProducer $eventProducer): Response
@@ -61,6 +65,15 @@ final class PostDownloadViaEmailAction extends AbstractController
         $eventProducer->publish(new EventMessage(DownloadRequestHandler::EVENT, [
             'id' => $downloadRequest->getId(),
         ]));
+
+        $this->reportClient->pushHttpRequestLog(
+            $request,
+            ExposeLogActionInterface::ASSET_DOWNLOAD_REQUEST,
+            $publicationAsset->getAsset()->getId(),
+            [
+                'publicationId' => $publicationAsset->getPublication()->getId(),
+            ]
+        );
 
         return new JsonResponse(true);
     }

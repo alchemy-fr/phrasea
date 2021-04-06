@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
-use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\User;
 use App\Form\ResetPasswordForm;
+use App\Report\AuthLogActionInterface;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ class ResetPasswordAction extends AbstractController
             $user = $form->getData();
             $this->passwordManager->resetPassword($id, $token, $user->getPlainPassword());
 
-            $this->reportClient->pushHttpRequestLog($request, LogActionInterface::RESET_PASSWORD);
+            $this->reportClient->pushHttpRequestLog($request, AuthLogActionInterface::RESET_PASSWORD);
 
             return $this->redirectToRoute('password_reset_changed');
         }

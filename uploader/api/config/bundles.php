@@ -32,4 +32,5 @@ return [
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
+    Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
 ];

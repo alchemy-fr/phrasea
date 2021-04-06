@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportUserService;
 use App\Entity\User;
 use App\Form\ChangePasswordForm;
+use App\Report\AuthLogActionInterface;
 use App\Security\PasswordManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,7 @@ class ChangePasswordController extends AbstractController
     /**
      * @Route(path="/change", name="change", methods={"GET", "POST"})
      */
-    public function changeAction(Request $request)
+    public function changeAction(Request $request, ReportUserService $reportClient)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -42,6 +44,12 @@ class ChangePasswordController extends AbstractController
                 $user,
                 $oldPassword,
                 $newPassword
+            );
+
+            $reportClient->pushHttpRequestLog(
+                $request,
+                AuthLogActionInterface::CHANGE_PASSWORD,
+                $user->getId()
             );
 
             $this->addFlash(

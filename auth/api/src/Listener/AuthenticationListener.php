@@ -7,8 +7,8 @@ namespace App\Listener;
 use Alchemy\OAuthServerBundle\Listener\OAuth\Events;
 use Alchemy\OAuthServerBundle\Listener\OAuth\OAuthEvent;
 use Alchemy\ReportBundle\ReportUserService;
-use Alchemy\ReportSDK\LogActionInterface;
 use App\Entity\User;
+use App\Report\AuthLogActionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -36,7 +36,7 @@ class AuthenticationListener implements EventSubscriberInterface
         if ($user instanceof User) {
             $this->reportUser->pushHttpRequestLog(
                 $this->requestStack->getCurrentRequest(),
-                LogActionInterface::USER_AUTHENTICATION,
+                AuthLogActionInterface::USER_AUTHENTICATION,
                 $user->getId()
             );
         }

@@ -37,14 +37,14 @@
         },
         {
             "type": "path",
-            "url": "./__lib/core-bundle",
+            "url": "./__lib/report-sdk",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/report-sdk",
+            "url": "./__lib/core-bundle",
             "options": {
                 "symlink": true
             }

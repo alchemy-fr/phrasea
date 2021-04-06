@@ -20,7 +20,7 @@ type logJson struct {
     Action string
     Item string
     User string
-    EventDate string
+    EventDate int
     Payload map[string]string
 }
 
@@ -47,7 +47,7 @@ func logHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
 
 func addAction(log logJson) error {
 	_, err := conn.Exec(context.Background(),
-        "INSERT INTO logs(app_name, app_id, action, item, user_id, payload, event_date) values($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+        "INSERT INTO logs(app_name, app_id, action, item, user_id, payload, event_date) values($1, $2, $3, $4, $5, $6, to_timestamp($7))",
         log.AppName,
         log.AppId,
         log.Action,

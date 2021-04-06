@@ -22,7 +22,6 @@ alchemy_report:
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
-use Alchemy\ReportSDK\LogActionInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final class MyController
@@ -32,7 +31,7 @@ final class MyController
         // ...
         $reportClient->pushHttpRequestLog(
             $request,
-            LogActionInterface::ASSET_DOWNLOAD, // action
+            'asset_download', // action
             $id, // item ID
             [
                 'some' => [
@@ -52,7 +51,6 @@ final class MyController
 namespace App;
 
 use Alchemy\ReportBundle\ReportUserService;
-use Alchemy\ReportSDK\LogActionInterface;
 
 final class MyService
 {
@@ -70,7 +68,7 @@ final class MyService
     {
         // ...
         $this->reportClient->pushLog(
-            LogActionInterface::ASSET_DOWNLOAD, // action
+            'asset_download', // action
             $id, // item ID
             [
                 'some' => [
