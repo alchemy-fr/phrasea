@@ -631,6 +631,13 @@ services:
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
+  zipper:
+    image: langboost/zipstreamer
+    networks:
+      - internal
+    ports:
+      - ${ZIPPER_PORT}:4008
+
   elasticsearch:
     image: elasticsearch:7.11.2
     networks:
