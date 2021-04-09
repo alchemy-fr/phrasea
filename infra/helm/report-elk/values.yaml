@@ -29,6 +29,22 @@ elasticsearch:
     resources:
       requests:
         storage: 5Gi
+  lifecycle:
+    postStart:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            #!/bin/bash
+            # Add a template to adjust number of shards/replicas
+            TEMPLATE_NAME=report-template
+            INDEX_PATTERN="report-*"
+            SHARD_COUNT=5
+            REPLICA_COUNT=0
+            ES_URL=http://localhost:9200
+            while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' $ES_URL)" != "200" ]]; do sleep 1; done
+            curl -XPUT "$ES_URL/_template/$TEMPLATE_NAME" -H 'Content-Type: application/json' -d'{"index_patterns":['\""$INDEX_PATTERN"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
 
 kibana:
   elasticsearchHosts: 'http://elasticsearch-report:9200'
