@@ -17,6 +17,7 @@ logstash:
 
 elasticsearch:
   nodeGroup: report
+  clusterName: elasticsearch-report
   maxUnavailable: '' # Prevent conflict with others elasticsearch installs
   enabled: true
   replicas: 1
@@ -31,7 +32,7 @@ kibana:
      kibana.yml: |
        server.name: kibana
        server.host: 0.0.0.0
-       elasticsearch.hosts: [ "${ELASTICSEARCH_HOST}" ]
+       elasticsearch.hosts: [ "elasticsearch-report:9200" ]
        monitoring.ui.container.elasticsearch.enabled: false
        xpack.security.enabled: false
   extraEnvs:
