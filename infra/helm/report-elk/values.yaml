@@ -20,6 +20,10 @@ elasticsearch:
   maxUnavailable: '' # Prevent conflict with others elasticsearch installs
   enabled: true
   replicas: 1
+  esConfig:
+    elasticsearch.yml: |
+      index:
+        number_of_replicas: 0
   minimumMasterNodes: 1
   volumeClaimTemplate:
     resources:
