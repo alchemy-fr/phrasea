@@ -14,7 +14,7 @@ is_es_ready() {
 
 wait_for_es() {
     WAIT_SLEEP=3
-    WAIT_LOOPS=30
+    WAIT_LOOPS=200
     i=0
     while ! is_es_ready; do
         i=`expr $i + 1`
