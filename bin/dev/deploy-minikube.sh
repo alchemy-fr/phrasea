@@ -5,7 +5,7 @@ set -e
 BASEDIR="$(dirname $0)"
 DIR="${BASEDIR}/../.."
 
-NS="ps"
+NS=${NS:-"ps"}
 RELEASE_NAME="ps"
 CHART_DIR="${DIR}/infra/helm/ps"
 VALUE_SRC="${DIR}/infra/helm/sample.yaml"

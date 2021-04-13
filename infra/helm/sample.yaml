@@ -1,5 +1,5 @@
-repository:
-  baseurl: localhost:5000
+#repository:
+#  baseurl: localhost:5000
 
 auth:
   api:

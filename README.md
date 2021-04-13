@@ -162,6 +162,7 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 - [Local NGINX](./doc/dev-with-nginx.md)
 - [Configure SSL](./doc/configure-ssl.md)
 - [Debug application with XDEBUG](./doc/xdebug.md)
+- [Deploy to minikube](./doc/minikube.md)
 
 ## Infra
 
