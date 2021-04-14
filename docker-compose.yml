@@ -631,13 +631,6 @@ services:
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
-  zipper:
-    image: langboost/zipstreamer
-    networks:
-      - internal
-    ports:
-      - ${ZIPPER_PORT}:4008
-
   elasticsearch:
     image: elasticsearch:7.11.2
     networks:
@@ -654,6 +647,58 @@ services:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
+  zippy-api-php:
+    image: alchemyfr/zippy-api-php:latest
+    build:
+      context: ./api
+      target: zippy-api-php
+    networks:
+      internal:
+        aliases:
+          - zippy-php
+    environment:
+      - APP_ENV
+      - DATABASE_URL
+      - POSTGRES_PASSWORD
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+    volumes:
+      - zippy_vol:/srv/app/data
+    depends_on:
+      - rabbitmq
+
+  zippy-api-nginx:
+    image: alchemyfr/zippy-api-nginx:latest
+    build:
+      context: ./api
+      target: zippy-api-nginx
+    networks:
+      internal:
+        aliases:
+          - zippy-api
+    ports:
+      - ${ZIPPY_API_PORT}:80
+    depends_on:
+      - zippy-api-php
+
+  zippy-worker:
+    image: alchemyfr/zippy-worker:latest
+    build:
+      context: ./api
+      target: zippy-worker
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+    environment:
+      - APP_ENV
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+    volumes:
+      - zippy_vol:/srv/app/data
+
 volumes:
   db_vol:
   redis_vol:
@@ -664,3 +709,4 @@ volumes:
   pgadmin_vol:
   rabbitmq_vol:
   elasticsearch_vol:
+  zippy_vol:
