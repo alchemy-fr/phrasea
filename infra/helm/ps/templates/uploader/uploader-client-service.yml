@@ -1,3 +1,4 @@
+{{- if .Values.uploader.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,3 +11,4 @@ spec:
   selector:
     app: phraseanet-services
     tier: uploader-client
+{{- end }}
