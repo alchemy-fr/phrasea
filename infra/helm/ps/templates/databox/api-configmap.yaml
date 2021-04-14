@@ -7,7 +7,7 @@ metadata:
   name: databox-api-config
 data:
   DATABOX_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
-  ELASTICSEARCH_URL: http://elasticsearch-master:9200/
+  ELASTICSEARCH_URL: http://elasticsearch-databox-master:9200/
 {{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}

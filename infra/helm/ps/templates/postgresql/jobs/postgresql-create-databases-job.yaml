@@ -6,7 +6,7 @@ metadata:
 data:
   job.sh: |
     #!/bin/sh
-    set -ex
+    set -e
 
     DB="{{ .Values.report.databaseName }}"
 
