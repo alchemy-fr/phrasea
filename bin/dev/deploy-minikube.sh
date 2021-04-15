@@ -35,7 +35,7 @@ case $1 in
     kubectl create ns $NS || true
     helm uninstall ${RELEASE_NAME} --namespace $NS || true;
     kubectl -n $NS delete pvc elasticsearch-master-elasticsearch-master-0 || true
-    while [ "$(kubectl -n $NS get pvc | wc -l)" != 0 ] || [ "$(kubectl -n $NS get pods | wc -l)" != 0 ]
+    while [ $(kubectl -n $NS get pvc | wc -l) -gt 0 ] || [ $(kubectl -n $NS get pods | wc -l) -gt 0 ]
     do
       echo "Waiting for resources to be deleted..."
       sleep 5
