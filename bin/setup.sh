@@ -142,3 +142,6 @@ exec_container auth-api-php "bin/console app:user:create \
     --update-if-exist ${DEFAULT_USER_EMAIL} \
     -p ${DEFAULT_USER_PASSWORD} \
     --roles ROLE_SUPER_ADMIN"
+
+## Setup Zippy
+exec_container rabbitmq "rabbitmqctl add_vhost zippy && rabbitmqctl set_permissions -p zippy ${RABBITMQ_USER} '.*' '.*' '.*'"

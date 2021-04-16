@@ -77,6 +77,7 @@ Configure your local env var:
 APP_ENV=dev
 DEV_MODE=true
 COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
+VERIFY_SSL=false
 ```
 
 ```bash

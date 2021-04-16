@@ -32,11 +32,9 @@ function acceptTerms() {
         newState.displayDownloadViaEmail = true;
         newState.pendingDownloadUrl = url;
     }
-    this.setState(newState, () => {
-        if (!downloadViaEmail) {
-            document.location.href = url;
-        }
-    });
+    if (!downloadViaEmail) {
+        document.location.href = url;
+    }
 }
 
 export function renderDownloadTermsModal() {
@@ -57,7 +55,6 @@ export function renderDownloadTermsModal() {
 }
 
 export function onDownload(url, e) {
-    console.log('url, e', url, e);
     const {data} = this.props;
     if (!data.downloadTerms.enabled || isTermsAccepted(termsKeyPrefix + data.id)) {
         if (true === data.downloadViaEmail) {

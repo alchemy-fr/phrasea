@@ -6,13 +6,13 @@ import Description from "../shared-components/Description";
 import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
 import DownloadButton from "../shared-components/DownloadButton";
-import DownloadViaEmailModal from "../shared-components/DownloadViaEmailModal";
 import {
     downloadContainerDefaultState, onDownload,
     renderDownloadTermsModal,
     renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
+import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -146,7 +146,18 @@ class GalleryLayout extends React.Component {
         return <div className={`layout-gallery`}>
             {renderDownloadTermsModal.call(this)}
             {renderDownloadViaEmail.call(this)}
-            <h1>{title}</h1>
+            <div style={{
+                position: 'relative',
+            }}>
+                <h1>{title}</h1>
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                }}>
+                    <ZippyDownloadButton id={data.id} />
+                </div>
+            </div>
             <Description
                 descriptionHtml={data.description}
             />
@@ -176,20 +187,6 @@ class GalleryLayout extends React.Component {
                 ref={this.mapContainer}
             />
         </div>
-    }
-
-    renderDownloadViaEmail() {
-        return <DownloadViaEmailModal
-            url={this.state.pendingDownloadUrl}
-            onClose={this.discardDownloadViaEmail}
-        />
-    }
-
-    discardDownloadViaEmail = () => {
-        this.setState({
-            displayDownloadViaEmail: false,
-            pendingDownloadUrl: null,
-        });
     }
 
     renderItem = ({asset}) => {

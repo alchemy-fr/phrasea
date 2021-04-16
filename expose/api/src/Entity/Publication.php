@@ -21,6 +21,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Filter\PublicationFilter;
+use App\Controller\DownloadViaZippyAction;
 
 /**
  * @ORM\Entity()
@@ -50,6 +51,14 @@ use App\Filter\PublicationFilter;
  *             "path"="/publications/{id}/sort-assets",
  *             "controller"=SortAssetsAction::class,
  *             "method"="POST",
+ *         },
+ *         "zippy-download"={
+ *             "method"="GET",
+ *             "path"="/publications/{id}/download-via-zippy",
+ *             "controller"=DownloadViaZippyAction::class,
+ *             "defaults"={
+ *                  "_api_receive"=false
+ *             },
  *         },
  *     },
  *     collectionOperations={
@@ -283,6 +292,11 @@ class Publication implements AclObjectInterface
      * @Groups({"publication:read"})
      */
     private ?string $cssLink = null;
+
+    /**
+     * @ORM\Column(type="string", length=36, nullable=true)
+     */
+    private ?string $zippyId = null;
 
     public function __construct()
     {
@@ -626,8 +640,15 @@ class Publication implements AclObjectInterface
      */
     public function isDownloadViaEmail(): bool
     {
-        return $this->config->getDownloadViaEmail()
-            || (!$this->profile || ($this->profile->getConfig()->getDownloadViaEmail()) ?? false);
+        if (null !== $this->config->getDownloadViaEmail()) {
+            return $this->config->getDownloadViaEmail();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getDownloadViaEmail() ?? false;
+        }
+
+        return false;
     }
 
     public function getCover(): ?Asset
@@ -705,7 +726,19 @@ class Publication implements AclObjectInterface
         return $this->getOwnerId() ?? '';
     }
 
-    // @see https://github.com/doctrine/orm/issues/7944
+    public function getZippyId(): ?string
+    {
+        return $this->zippyId;
+    }
+
+    public function setZippyId(?string $zippyId): void
+    {
+        $this->zippyId = $zippyId;
+    }
+
+    /**
+     * @see https://github.com/doctrine/orm/issues/7944
+     */
     public function __sleep()
     {
         return [];

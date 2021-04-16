@@ -115,3 +115,21 @@ services:
                 dark-v10: Dark
                 outdoors-v11: Outdoors
                 satellite-v9: Satellite
+
+    app.zippy_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                base_uri: '%env(ZIPPY_BASE_URL)%'
+                verify: '%app.verify_ssl%'
+                headers:
+                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
+                options:
+                    timeout: 10
+                    http_errors: false
+                    headers:
+                        Accept: "application/json"
+
+    App\ZippyManager:
+        arguments:
+            $client: '@app.zippy_client'

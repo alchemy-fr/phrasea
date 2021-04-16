@@ -22,6 +22,7 @@ services:
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
+      - VERIFY_SSL
       - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
@@ -134,6 +135,7 @@ services:
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
+      - VERIFY_SSL
       - APP_ID=auth
       - AUTH_BASE_URL
       - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
@@ -187,6 +189,7 @@ services:
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
+      - VERIFY_SSL
       - APP_ID=expose
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -209,8 +212,12 @@ services:
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
+      - ZIPPY_CLIENT_ID
+      - ZIPPY_CLIENT_SECRET
+      - ZIPPY_BASE_URL
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      - "${ZIPPY_HOSTNAME}:${PS_GATEWAY_IP}"
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -275,6 +282,7 @@ services:
     environment:
       - APP_ENV
       - TRUSTED_PROXIES
+      - VERIFY_SSL
       - APP_ID=notify
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -556,6 +564,8 @@ services:
     environment:
       - APP_ENV
       - AUTH_BASE_URL
+      - TRUSTED_PROXIES=${PS_SUBNET}
+      - VERIFY_SSL
       - DATABOX_API_BASE_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -573,7 +583,6 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${DATABOX_STORAGE_BUCKET_NAME}
       - DATABOX_REQUEST_SIGNATURE_TTL
-      - TRUSTED_PROXIES=${PS_SUBNET}
     depends_on:
       - rabbitmq
       - redis
@@ -647,31 +656,26 @@ services:
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
-  zippy-api-php:
-    image: alchemyfr/zippy-api-php:latest
-    build:
-      context: ./api
-      target: zippy-api-php
+  zippy-fpm:
+    image: alchemyfr/zippy-api-fpm:latest
     networks:
       internal:
         aliases:
-          - zippy-php
+          - zippy-fpm
     environment:
-      - APP_ENV
-      - DATABASE_URL
-      - POSTGRES_PASSWORD
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
+      - CLIENT_ID=${ZIPPY_CLIENT_ID}
+      - CLIENT_SECRET=${ZIPPY_CLIENT_SECRET}
+      - RABBITMQ_VHOST=zippy
+      - TRUSTED_PROXIES
     volumes:
-      - zippy_vol:/srv/app/data
+      - zippy_vol:/data
     depends_on:
       - rabbitmq
 
-  zippy-api-nginx:
+  zippy-nginx:
     image: alchemyfr/zippy-api-nginx:latest
-    build:
-      context: ./api
-      target: zippy-api-nginx
     networks:
       internal:
         aliases:
@@ -679,25 +683,23 @@ services:
     ports:
       - ${ZIPPY_API_PORT}:80
     depends_on:
-      - zippy-api-php
+      - zippy-fpm
 
   zippy-worker:
     image: alchemyfr/zippy-worker:latest
-    build:
-      context: ./api
-      target: zippy-worker
     networks:
       - internal
     depends_on:
       - rabbitmq
     environment:
-      - APP_ENV
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
+      - RABBITMQ_VHOST=zippy
+      - VERIFY_SSL
     volumes:
-      - zippy_vol:/srv/app/data
+      - zippy_vol:/data
+    extra_hosts:
+      - "${EXPOSE_STORAGE_HOSTNAME}:${PS_GATEWAY_IP}"
 
 volumes:
   db_vol:
