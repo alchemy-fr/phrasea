@@ -14,7 +14,7 @@ class Layout extends PureComponent {
         super(props);
 
         this.state = {
-            displayMenu: window.innerWidth >= 992,
+            displayMenu: false,
         }
     }
 

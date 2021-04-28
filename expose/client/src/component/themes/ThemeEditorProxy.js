@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import {PropTypes} from 'prop-types';
 import {dataShape} from "../props/dataShape";
+import config from "../../lib/config";
+
+const isDev = !!config.get('devMode');
 
 class ThemeEditorProxy extends Component {
     static propTypes = {
@@ -9,7 +12,7 @@ class ThemeEditorProxy extends Component {
     };
 
     state = {
-        hidden: false,
+        hidden: !isDev,
     };
 
     static getDerivedStateFromProps(props, state) {
