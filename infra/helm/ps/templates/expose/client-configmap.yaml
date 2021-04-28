@@ -1,5 +1,5 @@
-{{- if .Values.expose.enabled }}
 {{- with .Values.expose }}
+{{- if .enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,5 +8,8 @@ data:
   DEV_MODE: "0"
   EXPOSE_REQUEST_SIGNATURE_TTL: {{ .api.config.requestSignatureTtl | quote }}
   MAPBOX_TOKEN: {{ required "Missing mapbox token at expose.client.mapbox.token" .client.mapbox.token | quote }}
+  {{- if .zippy.enabled }}
+  ZIPPY_BASE_URL: {{ required "Missing expose.zippy.baseUrl" .zippy.baseUrl | quote }}
+  {{- end }}
 {{- end }}
 {{- end }}

@@ -35,6 +35,10 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
+                if (null !== $publication->getZippyId()) {
+                    return $this->fetchDownloadUrlFromId($publication->getZippyId());
+                }
+
                 $response = $this->client->request('POST', '/archives', [
                     'json' => [
                         'files' => array_map(function (PublicationAsset $pubAsset): array {
@@ -59,10 +63,15 @@ class ZippyManager
                 return $json['downloadUrl'];
             });
         } else {
-            $response = $this->client->request('GET', '/archives/'.$publication->getZippyId());
-            $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
-
-            return $json['downloadUrl'];
+            return $this->fetchDownloadUrlFromId($publication->getZippyId());
         }
+    }
+
+    private function fetchDownloadUrlFromId(string $id): string
+    {
+        $response = $this->client->request('GET', '/archives/'.$id);
+        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+
+        return $json['downloadUrl'];
     }
 }

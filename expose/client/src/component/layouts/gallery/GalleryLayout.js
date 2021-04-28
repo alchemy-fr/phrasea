@@ -13,6 +13,7 @@ import {
 } from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
 import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
+import config from "../../../lib/config";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -150,13 +151,13 @@ class GalleryLayout extends React.Component {
                 position: 'relative',
             }}>
                 <h1>{title}</h1>
-                <div style={{
+                {config.get('zippyEnabled') && <div style={{
                     position: 'absolute',
                     top: 0,
                     right: 0,
                 }}>
                     <ZippyDownloadButton id={data.id} />
-                </div>
+                </div>}
             </div>
             <Description
                 descriptionHtml={data.description}

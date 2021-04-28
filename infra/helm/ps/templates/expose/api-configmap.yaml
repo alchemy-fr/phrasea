@@ -1,12 +1,17 @@
-{{- if .Values.expose.enabled }}
-{{- with .Values.expose.api.config }}
-{{- $tplArgs := dict "app" "expose" "ctx" . "glob" $ }}
+{{- with .Values.expose }}
+{{- if .enabled }}
+{{- $tplArgs := dict "app" "expose" "ctx" .api.config "glob" $ }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: expose-api-config
 data:
-  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
+  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .api.config.requestSignatureTtl | quote }}
+  {{- if .zippy.enabled }}
+  ZIPPY_BASE_URL: {{ required "Missing expose.zippy.baseUrl" .zippy.baseUrl | quote }}
+  ZIPPY_CLIENT_ID: {{ required "Missing expose.zippy.clientId" .zippy.clientId | quote }}
+  ZIPPY_CLIENT_SECRET: {{ required "Missing expose.zippy.clientSecret" .zippy.clientSecret | quote }}
+  {{- end }}
 {{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}

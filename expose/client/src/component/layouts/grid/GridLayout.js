@@ -10,6 +10,8 @@ import squareImg from '../../../images/square.svg';
 import DownloadButton from "../shared-components/DownloadButton";
 import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
+import config from "../../../lib/config";
+import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
 
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
@@ -78,7 +80,18 @@ class GridLayout extends React.Component {
                     <img src={layoutOptions.logoUrl} alt={''}/>
                 </div> : ''}
             </header>
-            <h1>{title}</h1>
+            <div style={{
+                position: 'relative',
+            }}>
+                <h1>{title}</h1>
+                {config.get('zippyEnabled') && <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                }}>
+                    <ZippyDownloadButton id={data.id} />
+                </div>}
+            </div>
             <Description
                 descriptionHtml={data.description}
             />
