@@ -39,7 +39,7 @@ elasticsearch:
             ES_URL=http://localhost:9200
             while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' $ES_URL)" != "200" ]]; do sleep 1; done
             curl -XPUT "$ES_URL/_template/report-template" -H 'Content-Type: application/json' -d'{"index_patterns":['\""report-*"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
-            curl -XPUT "$ES_URL/_template/kinana-template" -H 'Content-Type: application/json' -d'{"index_patterns":['\""kibana*"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
+            curl -XPUT "$ES_URL/_template/kinana-template" -H 'Content-Type: application/json' -d'{"index_patterns":['\"".kibana*"\"'],"settings":{"number_of_shards":'$SHARD_COUNT',"number_of_replicas":'$REPLICA_COUNT'}}'
 
 kibana:
   elasticsearchHosts: 'http://elasticsearch-report:9200'
