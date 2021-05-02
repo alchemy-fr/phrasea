@@ -698,8 +698,6 @@ services:
       - VERIFY_SSL
     volumes:
       - zippy_vol:/data
-    extra_hosts:
-      - "${EXPOSE_STORAGE_HOSTNAME}:${PS_GATEWAY_IP}"
 
 volumes:
   db_vol:
