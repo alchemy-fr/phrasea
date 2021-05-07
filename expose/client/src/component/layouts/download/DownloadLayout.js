@@ -6,6 +6,8 @@ import {
     downloadContainerDefaultState, onDownload,
     renderDownloadTermsModal, renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
+import config from "../../../lib/config";
+import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
 
 class DownloadLayout extends React.Component {
     static propTypes = {
@@ -15,17 +17,29 @@ class DownloadLayout extends React.Component {
     state = downloadContainerDefaultState;
 
     render() {
+        const {data} = this.props;
         const {
             title,
             assets,
             description,
-        } = this.props.data;
+        } = data;
 
         return <div className={`layout-download`}>
             {renderDownloadTermsModal.call(this)}
             {renderDownloadViaEmail.call(this)}
             <div className="container">
-                <h1>{title}</h1>
+                <div style={{
+                    position: 'relative',
+                }}>
+                    <h1>{title}</h1>
+                    {config.get('zippyEnabled') && <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                    }}>
+                        <ZippyDownloadButton id={data.id} />
+                    </div>}
+                </div>
                 <Description
                     descriptionHtml={description}
                 />

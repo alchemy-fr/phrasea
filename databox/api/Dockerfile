@@ -66,11 +66,11 @@ RUN apk add curl
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
 COPY --from=databox-api-php /srv/app/public /srv/app/public
 
+HEALTHCHECK --interval=1m CMD curl -f http://localhost || nginx reload
+
 EXPOSE 80
 
 FROM databox-api-php as databox-worker
-
-HEALTHCHECK --interval=1m CMD curl -f http://localhost || nginx reload
 
 RUN apk add --no-cache \
         supervisor \

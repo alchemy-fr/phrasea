@@ -23,6 +23,11 @@ expose:
     baseUrl: "https://expose.alchemy.kube"
     mapbox:
       token: "pk.eyJ1IjoiYXJ0aHVyZGVtb3VsaW5zIiwiYSI6ImNrYXAybGNodTBqdGIycnBvNGs0cWhsanYifQ.AafKAw4dVuEOVvbnwWG9Vw"
+  zippy:
+    enabled: true
+    baseUrl: "https://zippy-svc.alchemy.kube"
+    clientId: client
+    clientSecret: secret
 
 uploader:
   api:

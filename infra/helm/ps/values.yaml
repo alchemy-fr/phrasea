@@ -139,6 +139,11 @@ expose:
       token: "define-me"
   rabbitmq:
     vhost: expose
+  zippy:
+    enabled: false
+    baseUrl:
+    clientId:
+    clientSecret:
 
 notify:
   enabled: true

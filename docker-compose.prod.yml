@@ -43,6 +43,7 @@ services:
       - MAPBOX_TOKEN
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
+      - ZIPPY_BASE_URL
     ports:
       - ${EXPOSE_FRONT_PORT}:80
 

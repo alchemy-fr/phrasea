@@ -18,14 +18,15 @@ export default class DownloadButton extends PureComponent {
             return '';
         }
 
-        return <button
+        return <a
             className={'btn btn-secondary'}
+            href={downloadUrl}
             type={'button'}
             title={'Download'}
             onClick={this.onDownload}
         >
             Download
-        </button>
+        </a>
     }
 }
 
