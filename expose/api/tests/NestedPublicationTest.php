@@ -47,8 +47,9 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
     {
-        $parentId = $this->createPublication();
+        $parentId = $this->createPublication(['no_flush' => true]);
         $childId = $this->createPublication(['parent_id' => $parentId]);
+        $this->clearEmBeforeApiCall();
 
         foreach ([
                      null,
@@ -76,10 +77,22 @@ class NestedPublicationTest extends AbstractExposeTestCase
         }
     }
 
-    public function testGetNestedPublication(): void
+    public function testGetNestedOrderPublication(): void
     {
-        $parentId = $this->createPublication();
-        $childId = $this->createPublication(['parent_id' => $parentId]);
+        $parentId = $this->createPublication([
+            'title' => 'A',
+            'no_flush' => true,
+        ]);
+        $childId2 = $this->createPublication([
+            'title' => 'A.B',
+            'parent_id' => $parentId,
+            'no_flush' => true,
+        ]);
+        $childId = $this->createPublication([
+            'title' => 'A.A',
+            'parent_id' => $parentId,
+        ]);
+        $this->clearEmBeforeApiCall();
 
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
@@ -92,9 +105,13 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertEquals($parentId, $json['id']);
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('children', $json);
-        $this->assertArrayHasKey('0', $json['children']);
+        $this->assertEquals(2, count($json['children']));
         $this->assertEquals($childId, $json['children'][0]['id']);
         $this->assertArrayHasKey('title', $json['children'][0]);
+        $this->assertEquals('A.A', $json['children'][0]['title']);
+        $this->assertEquals($childId2, $json['children'][1]['id']);
+        $this->assertArrayHasKey('title', $json['children'][1]);
+        $this->assertEquals('A.B', $json['children'][1]['title']);
 
         // Test child
         $response = $this->request(

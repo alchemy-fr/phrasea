@@ -237,6 +237,7 @@ class Publication implements AclObjectInterface
      *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
      * )
+     * @ORM\OrderBy({"title"="ASC"})
      */
     private Collection $children;
 

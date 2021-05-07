@@ -3,6 +3,7 @@ parameters:
 
 doctrine:
     dbal:
+        override_url: true
         driver: 'pdo_pgsql'
         server_version: '11.2'
         charset: utf8
