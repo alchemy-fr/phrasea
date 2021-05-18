@@ -84,7 +84,7 @@ class GridLayout extends React.Component {
                 position: 'relative',
             }}>
                 <h1>{title}</h1>
-                {config.get('zippyEnabled') && <div style={{
+                {assets.length > 0 && config.get('zippyEnabled') && <div style={{
                     position: 'absolute',
                     top: 0,
                     right: 0,

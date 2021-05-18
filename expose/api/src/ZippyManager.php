@@ -41,6 +41,7 @@ class ZippyManager
 
                 $response = $this->client->request('POST', '/archives', [
                     'json' => [
+                        'downloadFilename' => $publication->getTitle() ?? 'publication-'.$publication->getId(),
                         'files' => array_map(function (PublicationAsset $pubAsset): array {
                             $asset = $pubAsset->getAsset();
 
