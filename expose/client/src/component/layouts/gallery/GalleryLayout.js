@@ -102,7 +102,6 @@ class GalleryLayout extends React.Component {
             currentIndex: offset,
             showFullscreenButton: displayControls,
             showPlayButton: displayControls,
-
         });
 
         if (this.map) {
@@ -156,7 +155,7 @@ class GalleryLayout extends React.Component {
                     top: 0,
                     right: 0,
                 }}>
-                    <ZippyDownloadButton id={data.id} />
+                    <ZippyDownloadButton id={data.id} data={this.props.data} />
                 </div>}
             </div>
             <Description

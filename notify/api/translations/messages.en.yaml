@@ -42,7 +42,13 @@ auth:
 expose:
   download_link:
     mail:
-      subject: "Expose: You download link"
+      subject: "Expose: Your download link"
       p1: |
         You can download your asset here:
+      download_button: Download
+  zippy_download_link:
+    mail:
+      subject: "Expose: Your publication download link"
+      p1: |
+        You can download the publication archive here:
       download_button: Download

@@ -30,7 +30,7 @@ export default class TermsModal extends PureComponent {
             </Modal.Header>
 
             <Modal.Body>
-                <p>
+                <div>
                     {text ? <div
                             className="terms-text"
                             dangerouslySetInnerHTML={{
@@ -41,7 +41,7 @@ export default class TermsModal extends PureComponent {
                             Please read and accept the{' '}
                             <a href={url} target={'_blank'}>terms</a>
                         </>}
-                </p>
+                </div>
             </Modal.Body>
 
             <Modal.Footer>

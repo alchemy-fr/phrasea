@@ -21,7 +21,8 @@ export default class DownloadViaEmailModal extends PureComponent {
         this.emailRef = React.createRef();
     }
 
-    onSubmit = () => {
+    onSubmit = (e) => {
+        e.preventDefault();
         this.setState({submitting: true}, async () => {
             const {email} = this.state;
 
@@ -47,44 +48,47 @@ export default class DownloadViaEmailModal extends PureComponent {
             show={true}
             onHide={onClose}
         >
-            <Modal.Header closeButton>
-                <Modal.Title>Download via email</Modal.Title>
-            </Modal.Header>
+            <form onSubmit={this.onSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Download via email</Modal.Title>
+                </Modal.Header>
 
-            <Modal.Body>
-                {sent ? <p>
-                    You will receive your download link by email.
-                </p> : <div className="form-group">
-                    <label htmlFor="email">
-                        Email
-                    </label>
-                    <input
-                        disabled={submitting}
-                        id={'email'}
-                        className={'form-control'}
-                        ref={this.emailRef}
-                        type="email"
-                        onChange={e => this.setState({email: e.target.value})}
-                        value={this.state.email}
-                    />
-                </div>}
-            </Modal.Body>
-
-            <Modal.Footer>
-                {sent ? <Button
-                    variant="secondary"
-                    onClick={onClose}
-                >Close</Button> : <>
-                    <Button
-                        onClick={onClose}
-                        disabled={submitting}
-                        variant="secondary">Discard</Button>
-                    <Button variant="primary"
+                <Modal.Body>
+                    {sent ? <p>
+                        You will receive your download link by email.
+                    </p> : <div className="form-group">
+                        <label htmlFor="email">
+                            Email
+                        </label>
+                        <input
                             disabled={submitting}
-                            onClick={this.onSubmit}
-                    >Continue</Button>
-                </>}
-            </Modal.Footer>
+                            id={'email'}
+                            className={'form-control'}
+                            ref={this.emailRef}
+                            type="email"
+                            required
+                            onChange={e => this.setState({email: e.target.value})}
+                            value={this.state.email}
+                        />
+                    </div>}
+                </Modal.Body>
+
+                <Modal.Footer>
+                    {sent ? <Button
+                        variant="secondary"
+                        onClick={onClose}
+                    >Close</Button> : <>
+                        <Button
+                            onClick={onClose}
+                            disabled={submitting}
+                            variant="secondary">Discard</Button>
+                        <Button variant="primary"
+                                disabled={submitting}
+                                type={'submit'}
+                        >Continue</Button>
+                    </>}
+                </Modal.Footer>
+            </form>
         </Modal>
     }
 

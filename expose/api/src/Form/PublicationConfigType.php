@@ -37,7 +37,8 @@ class PublicationConfigType extends AbstractType
             ])
             ->add('terms', TermsConfigType::class)
             ->add('downloadTerms', TermsConfigType::class)
-            ->add('downloadViaEmail')
+            ->add('includeDownloadTermsInZippy', TrueFalseNullChoiceType::class)
+            ->add('downloadViaEmail', TrueFalseNullChoiceType::class)
             ->add('mapOptions', MapOptionsType::class)
             ;
     }

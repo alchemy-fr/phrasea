@@ -248,7 +248,7 @@ class MapboxLayout extends React.Component {
                     top: 0,
                     right: 0,
                 }}>
-                    <ZippyDownloadButton id={data.id} />
+                    <ZippyDownloadButton id={data.id} data={this.props.data} />
                 </div>}
             </div>
             <Description

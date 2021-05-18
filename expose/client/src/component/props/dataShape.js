@@ -5,6 +5,7 @@ export const dataShape = PropTypes.shape({
     assets: PropTypes.array,
     children: PropTypes.array,
     parent: PropTypes.object,
+    downloadViaEmail: PropTypes.bool,
 });
 
 export const assetShape = PropTypes.shape({

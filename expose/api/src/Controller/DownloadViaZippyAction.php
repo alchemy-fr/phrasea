@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class DownloadViaZippyAction extends AbstractController
@@ -33,6 +34,10 @@ final class DownloadViaZippyAction extends AbstractController
             throw new NotFoundHttpException();
         }
         $this->denyAccessUnlessGranted(PublicationVoter::READ, $publication);
+
+        if ($publication->isDownloadViaEmail()) {
+            throw new AccessDeniedHttpException('Download via email only');
+        }
 
         $url = $this->zippyManager->getDownloadUrl($publication);
 
