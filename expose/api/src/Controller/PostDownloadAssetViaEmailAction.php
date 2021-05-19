@@ -17,14 +17,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/publications/{id}/assets/{assetId}/download-request", name="download_request_create")
  */
-final class PostDownloadViaEmailAction extends AbstractController
+final class PostDownloadAssetViaEmailAction extends AbstractController
 {
     private EntityManagerInterface $em;
     private ReportUserService $reportClient;
@@ -49,9 +48,7 @@ final class PostDownloadViaEmailAction extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (!$this->isGranted(PublicationVoter::READ, $publicationAsset->getPublication())) {
-            throw new AccessDeniedHttpException();
-        }
+        $this->denyAccessUnlessGranted(PublicationVoter::READ, $publicationAsset->getPublication());
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publicationAsset->getPublication());

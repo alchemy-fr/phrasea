@@ -14,6 +14,7 @@ import Copyright from "./layouts/shared-components/Copyright";
 import Cover from "./layouts/shared-components/Cover";
 import TermsModal from "./layouts/shared-components/TermsModal";
 import {oauthClient} from "../lib/oauth";
+import ErrorPage from "./ErrorPage";
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -24,6 +25,7 @@ class Publication extends PureComponent {
 
     state = {
         data: null,
+        error: null,
     };
 
     static getDerivedStateFromProps(props, state) {
@@ -78,27 +80,59 @@ class Publication extends PureComponent {
             options.headers = {'Authorization': `Bearer ${accessToken}`};
         }
 
-        const req = apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
-        const res = await req;
-        this.setState({data: res});
+        try {
+            const res = await apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
 
-        this.timeout && clearTimeout(this.timeout);
+            this.setState({data: res, error: null,});
 
-        this.timeout = setTimeout(() => {
-            this.load();
-        }, config.get('requestSignatureTtl') * 1000 - 2000);
+            this.timeout && clearTimeout(this.timeout);
+
+            this.timeout = setTimeout(() => {
+                this.load();
+            }, config.get('requestSignatureTtl') * 1000 - 2000);
+        } catch (err) {
+            if (err.response && 200 !== err.response.statusCode) {
+                this.setState({error: err.response.statusCode})
+            }
+        }
     }
 
     render() {
-        const {data} = this.state;
+        const {data, error} = this.state;
+
+        if (error) {
+            return this.renderError();
+        }
 
         return <>
-            {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink} /> : ''}
+            {data && data.cssLink ? <link rel="stylesheet" type="text/css" href={data.cssLink}/> : ''}
             <ThemeEditorProxy
                 data={data}
                 render={this.renderLayout}
             />
         </>
+    }
+
+    renderError() {
+        const {error} = this.state;
+        let err;
+        if ([401, 403].includes(error)) {
+            err = <ErrorPage
+                title={'Forbidden'}
+                code={error}
+            />
+        } else if (404 === error) {
+            err = <ErrorPage
+                title={'Not found'}
+                code={error}
+            />
+        }
+
+        return <Layout
+            authenticated={this.props.authenticated}
+        >
+            {err}
+        </Layout>
     }
 
     renderLayout = (data) => {
@@ -125,7 +159,7 @@ class Publication extends PureComponent {
     }
 
     acceptTerms = () => {
-        setAcceptedTerms('p_'+this.state.data.id);
+        setAcceptedTerms('p_' + this.state.data.id);
         this.forceUpdate();
     }
 
@@ -138,7 +172,7 @@ class Publication extends PureComponent {
             return this.renderSecurityAccess();
         }
 
-        if (data && data.terms.enabled && !isTermsAccepted('p_'+data.id)) {
+        if (data && data.terms.enabled && !isTermsAccepted('p_' + data.id)) {
             return this.renderTerms();
         }
 

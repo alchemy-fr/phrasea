@@ -651,6 +651,22 @@ class Publication implements AclObjectInterface
         return false;
     }
 
+    /**
+     * @Groups({"publication:read"})
+     */
+    public function isIncludeDownloadTermsInZippy(): bool
+    {
+        if (null !== $this->config->getIncludeDownloadTermsInZippy()) {
+            return $this->config->getIncludeDownloadTermsInZippy();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getIncludeDownloadTermsInZippy() ?? false;
+        }
+
+        return false;
+    }
+
     public function getCover(): ?Asset
     {
         return $this->cover;

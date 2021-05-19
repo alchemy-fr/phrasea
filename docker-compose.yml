@@ -217,6 +217,7 @@ services:
       - ZIPPY_BASE_URL
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
 
   expose-worker:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
@@ -248,6 +249,8 @@ services:
       - REPORT_BASE_URL
       - EXPOSE_API_BASE_URL
       - UPLOAD_MAX_FILE_SIZE
+    extra_hosts:
+      - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
 
   expose-api-nginx:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG

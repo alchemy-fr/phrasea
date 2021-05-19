@@ -32,7 +32,11 @@
                 $input.datetimepicker('date', date.subtract(date.zone(), 'minutes'));
                 $hidden.insertBefore($input);
                 $input.on('change.datetimepicker', function (e) {
-                    $hidden.val(e.date.add(e.date.zone(), 'minutes').format(options.format));
+                    if (e.date) {
+                        $hidden.val(e.date.add(e.date.zone(), 'minutes').format(options.format));
+                    } else {
+                        $hidden.val('');
+                    }
                 });
             }
 

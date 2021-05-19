@@ -31,10 +31,19 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $downloadViaEmail = null;
+
+    /**
+     * Download Terms URL must also be set.
+     *
+     * @ApiProperty()
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private ?bool $includeDownloadTermsInZippy = null;
 
     /**
      * @ApiProperty()
@@ -385,5 +394,15 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setLayoutOptions($layoutOptions): void
     {
         $this->layoutOptions = $layoutOptions;
+    }
+
+    public function getIncludeDownloadTermsInZippy(): ?bool
+    {
+        return $this->includeDownloadTermsInZippy;
+    }
+
+    public function setIncludeDownloadTermsInZippy(?bool $includeDownloadTermsInZippy): void
+    {
+        $this->includeDownloadTermsInZippy = $includeDownloadTermsInZippy;
     }
 }

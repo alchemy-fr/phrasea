@@ -32,9 +32,11 @@ function acceptTerms() {
         newState.displayDownloadViaEmail = true;
         newState.pendingDownloadUrl = url;
     }
-    if (!downloadViaEmail) {
-        document.location.href = url;
-    }
+    this.setState(newState, () => {
+        if (!downloadViaEmail) {
+            document.location.href = url;
+        }
+    });
 }
 
 export function renderDownloadTermsModal() {
@@ -64,10 +66,10 @@ export function onDownload(url, e) {
                 pendingDownloadUrl: url,
             });
 
-            return;
+            return false;
         }
 
-        return;
+        return true;
     }
 
     e.preventDefault();
@@ -76,6 +78,8 @@ export function onDownload(url, e) {
         displayDownloadTerms: true,
         pendingDownloadUrl: url,
     });
+
+    return false;
 }
 
 function discardDownloadViaEmail() {
