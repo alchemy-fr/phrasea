@@ -286,7 +286,7 @@ class PublicationConfig implements MergeableValueObjectInterface
         return $this->layout;
     }
 
-    public function setLayout(string $layout): void
+    public function setLayout(?string $layout): void
     {
         $this->layout = $layout;
     }

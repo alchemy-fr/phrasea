@@ -9,7 +9,7 @@ export const downloadContainerDefaultState = {
     displayDownloadViaEmail: false,
 }
 
-const termsKeyPrefix = 'pd_';
+export const termsKeyPrefix = 'pd_';
 
 function discardTerms() {
     this.setState({

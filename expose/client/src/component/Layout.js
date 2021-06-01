@@ -3,6 +3,7 @@ import {PropTypes} from 'prop-types';
 import {Link} from "react-router-dom";
 import {oauthClient} from "../lib/oauth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
+import config from '../lib/config';
 
 class Layout extends PureComponent {
     static propTypes = {
@@ -14,7 +15,7 @@ class Layout extends PureComponent {
         super(props);
 
         this.state = {
-            displayMenu: false,
+            displayMenu: config.get('sidebarDefaultOpen'),
         }
     }
 
