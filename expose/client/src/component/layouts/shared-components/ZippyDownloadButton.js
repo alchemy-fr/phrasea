@@ -3,7 +3,7 @@ import {PropTypes} from 'prop-types';
 import config from '../../../lib/config';
 import apiClient from "../../../lib/apiClient";
 import {dataShape} from "../../props/dataShape";
-import {renderDownloadTermsModal, renderDownloadViaEmail} from "./DownloadViaEmailProxy";
+import {renderDownloadTermsModal, renderDownloadViaEmail, termsKeyPrefix} from "./DownloadViaEmailProxy";
 import {isTermsAccepted} from "../../../lib/credential";
 
 export default class ZippyDownloadButton extends PureComponent {
@@ -18,7 +18,7 @@ export default class ZippyDownloadButton extends PureComponent {
 
     onDownload = async () => {
         const {data} = this.props;
-        if (!data.downloadTerms.enabled || isTermsAccepted('pd_' + data.id)) {
+        if (!data.downloadTerms.enabled || isTermsAccepted(termsKeyPrefix + data.id)) {
             if (true === data.downloadViaEmail) {
                 this.setState({
                     displayDownloadViaEmail: true,

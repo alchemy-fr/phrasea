@@ -39,19 +39,29 @@ class ZippyManager
                     return $this->fetchDownloadUrlFromId($publication->getZippyId());
                 }
 
+                $files = array_map(function (PublicationAsset $pubAsset): array {
+                    $asset = $pubAsset->getAsset();
+
+                    $path = $asset->getOriginalName();
+
+                    return [
+                        'path' => $path,
+                        'uri' => $this->assetUrlGenerator->generateAssetUrl($asset, false),
+                    ];
+                }, $publication->getAssets()->getValues());
+
+                if ($publication->isIncludeDownloadTermsInZippy()
+                    && null !== $termsUrl = $publication->getDownloadTerms()->getUrl()) {
+                    $files[] = [
+                        'path' => basename($termsUrl),
+                        'uri' => $termsUrl,
+                    ];
+                }
+
                 $response = $this->client->request('POST', '/archives', [
                     'json' => [
                         'downloadFilename' => $publication->getTitle() ?? 'publication-'.$publication->getId(),
-                        'files' => array_map(function (PublicationAsset $pubAsset): array {
-                            $asset = $pubAsset->getAsset();
-
-                            $path = $asset->getOriginalName();
-
-                            return [
-                                'path' => $path,
-                                'uri' => $this->assetUrlGenerator->generateAssetUrl($asset, false),
-                            ];
-                        }, $publication->getAssets()->getValues()),
+                        'files' => $files,
                     ],
                 ]);
 

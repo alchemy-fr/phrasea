@@ -137,6 +137,7 @@ expose:
       - password
     mapbox:
       token: "define-me"
+    sidebarDefaultOpen: false
   rabbitmq:
     vhost: expose
   zippy:

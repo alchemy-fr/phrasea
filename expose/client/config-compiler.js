@@ -67,5 +67,6 @@
         displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
         dashboardBaseUrl: env.DASHBOARD_BASE_URL,
         zippyEnabled: !!env.ZIPPY_BASE_URL,
+        sidebarDefaultOpen: env.SIDEBAR_DEFAULT_OPEN === 'true',
     };
 });

@@ -19,7 +19,9 @@ class LayoutChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choices = [];
+        $choices = [
+            'None (inherit from profile)' => null,
+        ];
         foreach ($this->choices as $key => $choice) {
             $choices[$choice] = $key;
         }
