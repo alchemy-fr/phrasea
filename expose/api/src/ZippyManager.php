@@ -30,8 +30,10 @@ class ZippyManager
 
     public function getDownloadUrl(Publication $publication): string
     {
-        if (null === $publication->getZippyId()) {
-            return $this->em->transactional(function () use ($publication): string {
+        $hash = $this->getArchiveHash($publication);
+
+        if (null === $publication->getZippyId() || $hash !== $publication->getZippyHash()) {
+            return $this->em->transactional(function () use ($publication, $hash): string {
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
@@ -68,6 +70,7 @@ class ZippyManager
                 $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
 
                 $publication->setZippyId($json['id']);
+                $publication->setZippyHash($hash);
                 $this->em->persist($publication);
                 $this->em->flush();
 
@@ -76,6 +79,24 @@ class ZippyManager
         } else {
             return $this->fetchDownloadUrlFromId($publication->getZippyId());
         }
+    }
+
+    private function getArchiveHash(Publication $publication): string
+    {
+        $parts = [
+            $publication->isIncludeDownloadTermsInZippy() ? 'include_terms' : 'exclude_terms',
+        ];
+
+        foreach ($publication->getAssets() as $publicationAsset) {
+            $asset = $publicationAsset->getAsset();
+            $parts[] = sprintf('%s-%s-%s',
+                $publicationAsset->getSlug(),
+                $asset->getOriginalName(),
+                $asset->getSize()
+            );
+        }
+
+        return md5(implode(',', $parts));
     }
 
     private function fetchDownloadUrlFromId(string $id): string

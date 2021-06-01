@@ -65,11 +65,6 @@ class AssetManager
             }
             $asset->addPublication($publicationAsset);
 
-            if ($publication->getZippyId()) {
-                $publication->setZippyId(null);
-                $this->em->persist($publication);
-            }
-
             if (isset($options['slug'])) {
                 $publicationAsset->setSlug($options['slug']);
             }

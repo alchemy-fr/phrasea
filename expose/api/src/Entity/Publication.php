@@ -298,6 +298,11 @@ class Publication implements AclObjectInterface
      */
     private ?string $zippyId = null;
 
+    /**
+     * @ORM\Column(type="string", length=32, nullable=true)
+     */
+    private ?string $zippyHash = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -750,6 +755,16 @@ class Publication implements AclObjectInterface
     public function setZippyId(?string $zippyId): void
     {
         $this->zippyId = $zippyId;
+    }
+
+    public function getZippyHash(): ?string
+    {
+        return $this->zippyHash;
+    }
+
+    public function setZippyHash(?string $zippyHash): void
+    {
+        $this->zippyHash = $zippyHash;
     }
 
     /**
