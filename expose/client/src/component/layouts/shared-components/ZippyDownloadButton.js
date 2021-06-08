@@ -16,21 +16,20 @@ export default class ZippyDownloadButton extends PureComponent {
         disabled: false,
     };
 
-    onDownload = async () => {
+    onDownload = () => {
         const {data} = this.props;
         if (!data.downloadTerms.enabled || isTermsAccepted(termsKeyPrefix + data.id)) {
             if (true === data.downloadViaEmail) {
                 this.setState({
                     displayDownloadViaEmail: true,
-                    pendingDownloadUrl: `${config.getApiBaseUrl()}/publications/${this.props.id}/zippy/download-request`
+                    pendingDownloadUrl: this.props.data.archiveDownloadUrl
                 });
 
                 return;
             }
 
             this.disableButtonForDownload();
-            const res = await apiClient.get(`${config.getApiBaseUrl()}/publications/${this.props.id}/download-via-zippy`);
-            window.open(res.downloadUrl, '_blank');
+            window.open(this.props.data.archiveDownloadUrl, '_blank');
         }
 
         this.setState({

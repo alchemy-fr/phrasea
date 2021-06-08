@@ -14,10 +14,12 @@ use Symfony\Component\Security\Core\Security;
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
     private Security $security;
+    private bool $zippyEnabled;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, ?string $zippyBaseUrl)
     {
         $this->security = $security;
+        $this->zippyEnabled = !empty($zippyBaseUrl);
     }
 
     /**
@@ -49,6 +51,8 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
 
+        $object->setArchiveDownloadUrl($this->generateDownloadViaZippyUrl($object));
+
         if (!empty($css = $object->getCss())) {
             $object->setCssLink($this->urlGenerator->generate('publication_css', [
                 'id' => $object->getId(),
@@ -61,6 +65,15 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $object->setSecurityContainerId($securityContainer->getId());
         $config->setSecurityMethod($securityContainer->getSecurityMethod());
         $config->setSecurityOptions($securityContainer->getSecurityOptions());
+    }
+
+    protected function generateDownloadViaZippyUrl(Publication $publication): string
+    {
+        $uri = $this->urlGenerator->generate(!$publication->isDownloadViaEmail() ? 'archive_download' : 'download_zippy_request_create', [
+            'id' => $publication->getId(),
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return $this->JWTManager->signUri($uri);
     }
 
     public function support($object): bool

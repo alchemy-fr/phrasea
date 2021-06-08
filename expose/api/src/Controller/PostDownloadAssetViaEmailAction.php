@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{id}/assets/{assetId}/download-request", name="download_request_create")
+ * @Route("/publications/{publicationId}/assets/{assetId}/download-request", name="download_asset_request_create")
  */
 final class PostDownloadAssetViaEmailAction extends AbstractController
 {
@@ -34,13 +34,13 @@ final class PostDownloadAssetViaEmailAction extends AbstractController
         $this->reportClient = $reportClient;
     }
 
-    public function __invoke(string $id, string $assetId, Request $request, EventProducer $eventProducer): Response
+    public function __invoke(string $publicationId, string $assetId, Request $request, EventProducer $eventProducer): Response
     {
         /** @var PublicationAsset|null $publicationAsset */
         $publicationAsset = $this->em
             ->getRepository(PublicationAsset::class)
             ->findOneBy([
-                'publication' => $id,
+                'publication' => $publicationId,
                 'asset' => $assetId,
             ]);
 
@@ -48,7 +48,7 @@ final class PostDownloadAssetViaEmailAction extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $this->denyAccessUnlessGranted(PublicationVoter::READ, $publicationAsset->getPublication());
+        $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publicationAsset->getPublication());
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publicationAsset->getPublication());
@@ -69,6 +69,7 @@ final class PostDownloadAssetViaEmailAction extends AbstractController
             $publicationAsset->getAsset()->getId(),
             [
                 'publicationId' => $publicationAsset->getPublication()->getId(),
+                'recipient' => $downloadRequest->getEmail(),
             ]
         );
 

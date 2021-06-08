@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "15680d29e6324a3f82cdbc812a29e92d",
+    "content-hash": "3a813376f422940dc890604e19651b7c",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -582,50 +582,6 @@
                 }
             ],
             "time": "2021-04-12T14:53:14+00:00"
-        },
-        {
-            "name": "arthem/jwt-request-signer",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/4rthem/jwt-request-signer.git",
-                "reference": "ef40b6c0ab77cf043c8303b61f45634267cf4880"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/jwt-request-signer/zipball/ef40b6c0ab77cf043c8303b61f45634267cf4880",
-                "reference": "ef40b6c0ab77cf043c8303b61f45634267cf4880",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/psr7": "^1.6",
-                "lcobucci/jwt": "^4",
-                "php": "^7.2"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Arthem\\JWTRequestSigner\\": "src/"
-                },
-                "exclude-from-classmap": [
-                    "/tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Protect access to your resources with JWT",
-            "homepage": "https://github.com/4rthem/jwt-request-signer",
-            "support": {
-                "issues": "https://github.com/4rthem/jwt-request-signer/issues",
-                "source": "https://github.com/4rthem/jwt-request-signer/tree/master"
-            },
-            "time": "2020-04-02T15:15:30+00:00"
         },
         {
             "name": "arthem/rabbit-bundle",
