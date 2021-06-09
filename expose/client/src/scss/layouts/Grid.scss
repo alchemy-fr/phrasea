@@ -39,6 +39,12 @@
 
   .desc {
     color: #FFF;
+
+    .description {
+      max-height: calc(90vh - 200px);
+      min-width: 300px;
+      overflow: auto;
+    }
   }
 
   .asset {
