@@ -7,6 +7,10 @@ parameters:
     env(S3_STORAGE_ENDPOINT): ~
     env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
 
+    router.request_context.host: '%env(EXPOSE_API_BASE_URL)%'
+    router.request_context.scheme: 'https'
+    asset.request_context.secure: true
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -14,6 +18,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $storageBaseUrl: '%env(S3_STORAGE_BASE_URL)%'
+            $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -133,3 +138,9 @@ services:
     App\ZippyManager:
         arguments:
             $client: '@app.zippy_client'
+
+    App\Security\Authentication\JWTManager:
+        arguments:
+            $signingKey: '%env(APP_SECRET)%'
+            $baseUri: '%env(EXPOSE_API_BASE_URL)%'
+            $ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'

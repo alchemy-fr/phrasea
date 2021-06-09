@@ -4,26 +4,34 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\ReportBundle\ReportUserService;
 use App\Entity\Publication;
+use App\Report\ExposeLogActionInterface;
 use App\Security\Voter\PublicationVoter;
 use App\ZippyManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/publications/{id}/download-via-zippy", name="archive_download")
+ */
 final class DownloadViaZippyAction extends AbstractController
 {
     private EntityManagerInterface $em;
     private ZippyManager $zippyManager;
+    private ReportUserService $reportClient;
 
-    public function __construct(EntityManagerInterface $em, ZippyManager $zippyManager)
+    public function __construct(EntityManagerInterface $em, ZippyManager $zippyManager, ReportUserService $reportClient)
     {
         $this->em = $em;
         $this->zippyManager = $zippyManager;
+        $this->reportClient = $reportClient;
     }
 
     public function __invoke(string $id, Request $request): Response
@@ -33,16 +41,20 @@ final class DownloadViaZippyAction extends AbstractController
         if (!$publication) {
             throw new NotFoundHttpException();
         }
-        $this->denyAccessUnlessGranted(PublicationVoter::READ, $publication);
+        $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
 
         if ($publication->isDownloadViaEmail()) {
             throw new AccessDeniedHttpException('Download via email only');
         }
 
-        $url = $this->zippyManager->getDownloadUrl($publication);
+        $this->reportClient->pushHttpRequestLog(
+            $request,
+            ExposeLogActionInterface::PUBLICATION_ARCHIVE_DOWNLOAD,
+            $publication->getId(),
+            [
+            ]
+        );
 
-        return new JsonResponse([
-            'downloadUrl' => $url,
-        ]);
+        return new RedirectResponse($this->zippyManager->getDownloadUrl($publication));
     }
 }

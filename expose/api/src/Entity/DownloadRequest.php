@@ -84,6 +84,19 @@ class DownloadRequest
     private ?Asset $asset = null;
 
     /**
+     * @ApiProperty(
+     *     attributes={
+     *         "swagger_context"={
+     *             "$ref"="#/definitions/SubDefinition",
+     *         }
+     *     }
+     * )
+     * @ORM\ManyToOne(targetEntity="SubDefinition")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
+    private ?SubDefinition $subDefinition = null;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     private DateTime $createdAt;
@@ -142,5 +155,15 @@ class DownloadRequest
     public function setLocale(?string $locale): void
     {
         $this->locale = $locale;
+    }
+
+    public function getSubDefinition(): ?SubDefinition
+    {
+        return $this->subDefinition;
+    }
+
+    public function setSubDefinition(?SubDefinition $subDefinition): void
+    {
+        $this->subDefinition = $subDefinition;
     }
 }

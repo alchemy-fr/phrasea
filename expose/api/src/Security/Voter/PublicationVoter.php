@@ -8,10 +8,14 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Publication;
+use App\Security\Authentication\JWTManager;
 use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
 use DateTime;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -27,15 +31,41 @@ class PublicationVoter extends Voter
     const DELETE = 'DELETE';
 
     private Security $security;
+    private RequestStack $requestStack;
+    private JWTManager $JWTManager;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, RequestStack $requestStack, JWTManager $JWTManager)
     {
         $this->security = $security;
+        $this->requestStack = $requestStack;
+        $this->JWTManager = $JWTManager;
     }
 
     protected function supports($attribute, $subject)
     {
         return $subject instanceof Publication || self::CREATE === $attribute;
+    }
+
+    private function isValidJWTForRequest(): bool
+    {
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        if (!$currentRequest instanceof Request) {
+            return false;
+        }
+
+        $uri = $currentRequest->getUri();
+        $token = $currentRequest->query->get('jwt');
+        if (!$token) {
+            return false;
+        }
+
+        try {
+            $this->JWTManager->validateJWT($uri, $token);
+        } catch (AccessDeniedHttpException $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -62,6 +92,7 @@ class PublicationVoter extends Voter
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::READ_DETAILS:
                 return $isAdmin
+                    || $this->isValidJWTForRequest()
                     || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::DELETE:

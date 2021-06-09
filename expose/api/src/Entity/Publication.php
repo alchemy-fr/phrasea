@@ -52,14 +52,6 @@ use App\Controller\DownloadViaZippyAction;
  *             "controller"=SortAssetsAction::class,
  *             "method"="POST",
  *         },
- *         "zippy-download"={
- *             "method"="GET",
- *             "path"="/publications/{id}/download-via-zippy",
- *             "controller"=DownloadViaZippyAction::class,
- *             "defaults"={
- *                  "_api_receive"=false
- *             },
- *         },
  *     },
  *     collectionOperations={
  *         "get"={
@@ -186,6 +178,12 @@ class Publication implements AclObjectInterface
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $packageUrl = null;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"publication:read", "publication:index"})
+     */
+    private ?string $archiveDownloadUrl = null;
 
     /**
      * @ApiProperty()
@@ -491,6 +489,16 @@ class Publication implements AclObjectInterface
     public function setPackageUrl(?string $packageUrl): void
     {
         $this->packageUrl = $packageUrl;
+    }
+
+    public function getArchiveDownloadUrl(): ?string
+    {
+        return $this->archiveDownloadUrl;
+    }
+
+    public function setArchiveDownloadUrl(?string $archiveDownloadUrl): void
+    {
+        $this->archiveDownloadUrl = $archiveDownloadUrl;
     }
 
     public function getSlug(): ?string

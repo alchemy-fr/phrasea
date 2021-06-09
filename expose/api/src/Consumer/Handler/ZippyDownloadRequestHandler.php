@@ -6,6 +6,7 @@ namespace App\Consumer\Handler;
 
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\DownloadRequest;
+use App\Security\Authentication\JWTManager;
 use App\ZippyManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -17,11 +18,13 @@ class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
 
     private NotifierInterface $notifier;
     private ZippyManager $zippyManager;
+    private JWTManager $JWTManager;
 
-    public function __construct(NotifierInterface $notifier, ZippyManager $zippyManager)
+    public function __construct(NotifierInterface $notifier, ZippyManager $zippyManager, JWTManager $JWTManager)
     {
         $this->notifier = $notifier;
         $this->zippyManager = $zippyManager;
+        $this->JWTManager = $JWTManager;
     }
 
     public function handle(EventMessage $message): void
@@ -34,7 +37,12 @@ class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, __CLASS__);
         }
 
-        $downloadUrl = $this->zippyManager->getDownloadUrl($downloadRequest->getPublication());
+        $uri = $this->zippyManager->getDownloadUrl($downloadRequest->getPublication());
+
+        $downloadUrl = $this->JWTManager->signUri(
+            $uri,
+            259200 // 3 days
+        );
 
         $this->notifier->sendEmail(
             $downloadRequest->getEmail(),

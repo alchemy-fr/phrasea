@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{id}/zippy/download-request", name="download_zippy_request_create")
+ * @Route("/publications/{id}/zippy/download-request", name="download_zippy_request_create", methods={"POST"})
  */
 final class PostDownloadZippyViaEmailAction extends AbstractController
 {
@@ -43,7 +43,7 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $this->denyAccessUnlessGranted(PublicationVoter::READ, $publication);
+        $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publication);
@@ -59,8 +59,11 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
 
         $this->reportClient->pushHttpRequestLog(
             $request,
-            ExposeLogActionInterface::ZIPPY_DOWNLOAD_REQUEST,
-            $publication->getId()
+            ExposeLogActionInterface::PUBLICATION_ARCHIVE_DOWNLOAD_REQUEST,
+            $publication->getId(),
+            [
+                'recipient' => $downloadRequest->getEmail(),
+            ]
         );
 
         return new JsonResponse(true);

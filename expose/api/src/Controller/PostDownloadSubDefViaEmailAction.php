@@ -7,7 +7,9 @@ namespace App\Controller;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\DownloadRequestHandler;
 use App\Entity\DownloadRequest;
+use App\Entity\Publication;
 use App\Entity\PublicationAsset;
+use App\Entity\SubDefinition;
 use App\Report\ExposeLogActionInterface;
 use App\Security\Voter\PublicationVoter;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -21,9 +23,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{publicationId}/assets/{assetId}/download-request", name="download_asset_request_create")
+ * @Route("/publications/{publicationId}/subdef/{subDefId}/download-request", name="download_subdef_request_create", methods={"POST"})
  */
-final class PostDownloadAssetViaEmailAction extends AbstractController
+final class PostDownloadSubDefViaEmailAction extends AbstractController
 {
     private EntityManagerInterface $em;
     private ReportUserService $reportClient;
@@ -34,25 +36,38 @@ final class PostDownloadAssetViaEmailAction extends AbstractController
         $this->reportClient = $reportClient;
     }
 
-    public function __invoke(string $publicationId, string $assetId, Request $request, EventProducer $eventProducer): Response
+    public function __invoke(string $publicationId, string $subDefId, Request $request, EventProducer $eventProducer): Response
     {
-        /** @var PublicationAsset|null $publicationAsset */
-        $publicationAsset = $this->em
-            ->getRepository(PublicationAsset::class)
-            ->findOneBy([
-                'publication' => $publicationId,
-                'asset' => $assetId,
-            ]);
+        /** @var Publication|null $publication */
+        $publication = $this->em->getRepository(Publication::class)->find($publicationId);
 
-        if (!$publicationAsset instanceof PublicationAsset) {
+        if (!$publication instanceof Publication) {
             throw new NotFoundHttpException();
         }
 
-        $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publicationAsset->getPublication());
+        $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
+
+        $subDef = $this->em->getRepository(SubDefinition::class)->find($subDefId);
+        if (!$subDef instanceof SubDefinition) {
+            throw new NotFoundHttpException(sprintf('Sub def "%s" not found', $subDefId));
+        }
+
+        $publicationAsset = $this->em->getRepository(PublicationAsset::class)
+            ->findOneBy([
+                'publication' => $publication->getId(),
+                'asset' => $subDef->getAsset()->getId(),
+            ]);
+
+        if (!$publicationAsset instanceof PublicationAsset) {
+            throw new NotFoundHttpException('PublicationAsset not found');
+        }
+
+        $asset = $publicationAsset->getAsset();
 
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publicationAsset->getPublication());
         $downloadRequest->setAsset($publicationAsset->getAsset());
+        $downloadRequest->setSubDefinition($subDef);
         $downloadRequest->setEmail($request->request->get('email'));
         $downloadRequest->setLocale($request->getLocale());
 
@@ -70,6 +85,7 @@ final class PostDownloadAssetViaEmailAction extends AbstractController
             [
                 'publicationId' => $publicationAsset->getPublication()->getId(),
                 'recipient' => $downloadRequest->getEmail(),
+                'subDefinitionName' => $subDef->getName(),
             ]
         );
 

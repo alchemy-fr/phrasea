@@ -19,10 +19,13 @@ class AssetNormalizer extends AbstractRouterNormalizer
         $publicationAsset = $context['publication_asset'] ?? null;
         $downloadViaEmail = $context['download_via_email'] ?? false;
 
-        if (!$downloadViaEmail) {
-            $object->setDownloadUrl($this->generateAssetUrl($object, true));
-        } elseif ($publicationAsset instanceof PublicationAsset) {
-            $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
+        if ($publicationAsset instanceof PublicationAsset) {
+            if (!$downloadViaEmail) {
+                $object->setDownloadUrl($this
+                    ->generateDownloadAssetTrackerUrl($publicationAsset->getPublication(), $publicationAsset->getAsset()));
+            } else {
+                $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
+            }
         }
 
         $object->setUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
@@ -34,14 +37,6 @@ class AssetNormalizer extends AbstractRouterNormalizer
                 'hash' => md5($webVTT),
             ], UrlGeneratorInterface::ABSOLUTE_URL));
         }
-    }
-
-    private function getDownloadViaEmailUrl(PublicationAsset $publicationAsset): string
-    {
-        return $this->urlGenerator->generate('download_request_create', [
-            'id' => $publicationAsset->getPublication()->getId(),
-            'assetId' => $publicationAsset->getAsset()->getId(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     public function support($object): bool
