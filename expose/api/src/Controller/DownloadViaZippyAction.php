@@ -43,10 +43,6 @@ final class DownloadViaZippyAction extends AbstractController
         }
         $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
 
-        if ($publication->isDownloadViaEmail()) {
-            throw new AccessDeniedHttpException('Download via email only');
-        }
-
         $this->reportClient->pushHttpRequestLog(
             $request,
             ExposeLogActionInterface::PUBLICATION_ARCHIVE_DOWNLOAD,

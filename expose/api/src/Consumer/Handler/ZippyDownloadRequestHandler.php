@@ -11,6 +11,7 @@ use App\ZippyManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
 {
@@ -19,12 +20,14 @@ class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
     private NotifierInterface $notifier;
     private ZippyManager $zippyManager;
     private JWTManager $JWTManager;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(NotifierInterface $notifier, ZippyManager $zippyManager, JWTManager $JWTManager)
+    public function __construct(NotifierInterface $notifier, ZippyManager $zippyManager, JWTManager $JWTManager, UrlGeneratorInterface $urlGenerator)
     {
         $this->notifier = $notifier;
         $this->zippyManager = $zippyManager;
         $this->JWTManager = $JWTManager;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function handle(EventMessage $message): void
@@ -37,8 +40,12 @@ class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, __CLASS__);
         }
 
-        $uri = $this->zippyManager->getDownloadUrl($downloadRequest->getPublication());
+        // Trigger ZIP preparation
+        $this->zippyManager->getDownloadUrl($downloadRequest->getPublication());
 
+        $uri = $this->urlGenerator->generate('archive_download', [
+            'id' => $downloadRequest->getPublication()->getId(),
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
         $downloadUrl = $this->JWTManager->signUri(
             $uri,
             259200 // 3 days
