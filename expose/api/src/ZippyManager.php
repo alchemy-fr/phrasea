@@ -85,6 +85,7 @@ class ZippyManager
     {
         $parts = [
             $publication->isIncludeDownloadTermsInZippy() ? 'include_terms' : 'exclude_terms',
+            $publication->getTitle(),
         ];
 
         foreach ($publication->getAssets() as $publicationAsset) {
