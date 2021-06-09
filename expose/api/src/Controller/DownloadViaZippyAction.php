@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{id}/download-via-zippy", name="archive_download")
+ * @Route("/publications/{id}/download-via-zippy", name="archive_download", methods={"GET"})
  */
 final class DownloadViaZippyAction extends AbstractController
 {

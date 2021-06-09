@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{publicationId}/assets/{assetId}/download-request", name="download_asset_request_create")
+ * @Route("/publications/{publicationId}/assets/{assetId}/download-request", name="download_asset_request_create", methods={"POST"})
  */
 final class PostDownloadAssetViaEmailAction extends AbstractController
 {

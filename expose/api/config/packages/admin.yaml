@@ -41,6 +41,7 @@ easy_admin:
         fields:
           - { property: 'parent' }
           - { property: 'title' }
+          - { property: 'description' }
           - { property: 'slug' }
           - { property: 'profile' }
           - { property: 'date', type: Alchemy\AdminBundle\Form\DateTimePickerType }

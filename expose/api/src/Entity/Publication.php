@@ -275,7 +275,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "publication:index"})
      */
     private ?DateTime $date = null;
 

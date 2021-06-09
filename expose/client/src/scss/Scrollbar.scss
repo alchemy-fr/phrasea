@@ -3,11 +3,11 @@
   height: 7px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #000;
+  background: $primary;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover{
-  background: linear-gradient(13deg, #c7ceff 14%,#f9d4ff 64%);
+  background: linear-gradient(13deg, $secondary 14%, $primary 64%);
 }
 ::-webkit-scrollbar-track{
   background: #ffffff;

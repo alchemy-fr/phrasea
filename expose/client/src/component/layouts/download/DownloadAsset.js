@@ -11,51 +11,49 @@ class DownloadAsset extends React.Component {
 
     render() {
         const {
-            downloadUrl,
             thumbUrl,
             originalName,
             mimeType,
             description,
         } = this.props.data;
 
-        return <div>
-            <a
-                onClick={e => this.props.onDownload(downloadUrl, e)}
-                href={downloadUrl || '#'}
-            >
-                <img src={thumbUrl} alt={originalName}/>
-                {originalName} - {mimeType}
-            </a>
-            <Description
-                descriptionHtml={description}
-            />
-            {this.renderSubDef()}
+        return <div className="media">
+            <img src={thumbUrl} alt={originalName}/>
+            <div className="media-body">
+                <h5 className="mt-0">
+                    {originalName} - {mimeType}
+                </h5>
+                <Description
+                    descriptionHtml={description}
+                />
+                {this.renderSubDef()}
+            </div>
         </div>
     }
 
     renderSubDef() {
         const {
             subDefinitions,
+            id,
+            downloadUrl,
         } = this.props.data;
 
-        if (subDefinitions.length === 0) {
-            return '';
-        }
-
-        return <div>
-            <div>Sub definitions</div>
-            <ul>
-                {subDefinitions.map(d => <li
-                    key={d.id}
-                >
-                    <a
-                        onClick={e => this.props.onDownload(d.downloadUrl, e)}
-                        href={d.downloadUrl || '#'}
-                    >
-                        {d.name}
-                    </a>
-                </li>)}
-            </ul>
+        return <div className={'download-btns'}>
+            <a
+                onClick={e => this.props.onDownload(downloadUrl, e)}
+                href={downloadUrl || '#'}
+                className={'btn btn-primary'}
+            >
+                Download original
+            </a>
+            {subDefinitions.map(d => <a
+                key={d.id}
+                onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
+                href={d.downloadUrl || '#'}
+                className={'btn btn-secondary'}
+            >
+                Download {d.name}
+            </a>)}
         </div>
     }
 }

@@ -3,3 +3,33 @@
 @import "Download";
 @import "Mapbox";
 @import "Shared";
+
+.pub-header {
+  .logo {
+    margin-bottom: 15px;
+
+    img {
+      max-height: 100px;
+      max-width: 100%;
+    }
+  }
+
+  .description {
+    max-height: 200px;
+    overflow: auto;
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  time {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+
+  .download-archive {
+    text-align: right;
+    margin-bottom: 15px;
+  }
+}

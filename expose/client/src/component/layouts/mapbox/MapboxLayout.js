@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import config from "../../../lib/config";
 import Description from "../shared-components/Description";
 import {getBrowserLanguage} from "./browserLang";
-import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
+import PublicationHeader from "../shared-components/PublicationHeader";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -239,20 +239,8 @@ class MapboxLayout extends React.Component {
         }
 
         return <div className={'layout-mapbox'}>
-            <div style={{
-                position: 'relative',
-            }}>
-                <h1>{data.title}</h1>
-                {assets.length > 0 && config.get('zippyEnabled') && <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                }}>
-                    <ZippyDownloadButton id={data.id} data={this.props.data} />
-                </div>}
-            </div>
-            <Description
-                descriptionHtml={data.description}
+            <PublicationHeader
+                data={data}
             />
             <div className="map-wrapper">
                 <div className="map-controls">

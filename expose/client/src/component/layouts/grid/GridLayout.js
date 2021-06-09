@@ -5,13 +5,11 @@ import {dataShape} from "../../props/dataShape";
 import Gallery from 'react-grid-gallery';
 import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import Carousel, {Modal, ModalGateway} from "react-images";
-import moment from "moment";
 import squareImg from '../../../images/square.svg';
 import DownloadButton from "../shared-components/DownloadButton";
 import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
-import config from "../../../lib/config";
-import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
+import PublicationHeader from "../shared-components/PublicationHeader";
 
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
@@ -65,35 +63,14 @@ class GridLayout extends React.Component {
     render() {
         const {data} = this.props;
         const {
-            title,
             assets,
-            date,
-            layoutOptions,
         } = data;
 
         return <div className={`layout-grid`}>
             {renderDownloadTermsModal.call(this)}
             {renderDownloadViaEmail.call(this)}
-            <header>
-                {date ? <time>{moment(date).format('LLLL')}</time> : ''}
-                {layoutOptions.logoUrl ? <div>
-                    <img src={layoutOptions.logoUrl} alt={''}/>
-                </div> : ''}
-            </header>
-            <div style={{
-                position: 'relative',
-            }}>
-                <h1>{title}</h1>
-                {assets.length > 0 && config.get('zippyEnabled') && <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                }}>
-                    <ZippyDownloadButton id={data.id} data={this.props.data} />
-                </div>}
-            </div>
-            <Description
-                descriptionHtml={data.description}
+            <PublicationHeader
+                data={data}
             />
             {assets.length > 0 ? this.renderGallery() : 'Gallery is empty'}
         </div>

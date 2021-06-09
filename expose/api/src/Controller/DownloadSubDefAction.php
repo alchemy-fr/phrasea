@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{publicationId}/subdef/{subDefId}/download", name="download_subdef")
+ * @Route("/publications/{publicationId}/subdef/{subDefId}/download", name="download_subdef", methods={"GET"})
  */
 final class DownloadSubDefAction extends AbstractController
 {

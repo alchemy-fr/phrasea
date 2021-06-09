@@ -12,8 +12,7 @@ import {
     renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
-import ZippyDownloadButton from "../shared-components/ZippyDownloadButton";
-import config from "../../../lib/config";
+import PublicationHeader from "../shared-components/PublicationHeader";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -121,7 +120,6 @@ class GalleryLayout extends React.Component {
         const {assetId, data, options} = this.props;
         const {currentIndex} = this.state;
         const {
-            title,
             assets,
         } = data;
 
@@ -146,20 +144,8 @@ class GalleryLayout extends React.Component {
         return <div className={`layout-gallery`}>
             {renderDownloadTermsModal.call(this)}
             {renderDownloadViaEmail.call(this)}
-            <div style={{
-                position: 'relative',
-            }}>
-                <h1>{title}</h1>
-                {assets.length > 0 && config.get('zippyEnabled') && <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                }}>
-                    <ZippyDownloadButton id={data.id} data={this.props.data} />
-                </div>}
-            </div>
-            <Description
-                descriptionHtml={data.description}
+            <PublicationHeader
+                data={data}
             />
             {assets.length > 0 ?
                 <ImageGallery

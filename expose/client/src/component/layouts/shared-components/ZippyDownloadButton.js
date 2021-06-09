@@ -1,7 +1,5 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
-import config from '../../../lib/config';
-import apiClient from "../../../lib/apiClient";
 import {dataShape} from "../../props/dataShape";
 import {renderDownloadTermsModal, renderDownloadViaEmail, termsKeyPrefix} from "./DownloadViaEmailProxy";
 import {isTermsAccepted} from "../../../lib/credential";
