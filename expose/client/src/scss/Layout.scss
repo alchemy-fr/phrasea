@@ -8,12 +8,11 @@
   -o-transition: all .3s;
   transition: all .3s;
   position: relative;
-  min-height: 100vh;
+  min-height: 100%;
   z-index: 1000;
 
   @include media-breakpoint-down($mobile-thresold-down) {
     position: absolute;
-    z-index: 1000;
   }
 
   &.hidden {
