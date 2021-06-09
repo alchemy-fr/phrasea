@@ -5,36 +5,38 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
+use App\Consumer\Handler\DownloadRequestHandler;
+use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 use App\Report\ExposeLogActionInterface;
-use App\Security\AssetUrlGenerator;
 use App\Security\Voter\PublicationVoter;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{publicationId}/subdef/{subDefId}/download", name="download_subdef")
+ * @Route("/publications/{publicationId}/subdef/{subDefId}/download-request", name="download_subdef_request_create", methods={"POST"})
  */
-final class DownloadSubDefAction extends AbstractController
+final class PostDownloadSubDefViaEmailAction extends AbstractController
 {
     private EntityManagerInterface $em;
     private ReportUserService $reportClient;
-    private AssetUrlGenerator $assetUrlGenerator;
 
-    public function __construct(EntityManagerInterface $em, ReportUserService $reportClient, AssetUrlGenerator $assetUrlGenerator)
+    public function __construct(EntityManagerInterface $em, ReportUserService $reportClient)
     {
         $this->em = $em;
         $this->reportClient = $reportClient;
-        $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
-    public function __invoke(string $publicationId, string $subDefId, Request $request): RedirectResponse
+    public function __invoke(string $publicationId, string $subDefId, Request $request, EventProducer $eventProducer): Response
     {
         /** @var Publication|null $publication */
         $publication = $this->em->getRepository(Publication::class)->find($publicationId);
@@ -62,16 +64,31 @@ final class DownloadSubDefAction extends AbstractController
 
         $asset = $publicationAsset->getAsset();
 
+        $downloadRequest = new DownloadRequest();
+        $downloadRequest->setPublication($publicationAsset->getPublication());
+        $downloadRequest->setAsset($publicationAsset->getAsset());
+        $downloadRequest->setSubDefinition($subDef);
+        $downloadRequest->setEmail($request->request->get('email'));
+        $downloadRequest->setLocale($request->getLocale());
+
+        $this->em->persist($downloadRequest);
+        $this->em->flush();
+
+        $eventProducer->publish(new EventMessage(DownloadRequestHandler::EVENT, [
+            'id' => $downloadRequest->getId(),
+        ]));
+
         $this->reportClient->pushHttpRequestLog(
             $request,
-            ExposeLogActionInterface::ASSET_DOWNLOAD,
-            $asset->getId(),
+            ExposeLogActionInterface::ASSET_DOWNLOAD_REQUEST,
+            $publicationAsset->getAsset()->getId(),
             [
-                'publicationId' => $publication->getId(),
+                'publicationId' => $publicationAsset->getPublication()->getId(),
+                'recipient' => $downloadRequest->getEmail(),
                 'subDefinitionName' => $subDef->getName(),
             ]
         );
 
-        return new RedirectResponse($this->assetUrlGenerator->generateSubDefinitionUrl($subDef, true));
+        return new JsonResponse(true);
     }
 }

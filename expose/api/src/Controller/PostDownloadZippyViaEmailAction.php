@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/publications/{id}/zippy/download-request", name="download_zippy_request_create")
+ * @Route("/publications/{id}/zippy/download-request", name="download_zippy_request_create", methods={"POST"})
  */
 final class PostDownloadZippyViaEmailAction extends AbstractController
 {

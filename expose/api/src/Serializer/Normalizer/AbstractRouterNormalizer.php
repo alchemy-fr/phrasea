@@ -83,10 +83,12 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 
     protected function generateDownloadSubDefTrackerUrl(Publication $publication, SubDefinition $subDefinition): string
     {
-        return $this->urlGenerator->generate('download_subdef', [
+        $uri = $this->urlGenerator->generate('download_subdef', [
             'publicationId' => $publication->getId(),
             'subDefId' => $subDefinition->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return $this->JWTManager->signUri($uri);
     }
 
     protected function generateAssetUrl(MediaInterface $media, bool $download = false): string
@@ -106,7 +108,6 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
                 'publicationId' => $publicationAsset->getPublication()->getId(),
                 'subDefId' => $subDefId,
             ], UrlGeneratorInterface::ABSOLUTE_URL);
-
 
             return $this->JWTManager->signUri($uri);
         }

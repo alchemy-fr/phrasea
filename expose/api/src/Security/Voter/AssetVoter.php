@@ -6,7 +6,6 @@ namespace App\Security\Voter;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Asset;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -17,12 +16,10 @@ class AssetVoter extends Voter
     const EDIT = 'EDIT';
 
     private Security $security;
-    private EntityManagerInterface $em;
 
-    public function __construct(Security $security, EntityManagerInterface $em)
+    public function __construct(Security $security)
     {
         $this->security = $security;
-        $this->em = $em;
     }
 
     protected function supports($attribute, $subject)

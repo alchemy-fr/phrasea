@@ -32,7 +32,7 @@ class JWTManager
             ->identifiedBy($uri)
             ->issuedBy($this->baseUri)
             ->issuedAt(new \DateTimeImmutable())
-            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + $ttl ?? $this->ttl))
+            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
             ->getToken($config->signer(), $config->signingKey());
 
         return implode('', [

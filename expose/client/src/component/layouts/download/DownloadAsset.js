@@ -36,7 +36,6 @@ class DownloadAsset extends React.Component {
     renderSubDef() {
         const {
             subDefinitions,
-            id,
         } = this.props.data;
 
         if (subDefinitions.length === 0) {
@@ -50,7 +49,7 @@ class DownloadAsset extends React.Component {
                     key={d.id}
                 >
                     <a
-                        onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
+                        onClick={e => this.props.onDownload(d.downloadUrl, e)}
                         href={d.downloadUrl || '#'}
                     >
                         {d.name}

@@ -37,10 +37,15 @@ class DownloadRequestHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, __CLASS__);
         }
 
-        $uri = $this->urlGenerator->generate('download_asset', [
+        $parameters = [
             'publicationId' => $downloadRequest->getPublication()->getId(),
-            'assetId' => $downloadRequest->getAsset()->getId(),
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        ];
+        if ($downloadRequest->getSubDefinition()) {
+            $parameters['subDefId'] = $downloadRequest->getSubDefinition()->getId();
+        } else {
+            $parameters['assetId'] = $downloadRequest->getAsset()->getId();
+        }
+        $uri = $this->urlGenerator->generate($downloadRequest->getSubDefinition() ? 'download_subdef': 'download_asset', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
 
         $downloadUrl = $this->JWTManager->signUri(
             $uri,
