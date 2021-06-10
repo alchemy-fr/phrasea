@@ -24,9 +24,6 @@ spec:
         volumeMounts:
         - name: configs
           mountPath: /configs
-        env:
-        - name: DEV_MODE
-          value: "false"
         envFrom:
         - configMapRef:
             name: urls-config

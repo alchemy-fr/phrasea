@@ -48,7 +48,12 @@ class App extends PureComponent {
     }
 
     render() {
+        const css = config.get('globalCSS');
+
         return <Router>
+            {css && <style>
+                {css}
+            </style>}
             {config.get('displayServicesMenu') ? <ServicesMenu
                 dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
             /> : ''}

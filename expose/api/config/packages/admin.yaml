@@ -18,6 +18,7 @@ easy_admin:
           - Asset
           - PublicationAsset
       - OAuthClient
+      - EnvVar
   entities:
     Publication:
       class: App\Entity\Publication
@@ -116,3 +117,19 @@ easy_admin:
           - { property: 'asset' }
           - { property: 'slug' }
           - { property: 'position' }
+
+    EnvVar:
+      class: App\Entity\EnvVar
+      list:
+        batch_actions:
+          - delete
+        sort: [name, ASC]
+        fields:
+          - { property: name, label: 'Env var name' }
+          - { property: value, label: 'Value' }
+          - { property: createdAt }
+          - { property: updatedAt }
+      form:
+        fields:
+          - { property: 'name', type: App\Form\EnvVarNameChoiceType }
+          - { property: 'value', type: textarea, type_options: { required: false } }
