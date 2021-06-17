@@ -178,6 +178,7 @@ uploader:
     hostname:
     baseUrl:
     config:
+      deleteAssetGracefulTime: 0
       assetConsumerCommitUri:
       assetConsumerAccessToken:
       requestSignatureTtl: 3600

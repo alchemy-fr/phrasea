@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
+ * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
  * @ORM\Table(name="asset_commit")
  * @ApiResource(
  *     order={"acknowledged": "ASC", "createdAt": "DESC"},
@@ -106,6 +106,13 @@ class Commit
      * @ORM\Column(type="string", length=5, nullable=true)
      */
     private $locale;
+
+    /**
+     * @var DateTime|null
+     *
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $acknowledgedAt;
 
     /**
      * @var DateTime
@@ -246,6 +253,9 @@ class Commit
 
     public function setAcknowledged(bool $acknowledged): void
     {
+        if ($acknowledged) {
+            $this->acknowledgedAt = new DateTime();
+        }
         $this->acknowledged = $acknowledged;
     }
 

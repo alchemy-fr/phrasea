@@ -47,6 +47,7 @@ services:
       - S3_STORAGE_BUCKET_NAME=${UPLOADER_STORAGE_BUCKET_NAME}
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL
+      - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -82,6 +83,7 @@ services:
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${UPLOADER_STORAGE_BUCKET_NAME}
+      - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs

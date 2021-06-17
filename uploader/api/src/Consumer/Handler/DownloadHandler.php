@@ -17,25 +17,10 @@ class DownloadHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'download';
 
-    /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * @var FileStorageManager
-     */
-    private $storageManager;
-
-    /**
-     * @var AssetManager
-     */
-    private $assetManager;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
+    private Client $client;
+    private FileStorageManager $storageManager;
+    private AssetManager $assetManager;
+    private EventProducer $eventProducer;
 
     public function __construct(
         FileStorageManager $storageManager,
