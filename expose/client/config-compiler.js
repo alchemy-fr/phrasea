@@ -61,12 +61,6 @@
         authBaseUrl: env.AUTH_BASE_URL,
         clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,
-        devMode: env.DEV_MODE === 'true',
-        mapBoxToken: env.MAPBOX_TOKEN,
         requestSignatureTtl: env.EXPOSE_REQUEST_SIGNATURE_TTL,
-        displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
-        dashboardBaseUrl: env.DASHBOARD_BASE_URL,
-        zippyEnabled: !!env.ZIPPY_BASE_URL,
-        sidebarDefaultOpen: env.SIDEBAR_DEFAULT_OPEN === 'true',
     };
 });

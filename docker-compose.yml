@@ -188,6 +188,7 @@ services:
       - db
     environment:
       - APP_ENV
+      - DEV_MODE
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - APP_ID=expose
@@ -215,6 +216,8 @@ services:
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
       - ZIPPY_BASE_URL
+      - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
+      - MAPBOX_TOKEN
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
       - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"

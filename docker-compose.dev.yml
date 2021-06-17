@@ -32,19 +32,12 @@ services:
       - ./expose/client:/usr/src/app
       - ./configs:/configs
     environment:
-      - DEV_MODE
       - EXPOSE_API_BASE_URL
       - AUTH_BASE_URL
-      - EXPOSE_REQUEST_SIGNATURE_TTL
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
-      - MAPBOX_TOKEN
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
-      - ZIPPY_BASE_URL
-      - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
     ports:
       - ${EXPOSE_FRONT_PORT}:3000
 

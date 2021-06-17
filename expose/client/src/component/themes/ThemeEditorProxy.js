@@ -3,8 +3,6 @@ import {PropTypes} from 'prop-types';
 import {dataShape} from "../props/dataShape";
 import config from "../../lib/config";
 
-const isDev = !!config.get('devMode');
-
 class ThemeEditorProxy extends Component {
     static propTypes = {
         data: dataShape,
@@ -12,7 +10,7 @@ class ThemeEditorProxy extends Component {
     };
 
     state = {
-        hidden: !isDev,
+        hidden: !config.get('devMode'),
     };
 
     static getDerivedStateFromProps(props, state) {

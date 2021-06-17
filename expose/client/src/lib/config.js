@@ -5,6 +5,10 @@ class Config {
         return configData[key];
     }
 
+    set(key, value) {
+        configData[key] = value;
+    }
+
     getApiBaseUrl() {
         return configData.baseUrl;
     }
