@@ -17,6 +17,7 @@ class CommitRepository extends EntityRepository
         return $this
             ->createQueryBuilder('c')
             ->select('c')
+            ->andWhere('c.acknowledged = true')
             ->andWhere('c.acknowledgedAt < :date')
             ->setParameter('date', $date->format('Y-m-d H:i:s'))
             ->getQuery()

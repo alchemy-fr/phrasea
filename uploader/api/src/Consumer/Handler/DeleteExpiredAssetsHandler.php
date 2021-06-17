@@ -53,4 +53,9 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
     {
         return [self::EVENT];
     }
+
+    public static function getQueueName(): string
+    {
+        return 'fast_events';
+    }
 }
