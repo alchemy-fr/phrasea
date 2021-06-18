@@ -42,7 +42,9 @@ final class GetPublicationAction extends AbstractController
         $this->reportClient->pushHttpRequestLog(
             $request,
             ExposeLogActionInterface::PUBLICATION_VIEW,
-            $publication->getId()
+            $publication->getId(), [
+                'publicationTitle' => $publication->getTitle(),
+            ]
         );
 
         return $publication;

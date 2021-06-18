@@ -62,6 +62,7 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
             ExposeLogActionInterface::PUBLICATION_ARCHIVE_DOWNLOAD_REQUEST,
             $publication->getId(),
             [
+                'publicationTitle' => $publication->getTitle(),
                 'recipient' => $downloadRequest->getEmail(),
             ]
         );

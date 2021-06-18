@@ -9,22 +9,18 @@ use Alchemy\OAuthServerBundle\Listener\OAuth\OAuthEvent;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Entity\User;
 use App\Report\AuthLogActionInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class AuthenticationListener implements EventSubscriberInterface
 {
-    private EntityManagerInterface $em;
     private ReportUserService $reportUser;
     private RequestStack $requestStack;
 
     public function __construct(
-        EntityManagerInterface $em,
         ReportUserService $reportUser,
         RequestStack $requestStack
     ) {
-        $this->em = $em;
         $this->reportUser = $reportUser;
         $this->requestStack = $requestStack;
     }
@@ -37,7 +33,9 @@ class AuthenticationListener implements EventSubscriberInterface
             $this->reportUser->pushHttpRequestLog(
                 $this->requestStack->getCurrentRequest(),
                 AuthLogActionInterface::USER_AUTHENTICATION,
-                $user->getId()
+                $user->getId(), [
+                    'username' => $user->getUsername(),
+                ]
             );
         }
     }

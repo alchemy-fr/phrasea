@@ -68,6 +68,8 @@ final class DownloadSubDefAction extends AbstractController
             $asset->getId(),
             [
                 'publicationId' => $publication->getId(),
+                'publicationTitle' => $publication->getTitle(),
+                'assetTitle' => $asset->getTitle(),
                 'subDefinitionName' => $subDef->getName(),
             ]
         );
