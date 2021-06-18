@@ -15,19 +15,15 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'commit_ack';
 
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
+    private EventProducer $eventProducer;
+    private NotifierInterface $notifier;
+    private int $deleteAssetGracefulTime;
 
-    public function __construct(EventProducer $eventProducer, NotifierInterface $notifier)
+    public function __construct(EventProducer $eventProducer, NotifierInterface $notifier, int $deleteAssetGracefulTime)
     {
         $this->eventProducer = $eventProducer;
         $this->notifier = $notifier;
+        $this->deleteAssetGracefulTime = $deleteAssetGracefulTime;
     }
 
     public function handle(EventMessage $message): void
@@ -49,10 +45,14 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
         $em->persist($commit);
         $em->flush();
 
-        foreach ($commit->getAssets() as $asset) {
-            $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
-                'path' => $asset->getPath(),
-            ]));
+        if ($this->deleteAssetGracefulTime <= 0) {
+            foreach ($commit->getAssets() as $asset) {
+                $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
+                    'path' => $asset->getPath(),
+                ]));
+            }
+        } else {
+            $this->eventProducer->publish(new EventMessage(DeleteExpiredAssetsHandler::EVENT, []));
         }
 
         if ($commit->getNotifyEmail()) {

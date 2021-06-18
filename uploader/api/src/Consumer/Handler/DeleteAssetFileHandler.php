@@ -13,10 +13,7 @@ class DeleteAssetFileHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'delete_asset_file';
 
-    /**
-     * @var FileStorageManager
-     */
-    private $storageManager;
+    private FileStorageManager $storageManager;
 
     public function __construct(FileStorageManager $storageManager)
     {
