@@ -69,7 +69,14 @@ final class CommitAction extends AbstractController
 
         $this->reportClient->pushHttpRequestLog(
             $request,
-            UploaderLogActionInterface::UPLOAD_COMMIT
+            UploaderLogActionInterface::UPLOAD_COMMIT,
+            $data->getId(),
+            [
+                'userId' => $user->getId(),
+                'username' => $user->getUsername(),
+                'totalSize' => $totalSize,
+                'fileCount' => count($data->getFiles()),
+            ]
         );
 
         return new JsonResponse(true);

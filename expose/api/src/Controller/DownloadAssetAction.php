@@ -64,6 +64,8 @@ final class DownloadAssetAction extends AbstractController
             $asset->getId(),
             [
                 'publicationId' => $publication->getId(),
+                'publicationTitle' => $publication->getTitle(),
+                'assetTitle' => $asset->getTitle(),
             ]
         );
 

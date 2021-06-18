@@ -84,6 +84,8 @@ final class PostDownloadSubDefViaEmailAction extends AbstractController
             $publicationAsset->getAsset()->getId(),
             [
                 'publicationId' => $publicationAsset->getPublication()->getId(),
+                'publicationTitle' => $publicationAsset->getPublication()->getTitle(),
+                'assetTitle' => $publicationAsset->getAsset()->getTitle(),
                 'recipient' => $downloadRequest->getEmail(),
                 'subDefinitionName' => $subDef->getName(),
             ]

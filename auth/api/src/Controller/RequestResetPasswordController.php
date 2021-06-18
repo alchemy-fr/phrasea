@@ -44,7 +44,9 @@ class RequestResetPasswordController extends AbstractController
                 $request,
                 AuthLogActionInterface::REQUEST_RESET_PASSWORD,
                 null,
-                ['username' => $username],
+                [
+                    'username' => $username,
+                ],
             );
 
             return $this->redirectToRoute('password_reset_requested');

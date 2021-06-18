@@ -48,6 +48,7 @@ final class DownloadViaZippyAction extends AbstractController
             ExposeLogActionInterface::PUBLICATION_ARCHIVE_DOWNLOAD,
             $publication->getId(),
             [
+                'publicationTitle' => $publication->getTitle(),
             ]
         );
 

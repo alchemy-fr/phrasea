@@ -42,7 +42,13 @@ class ResetPasswordAction extends AbstractController
             $user = $form->getData();
             $this->passwordManager->resetPassword($id, $token, $user->getPlainPassword());
 
-            $this->reportClient->pushHttpRequestLog($request, AuthLogActionInterface::RESET_PASSWORD);
+            $this->reportClient->pushHttpRequestLog(
+                $request,
+                AuthLogActionInterface::RESET_PASSWORD,
+                $user->getId(), [
+                    'username' => $user->getUsername(),
+                ]
+            );
 
             return $this->redirectToRoute('password_reset_changed');
         }

@@ -49,7 +49,9 @@ class ChangePasswordController extends AbstractController
             $reportClient->pushHttpRequestLog(
                 $request,
                 AuthLogActionInterface::CHANGE_PASSWORD,
-                $user->getId()
+                $user->getId(), [
+                    'username' => $user->getUsername(),
+                ]
             );
 
             $this->addFlash(
