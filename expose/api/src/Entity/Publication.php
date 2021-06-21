@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Filter\PublicationFilter;
 use App\Controller\DownloadViaZippyAction;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity()
@@ -128,6 +129,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
+     * @MaxDepth(1)
      * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication", cascade={"remove"})
      * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
@@ -222,6 +224,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
+     * @MaxDepth(1)
      *
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
      */
@@ -236,6 +239,7 @@ class Publication implements AclObjectInterface
      *     }
      * )
      * @Groups({"publication:read"})
+     * @MaxDepth(1)
      *
      * @var Publication[]|Collection
      *

@@ -4,41 +4,57 @@ import {Link} from "react-router-dom";
 
 class PublicationNavigation extends PureComponent {
     static propTypes = {
-        parent: PropTypes.object,
-        currentTitle: PropTypes.string.isRequired,
-        children: PropTypes.array.isRequired,
+        publication: PropTypes.object.isRequired,
     };
 
     render() {
-        const {parent, children, currentTitle} = this.props;
+        const {publication} = this.props;
+        const {parent} = publication;
 
-        return <>
-            {parent ? <Link to={`/${parent.slug || parent.id}`}>
+        return <div className={'pub-nav'}>
+            {parent ? <div className={'nav-parent'}>
+                <Link to={`/${parent.slug || parent.id}`}>
                 {parent.title}
-            </Link> : ''}
-            <h2>{currentTitle}</h2>
-            <NavTree children={children}/>
-        </>
+            </Link>
+            </div> : ''}
+            <NavTree
+                current={publication}
+                publications={parent ? parent.children : [publication]}
+            />
+        </div>
     }
 }
 
 class NavTree extends PureComponent {
     static propTypes = {
-        children: PropTypes.array.isRequired,
+        publications: PropTypes.array.isRequired,
+        current: PropTypes.object.isRequired,
     };
 
     render() {
+        const {current} = this.props;
+
         return <ul className="list-unstyled components">
-            {this.props.children.map(c => <li
-                key={c.id}
-            >
-                <Link to={`/${c.slug || c.id}`}>
-                    {c.title}
-                </Link>
-                {c.children && c.children.length > 0 ?
-                    <NavTree children={c.children}/>
-                    : ''}
-            </li>)}
+            {this.props.publications.map(c => {
+                const p = typeof c === 'string' ? current : c;
+
+
+                return <li
+                    key={p.id}
+                >
+                    {p.id === current.id ? <div>
+                        {p.title}
+                    </div> : <Link to={`/${p.slug || p.id}`}>
+                        {p.title}
+                    </Link>}
+                    {p.children && p.children.length > 0 ?
+                        <NavTree
+                            publications={p.children}
+                            current={current}
+                        />
+                        : ''}
+                </li>
+            })}
         </ul>
     }
 }

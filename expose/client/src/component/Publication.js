@@ -144,11 +144,9 @@ class Publication extends PureComponent {
                         url={data.cover.thumbUrl}
                         alt={data.title}
                     /> : ''}
-                    <PublicationNavigation
-                        currentTitle={data ? data.title : 'Loading...'}
-                        children={data && data.children ? data.children : []}
-                        parent={data ? data.parent : null}
-                    />
+                    {data && <PublicationNavigation
+                        publication={data}
+                    />}
                     {data && data.urls ? <Urls urls={data.urls}/> : ''}
                     {data ? <Copyright text={data.copyrightText}/> : ''}
                     {data && data.editor ? data.editor : ''}
