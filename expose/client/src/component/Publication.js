@@ -11,10 +11,25 @@ import PublicationNavigation from "./PublicationNavigation";
 import {getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
-import Cover from "./layouts/shared-components/Cover";
 import TermsModal from "./layouts/shared-components/TermsModal";
 import {oauthClient} from "../lib/oauth";
 import ErrorPage from "./ErrorPage";
+
+export async function loadPublication(id) {
+    const options = {};
+
+    const passwords = getPasswords();
+    if (passwords) {
+        options.headers = {'X-Passwords': passwords};
+    }
+
+    const accessToken = oauthClient.getAccessToken();
+    if (accessToken) {
+        options.headers = {'Authorization': `Bearer ${accessToken}`};
+    }
+
+    return await apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
+}
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -68,22 +83,11 @@ class Publication extends PureComponent {
 
     async load() {
         const {id} = this.props;
-        const options = {};
-
-        const passwords = getPasswords();
-        if (passwords) {
-            options.headers = {'X-Passwords': passwords};
-        }
-
-        const accessToken = oauthClient.getAccessToken();
-        if (accessToken) {
-            options.headers = {'Authorization': `Bearer ${accessToken}`};
-        }
 
         try {
-            const res = await apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
+            const res = await loadPublication(id);
 
-            this.setState({data: res, error: null,});
+            this.setState({data: res, error: null});
 
             this.timeout && clearTimeout(this.timeout);
 
@@ -140,18 +144,14 @@ class Publication extends PureComponent {
             authenticated={this.props.authenticated}
             menu={
                 <>
-                    {data && data.cover ? <Cover
-                        url={data.cover.thumbUrl}
-                        alt={data.title}
-                    /> : ''}
-                    <PublicationNavigation
-                        currentTitle={data ? data.title : 'Loading...'}
-                        children={data && data.children ? data.children : []}
-                        parent={data ? data.parent : null}
-                    />
-                    {data && data.urls ? <Urls urls={data.urls}/> : ''}
-                    {data ? <Copyright text={data.copyrightText}/> : ''}
-                    {data && data.editor ? data.editor : ''}
+                    {data && <PublicationNavigation
+                        publication={data}
+                    />}
+                    <div className="p-3">
+                        {data && data.urls ? <Urls urls={data.urls}/> : ''}
+                        {data ? <Copyright text={data.copyrightText}/> : ''}
+                        {data && data.editor ? data.editor : ''}
+                    </div>
                 </>}
         >
             {this.renderContent(data)}

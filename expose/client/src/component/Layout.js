@@ -32,9 +32,11 @@ class Layout extends PureComponent {
                         <span className="sr-only">Toggle Menu</span>
                     </button>
                 </div>
-                <div className="p-4 pt-5">
+                <div>
                     {this.renderAuthenticated()}
-                    <h1><Link to={'/'} className="logo">Expose</Link></h1>
+                    <div className="p-3">
+                        <h1><Link to={'/'} className="logo">Expose</Link></h1>
+                    </div>
 
                     {this.props.menu}
                 </div>

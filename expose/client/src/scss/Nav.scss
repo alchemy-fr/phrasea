@@ -1,0 +1,60 @@
+
+.nav-current {
+  font-size: 17px;
+  background-color: $primary !important;
+  color: #FFF;
+}
+
+.nav-parent {
+  font-size: 13px;
+}
+
+.nav-sibling {
+  font-size: 15px;
+}
+
+$defaultPadding: 10px;
+
+.nav-item {
+  display: block;
+  padding: $defaultPadding;
+
+  &:hover {
+    background-color: rgba(#000, 0.05);
+    text-decoration: none;
+  }
+}
+
+.pub-nav-ul {
+  user-select: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    position: relative;
+  }
+}
+
+.pub-nav-toggle {
+  padding: 3px 12px;
+  height: 35px;
+  width: 35px;
+  display: block;
+  vertical-align: middle;
+  text-align: center;
+  background-color: rgba(#000, 0.05);
+  border-radius: 15px;
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
+@for $i from 1 through 10 {
+  .nav-depth-#{$i} {
+    padding-left: $defaultPadding + (10px * $i);
+  }
+}

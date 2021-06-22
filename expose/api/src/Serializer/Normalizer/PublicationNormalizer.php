@@ -27,6 +27,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
+        $context['enable_max_depth'] = true;
         if (in_array(Publication::GROUP_READ, $context['groups'])) {
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $object);
             $object->setAuthorized($isAuthorized);
@@ -51,7 +52,9 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
         }
 
-        $object->setArchiveDownloadUrl($this->generateDownloadViaZippyUrl($object));
+        if ($this->zippyEnabled) {
+            $object->setArchiveDownloadUrl($this->generateDownloadViaZippyUrl($object));
+        }
 
         if (!empty($css = $object->getCss())) {
             $object->setCssLink($this->urlGenerator->generate('publication_css', [
