@@ -572,6 +572,14 @@ class Publication implements AclObjectInterface
         $this->children = $children;
     }
 
+    /**
+     * @Groups({"publication:read", "publication:index"})
+     */
+    public function getChildrenCount(): int
+    {
+        return $this->children->count();
+    }
+
     public function getParent(): ?self
     {
         return $this->parent;
