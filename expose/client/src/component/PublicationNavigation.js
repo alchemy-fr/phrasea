@@ -49,10 +49,10 @@ class NavTree extends PureComponent {
         this.setState(prevState => {
             const openPublications = {...prevState.openPublications};
 
-            if (openPublications[id]) {
-                delete openPublications[id];
+            if (undefined === openPublications[id]) {
+                openPublications[id] = !(this.props.openChildren && id === this.props.current.id);
             } else {
-                openPublications[id] = true;
+                openPublications[id] = !openPublications[id];
             }
 
             return {
@@ -86,7 +86,7 @@ class NavTree extends PureComponent {
 
                 const navClass = `${baseNavClass}${p.id === current.id ? ' nav-current' : ''}`;
 
-                const displayChildren = p.childrenCount && (
+                const displayChildren = false !== openPublications[p.id] && p.childrenCount && (
                     openPublications[p.id]
                     || (openChildren && p.id === current.id)
                 );

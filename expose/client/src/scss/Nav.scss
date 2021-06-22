@@ -1,7 +1,8 @@
 
 .nav-current {
   font-size: 17px;
-  background-color: rgba($primary, 0.1);
+  background-color: $primary !important;
+  color: #FFF;
 }
 
 .nav-parent {
@@ -10,10 +11,6 @@
 
 .nav-sibling {
   font-size: 15px;
-}
-
-.nav-current, .nav-sibling {
-
 }
 
 $defaultPadding: 10px;
@@ -29,6 +26,7 @@ $defaultPadding: 10px;
 }
 
 .pub-nav-ul {
+  user-select: none;
   padding: 0;
   margin: 0;
 
