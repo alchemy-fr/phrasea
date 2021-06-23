@@ -23,6 +23,7 @@ class ConfigurationManager
             'type' => 'bool',
         ],
         'dashboardBaseUrl' => [
+            'overridableInAdmin' => false,
             'name' => 'DASHBOARD_BASE_URL',
             'type' => 'string',
         ],
@@ -31,6 +32,7 @@ class ConfigurationManager
             'type' => 'string',
         ],
         'zippyEnabled' => [
+            'overridableInAdmin' => false,
             'name' => 'ZIPPY_BASE_URL',
             'cast' => 'bool',
         ],
