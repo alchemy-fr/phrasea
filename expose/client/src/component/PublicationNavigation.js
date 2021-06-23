@@ -8,19 +8,43 @@ class PublicationNavigation extends PureComponent {
         publication: PropTypes.object.isRequired,
     };
 
+    state = {
+        loading: false,
+    };
+
+    static getDerivedStateFromProps(props, state) {
+        if (!state.propsPub || props.publication.id !== state.propsPub.id) {
+            return {
+                loading: false,
+                propsPub: props.publication,
+            };
+        }
+
+        return null;
+    }
+
+    onSelect = (id) => {
+        this.setState({loading: id});
+    }
+
     render() {
         const {publication} = this.props;
+        const {loading} = this.state;
         const {parent} = publication;
 
-        return <div className={'pub-nav'}>
-            {parent ? <div className={'nav-parent'}>
+        return <div className={`pub-nav ${loading ? ' nav-loading' : ''}`}>
+            {parent && <div className={'nav-parent'}>
                 <Link
-                    className={'nav-item'}
-                    to={`/${parent.slug || parent.id}`}>
+                    className={`nav-item${loading === parent.id ? ' nav-current' : ''}`}
+                    to={`/${parent.slug || parent.id}`}
+                    onClick={this.onSelect.bind(this, parent.id)}
+                >
                 {parent.title}
             </Link>
-            </div> : ''}
+            </div>}
             <NavTree
+                onSelect={this.onSelect}
+                loading={loading}
                 current={publication}
                 depth={1}
                 openChildren={true}
@@ -36,6 +60,8 @@ class NavTree extends PureComponent {
         current: PropTypes.object.isRequired,
         depth: PropTypes.number.isRequired,
         openChildren: PropTypes.bool,
+        onSelect: PropTypes.func.isRequired,
+        loading: PropTypes.string,
     };
 
     state = {
@@ -74,7 +100,14 @@ class NavTree extends PureComponent {
     }
 
     render() {
-        const {current, publications, depth, openChildren} = this.props;
+        const {
+            current,
+            publications,
+            depth,
+            openChildren,
+            onSelect,
+            loading,
+        } = this.props;
         const {openPublications, publicationChildren} = this.state;
 
         const baseNavClass = `nav-item nav-depth-${depth}`;
@@ -84,7 +117,9 @@ class NavTree extends PureComponent {
                 const p = typeof c === 'string' ? current : c;
                 const children = p.children || publicationChildren[p.id];
 
-                const navClass = `${baseNavClass}${p.id === current.id ? ' nav-current' : ''}`;
+                const isCurrent = loading ? (loading === p.id) : p.id === current.id;
+
+                const navClass = `${baseNavClass}${isCurrent ? ' nav-current' : ''}`;
 
                 const displayChildren = false !== openPublications[p.id] && p.childrenCount && (
                     openPublications[p.id]
@@ -94,11 +129,12 @@ class NavTree extends PureComponent {
                 return <li
                     key={p.id}
                 >
-                    {p.id === current.id ? <div
+                    {isCurrent ? <div
                         className={navClass}
                     >
                         {p.title}
                     </div> : <Link
+                        onClick={() => onSelect(p.id)}
                         className={navClass}
                         to={`/${p.slug || p.id}`}
                     >
@@ -109,7 +145,9 @@ class NavTree extends PureComponent {
                         <NavTree
                             publications={children}
                             current={current}
+                            loading={loading}
                             depth={depth + 1}
+                            onSelect={onSelect}
                         />
                         : <div className={navClass}>Loading...</div>}
                     </>}

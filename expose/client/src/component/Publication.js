@@ -47,7 +47,6 @@ class Publication extends PureComponent {
         if (props.id !== state.propsId) {
             return {
                 propsId: props.id,
-                data: null,
             }
         }
 
@@ -164,7 +163,7 @@ class Publication extends PureComponent {
     }
 
     renderContent(data) {
-        if (null === data) {
+        if (null === data || this.props.id !== data.id) {
             return <FullPageLoader/>;
         }
 
