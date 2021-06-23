@@ -220,6 +220,8 @@ services:
       - ZIPPY_BASE_URL
       - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
       - MAPBOX_TOKEN
+      - EXPOSE_CLIENT_LOGO_URL
+      - EXPOSE_CLIENT_LOGO_ALT
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
       - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"

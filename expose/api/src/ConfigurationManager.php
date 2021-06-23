@@ -14,6 +14,14 @@ class ConfigurationManager
             'name' => 'GLOBAL_CSS',
             'type' => 'string',
         ],
+        'clientLogoUrl' => [
+            'name' => 'EXPOSE_CLIENT_LOGO_URL',
+            'type' => 'string',
+        ],
+        'clientLogoAlt' => [
+            'name' => 'EXPOSE_CLIENT_LOGO_ALT',
+            'type' => 'string',
+        ],
         'devMode' => [
             'name' => 'DEV_MODE',
             'type' => 'bool',

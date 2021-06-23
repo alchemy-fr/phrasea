@@ -4,6 +4,7 @@ import {Link} from "react-router-dom";
 import {oauthClient} from "../lib/oauth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from '../lib/config';
+import {Logo} from "./Logo";
 
 class Layout extends PureComponent {
     static propTypes = {
@@ -35,7 +36,11 @@ class Layout extends PureComponent {
                 <div>
                     {this.renderAuthenticated()}
                     <div className="p-3">
-                        <h1><Link to={'/'} className="logo">Expose</Link></h1>
+                        <h1>
+                            <Link to={'/'} className="logo">
+                                <Logo />
+                            </Link>
+                        </h1>
                     </div>
 
                     {this.props.menu}
