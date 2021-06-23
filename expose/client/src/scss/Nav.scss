@@ -1,8 +1,20 @@
 
 .nav-current {
-  font-size: 17px;
   background-color: $primary !important;
   color: #FFF;
+}
+
+.pub-nav.nav-loading {
+  animation: loading-animation 1s infinite ease alternate;
+}
+
+@keyframes loading-animation {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: .3;
+  }
 }
 
 .nav-parent {

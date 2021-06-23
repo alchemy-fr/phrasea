@@ -7,6 +7,7 @@ import Description from "../layouts/shared-components/Description";
 import moment from "moment";
 import {ReactComponent as SortImg} from "../../images/sort.svg";
 import {Dropdown, DropdownButton} from "react-bootstrap";
+import {Logo} from "../Logo";
 
 
 const SORT_BY_DATE = 'date';
@@ -44,7 +45,9 @@ class PublicationIndex extends PureComponent {
         const {data} = this.state;
 
         return <div className="container">
-            <h1>Expose.</h1>
+            <h1>
+                <Logo />
+            </h1>
             <div className="filters">
                 <div className="sort">
                     <DropdownButton id="dropdown-basic-button" title={<>

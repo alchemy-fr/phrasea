@@ -14,6 +14,14 @@ class ConfigurationManager
             'name' => 'GLOBAL_CSS',
             'type' => 'string',
         ],
+        'clientLogoUrl' => [
+            'name' => 'EXPOSE_CLIENT_LOGO_URL',
+            'type' => 'string',
+        ],
+        'clientLogoAlt' => [
+            'name' => 'EXPOSE_CLIENT_LOGO_ALT',
+            'type' => 'string',
+        ],
         'devMode' => [
             'name' => 'DEV_MODE',
             'type' => 'bool',
@@ -23,6 +31,7 @@ class ConfigurationManager
             'type' => 'bool',
         ],
         'dashboardBaseUrl' => [
+            'overridableInAdmin' => false,
             'name' => 'DASHBOARD_BASE_URL',
             'type' => 'string',
         ],
@@ -31,6 +40,7 @@ class ConfigurationManager
             'type' => 'string',
         ],
         'zippyEnabled' => [
+            'overridableInAdmin' => false,
             'name' => 'ZIPPY_BASE_URL',
             'cast' => 'bool',
         ],
