@@ -137,8 +137,8 @@ expose:
       - password
     mapbox:
       token: "define-me"
-    logoUrl:
-    logoAlt:
+    logoUrl: ""
+    logoAlt: ""
     sidebarDefaultOpen: false
   rabbitmq:
     vhost: expose
