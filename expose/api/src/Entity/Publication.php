@@ -9,6 +9,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\GetPublicationAction;
 use App\Controller\SortAssetsAction;
 use App\Entity\Traits\ClientAnnotationsTrait;
@@ -22,7 +23,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Filter\PublicationFilter;
-use App\Controller\DownloadViaZippyAction;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
@@ -61,7 +61,43 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *          },
  *         "post"={
  *             "security"="is_granted('publication:create')"
- *         }
+ *         },
+ *         "slug_availability"={
+ *             "openapi_context"={
+ *                 "summary"="Check whether a slug is available or not.",
+ *                 "description"="Check whether a slug is available or not.",
+ *                 "responses"={
+ *                          "200"={
+ *                          "description"="OK",
+ *                          "content"={
+ *                              "application/json"={
+ *                                  "schema"={
+ *                                     "type"="boolean",
+ *                                  },
+ *                              },
+ *                          },
+ *                      },
+ *                 },
+ *                 "parameters"={
+ *                     {
+ *                         "in"="path",
+ *                         "name"="slug",
+ *                         "type"="string",
+ *                         "required"=true,
+ *                         "description"="The slug to verify",
+ *                     },
+ *                 },
+ *             },
+ *             "controller"=GetPublicationSlugAvailabilityAction::class,
+ *             "path"="/publications/slug-availability/{slug}",
+ *             "pagination_enabled"=false,
+ *             "filters"={},
+ *             "defaults"={
+ *                  "_api_receive"=false,
+ *                  "input"=false,
+ *                  "output"=false,
+ *             },
+ *         },
  *     },
  *     subresourceOperations={
  *         "api_publication_assets_get_subresource"={
