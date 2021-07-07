@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -52,6 +53,8 @@ class PublicationAsset
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
+
+    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

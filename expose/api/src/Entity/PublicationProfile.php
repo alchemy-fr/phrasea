@@ -7,6 +7,7 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -51,6 +52,8 @@ class PublicationProfile implements AclObjectInterface
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
+
+    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

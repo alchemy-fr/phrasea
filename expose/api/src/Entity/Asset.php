@@ -10,6 +10,7 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\CreateAssetAction;
 use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
+use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -159,6 +160,8 @@ class Asset implements MediaInterface
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
+
+    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

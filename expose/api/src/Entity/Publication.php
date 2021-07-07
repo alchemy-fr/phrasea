@@ -11,6 +11,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\GetPublicationAction;
 use App\Controller\SortAssetsAction;
+use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use DateTime;
@@ -89,6 +90,8 @@ class Publication implements AclObjectInterface
     const SECURITY_METHOD_NONE = null;
     const SECURITY_METHOD_PASSWORD = 'password';
     const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+
+    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)
