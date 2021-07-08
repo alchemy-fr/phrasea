@@ -119,7 +119,7 @@ class NavTree extends PureComponent {
 
                 const isCurrent = loading ? (loading === p.id) : p.id === current.id;
 
-                const navClass = `${baseNavClass}${isCurrent ? ' nav-current' : ''}`;
+                const navClass = `${baseNavClass}${isCurrent ? ' nav-current' : ''}${p.childrenCount > 0 ? ' nav-has-children' : ''}`;
 
                 const displayChildren = false !== openPublications[p.id] && p.childrenCount && (
                     openPublications[p.id]
