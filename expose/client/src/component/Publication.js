@@ -163,7 +163,7 @@ class Publication extends PureComponent {
     }
 
     renderContent(data) {
-        if (null === data || this.props.id !== data.id) {
+        if (null === data || (data.slug ? this.props.id !== data.slug : this.props.id !== data.id)) {
             return <FullPageLoader/>;
         }
 

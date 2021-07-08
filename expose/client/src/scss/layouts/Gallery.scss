@@ -3,19 +3,27 @@
 
   h1 {
     text-align: center;
-    margin: 20px 0;
+    margin: 0 0 20px 0;
   }
 
   .image-gallery-image {
-    min-height: 300px;
+    height: 60vh;
     background-color: #CCC;
+    position: relative;
+
+    .asset-px {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      justify-content: center;
+    }
 
     img {
       display: block;
       margin: 0 auto;
       width: auto;
       max-width: 100%;
-      max-height: 90vh;
+      max-height: 100%;
     }
 
     video {

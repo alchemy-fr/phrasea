@@ -48,6 +48,7 @@ easy_admin:
           - { property: 'date', type: Alchemy\AdminBundle\Form\DateTimePickerType }
           - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
+          - { property: 'clientAnnotations' }
 
     Profile:
       class: App\Entity\PublicationProfile
@@ -71,6 +72,7 @@ easy_admin:
           - { property: 'name' }
           - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId', label: 'Owner ID' }
+          - { property: 'clientAnnotations' }
 
     Asset:
       class: App\Entity\Asset
@@ -95,6 +97,7 @@ easy_admin:
           - lng
           - altitude
           - { property: webVTT, label: WebVTT }
+          - { property: 'clientAnnotations' }
 
     PublicationAsset:
       class: App\Entity\PublicationAsset
@@ -117,6 +120,7 @@ easy_admin:
           - { property: 'asset' }
           - { property: 'slug' }
           - { property: 'position' }
+          - { property: 'clientAnnotations' }
 
     EnvVar:
       class: App\Entity\EnvVar

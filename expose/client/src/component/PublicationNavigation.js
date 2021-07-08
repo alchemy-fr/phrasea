@@ -9,13 +9,13 @@ class PublicationNavigation extends PureComponent {
     };
 
     state = {
-        loading: false,
+        loading: '',
     };
 
     static getDerivedStateFromProps(props, state) {
         if (!state.propsPub || props.publication.id !== state.propsPub.id) {
             return {
-                loading: false,
+                loading: '',
                 propsPub: props.publication,
             };
         }
