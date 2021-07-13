@@ -79,6 +79,9 @@
     "doctrine/dbal": {
         "version": "2.11.1"
     },
+    "doctrine/deprecations": {
+        "version": "v0.5.3"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.0",
         "recipe": {
@@ -264,14 +267,33 @@
             "config/packages/nelmio_cors.yaml"
         ]
     },
+    "nyholm/dsn": {
+        "version": "2.0.0"
+    },
     "pagerfanta/pagerfanta": {
         "version": "v2.5.1"
+    },
+    "paragonie/constant_time_encoding": {
+        "version": "v2.4.0"
     },
     "php": {
         "version": "7.4"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.12.1"
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "1.12",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        },
+        "files": [
+            "config/packages/old_sound_rabbit_mq.yaml",
+            "src/Consumer/.gitignore"
+        ]
     },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
@@ -505,6 +527,9 @@
     "symfony/orm-pack": {
         "version": "v2.0.0"
     },
+    "symfony/password-hasher": {
+        "version": "v5.3.3"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.3",
         "recipe": {
@@ -540,6 +565,9 @@
     },
     "symfony/polyfill-php80": {
         "version": "v1.18.1"
+    },
+    "symfony/polyfill-php81": {
+        "version": "v1.23.0"
     },
     "symfony/process": {
         "version": "v5.1.6"

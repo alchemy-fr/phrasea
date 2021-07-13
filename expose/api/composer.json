@@ -84,7 +84,7 @@
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
-        "arthem/rabbit-bundle": "^0.0.7",
+        "arthem/rabbit-bundle": "^0.2.3",
         "arthem/request-signer-bundle": "^1.0.1",
         "doctrine/dbal": "2.9.1",
         "exercise/htmlpurifier-bundle": "^2.0",
