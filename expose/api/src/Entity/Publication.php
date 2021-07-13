@@ -24,11 +24,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Filter\PublicationFilter;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 
 /**
  * @ORM\Entity()
  * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
- * @ApiFilter(PublicationFilter::class, properties={"flatten"})
+ * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
+ * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
  * @ApiResource(
  *     attributes={"order"={"title": "ASC"}},
  *     normalizationContext=Publication::API_READ,
