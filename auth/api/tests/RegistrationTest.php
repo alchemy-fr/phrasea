@@ -23,7 +23,7 @@ class RegistrationTest extends WebTestCase
         $client->submit($form);
         $client->followRedirect();
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Registration almost complete!',
             $client->getResponse()->getContent()
         );
@@ -42,7 +42,7 @@ class RegistrationTest extends WebTestCase
         $form['register_form[plainPassword][second]'] = 'secret';
         $client->submit($form);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Username is already used',
             $client->getResponse()->getContent()
         );

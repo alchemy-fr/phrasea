@@ -121,7 +121,7 @@
         "version": "v1.1.0"
     },
     "doctrine/reflection": {
-        "version": "v1.0.0"
+        "version": "1.2.2"
     },
     "doctrine/sql-formatter": {
         "version": "1.0.1"

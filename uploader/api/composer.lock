@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0669816b2fcfa179b4569433c8189121",
+    "content-hash": "a3ced3de646c176fe56af921972cefb6",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -673,16 +673,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.185.11",
+            "version": "3.185.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "fee396b3e137cc2ec9ae94159d01dd1ed15d8c40"
+                "reference": "2c66ec7eab4ce3ca93f86295ac4e0fe56ddec128"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/fee396b3e137cc2ec9ae94159d01dd1ed15d8c40",
-                "reference": "fee396b3e137cc2ec9ae94159d01dd1ed15d8c40",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/2c66ec7eab4ce3ca93f86295ac4e0fe56ddec128",
+                "reference": "2c66ec7eab4ce3ca93f86295ac4e0fe56ddec128",
                 "shasum": ""
             },
             "require": {
@@ -757,9 +757,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.11"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.13"
             },
-            "time": "2021-07-12T18:13:46+00:00"
+            "time": "2021-07-14T18:15:40+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
@@ -908,24 +908,23 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "1.11.3",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "3bb5588cec00a0268829cc4a518490df6741af9d"
+                "reference": "92032beb419568d3b61ae645f48bbb693cc7e00e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/3bb5588cec00a0268829cc4a518490df6741af9d",
-                "reference": "3bb5588cec00a0268829cc4a518490df6741af9d",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/92032beb419568d3b61ae645f48bbb693cc7e00e",
+                "reference": "92032beb419568d3b61ae645f48bbb693cc7e00e",
                 "shasum": ""
             },
             "require": {
                 "php": "~7.1 || ^8.0"
             },
             "conflict": {
-                "doctrine/common": ">2.2,<2.4",
-                "psr/cache": ">=3"
+                "doctrine/common": ">2.2,<2.4"
             },
             "require-dev": {
                 "alcaeus/mongo-php-adapter": "^1.1",
@@ -934,8 +933,9 @@
                 "mongodb/mongodb": "^1.1",
                 "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
                 "predis/predis": "~1.0",
-                "psr/cache": "^1.0 || ^2.0",
-                "symfony/cache": "^4.4 || ^5.2"
+                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "symfony/cache": "^4.4 || ^5.2 || ^6.0@dev",
+                "symfony/var-exporter": "^4.4 || ^5.2 || ^6.0@dev"
             },
             "suggest": {
                 "alcaeus/mongo-php-adapter": "Required to use legacy MongoDB driver"
@@ -987,7 +987,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/cache/issues",
-                "source": "https://github.com/doctrine/cache/tree/1.11.3"
+                "source": "https://github.com/doctrine/cache/tree/1.12.0"
             },
             "funding": [
                 {
@@ -1003,7 +1003,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-25T09:01:55+00:00"
+            "time": "2021-07-14T11:09:49+00:00"
         },
         {
             "name": "doctrine/collections",

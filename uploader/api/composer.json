@@ -127,6 +127,7 @@
         "hautelook/alice-bundle": "^2.5",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
+        "symfony/phpunit-bridge": "^5.3",
         "symfony/profiler-pack": "*",
         "symfony/test-pack": "^1.0",
         "symfony/var-dumper": "^4.4",

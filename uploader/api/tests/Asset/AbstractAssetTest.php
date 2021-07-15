@@ -44,7 +44,7 @@ abstract class AbstractAssetTest extends ApiTestCase
         return $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
