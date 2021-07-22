@@ -75,19 +75,26 @@ export default class VideoPlayer extends PureComponent {
             thumbUrl,
             title,
             description,
+            webVTTLink,
         } = this.props;
 
-        return <div className='video-container'>
+        return <div
+            className='video-container'
+            onClick={this.onPlay}
+        >
             {
                 this.state.showVideo ?
                     <div data-vjs-player>
                         <video
                             ref={this.videoRef}
                             className="video-js"
-                            crossOrigin={'use-credentials'}
-                        />
+                        >
+                            {webVTTLink && <track
+                                kind="captions" src={webVTTLink} srcLang="en" label="English"
+                                                  default/>}
+                        </video>
                     </div>
-                    : <div onClick={this.onPlay}>
+                    : <>
                         <div className='play-button'/>
                         <img src={thumbUrl} alt={title}/>
                         {
@@ -98,7 +105,7 @@ export default class VideoPlayer extends PureComponent {
                             <Description descriptionHtml={description}/>
                           </span>
                         }
-                    </div>
+                    </>
             }
         </div>
     }

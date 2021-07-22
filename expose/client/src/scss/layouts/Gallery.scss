@@ -1,3 +1,5 @@
+$gallery-height: 60vh;
+
 .layout-gallery {
   min-height: 100%;
 
@@ -7,7 +9,7 @@
   }
 
   .image-gallery-image {
-    height: 60vh;
+    height: $gallery-height;
     background-color: #CCC;
     position: relative;
 
@@ -58,6 +60,16 @@
 
 .video-container {
   position: relative;
+
+  &, .video-js, video {
+    max-height: $gallery-height;
+  }
+
+  .vjs-fullscreen {
+    &, video {
+      max-height: unset !important;
+    }
+  }
 
   img {
     cursor: pointer;
