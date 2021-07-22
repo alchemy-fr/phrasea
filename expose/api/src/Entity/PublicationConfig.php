@@ -27,7 +27,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Column(type="boolean")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?bool $enabled = null;
+    private bool $enabled = false;
 
     /**
      * @ApiProperty()
@@ -52,7 +52,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Column(type="json")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?array $urls = null;
+    private array $urls = [];
 
     /**
      * @ApiProperty()
@@ -86,7 +86,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Column(type="boolean")
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?bool $publiclyListed = null;
+    private bool $publiclyListed = false;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -135,7 +135,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty()
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?array $securityOptions = null;
+    private array $securityOptions = [];
 
     /**
      * @var MapOptions|array|null
@@ -157,24 +157,6 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->downloadTerms = new TermsConfig();
         $this->mapOptions = new MapOptions();
         $this->layoutOptions = new LayoutOptions();
-    }
-
-    /**
-     * applyDefaults and mergeWith methods are here to prevent
-     * instantiating new Config from Symfony denormalization (from serializer component)
-     * in PUT verb.
-     */
-    public function applyDefaults(): void
-    {
-        $this->enabled = false;
-        $this->publiclyListed = false;
-        $this->urls = [];
-        $this->securityMethod = self::SECURITY_METHOD_NONE;
-        $this->securityOptions = [];
-        $this->downloadViaEmail = null;
-
-        $this->terms->applyDefaults();
-        $this->downloadTerms->applyDefaults();
     }
 
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface

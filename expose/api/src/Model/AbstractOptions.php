@@ -18,10 +18,6 @@ abstract class AbstractOptions implements JsonSerializable, MergeableValueObject
 
     abstract public function fromJson(array $options): void;
 
-    public function applyDefaults(): void
-    {
-    }
-
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
         return new static(array_merge(array_filter($this->jsonSerialize()), array_filter($object->jsonSerialize())));

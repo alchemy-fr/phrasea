@@ -24,10 +24,6 @@ class TermsConfig implements MergeableValueObjectInterface
      */
     private ?string $url = null;
 
-    public function applyDefaults(): void
-    {
-    }
-
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
     {
         $clone = clone $this;

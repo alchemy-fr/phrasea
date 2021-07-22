@@ -232,6 +232,33 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals('Pub #2', $json[1]['title']);
     }
 
+    public function testICanUnsetBeginAtDateOnPublication(): void
+    {
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'config' => [
+                'beginsAt' => '2042-12-12',
+            ],
+        ]);
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals('2042-12-12T00:00:00+00:00', $json['config']['beginsAt']);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$json['id'], [
+            'title' => 'Foo',
+            'config' => [
+                'layout' => 'download',
+                'beginsAt' => null,
+            ],
+        ]);
+
+        $json = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $this->assertNull($json['config']['beginsAt']);
+    }
+
     public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);

@@ -97,7 +97,6 @@ class PublicationProfile implements AclObjectInterface
     {
         $this->createdAt = new DateTime();
         $this->config = new PublicationConfig();
-        $this->config->applyDefaults();
         $this->id = Uuid::uuid4();
     }
 

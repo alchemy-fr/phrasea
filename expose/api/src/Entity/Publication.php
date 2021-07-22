@@ -32,7 +32,10 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
  * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
  * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
  * @ApiResource(
- *     attributes={"order"={"title": "ASC"}},
+ *     attributes={
+ *         "order"={"title": "ASC"},
+ *         "denormalization_context"={"deep_object_to_populate"=true},
+ *     },
  *     normalizationContext=Publication::API_READ,
  *     itemOperations={
  *         "get"={
@@ -352,7 +355,6 @@ class Publication implements AclObjectInterface
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
-        $this->config->applyDefaults();
         $this->id = Uuid::uuid4();
     }
 
@@ -664,7 +666,7 @@ class Publication implements AclObjectInterface
 
     public function setConfig(PublicationConfig $config): void
     {
-        $this->config = $this->config->mergeWith($config);
+        $this->config = $config;
     }
 
     public function getProfile(): ?PublicationProfile

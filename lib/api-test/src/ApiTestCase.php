@@ -33,6 +33,11 @@ abstract class ApiTestCase extends WebTestCase
             }
             $server['HTTP_AUTHORIZATION'] = $authType.' '.$accessToken;
         }
+
+        if ('PATCH' === $method) {
+            $server['CONTENT_TYPE'] = 'application/merge-patch+json';
+        }
+
         $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
         $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';
 
