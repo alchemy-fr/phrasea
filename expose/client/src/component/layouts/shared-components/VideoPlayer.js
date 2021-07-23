@@ -8,7 +8,7 @@ export default class VideoPlayer extends PureComponent {
         title: PropTypes.string,
         description: PropTypes.string,
         url: PropTypes.string.isRequired,
-        thumbUrl: PropTypes.string.isRequired,
+        previewUrl: PropTypes.string.isRequired,
         alt: PropTypes.string,
         onPlay: PropTypes.func,
         webVTTLink: PropTypes.string,
@@ -72,7 +72,7 @@ export default class VideoPlayer extends PureComponent {
 
     render() {
         const {
-            thumbUrl,
+            previewUrl,
             title,
             description,
             webVTTLink,
@@ -96,7 +96,7 @@ export default class VideoPlayer extends PureComponent {
                     </div>
                     : <>
                         <div className='play-button'/>
-                        <img src={thumbUrl} alt={title}/>
+                        <img src={previewUrl} alt={title}/>
                         {
                             description &&
                             <span

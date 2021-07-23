@@ -318,6 +318,12 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty()
+     * @Groups({"publication:read", "publication:index"})
+     */
+    private ?string $previewUrl = null;
+
+    /**
+     * @ApiProperty()
      * @Groups({"asset:read"})
      */
     private ?string $uploadURL = null;
@@ -446,6 +452,16 @@ class Asset implements MediaInterface
     public function setThumbUrl(?string $thumbUrl): void
     {
         $this->thumbUrl = $thumbUrl;
+    }
+
+    public function getPreviewUrl(): ?string
+    {
+        return $this->previewUrl;
+    }
+
+    public function setPreviewUrl(?string $previewUrl): void
+    {
+        $this->previewUrl = $previewUrl;
     }
 
     public function getDownloadUrl(): ?string

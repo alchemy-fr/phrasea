@@ -155,9 +155,9 @@ class GalleryLayout extends React.Component {
                     showFullscreenButton={showFullscreenButton}
                     showPlayButton={showPlayButton}
                     items={assets.map(a => ({
-                        original: a.asset.url,
+                        original: a.asset.previewUrl,
                         thumbnail: a.asset.thumbUrl,
-                        description: 'toto',
+                        description: a.asset.description,
                         asset: a.asset,
                         renderItem: this.renderItem,
                     }))}

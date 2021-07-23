@@ -28,8 +28,9 @@ class AssetNormalizer extends AbstractRouterNormalizer
             }
         }
 
-        $object->setUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
-        $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object));
+        $object->setUrl($this->generateAssetUrl($object));
+        $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object->getPreviewDefinition() ?? $object));
+        $object->setPreviewUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getPreviewDefinition() ?? $object));
 
         if (!empty($webVTT = $object->getWebVTT())) {
             $object->setWebVTTLink($this->urlGenerator->generate('asset_webvtt', [

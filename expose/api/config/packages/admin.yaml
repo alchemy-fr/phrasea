@@ -16,6 +16,7 @@ easy_admin:
           - Publication
           - Profile
           - Asset
+          - SubDefinition
           - PublicationAsset
       - OAuthClient
       - EnvVar
@@ -78,6 +79,7 @@ easy_admin:
       class: App\Entity\Asset
       disabled_actions:
         - new
+        - show
       list:
         batch_actions:
           - delete
@@ -98,6 +100,22 @@ easy_admin:
           - altitude
           - { property: webVTT, label: WebVTT }
           - { property: 'clientAnnotations' }
+
+    SubDefinition:
+      class: App\Entity\SubDefinition
+      disabled_actions:
+        - new
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - name
+          - asset
+          - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
+          - path
+          - createdAt
 
     PublicationAsset:
       class: App\Entity\PublicationAsset

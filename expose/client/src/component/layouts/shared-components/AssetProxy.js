@@ -26,14 +26,14 @@ export default class AssetProxy extends PureComponent {
             case type.startsWith('video/'):
                 return <VideoPlayer
                     url={asset.url}
-                    thumbUrl={asset.thumbUrl}
+                    previewUrl={asset.previewUrl}
                     title={asset.title}
                     webVTTLink={asset.webVTTLink}
                 />
             case type.startsWith('image/'):
                 if (this.props.magnifier) {
                     return <Magnifier
-                        imageSrc={asset.url}
+                        imageSrc={asset.previewUrl}
                         imageAlt={asset.title}
                         mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
                         touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
@@ -41,7 +41,7 @@ export default class AssetProxy extends PureComponent {
                 }
 
                 return <img
-                    src={asset.url}
+                    src={asset.previewUrl}
                     alt={asset.title}
                 />
             default:

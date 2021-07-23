@@ -6,6 +6,7 @@ import config from "../../../lib/config";
 import Description from "../shared-components/Description";
 import {getBrowserLanguage} from "./browserLang";
 import PublicationHeader from "../shared-components/PublicationHeader";
+import AssetProxy from "../shared-components/AssetProxy";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -131,6 +132,11 @@ class MapboxLayout extends React.Component {
                 this.map.loadImage(
                     asset.thumbUrl,
                     async (err, img) => {
+                        if (err) {
+                            console.error('err', err);
+
+                            return;
+                        }
                         let width, height;
                         if (img.width > img.height) {
                             height = img.height * maxThumbSize / img.width;
@@ -278,7 +284,7 @@ class MapboxLayout extends React.Component {
         const asset = this.state.assets.find(a => a.asset.id === assetId).asset;
 
         return <div className={'image-full'}>
-            <img src={asset.url} alt={asset.title || 'Image'}/>
+            <AssetProxy asset={asset}/>
             <Description descriptionHtml={asset.description}/>
         </div>
     }

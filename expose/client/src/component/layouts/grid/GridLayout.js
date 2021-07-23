@@ -99,7 +99,7 @@ class GridLayout extends React.Component {
                     const {asset} = a;
 
                     return {
-                        src: asset.url,
+                        src: asset.previewUrl,
                         thumbnail: asset.thumbUrl,
                         thumbnailWidth: asset.thumbWidth,
                         thumbnailHeight: asset.thumbHeight,
@@ -159,6 +159,7 @@ class GridLayout extends React.Component {
                 img.onerror = e => {
                     console.error(e);
                     asset.thumbUrl = squareImg;
+                    asset.previewUrl = squareImg;
                     asset.thumbWidth = 100;
                     asset.thumbHeight = 100;
                     resolve();
