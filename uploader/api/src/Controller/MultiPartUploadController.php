@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use App\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,16 +19,13 @@ final class MultiPartUploadController extends AbstractController
 {
     private UploadManager $uploadManager;
     private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
 
     public function __construct(
         UploadManager $uploadManager,
-        FileStorageManager $storageManager,
-        AssetManager $assetManager
+        FileStorageManager $storageManager
     ) {
         $this->uploadManager = $uploadManager;
         $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
     }
 
     /**
