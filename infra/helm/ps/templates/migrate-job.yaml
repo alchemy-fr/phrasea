@@ -19,6 +19,9 @@ spec:
       containers:
       - name: {{ $appName }}-php-job
         image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-php:{{ $.Values.repository.tag }}
+        {{- if not (eq "latest" $.Values.repository.tag) }}
+        imagePullPolicy: Always
+        {{- end }}
         args: ["bin/migrate.sh"]
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:

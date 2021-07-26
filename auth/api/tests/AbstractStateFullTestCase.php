@@ -18,7 +18,7 @@ abstract class AbstractStateFullTestCase extends WebTestCase
      */
     protected $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->client = static::createClient();

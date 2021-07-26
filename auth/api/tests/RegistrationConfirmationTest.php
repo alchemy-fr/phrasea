@@ -26,7 +26,7 @@ class RegistrationConfirmationTest extends WebTestCase
         $client->followRedirect();
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Registration complete!',
             $client->getResponse()->getContent()
         );

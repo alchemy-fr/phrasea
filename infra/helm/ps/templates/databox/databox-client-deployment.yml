@@ -20,6 +20,9 @@ spec:
       containers:
       - name: databox-client
         image: {{ $.Values.repository.baseurl }}/ps-databox-client:{{ $.Values.repository.tag }}
+        {{- if not (eq "latest" $.Values.repository.tag) }}
+        imagePullPolicy: Always
+        {{- end }}
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:
         - name: configs
