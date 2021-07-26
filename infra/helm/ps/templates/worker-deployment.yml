@@ -25,6 +25,9 @@ spec:
       containers:
       - name: {{ $appName }}-worker
         image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-worker:{{ $.Values.repository.tag }}
+        {{- if not (eq "latest" $.Values.repository.tag) }}
+        imagePullPolicy: Always
+        {{- end }}
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:
         - name: configs

@@ -56,6 +56,9 @@ spec:
       containers:
       - name: {{ $jobName }}
         image: {{ $.Values.repository.baseurl }}/ps-auth-api-php:{{ $.Values.repository.tag }}
+        {{- if not (eq "latest" $.Values.repository.tag) }}
+        imagePullPolicy: Always
+        {{- end }}
         args: ["/setup/job.sh"]
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:

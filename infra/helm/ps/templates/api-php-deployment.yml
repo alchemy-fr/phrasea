@@ -25,6 +25,9 @@ spec:
       containers:
       - name: {{ $appName }}-api-php
         image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-php:{{ $.Values.repository.tag }}
+        {{- if not (eq "latest" $.Values.repository.tag) }}
+        imagePullPolicy: Always
+        {{- end }}
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:
         - name: configs
