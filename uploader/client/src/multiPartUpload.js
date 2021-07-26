@@ -61,7 +61,6 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
 
         if (resumableUpload) {
             uploadId = resumableUpload.u;
-            path = resumableUpload.p;
             resumeChunkIndex = resumableUpload.c.length + 1;
             for (let i = 0; i < resumableUpload.c.length; i++) {
                 uploadParts.push({
@@ -70,11 +69,12 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
                 });
             }
         } else {
-            const res = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/upload/start`, accessToken, {
+            const res = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/uploads`, accessToken, {
                 filename: file.file.name,
                 type: file.file.type,
+                size: file.file.size,
             }, undefined);
-            uploadId = res.json.uploadId;
+            uploadId = res.json.id;
             path = res.json.path;
             uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
         }
@@ -86,9 +86,7 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
             const start = (index - 1) * fileChunkSize;
             const end = (index) * fileChunkSize;
 
-            const getUploadUrlResp = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/upload/url`, accessToken, {
-                filename: path,
-                uploadId,
+            const getUploadUrlResp = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/uploads/${uploadId}/part`, accessToken, {
                 part: index,
             });
 
@@ -123,12 +121,8 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
 
         const {res: finalRes} = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/assets`, accessToken, {
             multipart: {
-                path,
                 uploadId,
                 parts: uploadParts,
-                size: file.file.size,
-                filename: file.file.name,
-                type: file.file.type,
             }
         });
 

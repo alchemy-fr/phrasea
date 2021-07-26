@@ -6,9 +6,11 @@ namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Asset;
+use App\Entity\MultipartUpload;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use App\Upload\UploadManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,15 +21,18 @@ final class CreateAssetAction extends AbstractController
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
+    private EntityManagerInterface $em;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        UploadManager $uploadManager
+        UploadManager $uploadManager,
+        EntityManagerInterface $em
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
+        $this->em = $em;
     }
 
     public function __invoke(Request $request): Asset
@@ -76,10 +81,6 @@ final class CreateAssetAction extends AbstractController
 
         foreach ([
             'parts',
-            'filename',
-            'path',
-            'size',
-            'type',
             'uploadId',
                  ] as $key) {
             if (empty($multipart[$key])) {
@@ -87,9 +88,14 @@ final class CreateAssetAction extends AbstractController
             }
         }
 
+        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart['uploadId']);
+        if (!$multipartUpload instanceof MultipartUpload) {
+            throw new BadRequestHttpException();
+        }
+
         $this->uploadManager->markComplete(
-            $multipart['uploadId'],
-            $multipart['path'],
+            $multipartUpload->getUploadId(),
+            $multipartUpload->getPath(),
             $multipart['parts']
         );
 
@@ -97,10 +103,10 @@ final class CreateAssetAction extends AbstractController
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
-            $multipart['path'],
-            $multipart['type'],
-            $multipart['filename'],
-            $multipart['size'],
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getFilename(),
+            $multipartUpload->getSize(),
             $user->getId()
         );
     }

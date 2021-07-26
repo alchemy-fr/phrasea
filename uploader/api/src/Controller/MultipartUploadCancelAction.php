@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\MultipartUpload;
 use App\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class MultipartUploadCancelAction extends AbstractController
 {
@@ -19,18 +18,9 @@ final class MultipartUploadCancelAction extends AbstractController
         $this->uploadManager = $uploadManager;
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(MultipartUpload $multipartUpload)
     {
-        $uploadId = $request->request->get('uploadId');
-        if (empty($uploadId)) {
-            throw new BadRequestHttpException('Missing uploadId');
-        }
-        $path = $request->request->get('path');
-        if (empty($path)) {
-            throw new BadRequestHttpException('Missing path');
-        }
-
-        $this->uploadManager->cancelMultipartUpload($path, $uploadId);
+        $this->uploadManager->cancelMultipartUpload($multipartUpload->getPath(), $multipartUpload->getUploadId());
 
         return new JsonResponse(true);
     }

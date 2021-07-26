@@ -121,3 +121,6 @@ services:
             - { name: serializer.normalizer, priority: -989 }
 
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
+
+    App\DataPersister\MultipartUploadDataPersister:
+        decorates: 'api_platform.doctrine.orm.data_persister'

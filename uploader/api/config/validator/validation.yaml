@@ -9,3 +9,12 @@ App\Entity\FormSchema:
       - NotBlank: ~
     data:
       - NotBlank: ~
+
+App\Entity\MultipartUpload:
+  properties:
+    filename:
+      - NotBlank: ~
+    type:
+      - NotBlank: ~
+    size:
+      - NotNull: ~

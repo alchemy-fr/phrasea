@@ -39,6 +39,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "swagger_context"={
  *                 "consumes"={
  *                     "multipart/form-data",
+ *                     "application/json",
  *                 },
  *                 "parameters"={
  *                     {
@@ -48,10 +49,35 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "description"="The file to upload",
  *                     },
  *                     {
- *                         "in"="json",
+ *                         "in"="body",
  *                         "name"="multipart",
  *                         "type"="object",
  *                         "description"="The multipart payload to complete upload to S3",
+ *                         "schema": {
+ *                             "type"="object",
+ *                             "properties": {
+ *                                 "uploadId": {
+ *                                     "type": "string",
+ *                                     "example": "d2472f50-bfb2-4398-b89d-92354928a934",
+ *                                 },
+ *                                 "parts": {
+ *                                     "type": "array",
+ *                                     "items": {
+ *                                         "type"="object",
+ *                                         "properties": {
+ *                                             "PartNumber": {
+ *                                                 "type": "integer",
+ *                                                 "example": 1,
+ *                                             },
+ *                                             "ETag": {
+ *                                                 "type": "string",
+ *                                                 "example": "812d692260ab94dd85a5aa7a6caef68d",
+ *                                             },
+ *                                         },
+ *                                     },
+ *                                 },
+ *                             },
+ *                         },
  *                     },
  *                 },
  *             },
