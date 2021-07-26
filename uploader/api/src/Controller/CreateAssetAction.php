@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
@@ -18,21 +16,15 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private ValidatorInterface $validator;
-    private ResourceMetadataFactoryInterface $resourceMetadataFactory;
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FileStorageManager $storageManager,
         AssetManager $assetManager,
         UploadManager $uploadManager
     ) {
-        $this->validator = $validator;
-        $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
