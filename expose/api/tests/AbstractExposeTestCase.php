@@ -246,6 +246,9 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }
+        if (isset($options['ownerId'])) {
+            $asset->setOwnerId($options['ownerId']);
+        }
 
         if (isset($options['publication_id'])) {
             $pubAsset = new PublicationAsset();

@@ -29,6 +29,48 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertAssetFileDoesNotExist($path);
     }
 
+    public function testDeleteAssetWithOwnerOK(): void
+    {
+        $id = $this->createPublication();
+        $assetId = $this->createAsset([
+            'publication_id' => $id,
+            'ownerId' => AuthServiceClientTestMock::USER_UID,
+            'persist_file' => true,
+        ]);
+
+        $asset = $this->assertAssetExist($assetId, true);
+        $path = $asset->getPath();
+        $response = $this->request(
+            AuthServiceClientTestMock::USER_TOKEN,
+            'DELETE',
+            '/assets/'.$assetId
+        );
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertNotAssetExist($assetId);
+        $this->assertAssetFileDoesNotExist($path);
+    }
+
+    public function testDeleteAssetWithAnotherUserWillReturn403(): void
+    {
+        $id = $this->createPublication();
+        $assetId = $this->createAsset([
+            'publication_id' => $id,
+            'ownerId' => '42',
+            'persist_file' => true,
+        ]);
+
+        $asset = $this->assertAssetExist($assetId, true);
+        $path = $asset->getPath();
+        $response = $this->request(
+            AuthServiceClientTestMock::USER_TOKEN,
+            'DELETE',
+            '/assets/'.$assetId
+        );
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertAssetExist($assetId);
+        $this->assertAssetFileExists($path);
+    }
+
     public function testDeleteAssetWithSubDefinitionsOK(): void
     {
         $id = $this->createPublication();

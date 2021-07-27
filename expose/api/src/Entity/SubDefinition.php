@@ -18,7 +18,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     normalizationContext=SubDefinition::API_READ,
  *     itemOperations={
- *          "get"={}
+ *         "get"={},
+ *         "delete"={
+ *              "security"="is_granted('DELETE', object)"
+ *         },
  *     },
  *     collectionOperations={
  *          "post"= {

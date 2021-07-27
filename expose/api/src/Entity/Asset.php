@@ -23,7 +23,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
  *         "get"={},
- *         "delete"={},
+ *         "delete"={
+ *             "security"="is_granted('DELETE', object)"
+ *         },
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
