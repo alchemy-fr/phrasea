@@ -29,3 +29,12 @@ App\Entity\PublicationAsset:
       - NotNull: ~
     asset:
       - NotNull: ~
+
+App\Entity\MultipartUpload:
+  properties:
+    filename:
+      - NotBlank: ~
+    type:
+      - NotBlank: ~
+    size:
+      - NotNull: ~

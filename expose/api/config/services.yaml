@@ -91,7 +91,7 @@ services:
         tags:
             - { name: serializer.normalizer, priority: -989 }
 
-    App\DataPersister\PublicationDataPersister:
+    App\DataPersister\ExposeDataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
 
     App\Form\ThemeChoiceType:

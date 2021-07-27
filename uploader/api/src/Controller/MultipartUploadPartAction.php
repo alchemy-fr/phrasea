@@ -20,14 +20,14 @@ final class MultipartUploadPartAction extends AbstractController
         $this->uploadManager = $uploadManager;
     }
 
-    public function __invoke(MultipartUpload $multipartUpload, Request $request)
+    public function __invoke(MultipartUpload $data, Request $request)
     {
         $part = $request->request->get('part');
         if (empty($part)) {
             throw new BadRequestHttpException('Missing part');
         }
 
-        $uri = $this->uploadManager->getSignedUrl($multipartUpload->getUploadId(), $multipartUpload->getPath(), (int) $part);
+        $uri = $this->uploadManager->getSignedUrl($data->getUploadId(), $data->getPath(), (int) $part);
 
         return new JsonResponse([
             'url' => $uri,

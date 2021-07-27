@@ -49,6 +49,10 @@ class MultipartUploadDataPersister implements ContextAwareDataPersisterInterface
 
     public function remove($data, array $context = [])
     {
+        if ($data instanceof MultipartUpload) {
+            $this->uploadManager->cancelMultipartUpload($data->getPath(), $data->getUploadId());
+        }
+
         $this->decorated->remove($data, $context);
     }
 }

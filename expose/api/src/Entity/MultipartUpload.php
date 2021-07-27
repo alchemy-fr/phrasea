@@ -77,10 +77,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                 },
  *             },
  *         },
- *         "cancel"={
- *             "method"="DELETE",
- *             "path"="/uploads/{id}/cancel",
- *             "controller"=MultipartUploadCancelAction::class,
+ *         "delete"={
  *             "openapi_context"={
  *                 "summary"="Cancel an upload",
  *                 "description"="Cancel an upload.",
