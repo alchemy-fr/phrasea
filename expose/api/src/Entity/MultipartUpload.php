@@ -7,7 +7,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\MultipartUploadPartAction;
-use App\Controller\MultipartUploadStartAction;
 use App\Controller\MultipartUploadCancelAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,7 +35,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "controller"=MultipartUploadPartAction::class,
 *              "openapi_context"={
  *                 "summary"="Get next upload URL for the next part of file to upload.",
- *                 "description"="Allow to delete already uploaded parts.",
  *                 "parameters"={
  *                     {
  *                         "in"="path",
@@ -44,11 +42,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "type"="string",
  *                         "description"="The upload ID",
  *                     },
- *                     {
- *                         "in"="json",
- *                         "name"="part",
- *                         "type"="integer",
- *                         "description"="The file part to upload",
+ *                 },
+ *                 "requestBody": {
+ *                     "required": true,
+ *                     "content": {
+ *                         "application/json": {
+ *                             "schema": {
+ *                                 "type": "object",
+ *                                 "properties": {
+ *                                     "part": {
+ *                                         "type": "integer",
+ *                                     },
+ *                                 },
+ *                             },
+ *                         },
  *                     },
  *                 },
  *                 "responses": {
@@ -76,7 +83,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "controller"=MultipartUploadCancelAction::class,
  *             "openapi_context"={
  *                 "summary"="Cancel an upload",
- *                 "description"="Allow to delete already uploaded parts.",
+ *                 "description"="Cancel an upload.",
  *             }
  *         },
  *     }

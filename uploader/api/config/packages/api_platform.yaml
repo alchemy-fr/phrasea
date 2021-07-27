@@ -4,6 +4,7 @@ api_platform:
         paths:
             - '%kernel.project_dir%/src/Model'
             - '%kernel.project_dir%/src/Entity'
+            - '%kernel.project_dir%/config/api-resources'
     formats:
         jsonld:   ['application/ld+json']
         jsonhal:  ['application/hal+json']

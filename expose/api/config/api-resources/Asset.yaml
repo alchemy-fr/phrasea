@@ -1,0 +1,74 @@
+resources:
+  App\Entity\Asset:
+    iri: https://alchemy.fr/Asset
+    collectionOperations:
+      post:
+        controller: App\Controller\CreateAssetAction
+        defaults:
+          _api_receives: false
+        validation_groups:
+          - Default
+          - asset_create
+        openapi_context:
+          requestBody:
+            content:
+              application/json:
+                examples:
+                  Multipart upload:
+                    value:
+                      multipart:
+                        uploadId: 123-456
+                        parts:
+                          - ETag: 812d692260ab94dd85a5aa7a6caef68d
+                            PartNumber: 1
+                          - ETag: 4dd85a5aa7a6caef68d812d692260ab9
+                            PartNumber: 2
+                  Create asset, then upload to S3:
+                    value:
+                      name: foo.jpg
+                      type: image/jpeg
+                      size: 42
+                schema:
+                  anyOf:
+                    - $ref: '#/components/schemas/Asset'
+                    - oneOf:
+                      -
+                        type: object
+                        properties:
+                          multipart:
+                            type: object
+                            properties:
+                              uploadId:
+                                type: string
+                              parts:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    ETag:
+                                      type: string
+                                    PartNumber:
+                                      type: integer
+                      -
+                        type: object
+                        properties:
+                          upload:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                              size:
+                                type: integer
+
+              multipart/form-data:
+                schema:
+                  anyOf:
+                    - $ref: '#/components/schemas/Asset'
+                    -
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          format: binary

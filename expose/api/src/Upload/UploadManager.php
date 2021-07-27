@@ -66,4 +66,16 @@ class UploadManager
 
         $this->internalClient->completeMultipartUpload($params);
     }
+
+    public function createPutObjectSignedURL(string $path, string $contentType): string
+    {
+        $command = $this->internalClient->getCommand('PutObject', array(
+            'Bucket' => $this->uploadBucket,
+            'Key' => $path,
+            'ContentType' => $contentType,
+        ));
+        $request = $this->internalClient->createPresignedRequest($command, '+30 minutes');
+
+        return (string) $request->getUri();
+    }
 }

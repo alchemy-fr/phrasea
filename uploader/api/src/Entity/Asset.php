@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\CreateAssetAction;
 use App\Controller\DownloadAssetAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,7 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ApiResource(
- *     iri="http://alchemy.fr/Asset",
  *     normalizationContext={
  *         "groups"={"asset_read"},
  *     },
@@ -29,60 +27,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "controller"=DownloadAssetAction::class,
  *         }
  *     },
- *     collectionOperations={
- *         "post"={
- *             "controller"=CreateAssetAction::class,
- *             "defaults"={
- *                  "_api_receive"=false
- *             },
- *             "validation_groups"={"Default", "asset_create"},
- *             "swagger_context"={
- *                 "consumes"={
- *                     "multipart/form-data",
- *                     "application/json",
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="formData",
- *                         "name"="file",
- *                         "type"="file",
- *                         "description"="The file to upload",
- *                     },
- *                     {
- *                         "in"="body",
- *                         "name"="multipart",
- *                         "type"="object",
- *                         "description"="The multipart payload to complete upload to S3",
- *                         "schema": {
- *                             "type"="object",
- *                             "properties": {
- *                                 "uploadId": {
- *                                     "type": "string",
- *                                     "example": "d2472f50-bfb2-4398-b89d-92354928a934",
- *                                 },
- *                                 "parts": {
- *                                     "type": "array",
- *                                     "items": {
- *                                         "type"="object",
- *                                         "properties": {
- *                                             "PartNumber": {
- *                                                 "type": "integer",
- *                                                 "example": 1,
- *                                             },
- *                                             "ETag": {
- *                                                 "type": "string",
- *                                                 "example": "812d692260ab94dd85a5aa7a6caef68d",
- *                                             },
- *                                         },
- *                                     },
- *                                 },
- *                             },
- *                         },
- *                     },
- *                 },
- *             },
- *         }
- *     }
  * )
  */
 class Asset
