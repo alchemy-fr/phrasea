@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Asset;
+use App\Entity\MultipartUpload;
 use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use App\Upload\UploadManager;
 use Mimey\MimeTypes;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,15 +22,18 @@ final class CreateAssetAction extends AbstractController
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
+    private EntityManagerInterface $em;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        UploadManager $uploadManager
+        UploadManager $uploadManager,
+        EntityManagerInterface $em
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
+        $this->em = $em;
     }
 
     public function __invoke(Request $request): Asset
@@ -36,6 +41,10 @@ final class CreateAssetAction extends AbstractController
         if (!$request->request->get('publication_id')) {
             // If no publication is assigned, we validate the following grant:
             $this->denyAccessUnlessGranted(PublicationVoter::CREATE);
+        }
+
+        if (null !== $request->request->get('multipart')) {
+            return $this->handleMultipartUpload($request);
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -100,5 +109,41 @@ final class CreateAssetAction extends AbstractController
         } else {
             throw new BadRequestHttpException('Missing file or contentType');
         }
+    }
+
+    private function handleMultipartUpload(Request $request): Asset
+    {
+        $multipart = $request->request->get('multipart');
+
+        foreach ([
+                     'parts',
+                     'uploadId',
+                 ] as $key) {
+            if (empty($multipart[$key])) {
+                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
+            }
+        }
+
+        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart['uploadId']);
+        if (!$multipartUpload instanceof MultipartUpload) {
+            throw new BadRequestHttpException();
+        }
+
+        $this->uploadManager->markComplete(
+            $multipartUpload->getUploadId(),
+            $multipartUpload->getPath(),
+            $multipart['parts']
+        );
+
+        $multipartUpload->setComplete(true);
+        $this->em->persist($multipartUpload);
+
+        return $this->assetManager->createAsset(
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getFilename(),
+            $multipartUpload->getSize(),
+            $request->request->all(),
+        );
     }
 }

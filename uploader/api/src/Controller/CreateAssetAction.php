@@ -102,6 +102,9 @@ final class CreateAssetAction extends AbstractController
         /** @var RemoteUser $user */
         $user = $this->getUser();
 
+        $multipartUpload->setComplete(true);
+        $this->em->persist($multipartUpload);
+
         return $this->assetManager->createAsset(
             $multipartUpload->getPath(),
             $multipartUpload->getType(),

@@ -73,11 +73,6 @@ services:
                     key: '%env(S3_STORAGE_ACCESS_KEY)%'
                     secret: '%env(S3_STORAGE_SECRET_KEY)%'
 
-    App\Upload\UploadManager:
-        arguments:
-            $client: '@app.s3_client.external'
-            $uploadBucket: '%env(S3_STORAGE_BUCKET_NAME)%'
-
     App\Serializer\NormalizerDecorator:
         abstract: true
         autoconfigure: false
@@ -144,3 +139,9 @@ services:
             $signingKey: '%env(APP_SECRET)%'
             $baseUri: '%env(EXPOSE_API_BASE_URL)%'
             $ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
+
+    App\Upload\UploadManager:
+        arguments:
+            $internalClient: '@app.s3_client.internal'
+            $externalClient: '@app.s3_client.external'
+            $uploadBucket: '%env(S3_STORAGE_BUCKET_NAME)%'

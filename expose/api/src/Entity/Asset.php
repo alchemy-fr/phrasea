@@ -53,7 +53,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                  "_api_receive"=false
  *             },
  *             "validation_groups"={"Default", "asset_create"},
- *             "swagger_context"={
+ *             "openapi_context"={
  *                 "summary"="Upload asset",
  *                 "consumes"={
  *                     "multipart/form-data",
@@ -64,7 +64,43 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *                         "name"="file",
  *                         "type"="file",
  *                         "required"=false,
- *                         "description"="The file to upload [required if no upload payload is provided]",
+ *                         "description"="The file to upload [required if no multipart payload is provided]",
+ *                     },{
+ *                         "in"="formData",
+ *                         "name"="file",
+ *                         "type"="file",
+ *                         "description"="The file to upload",
+ *                     },
+ *                     {
+ *                         "in"="body",
+ *                         "name"="multipart",
+ *                         "type"="object",
+ *                         "description"="The multipart payload to complete upload to S3 [required if no file is uploaded]",
+ *                         "schema": {
+ *                             "type"="object",
+ *                             "properties": {
+ *                                 "uploadId": {
+ *                                     "type": "string",
+ *                                     "example": "d2472f50-bfb2-4398-b89d-92354928a934",
+ *                                 },
+ *                                 "parts": {
+ *                                     "type": "array",
+ *                                     "items": {
+ *                                         "type"="object",
+ *                                         "properties": {
+ *                                             "PartNumber": {
+ *                                                 "type": "integer",
+ *                                                 "example": 1,
+ *                                             },
+ *                                             "ETag": {
+ *                                                 "type": "string",
+ *                                                 "example": "812d692260ab94dd85a5aa7a6caef68d",
+ *                                             },
+ *                                         },
+ *                                     },
+ *                                 },
+ *                             },
+ *                         },
  *                     },
  *                     {
  *                         "in"="formData",
@@ -322,12 +358,6 @@ class Asset implements MediaInterface
      */
     private ?string $previewUrl = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"asset:read"})
-     */
-    private ?string $uploadURL = null;
-
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -579,16 +609,6 @@ class Asset implements MediaInterface
     public function setWebVTTLink(?string $webVTTLink): void
     {
         $this->webVTTLink = $webVTTLink;
-    }
-
-    public function getUploadURL(): ?string
-    {
-        return $this->uploadURL;
-    }
-
-    public function setUploadURL(?string $uploadURL): void
-    {
-        $this->uploadURL = $uploadURL;
     }
 
     public function __toString()
