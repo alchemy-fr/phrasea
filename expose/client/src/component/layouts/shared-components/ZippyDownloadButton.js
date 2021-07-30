@@ -20,7 +20,7 @@ export default class ZippyDownloadButton extends PureComponent {
             if (true === data.downloadViaEmail) {
                 this.setState({
                     displayDownloadViaEmail: true,
-                    pendingDownloadUrl: this.props.data.archiveDownloadUrl
+                    pendingDownloadUrl: this.props.data.archiveDownloadUrl,
                 });
 
                 return;
@@ -32,6 +32,7 @@ export default class ZippyDownloadButton extends PureComponent {
 
         this.setState({
             displayDownloadTerms: true,
+            pendingDownloadUrl: this.props.data.archiveDownloadUrl,
         });
     }
 
