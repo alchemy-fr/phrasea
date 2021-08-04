@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Asset;
+use App\Entity\MultipartUpload;
 use App\Entity\SubDefinition;
 use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
 use App\Storage\FileStorageManager;
 use App\Upload\UploadManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -22,15 +24,18 @@ final class CreateSubDefinitionAction extends AbstractController
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
+    private EntityManagerInterface $em;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        UploadManager $uploadManager
+        UploadManager $uploadManager,
+        EntityManagerInterface $em
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
+        $this->em = $em;
     }
 
     public function __invoke(Request $request): SubDefinition
@@ -39,6 +44,7 @@ final class CreateSubDefinitionAction extends AbstractController
         if (!$assetId) {
             throw new BadRequestHttpException('"asset_id" is required');
         }
+
         $name = $request->request->get('name');
         if (empty($name)) {
             throw new BadRequestHttpException('"name" is required and must not be empty');
@@ -49,6 +55,10 @@ final class CreateSubDefinitionAction extends AbstractController
             throw new NotFoundHttpException(sprintf('Asset %s not found', $assetId));
         }
         $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
+
+        if (null !== $request->request->get('multipart')) {
+            return $this->handleMultipartUpload($request, $asset, $name);
+        }
 
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
@@ -114,6 +124,43 @@ final class CreateSubDefinitionAction extends AbstractController
         } else {
             throw new BadRequestHttpException('Missing file or contentType');
         }
+    }
+
+    private function handleMultipartUpload(Request $request, Asset $asset, string $name): SubDefinition
+    {
+        $multipart = $request->request->get('multipart');
+
+        foreach ([
+                     'parts',
+                     'uploadId',
+                 ] as $key) {
+            if (empty($multipart[$key])) {
+                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
+            }
+        }
+
+        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart['uploadId']);
+        if (!$multipartUpload instanceof MultipartUpload) {
+            throw new BadRequestHttpException();
+        }
+
+        $this->uploadManager->markComplete(
+            $multipartUpload->getUploadId(),
+            $multipartUpload->getPath(),
+            $multipart['parts']
+        );
+
+        $multipartUpload->setComplete(true);
+        $this->em->persist($multipartUpload);
+
+        return $this->assetManager->createSubDefinition(
+            $name,
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getSize(),
+            $asset,
+            $request->request->all()
+        );
     }
 
     private function findAsset(string $id): Asset

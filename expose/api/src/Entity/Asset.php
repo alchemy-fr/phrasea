@@ -191,37 +191,37 @@ class Asset implements MediaInterface
 
     /**
      * @ORM\Column(type="datetime")
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?DateTime $createdAt = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read"})
      */
     private ?string $url = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $downloadUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $thumbUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $previewUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?string $uploadURL = null;
