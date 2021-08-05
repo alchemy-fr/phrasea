@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationAsset;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
-use App\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
 
@@ -231,6 +232,11 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         return self::$container->get(FileStorageManager::class);
     }
 
+    protected static function getPathGenerator(): PathGenerator
+    {
+        return self::$container->get(PathGenerator::class);
+    }
+
     protected function createAsset(array $options = []): string
     {
         $em = self::getEntityManager();
@@ -262,7 +268,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         }
 
         $storageManager = self::getStorageManager();
-        $path = $storageManager->generatePath('jpg');
+        $path = self::getPathGenerator()->generatePath('jpg');
         $storageManager->store($path, 'Dummy content');
         $asset->setPath($path);
 

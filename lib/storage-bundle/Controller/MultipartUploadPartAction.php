@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace Alchemy\StorageBundle\Controller;
 
-use App\Entity\MultipartUpload;
-use App\Upload\UploadManager;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

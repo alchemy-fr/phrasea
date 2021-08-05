@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Storage;
+namespace Alchemy\StorageBundle\Storage;
 
 use League\Flysystem\FilesystemInterface;
-use Ramsey\Uuid\Uuid;
 use RuntimeException;
 
 class FileStorageManager
@@ -17,26 +16,14 @@ class FileStorageManager
         $this->filesystem = $filesystem;
     }
 
-    public function generatePath(?string $extension): string
-    {
-        $uuid = Uuid::uuid4()->toString();
-
-        $path = implode(DIRECTORY_SEPARATOR, [
-            substr($uuid, 0, 2),
-            substr($uuid, 2, 2),
-            $uuid,
-        ]);
-
-        if ($extension) {
-            $path .= '.'.$extension;
-        }
-
-        return $path;
-    }
-
     public function store(string $path, $content): void
     {
         $this->filesystem->write($path, $content);
+    }
+
+    public function has(string $path): bool
+    {
+        return $this->filesystem->has($path);
     }
 
     /**

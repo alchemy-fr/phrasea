@@ -26,6 +26,9 @@
     "alchemy/report-sdk": {
         "version": "dev-report"
     },
+    "alchemy/storage-bundle": {
+        "version": "dev-ps-343"
+    },
     "api-platform/api-pack": {
         "version": "v1.2.0"
     },

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -21,17 +22,20 @@ class DownloadHandler extends AbstractEntityManagerHandler
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private EventProducer $eventProducer;
+    private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
         Client $client,
         AssetManager $assetManager,
-        EventProducer $eventProducer
+        EventProducer $eventProducer,
+        PathGenerator $pathGenerator
     ) {
         $this->client = $client;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->eventProducer = $eventProducer;
+        $this->pathGenerator = $pathGenerator;
     }
 
     public function handle(EventMessage $message): void
@@ -61,7 +65,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
             $originalName .= '.'.$extension;
         }
 
-        $path = $this->storageManager->generatePath($extension);
+        $path = $this->pathGenerator->generatePath($extension);
 
         $this->storageManager->store($path, $response->getBody()->getContents());
 

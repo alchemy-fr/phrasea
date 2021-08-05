@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace Alchemy\StorageBundle\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\MultipartUploadPartAction;
-use App\Controller\MultipartUploadCancelAction;
+use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
@@ -102,20 +101,19 @@ class MultipartUpload
      * @ORM\Column(type="string", length=255)
      * @Groups("upload_read")
      */
-    private string $filename;
+    private ?string $filename = null;
 
     /**
      * @ORM\Column(type="string", length=150)
      * @Groups("upload_read")
      */
-    private string $type;
+    private ?string $type = null;
 
     /**
-     * @var int
      * @ORM\Column(type="integer")
      * @Groups("upload_read")
      */
-    private int $size;
+    private ?int $size = null;
 
     /**
      * @ORM\Column(type="string", length=150)
@@ -127,7 +125,7 @@ class MultipartUpload
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(writable=false)
      */
-    private string $path;
+    private ?string $path = null;
 
     /**
      * @ORM\Column(type="boolean")
@@ -156,7 +154,7 @@ class MultipartUpload
         return $this->id->toString();
     }
 
-    public function getFilename(): string
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
@@ -166,7 +164,7 @@ class MultipartUpload
         $this->filename = $filename;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -196,6 +194,11 @@ class MultipartUpload
         return $this->path;
     }
 
+    public function hasPath(): bool
+    {
+        return null !== $this->path;
+    }
+
     public function setPath(string $path): void
     {
         $this->path = $path;
@@ -211,7 +214,7 @@ class MultipartUpload
         $this->complete = $complete;
     }
 
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }

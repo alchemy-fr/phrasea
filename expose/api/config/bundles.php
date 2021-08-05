@@ -29,4 +29,5 @@ return [
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
+    Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
 ];

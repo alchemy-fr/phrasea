@@ -16,6 +16,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/storage-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/oauth-server-bundle",
             "options": {
                 "symlink": true
@@ -83,15 +90,14 @@
         "alchemy/notify-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
+        "alchemy/storage-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "arthem/rabbit-bundle": "^0.2.3",
         "arthem/request-signer-bundle": "^1.0.1",
         "doctrine/dbal": "2.9.1",
         "exercise/htmlpurifier-bundle": "^2.0",
         "lcobucci/jwt": "^4.1",
-        "league/flysystem-aws-s3-v3": "^1.0",
         "nelmio/cors-bundle": "^1.5",
-        "oneup/flysystem-bundle": "^3.1",
         "predis/predis": "^1.1",
         "ralouphie/mimey": "^2.1",
         "ramsey/uuid-doctrine": "^1.5",

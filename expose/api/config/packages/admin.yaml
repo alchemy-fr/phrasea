@@ -119,7 +119,7 @@ easy_admin:
           - createdAt
 
     MultipartUpload:
-      class: App\Entity\MultipartUpload
+      class: Alchemy\StorageBundle\Entity\MultipartUpload
       disabled_actions:
         - new
         - edit
@@ -132,6 +132,8 @@ easy_admin:
           - filename
           - type
           - size
+          - path
+          - uploadId
           - { property: complete, type: boolean }
           - createdAt
 

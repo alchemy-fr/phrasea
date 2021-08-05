@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
-use App\Entity\MultipartUpload;
 use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
-use App\Upload\UploadManager;
-use Doctrine\ORM\EntityManagerInterface;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,18 +20,18 @@ final class CreateAssetAction extends AbstractController
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
-    private EntityManagerInterface $em;
+    private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
         UploadManager $uploadManager,
-        EntityManagerInterface $em
+        PathGenerator $pathGenerator
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
-        $this->em = $em;
+        $this->pathGenerator = $pathGenerator;
     }
 
     public function __invoke(Request $request): Asset
@@ -57,7 +56,7 @@ final class CreateAssetAction extends AbstractController
         }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $path = $this->storageManager->generatePath($extension);
+        $path = $this->pathGenerator->generatePath($extension);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $this->storageManager->storeStream($path, $stream);
@@ -77,33 +76,10 @@ final class CreateAssetAction extends AbstractController
 
     private function handleMultipartUpload(Request $request): Asset
     {
-        $multipart = $request->request->get('multipart');
-
-        foreach ([
-            'parts',
-            'uploadId',
-                 ] as $key) {
-            if (empty($multipart[$key])) {
-                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
-            }
-        }
-
-        $multipartUpload = $this->em->getRepository(MultipartUpload::class)->find($multipart['uploadId']);
-        if (!$multipartUpload instanceof MultipartUpload) {
-            throw new BadRequestHttpException();
-        }
-
-        $this->uploadManager->markComplete(
-            $multipartUpload->getUploadId(),
-            $multipartUpload->getPath(),
-            $multipart['parts']
-        );
+        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
         /** @var RemoteUser $user */
         $user = $this->getUser();
-
-        $multipartUpload->setComplete(true);
-        $this->em->persist($multipartUpload);
 
         return $this->assetManager->createAsset(
             $multipartUpload->getPath(),

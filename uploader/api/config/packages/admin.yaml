@@ -15,6 +15,7 @@ easy_admin:
         children:
           - Commit
           - Asset
+          - MultipartUpload
       - label: 'Data'
         children:
           - FormSchema
@@ -92,3 +93,22 @@ easy_admin:
       form:
         fields:
           - { property: jsonData }
+
+    MultipartUpload:
+      class: Alchemy\StorageBundle\Entity\MultipartUpload
+      disabled_actions:
+        - new
+        - edit
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - filename
+          - type
+          - size
+          - path
+          - uploadId
+          - { property: complete, type: boolean }
+          - createdAt
