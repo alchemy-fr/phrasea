@@ -8,6 +8,12 @@ jobs:
       - image: buildpack-deps:trusty
     steps:
       - checkout
+      - run:
+          name: Install Docker Compose
+          command: |-
+            curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - setup_remote_docker:
           version: 20.10.6
           docker_layer_caching: true
