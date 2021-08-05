@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -108,7 +108,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -155,7 +155,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -203,7 +203,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -249,7 +249,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -344,7 +344,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -390,7 +390,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -10288,7 +10288,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-343",
+            "version": "dev-PS-335",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
