@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     environment:
@@ -8,27 +8,13 @@ jobs:
       - image: buildpack-deps:trusty
     steps:
       - checkout
-      - run:
-          name: Install Docker Compose
-          command: |-
-            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - setup_remote_docker:
           version: 20.10.6
           docker_layer_caching: true
       - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="17.03.0-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
-      - run:
           name: Reset docker stack
           command: |-
-            docker-compose down || echo "."
+            docker-compose down
       - run:
           name: Docker login
           command: |-
