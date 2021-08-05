@@ -36,10 +36,12 @@ jobs:
       - run:
           name: Build application images
           command: |-
+            export DOCKER_TAG=${CIRCLE_TAG:-latest}
             bin/build.sh
       - run:
           name: Install applications and run tests
           command: |-
+            export DOCKER_TAG=${CIRCLE_TAG:-latest}
             bin/setup.sh
             bin/test.sh
       - run:
