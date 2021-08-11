@@ -36,6 +36,7 @@ easy_admin:
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
           - { property: 'assets.count', label: Assets }
+          - { property: publiclyListed, label: Publicly listed, type: boolean }
           - { property: enabled, type: boolean }
           - { property: securityMethod }
           - createdAt

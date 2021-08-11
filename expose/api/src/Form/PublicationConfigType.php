@@ -17,28 +17,28 @@ class PublicationConfigType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('layout', LayoutChoiceType::class)
-            ->add('layoutOptions', LayoutOptionsType::class)
-            ->add('theme', ThemeChoiceType::class)
-            ->add('enabled')
+            ->add('enabled', TrueFalseNullChoiceType::class)
+            ->add('publiclyListed', TrueFalseNullChoiceType::class)
             ->add('beginsAt', DateTimePickerType::class, [
                 'required' => false,
             ])
             ->add('expiresAt', DateTimePickerType::class, [
                 'required' => false,
             ])
-            ->add('publiclyListed')
-            ->add('css', TextareaType::class)
             ->add('securityMethod', SecurityMethodChoiceType::class, [
                 'required' => false,
             ])
             ->add('password', TextType::class, [
                 'required' => false,
             ])
-            ->add('terms', TermsConfigType::class)
-            ->add('downloadTerms', TermsConfigType::class)
-            ->add('includeDownloadTermsInZippy', TrueFalseNullChoiceType::class)
+            ->add('layout', LayoutChoiceType::class)
+            ->add('layoutOptions', LayoutOptionsType::class)
+            ->add('theme', ThemeChoiceType::class)
+            ->add('css', TextareaType::class)
             ->add('downloadViaEmail', TrueFalseNullChoiceType::class)
+            ->add('downloadTerms', TermsConfigType::class)
+            ->add('terms', TermsConfigType::class)
+            ->add('includeDownloadTermsInZippy', TrueFalseNullChoiceType::class)
             ->add('mapOptions', MapOptionsType::class)
             ;
     }
