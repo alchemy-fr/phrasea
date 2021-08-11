@@ -30,7 +30,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - title
+          - { property: title, template: 'admin/list/publication_title_link.html.twig' }
           - slug
           - { property: 'profile' }
           - { property: 'parent', label: Parent }
