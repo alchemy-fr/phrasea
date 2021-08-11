@@ -41,6 +41,7 @@ class PublicationDataPersister implements ContextAwareDataPersisterInterface
     public function persist($data, array $context = [])
     {
         if ($data instanceof Publication) {
+            // TODO remove after deprecation cycle
             if ($data->getParentId()) {
                 $parent = $this->em->find(Publication::class, $data->getParentId());
                 if (!$parent instanceof Publication) {

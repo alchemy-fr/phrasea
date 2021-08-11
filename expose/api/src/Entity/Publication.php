@@ -305,6 +305,7 @@ class Publication implements AclObjectInterface
     /**
      * Virtual property.
      *
+     * @deprecated
      * @ApiProperty()
      *
      * @Groups({"publication:write"})
