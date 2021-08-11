@@ -1,19 +1,19 @@
-const fs = require('fs');
-const chalk = require('chalk');
+var fs = require('fs');
+var chalk = require('chalk');
 
 module.exports = {
     input: [
         'src/**/*.{js,jsx}',
         // Use ! to filter out files or directories
         '!src/**/*.spec.{js,jsx}',
-        '!src/locales/**',
+        '!src/i18n/**',
         '!**/node_modules/**',
     ],
     output: './',
     options: {
         debug: true,
         func: {
-            list: ['i18next.t', 'i18n.t', 't'],
+            list: ['i18next.t', 'i18n.t'],
             extensions: ['.js', '.jsx']
         },
         trans: {
@@ -21,7 +21,7 @@ module.exports = {
             i18nKey: 'i18nKey',
             defaultsKey: 'defaults',
             extensions: ['.js', '.jsx'],
-            fallbackKey: function (ns, value) {
+            fallbackKey: function(ns, value) {
                 return value;
             },
             acorn: {
@@ -30,24 +30,24 @@ module.exports = {
                 // Check out https://github.com/acornjs/acorn/tree/master/acorn#interface for additional options
             }
         },
-        lngs: ['en'],
+        lngs: ['en', 'fr'],
         ns: [
-            'translation',
+            'translation'
         ],
         defaultLng: 'en',
         defaultNs: 'translation',
         defaultValue: '__STRING_NOT_TRANSLATED__',
         resource: {
-            loadPath: 'src/locales/{lng}/{ns}.json',
-            savePath: 'src/locales/{lng}/{ns}.json',
+            loadPath: 'src/i18n/{{lng}}/{{ns}}.json',
+            savePath: 'src/i18n/{{lng}}/{{ns}}.json',
             jsonIndent: 2,
             lineEnding: '\n'
         },
-        nsSeparator: ':', // namespace separator
-        keySeparator: '.', // key separator
+        nsSeparator: false, // namespace separator
+        keySeparator: false, // key separator
         interpolation: {
-            prefix: '{',
-            suffix: '}'
+            prefix: '{{',
+            suffix: '}}'
         }
     },
     transform: function customTransform(file, enc, done) {
@@ -56,7 +56,7 @@ module.exports = {
         const content = fs.readFileSync(file.path, enc);
         let count = 0;
 
-        parser.parseFuncFromString(content, {list: ['i18next._', 'i18next.__']}, (key, options) => {
+        parser.parseFuncFromString(content, { list: ['i18next._', 'i18next.__', 't'] }, (key, options) => {
             parser.set(key, Object.assign({}, options, {
                 nsSeparator: false,
                 keySeparator: false

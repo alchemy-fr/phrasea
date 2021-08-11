@@ -10,6 +10,7 @@ import DownloadButton from "../shared-components/DownloadButton";
 import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
+import {Trans} from "react-i18next";
 
 const CustomView = ({data, carouselProps}) => {
     return <div className={'lb-asset-wrapper'}>
@@ -72,7 +73,9 @@ class GridLayout extends React.Component {
             <PublicationHeader
                 data={data}
             />
-            {assets.length > 0 ? this.renderGallery() : 'Gallery is empty'}
+            {assets.length > 0 ? this.renderGallery() : <Trans i18nKey={'gallery.empty'}>
+                Gallery is empty
+            </Trans>}
         </div>
     }
 

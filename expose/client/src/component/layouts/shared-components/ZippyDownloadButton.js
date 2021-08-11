@@ -3,6 +3,7 @@ import {PropTypes} from 'prop-types';
 import {dataShape} from "../../props/dataShape";
 import {renderDownloadTermsModal, renderDownloadViaEmail, termsKeyPrefix} from "./DownloadViaEmailProxy";
 import {isTermsAccepted} from "../../../lib/credential";
+import {Trans} from "react-i18next";
 
 export default class ZippyDownloadButton extends PureComponent {
     static propTypes = {
@@ -61,7 +62,9 @@ export default class ZippyDownloadButton extends PureComponent {
                 title={'Download'}
                 onClick={this.onDownload}
             >
-                <span role={'img'}>🗜</span>️ Download archive
+                <span role={'img'}>🗜</span>️
+
+                <Trans i18nKey={'download_archive'}>Download archive</Trans>
             </button>
         </>
     }
