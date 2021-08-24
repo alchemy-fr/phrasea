@@ -37,10 +37,6 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
-                if (null !== $publication->getZippyId()) {
-                    return $this->fetchDownloadUrlFromId($publication->getZippyId());
-                }
-
                 $files = array_map(function (PublicationAsset $pubAsset): array {
                     $asset = $pubAsset->getAsset();
 
