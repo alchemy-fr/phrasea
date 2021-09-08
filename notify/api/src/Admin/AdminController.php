@@ -6,18 +6,38 @@ namespace App\Admin;
 
 use App\Entity\TopicSubscriber;
 use App\Topic\TopicManager;
+use Arthem\Bundle\RabbitBundle\Controller\AdminReplayControllerTrait;
+use Arthem\Bundle\RabbitBundle\Model\FailedEventManager;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
 
 class AdminController extends EasyAdminController
 {
-    /**
-     * @var TopicManager
-     */
-    private $topicManager;
+    use AdminReplayControllerTrait;
 
-    public function __construct(TopicManager $topicManager)
+    private TopicManager $topicManager;
+    private EventProducer $eventProducer;
+    private FailedEventManager $failedEventManager;
+
+    public function __construct(
+        TopicManager $topicManager,
+        EventProducer $eventProducer,
+        FailedEventManager $failedEventManager
+    )
     {
         $this->topicManager = $topicManager;
+        $this->eventProducer = $eventProducer;
+        $this->failedEventManager = $failedEventManager;
+    }
+
+    protected function getFailedEventManager(): FailedEventManager
+    {
+        return $this->failedEventManager;
+    }
+
+    protected function getEventProducer(): EventProducer
+    {
+        return $this->eventProducer;
     }
 
     /**

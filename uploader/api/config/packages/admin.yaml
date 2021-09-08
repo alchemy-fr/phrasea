@@ -20,6 +20,10 @@ easy_admin:
           - FormSchema
           - BulkData
       - OAuthClient
+      - label: 'Dev'
+        children:
+          - FailedEvent
+          - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
   entities:
     Commit:
       disabled_actions:

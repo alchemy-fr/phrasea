@@ -85,7 +85,7 @@
         "alchemy/report-bundle": "@dev",
         "api-platform/api-pack": "^1.2",
         "api-platform/core": "2.4.2",
-        "arthem/rabbit-bundle": "^0.2.3",
+        "arthem/rabbit-bundle": "dev-master",
         "arthem/request-signer-bundle": "^1.0",
         "easycorp/easyadmin-bundle": "^2.2",
         "eightpoints/guzzle-bundle": "^7.5",

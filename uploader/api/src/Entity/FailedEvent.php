@@ -25,11 +25,9 @@ class FailedEvent extends BaseFailedEvent
     protected $id;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private ?DateTime $createdAt = null;
 
     public function __construct()
     {
@@ -39,5 +37,10 @@ class FailedEvent extends BaseFailedEvent
     public function getId(): string
     {
         return $this->id->__toString();
+    }
+
+    public function getCreatedAt(): ?DateTime
+    {
+        return $this->createdAt;
     }
 }
