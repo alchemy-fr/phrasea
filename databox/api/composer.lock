@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ec3914e6e5672adef629e79249d9ff4",
+    "content-hash": "cef13d116194afb20d68e21ab7ae1a7f",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -409,16 +409,16 @@
         },
         {
             "name": "arthem/rabbit-bundle",
-            "version": "0.2.3",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f"
+                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f",
-                "reference": "25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/f2fd91602e6056b2575021cb65d535eece8a6f2c",
+                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c",
                 "shasum": ""
             },
             "require": {
@@ -433,11 +433,14 @@
                 "doctrine/orm": "^2.8",
                 "symfony/console": "^5",
                 "symfony/framework-bundle": "^5",
-                "symfony/process": "^5.0"
+                "symfony/process": "^5.0",
+                "twig/extensions": "^1.5"
             },
             "suggest": {
-                "doctrine/orm": "^2.3"
+                "doctrine/orm": "^2.3",
+                "twig/extensions": "^1.5"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -451,9 +454,9 @@
             "description": "Simple RabbitMQ bundle",
             "support": {
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
-                "source": "https://github.com/4rthem/rabbit-bundle/tree/0.2.3"
+                "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2021-07-13T16:18:33+00:00"
+            "time": "2021-09-08T14:05:36+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -11119,6 +11122,7 @@
         "alchemy/admin-bundle": 20,
         "alchemy/core-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
+        "arthem/rabbit-bundle": 20,
         "friendsofsymfony/elastica-bundle": 20,
         "friendsofsymfony/oauth-server-bundle": 20,
         "alchemy/api-test": 20

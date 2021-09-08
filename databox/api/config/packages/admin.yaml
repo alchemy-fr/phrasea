@@ -20,6 +20,10 @@ easy_admin:
           - Tag
           - TagFilterRule
       - OAuthClient
+      - label: 'Dev'
+        children:
+          - FailedEvent
+          - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
   entities:
     Asset:
       class: App\Entity\Core\Asset
