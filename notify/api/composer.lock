@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84a8394cb8a2bb73dbbebeb85f87b41f",
+    "content-hash": "46fd6360b2248c29428462285633dfc7",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
@@ -154,16 +154,16 @@
         },
         {
             "name": "arthem/rabbit-bundle",
-            "version": "0.2.3",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f"
+                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f",
-                "reference": "25444ddcadcd753bfc09ba2fe52fdb3bcd1ca51f",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/f2fd91602e6056b2575021cb65d535eece8a6f2c",
+                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c",
                 "shasum": ""
             },
             "require": {
@@ -178,11 +178,14 @@
                 "doctrine/orm": "^2.8",
                 "symfony/console": "^5",
                 "symfony/framework-bundle": "^5",
-                "symfony/process": "^5.0"
+                "symfony/process": "^5.0",
+                "twig/extensions": "^1.5"
             },
             "suggest": {
-                "doctrine/orm": "^2.3"
+                "doctrine/orm": "^2.3",
+                "twig/extensions": "^1.5"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -196,9 +199,9 @@
             "description": "Simple RabbitMQ bundle",
             "support": {
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
-                "source": "https://github.com/4rthem/rabbit-bundle/tree/0.2.3"
+                "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2021-07-13T16:18:33+00:00"
+            "time": "2021-09-08T14:05:36+00:00"
         },
         {
             "name": "brick/math",
@@ -3554,6 +3557,71 @@
                 "source": "https://github.com/snc/SncRedisBundle/tree/3.4.0"
             },
             "time": "2021-05-25T04:46:14+00:00"
+        },
+        {
+            "name": "symfony/amazon-mailer",
+            "version": "v4.4.27",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/amazon-mailer.git",
+                "reference": "cb2040ae3fcfcb1bbc60f7a2ac812af930d257c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/amazon-mailer/zipball/cb2040ae3fcfcb1bbc60f7a2ac812af930d257c3",
+                "reference": "cb2040ae3fcfcb1bbc60f7a2ac812af930d257c3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.3",
+                "symfony/mailer": "^4.4.21|^5.2.6"
+            },
+            "require-dev": {
+                "symfony/http-client": "^4.3|^5.0"
+            },
+            "type": "symfony-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Mailer\\Bridge\\Amazon\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Amazon Mailer Bridge",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/amazon-mailer/tree/v4.4.27"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-07-19T21:26:15+00:00"
         },
         {
             "name": "symfony/asset",
@@ -10718,7 +10786,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "alchemy/admin-bundle": 20,
-        "alchemy/core-bundle": 20
+        "alchemy/core-bundle": 20,
+        "arthem/rabbit-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

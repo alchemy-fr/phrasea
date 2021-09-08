@@ -5,27 +5,22 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Mail\Mailer;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Mailer\Exception\TransportException;
+use Throwable;
 
-class SendEmailHandler extends AbstractLogHandler
+class SendEmailHandler extends AbstractRetryableHandler
 {
     const EVENT = 'send_email';
 
-    /**
-     * @var Mailer
-     */
-    private $mailer;
+    private Mailer $mailer;
 
     public function __construct(Mailer $mailer)
     {
         $this->mailer = $mailer;
     }
 
-    public function handle(EventMessage $message): void
+    protected function doHandle(array $payload): void
     {
-        $payload = $message->getPayload();
-
         // TODO handle blacklist
 
         $this->mailer->send(
@@ -34,6 +29,11 @@ class SendEmailHandler extends AbstractLogHandler
             $payload['parameters'],
             $payload['locale']
         );
+    }
+
+    protected function isRetryableException(Throwable $e): bool
+    {
+        return $e instanceof TransportException;
     }
 
     public static function getHandledEvents(): array

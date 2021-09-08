@@ -13,3 +13,7 @@ alchemy_admin_login:
 alchemy_admin_reset_password:
   name_prefix: alchemy_admin_
   resource: 'Alchemy\AdminBundle\Controller\ResetPasswordController'
+
+alchemy_admin_phpinfo:
+  name_prefix: alchemy_admin_
+  resource: 'Alchemy\AdminBundle\Controller\PhpInfoController'
