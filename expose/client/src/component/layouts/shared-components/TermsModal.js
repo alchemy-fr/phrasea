@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import {Modal, Button} from 'react-bootstrap';
+import {Trans} from "react-i18next";
 
 export default class TermsModal extends PureComponent {
     static propTypes = {
@@ -38,10 +39,15 @@ export default class TermsModal extends PureComponent {
                         }}
                     />}
                     {url && <div className={'terms-url'}>
-                        {!text && <>
-                            Please read and accept the{' '}
-                        </>}
-                        <a href={url} target={'_blank'}>terms</a>
+                        {!text ? <>
+                            <Trans i18nKey={'terms.please_read_accept'}>
+                                Please read and accept the <a href={url} target={'_blank'}>terms</a>
+                            </Trans>
+                        </> : <a href={url} target={'_blank'}>
+                            <Trans i18nKey={'terms'}>
+                                terms
+                            </Trans>
+                        </a>}
                     </div>}
                 </div>
             </Modal.Body>
@@ -49,10 +55,14 @@ export default class TermsModal extends PureComponent {
             <Modal.Footer>
                 {closable ? <Button
                     onClick={onClose}
-                    variant="secondary">Discard</Button> : ''}
+                    variant="secondary">
+                    <Trans i18nKey={'modal.discard'}>Discard</Trans>
+                </Button> : ''}
                 <Button variant="primary"
                         onClick={onAccept}
-                >Accept</Button>
+                >
+                    <Trans i18nKey={'terms.accept'}>Accept</Trans>
+                </Button>
             </Modal.Footer>
         </Modal>
     }

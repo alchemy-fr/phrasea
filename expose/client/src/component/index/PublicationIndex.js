@@ -8,17 +8,17 @@ import moment from "moment";
 import {ReactComponent as SortImg} from "../../images/sort.svg";
 import {Dropdown, DropdownButton} from "react-bootstrap";
 import {Logo} from "../Logo";
-
+import {Translation} from "react-i18next";
 
 const SORT_BY_DATE = 'date';
 const SORT_BY_NAME = 'name';
 const orders = {
     [SORT_BY_DATE]: {
-        label: `Last post added`,
+        label: `last_post_added`,
         query: `order[createdAt]=desc`,
     },
     [SORT_BY_NAME]: {
-        label: `Publication name`,
+        label: `publication_name`,
         query: `order[title]=asc`,
     },
 }
@@ -55,13 +55,22 @@ class PublicationIndex extends PureComponent {
                             width={20}
                             height={20}
                         />
-                        {orders[this.state.sortBy].label}
+                        <Translation>
+                            {(t) =>
+                                t(`order.${orders[this.state.sortBy].label}`)
+                            }
+                        </Translation>
                     </>}
                     >
                         {Object.keys(orders).map((o) => {
                             return <Dropdown.Item
+                                key={o}
                                 onClick={this.sortBy.bind(this, o)}
-                            >{orders[o].label}</Dropdown.Item>
+                            ><Translation>
+                                {(t) =>
+                                    t(`order.${orders[o].label}`)
+                                }
+                            </Translation></Dropdown.Item>
                         })}
                     </DropdownButton>
                 </div>

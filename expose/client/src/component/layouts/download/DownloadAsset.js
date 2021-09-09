@@ -2,6 +2,7 @@ import React from 'react';
 import {assetShape} from "../../props/dataShape";
 import Description from "../shared-components/Description";
 import {PropTypes} from 'prop-types';
+import {Trans} from "react-i18next";
 
 class DownloadAsset extends React.Component {
     static propTypes = {
@@ -44,16 +45,24 @@ class DownloadAsset extends React.Component {
                 href={downloadUrl || '#'}
                 className={'btn btn-primary'}
             >
-                Download original
+                <Trans i18nKey={'download_original'}>
+                    Download original
+                </Trans>
             </a>
-            {subDefinitions.map(d => <a
-                key={d.id}
-                onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
-                href={d.downloadUrl || '#'}
-                className={'btn btn-secondary'}
-            >
-                Download {d.name}
-            </a>)}
+            {subDefinitions.map(d => {
+                const name = d.name;
+
+                return <a
+                    key={d.id}
+                    onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
+                    href={d.downloadUrl || '#'}
+                    className={'btn btn-secondary'}
+                >
+                    <Trans i18nKey={'download_custom'}>
+                        Download {{name}}
+                    </Trans>
+                </a>
+            })}
         </div>
     }
 }

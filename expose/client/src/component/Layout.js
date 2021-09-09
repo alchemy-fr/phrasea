@@ -5,6 +5,7 @@ import {oauthClient} from "../lib/oauth";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from '../lib/config';
 import {Logo} from "./Logo";
+import {Trans} from "react-i18next";
 
 class Layout extends PureComponent {
     static propTypes = {
@@ -29,8 +30,10 @@ class Layout extends PureComponent {
                         onClick={() => this.setState({displayMenu: !this.state.displayMenu})}
                             className="btn btn-primary"
                     >
-                        <i className="fa fa-bars"></i>
-                        <span className="sr-only">Toggle Menu</span>
+                        <i className="fa fa-bars"/>
+                        <span className="sr-only">
+                            <Trans i18nKey="menu.toggle">Toggle Menu</Trans>
+                        </span>
                     </button>
                 </div>
                 <div>
