@@ -29,3 +29,4 @@ App\Entity\PublicationAsset:
       - NotNull: ~
     asset:
       - NotNull: ~
+

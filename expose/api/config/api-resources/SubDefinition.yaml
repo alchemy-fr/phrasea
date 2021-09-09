@@ -1,0 +1,87 @@
+resources:
+  App\Entity\SubDefinition:
+    iri: https://alchemy.fr/SubDefinition
+    collectionOperations:
+      post:
+        controller: App\Controller\CreateSubDefinitionAction
+        defaults:
+          _api_receive: false
+        openapi_context:
+          requestBody:
+            content:
+              application/json:
+                examples:
+                  Multipart upload:
+                    value:
+                      asset_id: 031657ca-532f-4460-963f-45ebf1c17c8c
+                      multipart:
+                        uploadId: 123-456
+                        parts:
+                          - ETag: 812d692260ab94dd85a5aa7a6caef68d
+                            PartNumber: 1
+                          - ETag: 4dd85a5aa7a6caef68d812d692260ab9
+                            PartNumber: 2
+                      description: My sub definition was uploaded to S3 first, then I created sub def in expose.
+                  Create asset, then upload to S3:
+                    value:
+                      asset_id: 031657ca-532f-4460-963f-45ebf1c17c8c
+                      upload:
+                        name: sub-def-foo.jpg
+                        type: image/jpeg
+                        size: 42
+                      title: My first sub definition
+                      description: Here we create sub def with file info, then Expose returns a signed upload URL to push the data.
+                schema:
+                  anyOf:
+                    - $ref: '#/components/schemas/SubDefinition'
+                    - type: object
+                      properties:
+                        asset_id:
+                          type: string
+                          required: true
+                    - oneOf:
+                        -
+                          type: object
+                          properties:
+                            multipart:
+                              type: object
+                              properties:
+                                uploadId:
+                                  type: string
+                                parts:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      ETag:
+                                        type: string
+                                      PartNumber:
+                                        type: integer
+                        -
+                          type: object
+                          properties:
+                            upload:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                size:
+                                  type: integer
+
+              multipart/form-data:
+                schema:
+                  anyOf:
+                    - $ref: '#/components/schemas/SubDefinition'
+                    - type: object
+                      properties:
+                        asset_id:
+                          type: string
+                          required: true
+                    -
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          format: binary

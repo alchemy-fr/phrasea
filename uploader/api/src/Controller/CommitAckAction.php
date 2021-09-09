@@ -16,15 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CommitAckAction extends AbstractController
 {
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EventProducer $eventProducer;
+    private EntityManagerInterface $em;
 
     public function __construct(
         EventProducer $eventProducer,

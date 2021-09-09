@@ -1,0 +1,61 @@
+parameters:
+  env(S3_STORAGE_REGION): define-me
+  env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
+  env(S3_STORAGE_ENDPOINT): define-me
+  env(S3_STORAGE_ACCESS_KEY): define-me
+  env(S3_STORAGE_SECRET_KEY): define-me
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  alchemy_storage.s3_client.internal:
+    class: Aws\S3\S3Client
+    arguments:
+      -
+        version: 'latest'
+        region: '%env(default::S3_STORAGE_REGION)%'
+        use_path_style_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
+        endpoint: '%env(default::S3_STORAGE_ENDPOINT)%'
+        credentials:
+          key: '%env(S3_STORAGE_ACCESS_KEY)%'
+          secret: '%env(S3_STORAGE_SECRET_KEY)%'
+
+  alchemy_storage.s3_client.external:
+    class: Aws\S3\S3Client
+    arguments:
+      -
+        version: 'latest'
+        region: '%env(default::S3_STORAGE_REGION)%'
+        use_path_style_endpoint: '%env(bool:S3_STORAGE_USE_PATH_STYLE_ENDPOINT)%'
+        bucket: '%env(default::S3_STORAGE_BUCKET_NAME)%'
+        endpoint: '%env(default::S3_STORAGE_BASE_URL)%'
+        credentials:
+          key: '%env(S3_STORAGE_ACCESS_KEY)%'
+          secret: '%env(S3_STORAGE_SECRET_KEY)%'
+
+  Alchemy\StorageBundle\Upload\UploadManager:
+    arguments:
+      $internalClient: '@alchemy_storage.s3_client.internal'
+      $externalClient: '@alchemy_storage.s3_client.external'
+      $uploadBucket: '%env(S3_STORAGE_BUCKET_NAME)%'
+
+  Alchemy\StorageBundle\Command\PruneMultipartUploadsCommand:
+    tags:
+      - { name: console.command }
+
+  Alchemy\StorageBundle\Controller\MultipartUploadPartAction:
+    tags:
+      - { name: controller.service_arguments }
+
+  Alchemy\StorageBundle\Doctrine\MultipartUploadListener:
+    tags:
+      - { name: doctrine.event_subscriber }
+
+  Alchemy\StorageBundle\Storage\PathGenerator: ~
+
+  Alchemy\StorageBundle\Storage\FileStorageManager:
+    arguments:
+      $filesystem: "@oneup_flysystem.upload_filesystem"
+

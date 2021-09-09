@@ -2,7 +2,7 @@ oneup_flysystem:
     adapters:
         asset:
             awss3v3:
-                client: app.s3_client.internal
+                client: alchemy_storage.s3_client.internal
                 bucket: '%env(S3_STORAGE_BUCKET_NAME)%'
                 prefix: ~
 

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Consumer;
 
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +44,8 @@ class DownloadHandlerTest extends TestCase
 
         /** @var FileStorageManager|MockObject $storageStub */
         $storageStub = $this->createMock(FileStorageManager::class);
+        /** @var PathGenerator|MockObject $pathGeneratorStub */
+        $pathGeneratorStub = $this->createMock(PathGenerator::class);
         /** @var AssetManager|MockObject $assetManagerStub */
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
@@ -57,7 +60,7 @@ class DownloadHandlerTest extends TestCase
             ->willReturn(new Asset())
         ;
 
-        $storageStub
+        $pathGeneratorStub
             ->expects($this->once())
             ->method('generatePath')
             ->with(
@@ -69,7 +72,7 @@ class DownloadHandlerTest extends TestCase
             $response,
         ]);
 
-        $clientStub = $client = new Client(['handler' => $handler]);
+        $clientStub = new Client(['handler' => $handler]);
 
         /** @var EntityManagerInterface|MockObject $em */
         $em = $this->createMock(EntityManagerInterface::class);
@@ -78,7 +81,8 @@ class DownloadHandlerTest extends TestCase
             $storageStub,
             $clientStub,
             $assetManagerStub,
-            $producerStub
+            $producerStub,
+            $pathGeneratorStub
         );
         $consumer->setEntityManager($em);
 

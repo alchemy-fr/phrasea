@@ -7,7 +7,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
-use App\Controller\CreateAssetAction;
 use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
 use App\Entity\Traits\ClientAnnotationsTrait;
@@ -24,7 +23,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
  *         "get"={},
- *         "delete"={},
+ *         "delete"={
+ *             "security"="is_granted('DELETE', object)"
+ *         },
  *         "get_with_slug"={
  *              "controller"=GetAssetWithSlugAction::class,
  *              "method"="GET",
@@ -40,116 +41,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "controller"=DeleteAssetsAction::class,
  *             "method"="DELETE",
  *             "path"="/assets/delete-by-asset-id/{assetId}",
- *             "swagger_context"={
- *                  "summary"="Delete all asset by the given assetId",
+ *             "openapi_context"={
+ *                  "summary"="Delete all assets by the given assetId",
+ *                  "description"="Delete all assets by the given assetId",
  *             },
  *             "read"=false,
  *         }
  *     },
- *     collectionOperations={
- *         "post"={
- *             "controller"=CreateAssetAction::class,
- *             "defaults"={
- *                  "_api_receive"=false
- *             },
- *             "validation_groups"={"Default", "asset_create"},
- *             "swagger_context"={
- *                 "summary"="Upload asset",
- *                 "consumes"={
- *                     "multipart/form-data",
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="formData",
- *                         "name"="file",
- *                         "type"="file",
- *                         "required"=false,
- *                         "description"="The file to upload [required if no upload payload is provided]",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="upload",
- *                         "type"="object",
- *                         "required"=false,
- *                         "description"="The upload payload [required if no file is uploaded]. When provided, you receive a signed URL for uploading the file.
-Available options:
- * type - the file MIME type (required)
- * name - the original client name (optional)
- * size - the file size (defaults to 0 if not provided)
-",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="publication_id",
- *                         "type"="string",
- *                         "required"=false,
- *                         "description"="Attach asset to a publication",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="title",
- *                         "type"="string",
- *                         "required"=false,
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="asset_id",
- *                         "type"="string",
- *                         "required"=false,
- *                         "description"="Unique asset ID (for reference)",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="use_as_package",
- *                         "type"="boolean",
- *                         "required"=false,
- *                         "description"="When provided with publication_id, set this file as the publication's package file.",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="use_as_cover",
- *                         "type"="boolean",
- *                         "required"=false,
- *                         "description"="When provided with publication_id, set this file as the publication's cover image.",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="slug",
- *                         "type"="string",
- *                         "required"=false,
- *                         "description"="Ignored if no publication_id provided",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="description",
- *                         "type"="string",
- *                         "required"=false,
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="lat",
- *                         "type"="float",
- *                         "required"=false,
- *                         "description"="The asset location latitude",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="lng",
- *                         "type"="float",
- *                         "required"=false,
- *                         "description"="The asset location longitude",
- *                     },
- *                     {
- *                         "in"="formData",
- *                         "name"="altitude",
- *                         "type"="float",
- *                         "required"=false,
- *                         "description"="The asset location altitude",
- *                     },
- *                 }
- *             },
- *         },
- *     }
  * )
  */
 class Asset implements MediaInterface
@@ -293,37 +191,37 @@ class Asset implements MediaInterface
 
     /**
      * @ORM\Column(type="datetime")
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?DateTime $createdAt = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read"})
      */
     private ?string $url = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $downloadUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $thumbUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"publication:read", "publication:index"})
      */
     private ?string $previewUrl = null;
 
     /**
-     * @ApiProperty()
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?string $uploadURL = null;

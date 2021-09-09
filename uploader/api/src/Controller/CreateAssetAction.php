@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
-use App\Upload\UploadManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,24 +17,21 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private ValidatorInterface $validator;
-    private ResourceMetadataFactoryInterface $resourceMetadataFactory;
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
+    private PathGenerator $pathGenerator;
 
     public function __construct(
-        ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory,
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        UploadManager $uploadManager
+        UploadManager $uploadManager,
+        PathGenerator $pathGenerator
     ) {
-        $this->validator = $validator;
-        $this->resourceMetadataFactory = $resourceMetadataFactory;
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
+        $this->pathGenerator = $pathGenerator;
     }
 
     public function __invoke(Request $request): Asset
@@ -60,7 +56,7 @@ final class CreateAssetAction extends AbstractController
         }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $path = $this->storageManager->generatePath($extension);
+        $path = $this->pathGenerator->generatePath($extension);
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $this->storageManager->storeStream($path, $stream);
@@ -80,35 +76,16 @@ final class CreateAssetAction extends AbstractController
 
     private function handleMultipartUpload(Request $request): Asset
     {
-        $multipart = $request->request->get('multipart');
-
-        foreach ([
-            'parts',
-            'filename',
-            'path',
-            'size',
-            'type',
-            'uploadId',
-                 ] as $key) {
-            if (empty($multipart[$key])) {
-                throw new BadRequestHttpException(sprintf('Missing multipart param: %s', $key));
-            }
-        }
-
-        $this->uploadManager->markComplete(
-            $multipart['uploadId'],
-            $multipart['path'],
-            $multipart['parts']
-        );
+        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
         /** @var RemoteUser $user */
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
-            $multipart['path'],
-            $multipart['type'],
-            $multipart['filename'],
-            $multipart['size'],
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getFilename(),
+            $multipartUpload->getSize(),
             $user->getId()
         );
     }

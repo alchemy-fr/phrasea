@@ -1,0 +1,9 @@
+
+Alchemy\StorageBundle\Entity\MultipartUpload:
+  properties:
+    filename:
+      - NotBlank: ~
+    type:
+      - NotBlank: ~
+    size:
+      - NotNull: ~

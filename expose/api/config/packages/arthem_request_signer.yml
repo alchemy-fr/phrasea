@@ -4,4 +4,4 @@ arthem_request_signer:
       aws_s3:
         ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
         bucket_name: '%env(S3_STORAGE_BUCKET_NAME)%'
-        service_id: 'app.s3_client.external'
+        service_id: 'alchemy_storage.s3_client.external'

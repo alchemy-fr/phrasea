@@ -18,6 +18,7 @@ easy_admin:
           - Asset
           - SubDefinition
           - PublicationAsset
+          - MultipartUpload
       - OAuthClient
       - EnvVar
       - label: 'Dev'
@@ -121,6 +122,25 @@ easy_admin:
           - asset
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - path
+          - createdAt
+
+    MultipartUpload:
+      class: Alchemy\StorageBundle\Entity\MultipartUpload
+      disabled_actions:
+        - new
+        - edit
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - id
+          - filename
+          - type
+          - size
+          - path
+          - uploadId
+          - { property: complete, type: boolean }
           - createdAt
 
     PublicationAsset:

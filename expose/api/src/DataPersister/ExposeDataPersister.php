@@ -17,7 +17,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
 
-class PublicationDataPersister implements ContextAwareDataPersisterInterface
+class ExposeDataPersister implements ContextAwareDataPersisterInterface
 {
     private DataPersisterInterface $decorated;
     private EntityManagerInterface $em;

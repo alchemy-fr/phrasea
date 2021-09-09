@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\CreateAssetAction;
 use App\Controller\DownloadAssetAction;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,7 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ApiResource(
- *     iri="http://alchemy.fr/Asset",
  *     normalizationContext={
  *         "groups"={"asset_read"},
  *     },
@@ -29,34 +27,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "controller"=DownloadAssetAction::class,
  *         }
  *     },
- *     collectionOperations={
- *         "post"={
- *             "controller"=CreateAssetAction::class,
- *             "defaults"={
- *                  "_api_receive"=false
- *             },
- *             "validation_groups"={"Default", "asset_create"},
- *             "swagger_context"={
- *                 "consumes"={
- *                     "multipart/form-data",
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="formData",
- *                         "name"="file",
- *                         "type"="file",
- *                         "description"="The file to upload",
- *                     },
- *                     {
- *                         "in"="json",
- *                         "name"="multipart",
- *                         "type"="object",
- *                         "description"="The multipart payload to complete upload to S3",
- *                     },
- *                 },
- *             },
- *         }
- *     }
  * )
  */
 class Asset

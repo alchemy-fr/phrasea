@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use App\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use League\Flysystem\FileNotFoundException;

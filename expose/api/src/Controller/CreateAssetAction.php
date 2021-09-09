@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Security\Voter\PublicationVoter;
 use App\Storage\AssetManager;
-use App\Storage\FileStorageManager;
-use App\Upload\UploadManager;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,15 +21,18 @@ final class CreateAssetAction extends AbstractController
     private FileStorageManager $storageManager;
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
+    private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
-        UploadManager $uploadManager
+        UploadManager $uploadManager,
+        PathGenerator $pathGenerator
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
+        $this->pathGenerator = $pathGenerator;
     }
 
     public function __invoke(Request $request): Asset
@@ -36,6 +40,10 @@ final class CreateAssetAction extends AbstractController
         if (!$request->request->get('publication_id')) {
             // If no publication is assigned, we validate the following grant:
             $this->denyAccessUnlessGranted(PublicationVoter::CREATE);
+        }
+
+        if (null !== $request->request->get('multipart')) {
+            return $this->handleMultipartUpload($request);
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -51,7 +59,7 @@ final class CreateAssetAction extends AbstractController
             }
 
             $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-            $path = $this->storageManager->generatePath($extension);
+            $path = $this->pathGenerator->generatePath($extension);
 
             $stream = fopen($uploadedFile->getRealPath(), 'r+');
             $this->storageManager->storeStream($path, $stream);
@@ -83,7 +91,7 @@ final class CreateAssetAction extends AbstractController
             } else {
                 $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
             }
-            $path = $this->storageManager->generatePath($extension);
+            $path = $this->pathGenerator->generatePath($extension);
 
             $asset = $this->assetManager->createAsset(
                 $path,
@@ -100,5 +108,18 @@ final class CreateAssetAction extends AbstractController
         } else {
             throw new BadRequestHttpException('Missing file or contentType');
         }
+    }
+
+    private function handleMultipartUpload(Request $request): Asset
+    {
+        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+
+        return $this->assetManager->createAsset(
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getFilename(),
+            $multipartUpload->getSize(),
+            $request->request->all(),
+        );
     }
 }
