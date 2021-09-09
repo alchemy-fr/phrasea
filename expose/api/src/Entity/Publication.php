@@ -305,6 +305,7 @@ class Publication implements AclObjectInterface
     /**
      * Virtual property.
      *
+     * @deprecated
      * @ApiProperty()
      *
      * @Groups({"publication:write"})
@@ -391,8 +392,11 @@ class Publication implements AclObjectInterface
      */
     public function isEnabled(): bool
     {
-        return $this->config->isEnabled()
-            && (!$this->profile || $this->profile->getConfig()->isEnabled());
+        if ($this->profile && null === $this->config->isEnabled()) {
+            return true === $this->profile->getConfig()->isEnabled();
+        }
+
+        return true === $this->config->isEnabled();
     }
 
     /**
@@ -400,8 +404,11 @@ class Publication implements AclObjectInterface
      */
     public function isPubliclyListed(): bool
     {
-        return $this->config->isPubliclyListed()
-            || ($this->profile && $this->profile->getConfig()->isPubliclyListed());
+        if ($this->profile && null === $this->config->isPubliclyListed()) {
+            return true === $this->profile->getConfig()->isPubliclyListed();
+        }
+
+        return true === $this->config->isPubliclyListed();
     }
 
     /**

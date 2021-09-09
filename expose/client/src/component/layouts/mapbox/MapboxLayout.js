@@ -7,6 +7,7 @@ import Description from "../shared-components/Description";
 import {getBrowserLanguage} from "./browserLang";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import AssetProxy from "../shared-components/AssetProxy";
+import {Trans} from "react-i18next";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -241,7 +242,9 @@ class MapboxLayout extends React.Component {
         const {assets} = this.state;
 
         if (assets.length === 0) {
-            return 'Map is empty';
+            return <Trans i18nKey={'map.empty'}>
+                Map is empty
+            </Trans>;
         }
 
         return <div className={'layout-mapbox'}>

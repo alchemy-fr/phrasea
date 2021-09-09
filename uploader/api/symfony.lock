@@ -29,9 +29,6 @@
     "alchemy/storage-bundle": {
         "version": "dev-ps-343"
     },
-    "api-platform/api-pack": {
-        "version": "v1.2.0"
-    },
     "api-platform/core": {
         "version": "2.1",
         "recipe": {
@@ -141,7 +138,7 @@
         "version": "v1.1.0"
     },
     "doctrine/reflection": {
-        "version": "v1.0.0"
+        "version": "1.2.2"
     },
     "doctrine/sql-formatter": {
         "version": "1.0.1"
@@ -547,9 +544,6 @@
             "config/packages/dev/debug.yaml"
         ]
     },
-    "symfony/debug-pack": {
-        "version": "v1.0.7"
-    },
     "symfony/dependency-injection": {
         "version": "v4.2.5"
     },
@@ -664,9 +658,6 @@
     "symfony/options-resolver": {
         "version": "v4.2.5"
     },
-    "symfony/orm-pack": {
-        "version": "v1.0.6"
-    },
     "symfony/phpunit-bridge": {
         "version": "4.1",
         "recipe": {
@@ -709,9 +700,6 @@
     },
     "symfony/process": {
         "version": "v4.2.5"
-    },
-    "symfony/profiler-pack": {
-        "version": "v1.0.4"
     },
     "symfony/property-access": {
         "version": "v4.2.5"
@@ -764,9 +752,6 @@
     "symfony/serializer": {
         "version": "v4.2.5"
     },
-    "symfony/serializer-pack": {
-        "version": "v1.0.2"
-    },
     "symfony/service-contracts": {
         "version": "v1.1.8"
     },
@@ -775,9 +760,6 @@
     },
     "symfony/templating": {
         "version": "v4.4.5"
-    },
-    "symfony/test-pack": {
-        "version": "v1.0.5"
     },
     "symfony/translation": {
         "version": "3.3",

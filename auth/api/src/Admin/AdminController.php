@@ -13,6 +13,8 @@ use App\User\Import\UserImporter;
 use App\User\InviteManager;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Controller\AdminReplayControllerTrait;
+use Arthem\Bundle\RabbitBundle\Model\FailedEventManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
 use Symfony\Component\Form\FormError;
@@ -20,21 +22,36 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AdminController extends EasyAdminController
 {
+    use AdminReplayControllerTrait;
+
     private UserManager $userManager;
     private EventProducer $eventProducer;
     private UserImporter $userImporter;
     private InviteManager $inviteManager;
+    private FailedEventManager $failedEventManager;
 
     public function __construct(
         UserManager $userManager,
         EventProducer $eventProducer,
         UserImporter $userImporter,
-        InviteManager $inviteManager
+        InviteManager $inviteManager,
+        FailedEventManager $failedEventManager
     ) {
         $this->userManager = $userManager;
         $this->eventProducer = $eventProducer;
         $this->userImporter = $userImporter;
         $this->inviteManager = $inviteManager;
+        $this->failedEventManager = $failedEventManager;
+    }
+
+    protected function getFailedEventManager(): FailedEventManager
+    {
+        return $this->failedEventManager;
+    }
+
+    protected function getEventProducer(): EventProducer
+    {
+        return $this->eventProducer;
     }
 
     public function createNewUserEntity()

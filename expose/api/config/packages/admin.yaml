@@ -21,6 +21,10 @@ easy_admin:
           - MultipartUpload
       - OAuthClient
       - EnvVar
+      - label: 'Dev'
+        children:
+          - FailedEvent
+          - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
   entities:
     Publication:
       class: App\Entity\Publication
@@ -31,12 +35,13 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - title
+          - { property: title, template: 'admin/list/publication_title_link.html.twig' }
           - slug
           - { property: 'profile' }
           - { property: 'parent', label: Parent }
           - { property: 'children.count', label: Children }
           - { property: 'assets.count', label: Assets }
+          - { property: publiclyListed, label: Publicly listed, type: boolean }
           - { property: enabled, type: boolean }
           - { property: securityMethod }
           - createdAt
@@ -51,6 +56,7 @@ easy_admin:
           - { property: 'config', type: App\Form\PublicationConfigType }
           - { property: 'ownerId' }
           - { property: 'clientAnnotations' }
+          - { property: 'zippyId' }
 
     Profile:
       class: App\Entity\PublicationProfile

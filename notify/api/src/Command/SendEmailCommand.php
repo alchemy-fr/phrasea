@@ -36,6 +36,7 @@ class SendEmailCommand extends Command
             ->addArgument('template', InputArgument::REQUIRED, 'The mail template name')
             ->addArgument('email', InputArgument::REQUIRED, 'The recipient email')
             ->addArgument('locale', InputArgument::REQUIRED, 'The recipient locale')
+            ->addArgument('parameters', InputArgument::OPTIONAL, 'JSON encoded template parameters')
         ;
     }
 
@@ -47,7 +48,12 @@ class SendEmailCommand extends Command
         $template = $input->getArgument('template');
         $email = $input->getArgument('email');
         $locale = $input->getArgument('locale');
-        $parameters = [];
+
+        if ($input->getArgument('parameters')) {
+            $parameters = json_decode($input->getArgument('parameters'), true);
+        } else {
+            $parameters = [];
+        }
 
         $this->eventProducer->publish(new EventMessage(SendEmailHandler::EVENT, [
             'email' => $email,

@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
+import {Translation} from "react-i18next";
 
 export default class DownloadButton extends PureComponent {
     static propTypes = {
@@ -18,15 +19,17 @@ export default class DownloadButton extends PureComponent {
             return '';
         }
 
-        return <a
-            className={'btn btn-secondary'}
-            href={downloadUrl}
-            type={'button'}
-            title={'Download'}
-            onClick={this.onDownload}
-        >
-            Download
-        </a>
+        return <Translation>
+            {t => <a
+                className={'btn btn-secondary'}
+                href={downloadUrl}
+                type={'button'}
+                title={t('download')}
+                onClick={this.onDownload}
+            >
+                {t('download')}
+            </a>}
+        </Translation>
     }
 }
 

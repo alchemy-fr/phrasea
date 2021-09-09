@@ -55,7 +55,7 @@
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "api-platform/core": "^2.5",
-        "arthem/rabbit-bundle": "^0.2.3",
+        "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.1",

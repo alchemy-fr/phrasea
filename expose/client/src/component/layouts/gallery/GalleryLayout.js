@@ -13,6 +13,7 @@ import {
 } from "../shared-components/DownloadViaEmailProxy";
 import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
+import {Trans} from "react-i18next";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -161,7 +162,9 @@ class GalleryLayout extends React.Component {
                         asset: a.asset,
                         renderItem: this.renderItem,
                     }))}
-                /> : 'Gallery is empty'}
+                /> : <Trans i18nKey={'gallery.empty'}>
+                    Gallery is empty
+                </Trans>}
             {options.displayMap ? this.renderMap() : ''}
         </div>
     }

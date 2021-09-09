@@ -110,3 +110,7 @@ services:
             $signingKey: '%env(APP_SECRET)%'
             $baseUri: '%env(EXPOSE_API_BASE_URL)%'
             $ttl: '%env(EXPOSE_REQUEST_SIGNATURE_TTL)%'
+
+    App\Admin\ClientUrlGenerator:
+        arguments:
+            $clientBaseUrl: '%env(EXPOSE_CLIENT_BASE_URL)%'

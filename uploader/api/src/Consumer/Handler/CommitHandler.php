@@ -17,14 +17,8 @@ class CommitHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'commit';
 
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-    /**
-     * @var AssetManager
-     */
-    private $assetManager;
+    private EventProducer $eventProducer;
+    private AssetManager $assetManager;
 
     public function __construct(EventProducer $eventProducer, AssetManager $assetManager)
     {

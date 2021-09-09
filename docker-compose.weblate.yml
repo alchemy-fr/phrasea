@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   weblate:
-    image: weblate/weblate:3.8-4
+    image: weblate/weblate:4.7.2-1
     volumes:
       - weblate_vol:/app/data
     networks:
@@ -27,10 +27,12 @@ services:
       - WEBLATE_DEFAULT_FROM_EMAIL=weblate@example.com
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - WEBLATE_SITE_DOMAIN
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST
+      - POSTGRES_PORT
 
 volumes:
   weblate_vol:

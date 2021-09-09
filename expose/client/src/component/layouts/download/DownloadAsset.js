@@ -34,6 +34,7 @@ class DownloadAsset extends React.Component {
     renderSubDef() {
         const {
             subDefinitions,
+            id,
             downloadUrl,
         } = this.props.data;
 
@@ -43,16 +44,24 @@ class DownloadAsset extends React.Component {
                 href={downloadUrl || '#'}
                 className={'btn btn-primary'}
             >
-                Download original
+                <Trans i18nKey={'download_original'}>
+                    Download original
+                </Trans>
             </a>
-            {subDefinitions.map(d => <a
-                key={d.id}
-                onClick={e => this.props.onDownload(d.downloadUrl, e)}
-                href={d.downloadUrl || '#'}
-                className={'btn btn-secondary'}
-            >
-                Download {d.name}
-            </a>)}
+            {subDefinitions.map(d => {
+                const name = d.name;
+
+                return <a
+                    key={d.id}
+                    onClick={e => this.props.onDownload(d.downloadUrl, id, e)}
+                    href={d.downloadUrl || '#'}
+                    className={'btn btn-secondary'}
+                >
+                    <Trans i18nKey={'download_custom'}>
+                        Download {{name}}
+                    </Trans>
+                </a>
+            })}
         </div>
     }
 }

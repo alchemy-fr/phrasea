@@ -337,7 +337,7 @@ class PublicationTest extends AbstractExposeTestCase
                     'enabled' => false,
                 ],
                 [
-                    'enabled' => false,
+                    'enabled' => true,
                 ],
             ],
 
@@ -351,6 +351,66 @@ class PublicationTest extends AbstractExposeTestCase
                 [
                     'enabled' => false,
                     'securityMethod' => null,
+                ],
+            ],
+
+            [
+                [
+                    'enabled' => true,
+                ],
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => true,
+                ],
+            ],
+
+            [
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => true,
+                ],
+                [
+                    'enabled' => true,
+                ],
+            ],
+
+            [
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => false,
+                ],
+                [
+                    'enabled' => false,
+                ],
+            ],
+
+            [
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => false,
+                ],
+            ],
+
+            [
+                [
+                    'enabled' => false,
+                ],
+                [
+                    'enabled' => null,
+                ],
+                [
+                    'enabled' => false,
                 ],
             ],
 

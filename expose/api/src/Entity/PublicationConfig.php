@@ -24,10 +24,10 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private bool $enabled = false;
+    private ?bool $enabled = null;
 
     /**
      * @ApiProperty()
@@ -83,10 +83,10 @@ class PublicationConfig implements MergeableValueObjectInterface
     private ?string $theme = null;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private bool $publiclyListed = false;
+    private ?bool $publiclyListed = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -320,22 +320,22 @@ class PublicationConfig implements MergeableValueObjectInterface
         }
     }
 
-    public function isEnabled(): bool
+    public function isEnabled(): ?bool
     {
         return $this->enabled;
     }
 
-    public function setEnabled(bool $enabled): void
+    public function setEnabled(?bool $enabled): void
     {
         $this->enabled = $enabled;
     }
 
-    public function isPubliclyListed(): bool
+    public function isPubliclyListed(): ?bool
     {
         return $this->publiclyListed;
     }
 
-    public function setPubliclyListed(bool $publiclyListed): void
+    public function setPubliclyListed(?bool $publiclyListed): void
     {
         $this->publiclyListed = $publiclyListed;
     }
