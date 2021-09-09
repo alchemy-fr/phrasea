@@ -2,6 +2,7 @@ import React from 'react';
 import {assetShape} from "../../props/dataShape";
 import Description from "../shared-components/Description";
 import {PropTypes} from 'prop-types';
+import {Trans} from "react-i18next";
 
 class DownloadAsset extends React.Component {
     static propTypes = {
