@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CHART_DIR=$(dirname $0)
+CHART_DIR=$(dirname $0)/..
 
 set -ex
 
