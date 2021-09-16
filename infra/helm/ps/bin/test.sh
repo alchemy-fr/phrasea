@@ -2,6 +2,8 @@
 
 CHART_DIR=$(dirname $0)
 
+set -ex
+
 if [ ! -d "${CHART_DIR}/charts" ]; then
     (cd "${CHART_DIR}" && helm dependency update)
 fi
