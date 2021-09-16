@@ -5,13 +5,9 @@ BASEDIR=$(dirname $0)
 
 load-env
 
-helm install \
-    --dry-run \
-    --generate-name \
-    ./infra/helm/ps \
-    -f ./infra/helm/sample.yaml
-
 set -ex
+
+infra/helm/ps/bin/test.sh
 
 export APP_ENV=test
 export XDEBUG_ENABLED=0
