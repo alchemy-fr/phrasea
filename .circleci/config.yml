@@ -51,8 +51,7 @@ jobs:
       - run:
           name: Install applications and run tests
           command: |-
-#            export DOCKER_TAG=${CIRCLE_TAG:-latest}
-#            bin/setup.sh
+            export DOCKER_TAG=${CIRCLE_TAG:-latest}
             bin/test.sh
 #      - run:
 #          name: Publish Docker Image to Docker Hub
