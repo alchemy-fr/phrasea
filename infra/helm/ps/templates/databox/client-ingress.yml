@@ -2,7 +2,7 @@
 {{- with .Values.databox.client }}
 {{- if .ingress.enabled }}
 {{- $ingressNode := . }}
-apiVersion: extensions/v1beta1
+apiVersion: {{ template "ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
   name: databox-client-ingress
@@ -19,10 +19,7 @@ spec:
   - host: {{ required "Missing .Values.databox.client.hostname" .hostname | quote }}
     http:
       paths:
-      - backend:
-          serviceName: databox-client
-          servicePort: 80
-        path: /
+      {{- include "ingress.rule_path" (dict "_" $ "name" "databox-client" "port" 80) | indent 6 }}
 {{- if .ingress.tls }}
 {{- $tlsNode := .ingress.tls -}}
 {{- range $value := $tlsNode }}

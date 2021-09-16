@@ -5,7 +5,7 @@
 {{- $apiNode := . }}
 {{- if .ingress }}
 {{- if .ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: {{ template "ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
   name: {{ $appName }}-api-ingress
@@ -36,10 +36,7 @@ spec:
   - host: {{ .hostname }}
     http:
       paths:
-      - backend:
-          serviceName: {{ $appName }}-api
-          servicePort: 80
-        path: /
+      {{- include "ingress.rule_path" (dict "_" $ "name" (printf "%s-api" $appName) "port" 80) | indent 6 }}
 {{- if .ingress.tls }}
 {{- $tlsNode := .ingress.tls -}}
 {{- range $value := $tlsNode }}

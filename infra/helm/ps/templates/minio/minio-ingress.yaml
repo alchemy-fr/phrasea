@@ -2,7 +2,7 @@
 {{- if .Values.minio.ingress.enabled }}
 {{- with .Values.minio }}
 {{- $ingressNode := . }}
-apiVersion: extensions/v1beta1
+apiVersion: {{ template "ingress.apiVersion" $ }}
 kind: Ingress
 metadata:
   name: minio-ingress
@@ -28,13 +28,10 @@ metadata:
 {{- end }}
 spec:
   rules:
-    - host: {{ .hostname }}
-      http:
-        paths:
-          - backend:
-              serviceName: minio
-              servicePort: 80
-            path: /
+  - host: {{ .hostname }}
+    http:
+      paths:
+      {{- include "ingress.rule_path" (dict "_" $ "name" "minio" "port" 80) | indent 6 }}
 {{- if .ingress.tls }}
 {{- $tlsNode := .ingress.tls -}}
 {{- range $value := $tlsNode }}

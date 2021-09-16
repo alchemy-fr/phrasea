@@ -159,3 +159,28 @@ S3_STORAGE_REGION: {{ $ctx.s3Storage.region | default "eu-central-1" | quote }}
 S3_STORAGE_USE_PATH_STYLE_ENDPOINT: {{ ternary "true" "false" (or $ctx.s3Storage.usePathSyleEndpoint $glob.Values.minio.enabled) | quote }}
 S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- end }}
+
+{{- define "ingress.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+networking.k8s.io/v1
+{{- else -}}
+networking.k8s.io/v1beta1
+{{- end -}}
+{{- end -}}
+
+{{- define "ingress.rule_path" }}
+{{- if ._.Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+- backend:
+    service:
+      name: {{ .name }}
+      port:
+        number: {{ .port }}
+  path: /
+  pathType: Prefix
+{{- else }}
+- backend:
+    serviceName: {{ .name }}
+    servicePort: {{ .port }}
+  path: {{ .path | default "/" }}
+{{- end }}
+{{- end }}
