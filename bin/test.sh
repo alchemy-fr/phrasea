@@ -5,6 +5,12 @@ BASEDIR=$(dirname $0)
 
 load-env
 
+helm install \
+    --dry-run \
+    --generate-name \
+    ./infra/helm/ps \
+    -f ./infra/helm/sample.yaml
+
 set -ex
 
 export APP_ENV=test

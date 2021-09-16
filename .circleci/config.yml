@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  helm: circleci/helm@1.0
 jobs:
   build:
     environment:
@@ -8,6 +10,8 @@ jobs:
       - image: buildpack-deps:trusty
     steps:
       - checkout
+      - helm/install-helm-client:
+          version: v3.4.2
       - run:
           name: Install Docker client
           command: |
@@ -22,37 +26,43 @@ jobs:
             curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Install Docker Compose
+          command: |-
+            curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - setup_remote_docker:
           version: 20.10.6
           docker_layer_caching: true
-      - run:
-          name: Reset docker stack
-          command: |-
-            docker-compose down
-      - run:
-          name: Docker login
-          command: |-
-            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
-      - run:
-          name: Build application images
-          command: |-
-            export DOCKER_TAG=${CIRCLE_TAG:-latest}
-            bin/build.sh
+#      - run:
+#          name: Reset docker stack
+#          command: |-
+#            docker-compose down
+#      - run:
+#          name: Docker login
+#          command: |-
+#            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
+#      - run:
+#          name: Build application images
+#          command: |-
+#            export DOCKER_TAG=${CIRCLE_TAG:-latest}
+#            bin/build.sh
       - run:
           name: Install applications and run tests
           command: |-
-            export DOCKER_TAG=${CIRCLE_TAG:-latest}
-            bin/setup.sh
+#            export DOCKER_TAG=${CIRCLE_TAG:-latest}
+#            bin/setup.sh
             bin/test.sh
-      - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              bin/publish.sh
-            elif [ ! -z "${CIRCLE_TAG}" ]; then
-              export DOCKER_TAG=${CIRCLE_TAG}
-              bin/publish.sh
-            fi
+#      - run:
+#          name: Publish Docker Image to Docker Hub
+#          command: |
+#            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+#              bin/publish.sh
+#            elif [ ! -z "${CIRCLE_TAG}" ]; then
+#              export DOCKER_TAG=${CIRCLE_TAG}
+#              bin/publish.sh
+#            fi
 
 workflows:
   version: 2
