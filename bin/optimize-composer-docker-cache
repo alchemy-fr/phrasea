@@ -78,7 +78,7 @@ function updateProject(string $project)
         'export COMPOSER_MEMORY_LIMIT=-1',
         '(cd %s',
         'rm -rf composer.lock vendor',
-        'composer update --no-interaction --no-scripts --ignore-platform-reqs --ansi --no-plugins',
+        'composer update --no-interaction --no-scripts --ansi --no-plugins',
         'rm -rf vendor)',
         '(cd %s && composer update --no-interaction --ansi)',
     ]), dirname($composerCacheSrc), $project));
