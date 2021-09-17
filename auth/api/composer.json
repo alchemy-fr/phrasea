@@ -77,6 +77,11 @@
         "alchemy/report-bundle": "@dev",
         "arthem/locale-bundle": "^0.0.4",
         "arthem/rabbit-bundle": "dev-master",
+        "composer/package-versions-deprecated": "1.11.99.4",
+        "doctrine/common": "^2",
+        "doctrine/doctrine-bundle": "^2",
+        "doctrine/doctrine-migrations-bundle": "^2",
+        "doctrine/orm": "^2",
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hautelook/alice-bundle": "^2.9",
         "hslavich/oneloginsaml-bundle": "dev-attributes-mapping",
@@ -93,7 +98,6 @@
         "symfony/flex": "^1.1",
         "symfony/form": "^4.4",
         "symfony/framework-bundle": "^4.4",
-        "symfony/orm-pack": "^1.0",
         "symfony/security-bundle": "^4.4",
         "symfony/templating": "^4.4",
         "symfony/translation": "^4.4",
@@ -103,12 +107,15 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "^4.4",
         "symfony/css-selector": "^4.4",
         "symfony/maker-bundle": "^1.21",
+        "symfony/phpunit-bridge": "^5.3",
         "symfony/process": "^4.4",
-        "symfony/profiler-pack": "^1.0",
-        "symfony/test-pack": "^1.0",
-        "symfony/var-dumper": "^4.4"
+        "symfony/stopwatch": "^4.4",
+        "symfony/var-dumper": "^4.4",
+        "symfony/web-profiler-bundle": "^4.4"
     },
     "config": {
         "preferred-install": {
