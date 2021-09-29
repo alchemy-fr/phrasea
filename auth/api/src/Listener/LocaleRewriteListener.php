@@ -32,7 +32,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
         $this->localeRouteParam = $localeRouteParam;
     }
 
-    public function isLocaleSupported($locale)
+    public function isLocaleSupported($locale): bool
     {
 //        return in_array($locale, $this->supportedLocales);
         return true;
@@ -47,7 +47,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
             $routePath = $routeObject->getPath();
             if ($routePath === '/{_locale}'.$path) {
                 $locale = $request->getPreferredLanguage();
-                if ('' == $locale || false == $this->isLocaleSupported($locale)) {
+                if ('' == $locale || false === $this->isLocaleSupported($locale)) {
                     $locale = $request->getDefaultLocale();
                 }
 

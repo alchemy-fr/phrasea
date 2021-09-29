@@ -24,7 +24,7 @@ export default class App extends PureComponent<{}, State> {
     logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
         }
     }
 

@@ -15,6 +15,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import {CssBaseline, Slide} from "@material-ui/core";
+import {useHistory, useLocation} from "react-router-dom";
 
 interface HideProps {
     /**
@@ -139,6 +140,10 @@ export default function MainAppBar(props: Props) {
         setMobileMoreAnchorEl(event.currentTarget);
     };
 
+    const authenticated = !!props.username;
+    const history = useHistory();
+    const location = useLocation();
+
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
         <Menu
@@ -244,12 +249,12 @@ export default function MainAppBar(props: Props) {
                         </div>
                         <div className={classes.grow}/>
                         <div className={classes.sectionDesktop}>
-                            <IconButton aria-label="show 0 new notifications" color="inherit">
-                                <Badge badgeContent={0} color="secondary">
-                                    <NotificationsIcon/>
-                                </Badge>
-                            </IconButton>
-                            <IconButton
+                            {/*<IconButton aria-label="show 0 new notifications" color="inherit">*/}
+                            {/*    <Badge badgeContent={0} color="secondary">*/}
+                            {/*        <NotificationsIcon/>*/}
+                            {/*    </Badge>*/}
+                            {/*</IconButton>*/}
+                            {authenticated ? <IconButton
                                 edge="end"
                                 aria-label="account of current user"
                                 aria-controls={menuId}
@@ -258,7 +263,10 @@ export default function MainAppBar(props: Props) {
                                 color="inherit"
                             >
                                 <AccountCircle/>
-                            </IconButton>
+                            </IconButton> : <MenuItem onClick={() => history.push({
+                                pathname: '/login',
+                                state: {from: location}
+                            })}>Sign in</MenuItem>}
                         </div>
                         <div className={classes.sectionMobile}>
                             <IconButton
