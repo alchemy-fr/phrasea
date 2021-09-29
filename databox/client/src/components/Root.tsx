@@ -82,14 +82,15 @@ export default class Root extends PureComponent<{}, State> {
         return <UserContext.Provider value={{
             user: this.state.user,
         }}>
-            {this.state.authenticating ? <FullPageLoader/> : ''}
-            <Router>
-                <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)}
-                              authenticated={authenticated}/>
-                <Route path={'/'} exact={true} component={App} authenticated={authenticated}/>
-                <Route path={`/auth`} component={OAuthRedirect}/>
-                <Route path="/login" exact component={Login}/>
-            </Router>
+            {this.state.authenticating
+                ? <FullPageLoader/>
+                : <Router>
+                    <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)}
+                                  authenticated={authenticated}/>
+                    <Route path={'/'} exact={true} component={App}/>
+                    <Route path={`/auth`} component={OAuthRedirect}/>
+                    <Route path="/login" exact component={Login}/>
+                </Router>}
         </UserContext.Provider>
     }
 }

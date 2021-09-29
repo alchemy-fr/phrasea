@@ -12,7 +12,9 @@ type State = {
     hideMenu: boolean;
 }
 
-export default class App extends PureComponent<{}, State> {
+export default class App extends PureComponent<{
+    authenticated: boolean,
+}, State> {
     static contextType = UserContext;
     context: React.ContextType<typeof UserContext>;
 
