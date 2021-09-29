@@ -59,7 +59,7 @@ class AccessControlEntryRepository extends EntityRepository
         ];
 
         if (!empty($groupIds)) {
-            $userWhere[] = 'a.userType = :gt AND a.userId = (:gids)';
+            $userWhere[] = 'a.userType = :gt AND a.userId IN (:gids)';
             $queryBuilder
                 ->setParameter('gt', AccessControlEntry::TYPE_GROUP_VALUE)
                 ->setParameter('gids', $groupIds)
