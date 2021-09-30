@@ -161,7 +161,7 @@ S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- end }}
 
 {{- define "ingress.apiVersion" -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" -}}
 networking.k8s.io/v1
 {{- else -}}
 networking.k8s.io/v1beta1
@@ -169,7 +169,7 @@ networking.k8s.io/v1beta1
 {{- end -}}
 
 {{- define "ingress.rule_path" }}
-{{- if ._.Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- if ._.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
 - backend:
     service:
       name: {{ .name }}
