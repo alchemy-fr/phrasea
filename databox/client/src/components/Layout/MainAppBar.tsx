@@ -5,16 +5,14 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
-import {CssBaseline, Slide} from "@material-ui/core";
+import {Button, CssBaseline, Slide} from "@material-ui/core";
 import {useHistory, useLocation} from "react-router-dom";
 
 interface HideProps {
@@ -201,17 +199,20 @@ export default function MainAppBar(props: Props) {
         </Menu>
     );
 
-
     const [searchValue, setSearchValue] = React.useState<string | undefined>(props.searchQuery);
 
-    const onSearchQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
+    const onSearchQueryChange = (e: ChangeEvent<HTMLInputElement>): void => {
         setSearchValue(e.target.value);
-        timeout = setTimeout(() => {
-            props.onSearchQueryChange(e.target.value);
-        }, 300);
+    }
+
+    const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            doSearch();
+        }
+    }
+
+    const doSearch = (): void => {
+        props.onSearchQueryChange(searchValue);
     }
 
     return (
@@ -244,8 +245,15 @@ export default function MainAppBar(props: Props) {
                                 }}
                                 inputProps={{'aria-label': 'search'}}
                                 onChange={onSearchQueryChange}
+                                onKeyDown={onSearchKeyDown}
                                 value={searchValue}
                             />
+                            {searchValue && searchValue !== props.searchQuery && <Button
+                                onClick={doSearch}
+                                variant={"contained"}
+                            >
+                                Search
+                            </Button>}
                         </div>
                         <div className={classes.grow}/>
                         <div className={classes.sectionDesktop}>

@@ -56,7 +56,7 @@ export default class TagSelect extends PureComponent<Props, State> {
     loadTags = async (inputValue: string): Promise<ValueType<TagOption, true>> => {
         const data = (await getTags({
             //query: inputValue,
-            workspaceId: this.props.workspaceId,
+            workspace: this.props.workspaceId,
         })).result;
 
         return data.map((t: Tag) => ({

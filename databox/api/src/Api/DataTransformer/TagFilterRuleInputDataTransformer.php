@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\TagFilterRuleInput;
-use App\Entity\Core\Asset;
 use App\Entity\Core\TagFilterRule;
-use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -27,7 +25,7 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
             $tagFilterRule->setObjectType(TagFilterRule::TYPE_WORKSPACE);
             $tagFilterRule->setObjectId($data->workspaceId);
         } else {
-            throw new \InvalidArgumentException('Missing collectionId or workspaceId');
+            throw new InvalidArgumentException('Missing collectionId or workspaceId');
         }
 
         if ($data->groupId) {
@@ -37,7 +35,7 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
             $tagFilterRule->setUserType(TagFilterRule::TYPE_USER);
             $tagFilterRule->setUserId($data->userId);
         } else {
-            throw new \InvalidArgumentException('Missing groupId or userId');
+            throw new InvalidArgumentException('Missing groupId or userId');
         }
 
         $collection = $tagFilterRule->getInclude();

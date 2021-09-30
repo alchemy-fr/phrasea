@@ -61,20 +61,25 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>) {
+        if (prevProps.query !== this.props.query) {
+            this.context.resetAssetSelection();
+        }
+
         if (
-            this.lastContext !== this.context
+            (this.lastContext !== this.context
             && (
                 this.lastContext.selectedCollection !== this.context.selectedCollection
                 || this.lastContext.selectedWorkspace !== this.context.selectedWorkspace
-            )
+                || this.lastContext.reloadInc < this.context.reloadInc
+            ))
+            || prevProps.query !== this.props.query
         ) {
+            this.search(undefined, this.lastContext.reloadInc < this.context.reloadInc);
             this.lastContext = this.context;
-
-            this.search();
         }
     }
 
-    async search(url?: string) {
+    async search(url?: string, force?: boolean) {
         const parents = this.context.selectedCollection ? [extractCollectionIdFromPath(this.context.selectedCollection)] : undefined;
 
         const options = {
@@ -85,9 +90,11 @@ export default class AssetGrid extends PureComponent<Props, State> {
         };
 
         const searchHash = JSON.stringify(options);
-        if (searchHash === this.lastSearch) {
+        if (!force && searchHash === this.lastSearch) {
             return;
         }
+
+        this.context.resetAssetSelection();
 
         this.setState({
             loading: true,

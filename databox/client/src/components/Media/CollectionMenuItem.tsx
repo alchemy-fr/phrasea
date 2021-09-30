@@ -57,7 +57,7 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
     }
 
     onClick = (e: MouseEvent): void => {
-        this.context.selectCollection(this.props.absolutePath);
+        this.context.selectCollection(this.props.absolutePath, this.context.selectedCollection === this.props.absolutePath);
         this.expandCollection(true);
     }
 

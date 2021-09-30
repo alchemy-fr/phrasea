@@ -15,11 +15,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 abstract class AbstractUuidEntity
 {
     /**
+     * @var UuidInterface|string
      * @Groups({"tag:index", "tag:read"})
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    private UuidInterface $id;
+    private $id;
 
     public function __construct()
     {
@@ -28,6 +29,10 @@ abstract class AbstractUuidEntity
 
     public function getId(): string
     {
+        if (is_string($this->id)) {
+            $this->id = Uuid::fromString($this->id);
+        }
+
         return $this->id->__toString();
     }
 }
