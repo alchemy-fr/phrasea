@@ -12,7 +12,9 @@ type State = {
     hideMenu: boolean;
 }
 
-export default class App extends PureComponent<{}, State> {
+export default class App extends PureComponent<{
+    authenticated: boolean,
+}, State> {
     static contextType = UserContext;
     context: React.ContextType<typeof UserContext>;
 
@@ -24,7 +26,7 @@ export default class App extends PureComponent<{}, State> {
     logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
         }
     }
 

@@ -37,7 +37,7 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
     }
 
     onClick = (e: MouseEvent): void => {
-        this.context.selectWorkspace(this.props.id);
+        this.context.selectWorkspace(this.props.id, this.context.selectedWorkspace === this.props.id);
         this.expandWorkspace(true);
     }
 

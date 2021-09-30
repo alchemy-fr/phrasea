@@ -4,7 +4,7 @@ import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
 type TagOptions = {
     query?: string;
-    workspaceId: string;
+    workspace: string;
 }
 
 export async function getTags(options: TagOptions): Promise<ApiCollectionResponse<Tag>> {

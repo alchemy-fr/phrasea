@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -12,6 +13,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use App\Api\Model\Output\TagOutput;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity()
@@ -22,6 +24,7 @@ use App\Api\Model\Output\TagOutput;
  *  output=TagOutput::class,
  *  input=false
  * )
+ * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
  */
 class Tag extends AbstractUuidEntity implements TranslatableInterface
 {

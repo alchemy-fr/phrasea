@@ -27,7 +27,7 @@ export default class TagManager extends PureComponent<Props, State> {
 
     async loadTags() {
         const tags = await getTags({
-            workspaceId: this.props.workspaceId,
+            workspace: this.props.workspaceId,
         });
 
         this.setState({tags: tags.result});

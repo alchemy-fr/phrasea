@@ -136,11 +136,17 @@ class TagFilterRule extends AbstractUuidEntity
         $this->objectId = $objectId;
     }
 
+    /**
+     * @return Tag[]
+     */
     public function getInclude(): DoctrineCollection
     {
         return $this->include;
     }
 
+    /**
+     * @return Tag[]
+     */
     public function getExclude(): DoctrineCollection
     {
         return $this->exclude;

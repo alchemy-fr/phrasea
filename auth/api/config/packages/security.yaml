@@ -50,7 +50,7 @@ security:
             logout:
                 path: /saml/logout
         auth:
-            pattern: ^/([a-z]{2}(\-[a-zA-Z]{2})?/security(/|$)|oauth/)
+            pattern: ^/(([a-z]{2}(\-[a-zA-Z]{2})?/)?security(/|$)|oauth/)
             provider: user_password
             stateless:  false
             anonymous: ~
@@ -60,7 +60,7 @@ security:
                     - App\Security\AppCustomAuthenticator
             logout:
                 path: security_logout
-                target: security_index
+                success_handler: App\Listener\LogoutListener
         api:
             pattern:    ^/
             provider: user_password

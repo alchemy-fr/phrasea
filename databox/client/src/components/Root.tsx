@@ -35,11 +35,11 @@ type State = {
 
 export default class Root extends PureComponent<{}, State> {
     state: State = {
-        authenticating: true,
+        authenticating: false,
     }
 
     componentDidMount() {
-        oauthClient.registerListener('authentication', (evt: {user: User}) => {
+        oauthClient.registerListener('authentication', (evt: { user: User }) => {
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()}`;
             this.setState({
                 user: evt.user,
@@ -65,11 +65,14 @@ export default class Root extends PureComponent<{}, State> {
         if (!oauthClient.hasAccessToken()) {
             return;
         }
-        authenticate().then(() => {
-            this.setState({authenticating: false});
-        }, (e: any) => {
-            console.log('e', e);
-            oauthClient.logout();
+
+        this.setState({authenticating: true}, () => {
+            authenticate().then(() => {
+                this.setState({authenticating: false});
+            }, (e: any) => {
+                console.log('e', e);
+                oauthClient.logout();
+            });
         });
     }
 
@@ -79,13 +82,15 @@ export default class Root extends PureComponent<{}, State> {
         return <UserContext.Provider value={{
             user: this.state.user,
         }}>
-            {this.state.authenticating ? <FullPageLoader/> : ''}
-            <Router>
-                <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)} authenticated={authenticated}/>
-                <PrivateRoute path={'/'} exact={true} component={App} authenticated={authenticated}/>
-                <Route path={`/auth`} component={OAuthRedirect}/>
-                <Route path="/login" exact component={Login}/>
-            </Router>
+            {this.state.authenticating
+                ? <FullPageLoader/>
+                : <Router>
+                    <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)}
+                                  authenticated={authenticated}/>
+                    <Route path={'/'} exact={true} component={App}/>
+                    <Route path={`/auth`} component={OAuthRedirect}/>
+                    <Route path="/login" exact component={Login}/>
+                </Router>}
         </UserContext.Provider>
     }
 }
