@@ -50,11 +50,6 @@ class CollectionOutput extends AbstractUuidOutput
     private ?array $children = null;
 
     /**
-     * @Groups({"collection:assets"})
-     */
-    private array $assets;
-
-    /**
      * @MaxDepth(1)
      * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
@@ -98,16 +93,6 @@ class CollectionOutput extends AbstractUuidOutput
     public function getPrivacy(): int
     {
         return $this->privacy;
-    }
-
-    public function getAssets(): array
-    {
-        return $this->assets;
-    }
-
-    public function setAssets(array $assets): void
-    {
-        $this->assets = $assets;
     }
 
     public function getChildren(): ?array

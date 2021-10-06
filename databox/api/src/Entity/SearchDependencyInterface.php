@@ -6,5 +6,4 @@ namespace App\Entity;
 
 interface SearchDependencyInterface
 {
-    public function getId(): string;
 }

@@ -2,24 +2,32 @@ import React, {MouseEvent, PureComponent, RefObject} from "react";
 import {Asset} from "../../types";
 import {Badge} from "react-bootstrap";
 import apiClient from "../../api/api-client";
-import {Edit, Delete} from '@material-ui/icons';
-import {
-    GridListTile,
-    GridListTileBar,
-    IconButton,
-    ListItemIcon, ListItemText,
-    Menu,
-    MenuItem
-} from "@material-ui/core";
+import {Delete, Edit} from '@material-ui/icons';
+import {GridListTile, GridListTileBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@material-ui/core";
 import InfoIcon from '@material-ui/icons/Info';
 import EditAsset from "./Asset/EditAsset";
 import Icon from "../ui/Icon";
 import {ReactComponent as FolderImg} from '../../images/icons/folder.svg';
+import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
+import {draggableTypes} from "./draggableTypes";
+
+export interface DragSourceProps {
+    connectDragSource: ConnectDragSource
+    isDragging: boolean
+}
+
+export type AssetDragProps = {
+    '@id': string;
+    id: string;
+    collectionIds: string[];
+}
 
 type Props = {
     selected?: boolean;
     onClick?: (id: string, e: MouseEvent) => void;
 } & Asset;
+
+type AllProps = Props & DragSourceProps;
 
 export const privacyIndices = [
     'Secret',
@@ -35,7 +43,7 @@ type State = {
     menuOpen: boolean;
 }
 
-export default class AssetItem extends PureComponent<Props, State> {
+class AssetItem extends PureComponent<AllProps, State> {
     private readonly ref: RefObject<HTMLDivElement>;
 
     state: State = {
@@ -43,7 +51,7 @@ export default class AssetItem extends PureComponent<Props, State> {
         menuOpen: false,
     };
 
-    constructor(props: Props) {
+    constructor(props: AllProps) {
         super(props);
 
         this.ref = React.createRef<HTMLDivElement>();
@@ -91,79 +99,114 @@ export default class AssetItem extends PureComponent<Props, State> {
             selected,
             collections,
             capabilities,
+            connectDragSource,
+            isDragging,
         } = this.props;
 
         const privacyLabel = privacyIndices[privacy];
 
         let image = 'https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png';
 
-        return <GridListTile
-            onClick={this.onClick}
-            className={`asset-item ${selected ? 'selected' : ''}`}
+        const opacity = isDragging ? 0.4 : 1;
+
+        return connectDragSource(<div
+            role="Box"
+            style={{ opacity }}
         >
-            <img src={image} alt={title}/>
-            <GridListTileBar
-                title={title}
-                subtitle={<div>
-                    <div className={'a-desc'}>{description}</div>
-                    <ul className={'a-colls'}>
-                        {collections.map(c => <li
-                            key={c.id}
-                        >
-                            <Icon
-                                variant={'xs'}
-                                component={FolderImg}/>
-                            {c.title}
-                        </li>)}
-                    </ul>
-                    <div>
-                        {tags.map(t => <Badge
-                            variant={'success'}
-                            key={t.id}
-                        >{t.name}</Badge>)}
-                        <Badge
-                            variant={'secondary'}
-                        >{privacyLabel}</Badge>
-                    </div>
-                </div>}
-                actionIcon={(capabilities.canEdit || capabilities.canDelete) ?
-                    <div
-                        ref={this.ref}
-                    >
-                        <IconButton
-                            aria-controls={`item-menu-${id}`}
-                            aria-haspopup="true"
-                            onClick={this.openMenu}
-                        >
-                            <InfoIcon/>
-                        </IconButton>
-                    </div> : undefined
-                }
-            />
-            <Menu
-                id={`item-menu-${id}`}
-                keepMounted
-                anchorEl={this.ref.current}
-                open={this.state.menuOpen}
-                onClose={this.closeMenu}
+            <GridListTile
+                onClick={this.onClick}
+                className={`asset-item ${selected ? 'selected' : ''}`}
             >
-                {capabilities.canEdit && <MenuItem onClick={this.edit}>
-                    <ListItemIcon>
-                        <Edit fontSize="small"/>
-                    </ListItemIcon>
-                    <ListItemText primary="Edit"/>
-                </MenuItem>}
-                {capabilities.canDelete && <MenuItem onClick={this.delete}>
-                    <ListItemIcon>
-                        <Delete fontSize="small"/>
-                    </ListItemIcon>
-                    <ListItemText primary="Delete"/>
-                </MenuItem>}
-            </Menu>
-            {this.state.editing ? <EditAsset
-                id={this.props.id}
-                onClose={this.closeEdit}
-            /> : ''}
-        </GridListTile>
+                <img src={image} alt={title}/>
+                <GridListTileBar
+                    title={title}
+                    subtitle={<div>
+                        <div className={'a-desc'}>{description}</div>
+                        <ul className={'a-colls'}>
+                            {collections.map(c => <li
+                                key={c.id}
+                            >
+                                <Icon
+                                    variant={'xs'}
+                                    component={FolderImg}/>
+                                {c.title}
+                            </li>)}
+                        </ul>
+                        <div>
+                            {tags.map(t => <Badge
+                                variant={'success'}
+                                key={t.id}
+                            >{t.name}</Badge>)}
+                            <Badge
+                                variant={'secondary'}
+                            >{privacyLabel}</Badge>
+                        </div>
+                    </div>}
+                    actionIcon={(capabilities.canEdit || capabilities.canDelete) ?
+                        <div
+                            ref={this.ref}
+                        >
+                            <IconButton
+                                aria-controls={`item-menu-${id}`}
+                                aria-haspopup="true"
+                                onClick={this.openMenu}
+                            >
+                                <InfoIcon/>
+                            </IconButton>
+                        </div> : undefined
+                    }
+                />
+                <Menu
+                    id={`item-menu-${id}`}
+                    keepMounted
+                    anchorEl={this.ref.current}
+                    open={this.state.menuOpen}
+                    onClose={this.closeMenu}
+                >
+                    {capabilities.canEdit && <MenuItem onClick={this.edit}>
+                        <ListItemIcon>
+                            <Edit fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText primary="Edit"/>
+                    </MenuItem>}
+                    {capabilities.canDelete && <MenuItem onClick={this.delete}>
+                        <ListItemIcon>
+                            <Delete fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText primary="Delete"/>
+                    </MenuItem>}
+                </Menu>
+                {this.state.editing ? <EditAsset
+                    id={this.props.id}
+                    onClose={this.closeEdit}
+                /> : ''}
+            </GridListTile>
+        </div>)
     }
 }
+
+const itemSource: DragSourceSpec<Props> = {
+    canDrag(props) {
+        return props.capabilities.canEdit;
+    },
+
+    beginDrag(props: Props): AssetDragProps {
+        const collectionIds = props.collections.map(c => c.id);
+
+        return {
+            '@id': props['@id'],
+            id: props.id,
+            collectionIds,
+        };
+    },
+}
+
+export default DragSource<Props>(draggableTypes.ASSET, itemSource, (connect, monitor): DragSourceProps => {
+    return {
+        // Call this function inside render()
+        // to let React DnD handle the drag events:
+        connectDragSource: connect.dragSource(),
+        // You can ask the monitor about the current drag state:
+        isDragging: monitor.isDragging(),
+    }
+})(AssetItem);

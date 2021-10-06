@@ -23,6 +23,11 @@
       }
     }
   }
+
+  &.drag-hover {
+    background-color: rgba($primary, 0.1);
+    box-shadow: 0 0 px2rem(2) $primary inset;
+  }
 }
 
 .workspace-item {

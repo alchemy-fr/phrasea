@@ -8,6 +8,7 @@ use App\Consumer\Handler\Search\SearchIndexHandler;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
 use App\Entity\SearchDependencyInterface;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -148,6 +149,8 @@ class ESSearchIndexer
         if ($object instanceof Collection) {
             $entities = array_merge($entities, $this->em->getRepository(Asset::class)
                 ->getCollectionAssets($object->getId()));
+        } elseif ($object instanceof CollectionAsset) {
+            $entities = array_merge($entities, [$object->getAsset()]);
         }
 
         $objects = [];

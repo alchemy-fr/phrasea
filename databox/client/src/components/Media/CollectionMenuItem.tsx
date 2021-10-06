@@ -1,6 +1,6 @@
 import React, {PureComponent, MouseEvent} from "react";
 import {Collection} from "../../types";
-import {getCollections} from "../../api/collection";
+import {addAssetToCollection, getCollections} from "../../api/collection";
 import apiClient from "../../api/api-client";
 import EditCollection from "./Collection/EditCollection";
 import ListItem from "@material-ui/core/ListItem";
@@ -14,11 +14,23 @@ import {ExpandLess, ExpandMore} from "@material-ui/icons";
 import CreateCollection from "./Collection/CreateCollection";
 import {SelectionContext} from "./SelectionContext";
 import CreateAsset from "./Asset/CreateAsset";
+import {ConnectDropTarget, DropTarget, DropTargetMonitor, DropTargetSpec} from 'react-dnd';
+import {draggableTypes} from "./draggableTypes";
+import classnames from "classnames";
+import {AssetDragProps} from "./AssetItem";
 
-export type CollectionMenuItemProps = {
+type DropTargetProps = {
+    isOver: boolean,
+    connectDropTarget: ConnectDropTarget,
+    canDrop: boolean,
+};
+
+type Props = {
     level: number;
     absolutePath: string,
 } & Collection;
+
+type AllProps = Props & DropTargetProps;
 
 type State = {
     collections?: Collection[],
@@ -28,7 +40,7 @@ type State = {
     addAsset: boolean,
 }
 
-export default class CollectionMenuItem extends PureComponent<CollectionMenuItemProps, State> {
+class CollectionMenuItem extends PureComponent<AllProps, State> {
     static contextType = SelectionContext;
     context: React.ContextType<typeof SelectionContext>;
 
@@ -108,58 +120,63 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
             capabilities,
             level,
         } = this.props;
+        const {isOver, connectDropTarget, canDrop} = this.props
         const {editing, addSubCollection, expanded, addAsset} = this.state;
 
         const selected = this.context.selectedCollection === absolutePath;
         const currentInSelectedHierarchy = this.context.selectedCollection && this.context.selectedCollection.startsWith(absolutePath);
 
         return <>
-            <li className={'collection-item'}>
+            <li className={classnames(['collection-item'], {
+                'drag-hover': canDrop && isOver,
+            })}>
                 <ul>
-                    <ListItem
-                        button
-                        selected={Boolean(selected || currentInSelectedHierarchy)}
-                        onClick={this.onClick}
-                        style={{paddingLeft: `${10 + level * 10}px`}}
-                    >
-                        <ListItemText primary={title}/>
-                        <ListItemSecondaryAction>
-                            {capabilities.canEdit && <IconButton
-                                onClick={this.addAsset}
-                                className={'c-action'}
-                                title={'Add new asset to collection'}
-                                aria-label="create-asset">
-                                <AddPhotoAlternate/>
-                            </IconButton>}
-                            {capabilities.canEdit && <IconButton
-                                onClick={this.addSubCollection}
-                                className={'c-action'}
-                                title={'Create new collection in this one'}
-                                aria-label="add-child">
-                                <CreateNewFolder/>
-                            </IconButton>}
-                            {capabilities.canEdit && <IconButton
-                                title={'Edit this collection'}
-                                onClick={this.edit}
-                                className={'c-action'}
-                                aria-label="edit">
-                                <EditIcon/>
-                            </IconButton>}
-                            {capabilities.canDelete && <IconButton
-                                onClick={this.delete}
-                                className={'c-action'}
-                                aria-label="delete">
-                                <DeleteIcon/>
-                            </IconButton>}
-                            {children && children.length > 0 ? <IconButton
-                                onClick={this.onExpandClick}
-                                aria-label="expand-toggle">
-                                {!expanded ? <ExpandLess
+                    {connectDropTarget!(<div>
+                        <ListItem
+                            button
+                            selected={Boolean(selected || currentInSelectedHierarchy)}
+                            onClick={this.onClick}
+                            style={{paddingLeft: `${10 + level * 10}px`}}
+                        >
+                            <ListItemText primary={title}/>
+                            <ListItemSecondaryAction>
+                                {capabilities.canEdit && <IconButton
+                                    onClick={this.addAsset}
+                                    className={'c-action'}
+                                    title={'Add new asset to collection'}
+                                    aria-label="create-asset">
+                                    <AddPhotoAlternate/>
+                                </IconButton>}
+                                {capabilities.canEdit && <IconButton
+                                    onClick={this.addSubCollection}
+                                    className={'c-action'}
+                                    title={'Create new collection in this one'}
+                                    aria-label="add-child">
+                                    <CreateNewFolder/>
+                                </IconButton>}
+                                {capabilities.canEdit && <IconButton
+                                    title={'Edit this collection'}
+                                    onClick={this.edit}
+                                    className={'c-action'}
+                                    aria-label="edit">
+                                    <EditIcon/>
+                                </IconButton>}
+                                {capabilities.canDelete && <IconButton
+                                    onClick={this.delete}
+                                    className={'c-action'}
+                                    aria-label="delete">
+                                    <DeleteIcon/>
+                                </IconButton>}
+                                {children && children.length > 0 ? <IconButton
                                     onClick={this.onExpandClick}
-                                /> : <ExpandMore/>}
-                            </IconButton> : ''}
-                        </ListItemSecondaryAction>
-                    </ListItem>
+                                    aria-label="expand-toggle">
+                                    {!expanded ? <ExpandLess
+                                        onClick={this.onExpandClick}
+                                    /> : <ExpandMore/>}
+                                </IconButton> : ''}
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    </div>)}
                 </ul>
             </li>
 
@@ -190,7 +207,7 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
         }
 
         return <div className="sub-colls">
-            {collections.map(c => <CollectionMenuItem
+            {collections.map(c => <WrappedCollectionMenuItem
                 {...c}
                 key={c.id}
                 absolutePath={`${this.props.absolutePath}/${c.id}`}
@@ -199,3 +216,27 @@ export default class CollectionMenuItem extends PureComponent<CollectionMenuItem
         </div>
     }
 }
+
+const itemTarget: DropTargetSpec<Props> = {
+    canDrop(props, monitor: DropTargetMonitor<AssetDragProps>) {
+        return !monitor.getItem().collectionIds.includes(props.id);
+    },
+
+    drop(props, monitor, component) {
+        if (monitor.didDrop()) {
+            return
+        }
+
+        addAssetToCollection(props['@id'], monitor.getItem()['@id']);
+    }
+}
+
+const WrappedCollectionMenuItem = DropTarget<Props>(draggableTypes.ASSET, itemTarget, (connect, monitor): DropTargetProps => {
+    return {
+        connectDropTarget: connect.dropTarget(),
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+    }
+})(CollectionMenuItem);
+
+export default WrappedCollectionMenuItem;

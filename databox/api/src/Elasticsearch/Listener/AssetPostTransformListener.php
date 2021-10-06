@@ -62,7 +62,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
         $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));
-        $document->set('collectionPaths', $collectionsPaths);
+        $document->set('collectionPaths', array_unique($collectionsPaths));
     }
 
     public static function getSubscribedEvents()

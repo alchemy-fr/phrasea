@@ -76,3 +76,12 @@ export async function patchWorkspace(id: string, data: Partial<Workspace>): Prom
 
     return res.data;
 }
+
+export async function addAssetToCollection(collectionIri: string, assetIri: string): Promise<Boolean> {
+    const res = await apiClient.post(`/collection-assets`, {
+        collection: collectionIri,
+        asset: assetIri,
+    });
+
+    return res.data;
+}

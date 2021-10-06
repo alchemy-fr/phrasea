@@ -1,6 +1,7 @@
 import React, {PureComponent} from "react";
 import {SelectionContext} from "./SelectionContext";
-import {CollectionMenuItemProps} from "./CollectionMenuItem";
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import {DndProvider} from "react-dnd";
 
 type State = {
     selectedWorkspace?: string;
@@ -65,7 +66,9 @@ export default class MediaSelection extends PureComponent<Props, State>
             selectAssets: this.selectAssets,
             resetAssetSelection: this.resetAssetSelection,
         }}>
-            {this.props.children}
+            <DndProvider backend={HTML5Backend}>
+                {this.props.children}
+            </DndProvider>
         </SelectionContext.Provider>
     }
 }

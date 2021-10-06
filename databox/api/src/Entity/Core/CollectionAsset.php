@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_asset",columns={"collection_id", "asset_id"})})
+ * @ApiResource(
+ *  shortName="collection-asset",
+ * )
  */
-class CollectionAsset extends AbstractUuidEntity
+class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface
 {
     use CreatedAtTrait;
 
