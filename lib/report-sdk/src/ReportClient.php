@@ -11,30 +11,11 @@ use Throwable;
 
 class ReportClient
 {
-    /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * @var LogValidator
-     */
-    private $logValidator;
-
-    /**
-     * @var string
-     */
-    private $appName;
-
-    /**
-     * @var string
-     */
-    private $appId;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private Client $client;
+    private LogValidator $logValidator;
+    private string $appName;
+    private string $appId;
+    private LoggerInterface $logger;
 
     public function __construct(
         string $appName,

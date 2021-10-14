@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Consumer\Handler\CommitAcknowledgeHandler;
-use App\Entity\Commit;
-use App\Security\Voter\CommitVoter;
+use App\Consumer\Handler\AssetAcknowledgeHandler;
+use App\Entity\Asset;
+use App\Security\Voter\AssetVoter;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class CommitAckAction extends AbstractController
+final class AssetAckAction extends AbstractController
 {
     private EventProducer $eventProducer;
     private EntityManagerInterface $em;
@@ -29,18 +29,16 @@ final class CommitAckAction extends AbstractController
 
     public function __invoke(string $id)
     {
-        $commit = $this->em->find(Commit::class, $id);
-        if (null === $commit) {
-            throw new NotFoundHttpException('Commit not found');
+        $asset = $this->em->find(Asset::class, $id);
+        if (null === $asset) {
+            throw new NotFoundHttpException('Asset not found');
         }
 
-        $this->denyAccessUnlessGranted(CommitVoter::ACK, $commit);
+        $this->denyAccessUnlessGranted(AssetVoter::ACK, $asset);
 
-        if (!$commit->isAcknowledged()) {
-            $this->eventProducer->publish(new EventMessage(CommitAcknowledgeHandler::EVENT, [
-                'id' => $commit->getId(),
-            ]));
-        }
+        $this->eventProducer->publish(new EventMessage(AssetAcknowledgeHandler::EVENT, [
+            'id' => $asset->getId(),
+        ]));
 
         return new JsonResponse(true);
     }

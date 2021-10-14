@@ -15,13 +15,13 @@ use App\Api\Model\Output\FileOutput;
 /**
  * @ORM\Entity()
  * @ApiResource(
- *  shortName="file",
+ *  shortName="sub-definition",
  *  normalizationContext={"groups"={"_", "file:index"}},
  *  denormalizationContext={"groups"={"file:write"}},
  *  output=FileOutput::class,
  * )
  */
-class File extends AbstractUuidEntity
+class SubDefinition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

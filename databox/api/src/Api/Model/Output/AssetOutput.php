@@ -57,14 +57,14 @@ class AssetOutput extends AbstractUuidOutput
     private array $collections;
 
     /**
-     * @Groups({"asset:read"})
+     * @Groups({"asset:index", "asset:read"})
      */
     private ?FileOutput $file = null;
 
     /**
-     * @Groups({"asset:read"})
+     * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $preview = null;
+    private $preview = null;
 
     /**
      * @Groups({"asset:read"})
@@ -81,12 +81,12 @@ class AssetOutput extends AbstractUuidOutput
         $this->file = $file;
     }
 
-    public function getPreview(): ?FileOutput
+    public function getPreview()
     {
         return $this->preview;
     }
 
-    public function setPreview(?FileOutput $preview): void
+    public function setPreview($preview): void
     {
         $this->preview = $preview;
     }

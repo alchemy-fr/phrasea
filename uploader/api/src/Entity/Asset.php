@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\DownloadAssetAction;
@@ -11,6 +12,8 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use App\Controller\AssetAckAction;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
@@ -25,6 +28,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "method"="GET",
  *             "path"="/assets/{id}/download",
  *             "controller"=DownloadAssetAction::class,
+ *         },
+ *         "ack"={
+ *             "method"="POST",
+ *             "path"="/assets/{id}/ack",
+ *             "controller"=AssetAckAction::class,
+ *              "defaults"={
+ *                  "_api_receive"=false,
+ *                  "_api_respond"=true,
+ *             },
  *         }
  *     },
  * )
@@ -87,6 +99,14 @@ class Asset
      * @ORM\ManyToOne(targetEntity="App\Entity\Commit", inversedBy="assets")
      */
     private $commit;
+
+    /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     * @Groups("asset_read")
+     * @ApiFilter(BooleanFilter::class)
+     */
+    private $acknowledged = false;
 
     /**
      * @var DateTime
@@ -208,5 +228,15 @@ class Asset
     public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function isAcknowledged(): bool
+    {
+        return $this->acknowledged;
+    }
+
+    public function setAcknowledged(bool $acknowledged): void
+    {
+        $this->acknowledged = $acknowledged;
     }
 }

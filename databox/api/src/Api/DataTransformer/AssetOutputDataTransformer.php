@@ -27,6 +27,10 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
 
+        if ($object->getPreview()) {
+            $output->setPreview($object->getPreview());
+        }
+
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
             return $collectionAsset->getCollection();
         })->filter(function (Collection $collection): bool {

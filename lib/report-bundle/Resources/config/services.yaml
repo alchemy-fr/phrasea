@@ -12,11 +12,11 @@ services:
     arguments:
       -
         base_uri: "%alchemy_report.report_base_url%"
-        options:
-          timeout: 10
-          http_errors: false
-          headers:
-            Accept: "application/json"
+        timeout: 3.0
+        connect_timeout: 0.5
+        http_errors: false
+        headers:
+          Accept: "application/json"
 
   Alchemy\ReportSDK\ReportClient:
     arguments:

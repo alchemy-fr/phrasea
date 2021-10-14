@@ -95,6 +95,7 @@ class AssetItem extends PureComponent<AllProps, State> {
             title,
             description,
             tags,
+            preview,
             privacy,
             selected,
             collections,
@@ -106,6 +107,9 @@ class AssetItem extends PureComponent<AllProps, State> {
         const privacyLabel = privacyIndices[privacy];
 
         let image = 'https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png';
+        if (preview) {
+            image = preview.url;
+        }
 
         const opacity = isDragging ? 0.4 : 1;
 
@@ -121,17 +125,6 @@ class AssetItem extends PureComponent<AllProps, State> {
                 <GridListTileBar
                     title={title}
                     subtitle={<div>
-                        <div className={'a-desc'}>{description}</div>
-                        <ul className={'a-colls'}>
-                            {collections.map(c => <li
-                                key={c.id}
-                            >
-                                <Icon
-                                    variant={'xs'}
-                                    component={FolderImg}/>
-                                {c.title}
-                            </li>)}
-                        </ul>
                         <div>
                             {tags.map(t => <Badge
                                 variant={'success'}
@@ -141,6 +134,25 @@ class AssetItem extends PureComponent<AllProps, State> {
                                 variant={'secondary'}
                             >{privacyLabel}</Badge>
                         </div>
+                        <div className={'a-desc'}>{description}</div>
+                        <ul className={'a-colls'}>
+                            {collections.slice(0, 1).map(c => <li
+                                key={c.id}
+                            >
+                                <Icon
+                                    variant={'xs'}
+                                    component={FolderImg}/>
+                                {c.title}
+                            </li>)}
+                            {collections.length > 1 && <li
+                                title={collections.slice(1).map(c => c.title).join("\n")}
+                            >
+                                <Icon
+                                    variant={'xs'}
+                                    component={FolderImg}/>
+                                {`+ ${collections.length - 1} other${collections.length - 1 > 1 ? 's' : ''}`}
+                            </li>}
+                        </ul>
                     </div>}
                     actionIcon={(capabilities.canEdit || capabilities.canDelete) ?
                         <div

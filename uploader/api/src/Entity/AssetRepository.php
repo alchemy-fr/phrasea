@@ -51,4 +51,17 @@ class AssetRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getUnacknowledgedAssetsCount(string $commitId): int
+    {
+        return (int) $this
+            ->createQueryBuilder('a')
+            ->select('COUNT(a.id) as total')
+            ->andWhere('a.commit = :commit')
+            ->andWhere('a.acknowledged = false')
+            ->setParameter('commit', $commitId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

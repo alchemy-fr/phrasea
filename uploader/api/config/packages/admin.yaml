@@ -68,6 +68,7 @@ easy_admin:
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - userId
           - { property: committed, type: boolean }
+          - { property: acknowledged, type: boolean }
           - createdAt
 
     FormSchema:

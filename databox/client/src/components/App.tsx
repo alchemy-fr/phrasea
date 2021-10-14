@@ -6,15 +6,17 @@ import CollectionsPanel from "./Media/CollectionsPanel";
 import MediaSelection from "./Media/MediaSelection";
 import {UserContext} from "./Security/UserContext";
 import MainAppBar from "./Layout/MainAppBar";
+import Dropzone from "react-dropzone";
+import {UploadFile, UploadFiles} from "../api/file";
 
 type State = {
     searchQuery: string;
     hideMenu: boolean;
 }
 
-export default class App extends PureComponent<{
-    authenticated: boolean,
-}, State> {
+type Props = {};
+
+export default class App extends PureComponent<Props, State> {
     static contextType = UserContext;
     context: React.ContextType<typeof UserContext>;
 
@@ -41,6 +43,8 @@ export default class App extends PureComponent<{
     }
 
     render() {
+        const authenticated = Boolean(this.context.user);
+
         return <>
             <MainAppBar
                 toggleMenu={this.toggleMenu}
@@ -50,18 +54,40 @@ export default class App extends PureComponent<{
                 onSearchQueryChange={this.onSearchQueryChange}
                 searchQuery={this.state.searchQuery}
             />
-            <MediaSelection>
-                <div className="main-layout">
-                    {!this.state.hideMenu && <div className="main-left-menu">
-                        <CollectionsPanel/>
-                    </div>}
-                    <div className="main-content">
-                        <AssetGrid
-                            query={this.state.searchQuery}
+            <Dropzone
+                onDrop={this.onFileDrop}
+            >
+                {({getRootProps, getInputProps}) => (
+                    <div {...getRootProps()}>
+                        <input
+                            {...getInputProps()}
                         />
+                        <MediaSelection>
+                            <div className="main-layout">
+                                {!this.state.hideMenu && <div className="main-left-menu">
+                                    <CollectionsPanel/>
+                                </div>}
+                                <div className="main-content">
+                                    <AssetGrid
+                                        query={this.state.searchQuery}
+                                    />
+                                </div>
+                            </div>
+                        </MediaSelection>
                     </div>
-                </div>
-            </MediaSelection>
+                )}
+            </Dropzone>
         </>
+    }
+
+    onFileDrop = async (acceptedFiles: File[]) => {
+        const authenticated = Boolean(this.context.user);
+
+        if (!authenticated) {
+            window.alert('You must be authenticated in order to upload new files');
+            return;
+        }
+
+        await UploadFiles(this.context.user!.id, acceptedFiles);
     }
 }

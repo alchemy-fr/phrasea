@@ -15,3 +15,10 @@ api_platform:
         csv:      ['text/csv']
         html:     ['text/html']
         multipart: ['multipart/form-data']
+    oauth:
+        enabled: true
+        type: 'oauth2'
+        flow: 'password'
+        tokenUrl: '%env(AUTH_BASE_URL)%/oauth/v2/token'
+        authorizationUrl: '%env(AUTH_BASE_URL)%/oauth/v2/auth'
+        scopes: []

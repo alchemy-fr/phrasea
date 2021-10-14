@@ -36,6 +36,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *             "method"="POST",
  *             "path"="/commits/{id}/ack",
  *             "controller"=CommitAckAction::class,
+*              "defaults"={
+ *                  "_api_receive"=false,
+ *                  "_api_respond"=true,
+ *             },
  *         }
  *     },
  * )
@@ -65,6 +69,7 @@ class Commit
      * @var string
      * @Groups("asset_read")
      * @ORM\Column(type="bigint", options={"unsigned"=true})
+     * @ApiProperty(writable=false)
      */
     private $totalSize;
 
@@ -83,6 +88,7 @@ class Commit
     /**
      * @var string
      * @ORM\Column(type="string", length=255)
+     * @ApiProperty(writable=false)
      */
     private $token;
 
@@ -90,6 +96,8 @@ class Commit
      * @var bool
      * @ORM\Column(type="boolean")
      * @ApiFilter(BooleanFilter::class)
+     * @Groups("asset_read")
+     * @ApiProperty(writable=false)
      */
     private $acknowledged = false;
 
