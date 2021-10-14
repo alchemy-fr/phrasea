@@ -7,22 +7,39 @@ namespace App\Border;
 use App\Border\Exception\FileInputValidationException;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
+use App\Entity\Core\File;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BorderManager
 {
-    public function acceptFile(InputFile $file): bool
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
+    public function acceptFile(InputFile $inputFile): ?File
     {
         try {
-            $this->validateFile($file);
+            $this->validateFile($inputFile);
 
-            $path = $this->importFile($file);
+            $path = $this->importFile($inputFile);
 
-            $content = new FileContent($file, $path);
+            $content = new FileContent($inputFile, $path);
             $this->validateContent($content);
 
-            return true;
+            $file = new File();
+            $file->setPath($content->getPath());
+            $file->setSize($inputFile->getSize());
+            $file->setType($inputFile->getType());
+
+            $this->em->persist($file);
+            $this->em->flush();
+
+            return $file;
         } catch (FileInputValidationException $e) {
-            return false;
+            return null;
         }
     }
 

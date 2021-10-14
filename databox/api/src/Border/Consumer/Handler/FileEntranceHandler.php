@@ -7,6 +7,7 @@ namespace App\Border\Consumer\Handler;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
+use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -42,9 +43,10 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
         $file = new InputFile($json['originalName'], $json['mimeType'], $json['size']);
 
-        if ($this->borderManager->acceptFile($file)) {
+        $file = $this->borderManager->acceptFile($file);
+        if ($file instanceof File) {
             $this->eventProducer->publish(new EventMessage(NewAssetFromBorderHandler::EVENT, [
-                // TODO send event to Core to create Asset
+                'fileId' => $file->getId(),
             ]));
         } else {
             // TODO place into quarantine

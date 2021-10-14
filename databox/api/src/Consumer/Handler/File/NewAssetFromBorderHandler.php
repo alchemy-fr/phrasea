@@ -8,6 +8,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
@@ -24,11 +25,13 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     public function handle(EventMessage $message): void
     {
         $payload = $message->getPayload();
+        $id = $payload['fileId'];
 
-        $file = new File();
-        $file->setPath($payload['path']);
-        $file->setSize($payload['size']);
-        $file->setType($payload['type']);
+        $em = $this->getEntityManager();
+        $file = $em->find(File::class, $id);
+        if (!$file instanceof File) {
+            throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
+        }
 
         $asset = new Asset();
         $asset->setFile($file);
@@ -36,7 +39,6 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setTitle($payload['title'] ?? $payload['name']);
 
         $em = $this->getEntityManager();
-        $em->persist($file);
         $em->persist($asset);
         $em->flush();
     }
