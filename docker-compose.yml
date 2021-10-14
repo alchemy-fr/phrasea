@@ -102,7 +102,9 @@ services:
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
-      - internal
+      internal:
+        aliases:
+          - uploader-api
     ports:
       - ${UPLOADER_API_PORT}:80
     depends_on:

@@ -5,7 +5,9 @@ api_platform:
         html: [ 'text/html' ]
     version: '0.0.1'
     mapping:
-        paths: ['%kernel.project_dir%/src/Entity']
+        paths:
+        - '%kernel.project_dir%/src/Entity'
+        - '%kernel.project_dir%/src/Border/Model'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

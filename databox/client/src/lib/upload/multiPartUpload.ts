@@ -85,7 +85,7 @@ export async function uploadMultipartFile(
             uploadStateStorage.updateUpload(userId, fileUID, eTag);
         }
 
-        const res: Asset = await uploadClient.post(`/assets`, {
+        const res = await uploadClient.post(`/assets`, {
             multipart: {
                 uploadId,
                 parts: uploadParts,
@@ -96,7 +96,7 @@ export async function uploadMultipartFile(
 
         uploadStateStorage.removeUpload(userId, fileUID);
 
-        return res.id;
+        return res.data.id;
     } catch (e) {
         uploadStateStorage.removeUpload(userId, fileUID);
         throw e;

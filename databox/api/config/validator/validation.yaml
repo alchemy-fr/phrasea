@@ -15,3 +15,18 @@ App\Entity\Core\Collection:
 App\Entity\Core\TagFilterRule:
   constraints:
     - App\Validator\TagFilterRuleConstraint: ~
+
+App\Border\Model\Upload\IncomingUpload:
+  properties:
+    commit_id:
+      - NotBlank: ~
+    publisher:
+      - NotBlank: ~
+    token:
+      - NotBlank: ~
+    base_url:
+      - NotBlank: ~
+    assets:
+      - NotNull: ~
+      - Count:
+          min: 1

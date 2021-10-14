@@ -109,12 +109,12 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
         $this->ownerId = $ownerId;
     }
 
-    public function getFile(): ?string
+    public function getFile(): ?File
     {
         return $this->file;
     }
 
-    public function setFile(?string $file): void
+    public function setFile(?File $file): void
     {
         $this->file = $file;
     }

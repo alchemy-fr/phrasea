@@ -65,3 +65,10 @@ services:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]
         autoconfigure: false
+
+    app.border.http_client:
+        class: GuzzleHttp\Client
+
+    App\Border\Consumer\Handler\FileEntranceHandler:
+        arguments:
+            $client: '@app.border.http_client'

@@ -1,7 +1,7 @@
 
 arthem_rabbit:
   failure: ~
-  direct: false
+  deffered: false
   queues:
     bulk_commit: ~
     download_url: ~
