@@ -45,9 +45,10 @@ class CollectionOutput extends AbstractUuidOutput
     private ?self $parent = null;
 
     /**
+     * @MaxDepth(2)
      * @Groups({"collection:index", "collection:children", "workspace:index"})
      */
-    private ?array $children = null;
+    private $children;
 
     /**
      * @MaxDepth(1)
@@ -95,12 +96,12 @@ class CollectionOutput extends AbstractUuidOutput
         return $this->privacy;
     }
 
-    public function getChildren(): ?array
+    public function getChildren()
     {
         return $this->children;
     }
 
-    public function setChildren(array $children): void
+    public function setChildren($children): void
     {
         $this->children = $children;
     }

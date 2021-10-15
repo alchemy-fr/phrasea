@@ -127,6 +127,13 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_C
     --secret=${DATABOX_CLIENT_SECRET} \
     --grant-type authorization_code \
     --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
+## Create minio bucket
+docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
+  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  sleep 5 && \
+  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc mb --ignore-existing minio/$DATABOX_STORAGE_BUCKET_NAME \
+"
 
 # Setup Report
 ## Create DB

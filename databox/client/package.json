@@ -4,8 +4,9 @@
   "private": true,
   "dependencies": {
     "@alchemy-fr/phraseanet-react-components": "^1.0.5-alpha1",
-    "@material-ui/core": "^4.11.3",
+    "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.60",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -16,8 +17,9 @@
     "@types/react-select": "^4.0.13",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
-    "formik": "^2.2.6",
-    "formik-material-ui": "^3.0.1",
+    "byte-size": "^8.1.0",
+    "formik": "^2.2.9",
+    "formik-material-ui": "^4.0.0-alpha.1",
     "node-sass": "^4.0.0",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
@@ -58,6 +60,7 @@
     ]
   },
   "devDependencies": {
+    "@types/byte-size": "^8.1.0",
     "@types/react-bootstrap": "^0.32.25",
     "@types/react-router-dom": "^5.1.7"
   }

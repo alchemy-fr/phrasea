@@ -63,57 +63,56 @@ class Commit
      * @var Asset[]|Collection
      * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
      */
-    private $assets;
+    private ?Collection $assets = null;
 
     /**
-     * @var string
      * @Groups("asset_read")
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      * @ApiProperty(writable=false)
      */
-    private $totalSize;
+    private ?string $totalSize = null;
 
     /**
-     * @var array
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
-    private $formData = [];
+    private array $formData = [];
 
     /**
-     * @var string
+     * @Groups("asset_read")
+     * @ORM\Column(type="json")
+     */
+    private array $options = [];
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
-    private $userId;
+    private ?string $userId = null;
 
     /**
-     * @var string
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(writable=false)
      */
-    private $token;
+    private ?string $token = null;
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean")
      * @ApiFilter(BooleanFilter::class)
      * @Groups("asset_read")
      * @ApiProperty(writable=false)
      */
-    private $acknowledged = false;
+    private bool $acknowledged = false;
 
     /**
      * If set, this email will be notified when asset consumer acknowledges the commit.
      *
-     * @var string|null
      * @ORM\Column(type="string", nullable=true)
      */
-    private $notifyEmail;
+    private ?string $notifyEmail = null;
 
     /**
-     * @var string|null
      * @ORM\Column(type="string", length=5, nullable=true)
      */
-    private $locale;
+    private ?string $locale = null;
 
     /**
      * @var DateTime|null
@@ -133,10 +132,8 @@ class Commit
 
     /**
      * Not mapped.
-     *
-     * @var array
      */
-    private $files = [];
+    private array $files = [];
 
     public function __construct()
     {
@@ -165,6 +162,9 @@ class Commit
         return $this->formData;
     }
 
+    /**
+     * @Groups({"__NONE__"})
+     */
     public function getFormDataJson(): string
     {
         return \GuzzleHttp\json_encode($this->formData);
@@ -226,6 +226,7 @@ class Commit
             'user_id' => $this->userId,
             'notify_email' => $this->notifyEmail,
             'locale' => $this->locale,
+            'options' => $this->options,
         ];
 
         if ($this->token) {
@@ -245,6 +246,7 @@ class Commit
         $instance->setUserId($data['user_id']);
         $instance->setNotifyEmail($data['notify_email'] ?? null);
         $instance->setLocale($data['locale'] ?? null);
+        $instance->setOptions($data['options'] ?? []);
 
         return $instance;
     }
@@ -292,8 +294,18 @@ class Commit
         return (int) $this->totalSize;
     }
 
-    public function setTotalSize(int $totalSize): void
+    public function setTotalSize($totalSize): void
     {
-        $this->totalSize = $totalSize;
+        $this->totalSize = (string) $totalSize;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(array $options): void
+    {
+        $this->options = $options;
     }
 }

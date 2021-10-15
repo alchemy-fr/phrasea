@@ -6,9 +6,17 @@ namespace App\Api\DataTransformer;
 
 use App\Api\Model\Output\FileOutput;
 use App\Entity\Core\File;
+use App\Storage\UrlSigner;
 
 class FileOutputDataTransformer extends AbstractSecurityDataTransformer
 {
+    private UrlSigner $urlSigner;
+
+    public function __construct(UrlSigner $urlSigner)
+    {
+        $this->urlSigner = $urlSigner;
+    }
+
     /**
      * @param File $object
      */
@@ -20,7 +28,7 @@ class FileOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
         $output->setType($object->getType());
         $output->setSize($object->getSize());
-        $output->setUrl('https://www.publicdomainpictures.net/pictures/320000/velka/background-image.png'); // TODO
+        $output->setUrl($this->urlSigner->getSignedUrl($object->getPath()));
 
         return $output;
     }

@@ -201,6 +201,8 @@ services:
       - IDE_KEY
       - XDEBUG_REMOTE_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
+      - ASSET_CONSUMER_COMMIT_URI
+      - ASSET_CONSUMER_ACCESS_TOKEN
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

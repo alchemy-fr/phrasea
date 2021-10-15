@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -26,6 +27,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     {
         $payload = $message->getPayload();
         $id = $payload['fileId'];
+        $destinations = $payload['destinations'];
 
         $em = $this->getEntityManager();
         $file = $em->find(File::class, $id);
@@ -33,13 +35,21 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
+        $collection = $em->getRepository(Collection::class)->find($destinations[0]);
+
         $asset = new Asset();
         $asset->setFile($file);
         $asset->setOwnerId($payload['userId']);
-        $asset->setTitle($payload['title'] ?? $payload['name']);
+        $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
+        $asset->setWorkspace($file->getWorkspace());
+        $asset->setPreview($file);
+
+        $asset->setReferenceCollection($collection);
+        $assetCollection = $asset->addToCollection($collection);
 
         $em = $this->getEntityManager();
         $em->persist($asset);
+        $em->persist($assetCollection);
         $em->flush();
     }
 

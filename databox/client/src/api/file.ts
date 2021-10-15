@@ -17,10 +17,14 @@ export function makeAuthorizationHeaders(accessToken?: string): object {
     return {};
 }
 
-export async function UploadFiles(userId: string, files: File[]): Promise<void> {
+export type UploadOptions = {
+    destinations: string[];
+};
+
+export async function UploadFiles(userId: string, files: File[], options: UploadOptions): Promise<void> {
     const assets = await Promise.all(files.map(f => UploadFile(userId, f)));
 
-    await CommitUpload(assets);
+    await CommitUpload(assets, options);
 }
 
 export async function UploadFile(userId: string, file: File): Promise<string> {
@@ -32,9 +36,10 @@ export async function UploadFile(userId: string, file: File): Promise<string> {
     });
 }
 
-export async function CommitUpload(files: string[]): Promise<void> {
+export async function CommitUpload(files: string[], options: UploadOptions): Promise<void> {
     await uploadClient.post(`/commit`, {
         files,
+        options,
     }, {
         headers: makeAuthorizationHeaders(oauthClient.getAccessToken()),
     });

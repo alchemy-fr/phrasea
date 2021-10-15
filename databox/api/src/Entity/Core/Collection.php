@@ -20,6 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Api\Model\Output\CollectionOutput;
 
@@ -27,7 +28,7 @@ use App\Api\Model\Output\CollectionOutput;
  * @ORM\Entity()
  * @ApiResource(
  *  shortName="collection",
- *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children"}},
+ *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children", "collection:2_level_children"}, "enable_max_depth"=true},
  *  output=CollectionOutput::class,
  *  input=CollectionInput::class,
  * )
@@ -55,6 +56,7 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
      * @ORM\JoinColumn(nullable=true)
+     * @MaxDepth(1)
      */
     private ?self $parent = null;
 
@@ -63,6 +65,7 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
      *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
+     * @MaxDepth(1)
      */
     private ?DoctrineCollection $children = null;
 

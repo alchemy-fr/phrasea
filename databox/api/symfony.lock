@@ -17,6 +17,9 @@
     "alchemy/remote-auth-bundle": {
         "version": "dev-ps-248-databox"
     },
+    "alchemy/storage-bundle": {
+        "version": "dev-ps-355"
+    },
     "api-platform/api-pack": {
         "version": "v1.3.0"
     },
@@ -36,6 +39,12 @@
     },
     "arthem/rabbit-bundle": {
         "version": "dev-master"
+    },
+    "aws/aws-crt-php": {
+        "version": "v1.0.2"
+    },
+    "aws/aws-sdk-php": {
+        "version": "3.198.5"
     },
     "behat/transliterator": {
         "version": "v1.3.0"
@@ -236,8 +245,20 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
     },
+    "league/flysystem": {
+        "version": "1.1.5"
+    },
+    "league/flysystem-aws-s3-v3": {
+        "version": "1.0.29"
+    },
+    "league/mime-type-detection": {
+        "version": "1.8.0"
+    },
     "monolog/monolog": {
         "version": "2.2.0"
+    },
+    "mtdowling/jmespath.php": {
+        "version": "2.6.1"
     },
     "myclabs/deep-copy": {
         "version": "1.10.2"
@@ -269,6 +290,15 @@
     },
     "nyholm/dsn": {
         "version": "2.0.0"
+    },
+    "oneup/flysystem-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "e6c6440b279273a468e1f570b0fc1d4ff54ad69e"
+        }
     },
     "pagerfanta/pagerfanta": {
         "version": "v2.5.1"

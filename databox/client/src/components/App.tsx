@@ -7,11 +7,12 @@ import MediaSelection from "./Media/MediaSelection";
 import {UserContext} from "./Security/UserContext";
 import MainAppBar from "./Layout/MainAppBar";
 import Dropzone from "react-dropzone";
-import {UploadFile, UploadFiles} from "../api/file";
+import UploadModal from "./Upload/UploadModal";
 
 type State = {
     searchQuery: string;
     hideMenu: boolean;
+    uploadFiles?: File[];
 }
 
 type Props = {};
@@ -44,21 +45,28 @@ export default class App extends PureComponent<Props, State> {
 
     render() {
         const authenticated = Boolean(this.context.user);
+        const {uploadFiles} = this.state;
 
         return <>
-            <MainAppBar
-                toggleMenu={this.toggleMenu}
-                title={'Databox Client.'}
-                onLogout={this.logout}
-                username={this.context.user ? this.context.user.username : undefined}
-                onSearchQueryChange={this.onSearchQueryChange}
-                searchQuery={this.state.searchQuery}
-            />
             <Dropzone
+                noClick={true}
                 onDrop={this.onFileDrop}
             >
                 {({getRootProps, getInputProps}) => (
                     <div {...getRootProps()}>
+                        {uploadFiles ? <UploadModal
+                            files={uploadFiles}
+                            userId={this.context.user!.id}
+                            onClose={this.closeUpload}
+                        /> : ''}
+                        <MainAppBar
+                            toggleMenu={this.toggleMenu}
+                            title={'Databox Client.'}
+                            onLogout={this.logout}
+                            username={this.context.user ? this.context.user.username : undefined}
+                            onSearchQueryChange={this.onSearchQueryChange}
+                            searchQuery={this.state.searchQuery}
+                        />
                         <input
                             {...getInputProps()}
                         />
@@ -80,7 +88,7 @@ export default class App extends PureComponent<Props, State> {
         </>
     }
 
-    onFileDrop = async (acceptedFiles: File[]) => {
+    onFileDrop = (acceptedFiles: File[]) => {
         const authenticated = Boolean(this.context.user);
 
         if (!authenticated) {
@@ -88,6 +96,10 @@ export default class App extends PureComponent<Props, State> {
             return;
         }
 
-        await UploadFiles(this.context.user!.id, acceptedFiles);
+        this.setState({uploadFiles: acceptedFiles});
+    }
+
+    closeUpload = () => {
+        this.setState({uploadFiles: undefined});
     }
 }

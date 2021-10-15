@@ -35,7 +35,7 @@ type State = {
 
 export default class Root extends PureComponent<{}, State> {
     state: State = {
-        authenticating: false,
+        authenticating: oauthClient.hasAccessToken(),
     }
 
     componentDidMount() {

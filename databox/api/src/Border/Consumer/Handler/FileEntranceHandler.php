@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Border\Consumer\Handler;
 
+use ApiPlatform\Core\Api\IriConverterInterface;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
+use App\Border\UploaderClient;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use GuzzleHttp\Client;
 
 class FileEntranceHandler extends AbstractEntityManagerHandler
 {
@@ -19,34 +22,47 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
     private BorderManager $borderManager;
     private EventProducer $eventProducer;
-    private Client $client;
+    private UploaderClient $uploaderClient;
 
-    public function __construct(BorderManager $borderManager, EventProducer $eventProducer, Client $client)
+    public function __construct(
+        BorderManager $borderManager,
+        EventProducer $eventProducer,
+        UploaderClient $uploaderClient
+    )
     {
         $this->borderManager = $borderManager;
         $this->eventProducer = $eventProducer;
-        $this->client = $client;
+        $this->uploaderClient = $uploaderClient;
     }
 
     public function handle(EventMessage $message): void
     {
         $payload = $message->getPayload();
 
-        $response = $this->client
-            ->get(sprintf('%s/assets/%s', $payload['baseUrl'], $payload['assetId']), [
-                'headers' => [
-                    'Authorization' => 'AssetToken '.$payload['token'],
-                ]
-            ]);
+        $em = $this->getEntityManager();
+        $workspaceId = $payload['workspaceId'];
+        $workspace = $em->find(Workspace::class, $workspaceId);
+        if (!$workspace instanceof Workspace) {
+            throw new ObjectNotFoundForHandlerException(Workspace::class, $workspaceId, __CLASS__);
+        }
 
-        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        $assetData = $this->uploaderClient->getAsset($payload['baseUrl'], $payload['assetId'], $payload['token']);
 
-        $file = new InputFile($json['originalName'], $json['mimeType'], $json['size']);
+        $inputFile = new InputFile(
+            $assetData['originalName'],
+            $assetData['mimeType'],
+            $assetData['size'],
+            $assetData['url'],
+        );
 
-        $file = $this->borderManager->acceptFile($file);
+        $file = $this->borderManager->acceptFile($inputFile, $workspace);
         if ($file instanceof File) {
             $this->eventProducer->publish(new EventMessage(NewAssetFromBorderHandler::EVENT, [
                 'fileId' => $file->getId(),
+                'userId' => $payload['userId'],
+                'title' => $payload['title'] ?? null,
+                'filename' => $inputFile->getName(),
+                'destinations' => $payload['destinations'],
             ]));
         } else {
             // TODO place into quarantine
