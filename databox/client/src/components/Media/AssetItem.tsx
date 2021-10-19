@@ -1,5 +1,5 @@
 import React, {MouseEvent, PureComponent, RefObject} from "react";
-import {Asset} from "../../types";
+import {Asset, Collection} from "../../types";
 import {Badge} from "react-bootstrap";
 import apiClient from "../../api/api-client";
 import {Delete, Edit} from '@material-ui/icons';
@@ -136,22 +136,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                         </div>
                         <div className={'a-desc'}>{description}</div>
                         <ul className={'a-colls'}>
-                            {collections.slice(0, 1).map(c => <li
-                                key={c.id}
-                            >
-                                <Icon
-                                    variant={'xs'}
-                                    component={FolderImg}/>
-                                {c.title}
-                            </li>)}
-                            {collections.length > 1 && <li
-                                title={collections.slice(1).map(c => c.title).join("\n")}
-                            >
-                                <Icon
-                                    variant={'xs'}
-                                    component={FolderImg}/>
-                                {`+ ${collections.length - 1} other${collections.length - 1 > 1 ? 's' : ''}`}
-                            </li>}
+                            {this.renderCollections(collections)}
                         </ul>
                     </div>}
                     actionIcon={(capabilities.canEdit || capabilities.canDelete) ?
@@ -194,6 +179,37 @@ class AssetItem extends PureComponent<AllProps, State> {
                 /> : ''}
             </GridListTile>
         </div>)
+    }
+
+    renderCollections(collections: Collection[]) {
+        if (collections.length === 0) {
+            return null;
+        }
+
+        const r = (c: Collection) => <li
+            key={c.id}
+        >
+            <Icon
+                variant={'xs'}
+                component={FolderImg}/>
+            {c.title}
+        </li>;
+
+        if (collections.length <= 2) {
+            return collections.slice(0, 2).map(r)
+        }
+
+        return <>
+            {r(collections[0])}
+            <li
+                title={collections.slice(1).map(c => c.title).join("\n")}
+            >
+                <Icon
+                    variant={'xs'}
+                    component={FolderImg}/>
+                {`+ ${collections.length - 1} other${collections.length - 1 > 1 ? 's' : ''}`}
+            </li>
+        </>
     }
 }
 

@@ -8,6 +8,7 @@ use ApiPlatform\Core\Api\IriConverterInterface;
 use App\Border\Model\Upload\IncomingUpload;
 use App\Border\UploaderClient;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -36,23 +37,37 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
 
         $commitData = $this->uploaderClient->getCommit($upload->base_url, $upload->commit_id, $upload->token);
 
-        /** @var Collection $collection */
-        $collection = $this->iriConverter->getItemFromIri($commitData['options']['destinations'][0]);
+        $destinations = $commitData['options']['destinations'];
 
-        // TODO denormalize and shoot events for each workspace destination
+        $workspaces = [];
+        foreach ($destinations as $destination) {
+            $destItem = $this->iriConverter->getItemFromIri($destination);
+            if ($destItem instanceof Collection) {
+                $w = $destItem->getWorkspace()->getId();
+                if (!isset($workspaces[$w])) {
+                    $workspaces[$w] = [];
+                }
+                $workspaces[$w][] = $destItem->getId();
+            } elseif ($destItem instanceof Workspace) {
+                $w = $destItem->getId();
+                if (!isset($workspaces[$w])) {
+                    $workspaces[$w] = [];
+                }
+            }
+        }
 
-        foreach ($upload->assets as $assetId) {
-            $this->eventProducer->publish(new EventMessage(FileEntranceHandler::EVENT, [
-                'assetId' => $assetId,
-                'baseUrl' => $upload->base_url,
-                'commitId' => $upload->commit_id,
-                'userId' => $upload->publisher,
-                'token' => $upload->token,
-                'workspaceId' => $collection->getWorkspace()->getId(),
-                'destinations' => [
-                    $collection->getId(),
-                ],
-            ]));
+        foreach ($workspaces as $wId => $collections) {
+            foreach ($upload->assets as $assetId) {
+                $this->eventProducer->publish(new EventMessage(FileEntranceHandler::EVENT, [
+                    'assetId' => $assetId,
+                    'baseUrl' => $upload->base_url,
+                    'commitId' => $upload->commit_id,
+                    'userId' => $upload->publisher,
+                    'token' => $upload->token,
+                    'workspaceId' => $wId,
+                    'collections' => $collections,
+                ]));
+            }
         }
     }
 

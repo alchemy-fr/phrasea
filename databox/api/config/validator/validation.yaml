@@ -12,6 +12,10 @@ App\Entity\Core\Collection:
     workspace:
       - NotNull: ~
 
+App\Entity\Core\CollectionAsset:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint: ~
+
 App\Entity\Core\TagFilterRule:
   constraints:
     - App\Validator\TagFilterRuleConstraint: ~

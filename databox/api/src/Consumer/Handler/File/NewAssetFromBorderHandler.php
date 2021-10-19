@@ -27,7 +27,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     {
         $payload = $message->getPayload();
         $id = $payload['fileId'];
-        $destinations = $payload['destinations'];
+        $collectionIds = $payload['collections'];
 
         $em = $this->getEntityManager();
         $file = $em->find(File::class, $id);
@@ -35,7 +35,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
-        $collection = $em->getRepository(Collection::class)->find($destinations[0]);
+        $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
 
         $asset = new Asset();
         $asset->setFile($file);
@@ -44,12 +44,13 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setWorkspace($file->getWorkspace());
         $asset->setPreview($file);
 
-        $asset->setReferenceCollection($collection);
-        $assetCollection = $asset->addToCollection($collection);
+        foreach ($collections as $collection) {
+            $assetCollection = $asset->addToCollection($collection);
+            $em->persist($assetCollection);
+        }
 
         $em = $this->getEntityManager();
         $em->persist($asset);
-        $em->persist($assetCollection);
         $em->flush();
     }
 

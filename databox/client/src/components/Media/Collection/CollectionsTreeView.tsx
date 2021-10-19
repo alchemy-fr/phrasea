@@ -9,7 +9,6 @@ import {getCollection} from "../../../api/collection";
 
 const useStyles = makeStyles({
     root: {
-        height: 216,
         flexGrow: 1,
         maxWidth: 400,
     },

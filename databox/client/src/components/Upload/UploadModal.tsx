@@ -128,7 +128,7 @@ export default function UploadModal({userId, files, onClose}: Props) {
                             <CollectionsTreeView
                                 onChange={(selection) => setFieldValue(field.name, selection)}
                                 workspaces={workspaces} />
-                            {errors.destinations && <div className="error">{errors.destinations}</div>}
+                            {errors.destinations && <div className="error text-danger">{errors.destinations}</div>}
                         </FormControl>
                     }}
                 </Field>

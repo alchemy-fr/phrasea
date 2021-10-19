@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Api\Model\Output\CollectionOutput;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="CollectionRepository")
  * @ApiResource(
  *  shortName="collection",
  *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children", "collection:2_level_children"}, "enable_max_depth"=true},
