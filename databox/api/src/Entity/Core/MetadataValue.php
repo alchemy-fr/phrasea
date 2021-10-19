@@ -21,7 +21,7 @@ class MetadataValue extends AbstractUuidEntity implements TranslatableInterface
     use TranslatableTrait;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset")
      * @ORM\JoinColumn(nullable=false)
      */
     private Asset $asset;

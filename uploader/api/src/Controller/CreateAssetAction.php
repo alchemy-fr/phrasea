@@ -7,7 +7,7 @@ namespace App\Controller;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
-use App\Storage\AssetManager;
+use App\Storage\SubDefinitionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,13 +18,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 final class CreateAssetAction extends AbstractController
 {
     private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
+    private SubDefinitionManager $assetManager;
     private UploadManager $uploadManager;
     private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
-        AssetManager $assetManager,
+        SubDefinitionManager $assetManager,
         UploadManager $uploadManager,
         PathGenerator $pathGenerator
     ) {

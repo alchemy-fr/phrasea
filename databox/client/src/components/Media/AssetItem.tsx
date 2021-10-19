@@ -41,6 +41,7 @@ export const privacyIndices = [
 type State = {
     editing: boolean;
     menuOpen: boolean;
+    hover: boolean;
 }
 
 class AssetItem extends PureComponent<AllProps, State> {
@@ -49,6 +50,7 @@ class AssetItem extends PureComponent<AllProps, State> {
     state: State = {
         editing: false,
         menuOpen: false,
+        hover: false,
     };
 
     constructor(props: AllProps) {
@@ -89,13 +91,22 @@ class AssetItem extends PureComponent<AllProps, State> {
         this.setState({menuOpen: false});
     }
 
+    onMouseEnter = () => {
+        this.setState({hover: true});
+    }
+
+    onMouseLeave = () => {
+        this.setState({hover: false});
+    }
+
     render() {
         const {
             id,
             title,
             description,
             tags,
-            preview,
+            thumbnail,
+            thumbnailActive,
             privacy,
             selected,
             collections,
@@ -107,21 +118,25 @@ class AssetItem extends PureComponent<AllProps, State> {
         const privacyLabel = privacyIndices[privacy];
 
         let image = 'https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png';
-        if (preview) {
-            image = preview.url;
+        if (thumbnail) {
+            image = thumbnail.url;
         }
 
         const opacity = isDragging ? 0.4 : 1;
 
+        console.log('thumbnailActive', thumbnailActive);
+
         return connectDragSource(<div
             role="Box"
             style={{ opacity }}
+            onMouseEnter={this.onMouseEnter}
+            onMouseLeave={this.onMouseLeave}
         >
             <GridListTile
                 onClick={this.onClick}
                 className={`asset-item ${selected ? 'selected' : ''}`}
             >
-                <img src={image} alt={title}/>
+                <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={title}/>
                 <GridListTileBar
                     title={title}
                     subtitle={<div>

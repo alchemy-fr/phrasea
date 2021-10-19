@@ -19,6 +19,7 @@ easy_admin:
           - Workspace
           - Tag
           - TagFilterRule
+          - SubDefinitionSpec
       - OAuthClient
       - label: 'Dev'
         children:
@@ -98,19 +99,41 @@ easy_admin:
           - { property: 'name' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
 
+    SubDefinitionSpec:
+      class: App\Entity\Core\SubDefinitionSpec
+      list:
+        max_results: 100
+        sort: [workspace, ASC]
+        filters: ['workspace', 'name']
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'useAsPreview' }
+          - { property: 'useAsThumbnail' }
+          - { property: 'useAsThumbnailActive' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'useAsPreview' }
+          - { property: 'useAsThumbnail' }
+          - { property: 'useAsThumbnailActive' }
+
     Tag:
       class: App\Entity\Core\Tag
       list:
         max_results: 100
         sort: [name, ASC]
+        filters: ['workspace']
         fields:
-          - { property: 'name' }
           - { property: 'workspace' }
+          - { property: 'name' }
           - createdAt
       form:
         fields:
-          - { property: 'name' }
           - { property: 'workspace' }
+          - { property: 'name' }
 
     TagFilterRule:
       class: App\Entity\Core\TagFilterRule

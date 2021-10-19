@@ -10,7 +10,7 @@ use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
-use App\Storage\AssetManager;
+use App\Storage\SubDefinitionManager;
 use App\Validation\CommitValidator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -21,14 +21,14 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CommitAction extends AbstractController
 {
-    private AssetManager $assetManager;
+    private SubDefinitionManager $assetManager;
     private EventProducer $eventProducer;
     private FormValidator $formValidator;
     private CommitValidator $commitValidator;
     private ReportUserService $reportClient;
 
     public function __construct(
-        AssetManager $assetManager,
+        SubDefinitionManager $assetManager,
         EventProducer $eventProducer,
         FormValidator $formValidator,
         CommitValidator $commitValidator,

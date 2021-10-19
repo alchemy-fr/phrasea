@@ -7,6 +7,7 @@ namespace App\Api\Model\Output;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\File;
 use DateTime;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -62,14 +63,22 @@ class AssetOutput extends AbstractUuidOutput
     private ?FileOutput $file = null;
 
     /**
+     * @var File
      * @Groups({"asset:index", "asset:read"})
      */
     private $preview = null;
 
     /**
-     * @Groups({"asset:read"})
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $thumb = null;
+    private $thumbnail = null;
+
+    /**
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private $thumbnailActive = null;
 
     public function getFile(): ?FileOutput
     {
@@ -91,14 +100,24 @@ class AssetOutput extends AbstractUuidOutput
         $this->preview = $preview;
     }
 
-    public function getThumb(): ?FileOutput
+    public function getThumbnail(): ?File
     {
-        return $this->thumb;
+        return $this->thumbnail;
     }
 
-    public function setThumb(?FileOutput $thumb): void
+    public function setThumbnail(?File $thumbnail): void
     {
-        $this->thumb = $thumb;
+        $this->thumbnail = $thumbnail;
+    }
+
+    public function getThumbnailActive(): ?File
+    {
+        return $this->thumbnailActive;
+    }
+
+    public function setThumbnailActive(?File $thumbnailActive): void
+    {
+        $this->thumbnailActive = $thumbnailActive;
     }
 
     public function getTitle(): ?string

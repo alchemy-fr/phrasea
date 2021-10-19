@@ -8,11 +8,21 @@ use App\Api\Model\Output\AssetOutput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\File;
+use App\Entity\Core\SubDefinition;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
     /**
      * @param Asset $object
      */
@@ -27,8 +37,15 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
 
-        if ($object->getPreview()) {
-            $output->setPreview($object->getPreview());
+
+        foreach ([
+            'preview',
+            'thumbnail',
+            'thumbnailActive',
+                 ] as $type) {
+            if (null !== $file = $this->getSubDefFile($object, $type)) {
+                $output->{'set'.ucfirst($type)}($file);
+            }
         }
 
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
@@ -44,6 +61,18 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         ]);
 
         return $output;
+    }
+
+    private function getSubDefFile(Asset $asset, string $type): ?File
+    {
+        $subDef = $this->em->getRepository(SubDefinition::class)
+            ->findSubDefByType($asset->getId(), $type);
+
+        if ($subDef instanceof SubDefinition) {
+            return $subDef->getFile();
+        }
+
+        return null;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

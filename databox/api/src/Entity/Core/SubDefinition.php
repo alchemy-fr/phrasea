@@ -4,78 +4,100 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Api\Model\Output\FileOutput;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="SubDefinitionRepository")
  * @ApiResource(
  *  shortName="sub-definition",
- *  normalizationContext={"groups"={"_", "file:index"}},
- *  denormalizationContext={"groups"={"file:write"}},
- *  output=FileOutput::class,
+ *  normalizationContext={"groups"={"_", "subdef:index"}},
+ *  denormalizationContext={"groups"={"subdef:write"}},
  * )
  */
 class SubDefinition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use WorkspaceTrait;
 
     /**
-     * The MIME type.
-     *
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"subdef:index", "subdef:read"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\SubDefinitionSpec")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private ?string $type = null;
+    private ?SubDefinitionSpec $specification = null;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"subdef:index", "subdef:read"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private ?int $size = null;
+    private ?Asset $asset = null;
 
     /**
-     * @ORM\Column(type="string", length=64, nullable=true)
+     * @Groups({"subdef:index", "subdef:read"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private ?string $checksum = null;
+    private ?File $file = null;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"subdef:index", "subdef:read"})
+     * @ORM\Column(type="boolean")
      */
-    private ?string $path = null;
+    private bool $ready = false;
 
-    public function getPath(): ?string
+    public function getAsset(): Asset
     {
-        return $this->path;
+        return $this->asset;
     }
 
-    public function setPath(?string $path): void
+    public function setAsset(Asset $asset): void
     {
-        $this->path = $path;
+        $this->asset = $asset;
     }
 
-    public function getType(): ?string
+    public function getFile(): File
     {
-        return $this->type;
+        return $this->file;
     }
 
-    public function setType(?string $type): void
+    public function setFile(File $file): void
     {
-        $this->type = $type;
+        $this->file = $file;
     }
 
-    public function getSize(): ?int
+    public function getSpecification(): SubDefinitionSpec
     {
-        return $this->size;
+        return $this->specification;
     }
 
-    public function setSize(?int $size): void
+    public function setSpecification(SubDefinitionSpec $specification): void
     {
-        $this->size = $size;
+        $this->specification = $specification;
+    }
+
+    /**
+     * @ApiProperty()
+     * @Groups({"subdef:index", "subdef:read"})
+     */
+    public function getName(): string
+    {
+        return $this->specification->getName();
+    }
+
+    public function isReady(): bool
+    {
+        return $this->ready;
+    }
+
+    public function setReady(bool $ready): void
+    {
+        $this->ready = $ready;
     }
 }

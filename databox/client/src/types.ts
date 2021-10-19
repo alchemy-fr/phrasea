@@ -15,6 +15,8 @@ export interface Asset extends IPermissions {
     workspace: Workspace;
     collections: Collection[];
     preview: File | null;
+    thumbnail: File | null;
+    thumbnailActive: File | null;
 }
 
 export interface IPermissions extends ApiHydraObjectResponse {

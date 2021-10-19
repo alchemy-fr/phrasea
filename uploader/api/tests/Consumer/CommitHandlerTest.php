@@ -9,7 +9,7 @@ use App\Entity\Asset;
 use App\Entity\AssetRepository;
 use App\Entity\BulkData;
 use App\Entity\BulkDataRepository;
-use App\Storage\AssetManager;
+use App\Storage\SubDefinitionManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,7 +47,7 @@ class CommitHandlerTest extends TestCase
                 })
             );
 
-        $assetManager = $this->createMock(AssetManager::class);
+        $assetManager = $this->createMock(SubDefinitionManager::class);
         $assetManager
             ->expects($this->once())
             ->method('getTotalSize')

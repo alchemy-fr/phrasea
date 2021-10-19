@@ -533,6 +533,9 @@
     "symfony/intl": {
         "version": "v5.2.0"
     },
+    "symfony/mime": {
+        "version": "v5.3.8"
+    },
     "symfony/monolog-bridge": {
         "version": "v5.2.1"
     },

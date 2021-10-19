@@ -14,7 +14,18 @@ App\Entity\Core\Collection:
 
 App\Entity\Core\CollectionAsset:
   constraints:
-    - App\Validator\SameWorkspaceConstraint: ~
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - asset.workspace
+          - collection.workspace
+
+App\Entity\Core\SubDefinition:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - asset.workspace
+          - file.workspace
+          - specification.workspace
 
 App\Entity\Core\TagFilterRule:
   constraints:

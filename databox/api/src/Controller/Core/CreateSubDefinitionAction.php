@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Core;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
-use App\Entity\Asset;
-use App\Entity\SubDefinition;
-use App\Security\Voter\AssetVoter;
+use App\Entity\Core\Asset;
+use App\Entity\Core\SubDefinition;
+use App\Entity\Core\SubDefinitionSpec;
+use App\Entity\Core\Workspace;
 use App\Storage\SubDefinitionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -16,47 +17,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CreateSubDefinitionAction extends AbstractController
 {
     private FileStorageManager $storageManager;
-    private SubDefinitionManager $assetManager;
+    private SubDefinitionManager $subDefinitionManager;
     private UploadManager $uploadManager;
     private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
-        SubDefinitionManager $assetManager,
+        SubDefinitionManager $subDefinitionManager,
         UploadManager $uploadManager,
         PathGenerator $pathGenerator
     ) {
         $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
+        $this->subDefinitionManager = $subDefinitionManager;
         $this->uploadManager = $uploadManager;
         $this->pathGenerator = $pathGenerator;
     }
 
     public function __invoke(Request $request): SubDefinition
     {
-        $assetId = $request->request->get('asset_id');
-        if (!$assetId) {
-            throw new BadRequestHttpException('"asset_id" is required');
-        }
-
-        $name = $request->request->get('name');
-        if (empty($name)) {
-            throw new BadRequestHttpException('"name" is required and must not be empty');
-        }
-
-        $asset = $this->findAsset($assetId);
-        if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException(sprintf('Asset %s not found', $assetId));
-        }
-        $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
+        $asset = $this->resolveAsset($request);
+        $subDefSpec = $this->resolveSubDefSpec($asset->getWorkspace(), $request);
 
         if (null !== $request->request->get('multipart')) {
-            return $this->handleMultipartUpload($request, $asset, $name);
+            return $this->handleMultipartUpload($request);
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -78,13 +65,12 @@ final class CreateSubDefinitionAction extends AbstractController
             $this->storageManager->storeStream($path, $stream);
             fclose($stream);
 
-            return $this->assetManager->createSubDefinition(
-                $name,
+            return $this->subDefinitionManager->createSubDefinition(
+                $asset,
+                $subDefSpec,
                 $path,
                 $uploadedFile->getMimeType(),
-                $uploadedFile->getSize(),
-                $asset,
-                $request->request->all()
+                $uploadedFile->getSize()
             );
         } elseif (null !== $upload = $request->request->get('upload')) {
             if (!is_array($upload)) {
@@ -107,40 +93,67 @@ final class CreateSubDefinitionAction extends AbstractController
             }
             $path = $this->pathGenerator->generatePath($extension);
 
-            $subDefinition = $this->assetManager->createSubDefinition(
-                $name,
+            $subDef = $this->subDefinitionManager->createSubDefinition(
+                $asset,
+                $subDefSpec,
                 $path,
                 $contentType,
-                (int) ($upload['size'] ?? 0),
-                $asset,
-                $request->request->all()
+                (int) ($upload['size'] ?? 0)
             );
 
             $url = $this->uploadManager->createPutObjectSignedURL($path, $contentType);
-            $subDefinition->setUploadURL($url);
+            $subDef->setUploadURL($url);
 
-            return $subDefinition;
+            return $asset;
         } else {
             throw new BadRequestHttpException('Missing file or contentType');
         }
     }
 
-    private function handleMultipartUpload(Request $request, Asset $asset, string $name): SubDefinition
+    private function handleMultipartUpload(Request $request): SubDefinition
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
-        return $this->assetManager->createSubDefinition(
-            $name,
+        return $this->subDefinitionManager->createSubDefinition(
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
+            $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
-            $asset,
-            $request->request->all()
+            $request->request->all(),
         );
     }
 
-    private function findAsset(string $id): Asset
+    private function resolveAsset(Request $request): Asset
     {
-        return $this->assetManager->findAsset($id);
+        if ($assetId = $request->request->get('assetId')) {
+            $asset = $this->subDefinitionManager->getAssetFromId($assetId);
+        }
+
+        if (empty($assetId)) {
+            throw new BadRequestHttpException('Missing assetId');
+        }
+
+        if (!$asset instanceof Asset) {
+            throw new BadRequestHttpException('Asset not found');
+        }
+
+        return $asset;
+    }
+
+    private function resolveSubDefSpec(Workspace $workspace, Request $request): SubDefinitionSpec
+    {
+        if ($name = $request->request->get('name')) {
+            $spec = $this->subDefinitionManager->getSpecFromName($workspace, $name);
+        } elseif ($id = $request->request->get('specId')) {
+            $spec = $this->subDefinitionManager->getSpecFromId($workspace, $id);
+        } else {
+            throw new BadRequestHttpException('Missing spec "name" id "specId"');
+        }
+
+        if (!$spec instanceof SubDefinitionSpec) {
+            throw new BadRequestHttpException('SubDefinitionSpec not found');
+        }
+
+        return $spec;
     }
 }

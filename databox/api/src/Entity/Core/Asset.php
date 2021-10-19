@@ -80,18 +80,6 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
      */
     private ?File $file = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?File $preview = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?File $thumb = null;
-
     public function __construct()
     {
         parent::__construct();
@@ -132,26 +120,6 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     public function hasChildren(): bool
     {
         return null !== $this->storyCollection;
-    }
-
-    public function getPreview(): ?File
-    {
-        return $this->preview;
-    }
-
-    public function setPreview(?File $preview): void
-    {
-        $this->preview = $preview;
-    }
-
-    public function getThumb(): ?File
-    {
-        return $this->thumb;
-    }
-
-    public function setThumb(?File $thumb): void
-    {
-        $this->thumb = $thumb;
     }
 
     /**
