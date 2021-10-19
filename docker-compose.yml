@@ -632,8 +632,9 @@ services:
       - elasticsearch
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
-      - "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
-      - "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
+      # Uncomment these lines only in dev with different hostname to avoid duplicates:
+      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
+      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
 
   databox-api-nginx:
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
