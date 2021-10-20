@@ -6,8 +6,8 @@ namespace App\Consumer\Handler;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
-use App\Storage\SubDefinitionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -20,14 +20,14 @@ class DownloadHandler extends AbstractEntityManagerHandler
 
     private Client $client;
     private FileStorageManager $storageManager;
-    private SubDefinitionManager $assetManager;
+    private AssetManager $assetManager;
     private EventProducer $eventProducer;
     private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
         Client $client,
-        SubDefinitionManager $assetManager,
+        AssetManager $assetManager,
         EventProducer $eventProducer,
         PathGenerator $pathGenerator
     ) {

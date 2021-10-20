@@ -7,7 +7,7 @@ namespace App\Tests\Asset;
 use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractAssetTest extends ApiTestCase
@@ -37,8 +37,8 @@ abstract class AbstractAssetTest extends ApiTestCase
 
     private function createAsset(): Asset
     {
-        /** @var SubDefinitionManager $assetManager */
-        $assetManager = self::$container->get(SubDefinitionManager::class);
+        /** @var AssetManager $assetManager */
+        $assetManager = self::$container->get(AssetManager::class);
         $path = 'test/foo.jpg';
 
         return $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');

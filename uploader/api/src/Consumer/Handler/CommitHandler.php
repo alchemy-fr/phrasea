@@ -7,7 +7,7 @@ namespace App\Consumer\Handler;
 use App\Entity\Asset;
 use App\Entity\BulkData;
 use App\Entity\Commit;
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -18,9 +18,9 @@ class CommitHandler extends AbstractEntityManagerHandler
     const EVENT = 'commit';
 
     private EventProducer $eventProducer;
-    private SubDefinitionManager $assetManager;
+    private AssetManager $assetManager;
 
-    public function __construct(EventProducer $eventProducer, SubDefinitionManager $assetManager)
+    public function __construct(EventProducer $eventProducer, AssetManager $assetManager)
     {
         $this->eventProducer = $eventProducer;
         $this->assetManager = $assetManager;

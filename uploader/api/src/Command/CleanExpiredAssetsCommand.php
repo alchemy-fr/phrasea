@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,12 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CleanExpiredAssetsCommand extends Command
 {
-    /**
-     * @var SubDefinitionManager
-     */
-    private $assetManager;
+    private AssetManager $assetManager;
 
-    public function __construct(SubDefinitionManager $assetManager)
+    public function __construct(AssetManager $assetManager)
     {
         parent::__construct();
         $this->assetManager = $assetManager;

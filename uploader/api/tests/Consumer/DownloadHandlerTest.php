@@ -7,8 +7,8 @@ namespace App\Tests\Consumer;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
-use App\Storage\SubDefinitionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,8 +46,8 @@ class DownloadHandlerTest extends TestCase
         $storageStub = $this->createMock(FileStorageManager::class);
         /** @var PathGenerator|MockObject $pathGeneratorStub */
         $pathGeneratorStub = $this->createMock(PathGenerator::class);
-        /** @var SubDefinitionManager|MockObject $assetManagerStub */
-        $assetManagerStub = $this->createMock(SubDefinitionManager::class);
+        /** @var AssetManager|MockObject $assetManagerStub */
+        $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub
             ->expects($this->once())
             ->method('createAsset')
