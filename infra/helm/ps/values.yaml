@@ -347,7 +347,7 @@ _internal:
 
 elasticsearch:
   enabled: true
-  replicas: 0
+  replicas: 1
   clusterName: elasticsearch-databox
   minimumMasterNodes: 1
   volumeClaimTemplate:
