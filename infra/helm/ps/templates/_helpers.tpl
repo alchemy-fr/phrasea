@@ -76,7 +76,7 @@ gateway-tls
 {{- $appName := .app }}
 {{- $ctx := .ctx }}
 {{- $glob := .glob }}
-{{- if or (eq $appName "databox") or (eq $appName "uploader") (eq $appName "expose") }}
+{{- if or (eq $appName "databox") (or (eq $appName "uploader") (eq $appName "expose")) }}
 {{- $secretName := $ctx.api.config.s3Storage.externalSecretKey | default (printf "%s-s3-secret" $appName) }}
 {{- $mapping := $ctx.api.config.s3Storage.externalSecretMapping }}
 - name: S3_STORAGE_ACCESS_KEY
