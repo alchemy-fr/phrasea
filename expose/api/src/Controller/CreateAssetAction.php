@@ -7,7 +7,7 @@ namespace App\Controller;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Security\Voter\PublicationVoter;
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Mimey\MimeTypes;
@@ -19,13 +19,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 final class CreateAssetAction extends AbstractController
 {
     private FileStorageManager $storageManager;
-    private SubDefinitionManager $assetManager;
+    private AssetManager $assetManager;
     private UploadManager $uploadManager;
     private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
-        SubDefinitionManager $assetManager,
+        AssetManager $assetManager,
         UploadManager $uploadManager,
         PathGenerator $pathGenerator
     ) {

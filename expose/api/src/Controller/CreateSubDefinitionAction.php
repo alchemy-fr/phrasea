@@ -8,7 +8,7 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
 use App\Security\Voter\AssetVoter;
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Mimey\MimeTypes;
@@ -21,13 +21,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final class CreateSubDefinitionAction extends AbstractController
 {
     private FileStorageManager $storageManager;
-    private SubDefinitionManager $assetManager;
+    private AssetManager $assetManager;
     private UploadManager $uploadManager;
     private PathGenerator $pathGenerator;
 
     public function __construct(
         FileStorageManager $storageManager,
-        SubDefinitionManager $assetManager,
+        AssetManager $assetManager,
         UploadManager $uploadManager,
         PathGenerator $pathGenerator
     ) {

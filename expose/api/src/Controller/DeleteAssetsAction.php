@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Storage\SubDefinitionManager;
+use App\Storage\AssetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 final class DeleteAssetsAction extends AbstractController
 {
-    private SubDefinitionManager $assetManager;
+    private AssetManager $assetManager;
 
-    public function __construct(SubDefinitionManager $assetManager)
+    public function __construct(AssetManager $assetManager)
     {
         $this->assetManager = $assetManager;
     }
