@@ -462,12 +462,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c"
+                "reference": "29e888f30db7ba78aff48045a00e9b9f8bff4145"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/f2fd91602e6056b2575021cb65d535eece8a6f2c",
-                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/29e888f30db7ba78aff48045a00e9b9f8bff4145",
+                "reference": "29e888f30db7ba78aff48045a00e9b9f8bff4145",
                 "shasum": ""
             },
             "require": {
@@ -505,7 +505,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2021-09-08T14:05:36+00:00"
+            "time": "2021-10-21T11:46:39+00:00"
         },
         {
             "name": "aws/aws-crt-php",
