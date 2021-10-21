@@ -20,6 +20,8 @@ easy_admin:
           - Tag
           - TagFilterRule
           - SubDefinitionSpec
+          - SubDefinitionClass
+          - SubDefinitionRule
       - OAuthClient
       - label: 'Dev'
         children:
@@ -108,6 +110,7 @@ easy_admin:
         fields:
           - { property: 'workspace' }
           - { property: 'name' }
+          - { property: 'class.name', label: Class }
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
@@ -116,9 +119,47 @@ easy_admin:
         fields:
           - { property: 'workspace' }
           - { property: 'name' }
+          - { property: 'class' }
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
+
+    SubDefinitionClass:
+      class: App\Entity\Core\SubDefinitionClass
+      list:
+        max_results: 100
+        sort: [workspace, ASC]
+        filters: ['workspace', 'name']
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+
+    SubDefinitionRule:
+      class: App\Entity\Core\SubDefinitionRule
+      list:
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'userType' }
+          - { property: 'userId' }
+          - { property: 'objectType' }
+          - { property: 'objectId', type: string }
+          - { property: 'include' }
+          - { property: 'exclude' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'userType' }
+          - { property: 'userId' }
+          - { property: 'objectType' }
+          - { property: 'objectId' }
+          - { property: 'include' }
+          - { property: 'exclude' }
 
     Tag:
       class: App\Entity\Core\Tag

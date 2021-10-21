@@ -9,7 +9,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class CollectionInput
+class CollectionInput extends AbstractOwnerIdInput
 {
     /**
      * @Groups({"asset:write"})

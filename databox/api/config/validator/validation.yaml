@@ -12,6 +12,11 @@ App\Entity\Core\Collection:
     workspace:
       - NotNull: ~
 
+App\Entity\Core\Workspace:
+  properties:
+    name:
+      - NotBlank: ~
+
 App\Entity\Core\CollectionAsset:
   constraints:
     - App\Validator\SameWorkspaceConstraint:

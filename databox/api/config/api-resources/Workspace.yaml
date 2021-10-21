@@ -1,0 +1,22 @@
+resources:
+  App\Entity\Core\Workspace:
+    shortName: workspace
+    attributes:
+      output: App\Api\Model\Output\WorkspaceOutput
+      input: App\Api\Model\Input\WorkspaceInput
+    normalizationContext:
+      groups:
+        - _
+        - workspace:index
+
+    collectionOperations:
+      get: ~
+      post:
+        security: 'is_granted("ROLE_CHUCK-NORRIS")'
+
+    itemOperations:
+      get: ~
+      put:
+        security: 'is_granted("EDIT", object)'
+      delete:
+        security: 'is_granted("DELETE", object)'

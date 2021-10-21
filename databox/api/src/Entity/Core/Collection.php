@@ -16,6 +16,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,7 +34,7 @@ use App\Api\Model\Output\CollectionOutput;
  *  input=CollectionInput::class,
  * )
  */
-class Collection extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
+class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

@@ -14,6 +14,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,13 +26,12 @@ use LogicException;
  * @ApiResource(
  *  shortName="asset",
  *  normalizationContext={"groups"={"_", "asset:index"}},
- *  denormalizationContext={"groups"={"asset:write"}},
  *  output=AssetOutput::class,
  *  input=AssetInput::class,
  * )
  * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
  */
-class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
+class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

@@ -10,6 +10,8 @@ use App\Entity\Core\Collection;
 
 class CollectionInputDataTransformer extends AbstractInputDataTransformer
 {
+    use WithOwnerIdDataTransformerTrait;
+
     /**
      * @param CollectionInput $data
      */
@@ -26,16 +28,16 @@ class CollectionInputDataTransformer extends AbstractInputDataTransformer
             } elseif (null !== $data->parent) {
                 $object->setWorkspace($data->parent->getWorkspace());
             }
-        }
-        if ($isNew) {
-            $object->setOwnerId($this->getStrictUser()->getId());
+            if ($data->getOwnerId()) {
+                $object->setOwnerId($data->getOwnerId());
+            }
         }
 
         if (null !== $data->parent) {
             $object->setParent($data->parent);
         }
 
-        return $object;
+        return $this->transformOwnerId($object, $to, $context);
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool
