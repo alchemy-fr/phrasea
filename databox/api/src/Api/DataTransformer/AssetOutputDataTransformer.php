@@ -37,6 +37,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
 
+        $output->setFile($object->getFile());
 
         foreach ([
             'preview',

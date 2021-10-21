@@ -60,7 +60,7 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $file = null;
+    private $file = null;
 
     /**
      * @var File
@@ -80,12 +80,12 @@ class AssetOutput extends AbstractUuidOutput
      */
     private $thumbnailActive = null;
 
-    public function getFile(): ?FileOutput
+    public function getFile()
     {
         return $this->file;
     }
 
-    public function setFile(?FileOutput $file): void
+    public function setFile($file): void
     {
         $this->file = $file;
     }

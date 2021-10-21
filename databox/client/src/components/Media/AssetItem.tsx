@@ -2,7 +2,7 @@ import React, {MouseEvent, PureComponent, RefObject} from "react";
 import {Asset, Collection} from "../../types";
 import {Badge} from "react-bootstrap";
 import apiClient from "../../api/api-client";
-import {Delete, Edit} from '@material-ui/icons';
+import {CloudDownload, Delete, Edit} from '@material-ui/icons';
 import {GridListTile, GridListTileBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@material-ui/core";
 import InfoIcon from '@material-ui/icons/Info';
 import EditAsset from "./Asset/EditAsset";
@@ -99,12 +99,17 @@ class AssetItem extends PureComponent<AllProps, State> {
         this.setState({hover: false});
     }
 
+    download = () => {
+        document.location.href = this.props.file!.url;
+    }
+
     render() {
         const {
             id,
             title,
             description,
             tags,
+            file,
             thumbnail,
             thumbnailActive,
             privacy,
@@ -123,8 +128,6 @@ class AssetItem extends PureComponent<AllProps, State> {
         }
 
         const opacity = isDragging ? 0.4 : 1;
-
-        console.log('thumbnailActive', thumbnailActive);
 
         return connectDragSource(<div
             role="Box"
@@ -154,7 +157,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                             {this.renderCollections(collections)}
                         </ul>
                     </div>}
-                    actionIcon={(capabilities.canEdit || capabilities.canDelete) ?
+                    actionIcon={(file || capabilities.canEdit || capabilities.canDelete) ?
                         <div
                             ref={this.ref}
                         >
@@ -175,6 +178,12 @@ class AssetItem extends PureComponent<AllProps, State> {
                     open={this.state.menuOpen}
                     onClose={this.closeMenu}
                 >
+                    {file && <MenuItem onClick={this.download}>
+                        <ListItemIcon>
+                            <CloudDownload fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText primary="Download"/>
+                    </MenuItem>}
                     {capabilities.canEdit && <MenuItem onClick={this.edit}>
                         <ListItemIcon>
                             <Edit fontSize="small"/>

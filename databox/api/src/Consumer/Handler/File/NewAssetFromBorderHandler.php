@@ -42,7 +42,6 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $asset->setWorkspace($file->getWorkspace());
-        $asset->setPreview($file);
 
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);
