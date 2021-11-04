@@ -33,6 +33,11 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     private ?string $ownerId = null;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private ?array $config = [];
+
+    /**
      * @var Collection[]
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      * @ORM\JoinColumn(nullable=false)
@@ -81,5 +86,34 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     public function getAclOwnerId(): string
     {
         return $this->getOwnerId() ?? '';
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function setPhraseanetDataboxId($databoxId): void
+    {
+        if (null == $this->config) {
+            $this->config = [];
+        }
+
+        if (empty($databoxId)) {
+            unset($this->config['phraseanetDataboxId']);
+        } else {
+            $this->config['phraseanetDataboxId'] = (int) $databoxId;
+        }
+
+    }
+
+    public function getPhraseanetDataboxId(): ?int
+    {
+        return ($this->config ?? [])['phraseanetDataboxId'] ?? null;
     }
 }

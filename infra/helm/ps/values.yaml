@@ -53,6 +53,9 @@ databox:
         externalSecretMapping:
           accessKey: S3_STORAGE_ACCESS_KEY
           secretKey: S3_STORAGE_SECRET_KEY
+      phraseanet:
+        baseUrl:
+        oauthToken:
   adminOAuthClient:
     externalSecretName:
     id: databox-admin

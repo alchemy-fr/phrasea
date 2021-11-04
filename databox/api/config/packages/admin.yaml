@@ -19,6 +19,7 @@ easy_admin:
           - Workspace
           - Tag
           - TagFilterRule
+          - SubDefinition
           - SubDefinitionSpec
           - SubDefinitionClass
           - SubDefinitionRule
@@ -100,10 +101,13 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'phraseanetDataboxId', type: number }
 
     SubDefinitionSpec:
       class: App\Entity\Core\SubDefinitionSpec
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
@@ -124,9 +128,27 @@ easy_admin:
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
 
+    SubDefinition:
+      class: App\Entity\Core\SubDefinition
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+        batch_actions:
+          - delete
+        max_results: 100
+        filters: ['specification', 'asset']
+        fields:
+          - { property: 'specification.name', label: Name }
+          - { property: 'asset' }
+          - updatedAt
+          - createdAt
+
     SubDefinitionClass:
       class: App\Entity\Core\SubDefinitionClass
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
@@ -142,6 +164,8 @@ easy_admin:
     SubDefinitionRule:
       class: App\Entity\Core\SubDefinitionRule
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [createdAt, ASC]
         fields:
@@ -164,6 +188,8 @@ easy_admin:
     Tag:
       class: App\Entity\Core\Tag
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [name, ASC]
         filters: ['workspace']
@@ -179,6 +205,8 @@ easy_admin:
     TagFilterRule:
       class: App\Entity\Core\TagFilterRule
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [createdAt, ASC]
         fields:

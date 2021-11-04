@@ -1,7 +1,13 @@
 resources:
   App\Entity\Core\SubDefinition:
+    itemOperations:
+      delete:
+        security: 'is_granted("ROLE_SUB-DEFINITION:DELETE")'
+      put:
+        security: 'is_granted("ROLE_SUB-DEFINITION:EDIT")'
     collectionOperations:
       post:
+        security: 'is_granted("ROLE_SUB-DEFINITION:CREATE")'
         controller: App\Controller\Core\CreateSubDefinitionAction
         defaults:
           _api_receive: false

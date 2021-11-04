@@ -86,7 +86,24 @@ services:
         arguments:
             $client: '@app.file_downloader.http_client'
 
+    app.phraseanet.api_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                base_uri: '%env(PHRASEANET_BASE_URL)%'
+                verify: '%app.verify_ssl%'
+
+    App\External\PhraseanetApiClient:
+        arguments:
+            $client: '@app.phraseanet.api_client'
+            $oauthToken: '%env(PHRASEANET_APP_OAUTH_TOKEN)%'
+
     App\Storage\UrlSigner:
         $client: '@alchemy_storage.s3_client.external'
         $bucketName: '%env(S3_STORAGE_BUCKET_NAME)%'
         $ttl: '%env(DATABOX_REQUEST_SIGNATURE_TTL)%'
+
+    App\Security\JWTTokenManager:
+        arguments:
+            $signingKey: '%env(APP_SECRET)%'
+            $ttl: 86400

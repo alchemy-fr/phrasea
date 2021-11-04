@@ -12,7 +12,6 @@ use App\Entity\Core\Workspace;
 use App\Storage\SubDefinitionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
-use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +42,7 @@ final class CreateSubDefinitionAction extends AbstractController
         $subDefSpec = $this->resolveSubDefSpec($asset->getWorkspace(), $request);
 
         if (null !== $request->request->get('multipart')) {
-            return $this->handleMultipartUpload($request);
+            return $this->handleMultipartUpload($asset, $subDefSpec, $request);
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -65,66 +64,34 @@ final class CreateSubDefinitionAction extends AbstractController
             $this->storageManager->storeStream($path, $stream);
             fclose($stream);
 
-            return $this->subDefinitionManager->createSubDefinition(
+            return $this->subDefinitionManager->createOrReplaceSubDefinition(
                 $asset,
                 $subDefSpec,
                 $path,
                 $uploadedFile->getMimeType(),
                 $uploadedFile->getSize()
             );
-        } elseif (null !== $upload = $request->request->get('upload')) {
-            if (!is_array($upload)) {
-                throw new BadRequestHttpException('"upload" must be an array');
-            }
-
-            $originalFilename = $upload['name'] ?? null;
-            $contentType = $upload['type'] ?? null;
-            if (null === $contentType && !empty($originalFilename)) {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
-                $contentType = (new MimeTypes())->getMimeType($extension);
-            }
-
-            $contentType ??= 'application/octet-stream';
-
-            if (null === $originalFilename) {
-                $extension = (new MimeTypes())->getExtension($contentType);
-            } else {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
-            }
-            $path = $this->pathGenerator->generatePath($extension);
-
-            $subDef = $this->subDefinitionManager->createSubDefinition(
-                $asset,
-                $subDefSpec,
-                $path,
-                $contentType,
-                (int) ($upload['size'] ?? 0)
-            );
-
-            $url = $this->uploadManager->createPutObjectSignedURL($path, $contentType);
-            $subDef->setUploadURL($url);
-
-            return $asset;
         } else {
-            throw new BadRequestHttpException('Missing file or contentType');
+            throw new BadRequestHttpException('Missing file or multipart');
         }
     }
 
-    private function handleMultipartUpload(Request $request): SubDefinition
+    private function handleMultipartUpload(Asset $asset, SubDefinitionSpec $subDefinitionSpec, Request $request): SubDefinition
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
-        return $this->subDefinitionManager->createSubDefinition(
+        return $this->subDefinitionManager->createOrReplaceSubDefinition(
+            $asset,
+            $subDefinitionSpec,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
-            $multipartUpload->getFilename(),
-            $multipartUpload->getSize(),
-            $request->request->all(),
+            (int) ($upload['size'] ?? 0)
         );
     }
 
     private function resolveAsset(Request $request): Asset
     {
+        $asset = null;
         if ($assetId = $request->request->get('assetId')) {
             $asset = $this->subDefinitionManager->getAssetFromId($assetId);
         }

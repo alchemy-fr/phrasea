@@ -51,6 +51,10 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $em->persist($asset);
         $em->flush();
+
+        $this->eventProducer->publish(new EventMessage(GenerateAssetSubDefinitionsHandler::EVENT, [
+            'id' => $asset->getId(),
+        ]));
     }
 
     public static function getHandledEvents(): array

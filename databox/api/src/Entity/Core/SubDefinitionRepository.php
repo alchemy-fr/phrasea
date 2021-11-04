@@ -16,6 +16,7 @@ class SubDefinitionRepository extends EntityRepository
             ->andWhere('t.asset = :asset')
             ->andWhere('s.useAs'.ucfirst($type).' = true')
             ->setParameter('asset', $assetId)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }

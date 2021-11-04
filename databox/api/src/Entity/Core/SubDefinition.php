@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="SubDefinitionRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_sub_def",columns={"specification_id", "asset_id"})})
  * @ApiResource(
  *  shortName="sub-definition",
  *  normalizationContext={"groups"={"_", "subdef:index"}},

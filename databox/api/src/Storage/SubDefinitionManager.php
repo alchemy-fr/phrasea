@@ -38,7 +38,7 @@ class SubDefinitionManager
         return $file;
     }
 
-    public function createSubDefinition(
+    public function createOrReplaceSubDefinition(
         Asset $asset,
         SubDefinitionSpec $specification,
         string $path,
@@ -52,11 +52,22 @@ class SubDefinitionManager
             $asset->getWorkspace()
         );
 
-        $subDef = new SubDefinition();
+        $subDef = $this->em->getRepository(SubDefinition::class)
+            ->findOneBy([
+                'asset' => $asset->getId(),
+                'specification' => $specification->getId(),
+            ]);
+
+        if (!$subDef instanceof SubDefinition) {
+            $subDef = new SubDefinition();
+            $subDef->setAsset($asset);
+            $subDef->setSpecification($specification);
+        } else {
+            // TODO remove old subdef file
+        }
+
         $subDef->setFile($file);
         $subDef->setReady(true);
-        $subDef->setAsset($asset);
-        $subDef->setSpecification($specification);
 
         $this->em->persist($subDef);
 
