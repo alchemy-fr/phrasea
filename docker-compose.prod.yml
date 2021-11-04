@@ -1,7 +1,9 @@
-version: '3.4'
+version: '3.9'
 
 services:
   uploader-client:
+    profiles:
+      - uploader
     image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
     build:
       context: ./uploader/client
@@ -23,6 +25,8 @@ services:
       - ${UPLOADER_CLIENT_PORT}:80
 
   expose-client:
+    profiles:
+      - expose
     image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
     build:
       context: ./expose/client
@@ -43,6 +47,8 @@ services:
       - ${EXPOSE_FRONT_PORT}:80
 
   databox-client:
+    profiles:
+      - databox
     image: ${REGISTRY_NAMESPACE}databox-client:$DOCKER_TAG
     build:
       context: ./databox/client

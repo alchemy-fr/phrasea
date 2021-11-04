@@ -9,6 +9,7 @@ set -ex
 
 export APP_ENV=test
 export XDEBUG_ENABLED=0
+export COMPOSE_PROFILES=setup,db,uploader,auth,databox,expose,notify,tools
 
 SF_SERVICES="
 expose-api-php

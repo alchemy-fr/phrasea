@@ -1,7 +1,9 @@
-version: '3.4'
+version: '3.9'
 
 services:
   uploader-client-dev:
+    profiles:
+      - uploader
     build:
       context: ./uploader/client
       target: uploader-client-build
@@ -23,6 +25,8 @@ services:
       - ${UPLOADER_CLIENT_PORT}:3000
 
   expose-client-dev:
+    profiles:
+      - expose
     build:
       context: ./expose/client
       target: expose-client-build
@@ -43,6 +47,8 @@ services:
       - ${EXPOSE_FRONT_PORT}:3000
 
   databox-client-dev:
+    profiles:
+      - databox
     build:
       context: ./databox/client
       target: databox-client-build
@@ -233,6 +239,8 @@ services:
       - 127.0.0.1:8105:80
 
   elastichq:
+    profiles:
+      - tools
     image: elastichq/elasticsearch-hq
     networks:
       - internal

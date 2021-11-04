@@ -10,6 +10,8 @@ load-env
 
 set -ex
 
+export COMPOSE_PROFILES=setup,db,databox,auth
+
 docker-compose up -d
 
 # Wait for services to be ready

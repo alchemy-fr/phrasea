@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.9'
 
 networks:
   internal:
@@ -8,6 +8,8 @@ networks:
 
 services:
   uploader-api-php:
+    profiles:
+      - uploader
     image: ${REGISTRY_NAMESPACE}uploader-api-php:$DOCKER_TAG
     build:
       context: ./uploader/api
@@ -58,6 +60,8 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   uploader-worker:
+    profiles:
+      - uploader
     image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
     build:
       context: ./uploader/api
@@ -95,6 +99,8 @@ services:
       - ./configs:/configs
 
   uploader-api-nginx:
+    profiles:
+      - uploader
     image: ${REGISTRY_NAMESPACE}uploader-api-nginx:$DOCKER_TAG
     build:
       context: ./uploader/api
@@ -111,6 +117,12 @@ services:
       - uploader-api-php
 
   auth-worker:
+    profiles:
+      - auth
+      - databox
+      - expose
+      - notify
+      - uploader
     image: ${REGISTRY_NAMESPACE}auth-worker:$DOCKER_TAG
     build:
       context: ./auth/api
@@ -137,6 +149,12 @@ services:
       - REPORT_BASE_URL
 
   auth-api-php:
+    profiles:
+      - auth
+      - databox
+      - expose
+      - notify
+      - uploader
     image: ${REGISTRY_NAMESPACE}auth-api-php:$DOCKER_TAG
     build:
       context: ./auth/api
@@ -175,6 +193,12 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   auth-api-nginx:
+    profiles:
+      - auth
+      - databox
+      - expose
+      - notify
+      - uploader
     image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
     build:
       context: ./auth/api
@@ -189,6 +213,8 @@ services:
       - auth-api-php
 
   expose-api-php:
+    profiles:
+      - expose
     image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
     build:
       context: ./expose/api
@@ -245,6 +271,8 @@ services:
       - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
 
   expose-worker:
+    profiles:
+      - expose
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
     build:
       context: ./expose/api
@@ -281,6 +309,8 @@ services:
       - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
 
   expose-api-nginx:
+    profiles:
+      - expose
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
     build:
       context: ./expose/api
@@ -297,6 +327,8 @@ services:
       - UPLOAD_MAX_FILE_SIZE
 
   notify-api-php:
+    profiles:
+      - notify
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
     build:
       context: ./notify/api
@@ -334,6 +366,8 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   notify-worker:
+    profiles:
+      - notify
     image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
     build:
       context: ./notify/api
@@ -359,6 +393,8 @@ services:
       - MAIL_FROM
 
   notify-api-nginx:
+    profiles:
+      - notify
     image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG
     build:
       context: ./notify/api
@@ -373,6 +409,8 @@ services:
       - notify-api-php
 
   redis:
+    profiles:
+      - db
     image: redis:5.0.5-alpine
     networks:
       - internal
@@ -380,6 +418,8 @@ services:
       - redis_vol:/data
 
   db:
+    profiles:
+      - db
     image: postgres:11.2-alpine
     hostname: postgres
     networks:
@@ -391,6 +431,8 @@ services:
       - db_vol:/var/lib/postgresql/data
 
   rabbitmq:
+    profiles:
+      - db
     image: rabbitmq:3.7.14-management
     hostname: rabbitmq
     networks:
@@ -404,12 +446,16 @@ services:
       - ${RABBITMQ_MGT_PORT}:15672
 
   dockerize:
+    profiles:
+      - setup
     image: jwilder/dockerize
     networks:
       - internal
     command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "100s", "--", "echo", "ready"]
 
   minio:
+    profiles:
+      - db
     image: minio/minio
     networks:
       - internal
@@ -423,6 +469,8 @@ services:
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
 
   minio-mc:
+    profiles:
+      - setup
     image: minio/mc:RELEASE.2020-09-18T00-13-21Z
     networks:
       - internal
@@ -436,6 +484,8 @@ services:
       UPLOADER_STORAGE_BUCKET_NAME: ${UPLOADER_STORAGE_BUCKET_NAME}
 
   matomo-php:
+    profiles:
+      - matomo
     image: ${REGISTRY_NAMESPACE}matomo-php:$DOCKER_TAG
     build: ./infra/docker/matomo-php
     networks:
@@ -453,6 +503,8 @@ services:
       - matomo_vol:/var/www/html
 
   matomo-nginx:
+    profiles:
+      - matomo
     image: ${REGISTRY_NAMESPACE}matomo-nginx:$DOCKER_TAG
     build: ./infra/docker/matomo-nginx
     networks:
@@ -465,6 +517,8 @@ services:
       - ${MATOMO_PORT}:80
 
   matomo-db:
+    profiles:
+      - matomo
     image: mariadb:10.4.10-bionic
     command:
       - "mysqld"
@@ -482,6 +536,8 @@ services:
       - matomodb_vol:/var/lib/mysql
 
   report-api:
+    profiles:
+      - report
     image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
     build: report
     networks:
@@ -497,6 +553,8 @@ services:
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
 
   pgadmin:
+    profiles:
+      - tools
     image: dpage/pgadmin4:4.14
     ports:
       - ${PGADMIN_PORT}:80
@@ -511,17 +569,28 @@ services:
       - pgadmin_vol:/var/lib/pgadmin
 
   phpmyadmin:
+    profiles:
+      - tools
     image: phpmyadmin/phpmyadmin
     networks:
       - internal
     environment:
       - PMA_HOST=matomo-db
-    depends_on:
-      - matomo-db
     ports:
       - ${PHPMYADMIN_PORT}:80
 
+  mailhog:
+    profiles:
+      - mailhog
+    image: mailhog/mailhog
+    networks:
+      - internal
+    ports:
+      - ${MAILHOG_PORT}:8025
+
   dashboard:
+    profiles:
+      - dashboard
     image: ${REGISTRY_NAMESPACE}dashboard:$DOCKER_TAG
     build: dashboard
     networks:
@@ -592,6 +661,8 @@ services:
       - XDEBUG_ENABLED
 
   databox-api-php:
+    profiles:
+      - databox
     image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
     build:
       context: ./databox/api
@@ -637,6 +708,8 @@ services:
       #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
 
   databox-api-nginx:
+    profiles:
+      - databox
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
     build:
       context: ./databox/api
@@ -651,6 +724,8 @@ services:
       - databox-api-php
 
   databox-worker:
+    profiles:
+      - databox
     image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
     build:
       context: ./databox/api
@@ -689,6 +764,8 @@ services:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
 
   elasticsearch:
+    profiles:
+      - databox
     image: elasticsearch:7.11.2
     networks:
       - internal
