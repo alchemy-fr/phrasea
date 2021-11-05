@@ -2,22 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Entity\Core;
+namespace App\Repository\Core;
 
+use App\Entity\Core\SubDefinition;
 use Doctrine\ORM\EntityRepository;
 
 class SubDefinitionRepository extends EntityRepository
 {
-    public function findSubDefByType(string $assetId, string $type): ?SubDefinition
+    /**
+     * @return SubDefinition[]
+     */
+    public function findAssetSubDefs(string $assetId): array
     {
         return $this->createQueryBuilder('t')
             ->select('t')
+            ->addSelect('s')
             ->innerJoin('t.specification', 's')
             ->andWhere('t.asset = :asset')
-            ->andWhere('s.useAs'.ucfirst($type).' = true')
             ->setParameter('asset', $assetId)
-            ->setMaxResults(1)
+            ->addOrderBy('s.priority', 'DESC')
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
     }
 }

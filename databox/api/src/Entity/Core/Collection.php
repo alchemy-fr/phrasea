@@ -6,7 +6,6 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Api\Model\Input\CollectionInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
@@ -22,17 +21,10 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Api\Model\Output\CollectionOutput;
 
 /**
- * @ORM\Entity(repositoryClass="CollectionRepository")
- * @ApiResource(
- *  shortName="collection",
- *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children", "collection:2_level_children"}, "enable_max_depth"=true},
- *  output=CollectionOutput::class,
- *  input=CollectionInput::class,
- * )
+ * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
+ * @ApiResource()
  */
 class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
 {
@@ -43,8 +35,6 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     use WorkspacePrivacyTrait;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Length(max=255)
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $title = null;

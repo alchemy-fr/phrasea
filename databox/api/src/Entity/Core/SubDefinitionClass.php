@@ -14,11 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ORM\Table(indexes={@ORM\Index(name="sdc_ws_name", columns={"workspace_id", "name"})})
- * @ApiResource(
- *  shortName="sub-definition-spec",
- *  normalizationContext={"groups"={"_", "subdefspec:index"}},
- *  denormalizationContext={"groups"={"subdefspec:write"}},
- * )
+ * @ApiResource()
  */
 class SubDefinitionClass extends AbstractUuidEntity
 {

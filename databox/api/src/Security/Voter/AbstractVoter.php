@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractVoter extends Voter
 {
+    const CREATE = 'CREATE';
     const LIST = 'LIST';
     const READ = 'READ';
     const EDIT = 'EDIT';
@@ -19,10 +20,19 @@ abstract class AbstractVoter extends Voter
 
     protected EntityManagerInterface $em;
     protected Security $security;
+    private array $cache = [];
 
     protected function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
-        return $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+        if (isset($this->cache[$userId])) {
+            return $this->cache[$userId];
+        }
+
+        $workspaceIds = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+
+        $this->cache[$userId] = $workspaceIds;
+
+        return $workspaceIds;
     }
 
     /**

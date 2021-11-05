@@ -18,18 +18,11 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Api\Model\Output\AssetOutput;
-use App\Api\Model\Input\AssetInput;
 use LogicException;
 
 /**
- * @ApiResource(
- *  shortName="asset",
- *  normalizationContext={"groups"={"_", "asset:index"}},
- *  output=AssetOutput::class,
- *  input=AssetInput::class,
- * )
- * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
+ * @ApiResource()
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  */
 class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {

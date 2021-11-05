@@ -54,6 +54,7 @@ export default function AssetPreviewWrapper({
             aria-haspopup="true"
             onMouseEnter={handlePopoverOpen}
             onMouseLeave={handlePopoverClose}
+            onMouseDown={handlePopoverClose}
         >
             {children}
         </div>

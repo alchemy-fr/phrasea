@@ -63,6 +63,11 @@ class SubDefinitionSpec extends AbstractUuidEntity
      */
     private ?string $definition = '';
 
+    /**
+     * @ORM\Column(type="smallint", nullable=false)
+     */
+    private int $priority = 0;
+
     public function getName(): string
     {
         return $this->name;
@@ -121,5 +126,15 @@ class SubDefinitionSpec extends AbstractUuidEntity
     public function setClass(?SubDefinitionClass $class): void
     {
         $this->class = $class;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
     }
 }

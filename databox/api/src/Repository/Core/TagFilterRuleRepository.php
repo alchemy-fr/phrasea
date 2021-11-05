@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Repository\Core;
 
-use App\Entity\Core\SubDefinitionRule;
+use App\Entity\Core\TagFilterRule;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use InvalidArgumentException;
 
-class SubDefinitionRuleRepository extends EntityRepository
+class TagFilterRuleRepository extends EntityRepository
 {
     /**
-     * @return SubDefinitionRule[]
+     * @return TagFilterRule[]
      */
     public function getRules(?string $userId, array $groupIds, int $objectType, ?string $objectId): array
     {
@@ -28,7 +28,7 @@ class SubDefinitionRuleRepository extends EntityRepository
         if (!empty($groupIds)) {
             $userWhere[] = 'a.userType = :gt AND a.userId = (:gids)';
             $queryBuilder
-                ->setParameter('gt', SubDefinitionRule::TYPE_GROUP)
+                ->setParameter('gt', TagFilterRule::TYPE_GROUP)
                 ->setParameter('gids', $groupIds)
             ;
         }
@@ -37,7 +37,7 @@ class SubDefinitionRuleRepository extends EntityRepository
 
         if ($userId) {
             $queryBuilder
-                ->setParameter('ut', SubDefinitionRule::TYPE_USER)
+                ->setParameter('ut', TagFilterRule::TYPE_USER)
                 ->setParameter('uid', $userId)
             ;
         }

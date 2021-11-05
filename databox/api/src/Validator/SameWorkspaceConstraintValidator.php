@@ -26,20 +26,18 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-        if ($value instanceof CollectionAsset) {
-            $workspaceId = null;
-            foreach ($constraint->properties as $propertyPath) {
-                /** @var Workspace $workspace */
-                $workspace = $this->getPropertyAccessor()->getValue($value, $propertyPath);
-                $wId = $workspace->getId();
+        $workspaceId = null;
+        foreach ($constraint->properties as $propertyPath) {
+            /** @var Workspace $workspace */
+            $workspace = $this->getPropertyAccessor()->getValue($value, $propertyPath);
+            $wId = $workspace->getId();
 
-                if (null === $workspaceId) {
-                    $workspaceId = $wId;
-                } elseif ($workspaceId !== $wId) {
-                    $this->context
-                        ->buildViolation(sprintf('Items are not in the same workspace [%s]', implode(', ', $constraint->properties)))
-                        ->addViolation();
-                }
+            if (null === $workspaceId) {
+                $workspaceId = $wId;
+            } elseif ($workspaceId !== $wId) {
+                $this->context
+                    ->buildViolation(sprintf('Items are not in the same workspace [%s]', implode(', ', $constraint->properties)))
+                    ->addViolation();
             }
         }
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Repository\Core;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;

@@ -706,8 +706,10 @@ services:
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
       # Uncomment these lines only in dev with different hostname to avoid duplicates:
-      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
-      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
+      # TODO
+      - "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
+      - "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
+      - "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
 
   databox-api-nginx:
     profiles:

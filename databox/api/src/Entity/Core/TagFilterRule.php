@@ -23,7 +23,7 @@ use App\Api\Model\Input\TagFilterRuleInput;
  *         @ORM\Index(name="tfr_user_type_idx", columns={"user_type"}),
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\TagFilterRuleRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Core\TagFilterRuleRepository")
  * @ApiResource(
  *  shortName="tag-filter-rule",
  *  attributes={"security"="is_granted('ROLE_USER')"},

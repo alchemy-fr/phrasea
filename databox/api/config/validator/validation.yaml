@@ -9,6 +9,8 @@ App\Entity\Core\Collection:
   properties:
     title:
       - NotBlank: ~
+      - Length:
+          max: 255
     workspace:
       - NotNull: ~
 
@@ -31,6 +33,16 @@ App\Entity\Core\SubDefinition:
           - asset.workspace
           - file.workspace
           - specification.workspace
+
+App\Entity\Core\SubDefinitionSpec:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - workspace
+          - class.workspace
+  properties:
+    priority:
+      - NotNull: ~
 
 App\Entity\Core\TagFilterRule:
   constraints:

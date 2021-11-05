@@ -173,17 +173,15 @@ easy_admin:
           - { property: 'userId' }
           - { property: 'objectType' }
           - { property: 'objectId', type: string }
-          - { property: 'include' }
-          - { property: 'exclude' }
+          - { property: 'allowed' }
           - createdAt
       form:
         fields:
-          - { property: 'userType' }
+          - { property: 'userType', type: App\Form\UserTypeType }
           - { property: 'userId' }
-          - { property: 'objectType' }
+          - { property: 'objectType', type: App\Form\ObjectTypeType }
           - { property: 'objectId' }
-          - { property: 'include' }
-          - { property: 'exclude' }
+          - { property: 'allowed' }
 
     Tag:
       class: App\Entity\Core\Tag
@@ -205,6 +203,8 @@ easy_admin:
     TagFilterRule:
       class: App\Entity\Core\TagFilterRule
       list:
+        actions:
+          - '-new'
         batch_actions:
           - delete
         max_results: 100

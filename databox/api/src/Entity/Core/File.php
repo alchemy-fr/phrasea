@@ -10,16 +10,10 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Api\Model\Output\FileOutput;
 
 /**
  * @ORM\Entity()
- * @ApiResource(
- *  shortName="file",
- *  normalizationContext={"groups"={"_", "file:index"}},
- *  denormalizationContext={"groups"={"file:write"}},
- *  output=FileOutput::class,
- * )
+ * @ApiResource()
  */
 class File extends AbstractUuidEntity
 {

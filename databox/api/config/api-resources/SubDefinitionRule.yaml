@@ -1,0 +1,15 @@
+resources:
+  App\Entity\Core\SubDefinitionRule:
+    shortName: sub-definition-rule
+    itemOperations:
+      get:
+        security: 'is_granted("READ", object)'
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("EDIT", object)'
+      patch:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

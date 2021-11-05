@@ -23,7 +23,7 @@ use App\Api\Model\Input\TagFilterRuleInput;
  *         @ORM\Index(name="sdr_user_type_idx", columns={"user_type"}),
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\SubDefinitionRuleRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Core\SubDefinitionRuleRepository")
  * @ApiResource(
  *  shortName="sub-definition-rule",
  *  attributes={"security"="is_granted('ROLE_USER')"},
@@ -79,23 +79,15 @@ class SubDefinitionRule extends AbstractUuidEntity
     /**
      * @var SubDefinitionClass[]|Collection
      * @ORM\ManyToMany(targetEntity="App\Entity\Core\SubDefinitionClass")
-     * @ORM\JoinTable(name="sdr_includes")
+     * @ORM\JoinTable(name="sdr_allowed")
      */
-    protected ?DoctrineCollection $include = null;
-
-    /**
-     * @var SubDefinitionClass[]|Collection
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\SubDefinitionClass")
-     * @ORM\JoinTable(name="sdr_excludes")
-     */
-    protected ?DoctrineCollection $exclude = null;
+    protected ?DoctrineCollection $allowed = null;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->include = new ArrayCollection();
-        $this->exclude = new ArrayCollection();
+        $this->allowed = new ArrayCollection();
     }
 
     public function getUserType(): ?int
@@ -141,32 +133,16 @@ class SubDefinitionRule extends AbstractUuidEntity
     /**
      * @return SubDefinitionClass[]
      */
-    public function getInclude(): DoctrineCollection
+    public function getAllowed(): DoctrineCollection
     {
-        return $this->include;
+        return $this->allowed;
     }
 
-    /**
-     * @return SubDefinitionClass[]
-     */
-    public function getExclude(): DoctrineCollection
+    public function setAllowed(iterable $allowed): void
     {
-        return $this->exclude;
-    }
-
-    public function setInclude(iterable $include): void
-    {
-        $this->include->clear();
-        foreach ($include as $item) {
-            $this->include->add($item);
-        }
-    }
-
-    public function setExclude(iterable $exclude): void
-    {
-        $this->exclude->clear();
-        foreach ($exclude as $item) {
-            $this->exclude->add($item);
+        $this->allowed->clear();
+        foreach ($allowed as $item) {
+            $this->allowed->add($item);
         }
     }
 }

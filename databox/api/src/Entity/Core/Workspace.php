@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\WorkspaceRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
 class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
 {
@@ -109,7 +109,6 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
         } else {
             $this->config['phraseanetDataboxId'] = (int) $databoxId;
         }
-
     }
 
     public function getPhraseanetDataboxId(): ?int

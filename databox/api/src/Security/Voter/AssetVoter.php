@@ -27,7 +27,7 @@ class AssetVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::READ:
-                // isGranted VIEW on asset
+                // TODO isGranted VIEW on asset
                 // AND validate permissions on tags
                 break;
             case self::EDIT:
