@@ -12,7 +12,7 @@ load-env
 
 set -ex
 
-export COMPOSE_PROFILES=setup,db,uploader,auth,databox,expose,notify,tools
+export COMPOSE_PROFILES=setup,db,uploader,auth,databox,expose,notify,dashboard,tools
 
 docker-compose up -d
 
