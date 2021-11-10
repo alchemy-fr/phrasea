@@ -1,0 +1,20 @@
+resources:
+  App\Entity\Core\AttributeDefinition:
+    shortName: attribute-definition
+    attributes:
+      normalization_context:
+        groups:
+          - _
+          - attributedef:index
+    itemOperations:
+      get: ~
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("EDIT", object)'
+      patch:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      get: ~
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

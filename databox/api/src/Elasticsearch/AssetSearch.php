@@ -88,6 +88,7 @@ class AssetSearch extends AbstractSearch
         if (!empty($queryString)) {
             $weights = [
                 'title' => 10,
+                'attributes.*' => 9,
             ];
 
             $multiMatch = new Query\MultiMatch();

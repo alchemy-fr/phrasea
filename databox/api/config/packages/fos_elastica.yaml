@@ -18,6 +18,8 @@ fos_elastica:
                                 delimiter: /
             properties:
                 title: ~
+                attributes:
+                    type: object
                 collectionPaths:
                     property_path: false
                     type: text
@@ -40,6 +42,12 @@ fos_elastica:
                     type: keyword
                 createdAt:
                     type: date
+            dynamic_templates:
+                - attributes_tpl:
+                    match_mapping_type: string
+                    path_match: 'attributes.*'
+                    mapping:
+                        type: text
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset

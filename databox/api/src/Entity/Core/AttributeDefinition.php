@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-class MetadataDefinition extends AbstractUuidEntity
+class AttributeDefinition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -45,11 +45,21 @@ class MetadataDefinition extends AbstractUuidEntity
     private bool $editable = true;
 
     /**
-     * Resolve to this technical data if no user value provided.
+     * Resolve this template (TWIG syntax) if no user value provided.
      *
      * @ORM\Column(type="array", nullable=true)
      */
-    private ?array $fallbacks = null;
+    private ?array $fallback = null;
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
 
     public function getFileType(): ?string
     {
@@ -81,13 +91,38 @@ class MetadataDefinition extends AbstractUuidEntity
         $this->editable = $editable;
     }
 
-    public function getFallbacks(): ?array
+    public function getFallback(): ?array
     {
-        return $this->fallbacks;
+        return $this->fallback;
     }
 
-    public function setFallbacks(?array $fallbacks): void
+    public function setFallback(?array $fallback): void
     {
-        $this->fallbacks = $fallbacks;
+        $this->fallback = $fallback;
+    }
+
+    public function setFallbackEN(?string $fallback): void
+    {
+        $this->fallback['en'] = $fallback;
+    }
+
+    public function setFallbackFR(?string $fallback): void
+    {
+        $this->fallback['fr'] = $fallback;
+    }
+
+    public function getFallbackEN(): ?string
+    {
+        return $this->fallback['en'] ?? null;
+    }
+
+    public function getFallbackFR(): ?string
+    {
+        return $this->fallback['fr'] ?? null;
+    }
+
+    public function __toString()
+    {
+        return $this->getName() ?? $this->getId();
     }
 }

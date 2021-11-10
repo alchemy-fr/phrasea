@@ -6,7 +6,7 @@ namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 
-trait TranslatableTrait
+trait LocaleTrait
 {
     /**
      * @ORM\Column(type="string", length=2)

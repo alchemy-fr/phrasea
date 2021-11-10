@@ -19,6 +19,23 @@ App\Entity\Core\Workspace:
     name:
       - NotBlank: ~
 
+App\Entity\Core\Attribute:
+  properties:
+    definition:
+      - NotNull: ~
+    value:
+      - NotNull: ~
+    origin:
+      - NotNull: ~
+
+App\Entity\Core\AttributeDefinition:
+  properties:
+    workspace:
+      - NotNull: ~
+    name:
+      - NotNull: ~
+      - NotBlank: ~
+
 App\Entity\Core\CollectionAsset:
   constraints:
     - App\Validator\SameWorkspaceConstraint:

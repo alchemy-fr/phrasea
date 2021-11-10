@@ -6,6 +6,7 @@ namespace App\Elasticsearch\Listener;
 
 use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\SearchableEntityInterface;
+use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
@@ -142,6 +143,14 @@ class DeferredIndexListener implements EventSubscriber
         }
 
         $this->scheduledForDeletion[$class][] = $entity->getId();
+
+        if ($entity instanceof SearchDeleteDependencyInterface) {
+            foreach ($entity->getSearchDeleteDependencies() as $dep) {
+                if (!in_array($dep, $this->scheduledForUpdate, true)) {
+                    $this->scheduledForUpdate[] = $dep;
+                }
+            }
+        }
     }
 
     public function getSubscribedEvents()

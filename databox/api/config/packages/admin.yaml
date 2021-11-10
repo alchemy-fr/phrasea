@@ -5,6 +5,9 @@ alchemy_admin:
 
 easy_admin:
   design:
+    form_theme:
+      - '@EasyAdmin/form/bootstrap_4.html.twig'
+      - 'form/ace_editor.html.twig'
     menu:
       - label: 'Permissions'
         children:
@@ -14,9 +17,11 @@ easy_admin:
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Core'
         children:
-          - Asset
-          - Collection
           - Workspace
+          - Collection
+          - Asset
+          - Attribute
+          - AttributeDefinition
           - Tag
           - TagFilterRule
           - SubDefinition
@@ -217,3 +222,59 @@ easy_admin:
           - { property: 'include' }
           - { property: 'exclude' }
           - createdAt
+
+    Attribute:
+      class: App\Entity\Core\Attribute
+      list:
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'asset' }
+          - { property: 'definition' }
+          - { property: 'value', type: string }
+          - { property: 'locale' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'asset' }
+          - { property: 'definition' }
+          - { property: 'value' }
+          - { property: 'origin' }
+          - { property: 'originVendor' }
+          - { property: 'originVendorContext' }
+
+    AttributeDefinition:
+      class: App\Entity\Core\AttributeDefinition
+      list:
+        max_results: 100
+        sort: [name, ASC]
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'fileType' }
+          - { property: 'fieldType' }
+          - { property: 'editable' }
+          - { property: 'fallback' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'fileType' }
+          - { property: 'fieldType' }
+          - { property: 'editable' }
+          -
+            property: fallbackEN
+            label: "Fallback value template EN"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
+
+          -
+            property: fallbackFR
+            label: "Fallback value template FR"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              help: 'ex. Les dimensions sont : {{ file.width }}x{{ file.height }}'

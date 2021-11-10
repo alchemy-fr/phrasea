@@ -10,7 +10,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\TranslatableTrait;
+use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -31,7 +31,7 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    use TranslatableTrait;
+    use LocaleTrait;
     use WorkspacePrivacyTrait;
 
     /**

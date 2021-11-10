@@ -34,12 +34,12 @@ class PhraseanetApiClient
 
     public function __construct(Client $client, string $oauthToken)
     {
-        if (empty($oauthToken)) {
-            throw new InvalidArgumentException('Phraseanet token is empty');
-        }
-
         $handler = $client->getConfig('handler');
         $handler->unshift(Middleware::mapRequest(function (RequestInterface $request): RequestInterface {
+            if (empty($this->oauthToken)) {
+                throw new InvalidArgumentException('Phraseanet token is empty');
+            }
+
             return $request->withUri(Uri::withQueryValue($request->getUri(), 'oauth_token', $this->oauthToken));
         }));
 
