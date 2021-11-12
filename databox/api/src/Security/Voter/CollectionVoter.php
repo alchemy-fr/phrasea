@@ -31,6 +31,8 @@ class CollectionVoter extends AbstractVoter
         $workspaceIds = $userId ? $this->getAllowedWorkspaceIds($userId, $user->getGroupIds()) : [];
 
         switch ($attribute) {
+            case self::CREATE:
+                return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
             case self::LIST:
                 return $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)

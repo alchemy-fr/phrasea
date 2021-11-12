@@ -26,6 +26,12 @@ class AssetVoter extends AbstractVoter
         $isOwner = $userId && $subject->getOwnerId() === $userId;
 
         switch ($attribute) {
+            case self::CREATE:
+                if (null !== $collection =$subject->getReferenceCollection()) {
+                    return $this->security->isGranted(CollectionVoter::EDIT, $collection);
+                }
+
+                return $user instanceof RemoteUser;
             case self::READ:
                 // TODO isGranted VIEW on asset
                 // AND validate permissions on tags
