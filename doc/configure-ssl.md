@@ -13,4 +13,4 @@ sudo service nginx configtest
 sudo service nginx reload
 ```
 
-Then you can import the AlchemyRootCA (located at `~/ssl/AlchemyRootCA.pem`) into "Authorities" in your favorite browser.
+Then you can import the AlchemyRootCA (located at `~/ssl/AlchemyDevelopmentRootCA.pem`) into "Authorities" in your favorite browser.
