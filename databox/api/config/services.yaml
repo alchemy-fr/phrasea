@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     default_locale: 'en'
+    env(VERIFY_SSL): true
 
 services:
     # default configuration for services in *this* file
@@ -70,13 +71,13 @@ services:
         class: GuzzleHttp\Client
         arguments:
             -
-                verify: '%app.verify_ssl%'
+                verify: '%env(bool:VERIFY_SSL)%'
 
     app.file_downloader.http_client:
         class: GuzzleHttp\Client
         arguments:
             -
-                verify: '%app.verify_ssl%'
+                verify: '%env(bool:VERIFY_SSL)%'
 
     App\Border\UploaderClient:
         arguments:
@@ -91,7 +92,7 @@ services:
         arguments:
             -
                 base_uri: '%env(PHRASEANET_BASE_URL)%'
-                verify: '%app.verify_ssl%'
+                verify: '%env(bool:VERIFY_SSL)%'
 
     App\External\PhraseanetApiClient:
         arguments:

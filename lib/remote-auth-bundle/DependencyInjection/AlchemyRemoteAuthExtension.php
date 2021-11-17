@@ -28,8 +28,6 @@ class AlchemyRemoteAuthExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $container->setParameter('app.verify_ssl', 'prod' === $container->getParameter('kernel.environment'));
-
         if ('test' === $container->getParameter('kernel.environment')) {
             $loader->load('services_test.yaml');
         }
