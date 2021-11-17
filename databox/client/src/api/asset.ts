@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Asset, Collection} from "../types";
+import {Asset} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
 interface AssetOptions {

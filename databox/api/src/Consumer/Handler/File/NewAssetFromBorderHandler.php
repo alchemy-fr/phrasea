@@ -7,6 +7,8 @@ namespace App\Consumer\Handler\File;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
+use App\Entity\Core\SubDefinition;
+use App\Entity\Core\SubDefinitionSpec;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -42,6 +44,22 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $asset->setWorkspace($file->getWorkspace());
+
+        $originalSubDefSpecs = $em->getRepository(SubDefinitionSpec::class)
+            ->findBy([
+                'workspace' => $file->getWorkspace()->getId(),
+                'useAsOriginal' => true,
+            ]);
+
+        foreach ($originalSubDefSpecs as $originalSubDefSpec) {
+            $origSubDef = new SubDefinition();
+            $origSubDef->setAsset($asset);
+            $origSubDef->setFile($file);
+            $origSubDef->setSpecification($originalSubDefSpec);
+            $origSubDef->setReady(true);
+
+            $em->persist($origSubDef);
+        }
 
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);

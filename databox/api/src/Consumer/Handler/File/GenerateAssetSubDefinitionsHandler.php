@@ -86,7 +86,9 @@ class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
 
         try {
             $this->client->post('/api/v3/subdefs_service/', [
-                'json' => $data
+                'json' => $data,
+                'stream' => true,
+                'read_timeout' => 10,
             ]);
         } catch (BadResponseException $e) {
             $this->logger->debug('Payload sent before error: '.\GuzzleHttp\json_encode($data));

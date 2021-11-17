@@ -43,6 +43,12 @@ class SubDefinitionSpec extends AbstractUuidEntity
      * @Groups({"subdefspec:read"})
      * @ORM\Column(type="boolean")
      */
+    private bool $useAsOriginal = false;
+
+    /**
+     * @Groups({"subdefspec:read"})
+     * @ORM\Column(type="boolean")
+     */
     private bool $useAsPreview = false;
 
     /**
@@ -76,6 +82,16 @@ class SubDefinitionSpec extends AbstractUuidEntity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function isUseAsOriginal(): bool
+    {
+        return $this->useAsOriginal;
+    }
+
+    public function setUseAsOriginal(bool $useAsOriginal): void
+    {
+        $this->useAsOriginal = $useAsOriginal;
     }
 
     public function isUseAsPreview(): bool

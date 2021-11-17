@@ -120,6 +120,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class.name', label: Class }
+          - { property: 'useAsOriginal' }
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
@@ -129,6 +130,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class' }
+          - { property: 'useAsOriginal' }
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }

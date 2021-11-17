@@ -58,9 +58,10 @@ class AssetOutput extends AbstractUuidOutput
     private array $collections;
 
     /**
+     * @var File
      * @Groups({"asset:index", "asset:read"})
      */
-    private $file = null;
+    private $original = null;
 
     /**
      * @var File
@@ -85,9 +86,14 @@ class AssetOutput extends AbstractUuidOutput
         return $this->file;
     }
 
-    public function setFile($file): void
+    public function getOriginal()
     {
-        $this->file = $file;
+        return $this->original;
+    }
+
+    public function setOriginal($original): void
+    {
+        $this->original = $original;
     }
 
     public function getPreview()

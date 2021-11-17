@@ -61,6 +61,17 @@ App\Entity\Core\SubDefinitionSpec:
     priority:
       - NotNull: ~
 
+App\Entity\Core\SubDefinitionClass:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - workspace
+          - name
+        errorPath: name
+  properties:
+    name:
+      - NotNull: ~
+
 App\Entity\Core\TagFilterRule:
   constraints:
     - App\Validator\TagFilterRuleConstraint: ~

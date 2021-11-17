@@ -13,7 +13,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(indexes={@ORM\Index(name="sdc_ws_name", columns={"workspace_id", "name"})})
+ * @ORM\Table(
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="sdc_uniq",columns={"workspace_id", "name"})}
+ * )
  * @ApiResource()
  */
 class SubDefinitionClass extends AbstractUuidEntity

@@ -101,7 +101,7 @@ class AssetItem extends PureComponent<AllProps, State> {
     }
 
     download = () => {
-        document.location.href = this.props.file!.url;
+        document.location.href = this.props.original!.url;
     }
 
     render() {
@@ -110,7 +110,7 @@ class AssetItem extends PureComponent<AllProps, State> {
             title,
             description,
             tags,
-            file,
+            original,
             thumbnail,
             thumbnailActive,
             privacy,
@@ -161,7 +161,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                                     {this.renderCollections(collections)}
                                 </ul>
                             </div>}
-                            actionIcon={(file || capabilities.canEdit || capabilities.canDelete) ?
+                            actionIcon={(original || capabilities.canEdit || capabilities.canDelete) ?
                                 <div
                                     ref={this.ref}
                                 >
@@ -182,7 +182,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                             open={this.state.menuOpen}
                             onClose={this.closeMenu}
                         >
-                            {file && <MenuItem onClick={this.download}>
+                            {original && <MenuItem onClick={this.download}>
                                 <ListItemIcon>
                                     <CloudDownload fontSize="small"/>
                                 </ListItemIcon>

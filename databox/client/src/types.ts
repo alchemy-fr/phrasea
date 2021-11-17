@@ -14,7 +14,7 @@ export interface Asset extends IPermissions {
     tags: Tag[];
     workspace: Workspace;
     collections: Collection[];
-    file: File | null;
+    original: File | null;
     preview: File | null;
     thumbnail: File | null;
     thumbnailActive: File | null;

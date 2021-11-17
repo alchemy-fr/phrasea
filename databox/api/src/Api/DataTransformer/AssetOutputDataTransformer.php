@@ -45,13 +45,12 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
 
-        $output->setFile($object->getFile());
-
         $subDefs = $this->em
             ->getRepository(SubDefinition::class)
             ->findAssetSubDefs($object->getId());
 
         foreach ([
+            'original',
             'preview',
             'thumbnail',
             'thumbnailActive',
