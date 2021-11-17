@@ -706,25 +706,9 @@ services:
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
       # Uncomment these lines only in dev with different hostname to avoid duplicates:
-#      - "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
-#      - "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
-#      - "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
-
-  databox-api-nginx:
-    profiles:
-      - databox
-    image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
-    build:
-      context: ./databox/api
-      target: databox-api-nginx
-    networks:
-      internal:
-        aliases:
-          - databox-api
-    ports:
-      - ${DATABOX_API_PORT}:80
-    depends_on:
-      - databox-api-php
+      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
+      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
+      #- "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
 
   databox-worker:
     profiles:
@@ -751,6 +735,7 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
+      - VERIFY_SSL
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
@@ -767,6 +752,26 @@ services:
       - PHRASEANET_APP_OAUTH_TOKEN
     extra_hosts:
       - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      # Uncomment these lines only in dev with different hostname to avoid duplicates:
+      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
+      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
+      #- "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
+
+  databox-api-nginx:
+    profiles:
+      - databox
+    image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
+    build:
+      context: ./databox/api
+      target: databox-api-nginx
+    networks:
+      internal:
+        aliases:
+          - databox-api
+    ports:
+      - ${DATABOX_API_PORT}:80
+    depends_on:
+      - databox-api-php
 
   elasticsearch:
     profiles:

@@ -13,7 +13,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Exception\BadResponseException;
-use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
@@ -29,12 +29,14 @@ class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
         PhraseanetApiClient $client,
         UrlSigner $urlSigner,
         UrlGeneratorInterface $urlGenerator,
-        JWTTokenManager $JWTTokenManager
+        JWTTokenManager $JWTTokenManager,
+        LoggerInterface $logger
     ) {
         $this->client = $client;
         $this->urlSigner = $urlSigner;
         $this->urlGenerator = $urlGenerator;
         $this->JWTTokenManager = $JWTTokenManager;
+        $this->logger = $logger;
     }
 
     public function handle(EventMessage $message): void
@@ -64,7 +66,9 @@ class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
         $workspace = $asset->getWorkspace();
         $phraseanetDataboxId = $workspace->getPhraseanetDataboxId();
         if (null === $phraseanetDataboxId) {
-            throw new InvalidArgumentException(sprintf('phraseanetDataboxId is not set on workspace "%s"', $workspace->getId()));
+            $this->logger->critical(sprintf('phraseanetDataboxId is not set on workspace "%s"', $workspace->getId()));
+
+            return;
         }
 
         $data = [
