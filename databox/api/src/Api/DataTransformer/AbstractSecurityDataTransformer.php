@@ -36,4 +36,15 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
 
         return $user;
     }
+
+    protected function getUser(): ?RemoteUser
+    {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof RemoteUser) {
+            return null;
+        }
+
+        return $user;
+    }
 }

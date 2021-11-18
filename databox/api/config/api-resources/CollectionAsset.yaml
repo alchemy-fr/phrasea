@@ -1,0 +1,9 @@
+resources:
+  App\Entity\Core\CollectionAsset:
+    shortName: collection-asset
+    itemOperations:
+      delete:
+        security: 'is_granted("DELETE", object)'
+    collectionOperations:
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

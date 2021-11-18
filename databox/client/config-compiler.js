@@ -58,6 +58,7 @@
         locales: config.available_locales,
         identityProviders,
         baseUrl: env.DATABOX_API_BASE_URL,
+        uploaderApiBaseUrl: env.UPLOADER_API_BASE_URL,
         authBaseUrl: env.AUTH_BASE_URL,
         clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,

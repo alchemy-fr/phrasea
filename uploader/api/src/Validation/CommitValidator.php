@@ -9,8 +9,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CommitValidator
 {
-    private $maxCommitSize;
-    private $maxFileCount;
+    private ?int $maxCommitSize;
+    private ?int $maxFileCount;
 
     public function __construct(?int $maxCommitSize, ?int $maxFileCount)
     {

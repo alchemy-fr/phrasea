@@ -1,0 +1,76 @@
+resources:
+  App\Entity\Core\SubDefinition:
+    attributes:
+      normalization_context:
+        groups:
+          - _
+          - subdef:index
+    shortName: sub-definition
+    itemOperations:
+      get:
+        security: 'is_granted("READ", object)'
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("ROLE_SUB-DEFINITION:EDIT")'
+      patch:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'
+        controller: App\Controller\Core\CreateSubDefinitionAction
+        defaults:
+          _api_receive: false
+        validation_groups:
+          - Default
+        openapi_context:
+          requestBody:
+            content:
+              application/json:
+                examples:
+                  Multipart upload:
+                    value:
+                      assetId: f30e1e4d-fef6-4870-9106-87167083e0f6
+                      name: preview
+                      multipart:
+                        uploadId: 123-456
+                        parts:
+                        - ETag: 812d692260ab94dd85a5aa7a6caef68d
+                          PartNumber: 1
+                        - ETag: 4dd85a5aa7a6caef68d812d692260ab9
+                          PartNumber: 2
+                schema:
+                  type: object
+                  properties:
+                    multipart:
+                      type: object
+                      properties:
+                        uploadId:
+                          type: string
+                        parts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ETag:
+                                type: string
+                              PartNumber:
+                                type: integer
+                    assetId:
+                      type: string
+                    name:
+                      type: string
+                      description: The definition name
+
+              multipart/form-data:
+                schema:
+                  type: object
+                  properties:
+                    file:
+                      type: string
+                      format: binary
+                    assetId:
+                      type: string
+                    name:
+                      type: string
+                      description: The definition name

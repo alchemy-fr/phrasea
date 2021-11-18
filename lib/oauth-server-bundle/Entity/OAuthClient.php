@@ -31,9 +31,9 @@ class OAuthClient extends BaseClient
     /**
      * @var array
      *
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
-    private $allowedScopes = [];
+    private array $allowedScopes = [];
 
     public function __construct()
     {

@@ -7,6 +7,7 @@ namespace App\Api\Model\Output;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\File;
 use DateTime;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -57,48 +58,72 @@ class AssetOutput extends AbstractUuidOutput
     private array $collections;
 
     /**
-     * @Groups({"asset:read"})
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $file = null;
+    private $original = null;
 
     /**
-     * @Groups({"asset:read"})
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $preview = null;
+    private $preview = null;
 
     /**
-     * @Groups({"asset:read"})
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
      */
-    private ?FileOutput $thumb = null;
+    private $thumbnail = null;
 
-    public function getFile(): ?FileOutput
+    /**
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private $thumbnailActive = null;
+
+    public function getFile()
     {
         return $this->file;
     }
 
-    public function setFile(?FileOutput $file): void
+    public function getOriginal()
     {
-        $this->file = $file;
+        return $this->original;
     }
 
-    public function getPreview(): ?FileOutput
+    public function setOriginal($original): void
+    {
+        $this->original = $original;
+    }
+
+    public function getPreview()
     {
         return $this->preview;
     }
 
-    public function setPreview(?FileOutput $preview): void
+    public function setPreview($preview): void
     {
         $this->preview = $preview;
     }
 
-    public function getThumb(): ?FileOutput
+    public function getThumbnail(): ?File
     {
-        return $this->thumb;
+        return $this->thumbnail;
     }
 
-    public function setThumb(?FileOutput $thumb): void
+    public function setThumbnail(?File $thumbnail): void
     {
-        $this->thumb = $thumb;
+        $this->thumbnail = $thumbnail;
+    }
+
+    public function getThumbnailActive(): ?File
+    {
+        return $this->thumbnailActive;
+    }
+
+    public function setThumbnailActive(?File $thumbnailActive): void
+    {
+        $this->thumbnailActive = $thumbnailActive;
     }
 
     public function getTitle(): ?string

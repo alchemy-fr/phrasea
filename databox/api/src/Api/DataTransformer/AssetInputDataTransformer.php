@@ -10,12 +10,15 @@ use App\Entity\Core\Asset;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
+    use WithOwnerIdDataTransformerTrait;
+
     /**
      * @param AssetInput $data
      */
     public function transform($data, string $to, array $context = [])
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        /** @var Asset $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
         $object->setTitle($data->title);
         $this->transformPrivacy($data, $object);
@@ -26,7 +29,9 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             } elseif (null !== $data->collection) {
                 $object->setWorkspace($data->collection->getWorkspace());
             }
-            $object->setOwnerId($this->getStrictUser()->getId());
+            if ($data->getOwnerId()) {
+                $object->setOwnerId($data->getOwnerId());
+            }
         }
 
         if (isset($data->tags)) {
@@ -43,7 +48,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $object->addToCollection($data->collection);
         }
 
-        return $object;
+        return $this->transformOwnerId($object, $to, $context);
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

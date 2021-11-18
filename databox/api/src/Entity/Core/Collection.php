@@ -6,43 +6,35 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Api\Model\Input\CollectionInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\TranslatableTrait;
+use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Api\Model\Output\CollectionOutput;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
- * @ORM\Entity()
- * @ApiResource(
- *  shortName="collection",
- *  normalizationContext={"groups"={"_", "collection:index", "collection:include_children"}},
- *  output=CollectionOutput::class,
- *  input=CollectionInput::class,
- * )
+ * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
+ * @ApiResource()
  */
-class Collection extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
+class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    use TranslatableTrait;
+    use LocaleTrait;
     use WorkspacePrivacyTrait;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Length(max=255)
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $title = null;
@@ -55,6 +47,7 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
      * @ORM\JoinColumn(nullable=true)
+     * @MaxDepth(1)
      */
     private ?self $parent = null;
 
@@ -63,6 +56,7 @@ class Collection extends AbstractUuidEntity implements AclObjectInterface, Trans
      *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
+     * @MaxDepth(1)
      */
     private ?DoctrineCollection $children = null;
 

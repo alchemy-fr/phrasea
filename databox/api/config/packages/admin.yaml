@@ -5,6 +5,9 @@ alchemy_admin:
 
 easy_admin:
   design:
+    form_theme:
+      - '@EasyAdmin/form/bootstrap_4.html.twig'
+      - 'form/ace_editor.html.twig'
     menu:
       - label: 'Permissions'
         children:
@@ -14,11 +17,17 @@ easy_admin:
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Core'
         children:
-          - Asset
-          - Collection
           - Workspace
+          - Collection
+          - Asset
+          - Attribute
+          - AttributeDefinition
           - Tag
           - TagFilterRule
+          - SubDefinition
+          - SubDefinitionSpec
+          - SubDefinitionClass
+          - SubDefinitionRule
       - OAuthClient
       - label: 'Dev'
         children:
@@ -97,24 +106,114 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'phraseanetDataboxId', type: number }
+
+    SubDefinitionSpec:
+      class: App\Entity\Core\SubDefinitionSpec
+      list:
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [workspace, ASC]
+        filters: ['workspace', 'name']
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'class.name', label: Class }
+          - { property: 'useAsOriginal' }
+          - { property: 'useAsPreview' }
+          - { property: 'useAsThumbnail' }
+          - { property: 'useAsThumbnailActive' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'class' }
+          - { property: 'useAsOriginal' }
+          - { property: 'useAsPreview' }
+          - { property: 'useAsThumbnail' }
+          - { property: 'useAsThumbnailActive' }
+
+    SubDefinition:
+      class: App\Entity\Core\SubDefinition
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+        batch_actions:
+          - delete
+        max_results: 100
+        filters: ['specification', 'asset']
+        fields:
+          - { property: 'specification.name', label: Name }
+          - { property: 'asset' }
+          - updatedAt
+          - createdAt
+
+    SubDefinitionClass:
+      class: App\Entity\Core\SubDefinitionClass
+      list:
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [workspace, ASC]
+        filters: ['workspace', 'name']
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+
+    SubDefinitionRule:
+      class: App\Entity\Core\SubDefinitionRule
+      list:
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'userType' }
+          - { property: 'userId' }
+          - { property: 'objectType' }
+          - { property: 'objectId', type: string }
+          - { property: 'allowed' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'userType', type: App\Form\UserTypeType }
+          - { property: 'userId' }
+          - { property: 'objectType', type: App\Form\ObjectTypeType }
+          - { property: 'objectId' }
+          - { property: 'allowed' }
 
     Tag:
       class: App\Entity\Core\Tag
       list:
+        batch_actions:
+          - delete
         max_results: 100
         sort: [name, ASC]
+        filters: ['workspace']
         fields:
-          - { property: 'name' }
           - { property: 'workspace' }
+          - { property: 'name' }
           - createdAt
       form:
         fields:
-          - { property: 'name' }
           - { property: 'workspace' }
+          - { property: 'name' }
 
     TagFilterRule:
       class: App\Entity\Core\TagFilterRule
       list:
+        actions:
+          - '-new'
+        batch_actions:
+          - delete
         max_results: 100
         sort: [createdAt, ASC]
         fields:
@@ -125,3 +224,59 @@ easy_admin:
           - { property: 'include' }
           - { property: 'exclude' }
           - createdAt
+
+    Attribute:
+      class: App\Entity\Core\Attribute
+      list:
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [createdAt, ASC]
+        fields:
+          - { property: 'asset' }
+          - { property: 'definition' }
+          - { property: 'value', type: string }
+          - { property: 'locale' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'asset' }
+          - { property: 'definition' }
+          - { property: 'value' }
+          - { property: 'origin' }
+          - { property: 'originVendor' }
+          - { property: 'originVendorContext' }
+
+    AttributeDefinition:
+      class: App\Entity\Core\AttributeDefinition
+      list:
+        max_results: 100
+        sort: [name, ASC]
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'fileType' }
+          - { property: 'fieldType' }
+          - { property: 'editable' }
+          - { property: 'fallback' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'fileType' }
+          - { property: 'fieldType' }
+          - { property: 'editable' }
+          -
+            property: fallbackEN
+            label: "Fallback value template EN"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
+
+          -
+            property: fallbackFR
+            label: "Fallback value template FR"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              help: 'ex. Les dimensions sont : {{ file.width }}x{{ file.height }}'

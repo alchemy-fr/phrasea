@@ -6,8 +6,8 @@ namespace App\Consumer\Handler;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
-use App\Storage\AssetManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;

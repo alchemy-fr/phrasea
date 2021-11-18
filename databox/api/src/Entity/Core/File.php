@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -12,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
+ * @ApiResource()
  */
 class File extends AbstractUuidEntity
 {
@@ -34,7 +36,7 @@ class File extends AbstractUuidEntity
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
      */
-    private ?int $checksum = null;
+    private ?string $checksum = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -49,5 +51,25 @@ class File extends AbstractUuidEntity
     public function setPath(?string $path): void
     {
         $this->path = $path;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): void
+    {
+        $this->size = $size;
     }
 }

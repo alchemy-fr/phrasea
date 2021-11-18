@@ -1,5 +1,11 @@
 import {ApiHydraObjectResponse} from "./api/hydra";
 
+export interface File {
+    id: string;
+    url: string;
+    size: number;
+}
+
 export interface Asset extends IPermissions {
     id: string;
     title: string;
@@ -8,6 +14,10 @@ export interface Asset extends IPermissions {
     tags: Tag[];
     workspace: Workspace;
     collections: Collection[];
+    original: File | null;
+    preview: File | null;
+    thumbnail: File | null;
+    thumbnailActive: File | null;
 }
 
 export interface IPermissions extends ApiHydraObjectResponse {

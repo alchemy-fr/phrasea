@@ -1,9 +1,6 @@
 {
     "type": "object",
-    "required": [
-        "collection_destination",
-        "metadata-4"
-    ],
+    "required": [],
     "properties": {
         "collection_destination": {
             "enum": [

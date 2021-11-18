@@ -3,7 +3,7 @@ import AssetItem from "./AssetItem";
 import {getAssets} from "../../api/asset";
 import {Asset} from "../../types";
 import {SelectionContext, TSelectionContext} from "./SelectionContext";
-import {Button, GridList, GridListTile, LinearProgress, ListSubheader} from "@material-ui/core";
+import {Button, ImageList, LinearProgress, ListSubheader, ImageListItem} from "@material-ui/core";
 
 type Props = {
     query: string;
@@ -147,14 +147,14 @@ export default class AssetGrid extends PureComponent<Props, State> {
                 <LinearProgress/>
             </div>}
             <div style={classes.root}>
-                <GridList cellHeight={180} style={classes.gridList}>
-                    <GridListTile key="Subheader" cols={2} style={{height: 'auto'}}>
+                <ImageList rowHeight={180} style={classes.gridList}>
+                    <ImageListItem key="Subheader" cols={2} style={{height: 'auto'}}>
                         <ListSubheader component="div">
                             {!loading && total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
                         </ListSubheader>
-                    </GridListTile>
+                    </ImageListItem>
                     {this.renderResult()}
-                </GridList>
+                </ImageList>
             </div>
             {next ? <div className={'text-center mb-3'}>
                 <Button

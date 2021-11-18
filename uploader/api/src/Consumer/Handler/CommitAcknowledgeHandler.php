@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
+use App\Entity\Asset;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -42,8 +43,19 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
         }
 
         $commit->setAcknowledged(true);
-        $em->persist($commit);
-        $em->flush();
+
+        $em->transactional(function () use ($em, $commit): void {
+            $em->createQueryBuilder()
+                ->update(Asset::class, 'a')
+                ->set('a.acknowledged', true)
+                ->andWhere('a.commit = :commit')
+                ->setParameter('commit', $commit->getId())
+                ->getQuery()
+                ->execute();
+
+            $em->persist($commit);
+            $em->flush();
+        });
 
         if ($this->deleteAssetGracefulTime <= 0) {
             foreach ($commit->getAssets() as $asset) {

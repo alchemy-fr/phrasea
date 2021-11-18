@@ -12,13 +12,11 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
+    const ACK = 'ACK';
     const DOWNLOAD = 'DOWNLOAD';
     const READ_METADATA = 'READ_META';
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {
@@ -48,9 +46,11 @@ class AssetVoter extends Voter
             switch ($attribute) {
                 case self::DOWNLOAD:
                 case self::READ_METADATA:
+                case self::ACK:
                     if ($token->getAccessToken() === $subject->getToken()) {
                         return true;
                     }
+                    break;
             }
         }
 

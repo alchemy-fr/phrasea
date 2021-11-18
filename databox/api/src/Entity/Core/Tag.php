@@ -8,7 +8,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\TranslatableTrait;
+use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,7 +30,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use TranslatableTrait;
+    use LocaleTrait;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)

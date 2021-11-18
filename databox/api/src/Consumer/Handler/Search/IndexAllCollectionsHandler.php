@@ -28,7 +28,7 @@ class IndexAllCollectionsHandler extends AbstractBatchHandler
             ->select('c.id')
             ->from(Collection::class, 'c')
             ->getQuery()
-            ->iterate();
+            ->toIterable();
     }
 
     protected function flushIndexStack(array $stack): void

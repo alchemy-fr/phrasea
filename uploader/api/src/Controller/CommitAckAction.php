@@ -36,9 +36,11 @@ final class CommitAckAction extends AbstractController
 
         $this->denyAccessUnlessGranted(CommitVoter::ACK, $commit);
 
-        $this->eventProducer->publish(new EventMessage(CommitAcknowledgeHandler::EVENT, [
-            'id' => $commit->getId(),
-        ]));
+        if (!$commit->isAcknowledged()) {
+            $this->eventProducer->publish(new EventMessage(CommitAcknowledgeHandler::EVENT, [
+                'id' => $commit->getId(),
+            ]));
+        }
 
         return new JsonResponse(true);
     }

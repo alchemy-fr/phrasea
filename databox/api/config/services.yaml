@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     default_locale: 'en'
+    env(VERIFY_SSL): true
 
 services:
     # default configuration for services in *this* file
@@ -65,3 +66,45 @@ services:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]
         autoconfigure: false
+
+    app.border.http_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                verify: '%env(bool:VERIFY_SSL)%'
+
+    app.file_downloader.http_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                verify: '%env(bool:VERIFY_SSL)%'
+
+    App\Border\UploaderClient:
+        arguments:
+            $client: '@app.border.http_client'
+
+    App\Border\FileDownloader:
+        arguments:
+            $client: '@app.file_downloader.http_client'
+
+    app.phraseanet.api_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                base_uri: '%env(PHRASEANET_BASE_URL)%'
+                verify: '%env(bool:VERIFY_SSL)%'
+
+    App\External\PhraseanetApiClient:
+        arguments:
+            $client: '@app.phraseanet.api_client'
+            $oauthToken: '%env(PHRASEANET_APP_OAUTH_TOKEN)%'
+
+    App\Storage\UrlSigner:
+        $client: '@alchemy_storage.s3_client.external'
+        $bucketName: '%env(S3_STORAGE_BUCKET_NAME)%'
+        $ttl: '%env(DATABOX_REQUEST_SIGNATURE_TTL)%'
+
+    App\Security\JWTTokenManager:
+        arguments:
+            $signingKey: '%env(APP_SECRET)%'
+            $ttl: 86400

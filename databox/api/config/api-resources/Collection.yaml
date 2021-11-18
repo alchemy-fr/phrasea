@@ -1,0 +1,26 @@
+resources:
+  App\Entity\Core\Collection:
+    shortName: collection
+    attributes:
+      output: App\Api\Model\Output\CollectionOutput
+      input: App\Api\Model\Input\CollectionInput
+      normalization_context:
+        enable_max_depth: true
+        groups:
+          - _
+          - collection:index
+          - collection:include_children
+          - collection:2_level_children
+    itemOperations:
+      get:
+        security: 'is_granted("READ", object)'
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("EDIT", object)'
+      patch:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      get: ~
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

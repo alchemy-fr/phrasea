@@ -1,0 +1,22 @@
+resources:
+  App\Entity\Core\Asset:
+    shortName: asset
+    attributes:
+      normalization_context:
+        groups:
+          - _
+          - asset:index
+      output: App\Api\Model\Output\AssetOutput
+      input: App\Api\Model\Input\AssetInput
+    itemOperations:
+      get: ~
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("EDIT", object)'
+      patch:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      get: ~
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

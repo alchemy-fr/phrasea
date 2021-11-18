@@ -170,9 +170,7 @@ class CollectionMenuItem extends PureComponent<AllProps, State> {
                                 {children && children.length > 0 ? <IconButton
                                     onClick={this.onExpandClick}
                                     aria-label="expand-toggle">
-                                    {!expanded ? <ExpandLess
-                                        onClick={this.onExpandClick}
-                                    /> : <ExpandMore/>}
+                                    {!expanded ? <ExpandLess/> : <ExpandMore/>}
                                 </IconButton> : ''}
                             </ListItemSecondaryAction>
                         </ListItem>

@@ -20,6 +20,7 @@ class PermissionManager
     private ObjectMapping $objectMapper;
     private PermissionRepositoryInterface $repository;
     private EventDispatcherInterface $eventDispatcher;
+    private array $cache = [];
 
     public function __construct(
         ObjectMapping $objectMapper,
@@ -41,7 +42,24 @@ class PermissionManager
             return true;
         }
 
+        $aces = $this->getAces($user, $object);
+
+        foreach ($aces as $ace) {
+            if (null !== $ace && ($ace->getMask() & $permission) === $permission) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getAces($user, AclObjectInterface $object): array
+    {
         $objectKey = $this->objectMapper->getObjectKey($object);
+        $key = sprintf('%s:%s:%s', $user->getId(), $objectKey, $object->getId());
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
+        }
 
         /** @var AccessControlEntry[] $aces */
         $aces = $this->repository->getAces(
@@ -51,13 +69,9 @@ class PermissionManager
             $object->getId()
         );
 
-        foreach ($aces as $ace) {
-            if (null !== $ace && ($ace->getMask() & $permission) === $permission) {
-                return true;
-            }
-        }
+        $this->cache[$key] = $aces;
 
-        return false;
+        return $aces;
     }
 
     public function getAllowedUsers(AclObjectInterface $object, int $permission): array

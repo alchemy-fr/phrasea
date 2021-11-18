@@ -9,34 +9,27 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\TranslatableTrait;
+use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Api\Model\Output\AssetOutput;
-use App\Api\Model\Input\AssetInput;
 use LogicException;
 
 /**
- * @ApiResource(
- *  shortName="asset",
- *  normalizationContext={"groups"={"_", "asset:index"}},
- *  denormalizationContext={"groups"={"asset:write"}},
- *  output=AssetOutput::class,
- *  input=AssetInput::class,
- * )
- * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
+ * @ApiResource()
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  */
-class Asset extends AbstractUuidEntity implements AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
+class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    use TranslatableTrait;
+    use LocaleTrait;
     use WorkspacePrivacyTrait;
 
     /**
@@ -80,18 +73,6 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
      */
     private ?File $file = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?File $preview = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?File $thumb = null;
-
     public function __construct()
     {
         parent::__construct();
@@ -109,12 +90,12 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
         $this->ownerId = $ownerId;
     }
 
-    public function getFile(): ?string
+    public function getFile(): ?File
     {
         return $this->file;
     }
 
-    public function setFile(?string $file): void
+    public function setFile(?File $file): void
     {
         $this->file = $file;
     }
@@ -132,26 +113,6 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     public function hasChildren(): bool
     {
         return null !== $this->storyCollection;
-    }
-
-    public function getPreview(): ?File
-    {
-        return $this->preview;
-    }
-
-    public function setPreview(?File $preview): void
-    {
-        $this->preview = $preview;
-    }
-
-    public function getThumb(): ?File
-    {
-        return $this->thumb;
-    }
-
-    public function setThumb(?File $thumb): void
-    {
-        $this->thumb = $thumb;
     }
 
     /**
@@ -176,6 +137,10 @@ class Asset extends AbstractUuidEntity implements AclObjectInterface, Translatab
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
+        }
+
+        if (null === $this->referenceCollection) {
+            $this->setReferenceCollection($collection);
         }
 
         $assetCollection = new CollectionAsset();

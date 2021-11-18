@@ -27,7 +27,7 @@ class IndexAllAssetsHandler extends AbstractBatchHandler
             ->select('a.id')
             ->from(Asset::class, 'a')
             ->getQuery()
-            ->iterate();
+            ->toIterable();
     }
 
     protected function flushIndexStack(array $stack): void

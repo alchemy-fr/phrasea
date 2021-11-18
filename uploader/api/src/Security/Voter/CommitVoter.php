@@ -15,10 +15,7 @@ class CommitVoter extends Voter
     const ACK = 'ACK';
     const READ = 'READ';
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {

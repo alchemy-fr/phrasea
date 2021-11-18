@@ -5,26 +5,19 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
-use App\Api\Model\Output\WorkspaceOutput;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\WorkspaceRepository")
- *
- * @ApiResource(
- *  shortName="workspace",
- *  normalizationContext={"groups"={"_", "workspace:index"}},
- *  output=WorkspaceOutput::class,
- *  input=false,
- * )
+ * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
-class Workspace extends AbstractUuidEntity implements AclObjectInterface
+class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -38,6 +31,11 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface
      * @ORM\Column(type="string", length=255)
      */
     private ?string $ownerId = null;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private ?array $config = [];
 
     /**
      * @var Collection[]
@@ -82,8 +80,39 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface
         $this->ownerId = $ownerId;
     }
 
+    /**
+     * @ApiProperty(readable=false, writable=false)
+     */
     public function getAclOwnerId(): string
     {
         return $this->getOwnerId() ?? '';
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function setPhraseanetDataboxId($databoxId): void
+    {
+        if (null == $this->config) {
+            $this->config = [];
+        }
+
+        if (empty($databoxId)) {
+            unset($this->config['phraseanetDataboxId']);
+        } else {
+            $this->config['phraseanetDataboxId'] = (int) $databoxId;
+        }
+    }
+
+    public function getPhraseanetDataboxId(): ?int
+    {
+        return ($this->config ?? [])['phraseanetDataboxId'] ?? null;
     }
 }

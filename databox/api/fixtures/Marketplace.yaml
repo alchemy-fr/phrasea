@@ -3,6 +3,31 @@ App\Entity\Core\Workspace:
     name: Marketplace
     ownerId: super_user
 
+App\Entity\Core\SubDefinitionClass:
+  sdc_public:
+    workspace: '@w_marketplace'
+    name: Public
+  sdc_restricted:
+    workspace: '@w_marketplace'
+    name: Restricted
+
+App\Entity\Core\SubDefinitionSpec:
+  sds_preview:
+    name: preview
+    workspace: '@w_marketplace'
+    class: '@sdc_public'
+    useAsPreview: true
+  sds_thumbnail:
+    name: thumbnail
+    workspace: '@w_marketplace'
+    class: '@sdc_public'
+    useAsThumbnail: true
+  sds_thumbnailActive:
+    name: thumbnailActive
+    workspace: '@w_marketplace'
+    class: '@sdc_public'
+    useAsThumbnailActive: true
+
 #
 #App\Entity\User\User:
 #  u_:

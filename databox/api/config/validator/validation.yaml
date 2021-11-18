@@ -9,9 +9,84 @@ App\Entity\Core\Collection:
   properties:
     title:
       - NotBlank: ~
+      - Length:
+          max: 255
     workspace:
+      - NotNull: ~
+
+App\Entity\Core\Workspace:
+  properties:
+    name:
+      - NotBlank: ~
+
+App\Entity\Core\Attribute:
+  properties:
+    definition:
+      - NotNull: ~
+    value:
+      - NotNull: ~
+    origin:
+      - NotNull: ~
+
+App\Entity\Core\AttributeDefinition:
+  properties:
+    workspace:
+      - NotNull: ~
+    name:
+      - NotNull: ~
+      - NotBlank: ~
+
+App\Entity\Core\CollectionAsset:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - asset.workspace
+          - collection.workspace
+
+App\Entity\Core\SubDefinition:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - asset.workspace
+          - file.workspace
+          - specification.workspace
+
+App\Entity\Core\SubDefinitionSpec:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - workspace
+          - class.workspace
+  properties:
+    priority:
+      - NotNull: ~
+
+App\Entity\Core\SubDefinitionClass:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - workspace
+          - name
+        errorPath: name
+  properties:
+    name:
       - NotNull: ~
 
 App\Entity\Core\TagFilterRule:
   constraints:
     - App\Validator\TagFilterRuleConstraint: ~
+
+App\Border\Model\Upload\IncomingUpload:
+  properties:
+    commit_id:
+      - NotBlank: ~
+    publisher:
+      - NotBlank: ~
+    token:
+      - NotBlank: ~
+    base_url:
+      - NotBlank: ~
+    assets:
+      - NotNull: ~
+      - Count:
+          min: 1

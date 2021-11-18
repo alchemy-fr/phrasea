@@ -2,6 +2,12 @@
 
 set -e
 
+BASEDIR=$(dirname $0)
+. "$BASEDIR/functions.sh"
+cd "$BASEDIR/.."
+
+load-env
+
 $(dirname $0)/update-libs.sh
 
 docker-compose \

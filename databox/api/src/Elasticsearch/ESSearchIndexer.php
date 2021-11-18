@@ -7,6 +7,7 @@ namespace App\Elasticsearch;
 use App\Consumer\Handler\Search\SearchIndexHandler;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\SearchDependencyInterface;
@@ -150,6 +151,8 @@ class ESSearchIndexer
             $entities = array_merge($entities, $this->em->getRepository(Asset::class)
                 ->getCollectionAssets($object->getId()));
         } elseif ($object instanceof CollectionAsset) {
+            $entities = array_merge($entities, [$object->getAsset()]);
+        } elseif ($object instanceof Attribute) {
             $entities = array_merge($entities, [$object->getAsset()]);
         }
 

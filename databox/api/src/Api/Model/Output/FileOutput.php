@@ -10,12 +10,6 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *  shortName="file",
- *  normalizationContext="file:read",
- * )
- */
 class FileOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
@@ -23,38 +17,22 @@ class FileOutput extends AbstractUuidOutput
 
     /**
      * The MIME type.
+     *
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
      */
     private ?string $type = null;
 
     /**
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
      */
     private ?int $size = null;
 
     /**
-     */
-    private ?int $checksum = null;
-
-    /**
-     */
-    private ?string $path = null;
-
-    /**
      * Signed URL.
      *
-     * @ApiProperty(writable=false)
-     * @Groups({"file:read"})
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
      */
     private ?string $url = null;
-
-    public function getPath(): ?string
-    {
-        return $this->path;
-    }
-
-    public function setPath(?string $path): void
-    {
-        $this->path = $path;
-    }
 
     public function getUrl(): ?string
     {
@@ -64,5 +42,25 @@ class FileOutput extends AbstractUuidOutput
     public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): void
+    {
+        $this->size = $size;
     }
 }

@@ -8,6 +8,15 @@ $assetMargin: px2rem(15);
   margin: $assetMargin;
   box-shadow: 0 0 px2rem(4) rgba(#000, 0.2);
 
+  .MuiGridListTileBar-rootSubtitle {
+    height: auto;
+    min-height: px2rem(68);
+  }
+
+  .MuiGridListTileBar-subtitle {
+    padding-bottom: px2rem(5);
+  }
+
   &, & img {
     @include noUserSelect();
   }
@@ -27,5 +36,7 @@ $assetMargin: px2rem(15);
     li {
       margin: px2rem(3) 0;
     }
+
+    @include svgFill(#FFF);
   }
 }
