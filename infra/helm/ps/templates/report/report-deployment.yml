@@ -5,7 +5,7 @@ kind: Deployment
 metadata:
   name: report-api
 spec:
-  replicas: 1
+  replicas: {{ .replicas }}
   selector:
     matchLabels:
       app: phraseanet-services

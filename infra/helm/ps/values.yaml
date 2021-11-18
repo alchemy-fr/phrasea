@@ -227,6 +227,7 @@ uploader:
 
 report:
   enabled: true
+  replicas: 2
   api:
     hostname: report-api
     baseUrl: http://report-api
