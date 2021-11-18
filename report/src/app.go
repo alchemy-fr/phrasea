@@ -39,7 +39,7 @@ func logHandler(w http.ResponseWriter, req *http.Request, ps httprouter.Params) 
     if err != nil {
         fmt.Fprintf(os.Stderr, "Unable to persist log: %v\n", err)
         fmt.Fprintf(w, "{\"error\":\"%v\"}", err)
-        return
+        os.Exit(1)
     }
 
     fmt.Fprintf(w, "true")
