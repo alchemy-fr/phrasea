@@ -9,7 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Core\TagFilterRule;
 
-class AssetSearchTest extends AbstractSearchTest
+class AssetSearchPermissionsTest extends AbstractSearchTest
 {
     private static function releaseIndex(): void
     {

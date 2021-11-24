@@ -18,6 +18,12 @@ App\Entity\Core\Workspace:
   properties:
     name:
       - NotBlank: ~
+    enabledLocales:
+      - All:
+        - NotBlank: ~
+        - Regex:
+            message: 'Invalid locale format, must match "fr" or "fr_FR"'
+            pattern: '#^[a-z]{2}(_[A-Z]{2})?$#'
 
 App\Entity\Core\Attribute:
   properties:
@@ -43,15 +49,15 @@ App\Entity\Core\CollectionAsset:
           - asset.workspace
           - collection.workspace
 
-App\Entity\Core\SubDefinition:
+App\Entity\Core\AssetRendition:
   constraints:
     - App\Validator\SameWorkspaceConstraint:
         properties:
           - asset.workspace
           - file.workspace
-          - specification.workspace
+          - definition.workspace
 
-App\Entity\Core\SubDefinitionSpec:
+App\Entity\Core\RenditionDefinition:
   constraints:
     - App\Validator\SameWorkspaceConstraint:
         properties:
@@ -61,7 +67,7 @@ App\Entity\Core\SubDefinitionSpec:
     priority:
       - NotNull: ~
 
-App\Entity\Core\SubDefinitionClass:
+App\Entity\Core\RenditionClass:
   constraints:
     - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
         fields:

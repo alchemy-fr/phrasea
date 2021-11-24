@@ -72,4 +72,9 @@ class File extends AbstractUuidEntity
     {
         $this->size = $size;
     }
+
+    public function __toString()
+    {
+        return $this->getId();
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use App\Attribute\Type\TextAttributeType;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -35,7 +36,7 @@ class AttributeDefinition extends AbstractUuidEntity
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
      */
-    private string $fieldType = 'text';
+    private string $fieldType = TextAttributeType::NAME;
 
     /**
      * Value can be manually set by user.
@@ -43,6 +44,11 @@ class AttributeDefinition extends AbstractUuidEntity
      * @ORM\Column(type="boolean")
      */
     private bool $editable = true;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $searchable = true;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
@@ -121,8 +127,23 @@ class AttributeDefinition extends AbstractUuidEntity
         return $this->fallback['fr'] ?? null;
     }
 
+    public function getSearchFieldName(): string
+    {
+        return $this->getId();
+    }
+
     public function __toString()
     {
         return $this->getName() ?? $this->getId();
+    }
+
+    public function isSearchable(): bool
+    {
+        return $this->searchable;
+    }
+
+    public function setSearchable(bool $searchable): void
+    {
+        $this->searchable = $searchable;
     }
 }

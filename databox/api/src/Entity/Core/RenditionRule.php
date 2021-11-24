@@ -16,16 +16,16 @@ use App\Api\Model\Input\TagFilterRuleInput;
 
 /**
  * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="sdr_uniq_rule", columns={"user_type", "user_id", "object_type", "object_id"})},
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_uniq_rule", columns={"user_type", "user_id", "object_type", "object_id"})},
  *     indexes={
- *         @ORM\Index(name="sdr_user_idx", columns={"user_type", "user_id"}),
- *         @ORM\Index(name="sdr_object_idx", columns={"object_type", "object_id"}),
- *         @ORM\Index(name="sdr_user_type_idx", columns={"user_type"}),
+ *         @ORM\Index(name="rr_user_idx", columns={"user_type", "user_id"}),
+ *         @ORM\Index(name="rr_object_idx", columns={"object_type", "object_id"}),
+ *         @ORM\Index(name="rr_user_type_idx", columns={"user_type"}),
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\Core\SubDefinitionRuleRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Core\RenditionRuleRepository")
  * @ApiResource(
- *  shortName="sub-definition-rule",
+ *  shortName="rendition-rule",
  *  attributes={"security"="is_granted('ROLE_USER')"},
  *  collectionOperations={
  *       "get",
@@ -36,12 +36,12 @@ use App\Api\Model\Input\TagFilterRuleInput;
  *       "put" = { "security" = "is_granted('EDIT', object)" },
  *       "delete" = { "security" = "is_granted('DELETE', object)" }
  *  },
- *  normalizationContext={"groups"={"_", "sdr:read", "sdc:read"}},
+ *  normalizationContext={"groups"={"_", "rendrule:read", "rendclass:read"}},
  *  output=TagFilterRuleOutput::class,
  *  input=TagFilterRuleInput::class,
  * )
  */
-class SubDefinitionRule extends AbstractUuidEntity
+class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -77,8 +77,8 @@ class SubDefinitionRule extends AbstractUuidEntity
     protected string $objectId;
 
     /**
-     * @var SubDefinitionClass[]|Collection
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\SubDefinitionClass")
+     * @var RenditionClass[]|Collection
+     * @ORM\ManyToMany(targetEntity="RenditionClass")
      * @ORM\JoinTable(name="sdr_allowed")
      */
     protected ?DoctrineCollection $allowed = null;
@@ -131,7 +131,7 @@ class SubDefinitionRule extends AbstractUuidEntity
     }
 
     /**
-     * @return SubDefinitionClass[]
+     * @return RenditionClass[]
      */
     public function getAllowed(): DoctrineCollection
     {

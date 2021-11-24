@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\FieldTypePass;
 use App\DependencyInjection\Compiler\SearchIndexPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -30,6 +31,7 @@ class Kernel extends BaseKernel
     {
         parent::build($container);
         $container->addCompilerPass(new SearchIndexPass());
+        $container->addCompilerPass(new FieldTypePass());
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

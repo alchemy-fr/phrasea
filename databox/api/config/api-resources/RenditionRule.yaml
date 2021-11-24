@@ -1,11 +1,6 @@
 resources:
-  App\Entity\Core\SubDefinitionSpec:
-    attributes:
-      normalization_context:
-        groups:
-          - _
-          - subdefspec:index
-    shortName: sub-definition-spec
+  App\Entity\Core\RenditionRule:
+    shortName: rendition-rule
     itemOperations:
       get:
         security: 'is_granted("READ", object)'

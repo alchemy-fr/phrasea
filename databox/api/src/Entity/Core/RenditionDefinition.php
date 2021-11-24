@@ -14,57 +14,57 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(indexes={@ORM\Index(name="sds_ws_name", columns={"workspace_id", "name"})})
+ * @ORM\Table(indexes={@ORM\Index(name="rend_def_ws_name", columns={"workspace_id", "name"})})
  * @ApiResource(
- *  shortName="sub-definition-spec",
- *  normalizationContext={"groups"={"_", "subdefspec:index"}},
- *  denormalizationContext={"groups"={"subdefspec:write"}},
+ *  shortName="rendition-definition",
+ *  normalizationContext={"groups"={"_", "renddef:index"}},
+ *  denormalizationContext={"groups"={"renddef:write"}},
  * )
  */
-class SubDefinitionSpec extends AbstractUuidEntity
+class RenditionDefinition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
     /**
-     * @Groups({"subdefspec:index", "subdefspec:read"})
+     * @Groups({"renddef:index", "renddef:read"})
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\SubDefinitionClass")
+     * @ORM\ManyToOne(targetEntity="RenditionClass")
      * @ORM\JoinColumn(nullable=true)
      */
-    protected ?SubDefinitionClass $class = null;
+    protected ?RenditionClass $class = null;
 
     /**
-     * @Groups({"subdefspec:read"})
+     * @Groups({"renddef:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsOriginal = false;
 
     /**
-     * @Groups({"subdefspec:read"})
+     * @Groups({"renddef:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsPreview = false;
 
     /**
-     * @Groups({"subdefspec:read"})
+     * @Groups({"renddef:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsThumbnail = false;
 
     /**
-     * @Groups({"subdefspec:read"})
+     * @Groups({"renddef:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsThumbnailActive = false;
 
     /**
-     * @Groups({"subdefspec:read"})
+     * @Groups({"renddef:read"})
      * @ORM\Column(type="text")
      */
     private ?string $definition = '';
@@ -134,12 +134,12 @@ class SubDefinitionSpec extends AbstractUuidEntity
         $this->definition = $definition;
     }
 
-    public function getClass(): ?SubDefinitionClass
+    public function getClass(): ?RenditionClass
     {
         return $this->class;
     }
 
-    public function setClass(?SubDefinitionClass $class): void
+    public function setClass(?RenditionClass $class): void
     {
         $this->class = $class;
     }
@@ -152,5 +152,10 @@ class SubDefinitionSpec extends AbstractUuidEntity
     public function setPriority(int $priority): void
     {
         $this->priority = $priority;
+    }
+
+    public function __toString()
+    {
+        return $this->getName();
     }
 }

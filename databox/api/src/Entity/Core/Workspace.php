@@ -38,6 +38,11 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     private ?array $config = [];
 
     /**
+     * @ORM\Column(type="json", nullable=false)
+     */
+    private array $enabledLocales = [];
+
+    /**
      * @var Collection[]
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      * @ORM\JoinColumn(nullable=false)
@@ -114,5 +119,15 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     public function getPhraseanetDataboxId(): ?int
     {
         return ($this->config ?? [])['phraseanetDataboxId'] ?? null;
+    }
+
+    public function getEnabledLocales(): array
+    {
+        return $this->enabledLocales;
+    }
+
+    public function setEnabledLocales(array $enabledLocales): void
+    {
+        $this->enabledLocales = $enabledLocales;
     }
 }

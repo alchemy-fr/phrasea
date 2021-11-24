@@ -12,10 +12,53 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
+                            text_fr:
+                                type: custom
+                                tokenizer: whitespace
+                                filter:
+                                    - worddelimiter
+                                    - lowercase
+                                    - stopwords_fr
+                                    - snowball_fr
+                                    - asciifolding
+                                    - elision
+                            text_en:
+                                type: custom
+                                tokenizer: whitespace
+                                filter:
+                                    - worddelimiter
+                                    - lowercase
+                                    - stopwords_en
+                                    - snowball_en
+                                    - asciifolding
+                                    - elision
                         tokenizer:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
+                        filter:
+                            elision:
+                                type: elision
+                                articles: [ l, m, t, qu, n, s, j, d ]
+                            worddelimiter:
+                                type: word_delimiter_graph
+                                generate_word_parts: true
+                                catenate_words: true
+                                preserve_original: true
+                            snowball_fr:
+                                type: snowball
+                                language: French
+                            stopwords_fr:
+                                type: stop
+                                stopwords: [ _french_ ]
+                                ignore_case: true
+                            snowball_en:
+                                type: snowball
+                                language: English
+                            stopwords_en:
+                                type: stop
+                                stopwords: [ _english_ ]
+                                ignore_case: true
             properties:
                 title: ~
                 attributes:
@@ -42,12 +85,6 @@ fos_elastica:
                     type: keyword
                 createdAt:
                     type: date
-            dynamic_templates:
-                - attributes_tpl:
-                    match_mapping_type: string
-                    path_match: 'attributes.*'
-                    mapping:
-                        type: text
             persistence:
                 driver: orm
                 model: App\Entity\Core\Asset

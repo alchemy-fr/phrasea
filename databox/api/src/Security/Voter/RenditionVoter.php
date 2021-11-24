@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use App\Entity\Core\SubDefinitionClass;
+use App\Entity\Core\AssetRendition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class SubDefinitionClassVoter extends AbstractVoter
+class RenditionVoter extends AbstractVoter
 {
-    const SCOPE_PREFIX = 'ROLE_SUB-DEFINITION-CLASS:';
+    const SCOPE_PREFIX = 'ROLE_RENDITION:';
 
     protected function supports(string $attribute, $subject)
     {
-        return $subject instanceof SubDefinitionClass;
+        return $subject instanceof AssetRendition;
     }
 
     /**
-     * @param SubDefinitionClass $subject
+     * @param AssetRendition $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
-        $workspace = $subject->getWorkspace();
+        $workspace = $subject->getDefinition()->getWorkspace();
         if ($this->security->isGranted(PermissionInterface::OWNER, $workspace)) {
             return true;
         }

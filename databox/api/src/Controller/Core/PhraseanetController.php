@@ -8,7 +8,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Core\Asset;
 use App\Security\JWTTokenManager;
-use App\Storage\SubDefinitionManager;
+use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -21,12 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class PhraseanetController extends AbstractController
 {
     /**
-     * @Route(path="/subdefs/incoming/{assetId}", name="phraseanet_incoming_subdef")
+     * @Route(path="/renditions/incoming/{assetId}", name="phraseanet_incoming_rendition")
      */
-    public function incomingSubDefinitionAction(
+    public function incomingRenditionAction(
         string $assetId,
         Request $request, 
-        SubDefinitionManager $subDefinitionManager,
+        RenditionManager $renditionManager,
         PathGenerator $pathGenerator,
         FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
@@ -65,8 +65,7 @@ class PhraseanetController extends AbstractController
             throw new NotFoundHttpException(sprintf('Asset "%s" not found', $assetId));
         }
 
-        $spec = $subDefinitionManager->getSpecFromName($asset->getWorkspace(), $fileInfo['name']);
-
+        $definition = $renditionManager->getDefinitionFromName($asset->getWorkspace(), $fileInfo['name']);
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $path = $pathGenerator->generatePath($extension);
@@ -75,9 +74,9 @@ class PhraseanetController extends AbstractController
         $storageManager->storeStream($path, $stream);
         fclose($stream);
         
-        $subDefinitionManager->createOrReplaceSubDefinition(
+        $renditionManager->createOrReplaceRendition(
             $asset,
-            $spec,
+            $definition,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getSize()

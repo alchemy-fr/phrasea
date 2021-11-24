@@ -16,9 +16,9 @@ use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
+class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'generate_asset_sub_definitions';
+    const EVENT = 'generate_renditions';
 
     private PhraseanetApiClient $client;
     private UrlSigner $urlSigner;
@@ -59,7 +59,7 @@ class GenerateAssetSubDefinitionsHandler extends AbstractEntityManagerHandler
         }
 
         $url = $this->urlSigner->getSignedUrl($file->getPath());
-        $destUrl = $this->urlGenerator->generate('phraseanet_incoming_subdef', [
+        $destUrl = $this->urlGenerator->generate('phraseanet_incoming_rendition', [
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 

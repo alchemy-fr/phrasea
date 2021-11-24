@@ -14,17 +14,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="sdc_uniq",columns={"workspace_id", "name"})}
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_class_uniq",columns={"workspace_id", "name"})}
  * )
  * @ApiResource()
  */
-class SubDefinitionClass extends AbstractUuidEntity
+class RenditionClass extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
 
     /**
-     * @Groups({"subdefclass:index", "subdefclass:read"})
+     * @Groups({"rendclass:index", "rendclass:read"})
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;

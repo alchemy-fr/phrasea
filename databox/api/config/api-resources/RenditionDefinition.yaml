@@ -1,6 +1,11 @@
 resources:
-  App\Entity\Core\SubDefinitionRule:
-    shortName: sub-definition-rule
+  App\Entity\Core\RenditionDefinition:
+    attributes:
+      normalization_context:
+        groups:
+          - _
+          - renddef:index
+    shortName: rendition-definition
     itemOperations:
       get:
         security: 'is_granted("READ", object)'

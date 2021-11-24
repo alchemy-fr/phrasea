@@ -6,12 +6,12 @@ namespace App\Storage;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use App\Entity\Core\SubDefinition;
-use App\Entity\Core\SubDefinitionSpec;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 
-class SubDefinitionManager
+class RenditionManager
 {
     private EntityManagerInterface $em;
 
@@ -38,13 +38,13 @@ class SubDefinitionManager
         return $file;
     }
 
-    public function createOrReplaceSubDefinition(
+    public function createOrReplaceRendition(
         Asset $asset,
-        SubDefinitionSpec $specification,
+        RenditionDefinition $definition,
         string $path,
         string $type,
         int $size
-    ): SubDefinition {
+    ): AssetRendition {
         $file = $this->createFile(
             $path,
             $type,
@@ -52,26 +52,26 @@ class SubDefinitionManager
             $asset->getWorkspace()
         );
 
-        $subDef = $this->em->getRepository(SubDefinition::class)
+        $rendition = $this->em->getRepository(AssetRendition::class)
             ->findOneBy([
                 'asset' => $asset->getId(),
-                'specification' => $specification->getId(),
+                'definition' => $definition->getId(),
             ]);
 
-        if (!$subDef instanceof SubDefinition) {
-            $subDef = new SubDefinition();
-            $subDef->setAsset($asset);
-            $subDef->setSpecification($specification);
+        if (!$rendition instanceof AssetRendition) {
+            $rendition = new AssetRendition();
+            $rendition->setAsset($asset);
+            $rendition->setDefinition($definition);
         } else {
-            // TODO remove old subdef file
+            // TODO remove old rendition file
         }
 
-        $subDef->setFile($file);
-        $subDef->setReady(true);
+        $rendition->setFile($file);
+        $rendition->setReady(true);
 
-        $this->em->persist($subDef);
+        $this->em->persist($rendition);
 
-        return $subDef;
+        return $rendition;
     }
 
     public function getAssetFromId(string $id): ?Asset
@@ -79,18 +79,18 @@ class SubDefinitionManager
         return $this->em->find(Asset::class, $id);
     }
 
-    public function getSpecFromId(Workspace $workspace, string $id): ?SubDefinitionSpec
+    public function getDefinitionFromId(Workspace $workspace, string $id): ?RenditionDefinition
     {
-        return $this->em->getRepository(SubDefinitionSpec::class)
+        return $this->em->getRepository(RenditionDefinition::class)
             ->findOneBy([
                 'workspace' => $workspace->getId(),
                 'id' => $id,
             ]);
     }
 
-    public function getSpecFromName(Workspace $workspace, string $name): ?SubDefinitionSpec
+    public function getDefinitionFromName(Workspace $workspace, string $name): ?RenditionDefinition
     {
-        return $this->em->getRepository(SubDefinitionSpec::class)
+        return $this->em->getRepository(RenditionDefinition::class)
             ->findOneBy([
                 'workspace' => $workspace->getId(),
                 'name' => $name,

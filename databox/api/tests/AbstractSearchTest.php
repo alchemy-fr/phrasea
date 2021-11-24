@@ -21,7 +21,7 @@ abstract class AbstractSearchTest extends AbstractDataboxTestCase
         static::ensureKernelTestCase();
         $kernel = parent::bootKernel($options);
 
-        $container = static::$container ?? static::$kernel->getContainer();
+        $container = static::getContainer() ?? static::$kernel->getContainer();
 
         $indexes = [
             'asset',
@@ -51,9 +51,10 @@ abstract class AbstractSearchTest extends AbstractDataboxTestCase
 
     protected static function forceNewEntitiesToBeIndexed(): void
     {
-        if (static::$kernel instanceof TerminableInterface) {
+        $kernel = static::$kernel;
+        if ($kernel instanceof TerminableInterface) {
             // Force kernel terminate in order to sync ES indices
-            static::$kernel->terminate(new Request(), new Response());
+            $kernel->terminate(new Request(), new Response());
         }
     }
 

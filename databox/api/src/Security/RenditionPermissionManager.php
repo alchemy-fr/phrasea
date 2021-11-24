@@ -6,12 +6,12 @@ namespace App\Security;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Entity\Core\SubDefinitionClass;
-use App\Entity\Core\SubDefinitionRule;
-use App\Repository\Core\SubDefinitionRuleRepository;
+use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionRule;
+use App\Repository\Core\RenditionRuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class SubDefinitionPermissionManager
+class RenditionPermissionManager
 {
     private EntityManagerInterface $em;
     private array $cache = [];
@@ -21,7 +21,7 @@ class SubDefinitionPermissionManager
         $this->em = $em;
     }
 
-    public function isGranted(Asset $asset, SubDefinitionClass $class, ?string $userId, array $groupIds = []): bool
+    public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool
     {
         $key = sprintf('%s:%s:%s', $userId ?? 'anon.', $asset->getId(), $class->getId());
         if (isset($this->cache[$key])) {
@@ -46,17 +46,17 @@ class SubDefinitionPermissionManager
      * @param string|null $userId
      * @param array       $groupIds
      *
-     * @return SubDefinitionRule[]|null
+     * @return RenditionRule[]|null
      */
     public function getAssetRuleSets(Asset $asset, ?string $userId, array $groupIds = []): ?array
     {
-        /** @var SubDefinitionRuleRepository $repo */
-        $repo = $this->em->getRepository(SubDefinitionRule::class);
+        /** @var RenditionRuleRepository $repo */
+        $repo = $this->em->getRepository(RenditionRule::class);
 
         /** @var Collection $container */
         $container = $asset->getReferenceCollection();
         while ($container instanceof Collection) {
-            $rules = $repo->getRules($userId, $groupIds, SubDefinitionRule::TYPE_COLLECTION, $container->getId());
+            $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $container->getId());
 
             if (!empty($rules)) {
                 return $rules;
@@ -65,7 +65,7 @@ class SubDefinitionPermissionManager
             $container = $container->getParent();
         }
 
-        $rules = $repo->getRules($userId, $groupIds, SubDefinitionRule::TYPE_WORKSPACE, $asset->getWorkspace()->getId());
+        $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_WORKSPACE, $asset->getWorkspace()->getId());
 
         if (!empty($rules)) {
             return $rules;

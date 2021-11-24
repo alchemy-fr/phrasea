@@ -13,38 +13,38 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\SubDefinitionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_sub_def",columns={"specification_id", "asset_id"})})
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepresentationRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_representation",columns={"definition_id", "asset_id"})})
  * @ApiResource()
  */
-class SubDefinition extends AbstractUuidEntity
+class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
     /**
-     * @Groups({"subdef:index", "subdef:read"})
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\SubDefinitionSpec")
+     * @Groups({"rendition:index", "rendition:read"})
+     * @ORM\ManyToOne(targetEntity="RenditionDefinition")
      * @ORM\JoinColumn(nullable=false)
      */
-    private ?SubDefinitionSpec $specification = null;
+    private ?RenditionDefinition $definition = null;
 
     /**
-     * @Groups({"subdef:index", "subdef:read"})
+     * @Groups({"rendition:index", "rendition:read"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?Asset $asset = null;
 
     /**
-     * @Groups({"subdef:index", "subdef:read"})
+     * @Groups({"rendition:index", "rendition:read"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?File $file = null;
 
     /**
-     * @Groups({"subdef:index", "subdef:read"})
+     * @Groups({"rendition:index", "rendition:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $ready = false;
@@ -69,23 +69,23 @@ class SubDefinition extends AbstractUuidEntity
         $this->file = $file;
     }
 
-    public function getSpecification(): SubDefinitionSpec
+    public function getDefinition(): RenditionDefinition
     {
-        return $this->specification;
+        return $this->definition;
     }
 
-    public function setSpecification(SubDefinitionSpec $specification): void
+    public function setDefinition(RenditionDefinition $definition): void
     {
-        $this->specification = $specification;
+        $this->definition = $definition;
     }
 
     /**
      * @ApiProperty()
-     * @Groups({"subdef:index", "subdef:read"})
+     * @Groups({"rendition:index", "rendition:read"})
      */
     public function getName(): string
     {
-        return $this->specification->getName();
+        return $this->definition->getName();
     }
 
     public function isReady(): bool

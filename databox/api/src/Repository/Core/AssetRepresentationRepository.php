@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
-use App\Entity\Core\SubDefinition;
+use App\Entity\Core\AssetRendition;
 use Doctrine\ORM\EntityRepository;
 
-class SubDefinitionRepository extends EntityRepository
+class AssetRepresentationRepository extends EntityRepository
 {
     /**
-     * @return SubDefinition[]
+     * @return AssetRendition[]
      */
-    public function findAssetSubDefs(string $assetId): array
+    public function findAssetRenditions(string $assetId): array
     {
         return $this->createQueryBuilder('t')
             ->select('t')
             ->addSelect('s')
-            ->innerJoin('t.specification', 's')
+            ->innerJoin('t.definition', 's')
             ->andWhere('t.asset = :asset')
             ->setParameter('asset', $assetId)
             ->addOrderBy('s.priority', 'DESC')
