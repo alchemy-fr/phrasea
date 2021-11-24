@@ -7,12 +7,13 @@ namespace App\Elasticsearch\Listener;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Asset\Attribute\FallbackResolver;
+use App\Attribute\AttributeTypeRegistry;
+use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -21,16 +22,21 @@ class AssetPostTransformListener implements EventSubscriberInterface
     private PermissionManager $permissionManager;
     private EntityManagerInterface $em;
     private FallbackResolver $variableResolver;
+    private AttributeTypeRegistry $attributeTypeRegistry;
+    private FieldNameResolver $fieldNameResolver;
 
     public function __construct(
         PermissionManager $permissionManager,
         EntityManagerInterface $em,
-        FallbackResolver $variableResolver
-    )
-    {
+        FallbackResolver $variableResolver,
+        AttributeTypeRegistry $attributeTypeRegistry,
+        FieldNameResolver $fieldNameResolver
+    ) {
         $this->permissionManager = $permissionManager;
         $this->em = $em;
         $this->variableResolver = $variableResolver;
+        $this->attributeTypeRegistry = $attributeTypeRegistry;
+        $this->fieldNameResolver = $fieldNameResolver;
     }
 
     public function hydrateDocument(PostTransformEvent $event): void
@@ -83,30 +89,57 @@ class AssetPostTransformListener implements EventSubscriberInterface
     {
         $data = [];
 
-        $attributes = $this->em->getRepository(AttributeDefinition::class)
-            ->createQueryBuilder('d')
-            ->addSelect('d.name')
-            ->addSelect('d.fallback')
-            ->leftJoin(Attribute::class, 'a', Join::WITH, 'a.definition = d.id AND a.asset = :asset')
-            ->addSelect('a.value')
-            ->addSelect('a.locale')
+        /** @var Attribute[] $attributes */
+        $attributes = $this->em->getRepository(Attribute::class)
+            ->createQueryBuilder('a')
+            ->innerJoin('a.definition', 'd')
             ->andWhere('d.workspace = :workspace')
-            ->andWhere('a.value IS NOT NULL OR d.fallback IS NOT NULL')
+            ->andWhere('d.searchable = true')
+            ->andWhere('a.asset = :asset')
             ->setParameter('asset', $asset->getId())
             ->setParameter('workspace', $asset->getWorkspaceId())
             ->getQuery()
             ->getResult();
 
         foreach ($attributes as $a) {
-            if (!empty($a['value'])) {
-                $data[$a['locale']][$a['name']] = $a['value'];
+            $definition = $a->getDefinition();
+            $v = $a->getValue();
+            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            $l = $a->getLocale();
+
+            // TODO
+//            $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+//            $v = $type->normalizeValue($v);
+
+            if (!empty($v)) {
+                $data[$l][$fieldName] = $v;
             }
-        }
-        foreach ($attributes as $a) {
+
             if ($a['fallback']) {
                 foreach ($a['fallback'] as $locale => $fallback) {
-                    if (!isset($data[$locale][$a['name']])) {
-                        $data[$locale][$a['name']] = $this->resolveFallback($fallback, $asset);
+                    if (!isset($data[$locale][$fieldName])) {
+                        $data[$locale][$fieldName] = $this->resolveFallback($fallback, $asset);
+                    }
+                }
+            }
+        }
+
+        /** @var AttributeDefinition[] $definitions */
+        $definitions = $this->em->getRepository(AttributeDefinition::class)
+            ->createQueryBuilder('d')
+            ->andWhere('d.fallback IS NOT NULL')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $asset->getWorkspaceId())
+            ->getQuery()
+            ->getResult();
+
+        foreach ($definitions as $definition) {
+            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+
+            if (null !== $definition->getFallback()) {
+                foreach ($definition->getFallback() as $locale => $fallback) {
+                    if (!isset($data[$locale][$fieldName])) {
+                        $data[$locale][$fieldName] = $this->resolveFallback($fallback, $asset);
                     }
                 }
             }

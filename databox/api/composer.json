@@ -64,6 +64,7 @@
         "alchemy/storage-bundle": "*",
         "api-platform/core": "^2.5",
         "arthem/rabbit-bundle": "dev-master",
+        "cocur/slugify": "^4.0",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/dbal": "<3",

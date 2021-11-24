@@ -18,23 +18,26 @@ class IndexMappingUpdater
     private Index $index;
     private EntityManagerInterface $em;
     private AttributeTypeRegistry $attributeTypeRegistry;
+    private FieldNameResolver $fieldNameResolver;
 
     public function __construct(
         Client $client,
         Index $index,
         EntityManagerInterface $em,
-        AttributeTypeRegistry $attributeTypeRegistry
+        AttributeTypeRegistry $attributeTypeRegistry,
+        FieldNameResolver $fieldNameResolver
     ) {
         $this->client = $client;
         $this->index = $index;
         $this->em = $em;
         $this->attributeTypeRegistry = $attributeTypeRegistry;
+        $this->fieldNameResolver = $fieldNameResolver;
     }
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-        $fieldName = $definition->getSearchFieldName();
+        $fieldName = $this->fieldNameResolver->getFieldName($definition);
         if (!isset($mapping['properties']['attributes'])) {
             $mapping['properties']['attributes'] = [
                 'type' => 'object',
