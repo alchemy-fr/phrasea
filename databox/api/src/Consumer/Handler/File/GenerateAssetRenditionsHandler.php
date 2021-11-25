@@ -43,6 +43,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
     {
         $payload = $message->getPayload();
         $id = $payload['id'];
+        $renditions = $payload['renditions'] ?? null;
 
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
@@ -71,17 +72,23 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
             return;
         }
 
+        $destination = [
+            'url' => $destUrl,
+            'payload' => [
+                'token' => $this->JWTTokenManager->createToken($asset->getId()),
+            ],
+        ];
+
+        if (!empty($renditions)) {
+            $destination['subdefs'] = $renditions;
+        }
+
         $data = [
             'databoxId' => $phraseanetDataboxId,
             'source' => [
                 'url' => $url,
             ],
-            'destination' => [
-                'url' => $destUrl,
-                'payload' => [
-                    'token' => $this->JWTTokenManager->createToken($asset->getId()),
-                ],
-            ]
+            'destination' => $destination,
         ];
 
         try {
