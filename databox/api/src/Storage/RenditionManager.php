@@ -52,6 +52,11 @@ class RenditionManager
             $asset->getWorkspace()
         );
 
+        if (null === $asset->getFile() && $definition->isUseAsOriginal()) {
+            $asset->setFile($file);
+            $this->em->persist($asset);
+        }
+
         $rendition = $this->em->getRepository(AssetRendition::class)
             ->findOneBy([
                 'asset' => $asset->getId(),
