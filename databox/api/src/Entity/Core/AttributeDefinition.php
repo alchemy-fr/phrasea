@@ -51,6 +51,11 @@ class AttributeDefinition extends AbstractUuidEntity
     private bool $searchable = true;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $multiple = false;
+
+    /**
      * Resolve this template (TWIG syntax) if no user value provided.
      *
      * @ORM\Column(type="array", nullable=true)
@@ -145,5 +150,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setSearchable(bool $searchable): void
     {
         $this->searchable = $searchable;
+    }
+
+    public function isMultiple(): bool
+    {
+        return $this->multiple;
+    }
+
+    public function setMultiple(bool $multiple): void
+    {
+        $this->multiple = $multiple;
     }
 }

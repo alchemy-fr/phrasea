@@ -40,7 +40,7 @@ final class GenerateRenditionsAction extends AbstractController
         $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
 
         $this->eventProducer->publish(new EventMessage(GenerateAssetRenditionsHandler::EVENT, [
-            'id' => $id,
+            'id' => $asset->getId(),
             'renditions' => $action->renditions,
         ]));
 

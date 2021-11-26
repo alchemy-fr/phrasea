@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-class TextAttributeType extends AbstractAttributeType
+class NumberAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'text';
+    public const NAME = 'number';
 
     public static function getName(): string
     {
@@ -15,16 +15,16 @@ class TextAttributeType extends AbstractAttributeType
 
     public function getElasticSearchType(): string
     {
-        return 'text';
+        return 'long';
     }
 
-    public function getSearchAnalyzer(string $language): ?string
-    {
-        return 'text_'.$language;
-    }
-
+    /**
+     * @param int|float|string $value
+     *
+     * @return float
+     */
     public function normalizeValue($value)
     {
-        return (string) $value;
+        return (float) $value;
     }
 }

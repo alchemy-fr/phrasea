@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-class TextAttributeType extends AbstractAttributeType
+class BooleanAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'text';
+    public const NAME = 'boolean';
 
     public static function getName(): string
     {
@@ -15,16 +15,11 @@ class TextAttributeType extends AbstractAttributeType
 
     public function getElasticSearchType(): string
     {
-        return 'text';
-    }
-
-    public function getSearchAnalyzer(string $language): ?string
-    {
-        return 'text_'.$language;
+        return 'boolean';
     }
 
     public function normalizeValue($value)
     {
-        return (string) $value;
+        return (bool) $value;
     }
 }

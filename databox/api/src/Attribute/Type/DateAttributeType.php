@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-class DateAttributeType implements AttributeTypeInterface
+use DateTimeImmutable;
+use DateTimeInterface;
+
+class DateAttributeType extends AbstractAttributeType
 {
     public static function getName(): string
     {
@@ -16,8 +19,27 @@ class DateAttributeType implements AttributeTypeInterface
         return 'date';
     }
 
-    public function getSearchAnalyzer(string $language): ?string
+    /**
+     * @param string|DateTimeInterface $value
+     *
+     * @return string
+     */
+    public function normalizeValue($value)
     {
-        return null;
+        if (!$value instanceof DateTimeInterface) {
+            $value = new DateTimeImmutable($value);
+        }
+
+        return $value->format(DateTimeInterface::ATOM);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return DateTimeImmutable
+     */
+    public function denormalizeValue($value)
+    {
+        return new DateTimeImmutable($value);
     }
 }

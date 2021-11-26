@@ -107,19 +107,19 @@ class AssetPostTransformListener implements EventSubscriberInterface
             $fieldName = $this->fieldNameResolver->getFieldName($definition);
             $l = $a->getLocale();
 
-            // TODO
-//            $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-//            $v = $type->normalizeValue($v);
-
-            if (!empty($v)) {
-                $data[$l][$fieldName] = $v;
+            if (null !== $v) {
+                $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+                $v = $type->normalizeValue($v);
             }
 
-            if ($a['fallback']) {
-                foreach ($a['fallback'] as $locale => $fallback) {
-                    if (!isset($data[$locale][$fieldName])) {
-                        $data[$locale][$fieldName] = $this->resolveFallback($fallback, $asset);
+            if (!empty($v)) {
+                if ($definition->isMultiple()) {
+                    if (!isset($data[$l][$fieldName])) {
+                        $data[$l][$fieldName] = [];
                     }
+                    $data[$l][$fieldName][] = $v;
+                } else {
+                    $data[$l][$fieldName] = $v;
                 }
             }
         }
@@ -139,7 +139,11 @@ class AssetPostTransformListener implements EventSubscriberInterface
             if (null !== $definition->getFallback()) {
                 foreach ($definition->getFallback() as $locale => $fallback) {
                     if (!isset($data[$locale][$fieldName])) {
-                        $data[$locale][$fieldName] = $this->resolveFallback($fallback, $asset);
+                        $fallbackValue = $this->resolveFallback($fallback, $asset);
+                        if ($definition->isMultiple()) {
+                            $fallbackValue = [$fallbackValue];
+                        }
+                        $data[$locale][$fieldName] = $fallbackValue;
                     }
                 }
             }

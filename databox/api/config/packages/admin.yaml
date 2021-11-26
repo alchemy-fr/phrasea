@@ -271,6 +271,7 @@ easy_admin:
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType' }
+          - { property: 'multiple' }
           - { property: 'editable' }
           - { property: 'searchable', type: boolean }
           - { property: 'fallback' }
@@ -281,6 +282,7 @@ easy_admin:
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType', type: App\Form\Type\AttributeTypeChoiceType }
+          - { property: 'multiple' }
           - { property: 'editable' }
           - { property: 'searchable' }
           -
