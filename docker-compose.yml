@@ -698,6 +698,7 @@ services:
       - DATABOX_REQUEST_SIGNATURE_TTL
       - PHRASEANET_BASE_URL
       - PHRASEANET_APP_OAUTH_TOKEN
+      - UPLOAD_MAX_FILE_SIZE
     depends_on:
       - rabbitmq
       - redis
@@ -768,6 +769,8 @@ services:
       internal:
         aliases:
           - databox-api
+    environment:
+      - UPLOAD_MAX_FILE_SIZE
     ports:
       - ${DATABOX_API_PORT}:80
     depends_on:
