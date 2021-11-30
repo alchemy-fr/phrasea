@@ -7,13 +7,17 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
+use App\Util\LocaleUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Elastica\Index;
 use FOS\ElasticaBundle\Exception\AliasIsIndexException;
+use RuntimeException;
 
 class IndexMappingUpdater
 {
+    public const NO_LOCALE = '_';
+
     private Client $client;
     private Index $index;
     private EntityManagerInterface $em;
@@ -36,7 +40,6 @@ class IndexMappingUpdater
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
-        $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
         $fieldName = $this->fieldNameResolver->getFieldName($definition);
         if (!isset($mapping['properties']['attributes'])) {
             $mapping['properties']['attributes'] = [
@@ -56,29 +59,28 @@ class IndexMappingUpdater
 
         $lProps = &$properties[$locale]['properties'];
 
-        $lProps[$fieldName] = [
+        $lProps[$fieldName] = $this->getFieldMapping($definition, $locale);
+    }
+
+    private function getFieldMapping(AttributeDefinition $definition, string $locale): array
+    {
+        $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+        $language = LocaleUtils::extractLanguageFromLocale($locale);
+
+        return array_merge([
             'type' => $type->getElasticSearchType(),
             'meta' => [
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
             ]
-        ];
-
-        if (null !== $analyzer = $type->getSearchAnalyzer($this->extractLanguageFromLocale($locale))) {
-            $lProps[$fieldName]['analyzer'] = $analyzer;
-        }
-    }
-
-    private function extractLanguageFromLocale(string $locale): string
-    {
-        return preg_replace('#_.+$#', '', $locale);
+        ], $type->getElasticSearchMapping($language));
     }
 
     public function synchronizeWorkspace(Workspace $workspace): void
     {
         $mapping = $this->index->getMapping();
 
-        $attributes = $mapping['properties']['attributes']['properties'];
+        $attributes = $mapping['properties']['attributes']['properties'] ?? [];
 
         $newMapping = [
             'properties' => [
@@ -96,33 +98,7 @@ class IndexMappingUpdater
             ]);
 
         foreach ($attributeDefinitions as $definition) {
-            $fieldName = $definition->getSearchFieldName();
-
-            foreach ($workspace->getEnabledLocales() as $locale) {
-                $upsert = false;
-                if (isset($attributes[$locale][$fieldName])) {
-                    $a = $attributes[$locale][$fieldName];
-
-                    $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-
-                    if (
-                        $a['type'] !== $type->getElasticSearchType()
-                        || $a['analyzer'] !== $type->getSearchAnalyzer($this->extractLanguageFromLocale($locale))
-                    ) {
-                        $upsert = true;
-                    }
-                } else {
-                    $upsert = true;
-                }
-
-                if ($upsert) {
-                    $this->assignAttributeToMapping(
-                        $newMapping,
-                        $locale,
-                        $definition
-                    );
-                }
-            }
+            $this->assignAttributeDefinitionToMapping($newMapping, $definition, $attributes);
         }
 
         $indexName = $this->getAliasedIndex($this->index->getName());
@@ -130,6 +106,50 @@ class IndexMappingUpdater
             'PUT',
             $newMapping
         );
+    }
+
+    public function assignAttributeDefinitionToMapping(array &$newMapping, AttributeDefinition $definition, array $existingAttributes = []): bool
+    {
+        $upsert = false;
+        $fieldName = $this->fieldNameResolver->getFieldName($definition);
+        $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+
+        $workspace = $definition->getWorkspace();
+
+        $assign = function (string $locale) use ($fieldName, $definition, &$newMapping, &$upsert): void {
+            if (isset($existingAttributes[$locale][$fieldName])) {
+                $a = $existingAttributes[$locale][$fieldName];
+
+                if (!$this->isSameMapping($a, $definition, $locale)) {
+                    $upsert = true;
+                }
+            } else {
+                $upsert = true;
+            }
+
+            if ($upsert) {
+                $this->assignAttributeToMapping(
+                    $newMapping,
+                    $locale,
+                    $definition
+                );
+            }
+        };
+
+        if ($type->isLocaleAware() && $definition->isTranslatable()) {
+            foreach ($workspace->getEnabledLocales() as $locale) {
+                $assign($locale);
+            }
+        } else {
+            $assign(self::NO_LOCALE);
+        }
+
+        return $upsert;
+    }
+
+    private function isSameMapping(array $mapping, AttributeDefinition $definition, string $locale): bool
+    {
+        return empty(array_diff($mapping, $this->getFieldMapping($definition, $locale)));
     }
 
     /**
@@ -158,7 +178,7 @@ class IndexMappingUpdater
         }
 
         if (count($aliasedIndexes) > 1) {
-            throw new \RuntimeException(sprintf('Alias "%s" is used for multiple indexes: ["%s"]. Make sure it\'s'.'either not used or is assigned to one index only', $aliasName, implode('", "', $aliasedIndexes)));
+            throw new RuntimeException(sprintf('Alias "%s" is used for multiple indexes: ["%s"]. Make sure it\'s'.'either not used or is assigned to one index only', $aliasName, implode('", "', $aliasedIndexes)));
         }
 
         return array_shift($aliasedIndexes);

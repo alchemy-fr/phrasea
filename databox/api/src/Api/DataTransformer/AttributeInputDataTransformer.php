@@ -9,6 +9,7 @@ use App\Api\Model\Input\AttributeInput;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -39,6 +40,10 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
                     'name' => $data->name,
                     'workspace' => $object->getAsset()->getWorkspace()->getId(),
                 ]);
+
+                if (!$definition instanceof AttributeDefinition) {
+                    throw new BadRequestHttpException(sprintf('Attribute definition "%s" not found', $data->name));
+                }
             }
 
             if ($definition instanceof AttributeDefinition) {

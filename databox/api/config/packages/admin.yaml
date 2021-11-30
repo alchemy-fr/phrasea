@@ -263,7 +263,10 @@ easy_admin:
     AttributeDefinition:
       class: App\Entity\Core\AttributeDefinition
       list:
+        actions:
+          - permissions
         max_results: 100
+        filters: ['workspace', 'public', 'searchable', 'multiple', 'fieldType', 'fileType' ]
         sort: [name, ASC]
         fields:
           - { property: id, template: 'admin/id.html.twig' }
@@ -271,10 +274,10 @@ easy_admin:
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType' }
-          - { property: 'multiple' }
+          - { property: 'multiple', type: boolean }
           - { property: 'editable' }
+          - { property: 'public', type: boolean }
           - { property: 'searchable', type: boolean }
-          - { property: 'fallback' }
           - createdAt
       form:
         fields:
@@ -282,9 +285,13 @@ easy_admin:
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType', type: App\Form\Type\AttributeTypeChoiceType }
+          - { property: 'allowInvalid' }
+          - { property: 'translatable' }
           - { property: 'multiple' }
           - { property: 'editable' }
+          - { property: 'public' }
           - { property: 'searchable' }
+          - { property: 'searchBoost', type: number }
           -
             property: fallbackEN
             label: "Fallback value template EN"

@@ -17,15 +17,18 @@ class AssetSearch extends AbstractSearch
     private PaginatedFinderInterface $finder;
     private TagFilterManager $tagFilterManager;
     private EntityManagerInterface $em;
+    private AttributeSearch $attributeSearch;
 
     public function __construct(
         PaginatedFinderInterface $finder,
         TagFilterManager $tagFilterManager,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        AttributeSearch $attributeSearch
     ) {
         $this->finder = $finder;
         $this->tagFilterManager = $tagFilterManager;
         $this->em = $em;
+        $this->attributeSearch = $attributeSearch;
     }
 
     public function search(
@@ -33,10 +36,10 @@ class AssetSearch extends AbstractSearch
         array $groupIds,
         array $options = []
     ): Pagerfanta {
-        $mustQueries = [];
+        $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        $mustQueries[] = $aclBoolQuery;
+        $filterQueries[] = $aclBoolQuery;
 
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
@@ -47,16 +50,16 @@ class AssetSearch extends AbstractSearch
                 return $parentCollection->getAbsolutePath();
             }, $parentCollections);
 
-            $mustQueries[] = new Query\Terms('collectionPaths', $paths);
+            $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
 
         if (isset($options['workspaces'])) {
-            $mustQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
+            $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
-            $mustQueries[] = $tagsBoolQuery;
+            $filterQueries[] = $tagsBoolQuery;
 
             if (isset($options['tags_must'])) {
                 foreach ($options['tags_must'] as $tag) {
@@ -78,30 +81,19 @@ class AssetSearch extends AbstractSearch
         }
 
         $filterQuery = new Query\BoolQuery();
-        foreach ($mustQueries as $query) {
+        foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
         }
 
-        $filterQuery->addFilter($this->buildTagFilterQuery($userId, $groupIds));
+        if (null !== $tagQuery = $this->buildTagFilterQuery($userId, $groupIds)) {
+            $filterQuery->addFilter($tagQuery);
+        }
 
         $queryString = trim($options['query'] ?? '');
         if (!empty($queryString)) {
-            $weights = [
-                'title' => 10,
-                'attributes.*' => 9,
-            ];
-
-            $multiMatch = new Query\MultiMatch();
-            $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
-            $multiMatch->setQuery($queryString);
-            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
-            $multiMatch->setParam('boost', 1);
-            $fields = [];
-            foreach ($weights as $field => $boost) {
-                $fields[] = $field.'^'.$boost;
+            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($queryString, $userId, $groupIds, $options)) {
+                $filterQuery->addMust($multiMatch);
             }
-            $multiMatch->setFields($fields);
-            $filterQuery->addMust($multiMatch);
         }
 
         $query = new Query();
@@ -125,26 +117,22 @@ class AssetSearch extends AbstractSearch
      */
     private function findCollections(array $ids): array
     {
-        return $this->findEntityByIds(Collection::class, $ids);
-    }
-
-    private function findEntityByIds(string $entityName, array $ids): array
-    {
         return $this->em
             ->createQueryBuilder()
             ->select('t')
-            ->from($entityName, 't')
+            ->from(Collection::class, 't')
             ->where('t.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
     }
 
-    private function buildTagFilterQuery(?string $userId, array $groupIds): Query\BoolQuery
+    private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         $ruleSet = $this->tagFilterManager->getUserRules($userId, $groupIds);
 
         $query = new Query\BoolQuery();
+        $hasConditions = false;
 
         foreach ($ruleSet['workspaces'] as $wId => $rules) {
             if (empty($rules['include']) && empty($rules['exclude'])) {
@@ -154,9 +142,11 @@ class AssetSearch extends AbstractSearch
             if ($workspace instanceof Workspace) {
                 if (!empty($rules['include'])) {
                     $query->addMust($this->createIncludeQuery('workspaceId', $workspace->getId(), $rules['include']));
+                    $hasConditions = true;
                 }
                 if (!empty($rules['exclude'])) {
                     $query->addMustNot($this->createExcludeQuery('workspaceId', $workspace->getId(), $rules['exclude']));
+                    $hasConditions = true;
                 }
             }
         }
@@ -171,11 +161,17 @@ class AssetSearch extends AbstractSearch
                 $path = $collection->getAbsolutePath();
                 if (!empty($rules['include'])) {
                     $query->addMust($this->createIncludeQuery('collectionPaths', $path, $rules['include']));
+                    $hasConditions = true;
                 }
                 if (!empty($rules['exclude'])) {
                     $query->addMustNot($this->createExcludeQuery('collectionPaths', $path, $rules['exclude']));
+                    $hasConditions = true;
                 }
             }
+        }
+
+        if (!$hasConditions) {
+            return null;
         }
 
         return $query;

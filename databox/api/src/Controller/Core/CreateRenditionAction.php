@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\RenditionVoter;
 use App\Storage\RenditionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -39,6 +40,7 @@ final class CreateRenditionAction extends AbstractController
     public function __invoke(Request $request): AssetRendition
     {
         $asset = $this->resolveAsset($request);
+        $this->checkPermission($asset);
         $definition = $this->resolveRenditionDefinition($asset->getWorkspace(), $request);
 
         if (null !== $request->request->get('multipart')) {
@@ -74,6 +76,14 @@ final class CreateRenditionAction extends AbstractController
         } else {
             throw new BadRequestHttpException('Missing file or multipart');
         }
+    }
+
+    private function checkPermission(Asset $asset): void
+    {
+        $rendition = new AssetRendition();
+        $rendition->setAsset($asset);
+
+        $this->denyAccessUnlessGranted(RenditionVoter::CREATE, $rendition);
     }
 
     private function handleMultipartUpload(Asset $asset, RenditionDefinition $definition, Request $request): AssetRendition

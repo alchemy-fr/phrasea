@@ -32,6 +32,16 @@ fos_elastica:
                                     - snowball_en
                                     - asciifolding
                                     - elision
+                            text_de:
+                                type: custom
+                                tokenizer: whitespace
+                                filter:
+                                    - worddelimiter
+                                    - lowercase
+                                    - stopwords_de
+                                    - snowball_de
+                                    - asciifolding
+                                    - elision
                         tokenizer:
                             collection_path:
                                 type: path_hierarchy
@@ -58,6 +68,13 @@ fos_elastica:
                             stopwords_en:
                                 type: stop
                                 stopwords: [ _english_ ]
+                                ignore_case: true
+                            snowball_de:
+                                type: snowball
+                                language: German
+                            stopwords_de:
+                                type: stop
+                                stopwords: [ _german_ ]
                                 ignore_case: true
             properties:
                 title: ~

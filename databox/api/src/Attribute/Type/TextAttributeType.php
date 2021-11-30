@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
+
 class TextAttributeType extends AbstractAttributeType
 {
     public const NAME = 'text';
@@ -18,13 +20,23 @@ class TextAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function getSearchAnalyzer(string $language): ?string
+    public function getElasticSearchMapping(string $language): array
     {
-        return 'text_'.$language;
+        $mapping = [];
+        if (IndexMappingUpdater::NO_LOCALE !== $language) {
+            $mapping['analyzer'] = 'text_'.$language;
+        }
+
+        return $mapping;
     }
 
     public function normalizeValue($value)
     {
-        return (string) $value;
+        return (string)$value;
+    }
+
+    public function isLocaleAware(): bool
+    {
+        return true;
     }
 }

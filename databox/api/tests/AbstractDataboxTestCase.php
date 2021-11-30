@@ -7,7 +7,11 @@ namespace App\Tests;
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\ApiTest\ApiTestCase;
+use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
@@ -65,6 +69,22 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
             $em->persist($collectionAsset);
         }
 
+        if (isset($options['attributes'])) {
+            /** @var AttributeTypeRegistry $typeRegistry */
+            $typeRegistry = self::$container->get(AttributeTypeRegistry::class);
+
+            foreach ($options['attributes'] as $attr) {
+                $a = new Attribute();
+                $a->setAsset($asset);
+                $a->setDefinition($attr['definition']);
+                $a->setLocale($attr['locale'] ?? null);
+                $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
+                $a->setValue($typeRegistry->getStrictType($attr['definition']->getFieldType())->normalizeValue($attr['value']));
+
+                $em->persist($a);
+            }
+        }
+
         $em->persist($asset);
 
         if (!($options['no_flush'] ?? false)) {
@@ -81,7 +101,6 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $collection = new Collection();
         $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setTitle($options['title'] ?? null);
-        $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         if ($options['public'] ?? false) {
@@ -94,6 +113,26 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $collection;
+    }
+
+    protected function createAttributeDefinition(array $options = []): AttributeDefinition
+    {
+        $em = self::getEntityManager();
+
+        $definition = new AttributeDefinition();
+        $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
+        $definition->setPublic($options['public'] ?? true);
+        $definition->setSearchable($options['searchable'] ?? true);
+        $definition->setName($options['name'] ?? true);
+        $definition->setFallback($options['fallback'] ?? null);
+
+        $em->persist($definition);
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $definition;
     }
 
     protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission, array $options = []): void
@@ -115,6 +154,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $workspace = new Workspace();
         $workspace->setName($options['name'] ?? 'My workspace');
         $workspace->setOwnerId($options['ownerId'] ?? 'custom_owner');
+        $workspace->setEnabledLocales(['fr', 'en', 'de']);
 
         $em->persist($workspace);
         if (!($options['no_flush'] ?? false)) {

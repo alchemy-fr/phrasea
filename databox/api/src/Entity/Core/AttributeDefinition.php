@@ -12,7 +12,13 @@ use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
+ * @ORM\Table(indexes={
+ *     @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
+ *     @ORM\Index(name="searchable_idx", columns={"searchable"}),
+ *     @ORM\Index(name="public_idx", columns={"public"}),
+ *     @ORM\Index(name="type_idx", columns={"field_type"}),
+ * })
  */
 class AttributeDefinition extends AbstractUuidEntity
 {
@@ -53,7 +59,27 @@ class AttributeDefinition extends AbstractUuidEntity
     /**
      * @ORM\Column(type="boolean", nullable=false)
      */
+    private bool $translatable = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
     private bool $multiple = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $allowInvalid = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $public = true;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private ?int $searchBoost = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
@@ -160,5 +186,45 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setMultiple(bool $multiple): void
     {
         $this->multiple = $multiple;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
+    }
+
+    public function getSearchBoost(): ?int
+    {
+        return $this->searchBoost;
+    }
+
+    public function setSearchBoost(?int $searchBoost): void
+    {
+        $this->searchBoost = $searchBoost;
+    }
+
+    public function isTranslatable(): bool
+    {
+        return $this->translatable;
+    }
+
+    public function setTranslatable(bool $translatable): void
+    {
+        $this->translatable = $translatable;
+    }
+
+    public function isAllowInvalid(): bool
+    {
+        return $this->allowInvalid;
+    }
+
+    public function setAllowInvalid(bool $allowInvalid): void
+    {
+        $this->allowInvalid = $allowInvalid;
     }
 }

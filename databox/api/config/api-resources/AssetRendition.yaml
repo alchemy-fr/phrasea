@@ -12,12 +12,11 @@ resources:
       delete:
         security: 'is_granted("DELETE", object)'
       put:
-        security: 'is_granted("ROLE_RENDITION:EDIT")'
+        security: 'is_granted("EDIT", object)'
       patch:
         security: 'is_granted("EDIT", object)'
     collectionOperations:
       post:
-        security_post_denormalize: 'is_granted("CREATE", object)'
         controller: App\Controller\Core\CreateRenditionAction
         defaults:
           _api_receive: false

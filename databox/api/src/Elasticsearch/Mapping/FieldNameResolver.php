@@ -26,7 +26,7 @@ class FieldNameResolver
         return sprintf('%s_%s_%s',
             $this->slugify->slugify($definition->getName()),
             $type->getElasticSearchType(),
-            's' // TODO support 'm' for multi-valued
+            $definition->isMultiple() ? 'm' : 's'
         );
     }
 }

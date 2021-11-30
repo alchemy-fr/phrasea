@@ -26,6 +26,9 @@ App\Entity\Core\Workspace:
             pattern: '#^[a-z]{2}(_[A-Z]{2})?$#'
 
 App\Entity\Core\Attribute:
+  constraints:
+    - App\Validator\UniqueAttributeConstraint: ~
+    - App\Validator\ValidAttributeConstraint: ~
   properties:
     definition:
       - NotNull: ~

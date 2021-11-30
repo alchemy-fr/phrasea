@@ -9,5 +9,5 @@ interface SearchDeleteDependencyInterface extends SearchDependencyInterface
     /**
      * @return SearchableEntityInterface[]
      */
-    public function getSearchDeleteDependencies();
+    public function getSearchDeleteDependencies(): array;
 }

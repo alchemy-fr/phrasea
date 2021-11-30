@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionManager;
 use App\Asset\Attribute\FallbackResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -105,7 +106,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
             $definition = $a->getDefinition();
             $v = $a->getValue();
             $fieldName = $this->fieldNameResolver->getFieldName($definition);
-            $l = $a->getLocale();
+            $l = $a->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
 
             if (null !== $v) {
                 $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());

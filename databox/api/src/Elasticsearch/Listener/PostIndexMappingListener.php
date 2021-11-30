@@ -42,13 +42,7 @@ class PostIndexMappingListener implements EventSubscriberInterface
                 ]);
 
             foreach ($attributeDefinitions as $definition) {
-                foreach ($workspace->getEnabledLocales() as $locale) {
-                    $this->indexMappingUpdater->assignAttributeToMapping(
-                        $mapping,
-                        $locale,
-                        $definition
-                    );
-                }
+                $this->indexMappingUpdater->assignAttributeDefinitionToMapping($mapping, $definition);
             }
         }
 

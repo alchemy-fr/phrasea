@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
 interface AttributeTypeInterface
 {
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
 
-    public function getSearchAnalyzer(string $language): ?string;
+    public function getElasticSearchMapping(string $language): array;
 
     /**
      * Normalize value for Elastic search.
@@ -29,4 +31,8 @@ interface AttributeTypeInterface
      * @return mixed
      */
     public function denormalizeValue($value);
+
+    public function isLocaleAware(): bool;
+
+    public function validate($value, ExecutionContextInterface $context): void;
 }

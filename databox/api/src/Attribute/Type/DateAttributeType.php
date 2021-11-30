@@ -6,6 +6,9 @@ namespace App\Attribute\Type;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Throwable;
 
 class DateAttributeType extends AbstractAttributeType
 {
@@ -19,27 +22,72 @@ class DateAttributeType extends AbstractAttributeType
         return 'date';
     }
 
+    public function getElasticSearchMapping(string $language): array
+    {
+        return [
+            'fields' => [
+                'text' => [
+                    'type' => 'text',
+                ]
+            ]
+        ];
+    }
+
     /**
      * @param string|DateTimeInterface $value
      *
-     * @return string
+     * @return string|null
      */
     public function normalizeValue($value)
     {
-        if (!$value instanceof DateTimeInterface) {
-            $value = new DateTimeImmutable($value);
+        if (empty($value)) {
+            return null;
         }
 
-        return $value->format(DateTimeInterface::ATOM);
+        if (is_string($value)) {
+            if (empty(trim($value))) {
+                return null;
+            }
+            try {
+                $value = new DateTimeImmutable($value, new  DateTimeZone('UTC'));
+            } catch (Throwable $e) {
+                return null;
+            }
+        } elseif (!$value instanceof DateTimeInterface) {
+            return null;
+        }
+
+        $str = $value->format(DateTimeInterface::ATOM);
+
+        return preg_replace('#\+00:00$#', 'Z', $str);
     }
 
     /**
      * @param string $value
      *
-     * @return DateTimeImmutable
+     * @return DateTimeImmutable|null
      */
     public function denormalizeValue($value)
     {
-        return new DateTimeImmutable($value);
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public function validate($value, ExecutionContextInterface $context): void
+    {
+        if (empty($value)) {
+            return;
+        }
+
+        try {
+            new DateTimeImmutable($value);
+        } catch (\Exception $e) {
+            $context->addViolation('Invalid date');
+
+            return;
+        }
     }
 }
