@@ -48,18 +48,14 @@ class DateAttributeType extends AbstractAttributeType
             if (empty(trim($value))) {
                 return null;
             }
-            try {
-                $value = new DateTimeImmutable($value, new  DateTimeZone('UTC'));
-            } catch (Throwable $e) {
+            if (false === $value = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value)) {
                 return null;
             }
         } elseif (!$value instanceof DateTimeInterface) {
             return null;
         }
 
-        $str = $value->format(DateTimeInterface::ATOM);
-
-        return preg_replace('#\+00:00$#', 'Z', $str);
+        return $value->format(DateTimeInterface::ATOM);
     }
 
     /**

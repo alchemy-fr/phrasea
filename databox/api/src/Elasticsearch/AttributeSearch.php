@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
-use App\Util\LocaleUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 
@@ -15,16 +17,22 @@ class AttributeSearch
 {
     private FieldNameResolver $fieldNameResolver;
     private EntityManagerInterface $em;
+    private AttributeTypeRegistry $typeRegistry;
 
-    public function __construct(FieldNameResolver $fieldNameResolver, EntityManagerInterface $em)
+    public function __construct(
+        FieldNameResolver $fieldNameResolver,
+        EntityManagerInterface $em,
+        AttributeTypeRegistry $typeRegistry
+    )
     {
         $this->fieldNameResolver = $fieldNameResolver;
         $this->em = $em;
+        $this->typeRegistry = $typeRegistry;
     }
 
     public function buildAttributeQuery(string $queryString, ?string $userId, array $groupIds, array $options = []): ?Query\AbstractQuery
     {
-        $language = isset($options['lang']) ? LocaleUtils::extractLanguageFromLocale($options['lang']) : '*';
+        $language = $options['locale'] ?? '*';
 
         if (null !== $userId) {
 
@@ -57,7 +65,15 @@ class AttributeSearch
 
             foreach ($attributeDefinitions as $definition) {
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);
-                $weights[sprintf('attributes.%s.%s', $language, $fieldName)] = $definition->getSearchBoost() ?? 1;
+                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+
+                $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
+
+                $field = sprintf('attributes.%s.%s', $l, $fieldName);
+                if (!$type instanceof TextAttributeType) {
+                    $field .= '.text';
+                }
+                $weights[$field] = $definition->getSearchBoost() ?? 1;
             }
 
             $multiMatch = new Query\MultiMatch();
