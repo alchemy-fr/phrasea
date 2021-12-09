@@ -77,7 +77,9 @@ fos_elastica:
                                 stopwords: [ _german_ ]
                                 ignore_case: true
             properties:
-                title: ~
+                title:
+                    type: text
+                    analyzer: text_fr
                 attributes:
                     type: object
                 collectionPaths:

@@ -28,48 +28,50 @@ class RenditionDefinition extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
-     * @Groups({"renddef:index", "renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
 
     /**
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\ManyToOne(targetEntity="RenditionClass")
      * @ORM\JoinColumn(nullable=true)
      */
     protected ?RenditionClass $class = null;
 
     /**
-     * @Groups({"renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsOriginal = false;
 
     /**
-     * @Groups({"renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsPreview = false;
 
     /**
-     * @Groups({"renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsThumbnail = false;
 
     /**
-     * @Groups({"renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
      */
     private bool $useAsThumbnailActive = false;
 
     /**
-     * @Groups({"renddef:read"})
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="text")
      */
     private ?string $definition = '';
 
     /**
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="smallint", nullable=false)
      */
     private int $priority = 0;

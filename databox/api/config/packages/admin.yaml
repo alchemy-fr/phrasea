@@ -130,6 +130,7 @@ easy_admin:
           - { property: 'useAsPreview', label: Preview }
           - { property: 'useAsThumbnail', label: Thumbnail }
           - { property: 'useAsThumbnailActive', label: Thumb Active }
+          - { property: 'priority' }
           - createdAt
       form:
         fields:
@@ -140,6 +141,7 @@ easy_admin:
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
+          - { property: 'priority' }
 
     AssetRendition:
       class: App\Entity\Core\AssetRendition
@@ -256,6 +258,7 @@ easy_admin:
           - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value' }
+          - { property: 'locale' }
           - { property: 'origin' }
           - { property: 'originVendor' }
           - { property: 'originVendorContext' }

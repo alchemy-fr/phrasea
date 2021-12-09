@@ -57,7 +57,7 @@ class AttributeSearch
 
             /** @var AttributeDefinition[] $attributeDefinitions */
             $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-                ->getSearchableAttributes([$workspace->getId()]);
+                ->getSearchableAttributes([$workspace->getId()], $userId, $groupIds);
 
             $weights = [
                 'title' => 10,
