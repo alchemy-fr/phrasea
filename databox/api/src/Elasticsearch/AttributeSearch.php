@@ -78,7 +78,7 @@ class AttributeSearch
             $multiMatch = new Query\MultiMatch();
             $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
             $multiMatch->setQuery($queryString);
-//            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
             $fields = [];
             foreach ($weights as $field => $boost) {
                 $fields[] = $field.'^'.$boost;
