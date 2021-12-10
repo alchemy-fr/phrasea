@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AclBundle\Model\AccessControlEntryInterface;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\ApiTest\ApiTestCase;
 use App\Attribute\AttributeTypeRegistry;
@@ -71,7 +73,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
         if (isset($options['attributes'])) {
             /** @var AttributeTypeRegistry $typeRegistry */
-            $typeRegistry = self::$container->get(AttributeTypeRegistry::class);
+            $typeRegistry = self::getContainer()->get(AttributeTypeRegistry::class);
 
             foreach ($options['attributes'] as $attr) {
                 $a = new Attribute();
@@ -123,6 +125,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
         $definition->setPublic($options['public'] ?? true);
+        $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? true);
         $definition->setFallback($options['fallback'] ?? null);
@@ -153,10 +156,14 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
         $workspace = new Workspace();
         $workspace->setName($options['name'] ?? 'My workspace');
-        $workspace->setOwnerId($options['ownerId'] ?? 'custom_owner');
+        $ownerId = $options['ownerId'] ?? 'custom_owner';
+        $workspace->setOwnerId($ownerId);
         $workspace->setEnabledLocales(['fr', 'en', 'de']);
 
         $em->persist($workspace);
+
+        $this->addUserOnWorkspace($ownerId, $workspace->getId());
+
         if (!($options['no_flush'] ?? false)) {
             $em->flush();
         }
@@ -164,14 +171,26 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return $workspace;
     }
 
+    protected function addUserOnWorkspace(string $ownerId, string $workspaceId): void
+    {
+        $permissionManager = self::getContainer()->get(PermissionManager::class);
+        $permissionManager->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER,
+            $ownerId,
+            'workspace',
+            $workspaceId,
+            PermissionInterface::VIEW
+        );
+    }
+
     protected static function getPermissionManager(): PermissionManager
     {
-        return self::$container->get(PermissionManager::class);
+        return self::getContainer()->get(PermissionManager::class);
     }
 
     protected static function getTagFilterManager(): TagFilterManager
     {
-        return self::$container->get(TagFilterManager::class);
+        return self::getContainer()->get(TagFilterManager::class);
     }
 
     protected function addAssetToCollection(string $collectionId, string $assetId, array $options = []): string

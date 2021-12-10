@@ -35,10 +35,9 @@ class AttributeSearch
         $language = $options['locale'] ?? '*';
 
         if (null !== $userId) {
-
-        $workspaces = $this->em
-            ->getRepository(Workspace::class)
-            ->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
+            $workspaces = $this->em
+                ->getRepository(Workspace::class)
+                ->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
         } else {
             // TODO fix this point
             $workspaces = $this->em
@@ -79,7 +78,7 @@ class AttributeSearch
             $multiMatch = new Query\MultiMatch();
             $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
             $multiMatch->setQuery($queryString);
-//            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
             $fields = [];
             foreach ($weights as $field => $boost) {
                 $fields[] = $field.'^'.$boost;

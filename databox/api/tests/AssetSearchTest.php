@@ -13,6 +13,7 @@ class AssetSearchTest extends AbstractSearchTest
     {
         $textDefinition = $this->createAttributeDefinition([
             'name' => 'Description',
+            'translatable' => true,
             'no_flush' => true,
         ]);
         $dateDefinition = $this->createAttributeDefinition([

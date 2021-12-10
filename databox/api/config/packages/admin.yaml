@@ -141,7 +141,7 @@ easy_admin:
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
-          - { property: 'priority' }
+          - { property: 'priority', help: 'Less is more prioritized' }
 
     AssetRendition:
       class: App\Entity\Core\AssetRendition
