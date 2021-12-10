@@ -50,4 +50,9 @@ class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInte
     {
         $this->asset = $asset;
     }
+
+    public function __toString()
+    {
+        return sprintf('C(%s) <> A(%s)', $this->collection->getId(), $this->asset->getId());
+    }
 }

@@ -22,6 +22,8 @@ services:
             tags: ['arthem_rabbit.event_handler']
         Symfony\Component\EventDispatcher\EventSubscriberInterface:
             tags: ['kernel.event_subscriber']
+        App\Attribute\Type\AttributeTypeInterface:
+            tags: ['app.attribute_type']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -108,3 +110,8 @@ services:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
             $ttl: 86400
+
+    App\Elasticsearch\Mapping\IndexMappingUpdater:
+        arguments:
+            $client: '@fos_elastica.client'
+            $index: '@fos_elastica.index.asset'

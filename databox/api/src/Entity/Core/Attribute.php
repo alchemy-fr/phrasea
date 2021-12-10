@@ -13,9 +13,9 @@ use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
  */
-class Attribute extends AbstractUuidEntity implements TranslatableInterface, SearchDeleteDependencyInterface
+class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInterface
 {
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
@@ -37,13 +37,17 @@ class Attribute extends AbstractUuidEntity implements TranslatableInterface, Sea
 
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use LocaleTrait;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?Asset $asset = null;
+
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private ?string $locale = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition")
@@ -219,7 +223,22 @@ class Attribute extends AbstractUuidEntity implements TranslatableInterface, Sea
         $this->confidence = $confidence;
     }
 
-    public function getSearchDeleteDependencies()
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function hasLocale(): bool
+    {
+        return null !== $this->locale;
+    }
+
+    public function setLocale(?string $locale): void
+    {
+        $this->locale = $locale;
+    }
+
+    public function getSearchDeleteDependencies(): array
     {
         return [
             $this->getAsset()

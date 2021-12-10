@@ -67,8 +67,12 @@ FROM nginx:1.15.11-alpine AS databox-api-nginx
 
 RUN apk add curl
 
-COPY docker/nginx/conf.d /etc/nginx/conf.d/
 COPY --from=databox-api-php /srv/app/public /srv/app/public
+COPY docker/nginx/entrypoint.sh /entrypoint.sh
+COPY docker/nginx/tpl /etc/nginx/tpl
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
 
 HEALTHCHECK --interval=1m CMD curl -f http://localhost || nginx reload
 

@@ -9,8 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait LocaleTrait
 {
     /**
-     * @ORM\Column(type="string", length=2)
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\Column(type="string", length=10, nullable=false)
      */
     private ?string $locale = null;
 

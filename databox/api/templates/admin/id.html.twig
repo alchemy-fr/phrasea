@@ -1,0 +1,7 @@
+{% set t = value|easyadmin_truncate(7, null, '') -%}
+<span style="cursor:pointer"
+    title="{{ value }}"
+      onClick="navigator.clipboard.writeText('{{ value }}');var a=this;a.innerHTML = 'Copied!';setTimeout(function(){a.innerHTML='{{ t }}'}, 1000)"
+>
+    {{ t }}
+</span>

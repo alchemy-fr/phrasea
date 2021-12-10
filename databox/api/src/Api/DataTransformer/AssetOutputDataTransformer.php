@@ -10,8 +10,8 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\File;
-use App\Entity\Core\SubDefinition;
-use App\Security\SubDefinitionPermissionManager;
+use App\Entity\Core\AssetRendition;
+use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,12 +19,12 @@ use Doctrine\ORM\EntityManagerInterface;
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
     private EntityManagerInterface $em;
-    private SubDefinitionPermissionManager $subDefinitionPermissionManager;
+    private RenditionPermissionManager $renditionPermissionManager;
 
-    public function __construct(EntityManagerInterface $em, SubDefinitionPermissionManager $subDefinitionPermissionManager)
+    public function __construct(EntityManagerInterface $em, RenditionPermissionManager $renditionPermissionManager)
     {
         $this->em = $em;
-        $this->subDefinitionPermissionManager = $subDefinitionPermissionManager;
+        $this->renditionPermissionManager = $renditionPermissionManager;
     }
 
     /**
@@ -45,9 +45,9 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
 
-        $subDefs = $this->em
-            ->getRepository(SubDefinition::class)
-            ->findAssetSubDefs($object->getId());
+        $renditions = $this->em
+            ->getRepository(AssetRendition::class)
+            ->findAssetRenditions($object->getId());
 
         foreach ([
             'original',
@@ -55,7 +55,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             'thumbnail',
             'thumbnailActive',
                  ] as $type) {
-            if (null !== $file = $this->getSubDefFile($subDefs, $object, $type, $userId, $groupIds)) {
+            if (null !== $file = $this->getRenditionFile($renditions, $object, $type, $userId, $groupIds)) {
                 $output->{'set'.ucfirst($type)}($file);
             }
         }
@@ -76,15 +76,15 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     }
 
     /**
-     * @param SubDefinition[] $subDefs
+     * @param AssetRendition[] $assetRenditions
      */
-    private function getSubDefFile(array $subDefs, Asset $asset, string $type, ?string $userId, array $groupIds): ?File
+    private function getRenditionFile(array $assetRenditions, Asset $asset, string $type, ?string $userId, array $groupIds): ?File
     {
-        foreach ($subDefs as $subDef) {
-            if ($subDef->getSpecification()->{'isUseAs'.ucfirst($type)}()) {
+        foreach ($assetRenditions as $rendition) {
+            if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
-                if ($this->subDefinitionPermissionManager->isGranted($asset, $subDef->getSpecification()->getClass(), $userId, $groupIds)) {
-                    return $subDef->getFile();
+                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(), $userId, $groupIds)) {
+                    return $rendition->getFile();
                 }
             }
         }

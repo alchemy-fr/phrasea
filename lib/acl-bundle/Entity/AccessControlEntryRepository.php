@@ -16,13 +16,16 @@ class AccessControlEntryRepository extends EntityRepository
         array $groupIds,
         string $objectType,
         string $objectTableAlias,
-        int $permission
+        int $permission,
+        bool $inner = true
     ): void
     {
         $hasGroups = !empty($groupIds);
 
+        $method = $inner ? 'innerJoin' : 'leftJoin';
+
         $queryBuilder
-            ->innerJoin(
+            ->$method(
                 AccessControlEntry::class,
                 'ace',
                 Join::WITH,

@@ -24,10 +24,10 @@ easy_admin:
           - AttributeDefinition
           - Tag
           - TagFilterRule
-          - SubDefinition
-          - SubDefinitionSpec
-          - SubDefinitionClass
-          - SubDefinitionRule
+          - AssetRendition
+          - RenditionDefinition
+          - RenditionClass
+          - RenditionRule
       - OAuthClient
       - label: 'Dev'
         children:
@@ -44,6 +44,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'title', label: Title }
           - { property: 'workspace' }
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
@@ -78,6 +79,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'title' }
           - { property: 'parent', label: Parent }
           - { property: 'workspace' }
@@ -99,17 +101,20 @@ easy_admin:
           - permissions
         sort: [name, ASC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'name' }
+          - { property: 'enabledLocales', type: array }
           - updatedAt
           - createdAt
       form:
         fields:
           - { property: 'name' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'enabledLocales', type: collection }
           - { property: 'phraseanetDataboxId', type: number }
 
-    SubDefinitionSpec:
-      class: App\Entity\Core\SubDefinitionSpec
+    RenditionDefinition:
+      class: App\Entity\Core\RenditionDefinition
       list:
         batch_actions:
           - delete
@@ -117,13 +122,15 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
-          - { property: 'class.name', label: Class }
-          - { property: 'useAsOriginal' }
-          - { property: 'useAsPreview' }
-          - { property: 'useAsThumbnail' }
-          - { property: 'useAsThumbnailActive' }
+          - { property: 'class' }
+          - { property: 'useAsOriginal', label: Original }
+          - { property: 'useAsPreview', label: Preview }
+          - { property: 'useAsThumbnail', label: Thumbnail }
+          - { property: 'useAsThumbnailActive', label: Thumb Active }
+          - { property: 'priority' }
           - createdAt
       form:
         fields:
@@ -134,9 +141,10 @@ easy_admin:
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
+          - { property: 'priority', help: 'Less is more prioritized' }
 
-    SubDefinition:
-      class: App\Entity\Core\SubDefinition
+    AssetRendition:
+      class: App\Entity\Core\AssetRendition
       list:
         actions:
           - '-new'
@@ -144,15 +152,17 @@ easy_admin:
         batch_actions:
           - delete
         max_results: 100
-        filters: ['specification', 'asset']
+        filters: ['definition', 'asset']
         fields:
-          - { property: 'specification.name', label: Name }
+          - { property: id, template: 'admin/id.html.twig' }
+          - { property: 'definition', label: Definition }
           - { property: 'asset' }
+          - { property: 'file.id', template: 'admin/id.html.twig' }
           - updatedAt
           - createdAt
 
-    SubDefinitionClass:
-      class: App\Entity\Core\SubDefinitionClass
+    RenditionClass:
+      class: App\Entity\Core\RenditionClass
       list:
         batch_actions:
           - delete
@@ -160,6 +170,7 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -168,14 +179,15 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'name' }
 
-    SubDefinitionRule:
-      class: App\Entity\Core\SubDefinitionRule
+    RenditionRule:
+      class: App\Entity\Core\RenditionRule
       list:
         batch_actions:
           - delete
         max_results: 100
         sort: [createdAt, ASC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -199,6 +211,7 @@ easy_admin:
         sort: [name, ASC]
         filters: ['workspace']
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -217,6 +230,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -233,6 +247,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value', type: string }
@@ -243,6 +258,7 @@ easy_admin:
           - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value' }
+          - { property: 'locale' }
           - { property: 'origin' }
           - { property: 'originVendor' }
           - { property: 'originVendorContext' }
@@ -250,23 +266,35 @@ easy_admin:
     AttributeDefinition:
       class: App\Entity\Core\AttributeDefinition
       list:
+        actions:
+          - permissions
         max_results: 100
+        filters: ['workspace', 'public', 'searchable', 'multiple', 'fieldType', 'fileType' ]
         sort: [name, ASC]
         fields:
+          - { property: id, template: 'admin/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType' }
+          - { property: 'multiple', type: boolean }
           - { property: 'editable' }
-          - { property: 'fallback' }
+          - { property: 'public', type: boolean }
+          - { property: 'searchable', type: boolean }
           - createdAt
       form:
         fields:
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'fileType' }
-          - { property: 'fieldType' }
+          - { property: 'fieldType', type: App\Form\Type\AttributeTypeChoiceType }
+          - { property: 'allowInvalid' }
+          - { property: 'translatable' }
+          - { property: 'multiple' }
           - { property: 'editable' }
+          - { property: 'public' }
+          - { property: 'searchable' }
+          - { property: 'searchBoost', type: number }
           -
             property: fallbackEN
             label: "Fallback value template EN"

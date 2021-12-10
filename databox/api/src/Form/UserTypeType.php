@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Core\SubDefinitionRule;
+use App\Entity\Core\RenditionRule;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -15,8 +15,8 @@ class UserTypeType extends AbstractType
     {
         $choices = [];
         foreach ([
-                     'user' => SubDefinitionRule::TYPE_USER,
-                     'group' => SubDefinitionRule::TYPE_GROUP,
+                     'user' => RenditionRule::TYPE_USER,
+                     'group' => RenditionRule::TYPE_GROUP,
                  ] as $name => $code) {
             $choices[$name] = $code;
         }

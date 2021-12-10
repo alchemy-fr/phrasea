@@ -73,7 +73,7 @@ class AttributeOutput extends AbstractUuidOutput
     public ?string $coordinates = null;
 
     /**
-     * @var string
+     * @var string|null
      */
     public $locale;
 

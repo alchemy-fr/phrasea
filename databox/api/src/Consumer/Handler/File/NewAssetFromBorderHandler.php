@@ -7,8 +7,8 @@ namespace App\Consumer\Handler\File;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use App\Entity\Core\SubDefinition;
-use App\Entity\Core\SubDefinitionSpec;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -45,20 +45,20 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $asset->setWorkspace($file->getWorkspace());
 
-        $originalSubDefSpecs = $em->getRepository(SubDefinitionSpec::class)
+        $originalRenditionDefinitions = $em->getRepository(RenditionDefinition::class)
             ->findBy([
                 'workspace' => $file->getWorkspace()->getId(),
                 'useAsOriginal' => true,
             ]);
 
-        foreach ($originalSubDefSpecs as $originalSubDefSpec) {
-            $origSubDef = new SubDefinition();
-            $origSubDef->setAsset($asset);
-            $origSubDef->setFile($file);
-            $origSubDef->setSpecification($originalSubDefSpec);
-            $origSubDef->setReady(true);
+        foreach ($originalRenditionDefinitions as $originalRenditionDefinition) {
+            $origRendition = new AssetRendition();
+            $origRendition->setAsset($asset);
+            $origRendition->setFile($file);
+            $origRendition->setDefinition($originalRenditionDefinition);
+            $origRendition->setReady(true);
 
-            $em->persist($origSubDef);
+            $em->persist($origRendition);
         }
 
         foreach ($collections as $collection) {
@@ -70,7 +70,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->persist($asset);
         $em->flush();
 
-        $this->eventProducer->publish(new EventMessage(GenerateAssetSubDefinitionsHandler::EVENT, [
+        $this->eventProducer->publish(new EventMessage(GenerateAssetRenditionsHandler::EVENT, [
             'id' => $asset->getId(),
         ]));
     }

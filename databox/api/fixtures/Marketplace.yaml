@@ -3,7 +3,7 @@ App\Entity\Core\Workspace:
     name: Marketplace
     ownerId: super_user
 
-App\Entity\Core\SubDefinitionClass:
+App\Entity\Core\RenditionClass:
   sdc_public:
     workspace: '@w_marketplace'
     name: Public
@@ -11,7 +11,7 @@ App\Entity\Core\SubDefinitionClass:
     workspace: '@w_marketplace'
     name: Restricted
 
-App\Entity\Core\SubDefinitionSpec:
+App\Entity\Core\RenditionDefinition:
   sds_preview:
     name: preview
     workspace: '@w_marketplace'
