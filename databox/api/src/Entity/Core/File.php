@@ -17,6 +17,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class File extends AbstractUuidEntity
 {
+    public const STORAGE_S3_MAIN = 's3_main';
+    public const STORAGE_PUBLIC_URL = 'public_url';
+
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
@@ -42,6 +45,11 @@ class File extends AbstractUuidEntity
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $path = null;
+
+    /**
+     * @ORM\Column(type="string", length=150, nullable=false)
+     */
+    private ?string $storage = null;
 
     public function getPath(): ?string
     {
@@ -76,5 +84,15 @@ class File extends AbstractUuidEntity
     public function __toString()
     {
         return $this->getId();
+    }
+
+    public function getStorage(): ?string
+    {
+        return $this->storage;
+    }
+
+    public function setStorage(?string $storage): void
+    {
+        $this->storage = $storage;
     }
 }

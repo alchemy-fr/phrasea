@@ -1,0 +1,53 @@
+{
+  "EventName": "s3:ObjectCreated:Put",
+  "Key": "databox/new-object.txt",
+  "Records": [
+    {
+      "eventVersion": "2.0",
+      "eventSource": "minio:s3",
+      "awsRegion": "",
+      "eventTime": "2021-12-10T14:28:39.061Z",
+      "eventName": "s3:ObjectCreated:Put",
+      "userIdentity": {
+        "principalId": "__CHANGE_ME_LDb7v4BfKXE5vTnslDvNyeWMlMmi"
+      },
+      "requestParameters": {
+        "principalId": "__CHANGE_ME_LDb7v4BfKXE5vTnslDvNyeWMlMmi",
+        "region": "",
+        "sourceIPAddress": "172.30.0.19"
+      },
+      "responseElements": {
+        "content-length": "0",
+        "x-amz-request-id": "16BF6B131360C2B0",
+        "x-minio-deployment-id": "55c75bfb-1864-4fb3-8b1e-7e0fd406bebc",
+        "x-minio-origin-endpoint": "http://172.30.0.11:9000"
+      },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "Config",
+        "bucket": {
+          "name": "databox",
+          "ownerIdentity": {
+            "principalId": "__CHANGE_ME_LDb7v4BfKXE5vTnslDvNyeWMlMmi"
+          },
+          "arn": "arn:aws:s3:::databox"
+        },
+        "object": {
+          "key": "new-object.txt",
+          "size": 5,
+          "eTag": "d8e8fca2dc0f896fd7cb4cb0031ba249",
+          "contentType": "text/plain",
+          "userMetadata": {
+            "content-type": "text/plain"
+          },
+          "sequencer": "16BF6B1313777D0F"
+        }
+      },
+      "source": {
+        "host": "172.30.0.19",
+        "port": "",
+        "userAgent": "MinIO (linux; amd64) minio-go/v7.0.6 mc/2020-09-18T00:13:21Z"
+      }
+    }
+  ]
+}

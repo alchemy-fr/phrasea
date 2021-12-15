@@ -1,6 +1,6 @@
 parameters:
-  env(REPORT_BASE_URL): ''
-  alchemy_report.report_base_url: '%env(REPORT_BASE_URL)%'
+  env(REPORT_API_BASE_URL): ''
+  alchemy_report.report_base_url: '%env(REPORT_API_BASE_URL)%'
 
 services:
   _defaults:

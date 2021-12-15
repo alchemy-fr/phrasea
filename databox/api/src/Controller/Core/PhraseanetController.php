@@ -7,6 +7,7 @@ namespace App\Controller\Core;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Core\Asset;
+use App\Entity\Core\File;
 use App\Security\JWTTokenManager;
 use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,6 +67,9 @@ class PhraseanetController extends AbstractController
         }
 
         $definition = $renditionManager->getDefinitionFromName($asset->getWorkspace(), $fileInfo['name']);
+        if (!$definition) {
+            throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $fileInfo['name']));
+        }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $path = $pathGenerator->generatePath($extension);
@@ -77,6 +81,7 @@ class PhraseanetController extends AbstractController
         $renditionManager->createOrReplaceRendition(
             $asset,
             $definition,
+            File::STORAGE_S3_MAIN,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getSize()

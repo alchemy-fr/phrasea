@@ -23,6 +23,7 @@ use LogicException;
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
 class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
@@ -41,6 +42,13 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
      * @ORM\Column(type="string", length=36)
      */
     private ?string $ownerId = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $key = null;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="asset", cascade={"remove"})
@@ -68,7 +76,7 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     private ?Collection $referenceCollection = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;
@@ -214,4 +222,13 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
         return $this->getTitle() ?? $this->getId();
     }
 
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
+    }
 }

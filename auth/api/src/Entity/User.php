@@ -275,7 +275,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         $this->inviteByEmail = $inviteByEmail;
     }
 
-    public function getLastInviteAt(): DateTime
+    public function getLastInviteAt(): ?DateTime
     {
         return $this->lastInviteAt;
     }

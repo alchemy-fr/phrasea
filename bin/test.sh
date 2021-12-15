@@ -1,7 +1,6 @@
 #!/bin/bash
 
-BASEDIR=$(dirname $0)
-. "$BASEDIR/functions.sh"
+. bin/functions.sh
 
 load-env
 
@@ -9,11 +8,17 @@ set -ex
 
 export APP_ENV=test
 export XDEBUG_ENABLED=0
-export COMPOSE_PROFILES=setup,db,uploader,auth,report,databox,expose,notify,tools
+export COMPOSE_PROFILES=db,uploader,auth,report,databox,expose,notify
+
+# Prepare network
+PHRASEA_DOMAIN=phrasea.local bin/append-etc-hosts.sh
+docker-compose up -d
+
+docker-compose run --rm dockerize
 
 SF_SERVICES="
-expose-api-php
 databox-api-php
+expose-api-php
 auth-api-php
 uploader-api-php
 notify-api-php

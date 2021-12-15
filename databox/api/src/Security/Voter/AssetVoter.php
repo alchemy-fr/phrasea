@@ -27,7 +27,7 @@ class AssetVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::CREATE:
-                if (null !== $collection =$subject->getReferenceCollection()) {
+                if (null !== $collection = $subject->getReferenceCollection()) {
                     return $this->security->isGranted(CollectionVoter::EDIT, $collection);
                 }
 

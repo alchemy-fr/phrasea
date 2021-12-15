@@ -3,8 +3,8 @@
 
 auth:
   api:
-    hostname: "auth.alchemy.kube"
-    baseUrl: "https://auth.alchemy.kube"
+    hostname: "api-auth.alchemy.kube"
+    baseUrl: "https://api-auth.alchemy.kube"
 
 databox:
   api:
@@ -41,8 +41,8 @@ uploader:
 
 notify:
   api:
-    hostname: "notify.alchemy.kube"
-    baseUrl: "https://notify.alchemy.kube"
+    hostname: "api-notify.alchemy.kube"
+    baseUrl: "https://api-notify.alchemy.kube"
 
 report:
   api:

@@ -11,6 +11,7 @@ use App\Entity\Core\Workspace;
 class AssetInput extends AbstractOwnerIdInput
 {
     public ?string $title = null;
+    public ?string $key = null;
 
     public ?int $privacy = null;
 
@@ -30,4 +31,9 @@ class AssetInput extends AbstractOwnerIdInput
      * @var Collection|null
      */
     public ?Collection $collection = null;
+
+    /**
+     * The source URL (must be public)
+     */
+    public ?string $source = null;
 }

@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /etc/traefik/certs/phrasea.pem
+      keyFile: /etc/traefik/certs/phrasea-key.pem

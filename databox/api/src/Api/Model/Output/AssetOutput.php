@@ -81,11 +81,6 @@ class AssetOutput extends AbstractUuidOutput
      */
     private $thumbnailActive = null;
 
-    public function getFile()
-    {
-        return $this->file;
-    }
-
     public function getOriginal()
     {
         return $this->original;
@@ -96,12 +91,12 @@ class AssetOutput extends AbstractUuidOutput
         $this->original = $original;
     }
 
-    public function getPreview()
+    public function getPreview(): ?File
     {
         return $this->preview;
     }
 
-    public function setPreview($preview): void
+    public function setPreview(?File $preview): void
     {
         $this->preview = $preview;
     }

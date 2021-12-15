@@ -15,6 +15,7 @@ easy_admin:
           - { label: 'Collection permissions', route: admin_global_permissions, params: {type: collection} }
           - { label: 'Workspace permissions', route: admin_global_permissions, params: {type: workspace} }
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
+          - { label: 'Access tokens', entity: AccessToken }
       - label: 'Core'
         children:
           - Workspace
@@ -308,3 +309,22 @@ easy_admin:
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'ex. Les dimensions sont : {{ file.width }}x{{ file.height }}'
+
+    AccessToken:
+      class: Alchemy\OAuthServerBundle\Entity\AccessToken
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - user
+          - token
+          - scope
+          - createdAt
+      search:
+        sort: ['createdAt', 'ASC']
+        fields:
+          - token

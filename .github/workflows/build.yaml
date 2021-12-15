@@ -1,0 +1,32 @@
+#name: Build, test and push
+#
+#on:
+#  push:
+#    branches: [ production ]
+#
+#jobs:
+#  build:
+#    name: 'Build, Test and Push'
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Build
+#        run: bin/build.sh
+#
+#      - name: Test
+#        run: bin/test.sh
+#
+#      - name: Clean containers
+#        if: ${{ always() }}
+#        run: |
+#          docker-compose down --volumes
+#
+#      - name: Login to Docker hub
+#        run: TODO
+#
+#      - name: Push images
+#        run: |
+#          bin/publish.sh

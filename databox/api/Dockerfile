@@ -74,8 +74,6 @@ COPY docker/nginx/tpl /etc/nginx/tpl
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 
-HEALTHCHECK --interval=1m CMD curl -f http://localhost || nginx reload
-
 EXPOSE 80
 
 FROM databox-api-php as databox-worker

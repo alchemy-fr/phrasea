@@ -13,7 +13,7 @@ Service wraps the following end projects:
 ```bash
 DEFAULT_USER_EMAIL=admin@alchemy.fr
 DEFAULT_USER_PASSWORD=<A_PASSWORD>
-AUTH_BASE_URL=https://alchemy-auth.com
+AUTH_API_BASE_URL=https://alchemy-auth.com
 ```
 
 ### User management

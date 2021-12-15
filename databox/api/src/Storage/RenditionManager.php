@@ -21,6 +21,7 @@ class RenditionManager
     }
 
     public function createFile(
+        string $storage,
         string $path,
         string $type,
         int $size,
@@ -28,6 +29,7 @@ class RenditionManager
     ): File
     {
         $file = new File();
+        $file->setStorage($storage);
         $file->setType($type);
         $file->setSize($size);
         $file->setPath($path);
@@ -41,15 +43,17 @@ class RenditionManager
     public function createOrReplaceRendition(
         Asset $asset,
         RenditionDefinition $definition,
+        string $storage,
         string $path,
         string $type,
         int $size
     ): AssetRendition {
         $file = $this->createFile(
+            $storage,
             $path,
             $type,
             $size,
-            $asset->getWorkspace()
+            $asset->getWorkspace(),
         );
 
         if (null === $asset->getFile() && $definition->isUseAsOriginal()) {

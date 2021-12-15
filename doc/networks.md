@@ -25,7 +25,7 @@ note over Auth: Public network
 note over Uploader: Public network
 
 alt Need to get commit list
-Phraseanet->Auth: GET https://auth.public.com/oauth/token
+Phraseanet->Auth: GET https://api-auth.public.com/oauth/token
 note left of Auth: {"grant_type":"client_credential",...}
 Auth->Phraseanet: Access token response
 note right of Phraseanet: {"access_token":"s3cr3t!token",...}

@@ -15,30 +15,27 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UploadManager
 {
-    private S3Client $internalClient;
-    private S3Client $externalClient;
+    private S3Client $client;
     private string $uploadBucket;
     private EntityManagerInterface $em;
     private LoggerInterface $logger;
 
     public function __construct(
-        S3Client $internalClient,
-        S3Client $externalClient,
+        S3Client $client,
         string $uploadBucket,
         EntityManagerInterface $em,
         LoggerInterface $logger
     )
     {
-        $this->internalClient = $internalClient;
         $this->uploadBucket = $uploadBucket;
-        $this->externalClient = $externalClient;
+        $this->client = $client;
         $this->em = $em;
         $this->logger = $logger;
     }
 
     public function prepareMultipartUpload(string $path, string $contentType)
     {
-        return $this->internalClient->createMultipartUpload([
+        return $this->client->createMultipartUpload([
             'Bucket' => $this->uploadBucket,
             'Key' => $path,
             'ContentType' => $contentType,
@@ -47,7 +44,7 @@ class UploadManager
 
     public function cancelMultipartUpload(string $path, string $uploadId): void
     {
-        $this->internalClient->abortMultipartUpload([
+        $this->client->abortMultipartUpload([
             'Bucket' => $this->uploadBucket,
             'Key' => $path,
             'UploadId' => $uploadId,
@@ -63,9 +60,9 @@ class UploadManager
             'UploadId' => $uploadId,
         ];
 
-        $cmd = $this->externalClient->getCommand('UploadPart', $params);
+        $cmd = $this->client->getCommand('UploadPart', $params);
 
-        $request = $this->externalClient->createPresignedRequest($cmd, '+30 minutes');
+        $request = $this->client->createPresignedRequest($cmd, '+30 minutes');
 
         return (string) $request->getUri();
     }
@@ -81,24 +78,24 @@ class UploadManager
             'UploadId' => $uploadId,
         ];
 
-        $this->internalClient->completeMultipartUpload($params);
+        $this->client->completeMultipartUpload($params);
     }
 
     public function createPutObjectSignedURL(string $path, string $contentType): string
     {
-        $command = $this->internalClient->getCommand('PutObject', array(
+        $command = $this->client->getCommand('PutObject', array(
             'Bucket' => $this->uploadBucket,
             'Key' => $path,
             'ContentType' => $contentType,
         ));
-        $request = $this->internalClient->createPresignedRequest($command, '+30 minutes');
+        $request = $this->client->createPresignedRequest($command, '+30 minutes');
 
         return (string) $request->getUri();
     }
 
     public function pruneParts(): void
     {
-        $result = $this->internalClient->listMultipartUploads([
+        $result = $this->client->listMultipartUploads([
             'Bucket' => $this->uploadBucket,
             'MaxUploads' => 100,
             // Uncomment this line to test with Minio (see https://github.com/minio/minio/issues/7632#issuecomment-490959779)

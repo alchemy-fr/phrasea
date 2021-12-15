@@ -1,11 +1,14 @@
 resources:
   App\Entity\Core\RenditionDefinition:
+    shortName: rendition-definition
     attributes:
       normalization_context:
         groups:
           - _
           - renddef:index
-    shortName: rendition-definition
+      denormalization_context:
+        groups:
+          - renddef:write
     itemOperations:
       get:
         security: 'is_granted("READ", object)'
@@ -16,5 +19,8 @@ resources:
       patch:
         security: 'is_granted("EDIT", object)'
     collectionOperations:
+      get:
+        # TODO implement with workspace permissions
+        controller: App\Controller\NotFoundAction
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'
