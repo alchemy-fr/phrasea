@@ -6,8 +6,10 @@ load-env
 
 set -ex
 
+export COMPOSE_PROJECT_NAME=test
 export APP_ENV=test
 export XDEBUG_ENABLED=0
+export VERIFY_SSL=false
 export COMPOSE_PROFILES=db,uploader,auth,report,databox,expose,notify
 
 # Prepare network
