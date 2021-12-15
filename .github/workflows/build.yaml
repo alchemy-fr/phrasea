@@ -9,6 +9,11 @@ jobs:
     name: 'Build, Test and Push'
     runs-on: ubuntu-latest
 
+    env:
+      COMPOSE_PROJECT_NAME: build
+      PS_SUBNET: 172.33.202.0/16
+      PS_GATEWAY_IP: 172.33.0.1
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
