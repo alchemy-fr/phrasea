@@ -1,8 +1,6 @@
 name: Build, test and push
 
-on:
-  push:
-    branches: [ production ]
+on: [push]
 
 jobs:
   build:

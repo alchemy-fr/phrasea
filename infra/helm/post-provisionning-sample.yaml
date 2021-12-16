@@ -23,9 +23,7 @@ databox:
     baseUrl: https://api-databox.phrasea.io
     config:
       s3Storage:
-        baseUrl: "https://s3.eu-west-1.amazonaws.com/databox"
-        # Leave me empty for AWS S3
-        endpoint: ""
+        endpoint: "https://s3.eu-west-1.amazonaws.com/databox"
         bucketName: databox
         externalSecretKey:
         # Secret must contain:
@@ -60,9 +58,7 @@ expose:
     baseUrl: https://api-expose.phrasea.io
     config:
       s3Storage:
-        baseUrl: "https://s3.eu-west-1.amazonaws.com/expose"
-        # Leave me empty for AWS S3
-        endpoint: ""
+        endpoint: "https://s3.eu-west-1.amazonaws.com/expose"
         bucketName: expose
         externalSecretKey:
         # Secret must contain:
@@ -117,9 +113,7 @@ uploader:
       annotations: {}
     config:
       s3Storage:
-        baseUrl: "https://s3.eu-west-1.amazonaws.com/uploader-deposit"
-        # Leave me empty for AWS S3
-        endpoint: ""
+        endpoint: "https://s3.eu-west-1.amazonaws.com/uploader-deposit"
         bucketName: uploader-deposit
         externalSecretKey:
         # Secret must contain:

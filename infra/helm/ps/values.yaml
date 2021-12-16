@@ -42,8 +42,7 @@ databox:
     config:
       requestSignatureTtl: 86400
       s3Storage:
-        baseUrl: "{{ .Values.minio.baseUrl }}"
-        endpoint:
+        endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: databox
         usePathSyleEndpoint: false
@@ -100,8 +99,7 @@ expose:
     config:
       requestSignatureTtl: 86400
       s3Storage:
-        baseUrl: "{{ .Values.minio.baseUrl }}"
-        endpoint:
+        endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: expose
         usePathSyleEndpoint: false
@@ -188,8 +186,7 @@ uploader:
       assetConsumerAccessToken:
       requestSignatureTtl: 3600
       s3Storage:
-        baseUrl: "{{ .Values.minio.baseUrl }}"
-        endpoint:
+        endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: uploader-deposit
         usePathSyleEndpoint: false
