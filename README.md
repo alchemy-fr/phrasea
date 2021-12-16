@@ -1,23 +1,15 @@
 # Phraseanet services
 
-Welcome to the mono-repository of Phrase micro-services!
+Welcome to the mono-repository of Phrasea micro-services!
 This repository contains all the services to facilitate development but each group of services can be deployed alone.
 
-#### Run SAML test providers
+## Setup
 
-```bash
-docker-compose -f docker-compose.saml.yml up -d
-```
-
-If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run `docker-compose up -d` again.
+- [Installation guide](./doc/setup.md)
 
 ## Development
 
-- [Setup guide for development](./doc/dev.md)
-
-## Changing ports
-
-You can change the services port by overriding the environment variables (see `.env` file).
+- [Setup guide for development](./doc/dev.md) (requires [setup](./doc/setup.md) first)
 
 ## RabbitMQ Management
 

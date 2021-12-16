@@ -19,6 +19,8 @@ function dc() {
 
 ## Installation
 
+> NB: If one of the port is already allocated, see the [Changing ports](#changing-ports) section and run command again.
+
 * Pull this repository
 
 * If you need a fresh version of images, build all images:
@@ -35,6 +37,10 @@ If the stack is already deployed, you should use migrate after a fresh build:
 ```bash
 bin/migrate.sh
 ```
+
+### Changing ports
+
+You can change the services port by overriding the environment variables (see `.env` file).
 
 ### Using fixtures
 
