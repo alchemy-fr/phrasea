@@ -11,8 +11,6 @@ export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
 export COMPOSE_PROFILES=db,uploader,auth,report,databox,expose,notify
 
-# Prepare network
-PHRASEA_DOMAIN=phrasea.local bin/append-etc-hosts.sh
 docker-compose up -d
 
 docker-compose run --rm dockerize
