@@ -23,7 +23,9 @@ jobs:
           bin/build.sh
 
       - name: Setup
-        run: bin/setup.sh
+        run: |
+          docker-compose down --volumes
+          bin/setup.sh
 
       - name: Test
         run: bin/test.sh

@@ -32,7 +32,9 @@ jobs:
       - run:
           name: Docker login
           command: |-
-            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
+            if [[ ! -z "${DOCKERHUB_USERNAME}" ]]; then
+              docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}"
+            fi
       - run:
           name: Build application images
           command: |-
