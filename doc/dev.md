@@ -4,6 +4,8 @@
 
 You have read [setup guide](./setup.md)
 
+*mkcert* is installed.
+
 Install `mkcert`:
 
 ```bash
@@ -13,18 +15,24 @@ sudo mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
 sudo chmod +x /usr/bin/mkcert
 ```
 
-Create your root CA for dev:
+## Steps
+
+### Create your root CA for dev
 
 ```bash
 mkcert -install # If never done before
 bin/dev/make-cert.sh
 ```
 
-## Steps
+If you're installing self-signed certificate to a remote machine, get to root CA from:
+
+```bash
+cat $(mkcert -CAROOT)/rootCA.pem
+```
+
+Then add it to your browser!
 
 ### Add dev DNS to your host
-
-Add the following entries to your `/etc/hosts` file:
 
 ```
 sudo PHRASEA_DOMAIN=phrasea.local bin/append-etc-hosts.sh

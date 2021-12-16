@@ -35,9 +35,12 @@ jobs:
         run: |
           docker-compose down --volumes
 
-      - name: Login to Docker hub
-        run: echo TODO
-
       - name: Push images
+        if: github.ref == 'refs/heads/master'
         run: |
-          bin/publish.sh
+          if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
+            docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}" \
+              && bin/publish.sh
+          else
+            echo "Publish step skipped."
+          fi
