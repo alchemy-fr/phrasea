@@ -52,7 +52,6 @@ bin/install-fixtures.sh
 * Read group of services documentation to customize environment variables:
     * [auth](./auth/README.md)
     * [notify](./notify/README.md)
-    * [notify](./databox/README.md)
     * [uploader](./uploader/README.md)
     * [databox](./databox/README.md)
     * [expose](./expose/README.md)
