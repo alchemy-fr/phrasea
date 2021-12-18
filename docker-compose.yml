@@ -736,6 +736,24 @@ services:
       - WEBLATE_POSTGRES_DB
       - WEBLATE_SERVER_EMAIL
       - XDEBUG_ENABLED
+      - UPLOADER_API_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
+      - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
+      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
+      - NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - REPORT_API_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - ZIPPY_BASE_URL=https://zippy.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}
+      - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}
+      - WEBLATE_BASE_URL=https://weblate.${PHRASEA_DOMAIN}
+      - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
+      - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
+      - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
@@ -886,7 +904,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.11.2
+    image: elasticsearch:7.16.1
     networks:
       - internal
     volumes:
