@@ -1,4 +1,4 @@
-# Phraseanet services
+# Phrasea services
 
 Welcome to the mono-repository of Phrasea micro-services!
 This repository contains all the services to facilitate development but each group of services can be deployed alone.
