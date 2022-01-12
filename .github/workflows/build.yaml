@@ -36,7 +36,7 @@ jobs:
           docker-compose down --volumes
 
       - name: Push images
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
           if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
             docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}" \
