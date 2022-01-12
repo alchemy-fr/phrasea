@@ -24,7 +24,7 @@ jobs:
       - name: Setup
         run: |
           docker-compose down --volumes
-          sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/append-etc-hosts.sh
+          sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh
 
       - name: Test

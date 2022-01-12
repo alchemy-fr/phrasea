@@ -22,7 +22,7 @@ spec:
     port: 55950
     targetPort: 55950
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: rabbitmq
 {{- end }}
 {{- end }}

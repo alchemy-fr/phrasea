@@ -38,6 +38,32 @@ If the stack is already deployed, you should use migrate after a fresh build:
 bin/migrate.sh
 ```
 
+### Configure Let's encrypt
+
+First, make sure you have set the `PHRASEA_DOMAIN` to your main domain. A wildcard certificate will be generated on that domain.
+
+Add and configure the following lines to your `env.local`:
+
+```dotenv
+TRAEFIK_PROVIDERS_FILE_FILENAME=
+LETS_ENCRYPT_ENABLED=true
+LETS_ENCRYPT_PROVIDER=gandiv5
+GANDIV5_API_KEY=<Your API key>
+```
+
+Then just update the traefik container:
+```bash
+dc up -d traefik
+```
+
+and wait for traefik to grab your certificate.
+
+By default, we are using Let's Encrypt's staging. To get a fresh production certificate, you should set:
+
+```dotenv
+LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
+```
+
 ### Changing ports
 
 You can change the services port by overriding the environment variables (see `.env` file).
@@ -65,4 +91,4 @@ dc up -d
 
 ## Next:
 
-If you are a developper: follow [dev setup guide](./dev.md)
+If you are a developer: follow [dev setup guide](./dev.md)

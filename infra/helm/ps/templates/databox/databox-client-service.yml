@@ -9,6 +9,6 @@ spec:
     port: 80
     targetPort: 80
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: databox-client
 {{- end }}

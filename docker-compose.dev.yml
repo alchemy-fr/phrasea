@@ -281,11 +281,6 @@ services:
     ports:
       - 127.0.0.1:5432:5432
 
-  act-runner:
-    image: phrasea-act-runner
-    build:
-      context: ./infra/docker/act-runner
-
 volumes:
   dev_vol:
     driver: local

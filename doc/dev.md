@@ -35,7 +35,7 @@ Then add it to your browser!
 ### Add dev DNS to your host
 
 ```
-sudo PHRASEA_DOMAIN=phrasea.local bin/append-etc-hosts.sh
+sudo bin/dev/append-etc-hosts.sh
 ```
 
 ### Configure env vars

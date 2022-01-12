@@ -17,14 +17,40 @@ services:
       - ${TRAEFIK_HTTP_PORT}:80
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./infra/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./infra/traefik/dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml:ro
+      - ./infra/traefik/letsencrypt:/etc/traefik/letsencrypt
       - ./infra/certs:/etc/traefik/certs:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik-console.tls=true"
+    environment:
+      - TRAEFIK_API=true
+      - TRAEFIK_API_INSECURE=true
+      - TRAEFIK_ACCESSLOG=true
+      - TRAEFIK_LOG_LEVEL=DEBUG
+      - TRAEFIK_LOG_FORMAT=common
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=0
+      - TRAEFIK_ENTRYPOINTS_WEB=true
+      - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE=true
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS=true
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_CERTRESOLVER=letsencrypt
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_MAIN=${PHRASEA_DOMAIN}
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_SANS=*.${PHRASEA_DOMAIN}
+      - TRAEFIK_PROVIDERS_FILE_FILENAME
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT=${LETS_ENCRYPT_ENABLED}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${LETS_ENCRYPT_CONTACT_EMAIL}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_DNSCHALLENGE_PROVIDER=${LETS_ENCRYPT_PROVIDER}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_CASERVER=${LETS_ENCRYPT_CA_SERVER}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_DNSCHALLENGE_DELAYBEFORECHECK=10
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/etc/traefik/letsencrypt/acme.json
+      - GANDIV5_API_KEY
 
   uploader-api-php:
     profiles:
@@ -230,9 +256,8 @@ services:
     depends_on:
       - auth-api-php
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.auth-api.rule=Host(`api-auth.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.auth-api.tls=true"
+      traefik.enable: true
+      traefik.http.routers.auth-api.rule: Host(`api-auth.${PHRASEA_DOMAIN}`)
 
   expose-api-php:
     profiles:

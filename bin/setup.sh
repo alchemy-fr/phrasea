@@ -176,3 +176,5 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
     && mc admin service restart minio/ \
     && (mc event add minio/\${DATABOX_STORAGE_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
 "
+
+echo "Done."

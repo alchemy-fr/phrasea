@@ -7,12 +7,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: phraseanet-services
+      app: phrasea
       tier: uploader-client
   template:
     metadata:
       labels:
-        app: phraseanet-services
+        app: phrasea
         tier: uploader-client
     spec:
       volumes:

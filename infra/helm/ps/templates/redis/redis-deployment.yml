@@ -6,12 +6,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: phraseanet-services
+      app: phrasea
       tier: redis
   template:
     metadata:
       labels:
-        app: phraseanet-services
+        app: phrasea
         tier: redis
     spec:
       containers:

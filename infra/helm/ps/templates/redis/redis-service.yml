@@ -8,5 +8,5 @@ spec:
     port: 6379
     targetPort: 6379
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: redis

@@ -9,6 +9,6 @@ spec:
     port: 80
     targetPort: 9000
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: minio
 {{- end }}
