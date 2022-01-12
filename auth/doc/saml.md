@@ -4,15 +4,15 @@ Auth service will act as a Service Provider (SP) and can be registered to an Ide
 
 Here follow the SP variables:
 
-**Entity ID**: `https://{AUTH_BASE_URL}/saml/metadata/{idp}`
+**Entity ID**: `https://{AUTH_API_BASE_URL}/saml/metadata/{idp}`
 
 > Where `{idp}` is the identity provider name declared in config.json
 
-**Assertion URL**: `https://{AUTH_BASE_URL}/saml/acs`
+**Assertion URL**: `https://{AUTH_API_BASE_URL}/saml/acs`
 
 **Assertion Binding**: `urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST`
 
-**Logout URL**: `https://{AUTH_BASE_URL}/saml/logout`
+**Logout URL**: `https://{AUTH_API_BASE_URL}/saml/logout`
 
 **Logout Binding**: `urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect`
 

@@ -2,11 +2,56 @@ version: '3.9'
 
 networks:
   internal:
+    driver: bridge
     ipam:
       config:
         - subnet: ${PS_SUBNET}
 
 services:
+  traefik:
+    image: traefik:v2.5.5
+    networks:
+      - internal
+    ports:
+      - ${TRAEFIK_HTTPS_PORT}:443
+      - ${TRAEFIK_HTTP_PORT}:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/traefik/dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml:ro
+      - ./infra/traefik/letsencrypt:/etc/traefik/letsencrypt
+      - ./infra/certs:/etc/traefik/certs:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik-console.tls=true"
+    environment:
+      - TRAEFIK_API=true
+      - TRAEFIK_API_INSECURE=true
+      - TRAEFIK_ACCESSLOG=true
+      - TRAEFIK_LOG_LEVEL=DEBUG
+      - TRAEFIK_LOG_FORMAT=common
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=0
+      - TRAEFIK_ENTRYPOINTS_WEB=true
+      - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE=true
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS=true
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_CERTRESOLVER=letsencrypt
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_MAIN=${PHRASEA_DOMAIN}
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_HTTP_TLS_DOMAINS_0_SANS=*.${PHRASEA_DOMAIN}
+      - TRAEFIK_PROVIDERS_FILE_FILENAME
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT=${LETS_ENCRYPT_ENABLED}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${LETS_ENCRYPT_CONTACT_EMAIL}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_DNSCHALLENGE_PROVIDER=${LETS_ENCRYPT_PROVIDER}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_CASERVER=${LETS_ENCRYPT_CA_SERVER}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_DNSCHALLENGE_DELAYBEFORECHECK=10
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/etc/traefik/letsencrypt/acme.json
+      - GANDIV5_API_KEY
+
   uploader-api-php:
     profiles:
       - uploader
@@ -35,29 +80,29 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - UPLOADER_API_BASE_URL
-      - AUTH_BASE_URL
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
-      - REPORT_BASE_URL
+      - REPORT_API_BASE_URL
       - UPLOAD_MAX_FILE_SIZE
       - UPLOADER_REQUEST_SIGNATURE_TTL
-      - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${UPLOADER_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${UPLOADER_STORAGE_BUCKET_NAME}
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-worker:
     profiles:
@@ -83,11 +128,10 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - UPLOADER_API_BASE_URL
-      - REPORT_BASE_URL
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - REPORT_API_BASE_URL
       - UPLOADER_REQUEST_SIGNATURE_TTL
-      - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${UPLOADER_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -111,10 +155,12 @@ services:
       internal:
         aliases:
           - uploader-api
-    ports:
-      - ${UPLOADER_API_PORT}:80
     depends_on:
       - uploader-api-php
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.uploader-api.tls=true"
 
   auth-worker:
     profiles:
@@ -137,7 +183,7 @@ services:
     environment:
       - APP_ENV
       - APP_ID=auth
-      - AUTH_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -146,7 +192,7 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - REPORT_BASE_URL
+      - REPORT_API_BASE_URL
 
   auth-api-php:
     profiles:
@@ -168,7 +214,7 @@ services:
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - APP_ID=auth
-      - AUTH_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${AUTH_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
@@ -180,9 +226,9 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - REPORT_BASE_URL
+      - REPORT_API_BASE_URL
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
     volumes:
       - ./configs:/configs
     depends_on:
@@ -190,7 +236,7 @@ services:
       - rabbitmq
       - db
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   auth-api-nginx:
     profiles:
@@ -207,10 +253,11 @@ services:
       internal:
         aliases:
           - auth-api
-    ports:
-      - ${AUTH_PORT}:80
     depends_on:
       - auth-api-php
+    labels:
+      traefik.enable: true
+      traefik.http.routers.auth-api.rule: Host(`api-auth.${PHRASEA_DOMAIN}`)
 
   expose-api-php:
     profiles:
@@ -241,24 +288,23 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - AUTH_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${EXPOSE_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
-      - S3_STORAGE_BASE_URL=${EXPOSE_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${EXPOSE_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${EXPOSE_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
-      - REPORT_BASE_URL
-      - EXPOSE_API_BASE_URL
-      - EXPOSE_CLIENT_BASE_URL
+      - REPORT_API_BASE_URL
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
       - ZIPPY_BASE_URL
@@ -267,8 +313,9 @@ services:
       - EXPOSE_CLIENT_LOGO_URL
       - EXPOSE_CLIENT_LOGO_ALT
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
-      - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-worker:
     profiles:
@@ -294,19 +341,18 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - S3_STORAGE_BASE_URL=${EXPOSE_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${EXPOSE_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${EXPOSE_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - EXPOSE_REQUEST_SIGNATURE_TTL
-      - REPORT_BASE_URL
-      - EXPOSE_API_BASE_URL
+      - REPORT_API_BASE_URL
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
       - UPLOAD_MAX_FILE_SIZE
     extra_hosts:
-      - "zippy-svc.alchemy.local:${PS_GATEWAY_IP}"
+      - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-api-nginx:
     profiles:
@@ -319,12 +365,14 @@ services:
       internal:
         aliases:
           - expose_api
-    ports:
-      - ${EXPOSE_API_PORT}:80
     depends_on:
       - expose-api-php
     environment:
       - UPLOAD_MAX_FILE_SIZE
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.expose-api.tls=true"
 
   notify-api-php:
     profiles:
@@ -353,17 +401,17 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - AUTH_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${NOTIFY_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
-      - REPORT_BASE_URL
+      - REPORT_API_BASE_URL
       - MAILER_DSN
       - MAIL_FROM
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   notify-worker:
     profiles:
@@ -388,7 +436,7 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - REPORT_BASE_URL
+      - REPORT_API_BASE_URL
       - MAILER_DSN
       - MAIL_FROM
 
@@ -403,10 +451,12 @@ services:
       internal:
         aliases:
           - notify-api
-    ports:
-      - ${NOTIFY_PORT}:80
     depends_on:
       - notify-api-php
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.notify-api.tls=true"
 
   redis:
     profiles:
@@ -442,8 +492,11 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
       - rabbitmq_vol:/var/lib/rabbitmq
-    ports:
-      - ${RABBITMQ_MGT_PORT}:15672
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.rabbitmq-console.tls=true"
+      - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
 
   dockerize:
     profiles:
@@ -451,22 +504,45 @@ services:
     image: jwilder/dockerize
     networks:
       - internal
-    command: ["dockerize", "-wait", "tcp://db:5432", "-wait", "tcp://rabbitmq:5672", "-timeout", "100s", "--", "echo", "ready"]
+    command:
+      - "dockerize"
+      - "-wait"
+      - "tcp://db:5432"
+      - "-wait"
+      - "tcp://rabbitmq:5672"
+      - "-wait"
+      - "http://elasticsearch:9200"
+      - "-wait"
+      - "tcp://minio:9000"
+      - "-timeout"
+      - "100s"
+      - "--"
+      - "echo"
+      - "ready"
 
   minio:
     profiles:
       - db
-    image: minio/minio
+    image: minio/minio:RELEASE.2021-11-24T23-19-33Z.hotfix.1d85a4563
     networks:
       - internal
-    command: server /data
-    ports:
-      - ${MINIO_PORT}:9000
+    command: server /data --console-address ":9001"
     volumes:
       - s3_vol:/data
     environment:
-      MINIO_ACCESS_KEY: ${S3_STORAGE_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
+      - MINIO_ROOT_USER=${S3_STORAGE_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${S3_STORAGE_SECRET_KEY}
+      - MINIO_BROWSER_REDIRECT_URL=https://minio-console.${PHRASEA_DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.minio.tls=true"
+      - "traefik.http.routers.minio.service=minio"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.minio-console.tls=true"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
 
   minio-mc:
     profiles:
@@ -482,6 +558,7 @@ services:
       MINIO_SECRET_KEY: ${S3_STORAGE_SECRET_KEY}
       EXPOSE_STORAGE_BUCKET_NAME: ${EXPOSE_STORAGE_BUCKET_NAME}
       UPLOADER_STORAGE_BUCKET_NAME: ${UPLOADER_STORAGE_BUCKET_NAME}
+      DATABOX_STORAGE_BUCKET_NAME: ${DATABOX_STORAGE_BUCKET_NAME}
 
   matomo-php:
     profiles:
@@ -513,8 +590,10 @@ services:
       - matomo-php
     volumes:
       - matomo_vol:/var/www/html:ro
-    ports:
-      - ${MATOMO_PORT}:80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.matomo.tls=true"
 
   matomo-db:
     profiles:
@@ -556,8 +635,6 @@ services:
     profiles:
       - tools
     image: dpage/pgadmin4:4.14
-    ports:
-      - ${PGADMIN_PORT}:80
     networks:
       - internal
     environment:
@@ -567,6 +644,10 @@ services:
       - db
     volumes:
       - pgadmin_vol:/var/lib/pgadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.pgadmin.tls=true"
 
   phpmyadmin:
     profiles:
@@ -576,8 +657,10 @@ services:
       - internal
     environment:
       - PMA_HOST=matomo-db
-    ports:
-      - ${PHPMYADMIN_PORT}:80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.phpmyadmin.tls=true"
 
   mailhog:
     profiles:
@@ -585,8 +668,48 @@ services:
     image: mailhog/mailhog
     networks:
       - internal
-    ports:
-      - ${MAILHOG_PORT}:8025
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.mailhog.tls=true"
+      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
+
+  weblate:
+    image: weblate/weblate:4.9.1-1
+    profiles:
+      - weblate
+    volumes:
+      - weblate_vol:/app/data
+    networks:
+      - internal
+    depends_on:
+      - db
+      - redis
+    environment:
+      - WEBLATE_EMAIL_HOST
+      - WEBLATE_EMAIL_PORT
+      - WEBLATE_EMAIL_HOST_USER
+      - WEBLATE_EMAIL_HOST_PASSWORD
+      - WEBLATE_ALLOWED_HOSTS=weblate.${PHRASEA_DOMAIN}
+      - WEBLATE_ADMIN_PASSWORD
+      - WEBLATE_EMAIL_USE_TLS=0
+      - WEBLATE_EMAIL_USE_SSL=0
+      - WEBLATE_ADMIN_EMAIL
+      - WEBLATE_ADMIN_NAME
+      - WEBLATE_SERVER_EMAIL=$WEBLATE_SERVER_EMAIL
+      - WEBLATE_DEFAULT_FROM_EMAIL=weblate@example.com
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - WEBLATE_SITE_DOMAIN=weblate.${PHRASEA_DOMAIN}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.weblate.rule=Host(`weblate.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.weblate.tls=true"
 
   dashboard:
     profiles:
@@ -595,70 +718,72 @@ services:
     build: dashboard
     networks:
       - internal
-    ports:
-      - ${DASHBOARD_PORT}:80
     environment:
       - APP_ENV
       - ASSET_CONSUMER_ACCESS_TOKEN
       - ASSET_CONSUMER_COMMIT_URI
-      - AUTH_BASE_URL
       - AUTH_PORT
       - AUTH_REGISTRATION_VALIDATE_EMAIL
       - COMPOSE_PROJECT_NAME
-      - DASHBOARD_BASE_URL
-      - DATABOX_API_BASE_URL
-      - DATABOX_CLIENT_BASE_URL
       - DEV_MODE
       - DOCKER_TAG
-      - EXPOSE_API_BASE_URL
       - EXPOSE_API_PORT
-      - EXPOSE_CLIENT_BASE_URL
-      - EXPOSE_FRONT_PORT
+      - EXPOSE_CLIENT_PORT
       - EXPOSE_STORAGE_BUCKET_NAME
-      - EXPOSE_STORAGE_ROOT_URL
       - IDE_KEY
       - MAILER_DSN
-      - MAILHOG_BASE_URL
       - MAILHOG_PORT
       - MATOMO_DATABASE_DBNAME
       - MATOMO_HOST
       - MATOMO_MYSQL_ROOT_PASSWORD
       - MATOMO_PORT
       - MINIO_PORT
-      - NOTIFY_BASE_URL
       - NOTIFY_PORT
-      - PGADMIN_BASE_URL
       - PGADMIN_PORT
-      - PHPMYADMIN_BASE_URL
       - PHPMYADMIN_PORT
       - PS_DEBUG_SERVER_NAME_PREFIX
       - PS_GATEWAY_IP
       - PS_SUBNET
-      - RABBITMQ_MGT_PORT
       - RABBITMQ_HOST
       - RABBITMQ_PORT
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
       - REGISTRY_NAMESPACE
-      - REPORT_BASE_URL
       - REPORT_DB_NAME
-      - SAML2_BASE_URL
-      - SAML_BASE_URL
-      - UPLOADER_API_BASE_URL
       - UPLOADER_API_PORT
-      - UPLOADER_FRONT_BASE_URL
       - WEBLATE_ADMIN_EMAIL
       - WEBLATE_ADMIN_NAME
       - WEBLATE_ADMIN_PASSWORD
       - WEBLATE_ALLOWED_HOSTS
-      - WEBLATE_BASE_URL
       - WEBLATE_EMAIL_HOST
       - WEBLATE_EMAIL_PORT
       - WEBLATE_PORT
       - WEBLATE_POSTGRES_DB
       - WEBLATE_SERVER_EMAIL
       - XDEBUG_ENABLED
+      - UPLOADER_API_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
+      - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
+      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
+      - NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - REPORT_API_BASE_URL
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - ZIPPY_BASE_URL=https://zippy.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}
+      - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}
+      - WEBLATE_BASE_URL=https://weblate.${PHRASEA_DOMAIN}
+      - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
+      - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
+      - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.dashboard.tls=true"
 
   databox-api-php:
     profiles:
@@ -673,10 +798,10 @@ services:
           - databox-php
     environment:
       - APP_ENV
-      - AUTH_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - TRUSTED_PROXIES=${PS_SUBNET}
       - VERIFY_SSL
-      - DATABOX_API_BASE_URL
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -688,8 +813,7 @@ services:
       - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
-      - S3_STORAGE_BASE_URL=${DATABOX_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${DATABOX_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -705,11 +829,10 @@ services:
       - db
       - elasticsearch
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
-      # Uncomment these lines only in dev with different hostname to avoid duplicates:
-      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
-      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
-      #- "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     profiles:
@@ -727,8 +850,8 @@ services:
       - elasticsearch
     environment:
       - APP_ENV
-      - AUTH_BASE_URL
-      - DATABOX_API_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -741,8 +864,7 @@ services:
       - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
-      - S3_STORAGE_BASE_URL=${DATABOX_STORAGE_BASE_URL}
-      - S3_STORAGE_ENDPOINT=${DATABOX_STORAGE_ENDPOINT}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -752,11 +874,10 @@ services:
       - PHRASEANET_BASE_URL
       - PHRASEANET_APP_OAUTH_TOKEN
     extra_hosts:
-      - "${AUTH_HOSTNAME}:${PS_GATEWAY_IP}"
-      # Uncomment these lines only in dev with different hostname to avoid duplicates:
-      #- "${UPLOADER_API_HOSTNAME}:${PS_GATEWAY_IP}"
-      #- "${MINIO_HOSTNAME}:${PS_GATEWAY_IP}"
-      #- "phraseanet.alchemy.local:${PS_GATEWAY_IP}"
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-api-nginx:
     profiles:
@@ -771,15 +892,45 @@ services:
           - databox-api
     environment:
       - UPLOAD_MAX_FILE_SIZE
-    ports:
-      - ${DATABOX_API_PORT}:80
     depends_on:
       - databox-api-php
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.databox-api.tls=true"
+
+  indexer-app:
+    build:
+      context: ./indexer/desktop-app
+    profiles:
+      - app-indexer
+    privileged: true
+
+  indexer-agent-amqp:
+    image: ${REGISTRY_NAMESPACE}indexer-agent-amqp:$DOCKER_TAG
+    build:
+      context: ./indexer/agent-amqp
+    profiles:
+      - indexer
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+    environment:
+      - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_CLIENT_ID=indexer_3x0hjx
+      - DATABOX_CLIENT_SECRET=1wq6n8w0mdlww0gg880w4g8ogk8ssk8sgk0k0s840og88cs88c
+      - PUBLIC_URL=https://indexer-agent-amqp.${PHRASEA_DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.indexer-agent-amqp.tls=true"
 
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.11.2
+    image: elasticsearch:7.16.1
     networks:
       - internal
     volumes:
@@ -804,3 +955,4 @@ volumes:
   pgadmin_vol:
   rabbitmq_vol:
   elasticsearch_vol:
+  weblate_vol:

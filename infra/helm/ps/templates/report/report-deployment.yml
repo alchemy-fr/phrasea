@@ -8,12 +8,12 @@ spec:
   replicas: {{ .replicas }}
   selector:
     matchLabels:
-      app: phraseanet-services
+      app: phrasea
       tier: report-api
   template:
     metadata:
       labels:
-        app: phraseanet-services
+        app: phrasea
         tier: report-api
     spec:
       containers:

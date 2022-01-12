@@ -10,7 +10,7 @@ spec:
       port: 80
       targetPort: 80
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: report-api
 {{- end }}
 {{- end }}

@@ -20,6 +20,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "groups"={"upload_read"},
  *     },
  *     collectionOperations={
+ *         "get"={
+ *             "security"="is_granted('ROLE_ADMIN')"
+ *         },
  *         "post"={
  *             "openapi_context"={
  *                 "summary"="Create a multi part upload.",

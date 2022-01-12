@@ -133,18 +133,18 @@ class AppExtension extends Extension implements PrependExtensionInterface
             $samlConfig = [
                 'idps' => $idps,
                 'sp' => [
-                    'entityId' => '%env(AUTH_BASE_URL)%/saml/metadata/{idp}',
+                    'entityId' => '%env(AUTH_API_BASE_URL)%/saml/metadata/{idp}',
                     'assertionConsumerService' => [
-                        'url' => '%env(AUTH_BASE_URL)%/saml/acs',
+                        'url' => '%env(AUTH_API_BASE_URL)%/saml/acs',
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
                     ],
                     'singleLogoutService' => [
-                        'url' => '%env(AUTH_BASE_URL)%/saml/logout',
+                        'url' => '%env(AUTH_API_BASE_URL)%/saml/logout',
                         'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
                     ],
                     'privateKey' => '',
                 ],
-                'baseurl' => '%env(AUTH_BASE_URL)%/saml',
+                'baseurl' => '%env(AUTH_API_BASE_URL)%/saml',
                 'strict' => true,
                 'contactPerson' => array_map(function (array $contact): array {
                     return [

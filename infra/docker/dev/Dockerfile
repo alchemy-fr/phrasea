@@ -1,6 +1,6 @@
-FROM php:7.4.4-fpm-alpine3.11 AS auth-api-php
+FROM php:7.4.4-fpm-alpine3.11
 
-RUN apk add --no-cache --virtual .persistent-deps \
+RUN apk add --no-cache \
 		git \
         gettext \
 		postgresql-dev \
@@ -50,7 +50,7 @@ RUN set -eux \
 
 COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
 
-ENV NODE_VERSION 14.15.4
+ENV NODE_VERSION 14.18.2
 
 RUN apk add --no-cache \
         libstdc++ \
@@ -60,7 +60,7 @@ RUN apk add --no-cache \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="dd4f335ff962a0ca5bd80b536a54f4844cb820bff3aa24cfd7e2edb00385b625" \
+          CHECKSUM="7a1a1a18e51ad20245fc366a0848cdb55e968094c807a094555ec2c214e8e9c6" \
           ;; \
         *) ;; \
       esac \
@@ -81,7 +81,6 @@ RUN apk add --no-cache \
           libgcc \
           linux-headers \
           make \
-          python \
       # gpg keys listed at https://github.com/nodejs/node#release-keys
       && for key in \
         94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
@@ -120,27 +119,26 @@ RUN apk add --no-cache \
     && node --version \
     && npm --version
 
-ENV YARN_VERSION 1.22.0
+ENV YARN_VERSION 1.22.15
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl gnupg tar \
-    && for key in \
-            6A010C5166006599AA17F08146C2130DFD2497F5 \
-        ; do \
-            gpg --batch --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" || \
-            gpg --batch --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys "$key" || \
-            gpg --batch --keyserver hkp://pgp.mit.edu:80 --recv-keys "$key" ; \
-        done \
-    && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
-    && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc" \
-    && gpg --batch --verify yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
-    && mkdir -p /opt \
-    && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/ \
-    && ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn \
-    && ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
-    && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
-    && apk del .build-deps-yarn \
-    # smoke test
-    && yarn --version
+  && for key in \
+    6A010C5166006599AA17F08146C2130DFD2497F5 \
+  ; do \
+    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
+  done \
+  && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
+  && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc" \
+  && gpg --batch --verify yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
+  && mkdir -p /opt \
+  && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/ \
+  && ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn \
+  && ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
+  && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
+  && apk del .build-deps-yarn \
+  # smoke test
+  && yarn --version
 
 COPY oh-my-zsh/.zshrc /bootstrap/.zshrc
 COPY entrypoint.sh /bootstrap/entrypoint.sh

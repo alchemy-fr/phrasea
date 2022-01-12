@@ -6,7 +6,6 @@ namespace Alchemy\CoreBundle\Listener;
 
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
 class RouterContextListener implements EventSubscriberInterface
@@ -41,7 +40,6 @@ class RouterContextListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::CONTROLLER => 'setContext',
             ConsoleEvents::COMMAND => 'setContext',
         ];
     }

@@ -39,7 +39,7 @@ class AssetRendition extends AbstractUuidEntity
     /**
      * @Groups({"rendition:index", "rendition:read"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;
 
@@ -48,6 +48,11 @@ class AssetRendition extends AbstractUuidEntity
      * @ORM\Column(type="boolean")
      */
     private bool $ready = false;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    protected ?string $uri = null;
 
     public function getAsset(): Asset
     {
@@ -59,12 +64,12 @@ class AssetRendition extends AbstractUuidEntity
         $this->asset = $asset;
     }
 
-    public function getFile(): File
+    public function getFile(): ?File
     {
         return $this->file;
     }
 
-    public function setFile(File $file): void
+    public function setFile(?File $file): void
     {
         $this->file = $file;
     }
@@ -96,5 +101,15 @@ class AssetRendition extends AbstractUuidEntity
     public function setReady(bool $ready): void
     {
         $this->ready = $ready;
+    }
+
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setUri(?string $uri): void
+    {
+        $this->uri = $uri;
     }
 }

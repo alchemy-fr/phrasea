@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\External\PhraseanetApiClient;
@@ -21,22 +22,35 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
     const EVENT = 'generate_renditions';
 
     private PhraseanetApiClient $client;
-    private UrlSigner $urlSigner;
     private UrlGeneratorInterface $urlGenerator;
     private JWTTokenManager $JWTTokenManager;
+    private FileUrlResolver $fileUrlResolver;
 
     public function __construct(
         PhraseanetApiClient $client,
-        UrlSigner $urlSigner,
+        FileUrlResolver $fileUrlResolver,
         UrlGeneratorInterface $urlGenerator,
         JWTTokenManager $JWTTokenManager,
         LoggerInterface $logger
     ) {
         $this->client = $client;
-        $this->urlSigner = $urlSigner;
         $this->urlGenerator = $urlGenerator;
         $this->JWTTokenManager = $JWTTokenManager;
         $this->logger = $logger;
+        $this->fileUrlResolver = $fileUrlResolver;
+    }
+
+    public static function createEvent(string $id, ?array $renditions = null): EventMessage
+    {
+        $payload = [
+            'id' => $id,
+        ];
+
+        if (null !== $renditions) {
+            $payload['renditions'] = $renditions;
+        }
+
+        return new EventMessage(self::EVENT, $payload);
     }
 
     public function handle(EventMessage $message): void
@@ -59,7 +73,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
             return;
         }
 
-        $url = $this->urlSigner->getSignedUrl($file->getPath());
+        $url = $this->fileUrlResolver->resolveUrl($file);
         $destUrl = $this->urlGenerator->generate('phraseanet_incoming_rendition', [
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);

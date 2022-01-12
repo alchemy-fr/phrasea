@@ -76,7 +76,7 @@ class PresignedUrlTest extends TestCase
     public function getConfigs(): array
     {
         return [
-            ['https://minio.alchemy.local/%s/%s?', 'https://minio.alchemy.local', 'ue-west-1', 'uploader-deposit', true],
+            ['https://minio.phrasea.local/%s/%s?', 'https://minio.phrasea.local', 'ue-west-1', 'uploader-deposit', true],
             ['https://%s.s3.ue-west-1.amazonaws.com/%s?', null, 'ue-west-1', 'uploader-deposit', false],
             ['https://%s.s3.ue-west-1.amazonaws.com/%s?', 'https://s3.ue-west-1.amazonaws.com', 'ue-west-1', 'uploader-deposit', false],
         ];

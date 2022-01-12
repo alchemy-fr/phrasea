@@ -18,8 +18,8 @@ Then you need to enable path mappings for the server. See the example below:
 
 ![PhpStorm mapping](./xdebug-php-storm.png)
 
-> Configure the `Absolute path on the server` to `/srv/app` at the application project path (i.e. `~/projects/phraseanet-services/auth/api` in this case).
+> Configure the `Absolute path on the server` to `/srv/app` at the application project path (i.e. `~/projects/phrasea/auth/api` in this case).
 
 For the uploader application you would have:
 - a server named `server-docker-uploader` in PhpStorm
-- set the path mapping: `~/projects/phraseanet-services/uploader/api` ->  `/srv/app`
+- set the path mapping: `~/projects/phrasea/uploader/api` ->  `/srv/app`

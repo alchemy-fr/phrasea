@@ -2,17 +2,22 @@
 
 set -e
 
-BASEDIR=$(dirname $0)
-. "$BASEDIR/functions.sh"
-cd "$BASEDIR/.."
+. bin/functions.sh
 
 load-env
 
-"$BASEDIR/update-config.sh"
+bin/update-config.sh
 
 set -ex
 
 export COMPOSE_PROFILES=setup,db,uploader,auth,databox,expose,notify,dashboard,tools
+export AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+export UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
+export DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
+export UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+export DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+export NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}
+export EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
 
 docker-compose up -d
 
@@ -29,7 +34,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMI
     --random-id=${AUTH_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${AUTH_ADMIN_CLIENT_SECRET} \
     --grant-type authorization_code \
-    --redirect-uri ${AUTH_BASE_URL}"
+    --redirect-uri ${AUTH_API_BASE_URL}"
 
 
 # Setup Uploader
@@ -42,7 +47,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
     --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
     --secret=${UPLOADER_CLIENT_SECRET} \
     --grant-type authorization_code \
-    --redirect-uri ${UPLOADER_FRONT_BASE_URL}"
+    --redirect-uri ${UPLOADER_CLIENT_BASE_URL}"
 ## Create OAuth client for Admin
 exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
     --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
@@ -53,7 +58,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
     --scope group:list \
     --redirect-uri ${UPLOADER_API_BASE_URL}"
 ## Create minio bucket
-docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
+docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -80,7 +85,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_AD
     --scope group:list \
     --redirect-uri ${EXPOSE_API_BASE_URL}"
 ## Create minio bucket
-docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
+docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
   i=0
   while ! nc -z minio 9000; do \
     echo 'Wait for minio to startup...'; \
@@ -107,7 +112,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
     --random-id=${NOTIFY_ADMIN_CLIENT_RANDOM_ID} \
     --secret=${NOTIFY_ADMIN_CLIENT_SECRET} \
     --grant-type authorization_code \
-    --redirect-uri ${NOTIFY_BASE_URL}"
+    --redirect-uri ${NOTIFY_API_BASE_URL}"
 
 # Setup Databox
 ## Create rabbitmq vhost
@@ -130,11 +135,11 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_C
     --grant-type authorization_code \
     --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
 ## Create minio bucket
-docker-compose ${CONF} run --rm -T --entrypoint "sh -c" minio-mc "\
+docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
-  mc mb --ignore-existing minio/$DATABOX_STORAGE_BUCKET_NAME \
+  mc mb --ignore-existing minio/\$DATABOX_STORAGE_BUCKET_NAME \
 "
 
 # Setup Report
@@ -151,3 +156,25 @@ exec_container auth-api-php "bin/console app:user:create \
     --update-if-exist ${DEFAULT_USER_EMAIL} \
     -p ${DEFAULT_USER_PASSWORD} \
     --roles ROLE_SUPER_ADMIN"
+
+## Setup indexer
+exec_container rabbitmq "rabbitmqctl add_vhost s3events && rabbitmqctl set_permissions -p s3events ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "\
+  rabbitmqadmin declare exchange --vhost=s3events name=s3events type=direct durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
+  && rabbitmqadmin declare queue --vhost=s3events name=s3events auto_delete=false durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
+  && rabbitmqadmin declare binding --vhost=s3events source=s3events destination=s3events routing_key='' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD}"
+docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
+  set -x; \
+  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+    mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
+    && mc admin config set minio/ notify_amqp:primary \
+      url="amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events" \
+      exchange="s3events" \
+      exchange_type="direct" \
+      durable="on" \
+      delivery_mode=2 \
+    && mc admin service restart minio/ \
+    && (mc event add minio/\${DATABOX_STORAGE_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
+"
+
+echo "Done."

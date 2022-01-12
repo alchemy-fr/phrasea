@@ -39,7 +39,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
             'adapters' => [
                 'upload' => [
                     'awss3v3' => [
-                        'client' => 'alchemy_storage.s3_client.internal',
+                        'client' => 'alchemy_storage.s3_client',
                         'bucket' => '%env(S3_STORAGE_BUCKET_NAME)%',
                     ]
                 ]

@@ -8,15 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
- * @ApiResource(
- *  shortName="incoming-upload",
- *  itemOperations={
- *      "get"
- *  },
- *  collectionOperations={
- *     "post"
- *  }
- * )
+ * @ApiResource()
  */
 final class IncomingUpload
 {

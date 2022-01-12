@@ -16,6 +16,8 @@ resources:
       patch:
         security: 'is_granted("EDIT", object)'
     collectionOperations:
+      get:
+        controller: App\Controller\NotFoundAction
       post:
         controller: App\Controller\Core\CreateRenditionAction
         defaults:

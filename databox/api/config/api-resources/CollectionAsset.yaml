@@ -5,5 +5,7 @@ resources:
       delete:
         security: 'is_granted("DELETE", object)'
     collectionOperations:
+      get:
+        controller: App\Controller\NotFoundAction
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'

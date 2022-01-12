@@ -14,15 +14,17 @@ services:
       - ./configs:/configs
     environment:
       - DEV_MODE
-      - UPLOADER_API_BASE_URL
-      - AUTH_BASE_URL
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
-    ports:
-      - ${UPLOADER_CLIENT_PORT}:3000
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.uploader-client-dev.tls=true"
 
   expose-client-dev:
     profiles:
@@ -36,15 +38,17 @@ services:
       - ./expose/client:/usr/src/app
       - ./configs:/configs
     environment:
-      - EXPOSE_API_BASE_URL
-      - AUTH_BASE_URL
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
       - EXPOSE_REQUEST_SIGNATURE_TTL
-    ports:
-      - ${EXPOSE_FRONT_PORT}:3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.expose-client-dev.tls=true"
 
   databox-client-dev:
     profiles:
@@ -59,18 +63,20 @@ services:
       - ./configs:/configs
     environment:
       - DEV_MODE
-      - DATABOX_API_BASE_URL
-      - AUTH_BASE_URL
-      - UPLOADER_API_BASE_URL
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
       - DATABOX_REQUEST_SIGNATURE_TTL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL
-    ports:
-      - ${DATABOX_CLIENT_PORT}:3000
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.databox-client-dev.tls=true"
 
   expose-api-php:
     environment:
@@ -177,8 +183,8 @@ services:
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
-      - UPLOADER_API_BASE_URL
-      - DATABOX_API_BASE_URL
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - MARIADB_NAME=databox
@@ -193,13 +199,13 @@ services:
       - ELASTICSEARCH_URL
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
-      - S3_STORAGE_BASE_URL=${UPLOADER_STORAGE_BASE_URL}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_ENDPOINT=${UPLOADER_STORAGE_ENDPOINT}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
-      - AUTH_BASE_URL
-      - EXPOSE_API_BASE_URL
-      - REPORT_BASE_URL
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - REPORT_API_BASE_URL
       - UPLOADER_REQUEST_SIGNATURE_TTL
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - MAPBOX_TOKEN
@@ -209,6 +215,9 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_BASE_URL
+      - VERIFY_SSL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace
@@ -216,6 +225,14 @@ services:
       - ${HOME}/.ssh:/home/app/.ssh
       - dev_vol:/home/app
       - ./configs:/configs
+    extra_hosts:
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-notify.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   report-api:
     volumes:
@@ -226,6 +243,19 @@ services:
     - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
+
+  indexer-app:
+    command: ["yarn", "start"]
+    environment:
+      - DISPLAY=unix${DISPLAY}
+    volumes:
+      - ./indexer/desktop-app:/usr/app
+      - /tmp/.X11-unix:/tmp/.X11-unix
+
+  indexer-agent-amqp:
+    command: ["yarn", "start:dev"]
+    volumes:
+      - ./indexer/agent-amqp:/usr/app
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

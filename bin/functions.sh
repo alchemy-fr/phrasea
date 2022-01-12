@@ -1,7 +1,5 @@
 #!/bin/sh
 
-BASEDIR=$(dirname $0)
-
 # Export env vars from a file if their are not defined yet
 # Usage: export_env_from_file "path/to/env.file"
 function export_env_from_file {
@@ -29,8 +27,12 @@ function export_env_from_file {
 # Defined env vars take precedence, then env.local, then .env
 # Usage: load-env
 function load-env {
-    export_env_from_file "$BASEDIR/../env.local"
-    export_env_from_file "$BASEDIR/../.env"
+    if [ ! -f ".env" ]; then
+      >&2 echo ".env file not found at $(pwd)"
+      exit 1
+    fi
+    export_env_from_file "env.local"
+    export_env_from_file ".env"
 }
 
 # execute a shell commmand in a container defined in docker-compose.yml

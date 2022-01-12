@@ -1,6 +1,6 @@
-FROM node:14.15.4-alpine3.12 as databox-client-build
+FROM node:14.17.6-alpine3.12 as databox-client-build
 
-RUN apk add --no-cache \
+RUN apk --no-cache --virtual build-dependencies add \
         python3 \
         make \
         g++ \
@@ -15,7 +15,8 @@ WORKDIR /usr/src/app
 
 RUN yarn install \
     && mv public/index.tpl.html public/index.html \
-    && yarn run build
+    && yarn run build \
+    && apk del build-dependencies
 
 EXPOSE 3000
 

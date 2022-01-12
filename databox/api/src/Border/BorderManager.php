@@ -52,6 +52,7 @@ class BorderManager
             fclose($fd);
 
             $file = new File();
+            $file->setStorage(File::STORAGE_S3_MAIN);
             $file->setPath($finalPath);
             $file->setSize($inputFile->getSize());
             $file->setType($inputFile->getType());

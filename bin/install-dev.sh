@@ -1,11 +1,10 @@
 #!/bin/bash
 
-BASEDIR=$(dirname $0)
-. "$BASEDIR/functions.sh"
+. "bin/functions.sh"
 
 load-env
 
-. "${BASEDIR}/vars.sh"
+. "bin/vars.sh"
 
 set -e
 

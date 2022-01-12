@@ -10,12 +10,12 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: phraseanet-services
+      app: phrasea
       tier: rabbitmq
   template:
     metadata:
       labels:
-        app: phraseanet-services
+        app: phrasea
         tier: rabbitmq
     spec:
       volumes:

@@ -2,13 +2,11 @@
 
 set -e
 
-BASEDIR=$(dirname $0)
-. "$BASEDIR/functions.sh"
-cd "$BASEDIR/.."
+. bin/functions.sh
 
 load-env
 
-"$BASEDIR/update-config.sh"
+bin/update-config.sh
 
 set -ex
 

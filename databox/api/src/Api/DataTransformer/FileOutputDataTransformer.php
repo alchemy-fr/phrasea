@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use App\Api\Model\Output\FileOutput;
+use App\Asset\FileUrlResolver;
 use App\Entity\Core\File;
 use App\Storage\UrlSigner;
+use RuntimeException;
 
 class FileOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private UrlSigner $urlSigner;
+    private FileUrlResolver $fileUrlResolver;
 
-    public function __construct(UrlSigner $urlSigner)
+    public function __construct(FileUrlResolver $fileUrlResolver)
     {
-        $this->urlSigner = $urlSigner;
+        $this->fileUrlResolver = $fileUrlResolver;
     }
 
     /**
@@ -28,7 +30,7 @@ class FileOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
         $output->setType($object->getType());
         $output->setSize($object->getSize());
-        $output->setUrl($this->urlSigner->getSignedUrl($object->getPath()));
+        $output->setUrl($this->fileUrlResolver->resolveUrl($object));
 
         return $output;
     }

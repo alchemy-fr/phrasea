@@ -1,4 +1,4 @@
-FROM node:14.15.4-alpine3.12 as uploader-client-build
+FROM node:14.17.6-alpine3.12 as uploader-client-build
 
 RUN apk add --virtual .build \
         wget \

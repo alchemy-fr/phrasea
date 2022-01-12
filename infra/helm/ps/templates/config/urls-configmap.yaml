@@ -4,13 +4,13 @@ metadata:
   name: urls-config
 data:
 {{- if .Values.report.enabled }}
-  REPORT_BASE_URL: {{ quote .Values.report.api.baseUrl }}
+  REPORT_API_BASE_URL: {{ quote .Values.report.api.baseUrl }}
 {{- end }}
 {{- if .Values.notify.enabled }}
-  NOTIFY_BASE_URL: {{ quote .Values.notify.api.baseUrl }}
+  NOTIFY_API_BASE_URL: {{ quote .Values.notify.api.baseUrl }}
 {{- end }}
 {{- if .Values.auth.enabled }}
-  AUTH_BASE_URL: {{ quote .Values.auth.api.baseUrl }}
+  AUTH_API_BASE_URL: {{ quote .Values.auth.api.baseUrl }}
 {{- end }}
 {{- if .Values.expose.enabled }}
   EXPOSE_API_BASE_URL: {{ quote .Values.expose.api.baseUrl }}
@@ -21,7 +21,7 @@ data:
 {{- end }}
 {{- if .Values.uploader.enabled }}
   UPLOADER_API_BASE_URL: {{ quote .Values.uploader.api.baseUrl }}
-  UPLOADER_FRONT_BASE_URL: {{ quote .Values.uploader.client.baseUrl }}
+  UPLOADER_CLIENT_BASE_URL: {{ quote .Values.uploader.client.baseUrl }}
 {{- end }}
 {{- if .Values.dashboard.enabled }}
   DASHBOARD_BASE_URL: {{ quote .Values.dashboard.baseUrl }}

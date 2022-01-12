@@ -16,7 +16,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table(
  *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_class_uniq",columns={"workspace_id", "name"})}
  * )
- * @ApiResource()
  */
 class RenditionClass extends AbstractUuidEntity
 {

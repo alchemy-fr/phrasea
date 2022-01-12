@@ -10,6 +10,7 @@ easy_admin:
         children:
           - User
           - Group
+          - AccessToken
       - label: 'Dev'
         children:
           - FailedEvent
@@ -66,3 +67,22 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'roles', type: App\Form\RoleChoiceType }
+
+    AccessToken:
+      class: Alchemy\OAuthServerBundle\Entity\AccessToken
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - user
+          - token
+          - scope
+          - createdAt
+      search:
+        sort: ['createdAt', 'ASC']
+        fields:
+          - token

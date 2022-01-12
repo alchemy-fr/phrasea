@@ -12,7 +12,7 @@ spec:
     port: 9000
     targetPort: 9000
   selector:
-    app: phraseanet-services
+    app: phrasea
     tier: {{ $appName }}-api-php
 ---
 {{- end }}

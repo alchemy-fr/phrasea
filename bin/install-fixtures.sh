@@ -2,9 +2,7 @@
 
 set -e
 
-BASEDIR=$(dirname $0)
-. "$BASEDIR/functions.sh"
-cd "$BASEDIR/.."
+. bin/functions.sh
 
 load-env
 
@@ -20,4 +18,4 @@ docker-compose run --rm dockerize
 exec_container_as auth-api-php "bin/console hautelook:fixtures:load --no-interaction" app
 exec_container_as databox-api-php "bin/console hautelook:fixtures:load --no-interaction" app
 
-"$BASEDIR/setup.sh"
+bin/setup.sh

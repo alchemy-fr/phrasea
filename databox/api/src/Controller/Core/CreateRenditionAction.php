@@ -7,6 +7,7 @@ namespace App\Controller\Core;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\RenditionVoter;
@@ -69,6 +70,7 @@ final class CreateRenditionAction extends AbstractController
             return $this->renditionManager->createOrReplaceRendition(
                 $asset,
                 $definition,
+                File::STORAGE_S3_MAIN,
                 $path,
                 $uploadedFile->getMimeType(),
                 $uploadedFile->getSize()
@@ -93,6 +95,7 @@ final class CreateRenditionAction extends AbstractController
         return $this->renditionManager->createOrReplaceRendition(
             $asset,
             $definition,
+            File::STORAGE_S3_MAIN,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
             (int) ($upload['size'] ?? 0)

@@ -19,17 +19,17 @@ Payload, defines the publication (draft):
                 "originalName": "photo.jpeg",
                 "mimeType": "image/jpeg",
                 "subDefinitions": [],
-                "url": "https://api-expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/preview",
-                "downloadUrl": "https://api-expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/download",
-                "thumbUrl": "https://api-expose.alchemy.local/assets/fb93c593-c6e3-47da-b873-15535a228601/thumbnail"
+                "url": "https://api-expose.phrasea.local/assets/fb93c593-c6e3-47da-b873-15535a228601/preview",
+                "downloadUrl": "https://api-expose.phrasea.local/assets/fb93c593-c6e3-47da-b873-15535a228601/download",
+                "thumbUrl": "https://api-expose.phrasea.local/assets/fb93c593-c6e3-47da-b873-15535a228601/thumbnail"
             },
             "slug": "path/to/photo"
         }
     ],
     "slug": "publication-1",
-    "packageUrl": "https://api-expose.alchemy.local/assets/c51e4878-aae2-4e6a-94a8-0dbcc2f31691/download",
+    "packageUrl": "https://api-expose.phrasea.local/assets/c51e4878-aae2-4e6a-94a8-0dbcc2f31691/download",
     "config": {
-        "coverUrl": "https://api-expose.alchemy.local/assets/75c4635f-a6ad-4a44-9dcd-e5544f73a58e/thumbnail",
+        "coverUrl": "https://api-expose.phrasea.local/assets/75c4635f-a6ad-4a44-9dcd-e5544f73a58e/thumbnail",
         "enabled": true,
         "publiclyListed": true,
         "layout": "download",

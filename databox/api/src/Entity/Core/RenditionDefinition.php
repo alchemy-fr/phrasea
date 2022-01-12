@@ -15,11 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ORM\Table(indexes={@ORM\Index(name="rend_def_ws_name", columns={"workspace_id", "name"})})
- * @ApiResource(
- *  shortName="rendition-definition",
- *  normalizationContext={"groups"={"_", "renddef:index"}},
- *  denormalizationContext={"groups"={"renddef:write"}},
- * )
  */
 class RenditionDefinition extends AbstractUuidEntity
 {

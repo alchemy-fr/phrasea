@@ -763,6 +763,9 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications/'.$id);
+        if ($response->getStatusCode() === 500) {
+            var_dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('createdAt', $json);
@@ -773,10 +776,10 @@ class PublicationTest extends AbstractExposeTestCase
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
-        $this->assertEquals(201, $response->getStatusCode());
         if ($response->getStatusCode() === 500) {
             var_dump($response->getContent());
         }
+        $this->assertEquals(201, $response->getStatusCode());
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
