@@ -28,6 +28,14 @@ function dc() {
 bin/build.sh
 ```
 
+### Secure your installation
+
+Change all the default passwords or secrets you can see in `.env`.
+
+They often start with `__CHANGE_ME_`.
+
+### Do install
+
 * Run (magical) configuration for all projects:
 ```bash
 bin/setup.sh
@@ -78,11 +86,11 @@ bin/install-fixtures.sh
 
 * Read group of services documentation to customize environment variables:
     * [auth](../auth/README.md)
-    * [notify](../notify/README.md)
-    * [notify](../databox/README.md)
-    * [uploader](../uploader/README.md)
     * [databox](../databox/README.md)
     * [expose](../expose/README.md)
+    * [notify](../notify/README.md)
+    * [report](../report/README.md)
+    * [uploader](../uploader/README.md)
 
 * Start the whole stack:
 ```bash
