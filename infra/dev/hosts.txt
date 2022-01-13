@@ -3,7 +3,7 @@
 127.0.0.1 api-uploader.${PHRASEA_DOMAIN}
 127.0.0.1 api-auth.${PHRASEA_DOMAIN}
 127.0.0.1 pgadmin.${PHRASEA_DOMAIN}
-127.0.0.1 rabbitmq.${PHRASEA_DOMAIN}
+127.0.0.1 rabbitmq-console.${PHRASEA_DOMAIN}
 127.0.0.1 expose.${PHRASEA_DOMAIN}
 127.0.0.1 api-expose.${PHRASEA_DOMAIN}
 127.0.0.1 minio.${PHRASEA_DOMAIN}
