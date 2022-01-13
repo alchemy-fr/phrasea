@@ -1,5 +1,5 @@
 import {listenToQueue} from "./amqp";
-import {getEnvStrict} from "./env";
+import {castEnvToBoolean, getEnv, getEnvStrict} from "./env";
 import {DataboxClient} from "./databox/client";
 import {handleEvent} from "./listener/eventHandler";
 
@@ -11,6 +11,10 @@ const databoxClient = new DataboxClient({
     apiUrl: getEnvStrict('DATABOX_API_URL'),
     clientId: getEnvStrict('DATABOX_CLIENT_ID'),
     clientSecret: getEnvStrict('DATABOX_CLIENT_SECRET'),
+    workspaceId: getEnvStrict('DATABOX_WORKSPACE_ID'),
+    collectionId: getEnv('DATABOX_COLLECTION_ID'),
+    ownerId: getEnvStrict('DATABOX_OWNER_ID'),
+    verifySSL: castEnvToBoolean(getEnv('DATABOX_VERIFY_SSL')),
     scope: 'chuck-norris'
 });
 

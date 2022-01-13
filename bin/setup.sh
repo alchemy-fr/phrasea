@@ -158,6 +158,13 @@ exec_container auth-api-php "bin/console app:user:create \
     --roles ROLE_SUPER_ADMIN"
 
 ## Setup indexer
+## Create Databox OAuth client for indexer
+exec_container databox-api-php "bin/console alchemy:oauth:create-client ${INDEXER_DATABOX_CLIENT_ID} \
+    --random-id=${INDEXER_DATABOX_CLIENT_RANDOM_ID} \
+    --secret=${INDEXER_DATABOX_CLIENT_SECRET} \
+    --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope chuck-norris"
 exec_container rabbitmq "rabbitmqctl add_vhost s3events && rabbitmqctl set_permissions -p s3events ${RABBITMQ_USER} '.*' '.*' '.*'"
 exec_container rabbitmq "\
   rabbitmqadmin declare exchange --vhost=s3events name=s3events type=direct durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \

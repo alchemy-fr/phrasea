@@ -32,7 +32,7 @@ services:
       - TRAEFIK_LOG_LEVEL=DEBUG
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=0
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
       - TRAEFIK_ENTRYPOINTS_WEB=true
       - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
       - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
@@ -638,7 +638,7 @@ services:
   pgadmin:
     profiles:
       - tools
-    image: dpage/pgadmin4:4.14
+    image: dpage/pgadmin4:6.4
     networks:
       - internal
     environment:
@@ -923,13 +923,20 @@ services:
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
-      - DATABOX_CLIENT_ID=indexer_3x0hjx
-      - DATABOX_CLIENT_SECRET=1wq6n8w0mdlww0gg880w4g8ogk8ssk8sgk0k0s840og88cs88c
+      - DATABOX_VERIFY_SSL=${VERIFY_SSL}
+      - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
+      - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
+      - DATABOX_MAX_CONCURRENCY=3
+      - DATABOX_WORKSPACE_ID=${INDEXER_DATABOX_WORKSPACE_ID}
+      - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
+      - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
       - PUBLIC_URL=https://indexer-agent-amqp.${PHRASEA_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.indexer-agent-amqp.tls=true"
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   elasticsearch:
     profiles:
