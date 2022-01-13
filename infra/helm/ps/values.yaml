@@ -6,8 +6,8 @@ auth:
   enabled: true
   defaultUser:
     externalSecretName:
-    username: admin@alchemy.fr
-    password: obIaHz6cVTkQKHqLBj
+    username: admin@phrasea.local
+    password: __CHANGE_ME_obIaHz6cVTkQKHqLBj
   api:
     hostname:
     baseUrl:
@@ -22,7 +22,7 @@ auth:
     externalSecretName:
     id: auth-admin
     randomId: 9mIGK
-    secret: 'H$ei3sHwIB0sfyMAp@P@CSnZC71EuDQ2'
+    secret: '__CHANGE_ME_0sfyMAp@P@CSnZC71EuDQ2'
     grantTypes:
     - authorization_code
   rabbitmq:
@@ -59,7 +59,7 @@ databox:
     externalSecretName:
     id: databox-admin
     randomId: fiMPj
-    secret: 'gdvnoRkX19jZuZqkwf9qW881jTqG'
+    secret: '__CHANGE_ME_9jZuZqkwf9qW881jTqG'
     grantTypes:
     - authorization_code
     - client_credentials
@@ -78,7 +78,7 @@ databox:
       externalSecretName:
       id: databox-app
       randomId: difnr
-      secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
+      secret: '__CHANGE_ME_kga7LfWB8vTowf$9V9'
       redirectUri: "{{ .Values.databox.client.baseUrl }}"
       grantTypes:
       - authorization_code
@@ -113,7 +113,7 @@ expose:
     externalSecretName:
     id: expose-admin
     randomId: wIB0s
-    secret: 'MAp@P@CSnZC71EuDQ2H$ei3sHwIB0sfy'
+    secret: '__CHANGE_ME_71EuDQ2H$ei3sHwIB0sfy'
     grantTypes:
     - authorization_code
     - client_credentials
@@ -132,7 +132,7 @@ expose:
       externalSecretName:
       id: expose-app
       randomId: difnr
-      secret: 'oYnq@8ujOtY@kga7LfWB8vTowf$9V9'
+      secret: '__CHANGE_ME_owf$9V9kga7LfWB8vT'
       redirectUri: "{{ .Values.expose.client.baseUrl }}"
       grantTypes:
       - password
@@ -163,7 +163,7 @@ notify:
     externalSecretName:
     id: notify-admin
     randomId: dUdGa
-    secret: 'BNvnbnS#DD@$5H$56@IbhNuJpDY3O#'
+    secret: '__CHANGE_ME_5H$56@IbhNuJpDY3O#'
     grantTypes:
     - authorization_code
   rabbitmq:
@@ -200,7 +200,7 @@ uploader:
     externalSecretName:
     id: uploader-admin
     randomId: oqdsq
-    secret: 'C71EuDQ2H$eMAp@P@CSnZi3sHwIB0sfy'
+    secret: '__CHANGE_ME_p@P@CSnZi3sHwIB0sfy'
     grantTypes:
     - authorization_code
     - client_credentials
@@ -218,7 +218,7 @@ uploader:
       externalSecretName:
       id: uploader-app
       randomId: oqdsq
-      secret: 'l$@fuDukPDpydN$mo7VZoOVw4inxqn'
+      secret: '__CHANGE_ME_DpydN$mo7VZoOVw4inxqn'
       redirectUri: "{{ .Values.uploader.client.baseUrl }}"
       grantTypes:
       - authorization_code
@@ -252,8 +252,8 @@ postgresql:
   externalSecretName:
   host: postgresql
   port: 5432
-  user: alchemy
-  password: 'iHdB$$tyVGmT9Zj6shv'
+  user: phrasea
+  password: '__CHANGE_ME_iHdBtyVGmT9Zj6shv'
   persistence:
     enabled: true
     existingClaim:
@@ -268,8 +268,8 @@ rabbitmq:
   externalSecretName:
   host: rabbitmq
   port: 5672
-  user: rabbit
-  password: '2rlTh4WyhyUZV7fEAnb$u4dqFchQDz'
+  user: phrasea
+  password: '__CHANGE_ME_yUZV7fEAnb$u4dqFchQDz'
   persistence:
     enabled: true
     existingClaim:
@@ -283,8 +283,8 @@ minio:
   enabled: true
   hostname:
   baseUrl:
-  accessKey: '1nW2poWjw2G5OskVG2VVXIyHsuQJIo'
-  secretKey: 'WfR6lXrgsbIYN#LuI9$ED9B0ck2scn'
+  accessKey: '__CHANGE_ME_jw2G5OskVG2VVXIyHsuQJIo'
+  secretKey: '__CHANGE_ME_bIYN#LuI9$ED9B0ck2scn'
   ingress:
     enabled: true
     annotations: {}
