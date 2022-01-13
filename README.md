@@ -15,21 +15,6 @@ This repository contains all the services to facilitate development but each gro
 
 Access `https://rabbitmq-console.phrasea.local`
 
-## Database Management
-
-Access PgAdmin4 at `https://pgadmin.phrasea.local`
-
-You can login with `admin@alchemy.fr` / `CxkngkeTRPkJOyniPHmZ` by default (see `.env` file).
-Then add the server by using:
-
-Connection > Host name: `db`
-
-Connection > Port: `5432`
-
-Connection > Username: `alchemy` # by default (see `.env` file)
-
-Connection > Password: `3IKYHEZZn0EQbOzeEQC1` # by default (see `.env` file)
-
 ## Running multiple instances of services
 
 You may need to deploy to different expose services (with their specific network/security rules).
