@@ -10,8 +10,10 @@ use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Doctrine\Listener\PostFlushStackListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -36,6 +38,10 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $workspace = $data->workspace;
         } elseif (null !== $data->collection) {
             $workspace = $data->collection->getWorkspace();
+        }
+
+        if (!$workspace instanceof Workspace) {
+            throw new BadRequestHttpException(sprintf('Missing workspace'));
         }
 
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);

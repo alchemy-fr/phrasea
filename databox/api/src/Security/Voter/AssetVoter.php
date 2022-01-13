@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Workspace;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
@@ -29,6 +30,9 @@ class AssetVoter extends AbstractVoter
             case self::CREATE:
                 if (null !== $collection = $subject->getReferenceCollection()) {
                     return $this->security->isGranted(CollectionVoter::EDIT, $collection);
+                }
+                if ($subject->getWorkspace()) {
+                    return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
                 }
 
                 return $user instanceof RemoteUser;
