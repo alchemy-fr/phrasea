@@ -26,7 +26,7 @@ class TagFilterRuleRepository extends EntityRepository
         ];
 
         if (!empty($groupIds)) {
-            $userWhere[] = 'a.userType = :gt AND a.userId = (:gids)';
+            $userWhere[] = 'a.userType = :gt AND a.userId IN (:gids)';
             $queryBuilder
                 ->setParameter('gt', TagFilterRule::TYPE_GROUP)
                 ->setParameter('gids', $groupIds)
