@@ -159,6 +159,12 @@ exec_container auth-api-php "bin/console app:user:create \
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer
+docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
+  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  sleep 5 && \
+  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc mb --ignore-existing minio/\${INDEXER_BUCKET_NAME} \
+"
 exec_container databox-api-php "bin/console alchemy:oauth:create-client ${INDEXER_DATABOX_CLIENT_ID} \
     --random-id=${INDEXER_DATABOX_CLIENT_RANDOM_ID} \
     --secret=${INDEXER_DATABOX_CLIENT_SECRET} \
@@ -174,14 +180,14 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
   set -x; \
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
     mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
-    && mc admin config set minio/ notify_amqp:primary \
+    && mc admin config set minio notify_amqp:primary \
       url="amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events" \
       exchange="s3events" \
       exchange_type="direct" \
       durable="on" \
       delivery_mode=2 \
     && mc admin service restart minio/ \
-    && (mc event add minio/\${DATABOX_STORAGE_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
+    && (mc event add minio/${INDEXER_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
 "
 
 echo "Done."

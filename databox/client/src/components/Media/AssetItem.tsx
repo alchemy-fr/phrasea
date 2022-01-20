@@ -101,7 +101,7 @@ class AssetItem extends PureComponent<AllProps, State> {
     }
 
     download = () => {
-        document.location.href = this.props.original!.url;
+        document.location.href = this.props.original!.url!;
     }
 
     render() {
@@ -124,7 +124,7 @@ class AssetItem extends PureComponent<AllProps, State> {
         const privacyLabel = privacyIndices[privacy];
 
         let image = 'https://user-images.githubusercontent.com/194400/49531010-48dad180-f8b1-11e8-8d89-1e61320e1d82.png';
-        if (thumbnail) {
+        if (thumbnail?.url) {
             image = thumbnail.url;
         }
 
@@ -182,7 +182,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                             open={this.state.menuOpen}
                             onClose={this.closeMenu}
                         >
-                            {original && <MenuItem onClick={this.download}>
+                            {original?.url && <MenuItem onClick={this.download}>
                                 <ListItemIcon>
                                     <CloudDownload fontSize="small"/>
                                 </ListItemIcon>

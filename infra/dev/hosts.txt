@@ -22,4 +22,5 @@
 127.0.0.1 report-kibana.${PHRASEA_DOMAIN}
 127.0.0.1 zipper.${PHRASEA_DOMAIN}
 127.0.0.1 traefik-console.${PHRASEA_DOMAIN}
+127.0.0.1 indexer-agent-amqp.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

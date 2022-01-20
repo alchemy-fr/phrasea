@@ -260,8 +260,9 @@ services:
     depends_on:
       - auth-api-php
     labels:
-      traefik.enable: true
-      traefik.http.routers.auth-api.rule: Host(`api-auth.${PHRASEA_DOMAIN}`)
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-api.rule=Host(`api-auth.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.auth-api.tls=true"
 
   expose-api-php:
     profiles:
@@ -931,12 +932,19 @@ services:
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
       - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
       - PUBLIC_URL=https://indexer-agent-amqp.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
+      - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.indexer-agent-amqp.tls=true"
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   elasticsearch:
     profiles:

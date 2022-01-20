@@ -85,9 +85,16 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             if ($data->source) {
                 $src = new File();
                 $src->setPath($data->source);
-                $src->setStorage(File::STORAGE_PUBLIC_URL);
+                $src->setPathPublic(!$data->sourceIsPrivate);
+                $src->setStorage(File::STORAGE_URL);
                 $src->setWorkspace($object->getWorkspace());
                 $object->setFile($src);
+
+                if (null !== $data->alternateUrls) {
+                    foreach ($data->alternateUrls as $altUrl) {
+                        $src->setAlternateUrl($altUrl['type'], $altUrl['url']);
+                    }
+                }
 
                 $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
             }

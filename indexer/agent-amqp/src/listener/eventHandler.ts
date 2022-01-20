@@ -2,10 +2,11 @@ import {S3Event} from "../types/event";
 import {DataboxClient} from "../databox/client";
 import {generatePublicUrl} from "../resourceResolver";
 import p from 'path';
+import {getEnv} from "../env";
+
+const bucketsList: string[] = getEnv('BUCKET_NAMES', '').split(',');
 
 export async function handleEvent(event: string, databoxClient: DataboxClient) {
-    console.log('event', event);
-
     const {
         EventName,
         Records
@@ -13,6 +14,14 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
 
     await Promise.all(Records.map(r => {
         const path = r.s3.object.key;
+
+        console.log('r.s3.bucket.name', r.s3.bucket.name);
+
+        if (bucketsList.length > 0 && !bucketsList.includes(r.s3.bucket.name)) {
+            return;
+        }
+
+        console.debug(EventName, path);
 
         switch (EventName) {
             case 's3:ObjectCreated:Put':

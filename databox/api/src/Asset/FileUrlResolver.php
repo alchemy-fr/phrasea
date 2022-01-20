@@ -22,7 +22,7 @@ class FileUrlResolver
         switch ($file->getStorage()) {
             case File::STORAGE_S3_MAIN:
                 return $this->urlSigner->getSignedUrl($file->getPath());
-            case File::STORAGE_PUBLIC_URL:
+            case File::STORAGE_URL:
                 return $file->getPath();
             default:
                 throw new RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage()));

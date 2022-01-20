@@ -30,7 +30,22 @@ class FileOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
         $output->setType($object->getType());
         $output->setSize($object->getSize());
-        $output->setUrl($this->fileUrlResolver->resolveUrl($object));
+
+        if ($object->isPathPublic()) {
+            $output->setUrl($this->fileUrlResolver->resolveUrl($object));
+        }
+
+        $urls = [];
+        if (null !== $object->getAlternateUrls()) {
+            foreach ($object->getAlternateUrls() as $type => $url) {
+                $urls[] = [
+                    'type' => $type,
+                    'url' => $url,
+                ];
+            }
+        }
+
+        $output->setAlternateUrls($urls);
 
         return $output;
     }

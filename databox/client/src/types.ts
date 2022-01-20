@@ -1,8 +1,14 @@
 import {ApiHydraObjectResponse} from "./api/hydra";
 
+type AlternateUrl = {
+    type: string;
+    url: string;
+}
+
 export interface File {
     id: string;
-    url: string;
+    url?: string;
+    alternateUrls: AlternateUrl[];
     size: number;
 }
 

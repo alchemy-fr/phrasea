@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class File extends AbstractUuidEntity
 {
     public const STORAGE_S3_MAIN = 's3_main';
-    public const STORAGE_PUBLIC_URL = 'public_url';
+    public const STORAGE_URL = 'url';
 
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -47,9 +47,21 @@ class File extends AbstractUuidEntity
     private ?string $path = null;
 
     /**
+     * Is path accessible from browser.
+     *
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $pathPublic = true;
+
+    /**
      * @ORM\Column(type="string", length=150, nullable=false)
      */
     private ?string $storage = null;
+
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private ?array $alternateUrls = null;
 
     public function getPath(): ?string
     {
@@ -94,5 +106,25 @@ class File extends AbstractUuidEntity
     public function setStorage(?string $storage): void
     {
         $this->storage = $storage;
+    }
+
+    public function getAlternateUrls(): ?array
+    {
+        return $this->alternateUrls;
+    }
+
+    public function setAlternateUrl(string $type, string $url): void
+    {
+        $this->alternateUrls[$type] = $url;
+    }
+
+    public function isPathPublic(): bool
+    {
+        return $this->pathPublic;
+    }
+
+    public function setPathPublic(bool $pathPublic): void
+    {
+        $this->pathPublic = $pathPublic;
     }
 }

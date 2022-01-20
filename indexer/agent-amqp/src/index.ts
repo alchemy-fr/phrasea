@@ -2,6 +2,7 @@ import {listenToQueue} from "./amqp";
 import {castEnvToBoolean, getEnv, getEnvStrict} from "./env";
 import {DataboxClient} from "./databox/client";
 import {handleEvent} from "./listener/eventHandler";
+import './server';
 
 console.log('Starting AMQP agent...');
 
@@ -24,8 +25,4 @@ listenToQueue(
     dsn,
     's3events',
     async (event) => await handleEvent(event, databoxClient),
-    () => {
-        console.log('OK, running!');
-        console.log('Waiting for events...');
-    }
 );
