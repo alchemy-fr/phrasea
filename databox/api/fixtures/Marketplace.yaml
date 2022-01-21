@@ -4,28 +4,33 @@ App\Entity\Core\Workspace:
     ownerId: super_user
 
 App\Entity\Core\RenditionClass:
-  sdc_public:
+  m_rc_public:
     workspace: '@w_marketplace'
     name: Public
-  sdc_restricted:
+  m_rc_restricted:
     workspace: '@w_marketplace'
     name: Restricted
 
 App\Entity\Core\RenditionDefinition:
-  sds_preview:
+  m_rd_original:
+    name: original
+    workspace: '@w_marketplace'
+    class: '@m_rc_public'
+    useAsOriginal: true
+  m_rd_preview:
     name: preview
     workspace: '@w_marketplace'
-    class: '@sdc_public'
+    class: '@m_rc_public'
     useAsPreview: true
-  sds_thumbnail:
+  m_rd_thumbnail:
     name: thumbnail
     workspace: '@w_marketplace'
-    class: '@sdc_public'
+    class: '@m_rc_public'
     useAsThumbnail: true
-  sds_thumbnailActive:
+  m_rd_thumbnailActive:
     name: thumbnailActive
     workspace: '@w_marketplace'
-    class: '@sdc_public'
+    class: '@m_rc_public'
     useAsThumbnailActive: true
 
 #

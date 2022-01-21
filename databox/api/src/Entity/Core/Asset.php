@@ -81,10 +81,16 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
      */
     private ?File $file = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
+     */
+    private ?DoctrineCollection $renditions = null;
+
     public function __construct()
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
+        $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
     }
 

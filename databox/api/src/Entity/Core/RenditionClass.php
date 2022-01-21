@@ -40,6 +40,6 @@ class RenditionClass extends AbstractUuidEntity
 
     public function __toString(): string
     {
-        return $this->getName();
+        return sprintf('%s (%s)', $this->getName(), $this->getWorkspace()->getName());
     }
 }

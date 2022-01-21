@@ -26,3 +26,7 @@ resources:
       get: ~
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'
+      delete_by_key:
+        method: DELETE
+        path: /assets-by-key
+        controller: App\Controller\Core\DeleteAssetByKey

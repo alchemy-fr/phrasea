@@ -108,7 +108,7 @@ export class DataboxClient {
         });
     }
 
-    async createAsset(data: AssetInput) {
+    async createAsset(data: AssetInput): Promise<void> {
         await this.authenticate();
 
         await this.client.post(`/assets`, {
@@ -116,6 +116,17 @@ export class DataboxClient {
             ownerId: this.ownerId,
             collection: this.collectionId ? `/collections/${this.collectionId}` : this.collectionId,
             ...data,
+        });
+    }
+
+    async deleteAsset(key: string): Promise<void> {
+        await this.authenticate();
+
+        await this.client.delete(`/assets-by-key`, {
+            data: {
+                workspaceId: this.workspaceId,
+                key,
+            }
         });
     }
 

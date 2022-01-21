@@ -25,6 +25,8 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
         switch (EventName) {
             case 's3:ObjectCreated:Put':
                 return handlePutObject(path, databoxClient);
+            case 's3:ObjectRemoved:Delete':
+                return handleDeleteObject(path, databoxClient);
             case 's3:ObjectAccessed:Get':
                 return;
         }
@@ -67,6 +69,20 @@ async function handlePutObject(path: string, databoxClient: DataboxClient) {
             key: path,
             title: p.basename(path),
         });
+    } catch (error) {
+        if (error.response) {
+            console.error(error.response.data);
+        }
+
+        throw error;
+    }
+}
+
+async function handleDeleteObject(path: string, databoxClient: DataboxClient) {
+    console.log('handleDeleteObject', path);
+
+    try {
+        await databoxClient.deleteAsset(path);
     } catch (error) {
         if (error.response) {
             console.error(error.response.data);

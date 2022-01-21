@@ -47,7 +47,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title', label: Title }
           - { property: 'workspace' }
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
@@ -79,7 +79,7 @@ easy_admin:
         max_results: 200
         sort: [createdAt, DESC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'path', label: Title }
           - { property: 'workspace' }
           - createdAt
@@ -94,7 +94,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title' }
           - { property: 'parent', label: Parent }
           - { property: 'workspace' }
@@ -116,7 +116,7 @@ easy_admin:
           - permissions
         sort: [name, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'name' }
           - { property: 'enabledLocales', type: array }
           - updatedAt
@@ -137,7 +137,7 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class' }
@@ -169,10 +169,10 @@ easy_admin:
         max_results: 100
         filters: ['definition', 'asset']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'definition', label: Definition }
           - { property: 'asset' }
-          - { property: 'file.id', template: 'admin/id.html.twig' }
+          - { property: 'file.id', template: '@AlchemyAdmin/list/id.html.twig' }
           - updatedAt
           - createdAt
 
@@ -185,7 +185,7 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -202,7 +202,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -226,7 +226,7 @@ easy_admin:
         sort: [name, ASC]
         filters: ['workspace']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -245,7 +245,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -262,7 +262,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value', type: string }
@@ -287,7 +287,7 @@ easy_admin:
         filters: ['workspace', 'public', 'searchable', 'multiple', 'fieldType', 'fileType' ]
         sort: [name, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'fileType' }
@@ -351,6 +351,7 @@ easy_admin:
           - delete
         sort: [workspace, ASC]
         fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - workspace
           - type
           - label
