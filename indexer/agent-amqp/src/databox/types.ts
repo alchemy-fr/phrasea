@@ -12,4 +12,11 @@ export type AssetInput = {
     };
     key?: string;
     title?: string;
+    collection?: string;
+}
+
+export type CollectionInput = {
+    title?: string;
+    parent?: string;
+    key?: string;
 }

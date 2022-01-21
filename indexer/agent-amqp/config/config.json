@@ -1,0 +1,8 @@
+{
+  "alternateUrls": [
+    {
+      "name": "ctera",
+      "pathPattern": "ctera://${path}"
+    }
+  ]
+}

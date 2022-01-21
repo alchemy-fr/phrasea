@@ -3,6 +3,7 @@ import {DataboxClient} from "../databox/client";
 import {generatePublicUrl} from "../resourceResolver";
 import p from 'path';
 import {getEnv} from "../env";
+import {config} from "../configLoader";
 
 const bucketsList: string[] = getEnv('BUCKET_NAMES', '').split(',');
 
@@ -32,17 +33,37 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
 
 async function handlePutObject(path: string, databoxClient: DataboxClient) {
     try {
-        await databoxClient.postAsset({
+        let alternateUrls;
+
+        if (config.alternateUrls) {
+            const dict = {
+                path,
+            };
+            alternateUrls = config.alternateUrls.map(c => {
+               return {
+                   type: c.name,
+                   url: c.pathPattern.replace(/\${(.+)}/g, (m) => {
+                       return dict[m];
+                   }),
+               }
+            });
+        }
+
+        let branch = path.split('/');
+        branch.pop();
+
+        const collIRI = await databoxClient.createCollectionTreeBranch(branch.map(k => ({
+            key: k,
+            title: k
+        })))
+
+        await databoxClient.createAsset({
             source: {
                 url: generatePublicUrl(path),
                 isPrivate: true,
-                alternateUrls: [
-                    {
-                        type: 'cetera',
-                        url: `cetera://${path}`,
-                    }
-                ]
+                alternateUrls,
             },
+            collection: collIRI,
             key: path,
             title: p.basename(path),
         });

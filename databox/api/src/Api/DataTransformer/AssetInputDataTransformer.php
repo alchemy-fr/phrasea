@@ -46,15 +46,15 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $workspace = $data->collection->getWorkspace();
         }
 
-        if (!$workspace instanceof Workspace) {
-            throw new BadRequestHttpException(sprintf('Missing workspace'));
-        }
-
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Asset $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
 
         if ($isNew) {
+            if (!$workspace instanceof Workspace) {
+                throw new BadRequestHttpException('Missing workspace');
+            }
+
             if ($data->key) {
                 $asset = $this->em->getRepository(Asset::class)
                     ->findOneBy([
@@ -69,7 +69,10 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             }
         }
 
-        $object->setTitle($data->title);
+        if ($data->title) {
+            $object->setTitle($data->title);
+        }
+
         $this->transformPrivacy($data, $object);
 
         if ($isNew) {

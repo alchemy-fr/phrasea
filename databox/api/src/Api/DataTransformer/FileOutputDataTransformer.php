@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace App\Api\DataTransformer;
 
+use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
 use App\Asset\FileUrlResolver;
+use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
-use App\Storage\UrlSigner;
-use RuntimeException;
+use Doctrine\ORM\EntityManagerInterface;
 
 class FileOutputDataTransformer extends AbstractSecurityDataTransformer
 {
     private FileUrlResolver $fileUrlResolver;
+    private EntityManagerInterface $em;
 
-    public function __construct(FileUrlResolver $fileUrlResolver)
+    private array $cache = [];
+
+    public function __construct(FileUrlResolver $fileUrlResolver, EntityManagerInterface $em)
     {
         $this->fileUrlResolver = $fileUrlResolver;
+        $this->em = $em;
     }
 
     /**
@@ -38,16 +43,32 @@ class FileOutputDataTransformer extends AbstractSecurityDataTransformer
         $urls = [];
         if (null !== $object->getAlternateUrls()) {
             foreach ($object->getAlternateUrls() as $type => $url) {
-                $urls[] = [
-                    'type' => $type,
-                    'url' => $url,
-                ];
+                $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
+                    $object->getWorkspaceId(),
+                    $type
+                ));
             }
         }
 
         $output->setAlternateUrls($urls);
 
         return $output;
+    }
+
+    private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
+    {
+        $key = sprintf('%s:%s', $workspaceId, $type);
+        if (array_key_exists($key, $this->cache)) {
+            return $this->cache[$key];
+        }
+
+        $label = $this->em->getRepository(AlternateUrl::class)
+            ->findOneBy([
+                'workspace' => $workspaceId,
+                'type' => $type,
+            ]);
+
+        return $this->cache[$key] = $label instanceof AlternateUrl ? $label->getLabel() : null;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

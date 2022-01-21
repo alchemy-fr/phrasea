@@ -11,30 +11,38 @@ class AlternateUrlOutput extends AbstractUuidOutput
     /**
      * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
      */
-    private ?string $type = null;
+    private string $type;
 
     /**
      * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
      */
-    private ?string $url = null;
+    private string $url;
 
-    public function getUrl(): ?string
+    /**
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     */
+    private ?string $label = null;
+
+    public function __construct(string $type, string $url, ?string $label = null)
+    {
+        $this->type = $type;
+        $this->url = $url;
+        $this->label = $label;
+    }
+
+
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    public function setUrl(?string $url): void
-    {
-        $this->url = $url;
-    }
-
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function setType(?string $type): void
+    public function getLabel(): ?string
     {
-        $this->type = $type;
+        return $this->label;
     }
 }

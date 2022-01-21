@@ -3,6 +3,7 @@ import {ApiHydraObjectResponse} from "./api/hydra";
 type AlternateUrl = {
     type: string;
     url: string;
+    label?: string;
 }
 
 export interface File {

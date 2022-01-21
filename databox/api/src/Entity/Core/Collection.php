@@ -24,6 +24,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
  */
 class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
@@ -71,6 +72,13 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
      * @ORM\JoinColumn(nullable=false)
      */
     protected ?Workspace $workspace = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     *
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     */
+    private ?string $key = null;
 
     public function __construct()
     {
@@ -218,5 +226,15 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     public function __toString()
     {
         return $this->getAbsoluteTitle() ?? $this->getId();
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
     }
 }

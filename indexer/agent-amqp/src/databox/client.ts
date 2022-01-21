@@ -1,6 +1,6 @@
 import axios, {AxiosInstance} from 'axios';
 import https from 'https';
-import {AssetInput} from "./types";
+import {AssetInput, CollectionInput} from "./types";
 
 const maxRetries = 10;
 const retryDelay = 5000;
@@ -9,7 +9,7 @@ function createApiClient(baseURL: string, verifySSL: boolean) {
     return axios.create({
         baseURL,
         timeout: 10000,
-        headers: {'Accept': 'application/json'},
+        headers: {'Accept': 'application/ld+json'},
         httpsAgent: new https.Agent({
             rejectUnauthorized: verifySSL
         })
@@ -108,14 +108,43 @@ export class DataboxClient {
         });
     }
 
-    async postAsset(data: AssetInput) {
+    async createAsset(data: AssetInput) {
         await this.authenticate();
 
         await this.client.post(`/assets`, {
-            ...data,
             workspace: `/workspaces/${this.workspaceId}`,
             ownerId: this.ownerId,
             collection: this.collectionId ? `/collections/${this.collectionId}` : this.collectionId,
+            ...data,
         });
+    }
+
+    async createCollection(data: CollectionInput) {
+        await this.authenticate();
+
+        return (await this.client.post(`/collections`, {
+            workspace: `/workspaces/${this.workspaceId}`,
+            ownerId: this.ownerId,
+            ...data,
+        })).data;
+    }
+
+    async createCollectionTreeBranch(data: CollectionInput[]): Promise<string> {
+        await this.authenticate();
+
+        let parentId: string = undefined;
+        const previousKeys = [];
+        for (let i = 0; i < data.length; ++i) {
+            previousKeys.push(data[i].key);
+
+            const res = await this.createCollection({
+                ...data[i],
+                key: previousKeys.join('/'),
+                parent: parentId,
+            });
+            parentId = res['@id'];
+        }
+
+        return parentId;
     }
 }

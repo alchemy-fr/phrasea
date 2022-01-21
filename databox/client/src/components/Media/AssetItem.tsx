@@ -193,7 +193,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                                     <ListItemIcon>
                                         <LinkIcon fontSize="small"/>
                                     </ListItemIcon>
-                                    <ListItemText primary={a.type}/>
+                                    <ListItemText primary={a.label || a.type}/>
                                 </MenuItem>)}
                             </>}
                             {original?.url && <MenuItem onClick={this.download}>

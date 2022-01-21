@@ -30,6 +30,7 @@ easy_admin:
           - RenditionDefinition
           - RenditionClass
           - RenditionRule
+          - AlternateUrl
       - OAuthClient
       - label: 'Dev'
         children:
@@ -341,3 +342,20 @@ easy_admin:
         sort: ['createdAt', 'ASC']
         fields:
           - token
+
+    AlternateUrl:
+      class: App\Entity\Core\AlternateUrl
+      list:
+        filters: ['workspace']
+        batch_actions:
+          - delete
+        sort: [workspace, ASC]
+        fields:
+          - workspace
+          - type
+          - label
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'type' }
+          - { property: 'label' }
