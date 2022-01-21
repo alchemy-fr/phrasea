@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use App\Asset\OriginalRenditionManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use App\Entity\Core\AssetRendition;
-use App\Entity\Core\RenditionDefinition;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -19,10 +18,12 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     const EVENT = 'new_asset_from_border';
 
     private EventProducer $eventProducer;
+    private OriginalRenditionManager $originalRenditionManager;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(EventProducer $eventProducer, OriginalRenditionManager $originalRenditionManager)
     {
         $this->eventProducer = $eventProducer;
+        $this->originalRenditionManager = $originalRenditionManager;
     }
 
     public function handle(EventMessage $message): void
@@ -45,21 +46,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $asset->setWorkspace($file->getWorkspace());
 
-        $originalRenditionDefinitions = $em->getRepository(RenditionDefinition::class)
-            ->findBy([
-                'workspace' => $file->getWorkspace()->getId(),
-                'useAsOriginal' => true,
-            ]);
-
-        foreach ($originalRenditionDefinitions as $originalRenditionDefinition) {
-            $origRendition = new AssetRendition();
-            $origRendition->setAsset($asset);
-            $origRendition->setFile($file);
-            $origRendition->setDefinition($originalRenditionDefinition);
-            $origRendition->setReady(true);
-
-            $em->persist($origRendition);
-        }
+        $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);

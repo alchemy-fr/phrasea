@@ -13,9 +13,7 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
     } = JSON.parse(event) as S3Event;
 
     await Promise.all(Records.map(r => {
-        const path = r.s3.object.key;
-
-        console.log('r.s3.bucket.name', r.s3.bucket.name);
+        const path = decodeURIComponent(r.s3.object.key);
 
         if (bucketsList.length > 0 && !bucketsList.includes(r.s3.bucket.name)) {
             return;
@@ -35,7 +33,16 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
 async function handlePutObject(path: string, databoxClient: DataboxClient) {
     try {
         await databoxClient.postAsset({
-            source: generatePublicUrl(path),
+            source: {
+                url: generatePublicUrl(path),
+                isPrivate: true,
+                alternateUrls: [
+                    {
+                        type: 'cetera',
+                        url: `cetera://${path}`,
+                    }
+                ]
+            },
             key: path,
             title: p.basename(path),
         });

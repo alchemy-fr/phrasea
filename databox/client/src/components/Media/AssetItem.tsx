@@ -2,7 +2,7 @@ import React, {MouseEvent, PureComponent, RefObject} from "react";
 import {Asset, Collection} from "../../types";
 import {Badge} from "react-bootstrap";
 import apiClient from "../../api/api-client";
-import {CloudDownload, Delete, Edit} from '@material-ui/icons';
+import {CloudDownload, Delete, Edit, Link as LinkIcon} from '@material-ui/icons';
 import {ImageListItem, ImageListItemBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@material-ui/core";
 import InfoIcon from '@material-ui/icons/Info';
 import EditAsset from "./Asset/EditAsset";
@@ -104,6 +104,10 @@ class AssetItem extends PureComponent<AllProps, State> {
         document.location.href = this.props.original!.url!;
     }
 
+    openUrl = (url: string) => {
+        document.location.href = url;
+    }
+
     render() {
         const {
             id,
@@ -182,6 +186,16 @@ class AssetItem extends PureComponent<AllProps, State> {
                             open={this.state.menuOpen}
                             onClose={this.closeMenu}
                         >
+                            {original?.alternateUrls && <>
+                                {original.alternateUrls.map(a => <MenuItem
+                                    key={a.type}
+                                    onClick={() => this.openUrl(a.url)}>
+                                    <ListItemIcon>
+                                        <LinkIcon fontSize="small"/>
+                                    </ListItemIcon>
+                                    <ListItemText primary={a.type}/>
+                                </MenuItem>)}
+                            </>}
                             {original?.url && <MenuItem onClick={this.download}>
                                 <ListItemIcon>
                                     <CloudDownload fontSize="small"/>

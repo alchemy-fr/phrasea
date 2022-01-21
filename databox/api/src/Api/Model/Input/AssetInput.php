@@ -17,8 +17,6 @@ class AssetInput extends AbstractOwnerIdInput
 
     public ?string $privacyLabel = null;
 
-    public bool $sourceIsPrivate = false;
-
     /**
      * @var Tag[]
      */
@@ -35,20 +33,11 @@ class AssetInput extends AbstractOwnerIdInput
     public ?Collection $collection = null;
 
     /**
-     * The source URL (must be public)
+     * @var AssetSourceInput|null
      */
-    public ?string $source = null;
+    public $source = null;
 
     // TODO implement
 
     public ?bool $copySource = null;
-
-    /**
-     * Alternative URLs.
-     *
-     * If path is not accessible publicly, "download" and "open" should be provided with public URI.
-     *
-     * @var AlternateUrlInput[]
-     */
-    public ?array $alternateUrls = null;
 }

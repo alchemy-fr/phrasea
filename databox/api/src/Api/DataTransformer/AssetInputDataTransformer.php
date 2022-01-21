@@ -6,12 +6,12 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
+use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Doctrine\Listener\PostFlushStackListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -21,11 +21,17 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
     private PostFlushStackListener $postFlushStackListener;
     private EntityManagerInterface $em;
+    private OriginalRenditionManager $originalRenditionManager;
 
-    public function __construct(PostFlushStackListener $postFlushStackListener, EntityManagerInterface $em)
+    public function __construct(
+        PostFlushStackListener $postFlushStackListener, 
+        EntityManagerInterface $em,
+        OriginalRenditionManager $originalRenditionManager
+    )
     {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
+        $this->originalRenditionManager = $originalRenditionManager;
     }
 
     /**
@@ -82,17 +88,19 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 $object->addToCollection($data->collection);
             }
 
-            if ($data->source) {
+            if ($source = $data->source) {
                 $src = new File();
-                $src->setPath($data->source);
-                $src->setPathPublic(!$data->sourceIsPrivate);
+                $src->setPath($source->url);
+                $src->setPathPublic(!$source->isPrivate);
                 $src->setStorage(File::STORAGE_URL);
                 $src->setWorkspace($object->getWorkspace());
                 $object->setFile($src);
 
-                if (null !== $data->alternateUrls) {
-                    foreach ($data->alternateUrls as $altUrl) {
-                        $src->setAlternateUrl($altUrl['type'], $altUrl['url']);
+                $this->originalRenditionManager->assignFileToOriginalRendition($object, $src);
+
+                if (null !== $source->alternateUrls) {
+                    foreach ($source->alternateUrls as $altUrl) {
+                        $src->setAlternateUrl($altUrl->type, $altUrl->url);
                     }
                 }
 

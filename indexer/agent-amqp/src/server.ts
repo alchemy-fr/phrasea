@@ -9,7 +9,7 @@ app.use(express.json());
 app.get('/assets', async (req: Request<any, any, any, {
     path: string;
 }>, res) => {
-    const path = decodeURIComponent(req.query.path);
+    const {path} = req.query;
     const source = 's3main';
     if (!path) {
         res.status(400);
