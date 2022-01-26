@@ -170,6 +170,7 @@ class AssetItem extends PureComponent<AllProps, State> {
                                     ref={this.ref}
                                 >
                                     <IconButton
+                                        color={'secondary'}
                                         aria-controls={`item-menu-${id}`}
                                         aria-haspopup="true"
                                         onClick={this.openMenu}
