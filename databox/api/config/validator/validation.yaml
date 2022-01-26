@@ -67,6 +67,8 @@ App\Entity\Core\RenditionDefinition:
           - workspace
           - class.workspace
   properties:
+    class:
+      - NotNull: ~
     priority:
       - NotNull: ~
 

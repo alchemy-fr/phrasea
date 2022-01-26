@@ -1,6 +1,7 @@
 import axios, {AxiosInstance} from 'axios';
 import https from 'https';
 import {AssetInput, CollectionInput} from "./types";
+import {lockPromise} from "../promise";
 
 const maxRetries = 10;
 const retryDelay = 5000;
@@ -26,6 +27,8 @@ type ClientParameters = {
     collectionId?: string;
     ownerId: string;
 }
+
+const collectionKeyMap: Record<string, string> = {};
 
 export class DataboxClient {
     private readonly client: AxiosInstance;
@@ -130,14 +133,22 @@ export class DataboxClient {
         });
     }
 
-    async createCollection(data: CollectionInput) {
+    async createCollection(key: string, data: CollectionInput): Promise<string> {
         await this.authenticate();
 
-        return (await this.client.post(`/collections`, {
-            workspace: `/workspaces/${this.workspaceId}`,
-            ownerId: this.ownerId,
-            ...data,
-        })).data;
+        if (collectionKeyMap[key]) {
+            return collectionKeyMap[key];
+        }
+
+        const r = await lockPromise(key, async () => {
+            return (await this.client.post(`/collections`, {
+                workspace: `/workspaces/${this.workspaceId}`,
+                ownerId: this.ownerId,
+                ...data,
+            })).data;
+        });
+
+        return collectionKeyMap[key] = r.id;
     }
 
     async createCollectionTreeBranch(data: CollectionInput[]): Promise<string> {
@@ -148,12 +159,13 @@ export class DataboxClient {
         for (let i = 0; i < data.length; ++i) {
             previousKeys.push(data[i].key);
 
-            const res = await this.createCollection({
+            const key = previousKeys.join('/');
+            const id = await this.createCollection(key, {
                 ...data[i],
-                key: previousKeys.join('/'),
+                key,
                 parent: parentId,
             });
-            parentId = res['@id'];
+            parentId = `/collections/${id}`;
         }
 
         return parentId;

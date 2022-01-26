@@ -45,15 +45,12 @@ class CollectionInputDataTransformer extends AbstractInputDataTransformer
             }
 
             if ($data->key) {
-                $asset = $this->em->getRepository(Collection::class)
-                    ->findOneBy([
-                        'key' => $data->key,
-                        'workspace' => $workspace->getId(),
-                    ]);
+                $collection = $this->em->getRepository(Collection::class)
+                    ->findByKey($data->key, $workspace->getId());
 
-                if ($asset) {
+                if ($collection) {
                     $isNew = false;
-                    $object = $asset;
+                    $object = $collection;
                 }
             }
         }

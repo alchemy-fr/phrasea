@@ -14,12 +14,12 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
     } = JSON.parse(event) as S3Event;
 
     await Promise.all(Records.map(r => {
-        const path = decodeURIComponent(r.s3.object.key);
 
         if (bucketsList.length > 0 && !bucketsList.includes(r.s3.bucket.name)) {
             return;
         }
 
+        const path = decodeURIComponent(r.s3.object.key.replace(/\+/g, '%20'));
         console.debug(EventName, path);
 
         switch (EventName) {
