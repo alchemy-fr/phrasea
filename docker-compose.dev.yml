@@ -24,7 +24,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.uploader-client-dev.tls=true"
 
   expose-client-dev:
     profiles:
@@ -48,7 +47,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.expose-client-dev.tls=true"
 
   databox-client-dev:
     profiles:
@@ -76,7 +74,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.databox-client-dev.tls=true"
 
   expose-api-php:
     environment:

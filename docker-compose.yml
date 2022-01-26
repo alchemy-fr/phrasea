@@ -24,7 +24,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
-      - "traefik.http.routers.traefik-console.tls=true"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
@@ -164,7 +163,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.uploader-api.tls=true"
 
   auth-worker:
     profiles:
@@ -262,7 +260,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth-api.rule=Host(`api-auth.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.auth-api.tls=true"
 
   expose-api-php:
     profiles:
@@ -377,7 +374,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.expose-api.tls=true"
 
   notify-api-php:
     profiles:
@@ -461,7 +457,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.notify-api.tls=true"
 
   redis:
     profiles:
@@ -500,7 +495,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.rabbitmq-console.tls=true"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
 
   dockerize:
@@ -541,11 +535,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.minio.tls=true"
       - "traefik.http.routers.minio.service=minio"
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.minio-console.tls=true"
       - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
 
@@ -598,7 +590,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.matomo.tls=true"
 
   matomo-db:
     profiles:
@@ -652,7 +643,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.pgadmin.tls=true"
 
   phpmyadmin:
     profiles:
@@ -665,7 +655,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.phpmyadmin.tls=true"
 
   mailhog:
     profiles:
@@ -676,7 +665,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.mailhog.tls=true"
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
 
   weblate:
@@ -714,7 +702,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.weblate.rule=Host(`weblate.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.weblate.tls=true"
 
   dashboard:
     profiles:
@@ -788,7 +775,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.tls=true"
 
   databox-api-php:
     profiles:
@@ -902,7 +888,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.databox-api.tls=true"
 
   indexer-app:
     build:
@@ -941,7 +926,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.indexer-agent-amqp.tls=true"
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

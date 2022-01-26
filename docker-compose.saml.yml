@@ -13,7 +13,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`saml-idp.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.tls=true"
 
   saml-idp2:
     image: alchemyfr/test-saml-idp
@@ -27,4 +26,3 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`saml-idp2.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.tls=true"
