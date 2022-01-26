@@ -63,9 +63,13 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $assets = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection", cascade={"remove"})
+     */
+    private ?DoctrineCollection $referenceAssets = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
@@ -85,6 +89,7 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
         parent::__construct();
         $this->children = new ArrayCollection();
         $this->assets = new ArrayCollection();
+        $this->referenceAssets = new ArrayCollection();
     }
 
     public function getTitle(): ?string
