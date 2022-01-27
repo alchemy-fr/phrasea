@@ -24,6 +24,7 @@ export async function handleEvent(event: string, databoxClient: DataboxClient) {
 
         switch (EventName) {
             case 's3:ObjectCreated:Put':
+            case 's3:ObjectCreated:CompleteMultipartUpload':
                 return handlePutObject(path, databoxClient);
             case 's3:ObjectRemoved:Delete':
                 return handleDeleteObject(path, databoxClient);
