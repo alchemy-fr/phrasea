@@ -17,7 +17,7 @@ abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
         $stack = [];
         $i = 0;
         foreach ($iterator as $item) {
-            $stack[] = $item;
+            $stack[] = $item['id'];
             if ($i++ > $batchSize) {
                 $this->flushIndexStack($stack);
                 $stack = [];
