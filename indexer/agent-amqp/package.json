@@ -17,6 +17,7 @@
   },
   "scripts": {
     "start": "node --enable-source-maps dist/index.js",
+    "index": "node --enable-source-maps dist/command/indexBucket.js",
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",

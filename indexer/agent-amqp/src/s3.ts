@@ -3,7 +3,7 @@ import {S3Source, SourceName, sources} from "./sources";
 
 const clients: Record<string, Minio.Client> = {};
 
-function createS3Client(sourceName: SourceName) {
+export function createS3Client(sourceName: SourceName): Minio.Client {
     if (clients[sourceName]) {
         return clients[sourceName];
     }

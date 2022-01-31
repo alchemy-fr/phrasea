@@ -1,6 +1,6 @@
 import {listenToQueue} from "./amqp";
 import {castEnvToBoolean, getEnv, getEnvStrict} from "./env";
-import {DataboxClient} from "./databox/client";
+import {DataboxClient} from "./lib/databox/client";
 import {handleEvent} from "./listener/eventHandler";
 import './server';
 
