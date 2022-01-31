@@ -1,17 +1,16 @@
-import {castEnvToBoolean, getEnv, getEnvStrict} from "../env";
 import {DataboxClient} from "../lib/databox/client";
-import {sources} from "../sources";
-import {createS3Client} from "../s3";
+import {createS3Client} from "../s3/s3";
 import {collectionBasedOnPathStrategy} from "../lib/databox/strategy/collectionBasedOnPathStrategy";
+import {castToBoolean, getConfig, getStrict} from "../configLoader";
 
 const databoxClient = new DataboxClient({
-    apiUrl: getEnvStrict('DATABOX_API_URL'),
-    clientId: getEnvStrict('DATABOX_CLIENT_ID'),
-    clientSecret: getEnvStrict('DATABOX_CLIENT_SECRET'),
-    workspaceId: getEnvStrict('DATABOX_WORKSPACE_ID'),
-    collectionId: getEnv('DATABOX_COLLECTION_ID'),
-    ownerId: getEnvStrict('DATABOX_OWNER_ID'),
-    verifySSL: castEnvToBoolean(getEnv('DATABOX_VERIFY_SSL')),
+    apiUrl: getStrict('databox.url'),
+    clientId: getStrict('databox.clientId'),
+    clientSecret: getStrict('databox.clientSecret'),
+    workspaceId: getStrict('databox.workspaceId'),
+    collectionId: getStrict('databox.clientSecret'),
+    ownerId: getStrict('databox.ownerId'),
+    verifySSL: castToBoolean(getConfig('databox.verifySSL', true)),
     scope: 'chuck-norris'
 });
 

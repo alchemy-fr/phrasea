@@ -14,15 +14,3 @@ export function getEnv(name: string, defaultValue?: string): string | undefined
 {
     return process.env[name] || defaultValue;
 }
-
-export function castEnvToBoolean(value: string | null | undefined): boolean {
-    if (value) {
-        return [
-            'true',
-            '1',
-            'y'
-        ].includes(value);
-    }
-
-    return false;
-}

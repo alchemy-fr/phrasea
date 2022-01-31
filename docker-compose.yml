@@ -923,6 +923,10 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
       - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
+      - WATCH_PATH=/fs-watch
+      - WATCH_PATH_PREFIX=${INDEXER_WATCH_PATH}
+    volumes:
+      - ${INDEXER_WATCH_PATH}:/fs-watch
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"

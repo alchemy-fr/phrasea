@@ -1,8 +1,42 @@
 {
+  "databox": {
+    "url": "%env(DATABOX_API_URL)%",
+    "clientId": "%env(DATABOX_CLIENT_ID)%",
+    "clientSecret": "%env(DATABOX_CLIENT_SECRET)%",
+    "workspaceId": "%env(DATABOX_WORKSPACE_ID)%",
+    "collectionId": "%env(DATABOX_COLLECTION_ID)%",
+    "ownerId": "%env(DATABOX_OWNER_ID)%",
+    "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%"
+  },
   "alternateUrls": [
     {
       "name": "ctera",
       "pathPattern": "ctera://${path}"
+    }
+  ],
+  "locations": [
+    {
+      "name": "test-s3",
+      "type": "s3_amqp",
+      "options": {
+        "amqp": {
+          "dsn": "%env(AMQP_DSN)%"
+        },
+        "s3": {
+          "endpoint": "%env(S3_STORAGE_ENDPOINT)%",
+          "bucketNames": "%env(BUCKET_NAMES)%",
+          "accessKey": "%env(S3_STORAGE_ACCESS_KEY)%",
+          "secretKey": "%env(S3_STORAGE_SECRET_KEY)%"
+        }
+      }
+    },
+    {
+      "name": "my_fs_watcher",
+      "type": "fs",
+      "options": {
+        "dir": "%env(WATCH_PATH)%",
+        "dirPrefix": "%env(WATCH_PREFIX)%"
+      }
     }
   ]
 }

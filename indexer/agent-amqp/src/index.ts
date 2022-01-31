@@ -1,28 +1,27 @@
-import {listenToQueue} from "./amqp";
-import {castEnvToBoolean, getEnv, getEnvStrict} from "./env";
 import {DataboxClient} from "./lib/databox/client";
-import {handleEvent} from "./listener/eventHandler";
 import './server';
+import {getConfig, getStrict} from "./configLoader";
+import {IndexLocation} from "./types/config";
+import {handlers} from "./handlers";
 
 console.log('Starting AMQP agent...');
 
-const dsn = getEnvStrict('AMQP_DSN');
-
 const databoxClient = new DataboxClient({
-    apiUrl: getEnvStrict('DATABOX_API_URL'),
-    clientId: getEnvStrict('DATABOX_CLIENT_ID'),
-    clientSecret: getEnvStrict('DATABOX_CLIENT_SECRET'),
-    workspaceId: getEnvStrict('DATABOX_WORKSPACE_ID'),
-    collectionId: getEnv('DATABOX_COLLECTION_ID'),
-    ownerId: getEnvStrict('DATABOX_OWNER_ID'),
-    verifySSL: castEnvToBoolean(getEnv('DATABOX_VERIFY_SSL')),
+    apiUrl: getStrict('databox.url'),
+    clientId: getStrict('databox.clientId'),
+    clientSecret: getStrict('databox.clientSecret'),
+    workspaceId: getStrict('databox.workspaceId'),
+    collectionId: getStrict('databox.clientSecret'),
+    ownerId: getStrict('databox.ownerId'),
+    verifySSL: getConfig('databox.verifySSL', true),
     scope: 'chuck-norris'
 });
 
 databoxClient.authenticate();
 
-listenToQueue(
-    dsn,
-    's3events',
-    async (event) => await handleEvent(event, databoxClient),
-);
+const locations: IndexLocation[] = getConfig('locations');
+
+locations.forEach((location) => {
+    console.debug(`Loading source: ${location.name}`);
+    handlers[location.type](location, databoxClient);
+});

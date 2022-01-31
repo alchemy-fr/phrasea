@@ -1,16 +1,26 @@
 import express, {Request} from 'express';
 import {getEnvStrict} from "./env";
-import {signUri} from "./s3";
+import {Response} from 'express';
 
 const app = express();
 
 app.use(express.json());
 
+type ServerHandler = (path: string, res: Response, query: Record<string, string>) => void;
+
+const serverHandlers: Record<string, ServerHandler> = {};
+
+export function declareAssetServer(name: string, handler: ServerHandler) {
+    serverHandlers[name] = handler;
+}
+
 app.get('/assets', async (req: Request<any, any, any, {
     path: string;
+    source: string;
+    [key: string]: string;
 }>, res) => {
-    const {path} = req.query;
-    const source = 's3main';
+    const {path, source, ...rest} = req.query;
+
     if (!path) {
         res.status(400);
         res.send({
@@ -22,7 +32,7 @@ app.get('/assets', async (req: Request<any, any, any, {
     }
 
     try {
-        res.redirect(307, await signUri(source, path));
+        serverHandlers[source](path, res, rest);
     } catch (e) {
         res.status(500);
         res.send({
