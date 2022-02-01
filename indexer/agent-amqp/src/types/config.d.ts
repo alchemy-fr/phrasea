@@ -4,10 +4,10 @@ type AlternateUrlConfig = {
     pathPattern: string;
 }
 
-export type IndexLocation = {
+export type IndexLocation<T extends Record<string, any>> = {
     name: string,
-    "type": string,
-    "options": Record<string, any>
+    type: string,
+    options: T;
 }
 
 export type Config = {
@@ -21,5 +21,5 @@ export type Config = {
         verifySSL?: boolean;
     },
     alternateUrls?: AlternateUrlConfig[];
-    locations: IndexLocation[];
+    locations: IndexLocation<any>[];
 }

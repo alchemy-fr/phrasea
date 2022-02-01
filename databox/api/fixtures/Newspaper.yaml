@@ -33,6 +33,18 @@ App\Entity\Core\RenditionDefinition:
     workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsThumbnail: true
+  n_rd_preview_mobile:
+    name: preview_mobile
+    workspace: '@w_newspaper'
+    class: '@n_rc_public'
+    useAsPreview: true
+    priority: 1
+  n_rd_thumbnail_mobile:
+    name: thumbnail_mobile
+    workspace: '@w_newspaper'
+    class: '@n_rc_public'
+    useAsThumbnail: true
+    priority: 1
   n_rd_thumbnailActive:
     name: thumbnailActive
     workspace: '@w_newspaper'

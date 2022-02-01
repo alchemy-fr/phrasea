@@ -7,10 +7,12 @@ function loadConfig(): object {
     return JSON.parse(fs.readFileSync(__dirname + '/../config/config.json').toString());
 }
 
-function replaceEnv(str: string): string | boolean | number {
+function replaceEnv(str: string): string | boolean | number | undefined {
     let transform;
-    const result = str.replace(/%env\(([^^)]+)\)%/g, (match, varName: string) => {
+    let hasEnv = false;
+    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (match, varName: string) => {
         const s = varName;
+        hasEnv = true;
 
         let transformer: string | undefined,
             name: string;
@@ -28,8 +30,12 @@ function replaceEnv(str: string): string | boolean | number {
                 break;
         }
 
-        return v;
+        return v || '';
     });
+
+    if (hasEnv && !result) {
+        result = undefined;
+    }
 
     switch (transform) {
         default:

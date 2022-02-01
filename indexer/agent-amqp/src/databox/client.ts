@@ -1,7 +1,9 @@
 import axios, {AxiosInstance} from 'axios';
 import https from 'https';
 import {AssetInput, CollectionInput} from "./types";
-import {lockPromise} from "../promise";
+import {lockPromise} from "../lib/promise";
+import {getConfig, getStrict} from "../configLoader";
+import {Logger} from "winston";
 
 const maxRetries = 10;
 const retryDelay = 5000;
@@ -32,6 +34,7 @@ const collectionKeyMap: Record<string, string> = {};
 
 export class DataboxClient {
     private readonly client: AxiosInstance;
+    private readonly logger: Logger;
     private authenticated: boolean = false;
     private clientId: string;
     private clientSecret: string;
@@ -50,7 +53,7 @@ export class DataboxClient {
                     ownerId,
                     collectionId,
                     verifySSL = true,
-                }: ClientParameters) {
+                }: ClientParameters, logger: Logger) {
         this.client = createApiClient(apiUrl, verifySSL);
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -58,6 +61,7 @@ export class DataboxClient {
         this.collectionId = collectionId;
         this.ownerId = ownerId;
         this.scope = scope;
+        this.logger = logger;
     }
 
     public async authenticate() {
@@ -71,7 +75,7 @@ export class DataboxClient {
                 return;
             }
 
-            console.debug(`Authenticating to Databox...`);
+            this.logger.debug(`Authenticating to Databox...`);
             const attempt = async (retry: number = 0) => {
                 try {
                     const res = await this.client.post(`/oauth/v2/token`, {
@@ -87,19 +91,19 @@ export class DataboxClient {
 
                     this.authenticated = true;
                     this.client.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-                    console.info(`Authenticated to Databox!`);
+                    this.logger.info(`Authenticated to Databox!`);
 
                     resolve();
                 } catch (e) {
-                    console.warn(`Databox authentication error: ${e.toString()}`);
+                    this.logger.warn(`Databox authentication error: ${e.toString()}`);
                     if (retry >= maxRetries) {
-                        console.error(`Too many retries for Databox authentication [${retry}]`);
+                        this.logger.error(`Too many retries for Databox authentication [${retry}]`);
                         reject(e);
 
                         return;
                     }
 
-                    console.info(`Retry Databox authentication [${retry}]`);
+                    this.logger.info(`Retry Databox authentication [${retry}]`);
 
                     setTimeout(() => {
                         attempt(retry  + 1);
@@ -170,4 +174,17 @@ export class DataboxClient {
 
         return parentId;
     }
+}
+
+export function createDataboxClientFromConfig(logger: Logger): DataboxClient {
+    return new DataboxClient({
+        apiUrl: getStrict('databox.url'),
+        clientId: getStrict('databox.clientId'),
+        clientSecret: getStrict('databox.clientSecret'),
+        workspaceId: getStrict('databox.workspaceId'),
+        collectionId: getStrict('databox.clientSecret'),
+        ownerId: getStrict('databox.ownerId'),
+        verifySSL: getConfig('databox.verifySSL', true),
+        scope: 'chuck-norris'
+    }, logger);
 }

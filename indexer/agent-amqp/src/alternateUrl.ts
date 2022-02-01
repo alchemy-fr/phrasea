@@ -1,5 +1,5 @@
 import {config} from "./configLoader";
-import {AlternateUrl} from "./lib/databox/types";
+import {AlternateUrl} from "./databox/types";
 
 export function getAlternateUrls(path: string): AlternateUrl[] | undefined
 {

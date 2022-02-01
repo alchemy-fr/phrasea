@@ -31,7 +31,7 @@
       }
     },
     {
-      "name": "my_fs_watcher",
+      "name": "my_fs",
       "type": "fs",
       "options": {
         "dir": "%env(WATCH_PATH)%",

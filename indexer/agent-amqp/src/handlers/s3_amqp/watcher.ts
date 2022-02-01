@@ -1,16 +1,19 @@
-import {listenToQueue} from "../amqp";
-import {IndexLocation} from "../types/config";
-import {getConfig, getStrict} from "../configLoader";
-import {declareAssetServer} from "../server";
-import {createS3Client, signUri} from "../s3/s3";
-import {DataboxClient} from "../lib/databox/client";
-import url from "url";
-import {S3Event} from "../types/event";
-import {handleDeleteObject, handlePutObject} from "../listener/eventHandler";
-import {generatePublicUrl} from "../resourceResolver";
+import {listenToQueue} from "../../amqp";
+import {getConfig, getStrict} from "../../configLoader";
+import {declareAssetServer} from "../../server";
+import {signUri} from "../../s3/s3";
+import {S3Event} from "../../types/event";
+import {handleDeleteObject, handlePutObject} from "../../eventHandler";
+import {generatePublicUrl} from "../../resourceResolver";
+import {createS3ClientFromConfig} from "./shared";
+import {S3AmqpConfig} from "./types";
+import {Watcher} from "../../watchers";
 
-export function s3AmqpHandler(location: IndexLocation, databoxClient: DataboxClient) {
-    const config = location.options || {};
+export const s3AmqpWatcher: Watcher<S3AmqpConfig> = (
+    location,
+    databoxClient,
+    logger) => {
+    const config = location.options as S3AmqpConfig;
 
     const bucketsList: string[] = (getConfig('s3.bucketNames', '', config)).split(',');
 
@@ -23,7 +26,9 @@ export function s3AmqpHandler(location: IndexLocation, databoxClient: DataboxCli
                 Records
             } = JSON.parse(event) as S3Event;
 
-            console.log('event', JSON.stringify(JSON.parse(event), null, 2));
+            logger.debug('event', {
+                event,
+            });
 
             await Promise.all(Records.map(r => {
                 if (bucketsList.length > 0 && !bucketsList.includes(r.s3.bucket.name)) {
@@ -40,33 +45,18 @@ export function s3AmqpHandler(location: IndexLocation, databoxClient: DataboxCli
                     case 's3:ObjectCreated:Copy':
                         return handlePutObject(generatePublicUrl(path, location.name, {
                             bucket: r.s3.bucket.name,
-                        }), path, databoxClient);
+                        }), path, databoxClient, logger);
                     case 's3:ObjectRemoved:Delete':
-                        return handleDeleteObject(path, databoxClient);
+                        return handleDeleteObject(path, databoxClient, logger);
                     case 's3:ObjectAccessed:Get':
                         return;
                 }
             }));
         },
+        logger
     );
 
-    const {
-        hostname,
-        port,
-        protocol,
-    } = url.parse(getStrict('s3.endpoint', config));
-
-    console.log('hostname', hostname);
-
-    const s3Client = createS3Client({
-        type: 's3',
-        useSSL: protocol === 'https:',
-        insecure: true,
-        endPoint: hostname,
-        port: port ? parseInt(port) : undefined,
-        accessKey: getStrict('s3.accessKey', config),
-        secretKey: getStrict('s3.secretKey', config),
-    })
+    const s3Client = createS3ClientFromConfig(config);
 
     declareAssetServer(location.name, async (path, res, query) => {
         res.redirect(307, await signUri(s3Client, query.bucket, path));

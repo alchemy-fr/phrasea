@@ -17,8 +17,7 @@
   },
   "scripts": {
     "start": "node --enable-source-maps dist/index.js",
-    "index": "node --enable-source-maps dist/command/indexBucket.js",
-    "watch-fs": "node --enable-source-maps dist/command/watchFs.js",
+    "index": "node --enable-source-maps dist/command/index.js",
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",
@@ -29,6 +28,7 @@
     "axios": "^0.24.0",
     "chokidar": "^3.5.3",
     "express": "^4.17.1",
-    "minio": "^7.0.26"
+    "minio": "^7.0.26",
+    "winston": "^3.5.1"
   }
 }

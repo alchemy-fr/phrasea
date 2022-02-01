@@ -1,13 +1,19 @@
 import {IndexAsset} from "./types";
-import {getAlternateUrls} from "../../../alternateUrl";
+import {getAlternateUrls} from "../../alternateUrl";
 import p from "path";
 import {DataboxClient} from "../client";
 import {AxiosError} from "axios";
+import {Logger} from "winston";
 
-export const collectionBasedOnPathStrategy: IndexAsset = async (publicUrl: string, databoxClient: DataboxClient, path: string) => {
+export const collectionBasedOnPathStrategy: IndexAsset = async (
+    publicUrl: string,
+    databoxClient: DataboxClient,
+    path: string,
+    logger: Logger
+) => {
     const alternateUrls = getAlternateUrls(path);
 
-    let branch = path.split('/');
+    let branch = path.replace(/^\//, '').split('/');
     branch.pop();
 
     let collIRI: string;
@@ -18,7 +24,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (publicUrl: strin
         })));
     } catch (e) {
         debugError(e);
-        console.error(`Failed to create collection branch "${branch.join('/')}": ${e.toString()}`);
+        logger.error(`Failed to create collection branch "${branch.join('/')}": ${e.toString()}`);
         throw e;
     }
 
@@ -35,7 +41,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (publicUrl: strin
         });
     } catch (e) {
         debugError(e);
-        console.error(`Failed to create asset "${path}": ${e.toString()}`);
+        logger.error(`Failed to create asset "${path}": ${e.toString()}`);
         throw e;
     }
 }
