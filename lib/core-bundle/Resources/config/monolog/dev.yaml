@@ -12,6 +12,9 @@ monolog:
       path:         "php://stderr"
       level:        debug
       formatter: alchemy_core.monolog.line_formatter_stack_trace
+      channels:
+        - '!event'
+        - '!php'
 
     console:
       type: console
@@ -20,3 +23,4 @@ monolog:
         - '!event'
         - '!doctrine'
         - '!console'
+        - '!php'

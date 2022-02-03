@@ -1,5 +1,5 @@
 {
-  "name": "@phrasea/databox-indexer-agent-amqp",
+  "name": "@phrasea/databox-indexer",
   "version": "1.0.0",
   "description": "Consumes S3 events from AMQP and synchronize Databox",
   "main": "dist/index.js",

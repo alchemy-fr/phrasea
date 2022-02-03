@@ -4,7 +4,9 @@ type AlternateUrlConfig = {
     pathPattern: string;
 }
 
-export type IndexLocation<T extends Record<string, any>> = {
+export type ConfigOptions = Record<string, any>;
+
+export type IndexLocation<T extends ConfigOptions> = {
     name: string,
     type: string,
     options: T;

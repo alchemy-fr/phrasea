@@ -1,11 +1,8 @@
 import {listenToQueue} from "../../amqp";
 import {getConfig, getStrict} from "../../configLoader";
-import {declareAssetServer} from "../../server";
-import {signUri} from "../../s3/s3";
 import {S3Event} from "../../types/event";
 import {handleDeleteObject, handlePutObject} from "../../eventHandler";
 import {generatePublicUrl} from "../../resourceResolver";
-import {createS3ClientFromConfig} from "./shared";
 import {S3AmqpConfig} from "./types";
 import {Watcher} from "../../watchers";
 
@@ -55,10 +52,4 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = (
         },
         logger
     );
-
-    const s3Client = createS3ClientFromConfig(config);
-
-    declareAssetServer(location.name, async (path, res, query) => {
-        res.redirect(307, await signUri(s3Client, query.bucket, path));
-    });
 }

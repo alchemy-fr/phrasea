@@ -240,18 +240,18 @@ services:
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
 
-  indexer-app:
+  databox-indexer-app:
     command: ["yarn", "start"]
     environment:
       - DISPLAY=unix${DISPLAY}
     volumes:
-      - ./indexer/desktop-app:/usr/app
+      - ./databox/indexer-desktop-app:/usr/app
       - /tmp/.X11-unix:/tmp/.X11-unix
 
-  indexer-agent-amqp:
+  databox-indexer:
     command: ["yarn", "start:dev"]
     volumes:
-      - ./indexer/agent-amqp:/usr/app
+      - ./databox/indexer:/usr/app
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

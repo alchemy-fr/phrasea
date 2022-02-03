@@ -1,6 +1,5 @@
 import {IndexLocation} from "../../types/config";
 import {DataboxClient} from "../../databox/client";
-import {declareAssetServer} from "../../server";
 import chokidar from "chokidar";
 import {getConfig} from "../../configLoader";
 import {handleDeleteObject, handlePutObject} from "../../eventHandler";
@@ -38,9 +37,4 @@ export function fsWatcher(location: IndexLocation<FsConfig>, databoxClient: Data
             return;
         throw err;
     }
-
-    declareAssetServer(location.name, async (path, res, query) => {
-        const storagePath = watchPathPrefix ? watchPath+path.substring(watchPathPrefix.length) : path;
-        res.sendFile(storagePath);
-    });
 }

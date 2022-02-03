@@ -10,9 +10,14 @@ monolog:
       type:         stream
       path:         "php://stderr"
       level:        debug
-      channels:     ["!event", "!php"]
+      channels:
+        - '!event'
+        - '!php'
       formatter: alchemy_core.monolog.line_formatter_stack_trace
     console:
       type: console
       process_psr_3_messages: false
-      channels: ["!event", "!doctrine"]
+      channels:
+        - '!event'
+        - '!php'
+        - '!doctrine'

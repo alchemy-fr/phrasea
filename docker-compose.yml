@@ -889,17 +889,51 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
-  indexer-app:
+  databox-indexer-app:
     build:
-      context: ./indexer/desktop-app
+      context: ./databox/indexer-desktop-app
     profiles:
       - app-indexer
     privileged: true
 
-  indexer-agent-amqp:
-    image: ${REGISTRY_NAMESPACE}indexer-agent-amqp:$DOCKER_TAG
+  databox-indexer:
+    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    command: [ "/bin/sh", "-c", "exit" ]
     build:
-      context: ./indexer/agent-amqp
+      context: ./databox/indexer
+    profiles:
+      - indexer
+    networks:
+      - internal
+    environment:
+      - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_VERIFY_SSL=${VERIFY_SSL}
+      - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
+      - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
+      - DATABOX_MAX_CONCURRENCY=3
+      - DATABOX_WORKSPACE_ID=${INDEXER_DATABOX_WORKSPACE_ID}
+      - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
+      - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
+      - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
+      - WATCH_PATH=/fs-watch
+      - WATCH_PATH_PREFIX=${INDEXER_WATCH_PATH}
+    volumes:
+      - ${INDEXER_WATCH_PATH}:/fs-watch
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  databox-watcher:
+    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    build:
+      context: ./databox/indexer
     profiles:
       - indexer
     networks:
@@ -916,7 +950,7 @@ services:
       - DATABOX_WORKSPACE_ID=${INDEXER_DATABOX_WORKSPACE_ID}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
       - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
-      - PUBLIC_URL=https://indexer-agent-amqp.${PHRASEA_DOMAIN}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
       - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -929,7 +963,7 @@ services:
       - ${INDEXER_WATCH_PATH}:/fs-watch
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
