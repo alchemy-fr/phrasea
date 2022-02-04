@@ -1,8 +1,13 @@
 import {DataboxClient} from "./databox/client";
 import {collectionBasedOnPathStrategy} from "./databox/strategy/collectionBasedOnPathStrategy";
 import {Logger} from "winston";
+import {passFilters} from "./pathFilter";
 
 export async function handlePutObject(publicUrl: string, path: string, databoxClient: DataboxClient, logger: Logger) {
+    if (!passFilters(path, logger)) {
+        return;
+    }
+
     try {
         await collectionBasedOnPathStrategy(publicUrl, databoxClient, path, logger);
     } catch (error) {

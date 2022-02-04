@@ -31,9 +31,6 @@ export function runServer(logger: Logger): void {
         [key: string]: string;
     }>, res) => {
         const {path, source, ...rest} = req.query;
-        console.log('req.baseUrl', req.baseUrl);
-        console.log('req.query', req.query);
-
         logger.debug(`GET /assets`, {
             path,
             source,
