@@ -5,13 +5,14 @@ import {Logger} from "winston";
 import {ConfigOptions, IndexLocation} from "./types/config";
 import {assetServerFactories} from "./serverFactories";
 import {getLocation} from "./locations";
+import {createLogger} from "./lib/logger";
 
 const app = express();
 
 app.use(express.json());
 
 export type AssetServerHandler = (path: string, res: Response, query: Record<string, string>) => void;
-export type AssetServerFactory<T extends ConfigOptions> = (location: IndexLocation<T>) => AssetServerHandler;
+export type AssetServerFactory<T extends ConfigOptions> = (location: IndexLocation<T>, logger: Logger) => AssetServerHandler;
 
 const servers: Record<string, AssetServerHandler> = {};
 
@@ -20,7 +21,7 @@ function getOrCreateServer(location: IndexLocation<any>): AssetServerHandler {
         return servers[location.name];
     }
 
-    return servers[location.name] = assetServerFactories[location.type](location);
+    return servers[location.name] = assetServerFactories[location.type](location, createLogger(location.name));
 }
 
 export function runServer(logger: Logger): void {

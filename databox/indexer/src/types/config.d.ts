@@ -21,7 +21,10 @@ export type Config = {
         collectionId?: string;
         ownerId?: string;
         verifySSL?: boolean;
+        concurrency?: number;
     },
+    whitelist: string[];
+    blacklist: string[];
     alternateUrls?: AlternateUrlConfig[];
     locations: IndexLocation<any>[];
 }

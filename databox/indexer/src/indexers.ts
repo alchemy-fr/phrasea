@@ -1,19 +1,20 @@
 import {IndexLocation} from "./types/config";
 import {DataboxClient} from "./databox/client";
 import {Logger} from "winston";
-import {s3AmqpIndexer} from "./handlers/s3_amqp/indexer";
+import {s3AmqpIterator} from "./handlers/s3_amqp/indexer";
 import {fsIndexer} from "./handlers/fs/indexer";
 
-type OnProgress = (i: number, total: number | undefined) => void;
+export type Asset = {
+    publicUrl: string;
+    path: string;
+}
 
-export type Indexer<T extends Record<string, any> = any> = (
+export type IndexIterator<T extends Record<string, any> = any> = (
     location: IndexLocation<T>,
-    databoxClient: DataboxClient,
     logger: Logger,
-    onProgress: OnProgress
-) => Promise<void>;
+) => AsyncGenerator<Asset, void>;
 
-export const indexers: Record<string, Indexer> = {
-    s3_amqp: s3AmqpIndexer,
+export const indexers: Record<string, IndexIterator> = {
+    s3_amqp: s3AmqpIterator,
     fs: fsIndexer,
 }

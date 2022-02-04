@@ -6,13 +6,17 @@
     "workspaceId": "%env(DATABOX_WORKSPACE_ID)%",
     "collectionId": "%env(DATABOX_COLLECTION_ID)%",
     "ownerId": "%env(DATABOX_OWNER_ID)%",
-    "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%"
+    "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
+    "concurrency": 3
   },
   "alternateUrls": [
     {
       "name": "ctera",
       "pathPattern": "ctera://${path}"
     }
+  ],
+  "blacklist": [
+    "(^|/)[t].+$"
   ],
   "locations": [
     {

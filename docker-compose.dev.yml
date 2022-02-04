@@ -248,8 +248,12 @@ services:
       - ./databox/indexer-desktop-app:/usr/app
       - /tmp/.X11-unix:/tmp/.X11-unix
 
-  databox-indexer:
+  databox-watcher:
     command: ["yarn", "start:dev"]
+    volumes:
+      - ./databox/indexer:/usr/app
+
+  databox-indexer:
     volumes:
       - ./databox/indexer:/usr/app
 

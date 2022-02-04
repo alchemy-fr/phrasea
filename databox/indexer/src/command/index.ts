@@ -2,6 +2,7 @@ import {createDataboxClientFromConfig} from "../databox/client";
 import {createLogger} from "../lib/logger";
 import {indexers} from "../indexers";
 import {getLocation} from "../locations";
+import {consume} from "../databox/entrypoint";
 
 const locationName = process.argv[2] || undefined;
 if (!locationName) {
@@ -16,10 +17,13 @@ const location = getLocation(locationName);
     const mainLogger = createLogger('app');
     mainLogger.info(`Indexing "${location.name}"...`);
 
+    await databoxClient.authenticate();
+
     const indexer = indexers[location.type];
 
-    await indexer(location, databoxClient, createLogger(location.name), (i, total) => {
-        mainLogger.debug(`${i}${total ? `/${total}` : ''} Indexed`);
-    });
+    const logger = createLogger(location.name);
+    const iterator = indexer(location, logger);
+
+    await consume(databoxClient, iterator, logger);
 })();
 

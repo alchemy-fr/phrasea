@@ -1,58 +1,30 @@
-import {collectionBasedOnPathStrategy} from "../../databox/strategy/collectionBasedOnPathStrategy";
 import {generatePublicUrl} from "../../resourceResolver";
-import {Indexer} from "../../indexers";
+import {IndexIterator} from "../../indexers";
 import {createS3ClientFromConfig} from "./shared";
 import {S3AmqpConfig} from "./types";
+import {streamify} from "../../lib/streamify";
 
-export const s3AmqpIndexer: Indexer<S3AmqpConfig> = async (
+export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function *(
     location,
-    databoxClient,
-    logger,
-    onProgress
-) => {
-    const concurrency = 2;
-    const bufferSize = 5000;
-    const buffer: string[] = [];
-    let total = 0;
-
-    async function flush() {
-        while (buffer.length > 0) {
-            const promises: Promise<void>[] = [];
-            for (let i = 0; i < concurrency; ++i) {
-                const path = buffer.shift();
-                logger.info(`Indexing asset "${path}"`);
-                promises.push(collectionBasedOnPathStrategy(
-                    generatePublicUrl(path, location.name),
-                    databoxClient,
-                    path,
-                    logger
-                ));
-            }
-
-            await Promise.all(promises);
-
-            total += concurrency;
-            onProgress(total, undefined);
-        }
-    }
-
+    logger
+) {
     const config = location.options;
     const s3Client = createS3ClientFromConfig(config);
-    const stream = s3Client.listObjectsV2(config.s3.bucketNames, '', true, '');
 
-    stream.on('data', async (obj) => {
-        buffer.push(obj.name);
-        if (buffer.length >= bufferSize) {
-            stream.pause();
-            await flush();
-            stream.resume();
+    const buckets = config.s3.bucketNames.split(',');
+
+    for (let bucket of buckets) {
+        logger.info(`Start Indexing S3 bucket "${bucket}"`);
+
+        const stream = s3Client.listObjectsV2(bucket, '', true, '');
+
+        for await (let path of streamify(stream, 'data', 'end')) {
+            yield {
+                path,
+                publicUrl: generatePublicUrl(path, location.name, {
+                    bucket,
+                })
+            };
         }
-    });
-    stream.on('end', () => {
-        flush();
-    });
-    stream.on('error', (error) => {
-        throw error;
-    })
-
+    }
 }

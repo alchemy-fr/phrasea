@@ -69,7 +69,7 @@ export class DataboxClient {
             return this.authPromise;
         }
 
-        this.authPromise = new Promise<void>((resolve, reject) => {
+        return this.authPromise = new Promise<void>((resolve, reject) => {
             if (this.authenticated) {
                 resolve();
                 return;

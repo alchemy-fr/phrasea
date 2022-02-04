@@ -28,7 +28,8 @@ export function fsWatcher(location: IndexLocation<FsConfig>, databoxClient: Data
         logger.info(`Watching "${watchPath}"`);
         chokidar.watch(watchPath, {
             ignoreInitial: true,
-        }).on('all', (event, filename) => {
+        }).on('all', (event, filename, stats) => {
+            console.log('stats', stats);
             const realPath = (watchPathPrefix || watchPath) + filename.substring(watchPath.length);
             storeEvent(event, realPath);
         });
