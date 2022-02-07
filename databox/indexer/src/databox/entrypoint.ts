@@ -1,4 +1,4 @@
-import {parralelize} from "./parralelize";
+import {parralelize} from "../lib/parralelize";
 import {collectionBasedOnPathStrategy} from "./strategy/collectionBasedOnPathStrategy";
 import {Logger} from "winston";
 import {Asset} from "../indexers";
