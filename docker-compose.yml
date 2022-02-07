@@ -890,8 +890,9 @@ services:
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
   databox-indexer-app:
+    image: ${REGISTRY_NAMESPACE}databox-indexer-app:$DOCKER_TAG
     build:
-      context: ./databox/indexer-desktop-app
+      context: ./databox/indexer-app
     profiles:
       - app-indexer
     privileged: true
