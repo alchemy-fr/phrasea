@@ -11,11 +11,12 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, dialog, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import {registerDeeplink} from "../renderer/deeplink";
 
 export default class AppUpdater {
   constructor() {
@@ -105,6 +106,11 @@ const createWindow = async () => {
   mainWindow.webContents.on('new-window', (event, url) => {
     event.preventDefault();
     shell.openExternal(url);
+  });
+
+  registerDeeplink('indexer', mainWindow, isDevelopment, (url) => {
+    const path = url.substring(10);
+    shell.showItemInFolder(path);
   });
 
   // Remove this if your app does not use auto updates

@@ -245,7 +245,7 @@ services:
     environment:
       - DISPLAY=unix${DISPLAY}
     volumes:
-      - ./databox/indexer-desktop-app:/usr/app
+      - ./databox/indexer-app:/usr/app
       - /tmp/.X11-unix:/tmp/.X11-unix
 
   databox-watcher:

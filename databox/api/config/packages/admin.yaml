@@ -53,6 +53,7 @@ easy_admin:
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - { property: 'collections.count', label: '# Colls' }
           - { property: 'file' }
+          - { property: 'key' }
           - createdAt
       edit:
         fields:

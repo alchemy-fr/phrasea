@@ -9,7 +9,7 @@ export const fsAssetServerFactory: AssetServerFactory<FsConfig> = function (loca
     const watchPath = getConfig('dir', '/fs-watch', config);
 
     return async (path, res, query) => {
-        const storagePath = watchPathPrefix ? watchPath+path.substring(watchPathPrefix.length) : path;
+        const storagePath = watchPathPrefix ? watchPath + path.substring(watchPathPrefix.length) : path;
         if (!fs.existsSync(storagePath)) {
             return notFound(res, `"${storagePath}" not found`, logger);
         }

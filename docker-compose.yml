@@ -894,7 +894,7 @@ services:
     build:
       context: ./databox/indexer-app
     profiles:
-      - app-indexer
+      - indexer-app
     privileged: true
 
   databox-indexer:
@@ -923,10 +923,11 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
       - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
-      - WATCH_PATH=/fs-watch
-      - WATCH_PATH_PREFIX=${INDEXER_WATCH_PATH}
+      - WATCH_DIR=${INDEXER_WATCH_DIR}
+      - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
+      - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
     volumes:
-      - ${INDEXER_WATCH_PATH}:/fs-watch
+      - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -958,10 +959,11 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
       - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
-      - WATCH_PATH=/fs-watch
-      - WATCH_PATH_PREFIX=${INDEXER_WATCH_PATH}
+      - WATCH_DIR=${INDEXER_WATCH_DIR}
+      - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
+      - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
     volumes:
-      - ${INDEXER_WATCH_PATH}:/fs-watch
+      - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"

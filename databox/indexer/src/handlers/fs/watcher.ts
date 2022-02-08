@@ -1,37 +1,42 @@
 import {IndexLocation} from "../../types/config";
 import {DataboxClient} from "../../databox/client";
 import chokidar from "chokidar";
-import {getConfig} from "../../configLoader";
 import {handleDeleteObject, handlePutObject} from "../../eventHandler";
-import {generatePublicUrl} from "../../resourceResolver";
 import {Logger} from "winston";
 import {FsConfig} from "./types";
+import {createAsset, getDirConfig} from "./shared";
 
 export function fsWatcher(location: IndexLocation<FsConfig>, databoxClient: DataboxClient, logger: Logger) {
-    const config = location.options;
-
-    const watchPathPrefix = getConfig('dirPrefix', undefined, config);
-    const watchPath = getConfig('dir', '/fs-watch', config);
+    const {
+        watchDir,
+        dirPrefix,
+        sourceDir,
+    } = getDirConfig(location.options);
 
     function storeEvent(eventType: string, path: string): Promise<void> {
         logger.debug(`${eventType}: ${path}`);
 
+        const asset = createAsset(
+            path,
+            location.name,
+            watchDir,
+            dirPrefix,
+            sourceDir
+        );
+
         switch (eventType) {
             case 'add':
-                return handlePutObject(generatePublicUrl(path, location.name), path, databoxClient, logger);
+                return handlePutObject(asset, location, databoxClient, logger);
             case 'unlink':
-                return handleDeleteObject(path, databoxClient, logger);
+                return handleDeleteObject(asset, databoxClient, logger);
         }
     }
 
     try {
-        logger.info(`Watching "${watchPath}"`);
-        chokidar.watch(watchPath, {
+        logger.info(`Watching "${watchDir}"`);
+        chokidar.watch(watchDir, {
             ignoreInitial: true,
-        }).on('all', (event, filename) => {
-            const realPath = (watchPathPrefix || watchPath) + filename.substring(watchPath.length);
-            storeEvent(event, realPath);
-        });
+        }).on('all', storeEvent);
     } catch (err) {
         if (err.name === 'AbortError')
             return;

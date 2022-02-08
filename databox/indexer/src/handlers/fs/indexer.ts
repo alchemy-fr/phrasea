@@ -1,16 +1,25 @@
 import {IndexIterator} from "../../indexers";
-import {getFiles} from "./shared";
+import {createAsset, getDirConfig, getFiles} from "./shared";
 import {FsConfig} from "./types";
-import {generatePublicUrl} from "../../resourceResolver";
 
-export const fsIndexer: IndexIterator<FsConfig> = async function *(
+export const fsIndexer: IndexIterator<FsConfig> = async function* (
     location
 ) {
-    const iterator = getFiles(location.options.dir);
+    const {
+        watchDir,
+        dirPrefix,
+        sourceDir
+    } = getDirConfig(location.options);
+
+    const iterator = getFiles(watchDir);
+
     for await (let f of iterator) {
-        yield {
-            path: f,
-            publicUrl: generatePublicUrl(f, location.name),
-        }
+        yield createAsset(
+            f,
+            location.name,
+            watchDir,
+            dirPrefix,
+            sourceDir
+        );
     }
 }

@@ -23,7 +23,8 @@ export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function *(
                 path,
                 publicUrl: generatePublicUrl(path, location.name, {
                     bucket,
-                })
+                }),
+                sourcePath: path,
             };
         }
     }

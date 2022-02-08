@@ -10,6 +10,7 @@ export type IndexLocation<T extends ConfigOptions> = {
     name: string,
     type: string,
     options: T;
+    alternateUrls?: AlternateUrlConfig[];
 }
 
 export type Config = {

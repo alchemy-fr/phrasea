@@ -127,6 +127,7 @@ export class DataboxClient {
     }
 
     async deleteAsset(key: string): Promise<void> {
+        console.log('key', key);
         await this.authenticate();
 
         await this.client.delete(`/assets-by-key`, {

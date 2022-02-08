@@ -7,14 +7,8 @@
     "collectionId": "%env(DATABOX_COLLECTION_ID)%",
     "ownerId": "%env(DATABOX_OWNER_ID)%",
     "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
-    "concurrency": 3
+    "concurrency": 2
   },
-  "alternateUrls": [
-    {
-      "name": "ctera",
-      "pathPattern": "ctera://${path}"
-    }
-  ],
   "blacklist": [
     "(^|/)\\..+$"
   ],
@@ -38,9 +32,16 @@
       "name": "my_fs",
       "type": "fs",
       "options": {
-        "dir": "%env(WATCH_PATH)%",
-        "dirPrefix": "%env(WATCH_PREFIX)%"
-      }
+        "dir": "%env(WATCH_DIR)%",
+        "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
+        "sourceDir": "%env(WATCH_SOURCE_DIR)%"
+      },
+      "alternateUrls": [
+        {
+          "name": "indexer",
+          "pathPattern": "indexer://${sourcePath}"
+        }
+      ]
     }
   ]
 }

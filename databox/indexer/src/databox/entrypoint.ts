@@ -5,23 +5,24 @@ import {Asset} from "../indexers";
 import {DataboxClient} from "./client";
 import {getConfig} from "../configLoader";
 import {passFilters} from "../pathFilter";
+import {IndexLocation} from "../types/config";
 
-export async function consume(databoxClient: DataboxClient, iterator: AsyncGenerator<Asset>, logger: Logger) {
+export async function consume(location: IndexLocation<any>, databoxClient: DataboxClient, iterator: AsyncGenerator<Asset>, logger: Logger) {
     let total = 1;
 
     const concurrency = getConfig('databox.concurrency', 1);
 
     await parralelize<Asset>(() => iterator, async (asset) => {
-        if (!passFilters(asset.path, logger)) {
+        if (!passFilters(asset, logger)) {
             return;
         }
 
         logger.info(`Indexing asset "${asset.path}"`);
 
         await collectionBasedOnPathStrategy(
-            asset.publicUrl,
+            asset,
+            location,
             databoxClient,
-            asset.path,
             logger
         );
 

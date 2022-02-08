@@ -1,9 +1,11 @@
 import {DataboxClient} from "../client";
 import {Logger} from "winston";
+import {Asset} from "../../indexers";
+import {IndexLocation} from "../../types/config";
 
 export type IndexAsset = (
-    publicUrl: string,
+    asset: Asset,
+    location: IndexLocation<any>,
     databoxClient: DataboxClient,
-    path: string,
     logger: Logger
 ) => Promise<void>;

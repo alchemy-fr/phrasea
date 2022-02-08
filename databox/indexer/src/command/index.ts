@@ -24,6 +24,6 @@ const location = getLocation(locationName);
     const logger = createLogger(location.name);
     const iterator = indexer(location, logger);
 
-    await consume(databoxClient, iterator, logger);
+    await consume(location, databoxClient, iterator, logger);
 })();
 

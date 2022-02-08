@@ -1,17 +1,17 @@
 import {IndexAsset} from "./types";
 import {getAlternateUrls} from "../../alternateUrl";
 import p from "path";
-import {DataboxClient} from "../client";
 import {AxiosError} from "axios";
-import {Logger} from "winston";
 
 export const collectionBasedOnPathStrategy: IndexAsset = async (
-    publicUrl: string,
-    databoxClient: DataboxClient,
-    path: string,
-    logger: Logger
+    asset,
+    location,
+    databoxClient,
+    logger
 ) => {
-    const alternateUrls = getAlternateUrls(path);
+    const {path} = asset;
+
+    const alternateUrls = getAlternateUrls(asset, location);
 
     let branch = path.replace(/^\//, '').split('/');
     branch.pop();
@@ -31,7 +31,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
     try {
         await databoxClient.createAsset({
             source: {
-                url: publicUrl,
+                url: asset.publicUrl,
                 isPrivate: true,
                 alternateUrls,
             },
