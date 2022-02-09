@@ -1,8 +1,14 @@
+export type ConfigDataboxMapping = {
+    databoxId: string;
+    workspaceId: string;
+}
+
 export type PhraseanetConfig = {
     url: string;
     token: string;
     verifySSL?: boolean;
     importFiles?: boolean;
+    databoxMapping: ConfigDataboxMapping[];
 };
 
 export type SubDef = {

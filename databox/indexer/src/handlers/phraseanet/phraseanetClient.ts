@@ -46,8 +46,8 @@ export default class PhraseanetClient {
         return res.data.response.results.records;
     }
 
-    async getMetaStruct(): Promise<PhraseanetMetaStruct[]> {
-        const res = await this.client.get(`/api/v1/databoxes/1/metadatas/`);
+    async getMetaStruct(databoxId: string): Promise<PhraseanetMetaStruct[]> {
+        const res = await this.client.get(`/api/v1/databoxes/${databoxId}/metadatas/`);
 
         return res.data.response.document_metadatas;
     }
