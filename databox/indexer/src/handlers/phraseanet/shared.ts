@@ -19,7 +19,7 @@ export function createAsset(
     return {
         key: record.uuid,
         path,
-        publicUrl: document.permalink.url,
+        publicUrl: document?.permalink.url || 'not_found',
         isPrivate: false,
         attributes: record.caption?.map(c => ({
             value: c.value,

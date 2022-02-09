@@ -15,6 +15,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
     let offset = 0;
 
     const collectionIndex = {};
+    logger.debug(`Fetching collections`);
     const collections = await client.getCollections();
     for (let c of collections) {
         collectionIndex[c.base_id] = c.name;
@@ -28,29 +29,22 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
         const metaStructure = forceArray(await client.getMetaStruct(dm.databoxId));
         for (let m of metaStructure) {
             logger.debug(`Creating "${m.name}" attribute definition`);
-            try {
-                const id = m.id.toString();
-                attrDefinitionIndex[id] = await databoxClient.createAttributeDefinition(m.id.toString(), {
-                    key: id,
-                    name: m.name,
-                    editable: !m.readonly,
-                    multiple: m.multivalue,
-                    public: true,
-                    fieldType: attributeTypesEquivalence[m.type] || m.type,
-                    workspace: `/workspaces/${dm.workspaceId}`,
-                });
-            } catch (e) {
-                if (e.response && e.response.data) {
-                    continue;
-                }
-
-                throw e;
-            }
+            const id = m.id.toString();
+            attrDefinitionIndex[id] = await databoxClient.createAttributeDefinition(m.id.toString(), {
+                key: id,
+                name: m.name,
+                editable: !m.readonly,
+                multiple: m.multivalue,
+                public: true,
+                fieldType: attributeTypesEquivalence[m.type] || m.type,
+                workspace: `/workspaces/${dm.workspaceId}`,
+            });
         }
 
         let records = await client.search(offset);
         while (records.length > 0) {
             for (let r of records) {
+                console.log('=> Phraseanet record', r);
                 yield createAsset(r, collectionIndex[r.base_id], attrDefinitionIndex);
             }
             offset += records.length;
