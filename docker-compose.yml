@@ -930,7 +930,6 @@ services:
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
     volumes:
-      - ./databox/indexer/config:/usr/app/config
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -970,7 +969,6 @@ services:
       - PHRASEANET_BASE_URL
       - PHRASEANET_APP_OAUTH_TOKEN
     volumes:
-      - ./databox/indexer/config:/usr/app/config
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     labels:
       - "traefik.enable=true"
