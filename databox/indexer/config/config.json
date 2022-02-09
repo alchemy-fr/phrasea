@@ -53,7 +53,7 @@
         "importFiles": false,
         "databoxMapping": [
           {
-            "databoxId": "1",
+            "databoxId": "%env(PHRASEANET_DATABOX_ID)%",
             "workspaceId": "%env(DATABOX_WORKSPACE_ID)%"
           }
         ]
