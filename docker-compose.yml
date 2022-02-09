@@ -926,11 +926,15 @@ services:
       - WATCH_DIR=${INDEXER_WATCH_DIR}
       - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
       - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
+      - PHRASEANET_BASE_URL
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
     volumes:
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-watcher:
     image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
@@ -962,6 +966,8 @@ services:
       - WATCH_DIR=${INDEXER_WATCH_DIR}
       - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
       - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
+      - PHRASEANET_BASE_URL
+      - PHRASEANET_APP_OAUTH_TOKEN
     volumes:
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     labels:
@@ -970,6 +976,7 @@ services:
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   elasticsearch:
     profiles:

@@ -2,6 +2,8 @@ import {createS3Client} from "../../s3/s3";
 import {getStrict} from "../../configLoader";
 import url from "url";
 import {S3AmqpConfig} from "./types";
+import {Asset} from "../../indexers";
+import {generatePublicUrl} from "../../resourceResolver";
 
 export function createS3ClientFromConfig(config: S3AmqpConfig) {
     const {
@@ -19,4 +21,19 @@ export function createS3ClientFromConfig(config: S3AmqpConfig) {
         accessKey: getStrict('s3.accessKey', config),
         secretKey: getStrict('s3.secretKey', config),
     })
+}
+
+export function createAsset(
+    path: string,
+    locationName: string,
+    bucket: string
+): Asset {
+    return {
+        key: path,
+        path,
+        publicUrl: generatePublicUrl(path, locationName, {
+            bucket,
+        }),
+        sourcePath: path,
+    };
 }

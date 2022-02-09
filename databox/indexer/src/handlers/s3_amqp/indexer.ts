@@ -1,6 +1,5 @@
-import {generatePublicUrl} from "../../resourceResolver";
 import {IndexIterator} from "../../indexers";
-import {createS3ClientFromConfig} from "./shared";
+import {createAsset, createS3ClientFromConfig} from "./shared";
 import {S3AmqpConfig} from "./types";
 import {streamify} from "../../lib/streamify";
 
@@ -19,13 +18,7 @@ export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function *(
         const stream = s3Client.listObjectsV2(bucket, '', true, '');
 
         for await (let path of streamify(stream, 'data', 'end')) {
-            yield {
-                path,
-                publicUrl: generatePublicUrl(path, location.name, {
-                    bucket,
-                }),
-                sourcePath: path,
-            };
+            yield createAsset(path, location.name, bucket);
         }
     }
 }

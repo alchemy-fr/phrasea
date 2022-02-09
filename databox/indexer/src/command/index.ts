@@ -22,7 +22,7 @@ const location = getLocation(locationName);
     const indexer = indexers[location.type];
 
     const logger = createLogger(location.name);
-    const iterator = indexer(location, logger);
+    const iterator = indexer(location, logger, databoxClient);
 
     await consume(location, databoxClient, iterator, logger);
 })();

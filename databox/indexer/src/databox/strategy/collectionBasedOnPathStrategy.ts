@@ -36,8 +36,9 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
                 alternateUrls,
             },
             collection: collIRI,
-            key: path,
+            key: asset.key,
             title: p.basename(path),
+            attributes: asset.attributes,
         });
     } catch (e) {
         debugError(e);

@@ -76,6 +76,11 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     private ?Collection $referenceCollection = null;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="asset", cascade={"persist", "remove"})
+     */
+    private ?DoctrineCollection $attributes = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -92,6 +97,7 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
         $this->collections = new ArrayCollection();
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->attributes = new ArrayCollection();
     }
 
     public function getOwnerId(): ?string
@@ -236,5 +242,11 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function addAttribute(Attribute $attribute): void
+    {
+        $attribute->setAsset($this);
+        $this->attributes->add($attribute);
     }
 }

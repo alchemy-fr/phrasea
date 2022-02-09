@@ -42,6 +42,21 @@
           "pathPattern": "indexer://${sourcePath}"
         }
       ]
+    },
+    {
+      "name": "phraseanet",
+      "type": "phraseanet",
+      "options": {
+        "url": "%env(PHRASEANET_BASE_URL)%",
+        "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
+        "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
+        "databoxMapping": [
+          {
+            "databoxId": "1",
+            "workspaceId": "%env(DATABOX_WORKSPACE_ID)%"
+          }
+        ]
+      }
     }
   ]
 }

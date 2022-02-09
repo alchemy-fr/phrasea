@@ -10,6 +10,7 @@ use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Doctrine\Listener\PostFlushStackListener;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,16 +23,19 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     private PostFlushStackListener $postFlushStackListener;
     private EntityManagerInterface $em;
     private OriginalRenditionManager $originalRenditionManager;
+    private AttributeInputDataTransformer $attributeInputDataTransformer;
 
     public function __construct(
         PostFlushStackListener $postFlushStackListener, 
         EntityManagerInterface $em,
-        OriginalRenditionManager $originalRenditionManager
+        OriginalRenditionManager $originalRenditionManager,
+        AttributeInputDataTransformer $attributeInputDataTransformer
     )
     {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;
+        $this->attributeInputDataTransformer = $attributeInputDataTransformer;
     }
 
     /**
@@ -108,6 +112,12 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 }
 
                 $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
+            }
+
+            if (!empty($data->attributes)) {
+                foreach ($data->attributes as $attribute) {
+                    $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
+                }
             }
         }
 

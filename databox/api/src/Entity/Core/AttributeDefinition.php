@@ -10,15 +10,19 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
- * @ORM\Table(indexes={
- *     @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
- *     @ORM\Index(name="searchable_idx", columns={"searchable"}),
- *     @ORM\Index(name="public_idx", columns={"public"}),
- *     @ORM\Index(name="type_idx", columns={"field_type"}),
- * })
+ * @ORM\Table(
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"})},
+ *     indexes={
+ *       @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
+ *       @ORM\Index(name="searchable_idx", columns={"searchable"}),
+ *       @ORM\Index(name="public_idx", columns={"public"}),
+ *       @ORM\Index(name="type_idx", columns={"field_type"}),
+ *     }
+ * )
  */
 class AttributeDefinition extends AbstractUuidEntity
 {
@@ -27,6 +31,7 @@ class AttributeDefinition extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private string $name;
@@ -35,11 +40,13 @@ class AttributeDefinition extends AbstractUuidEntity
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
      *
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private ?string $fileType = null;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="string", length=50, nullable=false)
      */
     private string $fieldType = TextAttributeType::NAME;
@@ -47,26 +54,31 @@ class AttributeDefinition extends AbstractUuidEntity
     /**
      * Value can be manually set by user.
      *
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean")
      */
     private bool $editable = true;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $searchable = true;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $translatable = false;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $multiple = false;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $allowInvalid = false;
@@ -77,6 +89,7 @@ class AttributeDefinition extends AbstractUuidEntity
     private bool $public = true;
 
     /**
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="integer", nullable=true)
      */
     private ?int $searchBoost = null;
@@ -84,9 +97,17 @@ class AttributeDefinition extends AbstractUuidEntity
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      *
+     * @Groups({"attributedef:index"})
      * @ORM\Column(type="array", nullable=true)
      */
     private ?array $fallback = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     *
+     * @ORM\Column(type="string", length=150, nullable=true)
+     */
+    private ?string $key = null;
 
     public function getName(): ?string
     {
@@ -226,5 +247,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setAllowInvalid(bool $allowInvalid): void
     {
         $this->allowInvalid = $allowInvalid;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
     }
 }

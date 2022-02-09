@@ -1,15 +1,16 @@
 import {AssetServerFactory, notFound} from "../../server";
-import {getConfig} from "../../configLoader";
 import {FsConfig} from "./types";
 import fs from 'fs';
+import {getDirConfig} from "./shared";
 
 export const fsAssetServerFactory: AssetServerFactory<FsConfig> = function (location, logger) {
-    const config = location.options;
-    const watchPathPrefix = getConfig('dirPrefix', undefined, config);
-    const watchPath = getConfig('dir', '/fs-watch', config);
+    const {
+        watchDir,
+        dirPrefix,
+    } = getDirConfig(location.options);
 
     return async (path, res, query) => {
-        const storagePath = watchPathPrefix ? watchPath + path.substring(watchPathPrefix.length) : path;
+        const storagePath = dirPrefix ? watchDir + path.substring(dirPrefix.length) : path;
         if (!fs.existsSync(storagePath)) {
             return notFound(res, `"${storagePath}" not found`, logger);
         }

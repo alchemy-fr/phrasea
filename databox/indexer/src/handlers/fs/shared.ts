@@ -29,6 +29,7 @@ export function createAsset(
     const sourcePath = sourceDir ? sourceDir + relativePath : path;
 
     return {
+        key: p,
         path: p,
         publicUrl: generatePublicUrl(p, locationName),
         sourcePath,

@@ -6,6 +6,7 @@ resources:
         groups:
           - _
           - attributedef:index
+      input: App\Api\Model\Input\AttributeDefinitionInput
     itemOperations:
       get: ~
       delete:

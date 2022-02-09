@@ -1,21 +1,18 @@
-import axios, {AxiosInstance} from 'axios';
-import https from 'https';
+import {AxiosInstance} from 'axios';
 import {AssetInput, CollectionInput} from "./types";
 import {lockPromise} from "../lib/promise";
 import {getConfig, getStrict} from "../configLoader";
 import {Logger} from "winston";
+import {createHttpClient} from "../lib/axios";
 
 const maxRetries = 10;
 const retryDelay = 5000;
 
 function createApiClient(baseURL: string, verifySSL: boolean) {
-    return axios.create({
+    return createHttpClient({
         baseURL,
-        timeout: 10000,
+        verifySSL,
         headers: {'Accept': 'application/ld+json'},
-        httpsAgent: new https.Agent({
-            rejectUnauthorized: verifySSL
-        })
     });
 }
 
@@ -106,7 +103,7 @@ export class DataboxClient {
                     this.logger.info(`Retry Databox authentication [${retry}]`);
 
                     setTimeout(() => {
-                        attempt(retry  + 1);
+                        attempt(retry + 1);
                     }, retryDelay);
                 }
             };
@@ -127,7 +124,6 @@ export class DataboxClient {
     }
 
     async deleteAsset(key: string): Promise<void> {
-        console.log('key', key);
         await this.authenticate();
 
         await this.client.delete(`/assets-by-key`, {
@@ -174,6 +170,17 @@ export class DataboxClient {
         }
 
         return parentId;
+    }
+
+    async createAttributeDefinition(key: string, data): Promise<string> {
+        const r = await lockPromise(key, async () => {
+            return (await this.client.post(`/attribute-definitions`, {
+                workspace: `/workspaces/${this.workspaceId}`,
+                ...data,
+            })).data;
+        });
+
+        return r.id;
     }
 }
 

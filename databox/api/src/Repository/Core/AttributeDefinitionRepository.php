@@ -47,4 +47,16 @@ class AttributeDefinitionRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByKey(string $key, string $workspaceId): ?AttributeDefinition
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t')
+            ->andWhere('t.key = :key')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('key', $key)
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
