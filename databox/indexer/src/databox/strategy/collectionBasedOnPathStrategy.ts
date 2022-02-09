@@ -1,6 +1,7 @@
 import {IndexAsset} from "./types";
 import {getAlternateUrls} from "../../alternateUrl";
 import p from "path";
+import {splitPath} from "../../lib/pathUtils";
 
 export const collectionBasedOnPathStrategy: IndexAsset = async (
     asset,
@@ -12,7 +13,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     const alternateUrls = getAlternateUrls(asset, location);
 
-    let branch = path.replace(/^\//, '').split('/');
+    let branch = splitPath(path);
     branch.pop();
 
     let collIRI: string;
@@ -28,15 +29,15 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     try {
         await databoxClient.createAsset({
-            source: {
+            source: asset.publicUrl ? {
                 url: asset.publicUrl,
                 isPrivate: asset.isPrivate,
                 alternateUrls,
-            },
+            } : undefined,
             collection: collIRI,
             generateRenditions: asset.generateRenditions,
             key: asset.key,
-            title: p.basename(path),
+            title: asset.title || p.basename(path),
             attributes: asset.attributes,
             renditions: asset.renditions,
         });

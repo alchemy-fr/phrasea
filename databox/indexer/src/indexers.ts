@@ -8,8 +8,9 @@ import {AttributeInput, RenditionInput} from "./databox/types";
 
 export type Asset = {
     key: string;
+    title?: string;
     path: string;
-    publicUrl: string;
+    publicUrl?: string;
     isPrivate?: boolean;
     generateRenditions?: boolean;
     sourcePath?: string;

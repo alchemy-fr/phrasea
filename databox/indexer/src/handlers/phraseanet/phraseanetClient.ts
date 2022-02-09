@@ -30,7 +30,7 @@ export default class PhraseanetClient {
         return res.data.response.collections;
     }
 
-    async search(offset: number = 0): Promise<PhraseanetRecord[]> {
+    async search(params: Record<string, any>, offset: number = 0): Promise<PhraseanetRecord[]> {
         const res = await this.client.get('/api/v3/search/', {
             params: {
                 offset,
@@ -39,7 +39,8 @@ export default class PhraseanetClient {
                 include: [
                     'results.records.subdefs',
                     'results.records.caption',
-                ]
+                ],
+                ...params,
             }
         });
 

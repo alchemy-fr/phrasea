@@ -15,6 +15,12 @@ resources:
         security: 'is_granted("EDIT", object)'
       delete:
         security: 'is_granted("DELETE", object)'
+      flush:
+        controller: App\Controller\Core\FlushWorkspaceAction
+        path: /workspaces/{id}/flush
+        method: DELETE
+        security: 'is_granted("EDIT", object)'
+        read: true
     collectionOperations:
       get: ~
       post:

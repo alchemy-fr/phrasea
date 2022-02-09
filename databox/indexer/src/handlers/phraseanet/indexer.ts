@@ -1,7 +1,7 @@
 import {IndexIterator} from "../../indexers";
-import {ConfigDataboxMapping, PhraseanetConfig, SubDef} from "./types";
+import {ConfigDataboxMapping, PhraseanetConfig} from "./types";
 import PhraseanetClient from "./phraseanetClient";
-import {attributeTypesEquivalence, createAsset} from "./shared";
+import {AttrDefinitionIndex, attributeTypesEquivalence, createAsset} from "./shared";
 import {forceArray} from "../../lib/utils";
 import {getStrict} from "../../configLoader";
 
@@ -11,21 +11,29 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
     databoxClient
 ) {
     const client = new PhraseanetClient(location.options);
-
-    let offset = 0;
-
-    const collectionIndex = {};
+    const collectionIndex: Record<string, string> = {};
+    const databoxCollections: Record<string, number[]> = {};
     logger.debug(`Fetching collections`);
     const collections = await client.getCollections();
     for (let c of collections) {
         collectionIndex[c.base_id] = c.name;
+        const databoxId = c.databox_id.toString();
+        if (!databoxCollections[databoxId]) {
+            databoxCollections[databoxId] = [];
+        }
+        databoxCollections[databoxId].push(c.base_id);
     }
 
     const databoxMapping: ConfigDataboxMapping[] = getStrict('databoxMapping', location.options);
 
     for (let dm of databoxMapping) {
-        logger.debug(`Starting databox "${dm.databoxId}" to workspace "${dm.workspaceId}"`);
-        const attrDefinitionIndex: Record<string, string> = {};
+        await databoxClient.flushWorkspace(dm.workspaceId);
+
+        let offset = 0;
+        logger.debug(`Start indexing databox "${dm.databoxId}" to workspace "${dm.workspaceId}"`);
+
+        const attrDefinitionIndex: AttrDefinitionIndex = {};
+        logger.debug(`Fetching Meta structures`);
         const metaStructure = forceArray(await client.getMetaStruct(dm.databoxId));
         for (let m of metaStructure) {
             logger.debug(`Creating "${m.name}" attribute definition`);
@@ -41,16 +49,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
             });
         }
 
-        let records = await client.search(offset);
+        const searchParams = {
+            bases: databoxCollections[dm.databoxId],
+        };
+        let records = await client.search(searchParams, offset);
         while (records.length > 0) {
             for (let r of records) {
-                console.log('=> Phraseanet record', r);
                 yield createAsset(r, collectionIndex[r.base_id], attrDefinitionIndex);
             }
             offset += records.length;
 
-            records = await client.search(offset);
+            records = await client.search(searchParams, offset);
         }
-
     }
 }

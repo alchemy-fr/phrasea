@@ -15,20 +15,22 @@ use Doctrine\ORM\Events;
 
 class DeferredIndexListener implements EventSubscriber
 {
+    private static bool $enabled = true;
+
     /**
      * Objects scheduled for insertion.
      */
-    public array $scheduledForInsertion = [];
+    private array $scheduledForInsertion = [];
 
     /**
      * Objects scheduled to be updated or removed.
      */
-    public array $scheduledForUpdate = [];
+    private array $scheduledForUpdate = [];
 
     /**
      * IDs of objects scheduled for removal.
      */
-    public array $scheduledForDeletion = [];
+    private array $scheduledForDeletion = [];
 
     private ESSearchIndexer $searchIndexer;
 
@@ -37,25 +39,16 @@ class DeferredIndexListener implements EventSubscriber
         $this->searchIndexer = $searchIndexer;
     }
 
-    public function onKernelTerminate()
+    public function flush(): void
     {
         $this->persistScheduled();
     }
 
-    public function onConsoleTerminate()
-    {
-        $this->persistScheduled();
-    }
-
-    public function onHandlerTerminate()
-    {
-        $this->persistScheduled();
-    }
-
-    private function handlesEntity($entity): bool
+    private function handlesEntity(object $entity): bool
     {
         return $entity instanceof SearchDependencyInterface
-            || $entity instanceof SearchableEntityInterface;
+            || $entity instanceof SearchableEntityInterface
+            || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass(get_class($entity)));
     }
 
     /**
@@ -63,10 +56,16 @@ class DeferredIndexListener implements EventSubscriber
      */
     public function postPersist(LifecycleEventArgs $eventArgs): void
     {
+        if (!self::$enabled) {
+            return;
+        }
+
         $entity = $eventArgs->getObject();
 
         if ($this->handlesEntity($entity)) {
-            $this->scheduledForInsertion[] = $entity;
+            if ($this->isIndexable($entity)) {
+                $this->scheduledForInsertion[] = $entity;
+            }
         }
     }
 
@@ -75,19 +74,30 @@ class DeferredIndexListener implements EventSubscriber
      */
     public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
+        if (!self::$enabled) {
+            return;
+        }
+
         $entity = $eventArgs->getObject();
 
         if ($this->handlesEntity($entity)) {
-            $this->scheduledForUpdate[] = $entity;
+            if ($this->isIndexable($entity)) {
+                $this->scheduledForUpdate[] = $entity;
+            } else {
+                $this->scheduleForDeletion($entity);
+            }
         }
     }
 
     /**
-     * Delete objects preRemove instead of postRemove so that we have access to the id.  Because this is called
-     * preRemove, first check that the entity is managed by Doctrine.
+     * Delete objects preRemove instead of postRemove so that we have access to the id.
      */
     public function preRemove(LifecycleEventArgs $eventArgs): void
     {
+        if (!self::$enabled) {
+            return;
+        }
+
         $entity = $eventArgs->getObject();
 
         if ($this->handlesEntity($entity)) {
@@ -153,6 +163,11 @@ class DeferredIndexListener implements EventSubscriber
         }
     }
 
+    private function isIndexable(object $object): bool
+    {
+        return true;
+    }
+
     public function getSubscribedEvents()
     {
         return [
@@ -160,5 +175,15 @@ class DeferredIndexListener implements EventSubscriber
             Events::postUpdate,
             Events::postPersist,
         ];
+    }
+
+    public static function disable(): void
+    {
+        self::$enabled = false;
+    }
+
+    public static function enable(): void
+    {
+        self::$enabled = true;
     }
 }

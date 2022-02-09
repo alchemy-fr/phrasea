@@ -182,6 +182,10 @@ export class DataboxClient {
 
         return r.id;
     }
+
+    async flushWorkspace(workspaceId: string): Promise<void> {
+         await this.client.delete(`/workspaces/${workspaceId}/flush`);
+    }
 }
 
 export function createDataboxClientFromConfig(logger: Logger): DataboxClient {

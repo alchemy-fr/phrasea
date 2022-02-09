@@ -54,9 +54,9 @@ services:
 
     App\Elasticsearch\Listener\DeferredIndexListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.terminate }
-            - { name: kernel.event_listener, event: console.terminate }
-            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onHandlerTerminate }
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush }
+            - { name: kernel.event_listener, event: console.terminate, method: flush }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
 
     App\Listener\TerminateStackListener:
         tags:
