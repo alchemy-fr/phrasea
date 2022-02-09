@@ -6,12 +6,16 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetSourceInput;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
+use App\Consumer\Handler\File\ImportRenditionHandler;
 use App\Doctrine\Listener\PostFlushStackListener;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -96,24 +100,42 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             }
 
             if ($source = $data->source) {
-                $src = new File();
-                $src->setPath($source->url);
-                $src->setPathPublic(!$source->isPrivate);
-                $src->setStorage(File::STORAGE_URL);
-                $src->setWorkspace($object->getWorkspace());
-                $object->setFile($src);
+                $file = $this->handleSource($source, $object, $object->getWorkspace());
+                $origRenditions = $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
 
-                $this->originalRenditionManager->assignFileToOriginalRendition($object, $src);
-
-                if (null !== $source->alternateUrls) {
-                    foreach ($source->alternateUrls as $altUrl) {
-                        $src->setAlternateUrl($altUrl->type, $altUrl->url);
+                if ($data->generateRenditions) {
+                    $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
+                } elseif ($source->import) {
+                    $extension = pathinfo($data->source->url, PATHINFO_EXTENSION);
+                    foreach ($origRenditions as $origRendition) {
+                        $this->postFlushStackListener
+                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId(), $extension));
+                        // One import is sufficient as it is the same File
+                        break;
                     }
                 }
-
-                $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
             }
 
+            if (!empty($data->renditions)) {
+                foreach ($data->renditions as $renditionInput) {
+                    $rendition = new AssetRendition();
+                    $rendition->setAsset($object);
+                    $rendition->setDefinition($this->getRenditionDefinitionByName(
+                        $renditionInput->definition,
+                        $workspace
+                    ));
+                    $rendition->setReady(true);
+                    $this->handleSource($renditionInput->source, $rendition, $workspace);
+                    $this->em->persist($rendition);
+                    $this->em->persist($rendition->getFile());
+
+                    if ($renditionInput->source->import) {
+                        $extension = pathinfo($renditionInput->source->url, PATHINFO_EXTENSION);
+                        $this->postFlushStackListener
+                            ->addEvent(ImportRenditionHandler::createEvent($object->getId(), $extension));
+                    }
+                }
+            }
             if (!empty($data->attributes)) {
                 foreach ($data->attributes as $attribute) {
                     $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
@@ -129,6 +151,46 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         }
 
         return $this->transformOwnerId($object, $to, $context);
+    }
+
+    private function getRenditionDefinitionByName(string $name, Workspace $workspace): RenditionDefinition
+    {
+        $definition = $this->em->getRepository(RenditionDefinition::class)
+            ->findOneBy([
+                'name' => $name,
+                'workspace' => $workspace->getId(),
+            ]);
+
+        if (!$definition instanceof RenditionDefinition) {
+            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+        }
+
+        return $definition;
+    }
+
+    /**
+     * @param Asset|AssetRendition $object
+     */
+    private function handleSource(AssetSourceInput $source, $object, Workspace $workspace): File
+    {
+        $src = new File();
+        $src->setPath($source->url);
+        $src->setPathPublic(!$source->isPrivate);
+        $src->setStorage(File::STORAGE_URL);
+        $src->setWorkspace($workspace);
+        $object->setFile($src);
+
+        if (null !== $source->alternateUrls) {
+            foreach ($source->alternateUrls as $altUrl) {
+                $src->setAlternateUrl($altUrl->type, $altUrl->url);
+            }
+        }
+
+        if ($source->import) {
+            // TODO
+        }
+
+        return $src;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

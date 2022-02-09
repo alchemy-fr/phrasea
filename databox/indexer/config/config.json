@@ -50,6 +50,7 @@
         "url": "%env(PHRASEANET_BASE_URL)%",
         "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
+        "importFiles": false,
         "databoxMapping": [
           {
             "databoxId": "1",

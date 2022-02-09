@@ -2,6 +2,7 @@ export type PhraseanetConfig = {
     url: string;
     token: string;
     verifySSL?: boolean;
+    importFiles?: boolean;
 };
 
 export type SubDef = {

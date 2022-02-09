@@ -32,6 +32,7 @@ export function createAsset(
         key: p,
         path: p,
         publicUrl: generatePublicUrl(p, locationName),
+        isPrivate: true,
         sourcePath,
     };
 }

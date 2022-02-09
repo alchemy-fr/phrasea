@@ -19,7 +19,10 @@ class OriginalRenditionManager
         $this->em = $em;
     }
 
-    public function assignFileToOriginalRendition(Asset $asset, File $file): void
+    /**
+     * @return AssetRendition[]
+     */
+    public function assignFileToOriginalRendition(Asset $asset, File $file): array
     {
         $originalRenditionDefinitions = $this->em->getRepository(RenditionDefinition::class)
             ->findBy([
@@ -27,6 +30,7 @@ class OriginalRenditionManager
                 'useAsOriginal' => true,
             ]);
 
+        $renditions = [];
         foreach ($originalRenditionDefinitions as $originalRenditionDefinition) {
             $origRendition = new AssetRendition();
             $origRendition->setAsset($asset);
@@ -35,6 +39,9 @@ class OriginalRenditionManager
             $origRendition->setReady(true);
 
             $this->em->persist($origRendition);
+            $renditions[] = $origRendition;
         }
+
+        return $renditions;
     }
 }

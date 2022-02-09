@@ -10,6 +10,8 @@ class AssetSourceInput
 
     public bool $isPrivate = false;
 
+    public bool $import = false;
+
     /**
      * Alternative URLs.
      *

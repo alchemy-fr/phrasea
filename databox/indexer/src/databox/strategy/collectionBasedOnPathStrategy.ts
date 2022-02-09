@@ -1,7 +1,6 @@
 import {IndexAsset} from "./types";
 import {getAlternateUrls} from "../../alternateUrl";
 import p from "path";
-import {AxiosError} from "axios";
 
 export const collectionBasedOnPathStrategy: IndexAsset = async (
     asset,
@@ -23,7 +22,6 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             title: k
         })));
     } catch (e) {
-        debugError(e);
         logger.error(`Failed to create collection branch "${branch.join('/')}": ${e.toString()}`);
         throw e;
     }
@@ -32,25 +30,18 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
         await databoxClient.createAsset({
             source: {
                 url: asset.publicUrl,
-                isPrivate: true,
+                isPrivate: asset.isPrivate,
                 alternateUrls,
             },
             collection: collIRI,
+            generateRenditions: asset.generateRenditions,
             key: asset.key,
             title: p.basename(path),
             attributes: asset.attributes,
+            renditions: asset.renditions,
         });
     } catch (e) {
-        debugError(e);
         logger.error(`Failed to create asset "${path}": ${e.toString()}`);
         throw e;
-    }
-}
-
-function debugError(error: AxiosError) {
-    if (error.response) {
-        console.debug(error.response.data);
-        console.debug(error.response.status);
-        console.debug(error.response.headers);
     }
 }

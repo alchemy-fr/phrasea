@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Border;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Border\Exception\FileInputValidationException;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
+use App\Storage\RenditionPathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -18,16 +20,19 @@ class BorderManager
     private EntityManagerInterface $em;
     private FileDownloader $fileDownloader;
     private FileStorageManager $storageManager;
+    private RenditionPathGenerator $pathGenerator;
 
     public function __construct(
         EntityManagerInterface $em,
         FileDownloader $fileDownloader,
-        FileStorageManager $storageManager
+        FileStorageManager $storageManager,
+        RenditionPathGenerator $pathGenerator
     )
     {
         $this->em = $em;
         $this->fileDownloader = $fileDownloader;
         $this->storageManager = $storageManager;
+        $this->pathGenerator = $pathGenerator;
     }
 
     public function acceptFile(InputFile $inputFile, Workspace $workspace): ?File
@@ -40,16 +45,13 @@ class BorderManager
             $content = new FileContent($inputFile, $localFilePath);
             $this->validateContent($content);
 
-            $finalPath = sprintf('files/%s/%s/%s%s',
-                $workspace->getId(),
-                date('Y/m/d'),
-                Uuid::uuid4(),
-                $inputFile->getExtensionWithDot()
-            );
+            $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
 
             $fd = fopen($content->getPath(), 'r');
             $this->storageManager->storeStream($finalPath, $fd);
             fclose($fd);
+
+            unlink($content->getPath());
 
             $file = new File();
             $file->setStorage(File::STORAGE_S3_MAIN);

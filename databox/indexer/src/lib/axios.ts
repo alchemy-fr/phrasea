@@ -26,7 +26,12 @@ export function createHttpClient({
         error => {
             console.error(error.message);
             if (error.response) {
-                console.error(error.response.data);
+                const filtered = {
+                    ...error.response.data,
+                    trace: ['filtered...'],
+                }
+
+                console.error(filtered);
             }
 
             return Promise.reject(error);

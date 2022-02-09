@@ -31,6 +31,7 @@ export function createAsset(
     return {
         key: path,
         path,
+        isPrivate: true,
         publicUrl: generatePublicUrl(path, locationName, {
             bucket,
         }),

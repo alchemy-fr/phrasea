@@ -45,18 +45,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
     let records = await client.search(offset);
     while (records.length > 0) {
         for (let r of records) {
-            const document: SubDef | undefined = r.subdefs.find(s => s.name === 'document');
-            if (!document) {
-                continue;
-            }
-
-            const path = `${collectionIndex[r.base_id]}/${r.title}`;
-            yield createAsset(r.uuid, path, document.permalink.url, r.caption.map(c => ({
-                value: c.value,
-                definition: `/attribute-definitions/${attrDefinitionIndex[c.meta_structure_id.toString()]}`,
-                origin: 'machine',
-                originVendor: 'indexer-import',
-            })));
+            yield createAsset(r, collectionIndex[r.base_id], attrDefinitionIndex);
         }
         offset += records.length;
 

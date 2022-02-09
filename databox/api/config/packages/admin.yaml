@@ -173,7 +173,7 @@ easy_admin:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'definition', label: Definition }
           - { property: 'asset' }
-          - { property: 'file.id', template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'file.id', label: 'File', template: '@AlchemyAdmin/list/id.html.twig' }
           - updatedAt
           - createdAt
 

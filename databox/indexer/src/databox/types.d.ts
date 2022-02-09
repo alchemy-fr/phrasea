@@ -4,16 +4,21 @@ type AlternateUrl = {
     url: string;
 }
 
+type Source = {
+    url: string;
+    isPrivate?: boolean;
+    alternateUrls?: AlternateUrl[];
+    import?: boolean;
+};
+
 export type AssetInput = {
-    source?: {
-        url: string;
-        isPrivate?: boolean;
-        alternateUrls?: AlternateUrl[];
-    };
+    source?: Source;
     key?: string;
     title?: string;
     collection?: string;
     attributes?: AttributeInput[];
+    renditions?: RenditionInput[];
+    generateRenditions?: boolean;
 }
 
 export type CollectionInput = {
@@ -32,4 +37,9 @@ export type AttributeInput = {
     coordinates?: string;
     status?: string;
     confidence?: number;
+}
+
+export type RenditionInput = {
+    definition: string;
+    source?: Source;
 }
