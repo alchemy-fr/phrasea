@@ -18,8 +18,6 @@ export type Config = {
         url?: string;
         clientId?: string;
         clientSecret?: string;
-        workspaceId?: string;
-        collectionId?: string;
         ownerId?: string;
         verifySSL?: boolean;
         concurrency?: number;

@@ -1,4 +1,5 @@
 export type S3AmqpConfig = {
+    workspaceSlug: string;
     amqp: {
         dsn: string;
     };

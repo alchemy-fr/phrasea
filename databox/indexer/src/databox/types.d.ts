@@ -16,12 +16,16 @@ export type AssetInput = {
     key?: string;
     title?: string;
     collection?: string;
+    workspace?: string;
+    workspaceId?: string;
     attributes?: AttributeInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
 }
 
 export type CollectionInput = {
+    workspace?: string;
+    workspaceId?: string;
     title?: string;
     parent?: string;
     key?: string;
@@ -42,4 +46,9 @@ export type AttributeInput = {
 export type RenditionInput = {
     definition: string;
     source?: Source;
+}
+
+export type RenditionClass = {
+    id: string;
+    name: string;
 }

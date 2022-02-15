@@ -7,4 +7,5 @@ namespace App\Api\Model\Input;
 class WorkspaceInput extends AbstractOwnerIdInput
 {
     public ?string $name = null;
+    public ?string $slug = null;
 }

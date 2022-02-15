@@ -5,8 +5,10 @@ import {fsIndexer} from "./handlers/fs/indexer";
 import {phraseanetIndexer} from "./handlers/phraseanet/indexer";
 import {DataboxClient} from "./databox/client";
 import {AttributeInput, RenditionInput} from "./databox/types";
+import {IndexOptions} from "./command";
 
 export type Asset = {
+    workspaceId: string;
     key: string;
     title?: string;
     path: string;
@@ -22,6 +24,7 @@ export type IndexIterator<T extends Record<string, any> = any> = (
     location: IndexLocation<T>,
     logger: Logger,
     databoxClient: DataboxClient,
+    options: IndexOptions,
 ) => AsyncGenerator<Asset, void>;
 
 export const indexers: Record<string, IndexIterator> = {

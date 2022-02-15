@@ -30,6 +30,11 @@ class WorkspaceOutput extends AbstractUuidOutput
      */
     private string $name;
 
+    /**
+     * @Groups({"workspace:index", "workspace:read"})
+     */
+    private string $slug;
+
     public function getName(): string
     {
         return $this->name;
@@ -38,5 +43,15 @@ class WorkspaceOutput extends AbstractUuidOutput
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

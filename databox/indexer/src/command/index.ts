@@ -4,14 +4,13 @@ import {indexers} from "../indexers";
 import {getLocation} from "../locations";
 import {consume} from "../databox/entrypoint";
 
-const locationName = process.argv[2] || undefined;
-if (!locationName) {
-    throw new Error(`Missing argument 1: location-name`);
+export type IndexOptions = {
+    createNewWorkspace?: boolean;
 }
 
-const location = getLocation(locationName);
+export default async function indexCommand(locationName: string, options: IndexOptions) {
+    const location = getLocation(locationName);
 
-(async () => {
     const databoxLogger = createLogger('databox');
     const databoxClient = createDataboxClientFromConfig(databoxLogger);
     const mainLogger = createLogger('app');
@@ -22,8 +21,8 @@ const location = getLocation(locationName);
     const indexer = indexers[location.type];
 
     const logger = createLogger(location.name);
-    const iterator = indexer(location, logger, databoxClient);
+    const iterator = indexer(location, logger, databoxClient, options);
 
     await consume(location, databoxClient, iterator, logger);
-})();
+};
 

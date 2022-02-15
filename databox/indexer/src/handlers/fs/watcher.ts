@@ -5,18 +5,22 @@ import {handleDeleteObject, handlePutObject} from "../../eventHandler";
 import {Logger} from "winston";
 import {FsConfig} from "./types";
 import {createAsset, getDirConfig} from "./shared";
+import {getStrict} from "../../configLoader";
 
-export function fsWatcher(location: IndexLocation<FsConfig>, databoxClient: DataboxClient, logger: Logger) {
+export async function fsWatcher(location: IndexLocation<FsConfig>, databoxClient: DataboxClient, logger: Logger) {
     const {
         watchDir,
         dirPrefix,
         sourceDir,
     } = getDirConfig(location.options);
 
+    const workspaceId = await databoxClient.getWorkspaceIdFromSlug(getStrict('workspaceSlug', location.options));
+
     function storeEvent(eventType: string, path: string): Promise<void> {
         logger.debug(`${eventType}: ${path}`);
 
         const asset = createAsset(
+            workspaceId,
             path,
             location.name,
             watchDir,

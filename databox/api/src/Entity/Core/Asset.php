@@ -81,7 +81,7 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     private ?DoctrineCollection $attributes = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;
@@ -248,5 +248,13 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     {
         $attribute->setAsset($this);
         $this->attributes->add($attribute);
+    }
+
+    /**
+     * @return AssetRendition[]
+     */
+    public function getRenditions(): DoctrineCollection
+    {
+        return $this->renditions;
     }
 }

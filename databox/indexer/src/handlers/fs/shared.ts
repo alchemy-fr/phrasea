@@ -18,6 +18,7 @@ export async function* getFiles(dir: string): AsyncGenerator<string> {
 }
 
 export function createAsset(
+    workspaceId: string,
     path: string,
     locationName: string,
     watchDir: string,
@@ -29,6 +30,7 @@ export function createAsset(
     const sourcePath = sourceDir ? sourceDir + relativePath : path;
 
     return {
+        workspaceId,
         key: p,
         path: p,
         publicUrl: generatePublicUrl(p, locationName),

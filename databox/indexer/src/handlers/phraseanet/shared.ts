@@ -12,6 +12,7 @@ const renditionDefinitionBlacklist = [
 export type AttrDefinitionIndex = Record<string, string>;
 
 export function createAsset(
+    workspaceId: string,
     record: PhraseanetRecord,
     collectionName: string,
     attrDefinitionIndex: AttrDefinitionIndex
@@ -21,6 +22,7 @@ export function createAsset(
     const path = `${escapeSlashes(collectionName)}/${escapeSlashes(record.original_name)}`;
 
     return {
+        workspaceId,
         key: record.uuid,
         path,
         title: record.title,

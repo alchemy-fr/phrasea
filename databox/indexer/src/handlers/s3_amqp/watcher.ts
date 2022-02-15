@@ -7,13 +7,19 @@ import {Watcher} from "../../watchers";
 import {Asset} from "../../indexers";
 import {createAsset} from "./shared";
 
-export const s3AmqpWatcher: Watcher<S3AmqpConfig> = (
+export const s3AmqpWatcher: Watcher<S3AmqpConfig> = async (
     location,
     databoxClient,
     logger) => {
     const config = location.options as S3AmqpConfig;
 
     const bucketsList: string[] = (getConfig('s3.bucketNames', '', config)).split(',');
+
+    const workspaceId = await databoxClient.getWorkspaceIdFromSlug(getStrict('workspaceSlug', config));
+
+    const concurrency = getConfig('databox.concurrency', 1);
+
+    console.log('concurrency', concurrency, typeof concurrency);
 
     listenToQueue(
         getStrict('amqp.dsn', config),
@@ -34,9 +40,7 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = (
                 }
 
                 const path = decodeURIComponent(r.s3.object.key.replace(/\+/g, '%20'));
-                console.debug(`${EventName}: ${path}`);
-
-                const asset: Asset = createAsset(path, location.name, r.s3.bucket.name);
+                const asset: Asset = createAsset(workspaceId, path, location.name, r.s3.bucket.name);
 
                 switch (EventName) {
                     case 's3:ObjectCreated:Put':
@@ -51,6 +55,7 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = (
                 }
             }));
         },
-        logger
+        logger,
+        concurrency
     );
 }

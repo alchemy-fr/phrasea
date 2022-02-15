@@ -1,6 +1,12 @@
 import {AxiosInstance} from "axios";
 import {getConfig, getStrict} from "../../configLoader";
-import {PhraseanetCollection, PhraseanetConfig, PhraseanetMetaStruct, PhraseanetRecord} from "./types";
+import {
+    PhraseanetCollection,
+    PhraseanetConfig,
+    PhraseanetMetaStruct,
+    PhraseanetRecord,
+    PhraseanetSubDef
+} from "./types";
 import {createHttpClient} from "../../lib/axios";
 
 export function createPhraseanetClient(options: PhraseanetConfig) {
@@ -14,6 +20,7 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
             oauth_token: token,
         },
         verifySSL,
+        timeout: 30000,
     });
 }
 
@@ -51,5 +58,22 @@ export default class PhraseanetClient {
         const res = await this.client.get(`/api/v1/databoxes/${databoxId}/metadatas/`);
 
         return res.data.response.document_metadatas;
+    }
+
+    async getSubDefinitions(): Promise<PhraseanetSubDef[]> {
+        const res = await this.client.get(`/api/v1/me/subdefs`);
+
+        const subdefs: PhraseanetSubDef[] = [];
+
+        const defs = res.data.response.subdefs;
+        Object.keys(defs).forEach(type => {
+            const sd = defs[type];
+
+            Object.keys(sd).forEach(name => {
+                subdefs.push(sd[name]);
+            });
+        });
+
+        return subdefs;
     }
 }

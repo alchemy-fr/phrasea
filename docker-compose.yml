@@ -144,6 +144,9 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
+    extra_hosts:
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-api-nginx:
     profiles:
@@ -912,10 +915,9 @@ services:
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
       - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
-      - DATABOX_MAX_CONCURRENCY=3
-      - DATABOX_WORKSPACE_ID=${INDEXER_DATABOX_WORKSPACE_ID}
+      - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
+      - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
       - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
       - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_ACCESS_KEY
@@ -953,10 +955,9 @@ services:
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
       - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
-      - DATABOX_MAX_CONCURRENCY=3
-      - DATABOX_WORKSPACE_ID=${INDEXER_DATABOX_WORKSPACE_ID}
+      - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
+      - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - DATABOX_COLLECTION_ID=${INDEXER_DATABOX_COLLECTION_ID}
       - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
       - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - S3_STORAGE_ACCESS_KEY
@@ -998,6 +999,16 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  elastichq:
+    profiles:
+      - tools
+    image: elastichq/elasticsearch-hq
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
 
 volumes:
   db_vol:

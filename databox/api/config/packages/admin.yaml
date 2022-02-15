@@ -94,6 +94,7 @@ easy_admin:
         batch_actions:
           - delete
         sort: [createdAt, DESC]
+        filters: ['workspace']
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title' }
@@ -119,12 +120,14 @@ easy_admin:
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'name' }
+          - { property: 'slug' }
           - { property: 'enabledLocales', type: array }
           - updatedAt
           - createdAt
       form:
         fields:
           - { property: 'name' }
+          - { property: 'slug' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'phraseanetDataboxId', type: number }

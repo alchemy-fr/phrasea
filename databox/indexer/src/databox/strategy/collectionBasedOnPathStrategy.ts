@@ -19,6 +19,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
     let collIRI: string;
     try {
         collIRI = await databoxClient.createCollectionTreeBranch(branch.map(k => ({
+            workspaceId: asset.workspaceId,
             key: k,
             title: k
         })));

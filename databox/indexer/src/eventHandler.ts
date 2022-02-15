@@ -23,7 +23,7 @@ export async function handlePutObject(asset: Asset, location: IndexLocation<any>
 
 export async function handleDeleteObject(asset: Asset, databoxClient: DataboxClient, logger: Logger) {
     try {
-        await databoxClient.deleteAsset(asset.path);
+        await databoxClient.deleteAsset(asset.workspaceId, asset.path);
     } catch (error) {
         if (error.response) {
             console.error(error.response.data);

@@ -1,6 +1,6 @@
 export type ConfigDataboxMapping = {
     databoxId: string;
-    workspaceId: string;
+    workspaceSlug: string;
 }
 
 export type PhraseanetConfig = {
@@ -31,6 +31,16 @@ export type PhraseanetMetaStruct = {
     multivalue: boolean;
     readonly: boolean;
     required: boolean;
+}
+
+export type PhraseanetSubDef = {
+    name: string;
+    databox_id: number;
+    class: string;
+    downloadable: boolean;
+    devices: string[];
+    labels: Record<string, string>;
+    options: Record<string, any>;
 }
 
 export type PhraseanetCollection = {

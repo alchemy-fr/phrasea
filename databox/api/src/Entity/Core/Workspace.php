@@ -23,9 +23,14 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     use UpdatedAtTrait;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private ?string $name = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=false)
+     */
+    private ?string $slug = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -44,15 +49,49 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
 
     /**
      * @var Collection[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace", cascade={"remove"})
      */
     protected ?DoctrineCollection $collections = null;
+
+    /**
+     * @var Tag[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $tags = null;
+
+    /**
+     * @var RenditionClass[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $renditionClasses = null;
+
+    /**
+     * @var RenditionDefinition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $renditionDefinitions = null;
+
+    /**
+     * @var AttributeDefinition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $attributeDefinitions = null;
+
+    /**
+     * @var File[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $files = null;
 
     public function __construct()
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->renditionClasses = new ArrayCollection();
+        $this->renditionDefinitions = new ArrayCollection();
+        $this->attributeDefinitions = new ArrayCollection();
+        $this->files = new ArrayCollection();
     }
 
     public function getName(): string
@@ -129,5 +168,15 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     public function setEnabledLocales(array $enabledLocales): void
     {
         $this->enabledLocales = $enabledLocales;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

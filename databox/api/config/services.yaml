@@ -58,6 +58,12 @@ services:
             - { name: kernel.event_listener, event: console.terminate, method: flush }
             - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
 
+    App\Elasticsearch\ESSearchIndexer:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush }
+            - { name: kernel.event_listener, event: console.terminate, method: flush }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
+
     App\Listener\TerminateStackListener:
         tags:
             - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }

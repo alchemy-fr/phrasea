@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "node --enable-source-maps dist/index.js",
-    "index": "node --enable-source-maps dist/command/index.js",
+    "console": "node --enable-source-maps dist/console.js",
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",
@@ -27,6 +27,7 @@
     "amqplib": "^0.8.0",
     "axios": "^0.24.0",
     "chokidar": "^3.5.3",
+    "commander": "^9.0.0",
     "express": "^4.17.1",
     "minio": "^7.0.26",
     "winston": "^3.5.1"

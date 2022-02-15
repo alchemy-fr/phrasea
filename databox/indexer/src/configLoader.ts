@@ -28,6 +28,9 @@ function replaceEnv(str: string): string | boolean | number | undefined {
             case 'bool':
                 transform = 'bool';
                 break;
+            case 'int':
+                transform = 'int';
+                break;
         }
 
         return v || '';
@@ -42,6 +45,8 @@ function replaceEnv(str: string): string | boolean | number | undefined {
             return result;
         case 'bool':
             return castToBoolean(result);
+        case 'int':
+            return castToInt(result);
     }
 }
 
@@ -109,4 +114,17 @@ export function castToBoolean(value: string | boolean | null | undefined): boole
     }
 
     return false;
+}
+
+
+export function castToInt(value: string | number | null | undefined): number | undefined {
+    if (typeof value === 'number') {
+        return value;
+    }
+
+    const n = parseInt(value);
+
+    if (!isNaN(n)) {
+        return n;
+    }
 }

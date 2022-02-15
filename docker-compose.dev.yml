@@ -257,26 +257,6 @@ services:
     volumes:
       - ./databox/indexer:/usr/app
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    networks:
-      - internal
-    environment:
-      - PMA_HOST=mariadb
-      - PMA_USER=root
-      - PMA_PASSWORD=${MARIADB_ROOT_PASSWORD}
-    ports:
-      - 127.0.0.1:8105:80
-
-  elastichq:
-    profiles:
-      - tools
-    image: elastichq/elasticsearch-hq
-    networks:
-      - internal
-    ports:
-      - 127.0.0.1:8106:5000
-
   db:
     ports:
       - 127.0.0.1:5432:5432

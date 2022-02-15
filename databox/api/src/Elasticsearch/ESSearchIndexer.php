@@ -79,6 +79,17 @@ class ESSearchIndexer
         $this->index($objects, $depth);
     }
 
+    public function scheduleObjectsIndex(string $class, array $ids, string $operation): void
+    {
+        $objects = [
+            $class => [
+                $operation => $ids,
+            ],
+        ];
+
+        $this->scheduleIndex($objects);
+    }
+
     /**
      * @internal used by consumer only
      */
@@ -109,6 +120,8 @@ class ESSearchIndexer
         $persisters = $this->objectPersisters[$class] ?? [];
 
         $ids = array_unique($ids);
+
+        $this->logger->debug(sprintf('ES index %s: ("%s")', $class, implode('", "', $ids)));
 
         switch ($operation) {
             case self::ACTION_DELETE:
@@ -169,8 +182,11 @@ class ESSearchIndexer
         } elseif ($object instanceof Attribute) {
             $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth);
         }
+    }
 
-        $this->flushDependenciesStack($depth);
+    public function flush(): void
+    {
+        $this->flushDependenciesStack(0);
     }
 
     /**

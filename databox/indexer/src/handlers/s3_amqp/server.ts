@@ -3,7 +3,6 @@ import {IndexLocation} from "../../types/config";
 import {S3AmqpConfig} from "./types";
 import {signUri} from "../../s3/s3";
 import {createS3ClientFromConfig} from "./shared";
-import {Logger} from "winston";
 
 export const s3AmqpAssetServerFactory: AssetServerFactory<S3AmqpConfig> = function (location: IndexLocation<S3AmqpConfig>, logger) {
     const s3Client = createS3ClientFromConfig(location.options);

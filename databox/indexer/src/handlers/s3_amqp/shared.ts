@@ -24,11 +24,13 @@ export function createS3ClientFromConfig(config: S3AmqpConfig) {
 }
 
 export function createAsset(
+    workspaceId: string,
     path: string,
     locationName: string,
     bucket: string
 ): Asset {
     return {
+        workspaceId,
         key: path,
         path,
         isPrivate: true,

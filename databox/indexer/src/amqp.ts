@@ -10,7 +10,8 @@ export function listenToQueue(
     dsn: string,
     queueName: string,
     callback: OnEventCallback,
-    logger: Logger
+    logger: Logger,
+    concurrency: number
 ): void {
     logger.info(`AMQP: Connecting...`);
 
@@ -48,11 +49,11 @@ export function listenToQueue(
                 logger.info('AMQP: Channel closed, closing connection...');
                 connection.close();
 
-                listenToQueue(dsn, queueName, callback, logger);
+                listenToQueue(dsn, queueName, callback, logger, concurrency);
             });
 
             logger.debug('AMQP: prefetching channel...');
-            await channel.prefetch(parseInt(getEnv('DATABOX_MAX_CONCURRENCY', '2')));
+            await channel.prefetch(parseInt(getEnv('DATABOX_CONCURRENCY', '2')));
 
             return channel;
         })

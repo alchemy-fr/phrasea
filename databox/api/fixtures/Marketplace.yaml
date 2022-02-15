@@ -1,6 +1,7 @@
 App\Entity\Core\Workspace:
   w_marketplace:
     name: Marketplace
+    slug: marketplace
     ownerId: super_user
 
 App\Entity\Core\RenditionClass:
