@@ -8,3 +8,7 @@ services:
     App\Elasticsearch\ESSearchIndexer:
         arguments:
             $direct: true
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush }
+            - { name: kernel.event_listener, event: console.terminate, method: flush }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
