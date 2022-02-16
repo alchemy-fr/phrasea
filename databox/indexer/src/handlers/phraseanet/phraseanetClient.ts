@@ -26,9 +26,11 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
+    private readonly searchQuery?: string;
 
     constructor(options: PhraseanetConfig) {
         this.client = createPhraseanetClient(options);
+        this.searchQuery = options.searchQuery;
     }
 
     async getCollections(): Promise<PhraseanetCollection[]> {
@@ -43,6 +45,7 @@ export default class PhraseanetClient {
                 offset,
                 limit: 100,
                 search_type: 0,
+                query: this.searchQuery,
                 include: [
                     'results.records.subdefs',
                     'results.records.caption',

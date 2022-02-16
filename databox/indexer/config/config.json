@@ -51,6 +51,7 @@
         "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
         "importFiles": false,
+        "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%",
         "databoxMapping": [
           {
             "databoxId": "%env(PHRASEANET_DATABOX_ID)%",

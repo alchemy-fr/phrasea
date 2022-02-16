@@ -68,7 +68,7 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     private ?DoctrineCollection $storyCollection = null;
 
     /**
-     * Asset will inherits permissions from this collection.
+     * Asset will inherit permissions from this collection.
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="referenceAssets")
      * @ORM\JoinColumn(nullable=true)

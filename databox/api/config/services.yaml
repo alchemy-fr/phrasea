@@ -121,3 +121,11 @@ services:
         arguments:
             $client: '@fos_elastica.client'
             $index: '@fos_elastica.index.asset'
+
+    App\Elasticsearch\DeleteManager:
+        arguments:
+            $client: '@fos_elastica.client'
+            $indices:
+                - '@fos_elastica.index.collection'
+                - '@fos_elastica.index.asset'
+

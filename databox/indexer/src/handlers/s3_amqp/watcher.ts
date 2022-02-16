@@ -19,8 +19,6 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = async (
 
     const concurrency = getConfig('databox.concurrency', 1);
 
-    console.log('concurrency', concurrency, typeof concurrency);
-
     listenToQueue(
         getStrict('amqp.dsn', config),
         's3events',
