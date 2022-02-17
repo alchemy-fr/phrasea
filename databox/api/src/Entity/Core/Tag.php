@@ -10,6 +10,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use App\Api\Model\Output\TagOutput;
@@ -31,6 +32,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use LocaleTrait;
+    use WorkspaceTrait;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
@@ -38,10 +40,11 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     private string $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
      * @ORM\JoinColumn(nullable=false)
      */
-    private Workspace $workspace;
+    protected ?Workspace $workspace = null;
 
     public function getName(): string
     {

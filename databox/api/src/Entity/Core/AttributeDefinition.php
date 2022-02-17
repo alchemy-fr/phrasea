@@ -31,6 +31,13 @@ class AttributeDefinition extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected ?Workspace $workspace = null;
+
+    /**
      * @Groups({"attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */

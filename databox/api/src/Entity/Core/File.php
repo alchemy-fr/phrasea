@@ -25,6 +25,13 @@ class File extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected ?Workspace $workspace = null;
+
+    /**
      * The MIME type.
      *
      * @ORM\Column(type="string", length=100, nullable=true)

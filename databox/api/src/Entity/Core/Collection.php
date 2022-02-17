@@ -10,6 +10,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
@@ -19,10 +20,12 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
@@ -31,6 +34,7 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use DeletedAtTrait;
     use WorkspaceTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
@@ -55,19 +59,19 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     /**
      * @var self[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent")
      * @ORM\JoinColumn(nullable=true)
      * @MaxDepth(1)
      */
     private ?DoctrineCollection $children = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist"})
      */
     private ?DoctrineCollection $assets = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection")
      */
     private ?DoctrineCollection $referenceAssets = null;
 

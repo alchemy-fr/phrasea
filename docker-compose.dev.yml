@@ -257,6 +257,10 @@ services:
     volumes:
       - ./databox/indexer:/usr/app
 
+  db:
+    ports:
+      - 127.0.0.1:${DB_DEV_PORT}:5432
+
 volumes:
   dev_vol:
     driver: local

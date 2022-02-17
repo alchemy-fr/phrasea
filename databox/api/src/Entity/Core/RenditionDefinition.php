@@ -24,6 +24,13 @@ class RenditionDefinition extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionDefinitions")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected ?Workspace $workspace = null;
+
+    /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="string", length=80)
      */
@@ -31,7 +38,7 @@ class RenditionDefinition extends AbstractUuidEntity
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     * @ORM\ManyToOne(targetEntity="RenditionClass")
+     * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=true)
      */
     protected ?RenditionClass $class = null;

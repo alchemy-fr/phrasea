@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Consumer\Handler\Workspace\DeleteWorkspaceHandler;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\WorkspaceVoter;
 use App\Workspace\WorkspaceDuplicateManager;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,16 +14,13 @@ use Throwable;
 
 class FlushWorkspaceAction extends AbstractController
 {
-    private EventProducer $eventProducer;
     private EntityManagerInterface $em;
     private WorkspaceDuplicateManager $workspaceManager;
 
     public function __construct(
-        EventProducer $eventProducer,
         EntityManagerInterface $em,
         WorkspaceDuplicateManager $workspaceManager
     ) {
-        $this->eventProducer = $eventProducer;
         $this->em = $em;
         $this->workspaceManager = $workspaceManager;
     }
@@ -49,14 +44,13 @@ class FlushWorkspaceAction extends AbstractController
 
             $newWorkspace = $this->workspaceManager->duplicateWorkspace($workspace, $slug);
 
+            $this->em->remove($workspace);
             $this->em->flush();
             $this->em->commit();
         } catch (Throwable $exception) {
             $this->em->rollback();
             throw $exception;
         }
-
-        $this->eventProducer->publish(DeleteWorkspaceHandler::createEvent($workspace->getId()));
 
         return $newWorkspace;
     }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Traits;
 
-use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -14,9 +14,9 @@ trait UpdatedAtTrait
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="update")
      */
-    private ?DateTime $updatedAt = null;
+    private ?DateTimeInterface $updatedAt = null;
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
     }

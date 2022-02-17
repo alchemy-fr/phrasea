@@ -2,27 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Consumer\Handler\Workspace;
+namespace App\Consumer\Handler\Collection;
 
-use App\Doctrine\Delete\WorkspaceDelete;
+use App\Doctrine\Delete\CollectionDelete;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
-class DeleteWorkspaceHandler extends AbstractEntityManagerHandler
+class DeleteCollectionHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_workspace';
+    const EVENT = 'delete_collection';
+    private CollectionDelete $collectionDelete;
 
-    private WorkspaceDelete $workspaceDelete;
-
-    public function __construct(WorkspaceDelete $workspaceDelete)
+    public function __construct(CollectionDelete $collectionDelete)
     {
-        $this->workspaceDelete = $workspaceDelete;
+        $this->collectionDelete = $collectionDelete;
     }
 
     public function handle(EventMessage $message): void
     {
         $payload = $message->getPayload();
-        $this->workspaceDelete->deleteWorkspace($payload['id']);
+        $this->collectionDelete->deleteCollection($payload['id']);
     }
 
     public static function getHandledEvents(): array

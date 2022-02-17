@@ -8,19 +8,23 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
 class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use DeletedAtTrait;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
@@ -49,37 +53,37 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
 
     /**
      * @var Collection[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      */
     protected ?DoctrineCollection $collections = null;
 
     /**
      * @var Tag[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace")
      */
     protected ?DoctrineCollection $tags = null;
 
     /**
      * @var RenditionClass[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace")
      */
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
      * @var RenditionDefinition[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace")
      */
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace")
      */
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace")
      */
     protected ?DoctrineCollection $files = null;
 

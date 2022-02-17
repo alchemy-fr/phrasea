@@ -24,7 +24,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @Groups({"rendition:index", "rendition:read"})
-     * @ORM\ManyToOne(targetEntity="RenditionDefinition")
+     * @ORM\ManyToOne(targetEntity="RenditionDefinition", inversedBy="renditions")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?RenditionDefinition $definition = null;

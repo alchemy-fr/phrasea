@@ -6,6 +6,7 @@
 parameters:
     default_locale: 'en'
     env(VERIFY_SSL): true
+    stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:
     # default configuration for services in *this* file
@@ -122,10 +123,8 @@ services:
             $client: '@fos_elastica.client'
             $index: '@fos_elastica.index.asset'
 
-    App\Elasticsearch\DeleteManager:
+    App\Elasticsearch\IndexCleaner:
         arguments:
             $client: '@fos_elastica.client'
-            $indices:
-                - '@fos_elastica.index.collection'
-                - '@fos_elastica.index.asset'
-
+            $collectionIndex: '@fos_elastica.index.collection'
+            $assetIndex: '@fos_elastica.index.asset'

@@ -97,6 +97,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $query = new Query();
+        $query->setTrackTotalHits(true);
         $query->setQuery($filterQuery);
         $query->setSort([
             '_score',
@@ -107,7 +108,9 @@ class AssetSearch extends AbstractSearch
 
         $result = $this->finder->findPaginated($query);
         $result->setMaxPerPage($limit);
-        $result->setCurrentPage($options['page'] ?? 1);
+        if ($options['page'] ?? false) {
+            $result->setCurrentPage($options['page']);
+        }
 
         return $result;
     }

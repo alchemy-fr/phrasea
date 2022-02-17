@@ -214,6 +214,15 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
         })->getValues();
     }
 
+    public function getReferenceCollectionId(): ?string
+    {
+        if (!$this->referenceCollection) {
+            return null;
+        }
+
+        return $this->referenceCollection->getId();
+    }
+
     public function getReferenceCollection(): ?Collection
     {
         return $this->referenceCollection;
