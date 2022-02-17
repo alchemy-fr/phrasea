@@ -261,6 +261,8 @@ easy_admin:
     Attribute:
       class: App\Entity\Core\Attribute
       list:
+        actions:
+          - '-new'
         batch_actions:
           - delete
         max_results: 100
@@ -274,7 +276,6 @@ easy_admin:
           - createdAt
       form:
         fields:
-          - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value' }
           - { property: 'locale' }
