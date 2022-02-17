@@ -771,6 +771,9 @@ services:
       - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}
       - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}
+      - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}
+      - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}
+      - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}
       - WEBLATE_BASE_URL=https://weblate.${PHRASEA_DOMAIN}
       - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
       - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
