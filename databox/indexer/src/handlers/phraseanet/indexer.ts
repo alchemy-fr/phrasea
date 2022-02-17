@@ -3,7 +3,7 @@ import {ConfigDataboxMapping, PhraseanetConfig} from "./types";
 import PhraseanetClient from "./phraseanetClient";
 import {AttrDefinitionIndex, attributeTypesEquivalence, createAsset} from "./shared";
 import {forceArray} from "../../lib/utils";
-import {getStrict} from "../../configLoader";
+import {getConfig, getStrict} from "../../configLoader";
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function* (
     location,
@@ -26,7 +26,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
     }
 
     const databoxMapping: ConfigDataboxMapping[] = getStrict('databoxMapping', location.options);
-    const importFiles: boolean = getStrict('importFiles', location.options);
+    const importFiles: boolean = getConfig('importFiles', false, location.options);
 
     for (let dm of databoxMapping) {
         let workspaceId = await databoxClient.getWorkspaceIdFromSlug(dm.workspaceSlug);
