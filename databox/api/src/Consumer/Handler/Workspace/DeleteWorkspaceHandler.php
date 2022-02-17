@@ -10,7 +10,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteWorkspaceHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_workspace';
+    private const EVENT = 'delete_workspace';
 
     private WorkspaceDelete $workspaceDelete;
 

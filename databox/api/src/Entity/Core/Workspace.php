@@ -6,6 +6,7 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
@@ -17,10 +18,10 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
-class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
+class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -100,6 +101,10 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
 
     public function getName(): string
     {
+        if (null !== $this->deletedAt) {
+            return sprintf('(being deleted...) %s', $this->name);
+        }
+
         return $this->name;
     }
 

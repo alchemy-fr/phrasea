@@ -13,39 +13,33 @@ use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 class SoftDeleteListener extends PostFlushStackListener
 {
-    private bool $enabled = true;
-
-    public function postSoftDelete(LifecycleEventArgs $args): void
+    public function preSoftDelete(LifecycleEventArgs $args): void
     {
-        if (!$this->enabled) {
-            return;
-        }
-
         $entity = $args->getEntity();
-        if ($entity instanceof Collection) {
-            $this->addEvent(DeleteCollectionHandler::createEvent($entity->getId()));
-            return;
-        }
-        if ($entity instanceof Workspace) {
-            $this->addEvent(DeleteWorkspaceHandler::createEvent($entity->getId()));
-            return;
-        }
-    }
 
-    public function enable(): void
-    {
-        $this->enabled = true;
-    }
+        if ($entity instanceof SoftDeleteableInterface) {
+            if (null !== $entity->getDeletedAt()) {
+                // Already being deleted
+                return;
+            }
 
-    public function disable(): void
-    {
-        $this->enabled = false;
+            if ($entity instanceof Collection) {
+                $this->addEvent(DeleteCollectionHandler::createEvent($entity->getId()));
+
+                return;
+            }
+            if ($entity instanceof Workspace) {
+                $this->addEvent(DeleteWorkspaceHandler::createEvent($entity->getId()));
+
+                return;
+            }
+        }
     }
 
     public function getSubscribedEvents()
     {
         return array_merge(parent::getSubscribedEvents(), [
-            SoftDeleteableListener::POST_SOFT_DELETE => 'postSoftDelete',
+            SoftDeleteableListener::PRE_SOFT_DELETE => 'preSoftDelete',
         ]);
     }
 }

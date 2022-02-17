@@ -29,7 +29,6 @@ class CollectionDelete
     public function deleteCollection(string $collectionId, bool $isChildProcess = false): void
     {
         if (!$isChildProcess) {
-            $this->softDeleteToggler->disable();
             $collection = $this->em->find(Collection::class, $collectionId);
             if (!$collection instanceof Collection) {
                 throw new InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
@@ -39,12 +38,16 @@ class CollectionDelete
             }
 
             $this->indexCleaner->removeCollectionFromIndex($collectionId);
+
             DeferredIndexListener::disable();
+            $this->softDeleteToggler->disable();
+
+            $this->em->beginTransaction();
+
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
             $configuration->setSQLLogger(null);
 
-            $this->em->beginTransaction();
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();
@@ -52,8 +55,8 @@ class CollectionDelete
                 $this->em->rollback();
                 throw $e;
             } finally {
-                $this->softDeleteToggler->enable();
                 DeferredIndexListener::enable();
+                $this->softDeleteToggler->enable();
                 $configuration->setSQLLogger($logger);
             }
         } else {

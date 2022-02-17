@@ -29,7 +29,7 @@ App\Entity\Core\Workspace:
           max: 50
           min: 2
       - Regex:
-          pattern: '/^[a-z0-9][a-z0-9-]+[a-z0-9]$/'
+          pattern: '/^[a-z0-9][a-z0-9-]*[a-z0-9]$/'
           message: 'Invalid slug. Should match: my-workspace01'
     enabledLocales:
       - All:

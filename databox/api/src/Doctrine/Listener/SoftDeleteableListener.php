@@ -12,17 +12,25 @@ use Doctrine\Common\EventArgs;
  */
 class SoftDeleteableListener extends BaseSoftDeleteableListener
 {
+    private static bool $enabled = true;
+
+    public static function enable(): void
+    {
+        self::$enabled = true;
+    }
+
+    public static function disable(): void
+    {
+        self::$enabled = false;
+    }
+
     /**
      * @inheritdoc
      */
     public function onFlush(EventArgs $args)
     {
-        $ea = $this->getEventAdapter($args);
-        $om = $ea->getObjectManager();
-        if (!$om->getFilters()->isEnabled('softdeleteable')) {
-            return;
+        if (self::$enabled) {
+            parent::onFlush($args);
         }
-
-        parent::onFlush($args);
     }
 }
