@@ -8,7 +8,7 @@ type Source = {
     url: string;
     isPrivate?: boolean;
     alternateUrls?: AlternateUrl[];
-    import?: boolean;
+    importFile?: boolean;
 };
 
 export type AssetInput = {

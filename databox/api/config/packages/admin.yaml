@@ -78,10 +78,12 @@ easy_admin:
       class: App\Entity\Core\File
       list:
         max_results: 200
+        filters: ['workspace', 'storage']
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'path', label: Title }
+          - { property: 'storage' }
           - { property: 'workspace' }
           - createdAt
 

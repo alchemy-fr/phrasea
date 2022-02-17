@@ -41,66 +41,69 @@ class WorkspaceDelete
     public function deleteWorkspace(string $workspaceId): void
     {
         $this->softDeleteToggler->disable();
-        $workspace = $this->em->find(Workspace::class, $workspaceId);
-        if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
-        }
-        if (null === $workspace->getDeletedAt()) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
-        }
-
-        $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
-        DeferredIndexListener::disable();
-
-        $configuration = $this->em->getConnection()->getConfiguration();
-        $logger = $configuration->getSQLLogger();
-//        $configuration->setSQLLogger(null);
-
-        $this->em->beginTransaction();
         try {
-            $collections = $this->em->getRepository(Collection::class)
-                ->createQueryBuilder('t')
-                ->select('t.id')
-                ->andWhere('t.parent IS NULL')
-                ->andWhere('t.workspace = :ws')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->toIterable();
-
-            foreach ($collections as $c) {
-                $this->collectionDelete->deleteCollection((string) $c['id'], true);
+            $workspace = $this->em->find(Workspace::class, $workspaceId);
+            if (!$workspace instanceof Workspace) {
+                throw new InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
+            }
+            if (null === $workspace->getDeletedAt()) {
+                throw new InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
             }
 
-            $this->deleteDependencies(Tag::class, $workspaceId);
-            $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
-            $this->deleteDependencies(RenditionClass::class, $workspaceId);
-            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
+            DeferredIndexListener::disable();
 
-            $files = $this->em->getRepository(File::class)
-                ->createQueryBuilder('t')
-                ->select('t.id')
-                ->andWhere('t.workspace = :ws')
-                ->setParameter('ws', $workspaceId)
-                ->getQuery()
-                ->toIterable();
+            $this->em->beginTransaction();
 
-            foreach ($files as $f) {
-                $workspace = $this->em->find(File::class, $f['id']);
+            $configuration = $this->em->getConnection()->getConfiguration();
+            $logger = $configuration->getSQLLogger();
+            $configuration->setSQLLogger(null);
+            try {
+                $collections = $this->em->getRepository(Collection::class)
+                    ->createQueryBuilder('t')
+                    ->select('t.id')
+                    ->andWhere('t.parent IS NULL')
+                    ->andWhere('t.workspace = :ws')
+                    ->setParameter('ws', $workspaceId)
+                    ->getQuery()
+                    ->toIterable();
+
+                foreach ($collections as $c) {
+                    $this->collectionDelete->deleteCollection((string) $c['id'], true);
+                }
+
+                $this->deleteDependencies(Tag::class, $workspaceId);
+                $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
+                $this->deleteDependencies(RenditionClass::class, $workspaceId);
+                $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+
+                $files = $this->em->getRepository(File::class)
+                    ->createQueryBuilder('t')
+                    ->select('t.id')
+                    ->andWhere('t.workspace = :ws')
+                    ->setParameter('ws', $workspaceId)
+                    ->getQuery()
+                    ->toIterable();
+
+                foreach ($files as $f) {
+                    $workspace = $this->em->find(File::class, $f['id']);
+                    $this->em->remove($workspace);
+                    $this->em->flush();
+                }
+
+                $workspace = $this->em->find(Workspace::class, $workspaceId);
                 $this->em->remove($workspace);
                 $this->em->flush();
+                $this->em->commit();
+            } catch (Throwable $e) {
+                $this->em->rollback();
+                throw $e;
+            } finally {
+                DeferredIndexListener::enable();
+                $configuration->setSQLLogger($logger);
             }
-
-            $workspace = $this->em->find(Workspace::class, $workspaceId);
-            $this->em->remove($workspace);
-            $this->em->flush();
-            $this->em->commit();
-        } catch (Throwable $e) {
-            $this->em->rollback();
-            throw $e;
         } finally {
             $this->softDeleteToggler->enable();
-            DeferredIndexListener::enable();
-            $configuration->setSQLLogger($logger);
         }
     }
 

@@ -16,6 +16,7 @@ export type Asset = {
     isPrivate?: boolean;
     generateRenditions?: boolean;
     sourcePath?: string;
+    importFile?: boolean;
     attributes?: AttributeInput[];
     renditions?: RenditionInput[];
 }

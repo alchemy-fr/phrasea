@@ -10,6 +10,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -28,6 +29,7 @@ class File extends AbstractUuidEntity
      * Override trait for annotation
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 

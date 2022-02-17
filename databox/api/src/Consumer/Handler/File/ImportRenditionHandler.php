@@ -82,8 +82,6 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
         $em->flush();
 
         unlink($src);
-
-
     }
 
     public static function getHandledEvents(): array

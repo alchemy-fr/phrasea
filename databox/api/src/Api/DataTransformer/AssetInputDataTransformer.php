@@ -17,6 +17,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -105,11 +106,10 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
                 if ($data->generateRenditions) {
                     $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
-                } elseif ($source->import) {
-                    $extension = pathinfo($data->source->url, PATHINFO_EXTENSION);
+                } elseif ($source->importFile) {
                     foreach ($origRenditions as $origRendition) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId(), $extension));
+                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId(), ExtensionUtil::getExtension($data->source->url)));
                         // One import is sufficient as it is the same File
                         break;
                     }
@@ -129,10 +129,9 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                     $this->em->persist($rendition);
                     $this->em->persist($rendition->getFile());
 
-                    if ($renditionInput->source->import) {
-                        $extension = pathinfo($renditionInput->source->url, PATHINFO_EXTENSION);
+                    if ($renditionInput->source->importFile) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($object->getId(), $extension));
+                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId(), ExtensionUtil::getExtension($renditionInput->source->url)));
                     }
                 }
             }
@@ -184,10 +183,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             foreach ($source->alternateUrls as $altUrl) {
                 $src->setAlternateUrl($altUrl->type, $altUrl->url);
             }
-        }
-
-        if ($source->import) {
-            // TODO
         }
 
         return $src;

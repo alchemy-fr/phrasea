@@ -26,6 +26,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
     }
 
     const databoxMapping: ConfigDataboxMapping[] = getStrict('databoxMapping', location.options);
+    const importFiles: boolean = getStrict('importFiles', location.options);
 
     for (let dm of databoxMapping) {
         let workspaceId = await databoxClient.getWorkspaceIdFromSlug(dm.workspaceSlug);
@@ -92,7 +93,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
             offset += records.length;
             const nextSearchPromise = client.search(searchParams, offset);
             for (let r of records) {
-                yield createAsset(workspaceId, r, collectionIndex[r.base_id], attrDefinitionIndex);
+                yield createAsset(workspaceId, importFiles, r, collectionIndex[r.base_id], attrDefinitionIndex);
             }
 
             records = await nextSearchPromise;

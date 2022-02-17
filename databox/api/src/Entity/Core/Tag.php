@@ -15,6 +15,7 @@ use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use App\Api\Model\Output\TagOutput;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -43,6 +44,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
      * Override trait for annotation
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 

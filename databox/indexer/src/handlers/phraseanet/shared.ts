@@ -13,6 +13,7 @@ export type AttrDefinitionIndex = Record<string, string>;
 
 export function createAsset(
     workspaceId: string,
+    importFiles: boolean,
     record: PhraseanetRecord,
     collectionName: string,
     attrDefinitionIndex: AttrDefinitionIndex
@@ -26,6 +27,7 @@ export function createAsset(
         key: record.uuid,
         path,
         title: record.title,
+        importFile: importFiles,
         publicUrl: document?.permalink.url,
         isPrivate: false,
         attributes: record.caption?.map(c => ({
@@ -47,6 +49,7 @@ export function createAsset(
                 source: {
                     url: s.permalink.url,
                     isPrivate: false,
+                    importFile: importFiles,
                 }
             };
         }).filter(s => Boolean(s)),

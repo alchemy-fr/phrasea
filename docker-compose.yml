@@ -911,6 +911,7 @@ services:
       - internal
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - IMPORT_FILES=${INDEXER_IMPORT_FILES}
       - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
@@ -952,6 +953,7 @@ services:
       - rabbitmq
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - IMPORT_FILES=${INDEXER_IMPORT_FILES}
       - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}

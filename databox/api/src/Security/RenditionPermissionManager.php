@@ -44,17 +44,12 @@ class RenditionPermissionManager
             } else {
                 $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $container->getId());
                 if (!empty($rules)) {
-                    if ($this->satisfyOneRule($rules, $class)) {
-                        $this->cache[$collectionKey] = true;
-                        $this->cache[$assetKey] = true;
+                    $result = $this->satisfyOneRule($rules, $class);
 
-                        return true;
-                    }
+                    $this->cache[$collectionKey] = $result;
+                    $this->cache[$assetKey] = $result;
 
-                    $this->cache[$collectionKey] = false;
-                    $this->cache[$assetKey] = false;
-
-                    return false;
+                    return $result;
                 } else {
                     $this->cache[$collectionKey] = self::IS_EMPTY;
                 }
@@ -69,18 +64,15 @@ class RenditionPermissionManager
         }
 
         $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_WORKSPACE, $asset->getWorkspace()->getId());
+
+        $result = false;
         if (!empty($rules)) {
-            if ($this->satisfyOneRule($rules, $class)) {
-                $this->cache[$workspaceKey] = true;
-                $this->cache[$assetKey] = true;
-
-                return true;
-            }
+            $result = $this->satisfyOneRule($rules, $class);
         }
-        $this->cache[$workspaceKey] = false;
-        $this->cache[$assetKey] = false;
+        $this->cache[$workspaceKey] = $result;
+        $this->cache[$assetKey] = $result;
 
-        return false;
+        return $result;
     }
 
     private function satisfyOneRule(array $ruleSets, RenditionClass $class): bool

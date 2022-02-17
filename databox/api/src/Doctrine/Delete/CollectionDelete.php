@@ -93,7 +93,6 @@ class CollectionDelete
 
         $collection = $this->em->find(Collection::class, $collectionId);
         if ($collection instanceof Collection) {
-            dump('DELETE FROM collection => '.$collectionId);
             $this->em->remove($collection);
             $this->em->flush();
         }

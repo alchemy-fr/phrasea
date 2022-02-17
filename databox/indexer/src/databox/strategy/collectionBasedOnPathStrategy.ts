@@ -34,6 +34,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
                 url: asset.publicUrl,
                 isPrivate: asset.isPrivate,
                 alternateUrls,
+                importFile: asset.importFile,
             } : undefined,
             collection: collIRI,
             generateRenditions: asset.generateRenditions,

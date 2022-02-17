@@ -22,6 +22,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
@@ -78,6 +79,7 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 
