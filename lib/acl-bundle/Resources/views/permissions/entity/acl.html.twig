@@ -115,7 +115,11 @@
                     </td>
                 {% endfor %}
                 <td class="all-toggle">
-                    <input type="checkbox" name="all">
+                    <input
+                        {% if is_global %}disabled{% endif %}
+                        type="checkbox"
+                        name="all"
+                    >
                 </td>
                 <td>
                     <button

@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
+use Elastica\Aggregation;
 
 class CollectionSearch extends AbstractSearch
 {
@@ -29,11 +30,6 @@ class CollectionSearch extends AbstractSearch
         array $groupIds,
         array $options = []
     ): Pagerfanta {
-        $mustQueries = [];
-
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        $mustQueries[] = $aclBoolQuery;
-
         $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
@@ -41,8 +37,74 @@ class CollectionSearch extends AbstractSearch
         }
 
         $filterQuery = new Query\BoolQuery();
+        $this->applyFilters($filterQuery, $userId, $groupIds, $options);
+
+        $data = $this->finder->findPaginated($filterQuery);
+        $data->setCurrentPage($options['page'] ?? 1);
+        $data->setMaxPerPage($limit);
+
+        return $data;
+    }
+
+    public function searchAggregationsByWorkspace(
+        ?string $userId,
+        array $groupIds,
+        array $options = []
+    ): array {
+        $query = new Query();
+        $query->setSize(0);
+
+        $boolQuery = new Query\BoolQuery();
+
+        $this->applyFilters($boolQuery, $userId, $groupIds, $options);
+
+        $aggregation = new Aggregation\Filter('ws');
+        $query->addAggregation($aggregation);
+        $aggregation->setFilter($boolQuery);
+
+        $termAgg = new Aggregation\Terms('workspaceId');
+        $termAgg->setField('workspaceId');
+        $termAgg->setSize(1000);
+
+        $aggregation->addAggregation($termAgg);
+
+        $maxLimit = 30;
+        $limit = $options['limit'] ?? $maxLimit;
+        if ($limit > $maxLimit) {
+            $limit = $maxLimit;
+        }
+        $top = new Aggregation\TopHits('top');
+        $top->setSize($limit);
+        $termAgg->addAggregation($top);
+
+        $result = $this->finder->findPaginated($query);
+        $aggregations = $result->getAdapter()->getAggregations();
+
+        $data = [];
+        foreach ($aggregations['ws']['workspaceId']['buckets'] as $bucket) {
+            foreach ($bucket['top']['hits']['hits'] as $hit) {
+                $object = $this->em->find(Collection::class, $hit['_id']);
+
+                if ($object instanceof Collection) {
+                    $data[] = $object;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private function applyFilters(
+        Query\BoolQuery $boolQuery,
+        ?string $userId,
+        array $groupIds,
+        array $options = []): void
+    {
+        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
+        $mustQueries = [$aclBoolQuery];
+
         foreach ($mustQueries as $query) {
-            $filterQuery->addFilter($query);
+            $boolQuery->addFilter($query);
         }
 
         if (isset($options['parent'])) {
@@ -58,24 +120,16 @@ class CollectionSearch extends AbstractSearch
                 $parentsBoolQuery->addMust($q);
             }, $parentCollections);
 
-            $filterQuery->addFilter($parentsBoolQuery);
+            $boolQuery->addFilter($parentsBoolQuery);
         } else {
-            $filterQuery->addFilter(new Query\Term(['pathDepth' => 0]));
+            $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
         if (isset($options['workspaces'])) {
-            $filterQuery->addFilter(
+            $boolQuery->addFilter(
                 new Query\Terms('workspaceId', $options['workspaces'])
             );
         }
-
-//        dump($filterQuery->toArray());
-
-        $data = $this->finder->findPaginated($filterQuery);
-        $data->setCurrentPage($options['page'] ?? 1);
-        $data->setMaxPerPage($limit);
-
-        return $data;
     }
 
     /**

@@ -44,7 +44,6 @@ export default class App extends PureComponent<Props, State> {
     }
 
     render() {
-        const authenticated = Boolean(this.context.user);
         const {uploadFiles} = this.state;
 
         return <>
@@ -59,18 +58,18 @@ export default class App extends PureComponent<Props, State> {
                             userId={this.context.user!.id}
                             onClose={this.closeUpload}
                         /> : ''}
-                        <MainAppBar
-                            toggleMenu={this.toggleMenu}
-                            title={'Databox Client.'}
-                            onLogout={this.logout}
-                            username={this.context.user ? this.context.user.username : undefined}
-                            onSearchQueryChange={this.onSearchQueryChange}
-                            searchQuery={this.state.searchQuery}
-                        />
-                        <input
-                            {...getInputProps()}
-                        />
                         <MediaSelection>
+                            <MainAppBar
+                                toggleMenu={this.toggleMenu}
+                                title={'Databox Client.'}
+                                onLogout={this.logout}
+                                username={this.context.user ? this.context.user.username : undefined}
+                                onSearchQueryChange={this.onSearchQueryChange}
+                                searchQuery={this.state.searchQuery}
+                            />
+                            <input
+                                {...getInputProps()}
+                            />
                             <div className="main-layout">
                                 {!this.state.hideMenu && <div className="main-left-menu">
                                     <CollectionsPanel/>

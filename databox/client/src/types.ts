@@ -27,6 +27,30 @@ export interface Asset extends IPermissions {
     thumbnailActive: File | null;
 }
 
+export interface Attribute extends IPermissions {
+    id: string;
+    definition: {
+        id: string;
+    }
+    origin: "human" | "machine";
+    originVendor?: string;
+    originUserId?: string;
+    originVendorContext?: string;
+    value: any;
+}
+
+export interface AttributeDefinition extends IPermissions {
+    id: string;
+    name: string;
+    type: string;
+    multiple: boolean;
+    editable: boolean;
+    searchable: boolean;
+    translatable: boolean;
+    allowInvalid: boolean;
+    searchBoost: number;
+}
+
 export interface IPermissions extends ApiHydraObjectResponse {
     capabilities: {
         canEdit: boolean,

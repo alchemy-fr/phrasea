@@ -5,8 +5,8 @@ export type TSelectionContext = {
     selectedWorkspace?: string;
     reloadInc: number;
     selectedAssets: string[];
-    selectCollection: (absolutePath: string, forceReload?: boolean) => void;
-    selectWorkspace: (id: string, forceReload?: boolean) => void;
+    selectCollection: (absolutePath: string | undefined, forceReload?: boolean) => void;
+    selectWorkspace: (id: string | undefined, forceReload?: boolean) => void;
     selectAssets: (ids: string[]) => void;
     resetAssetSelection: () => void;
 }

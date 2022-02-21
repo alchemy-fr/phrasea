@@ -4,8 +4,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import {DndProvider} from "react-dnd";
 
 type State = {
-    selectedWorkspace?: string;
-    selectedCollection?: string;
+    selectedWorkspace?: string | undefined;
+    selectedCollection?: string | undefined;
     selectedAssets: string[];
     reloadInc: number;
 };
@@ -19,7 +19,7 @@ export default class MediaSelection extends PureComponent<Props, State>
         reloadInc: 0,
     };
 
-    selectCollection = (absolutePath: string, forceReload?: boolean): void => {
+    selectCollection = (absolutePath: string | undefined, forceReload?: boolean): void => {
         this.setState((prevState) => {
             const newState: Pick<State, "selectedCollection" | "reloadInc"> = {
                 selectedCollection: absolutePath,
@@ -34,7 +34,7 @@ export default class MediaSelection extends PureComponent<Props, State>
         });
     }
 
-    selectWorkspace = (id: string, forceReload?: boolean): void => {
+    selectWorkspace = (id: string | undefined, forceReload?: boolean): void => {
         this.setState((prevState) => {
             const newState: Pick<State, "selectedCollection" | "selectedWorkspace" | "reloadInc"> = {
                 selectedWorkspace: id,
@@ -59,6 +59,7 @@ export default class MediaSelection extends PureComponent<Props, State>
     };
 
     render() {
+        console.log('render');
         return <SelectionContext.Provider value={{
             ...this.state,
             selectWorkspace: this.selectWorkspace,

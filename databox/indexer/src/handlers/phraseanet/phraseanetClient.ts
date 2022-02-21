@@ -20,7 +20,7 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
             oauth_token: token,
         },
         verifySSL,
-        timeout: 30000,
+        timeout: 60000,
     });
 }
 

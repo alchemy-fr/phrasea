@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useContext} from 'react';
 import {alpha, makeStyles} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -14,6 +14,8 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import {Button, CssBaseline, Slide} from "@material-ui/core";
 import {useHistory, useLocation} from "react-router-dom";
+import {SelectionContext} from "../Media/SelectionContext";
+import {Link} from "@mui/material";
 
 interface HideProps {
     /**
@@ -114,6 +116,10 @@ type Props = {
 }
 
 export default function MainAppBar(props: Props) {
+    const selectionContext = useContext(SelectionContext);
+
+    const onTitleClick = () => selectionContext!.selectWorkspace(undefined, true);
+
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -231,7 +237,9 @@ export default function MainAppBar(props: Props) {
                             <MenuIcon/>
                         </IconButton>
                         <Typography className={classes.title} variant="h6" noWrap>
-                            {props.title}
+                            <Link onClick={onTitleClick}>
+                                {props.title}
+                            </Link>
                         </Typography>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>

@@ -93,6 +93,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
             offset += records.length;
             const nextSearchPromise = client.search(searchParams, offset);
             for (let r of records) {
+                logger.debug(`Phraseanet asset "${r.title}" (#${r.record_id}) from collection "${collectionIndex[r.base_id]}" (#${r.base_id})`);
                 yield createAsset(workspaceId, importFiles, r, collectionIndex[r.base_id], attrDefinitionIndex);
             }
 

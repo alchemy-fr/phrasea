@@ -11,7 +11,7 @@ export function createHttpClient({
                                      ...rest
                                  }: Options): AxiosInstance {
     const client = axios.create({
-        timeout: 10000,
+        timeout: 30000,
         headers: {
             'Accept': 'application/json',
         },

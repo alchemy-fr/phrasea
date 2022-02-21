@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Asset} from "../types";
+import {Asset, Attribute, AttributeDefinition} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
 interface AssetOptions {
@@ -21,6 +21,44 @@ export async function getAsset(id: string): Promise<Asset> {
     const res = await apiClient.get(`/assets/${id}`);
 
     return res.data;
+}
+
+export async function getAssetAttributes(assetId: string): Promise<Attribute[]> {
+    const res = await apiClient.get(`/attributes`, {
+        params: {
+            assetId,
+        }
+    });
+
+    return res.data['hydra:member'];
+}
+
+export async function putAssetAttribute(id: string | undefined, assetId: string, definitionId: string, value: any): Promise<void> {
+    if (id) {
+        await apiClient.put(`/attributes/${id}`, {
+            value,
+        });
+
+        return;
+    }
+
+    await apiClient.post(`/attributes`, {
+        asset: `/assets/${assetId}`,
+        attribute: `/attribute-definitions/${definitionId}`,
+        value,
+    });
+}
+
+export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
+    const res = await apiClient.get(`/attribute-definitions`, {
+        params: {
+            workspaceId,
+        }
+    });
+
+    console.log('res', res);
+
+    return res.data['hydra:member'];
 }
 
 export async function patchAsset(id: string, data: Partial<any>): Promise<Asset> {

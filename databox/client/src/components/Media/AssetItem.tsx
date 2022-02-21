@@ -11,6 +11,7 @@ import {ReactComponent as FolderImg} from '../../images/icons/folder.svg';
 import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
 import {draggableTypes} from "./draggableTypes";
 import AssetPreviewWrapper from "./Asset/AssetPreviewWrapper";
+import EditAssetAttributes from "./Asset/EditAssetAttributes";
 
 export interface DragSourceProps {
     connectDragSource: ConnectDragSource
@@ -41,6 +42,7 @@ export const privacyIndices = [
 
 type State = {
     editing: boolean;
+    editingAttributes: boolean;
     menuOpen: boolean;
     hover: boolean;
 }
@@ -50,6 +52,7 @@ class AssetItem extends PureComponent<AllProps, State> {
 
     state: State = {
         editing: false,
+        editingAttributes: false,
         menuOpen: false,
         hover: false,
     };
@@ -72,8 +75,13 @@ class AssetItem extends PureComponent<AllProps, State> {
         this.setState({editing: true, menuOpen: false});
     }
 
+    editAttributes = (e: MouseEvent): void => {
+        e.stopPropagation();
+        this.setState({editingAttributes: true, menuOpen: false});
+    }
+
     closeEdit = () => {
-        this.setState({editing: false});
+        this.setState({editing: false, editingAttributes: false});
     }
 
     delete = (e: MouseEvent): void => {
@@ -209,6 +217,12 @@ class AssetItem extends PureComponent<AllProps, State> {
                                 </ListItemIcon>
                                 <ListItemText primary="Edit"/>
                             </MenuItem>}
+                            {capabilities.canEdit && <MenuItem onClick={this.editAttributes}>
+                                <ListItemIcon>
+                                    <Edit fontSize="small"/>
+                                </ListItemIcon>
+                                <ListItemText primary="Edit attributes"/>
+                            </MenuItem>}
                             {capabilities.canDelete && <MenuItem onClick={this.delete}>
                                 <ListItemIcon>
                                     <Delete fontSize="small"/>
@@ -218,6 +232,11 @@ class AssetItem extends PureComponent<AllProps, State> {
                         </Menu>
                         {this.state.editing ? <EditAsset
                             id={this.props.id}
+                            onClose={this.closeEdit}
+                        /> : ''}
+                        {this.state.editingAttributes ? <EditAssetAttributes
+                            id={this.props.id}
+                            workspaceId={this.props.workspace.id}
                             onClose={this.closeEdit}
                         /> : ''}
                     </ImageListItem>
