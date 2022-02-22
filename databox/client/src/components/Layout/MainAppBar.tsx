@@ -104,8 +104,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-let timeout: ReturnType<typeof setTimeout>;
-
 type Props = {
     title: string;
     username?: string;

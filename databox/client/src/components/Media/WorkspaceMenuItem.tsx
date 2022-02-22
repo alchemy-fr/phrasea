@@ -1,4 +1,4 @@
-import React, {PureComponent, MouseEvent} from "react";
+import React, {PureComponent, MouseEvent, Component} from "react";
 import {Workspace} from "../../types";
 import {SelectionContext} from "./SelectionContext";
 import CollectionMenuItem from "./CollectionMenuItem";
@@ -20,7 +20,11 @@ type State = {
     addCollection: boolean,
 }
 
-export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemProps, State> {
+function propsAreSame(a: Record<string, any>, b: Record<string, any>): boolean {
+    return !Object.keys(a).some(k => a[k] !== b[k]);
+}
+
+export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps, State> {
     static contextType = SelectionContext;
     context: React.ContextType<typeof SelectionContext>;
 
@@ -29,6 +33,16 @@ export default class WorkspaceMenuItem extends PureComponent<WorkspaceMenuItemPr
         editing: false,
         addCollection: false,
     };
+
+    shouldComponentUpdate(nextProps: Readonly<WorkspaceMenuItemProps>, nextState: Readonly<State>, nextContext: React.ContextType<typeof SelectionContext>): boolean {
+        return !nextContext ||
+            (nextContext.selectedWorkspace !== this.context.selectedWorkspace
+                || nextContext.selectedCollection !== this.context.selectedCollection
+            )
+            || propsAreSame(this.state, nextState)
+            || propsAreSame(this.props, nextProps)
+            ;
+    }
 
     expandWorkspace = async (force = false): Promise<void> => {
         this.setState((prevState: State) => ({

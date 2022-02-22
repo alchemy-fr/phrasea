@@ -2,19 +2,29 @@ a {
   cursor: pointer;
 }
 
+body {
+  height: 100vh;
+}
+
+$menuHeight: 64px;
+
 .MuiAppBar-root {
   z-index: 1000 !important;
+  height: $menuHeight;
 }
 
 .main-layout {
   display: flex;
   flex-direction: row;
+  height: calc(100vh - #{$menuHeight});
 }
 
 .main-left-menu {
   width: px2rem(360);
   flex-grow: 0;
   flex-shrink: 0;
+  height: calc(100vh - #{$menuHeight});
+  overflow: auto;
 }
 
 .main-content {

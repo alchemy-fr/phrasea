@@ -59,7 +59,6 @@ export default class MediaSelection extends PureComponent<Props, State>
     };
 
     render() {
-        console.log('render');
         return <SelectionContext.Provider value={{
             ...this.state,
             selectWorkspace: this.selectWorkspace,

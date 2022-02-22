@@ -24,14 +24,10 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
 
     render() {
         return <ul className="collections">
-            {this.renderResult()}
+            {this.state.workspaces.map(w => <WorkspaceMenuItem
+                {...w}
+                key={w.id}
+            />)}
         </ul>
-    }
-
-    renderResult() {
-        return this.state.workspaces.map(w => <WorkspaceMenuItem
-            {...w}
-            key={w.id}
-        />)
     }
 }

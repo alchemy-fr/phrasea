@@ -64,6 +64,7 @@
   "devDependencies": {
     "@types/byte-size": "^8.1.0",
     "@types/react-bootstrap": "^0.32.25",
-    "@types/react-router-dom": "^5.1.7"
+    "@types/react-router-dom": "^5.1.7",
+    "@welldone-software/why-did-you-render": "^6.2.3"
   }
 }

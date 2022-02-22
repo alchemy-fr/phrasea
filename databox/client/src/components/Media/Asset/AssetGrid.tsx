@@ -1,8 +1,8 @@
-import React, {PureComponent, MouseEvent} from "react";
+import React, {PureComponent, MouseEvent, CSSProperties} from "react";
 import AssetItem from "./AssetItem";
-import {getAssets} from "../../api/asset";
-import {Asset} from "../../types";
-import {SelectionContext, TSelectionContext} from "./SelectionContext";
+import {getAssets} from "../../../api/asset";
+import {Asset} from "../../../types";
+import {SelectionContext, TSelectionContext} from "../SelectionContext";
 import {Button, ImageList, LinearProgress, ListSubheader, ImageListItem} from "@material-ui/core";
 
 type Props = {
@@ -28,6 +28,21 @@ const classes = {
         width: '100%',
     },
 };
+
+const gridStyle: CSSProperties = {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    overflow: 'auto',
+};
+
+const linearProgressStyle: CSSProperties = {
+    position: 'absolute',
+    left: '0',
+    right: '0',
+    top: '0',
+};
+const imageListItemStyle: CSSProperties = {height: 'auto'};
 
 function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
     if (e.ctrlKey) {
@@ -137,18 +152,13 @@ export default class AssetGrid extends PureComponent<Props, State> {
     render() {
         const {total, next, loading} = this.state;
 
-        return <div style={{position: 'relative', width: '100%'}}>
-            {loading && <div style={{
-                position: 'absolute',
-                left: '0',
-                right: '0',
-                top: '0',
-            }}>
+        return <div style={gridStyle}>
+            {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
             <div style={classes.root}>
                 <ImageList rowHeight={180} style={classes.gridList}>
-                    <ImageListItem key="Subheader" cols={2} style={{height: 'auto'}}>
+                    <ImageListItem key="Subheader" cols={2} style={imageListItemStyle}>
                         <ListSubheader component="div">
                             {!loading && total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
                         </ListSubheader>

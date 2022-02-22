@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import AssetGrid from "./Media/AssetGrid";
+import AssetGrid from "./Media/Asset/AssetGrid";
 import {oauthClient} from "../oauth";
 import config from "../config";
 import CollectionsPanel from "./Media/CollectionsPanel";
@@ -58,6 +58,9 @@ export default class App extends PureComponent<Props, State> {
                             userId={this.context.user!.id}
                             onClose={this.closeUpload}
                         /> : ''}
+                        <input
+                            {...getInputProps()}
+                        />
                         <MediaSelection>
                             <MainAppBar
                                 toggleMenu={this.toggleMenu}
@@ -66,9 +69,6 @@ export default class App extends PureComponent<Props, State> {
                                 username={this.context.user ? this.context.user.username : undefined}
                                 onSearchQueryChange={this.onSearchQueryChange}
                                 searchQuery={this.state.searchQuery}
-                            />
-                            <input
-                                {...getInputProps()}
                             />
                             <div className="main-layout">
                                 {!this.state.hideMenu && <div className="main-left-menu">

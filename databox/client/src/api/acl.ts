@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Ace, Workspace} from "../types";
+import {Ace} from "../types";
 
 export async function getAces(objectType: string, objectId: string): Promise<Ace[]> {
     const res = await apiClient.get(`/permissions/aces`, {

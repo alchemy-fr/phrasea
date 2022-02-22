@@ -17,7 +17,7 @@ import CreateAsset from "./Asset/CreateAsset";
 import {ConnectDropTarget, DropTarget, DropTargetMonitor, DropTargetSpec} from 'react-dnd';
 import {draggableTypes} from "./draggableTypes";
 import classnames from "classnames";
-import {AssetDragProps} from "./AssetItem";
+import {AssetDragProps} from "./Asset/AssetItem";
 
 type DropTargetProps = {
     isOver: boolean,

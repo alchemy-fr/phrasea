@@ -1,17 +1,17 @@
-import React, {MouseEvent, PureComponent, RefObject} from "react";
-import {Asset, Collection} from "../../types";
+import React, {Component, MouseEvent, RefObject} from "react";
+import {Asset, Collection} from "../../../types";
 import {Badge} from "react-bootstrap";
-import apiClient from "../../api/api-client";
+import apiClient from "../../../api/api-client";
 import {CloudDownload, Delete, Edit, Link as LinkIcon} from '@material-ui/icons';
 import {ImageListItem, ImageListItemBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@material-ui/core";
 import InfoIcon from '@material-ui/icons/Info';
-import EditAsset from "./Asset/EditAsset";
-import Icon from "../ui/Icon";
-import {ReactComponent as FolderImg} from '../../images/icons/folder.svg';
+import EditAsset from "./EditAsset";
+import Icon from "../../ui/Icon";
+import {ReactComponent as FolderImg} from '../../../images/icons/folder.svg';
 import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
-import {draggableTypes} from "./draggableTypes";
-import AssetPreviewWrapper from "./Asset/AssetPreviewWrapper";
-import EditAssetAttributes from "./Asset/EditAssetAttributes";
+import {draggableTypes} from "../draggableTypes";
+import AssetPreviewWrapper from "./AssetPreviewWrapper";
+import EditAssetAttributes from "./EditAssetAttributes";
 
 export interface DragSourceProps {
     connectDragSource: ConnectDragSource
@@ -47,7 +47,7 @@ type State = {
     hover: boolean;
 }
 
-class AssetItem extends PureComponent<AllProps, State> {
+class AssetItem extends Component<AllProps, State> {
     private readonly ref: RefObject<HTMLDivElement>;
 
     state: State = {
@@ -63,6 +63,14 @@ class AssetItem extends PureComponent<AllProps, State> {
         this.ref = React.createRef<HTMLDivElement>();
     }
 
+    shouldComponentUpdate(nextProps: Readonly<AllProps>, nextState: Readonly<State>, nextContext: any): boolean {
+        return this.state.editing !== nextState.editing
+            || this.state.editingAttributes !== nextState.editingAttributes
+            || this.state.menuOpen !== nextState.menuOpen
+            || this.state.hover !== nextState.hover
+            || this.props.selected !== nextProps.selected
+            ;
+    }
 
     onClick = (e: MouseEvent): void => {
         const {onClick} = this.props;

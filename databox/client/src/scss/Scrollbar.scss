@@ -1,0 +1,15 @@
+$width: px2rem(8);
+
+::-webkit-scrollbar-track {
+    border-radius: px2rem(10);
+}
+
+::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: $width;
+    background-color: $primary;
+}

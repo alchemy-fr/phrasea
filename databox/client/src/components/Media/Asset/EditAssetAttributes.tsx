@@ -1,12 +1,6 @@
-import React, {PureComponent, RefObject} from "react";
-import AbstractEdit, {AbstractEditProps} from "../AbstractEdit";
-import {getAsset, getAssetAttributes, getWorkspaceAttributeDefinitions, patchAsset} from "../../../api/asset";
-import {Asset, Attribute, AttributeDefinition} from "../../../types";
-import TagSelect from "../Tag/TagSelect";
-import {Field, Form, Formik} from "formik";
-import {TextField} from "formik-material-ui";
-import PrivacyField from "../../ui/PrivacyField";
-import {InputLabel} from "@material-ui/core";
+import React, {PureComponent} from "react";
+import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api/asset";
+import {Attribute, AttributeDefinition} from "../../../types";
 import Button from "../../ui/Button";
 import Modal from "../../Layout/Modal";
 import AttributeRow from "./AttributeRow";
@@ -46,8 +40,6 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
             getAssetAttributes(this.props.id),
         ]);
 
-        console.log('attributeDefinitions', attributeDefinitions);
-
         this.setState({
             attributeDefinitions,
             attributes,
@@ -61,11 +53,9 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
             return <div>Loading...</div>
         }
 
-        console.log('attributeDefinitions', attributeDefinitions);
-
         const definitions: Record<string, AttributeDefinition> = {};
         attributeDefinitions.forEach(ad => {
-           definitions[ad.id] = ad;
+            definitions[ad.id] = ad;
         });
 
         const values: Record<string, AttrValue | AttrValue[] | undefined> = {};
@@ -89,8 +79,6 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
 
         return attributeDefinitions.map(ad => {
             const value = values[ad.id] || (ad.multiple ? [] : undefined);
-
-            console.log('value', value);
 
             if (ad.multiple) {
                 return (value as AttrValue[]).map(v => <AttributeRow
