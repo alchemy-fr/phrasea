@@ -129,6 +129,7 @@ class AssetItem extends Component<AllProps, State> {
             id,
             title,
             description,
+            workspace,
             tags,
             original,
             thumbnail,
@@ -177,6 +178,7 @@ class AssetItem extends Component<AllProps, State> {
                                     >{privacyLabel}</Badge>
                                 </div>
                                 <div className={'a-desc'}>{description}</div>
+                                <div className={'a-ws'}>{workspace.name}</div>
                                 <ul className={'a-colls'}>
                                     {this.renderCollections(collections)}
                                 </ul>

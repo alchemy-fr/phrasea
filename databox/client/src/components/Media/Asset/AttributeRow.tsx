@@ -29,6 +29,7 @@ export default function AttributeRow({
         case 'text':
             widget = <TextField
                 id={id}
+                fullWidth
                 disabled={saving}
                 label={name}
                 onChange={(v) => setValue(v.target.value)}
