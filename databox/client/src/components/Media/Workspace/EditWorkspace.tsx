@@ -4,7 +4,7 @@ import AbstractEdit from "../AbstractEdit";
 import React from "react";
 import {Field, Form, Formik} from "formik";
 import {TextField} from "formik-material-ui";
-import {patchCollection, patchWorkspace} from "../../../api/collection";
+import {patchWorkspace} from "../../../api/collection";
 import TagManager from "../Collection/TagManager";
 import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
@@ -41,7 +41,7 @@ export default class EditWorkspace extends AbstractEdit<Workspace, FormProps> {
             <Formik
                 innerRef={this.formRef}
                 initialValues={initialValues}
-                onSubmit={ (values, actions) => {
+                onSubmit={(values, actions) => {
                     this.onSubmit(values, actions);
                 }}
             >
@@ -57,7 +57,7 @@ export default class EditWorkspace extends AbstractEdit<Workspace, FormProps> {
             <hr/>
             <div>
                 <h4>Manage tags</h4>
-                <TagManager workspaceId={this.getData()!['@id']} />
+                <TagManager workspaceId={this.getData()!['@id']}/>
             </div>
             <hr/>
             <div>

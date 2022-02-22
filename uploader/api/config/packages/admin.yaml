@@ -37,8 +37,8 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
-          - userId
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
           - assetCount
           - token
           - { property: acknowledged, type: boolean }
@@ -63,10 +63,10 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
-          - userId
+          - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: committed, type: boolean }
           - { property: acknowledged, type: boolean }
           - createdAt
@@ -78,7 +78,7 @@ easy_admin:
           - permissions
         sort: [createdAt, DESC]
         fields:
-          - id
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - locale
           - createdAt
       form:
@@ -93,7 +93,7 @@ easy_admin:
           - permissions
         sort: [createdAt, DESC]
         fields:
-          - id
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - createdAt
       form:
         fields:
@@ -109,7 +109,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - id
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - filename
           - type
           - size

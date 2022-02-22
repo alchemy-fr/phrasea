@@ -41,10 +41,10 @@ class CollectionVoter extends AbstractVoter
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
             case self::READ:
-                return $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                return $isOwner
+                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
-                    || $isOwner
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
             case self::EDIT:
@@ -61,5 +61,4 @@ class CollectionVoter extends AbstractVoter
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
         }
     }
-
 }

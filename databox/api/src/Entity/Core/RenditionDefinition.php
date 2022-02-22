@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -23,6 +24,14 @@ class RenditionDefinition extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionDefinitions")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
+     */
+    protected ?Workspace $workspace = null;
+
+    /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="string", length=80)
      */
@@ -30,7 +39,7 @@ class RenditionDefinition extends AbstractUuidEntity
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     * @ORM\ManyToOne(targetEntity="RenditionClass")
+     * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=true)
      */
     protected ?RenditionClass $class = null;
@@ -70,6 +79,19 @@ class RenditionDefinition extends AbstractUuidEntity
      * @ORM\Column(type="smallint", nullable=false)
      */
     private int $priority = 0;
+
+    /**
+     * @var AssetRendition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="definition", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $renditions = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->renditions = new ArrayCollection();
+    }
 
     public function getName(): string
     {

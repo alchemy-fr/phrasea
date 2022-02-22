@@ -20,7 +20,12 @@ class WorkspaceInputDataTransformer extends AbstractInputDataTransformer
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Workspace();
-        $object->setName($data->name);
+        if (null !== $data->name) {
+            $object->setName($data->name);
+        }
+        if (null !== $data->slug) {
+            $object->setSlug($data->slug);
+        }
 
         if ($isNew) {
             if ($data->getOwnerId()) {

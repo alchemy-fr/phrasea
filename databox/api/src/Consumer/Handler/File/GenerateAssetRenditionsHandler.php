@@ -9,7 +9,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\External\PhraseanetApiClient;
 use App\Security\JWTTokenManager;
-use App\Storage\UrlSigner;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -74,6 +73,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
         }
 
         $url = $this->fileUrlResolver->resolveUrl($file);
+
         $destUrl = $this->urlGenerator->generate('phraseanet_incoming_rendition', [
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -113,6 +113,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
             ]);
         } catch (BadResponseException $e) {
             $this->logger->debug('Payload sent before error: '.\GuzzleHttp\json_encode($data));
+            $this->logger->debug('Response: '.\GuzzleHttp\json_encode($e->getResponse()->getBody()->getContents()));
 
             throw $e;
         }

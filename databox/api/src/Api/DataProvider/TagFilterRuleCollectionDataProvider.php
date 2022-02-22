@@ -40,5 +40,4 @@ class TagFilterRuleCollectionDataProvider implements ContextAwareCollectionDataP
     {
         return TagFilterRule::class === $resourceClass;
     }
-
 }

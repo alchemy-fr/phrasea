@@ -13,6 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class RenditionPermissionManager
 {
+    private const IS_EMPTY = 0;
+    private const ANONYMOUS = '~';
+
     private EntityManagerInterface $em;
     private array $cache = [];
 
@@ -23,54 +26,64 @@ class RenditionPermissionManager
 
     public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool
     {
-        $key = sprintf('%s:%s:%s', $userId ?? 'anon.', $asset->getId(), $class->getId());
-        if (isset($this->cache[$key])) {
-            return $this->cache[$key];
+        $assetKey = sprintf('%s:%s:%s', $asset->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        if (isset($this->cache[$assetKey])) {
+            return $this->cache[$assetKey];
         }
 
-        $ruleSets = $this->getAssetRuleSets($asset, $userId, $groupIds);
-
-        if (null !== $ruleSets) {
-            foreach ($ruleSets as $ruleSet) {
-                if ($ruleSet->getAllowed()->contains($class)) {
-                    return $this->cache[$key] = true;
-                }
-            }
-        }
-
-        return $this->cache[$key] = false;
-    }
-
-    /**
-     * @param Asset       $asset
-     * @param string|null $userId
-     * @param array       $groupIds
-     *
-     * @return RenditionRule[]|null
-     */
-    public function getAssetRuleSets(Asset $asset, ?string $userId, array $groupIds = []): ?array
-    {
         /** @var RenditionRuleRepository $repo */
         $repo = $this->em->getRepository(RenditionRule::class);
 
-        /** @var Collection $container */
+        /** @var Collection|null $container */
         $container = $asset->getReferenceCollection();
         while ($container instanceof Collection) {
-            $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $container->getId());
+            $collectionKey = sprintf('%s:%s', $container->getId(), $userId ?? self::ANONYMOUS);
+            if (isset($this->cache[$collectionKey])) {
+                if ($this->cache[$collectionKey] !== self::IS_EMPTY) {
+                    return $this->cache[$assetKey] = $this->cache[$collectionKey];
+                }
+            } else {
+                $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $container->getId());
+                if (!empty($rules)) {
+                    $result = $this->satisfyOneRule($rules, $class);
 
-            if (!empty($rules)) {
-                return $rules;
+                    $this->cache[$collectionKey] = $result;
+                    $this->cache[$assetKey] = $result;
+
+                    return $result;
+                }
+
+                $this->cache[$collectionKey] = self::IS_EMPTY;
             }
 
             $container = $container->getParent();
         }
 
-        $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_WORKSPACE, $asset->getWorkspace()->getId());
-
-        if (!empty($rules)) {
-            return $rules;
+        $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        if (isset($this->cache[$workspaceKey])) {
+            return $this->cache[$assetKey] = $this->cache[$workspaceKey];
         }
 
-        return null;
+        $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_WORKSPACE, $asset->getWorkspace()->getId());
+
+        $result = false;
+        if (!empty($rules)) {
+            $result = $this->satisfyOneRule($rules, $class);
+        }
+        $this->cache[$workspaceKey] = $result;
+        $this->cache[$assetKey] = $result;
+
+        return $result;
+    }
+
+    private function satisfyOneRule(array $ruleSets, RenditionClass $class): bool
+    {
+        foreach ($ruleSets as $ruleSet) {
+            if ($ruleSet->getAllowed()->contains($class)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

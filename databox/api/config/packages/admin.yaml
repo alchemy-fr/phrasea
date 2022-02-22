@@ -21,6 +21,7 @@ easy_admin:
           - Workspace
           - Collection
           - Asset
+          - File
           - Attribute
           - AttributeDefinition
           - Tag
@@ -29,6 +30,7 @@ easy_admin:
           - RenditionDefinition
           - RenditionClass
           - RenditionRule
+          - AlternateUrl
       - OAuthClient
       - label: 'Dev'
         children:
@@ -38,18 +40,20 @@ easy_admin:
     Asset:
       class: App\Entity\Core\Asset
       list:
-        max_results: 100
+        max_results: 200
         actions:
           - permissions
         batch_actions:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title', label: Title }
           - { property: 'workspace' }
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - { property: 'collections.count', label: '# Colls' }
+          - { property: 'file' }
+          - { property: 'key' }
           - createdAt
       edit:
         fields:
@@ -70,6 +74,19 @@ easy_admin:
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
 
+    File:
+      class: App\Entity\Core\File
+      list:
+        max_results: 200
+        filters: ['workspace', 'storage']
+        sort: [createdAt, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'path', label: Title }
+          - { property: 'storage' }
+          - { property: 'workspace' }
+          - createdAt
+
     Collection:
       class: App\Entity\Core\Collection
       list:
@@ -79,8 +96,9 @@ easy_admin:
         batch_actions:
           - delete
         sort: [createdAt, DESC]
+        filters: ['workspace']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title' }
           - { property: 'parent', label: Parent }
           - { property: 'workspace' }
@@ -102,14 +120,16 @@ easy_admin:
           - permissions
         sort: [name, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'name' }
+          - { property: 'slug' }
           - { property: 'enabledLocales', type: array }
           - updatedAt
           - createdAt
       form:
         fields:
           - { property: 'name' }
+          - { property: 'slug' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'phraseanetDataboxId', type: number }
@@ -123,7 +143,7 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class' }
@@ -155,10 +175,10 @@ easy_admin:
         max_results: 100
         filters: ['definition', 'asset']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'definition', label: Definition }
           - { property: 'asset' }
-          - { property: 'file.id', template: 'admin/id.html.twig' }
+          - { property: 'file.id', label: 'File', template: '@AlchemyAdmin/list/id.html.twig' }
           - updatedAt
           - createdAt
 
@@ -171,7 +191,7 @@ easy_admin:
         sort: [workspace, ASC]
         filters: ['workspace', 'name']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -188,7 +208,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -212,7 +232,7 @@ easy_admin:
         sort: [name, ASC]
         filters: ['workspace']
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - createdAt
@@ -231,7 +251,7 @@ easy_admin:
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'userType' }
           - { property: 'userId' }
           - { property: 'objectType' }
@@ -243,12 +263,14 @@ easy_admin:
     Attribute:
       class: App\Entity\Core\Attribute
       list:
+        actions:
+          - '-new'
         batch_actions:
           - delete
         max_results: 100
         sort: [createdAt, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value', type: string }
@@ -256,7 +278,6 @@ easy_admin:
           - createdAt
       form:
         fields:
-          - { property: 'asset' }
           - { property: 'definition' }
           - { property: 'value' }
           - { property: 'locale' }
@@ -273,7 +294,7 @@ easy_admin:
         filters: ['workspace', 'public', 'searchable', 'multiple', 'fieldType', 'fileType' ]
         sort: [name, ASC]
         fields:
-          - { property: id, template: 'admin/id.html.twig' }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'fileType' }
@@ -328,3 +349,21 @@ easy_admin:
         sort: ['createdAt', 'ASC']
         fields:
           - token
+
+    AlternateUrl:
+      class: App\Entity\Core\AlternateUrl
+      list:
+        filters: ['workspace']
+        batch_actions:
+          - delete
+        sort: [workspace, ASC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - workspace
+          - type
+          - label
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'type' }
+          - { property: 'label' }

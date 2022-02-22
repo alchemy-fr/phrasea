@@ -4,7 +4,7 @@ import Modal from "../Layout/Modal";
 import {UploadFiles} from "../../api/file";
 import {Field, FieldProps, Form, Formik, FormikErrors, FormikProps} from "formik";
 import {TextField} from "formik-material-ui";
-import {FormControl, InputLabel, MenuItem, Select} from "@material-ui/core";
+import {FormControl} from "@material-ui/core";
 import {Workspace} from "../../types";
 import {getWorkspaces} from "../../api/collection";
 import FileCard from "./FileCard";
@@ -127,7 +127,7 @@ export default function UploadModal({userId, files, onClose}: Props) {
                             </label>
                             <CollectionsTreeView
                                 onChange={(selection) => setFieldValue(field.name, selection)}
-                                workspaces={workspaces} />
+                                workspaces={workspaces}/>
                             {errors.destinations && <div className="error text-danger">{errors.destinations}</div>}
                         </FormControl>
                     }}

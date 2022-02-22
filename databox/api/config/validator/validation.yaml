@@ -2,6 +2,8 @@ App\Entity\Core\Asset:
   properties:
     title:
       - NotBlank: ~
+      - Length:
+          max: 255
     workspace:
       - NotNull: ~
 
@@ -15,9 +17,22 @@ App\Entity\Core\Collection:
       - NotNull: ~
 
 App\Entity\Core\Workspace:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - slug
+        message: Slug is already taken
   properties:
     name:
       - NotBlank: ~
+    slug:
+      - NotBlank: ~
+      - Length:
+          max: 50
+          min: 2
+      - Regex:
+          pattern: '/^[a-z0-9][a-z0-9-]*[a-z0-9]$/'
+          message: 'Invalid slug. Should match: my-workspace01'
     enabledLocales:
       - All:
         - NotBlank: ~
@@ -67,7 +82,11 @@ App\Entity\Core\RenditionDefinition:
           - workspace
           - class.workspace
   properties:
+    class:
+      - NotNull: ~
     priority:
+      - NotNull: ~
+    workspace:
       - NotNull: ~
 
 App\Entity\Core\RenditionClass:
@@ -79,6 +98,8 @@ App\Entity\Core\RenditionClass:
         errorPath: name
   properties:
     name:
+      - NotNull: ~
+    workspace:
       - NotNull: ~
 
 App\Entity\Core\TagFilterRule:

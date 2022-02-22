@@ -39,7 +39,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     use UpdatedAtTrait;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?Asset $asset = null;

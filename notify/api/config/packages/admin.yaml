@@ -20,7 +20,8 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: userId, type: string }
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: userId, type: string, template: '@AlchemyAdmin/list/id.html.twig' }
           - email
           - phone
           - createdAt
@@ -39,6 +40,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - topic
           - contact.email
           - contact.phone

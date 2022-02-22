@@ -16,7 +16,7 @@ abstract class AbstractUuidEntity
 {
     /**
      * @var UuidInterface|string
-     * @Groups({"tag:index", "tag:read"})
+     * @Groups({"_"})
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */

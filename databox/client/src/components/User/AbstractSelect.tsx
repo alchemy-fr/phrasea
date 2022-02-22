@@ -46,7 +46,6 @@ export default abstract class AbstractSelect<T> extends PureComponent<Props<T>, 
 
         const {disabledValues} = this.props;
         if (disabledValues) {
-            console.log('disabledValues', disabledValues);
             return values.map(i => ({
                 ...i,
                 isDisabled: disabledValues.includes(i.value),

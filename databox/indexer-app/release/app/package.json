@@ -1,0 +1,17 @@
+{
+  "name": "databox-indexer-app",
+  "version": "1.0.0",
+  "description": "Desktop application to index Databox from any storage",
+  "main": "dist/main/main.js",
+  "author": {
+    "name": "Alchemy",
+    "email": "contact@alchemy.fr",
+    "url": "https://github.com/alchemy-fr"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
+    "postinstall": "yarn run electron-rebuild && yarn run link-modules"
+  },
+  "license": "MIT"
+}

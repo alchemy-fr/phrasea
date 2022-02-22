@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
+use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Security\Core\Security;
 
 class AssetSearch extends AbstractSearch
 {
@@ -18,17 +21,23 @@ class AssetSearch extends AbstractSearch
     private TagFilterManager $tagFilterManager;
     private EntityManagerInterface $em;
     private AttributeSearch $attributeSearch;
+    private Security $security;
+    private QueryStringParser $queryStringParser;
 
     public function __construct(
         PaginatedFinderInterface $finder,
         TagFilterManager $tagFilterManager,
         EntityManagerInterface $em,
-        AttributeSearch $attributeSearch
+        AttributeSearch $attributeSearch,
+        Security $security,
+        QueryStringParser $queryStringParser
     ) {
         $this->finder = $finder;
         $this->tagFilterManager = $tagFilterManager;
         $this->em = $em;
         $this->attributeSearch = $attributeSearch;
+        $this->security = $security;
+        $this->queryStringParser = $queryStringParser;
     }
 
     public function search(
@@ -90,13 +99,23 @@ class AssetSearch extends AbstractSearch
         }
 
         $queryString = trim($options['query'] ?? '');
-        if (!empty($queryString)) {
-            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($queryString, $userId, $groupIds, $options)) {
+        $parsed = $this->queryStringParser->parseQuery($queryString);
+
+        if (!empty($parsed['should'])) {
+            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($parsed['should'], $userId, $groupIds, $options)) {
+                $filterQuery->addMust($multiMatch);
+            }
+        }
+        foreach ($parsed['must'] as $must) {
+            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($must, $userId, $groupIds, array_merge($options, [
+                AttributeSearch::OPT_STRICT_PHRASE => true,
+                ]))) {
                 $filterQuery->addMust($multiMatch);
             }
         }
 
         $query = new Query();
+        $query->setTrackTotalHits(true);
         $query->setQuery($filterQuery);
         $query->setSort([
             '_score',
@@ -105,9 +124,13 @@ class AssetSearch extends AbstractSearch
 
 //        dump($filterQuery->toArray());
 
-        $result = $this->finder->findPaginated($query);
+        $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
+            return $this->security->isGranted(AssetVoter::READ, $asset);
+        }, $this->finder->findPaginated($query)->getAdapter()));
         $result->setMaxPerPage($limit);
-        $result->setCurrentPage($options['page'] ?? 1);
+        if ($options['page'] ?? false) {
+            $result->setCurrentPage($options['page']);
+        }
 
         return $result;
     }

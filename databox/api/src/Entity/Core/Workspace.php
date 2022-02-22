@@ -6,26 +6,36 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
-class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
+class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use DeletedAtTrait;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private ?string $name = null;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=false)
+     */
+    private ?string $slug = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -45,18 +55,56 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     /**
      * @var Collection[]
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
-     * @ORM\JoinColumn(nullable=false)
      */
     protected ?DoctrineCollection $collections = null;
+
+    /**
+     * @var Tag[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace")
+     */
+    protected ?DoctrineCollection $tags = null;
+
+    /**
+     * @var RenditionClass[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace")
+     */
+    protected ?DoctrineCollection $renditionClasses = null;
+
+    /**
+     * @var RenditionDefinition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace")
+     */
+    protected ?DoctrineCollection $renditionDefinitions = null;
+
+    /**
+     * @var AttributeDefinition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace")
+     */
+    protected ?DoctrineCollection $attributeDefinitions = null;
+
+    /**
+     * @var File[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace")
+     */
+    protected ?DoctrineCollection $files = null;
 
     public function __construct()
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->renditionClasses = new ArrayCollection();
+        $this->renditionDefinitions = new ArrayCollection();
+        $this->attributeDefinitions = new ArrayCollection();
+        $this->files = new ArrayCollection();
     }
 
     public function getName(): string
     {
+        if (null !== $this->deletedAt) {
+            return sprintf('(being deleted...) %s', $this->name);
+        }
+
         return $this->name;
     }
 
@@ -129,5 +177,15 @@ class Workspace extends AbstractUuidEntity implements AclObjectInterface, WithOw
     public function setEnabledLocales(array $enabledLocales): void
     {
         $this->enabledLocales = $enabledLocales;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

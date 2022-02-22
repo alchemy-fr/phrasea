@@ -20,14 +20,11 @@ class CollectionCollectionDataProvider implements ContextAwareCollectionDataProv
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {
-        $pagination = $this->search->search($context['userId'], $context['groupIds'], $context['filters'] ?? []);
-
-        return new PagerFantaApiPlatformPaginator($pagination);
+        return $this->search->searchAggregationsByWorkspace($context['userId'], $context['groupIds'], $context['filters'] ?? []);
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Collection::class === $resourceClass;
     }
-
 }

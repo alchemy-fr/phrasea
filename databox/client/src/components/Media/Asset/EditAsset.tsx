@@ -54,6 +54,7 @@ export default class EditAsset extends AbstractEdit<Asset, FormProps> {
                     <div className="form-group">
                         <Field
                             component={TextField}
+                            fullWidth
                             name="title"
                             type="text"
                             label="Asset title"

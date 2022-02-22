@@ -1,0 +1,64 @@
+{
+  "databox": {
+    "url": "%env(DATABOX_API_URL)%",
+    "clientId": "%env(DATABOX_CLIENT_ID)%",
+    "clientSecret": "%env(DATABOX_CLIENT_SECRET)%",
+    "ownerId": "%env(DATABOX_OWNER_ID)%",
+    "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
+    "concurrency": "%env(int:DATABOX_CONCURRENCY)%"
+  },
+  "blacklist": [
+    "(^|/)\\..+$"
+  ],
+  "locations": [
+    {
+      "name": "test-s3",
+      "type": "s3_amqp",
+      "options": {
+        "amqp": {
+          "dsn": "%env(AMQP_DSN)%"
+        },
+        "s3": {
+          "endpoint": "%env(S3_STORAGE_ENDPOINT)%",
+          "bucketNames": "%env(BUCKET_NAMES)%",
+          "accessKey": "%env(S3_STORAGE_ACCESS_KEY)%",
+          "secretKey": "%env(S3_STORAGE_SECRET_KEY)%"
+        },
+        "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+      }
+    },
+    {
+      "name": "my_fs",
+      "type": "fs",
+      "options": {
+        "dir": "%env(WATCH_DIR)%",
+        "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
+        "sourceDir": "%env(WATCH_SOURCE_DIR)%",
+        "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+      },
+      "alternateUrls": [
+        {
+          "name": "indexer",
+          "pathPattern": "indexer://${sourcePath}"
+        }
+      ]
+    },
+    {
+      "name": "phraseanet",
+      "type": "phraseanet",
+      "options": {
+        "url": "%env(PHRASEANET_BASE_URL)%",
+        "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
+        "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
+        "importFiles": "%env(bool:IMPORT_FILES)%",
+        "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%",
+        "databoxMapping": [
+          {
+            "databoxId": "%env(PHRASEANET_DATABOX_ID)%",
+            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+          }
+        ]
+      }
+    }
+  ]
+}

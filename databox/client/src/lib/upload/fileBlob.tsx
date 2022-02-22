@@ -26,7 +26,7 @@ export function FileBlobThumb({
 
     useEffect(() => {
         fileToDataUri(file).then(setDataUri);
-    }, []);
+    }, [file]);
 
     height = height === undefined ? width : height;
 

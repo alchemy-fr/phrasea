@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -23,10 +24,30 @@ class RenditionClass extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
+     * Override trait for annotation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionClasses")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
+     */
+    protected ?Workspace $workspace = null;
+
+    /**
      * @Groups({"rendclass:index", "rendclass:read"})
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
+
+    /**
+     * @var RenditionDefinition[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="class", cascade={"remove"})
+     */
+    protected ?DoctrineCollection $definitions = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->definitions = new ArrayCollection();
+    }
 
     public function getName(): string
     {
@@ -40,6 +61,6 @@ class RenditionClass extends AbstractUuidEntity
 
     public function __toString(): string
     {
-        return $this->getName();
+        return sprintf('%s (%s)', $this->getName(), $this->getWorkspace()->getName());
     }
 }

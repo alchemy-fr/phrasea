@@ -34,6 +34,13 @@ class FileOutput extends AbstractUuidOutput
      */
     private ?string $url = null;
 
+    /**
+     * @var AlternateUrlOutput[]
+     *
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     */
+    private ?array $alternateUrls = [];
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -62,5 +69,18 @@ class FileOutput extends AbstractUuidOutput
     public function setSize(?int $size): void
     {
         $this->size = $size;
+    }
+
+    /**
+     * @return AlternateUrlOutput[]
+     */
+    public function getAlternateUrls(): ?array
+    {
+        return $this->alternateUrls;
+    }
+
+    public function setAlternateUrls(?array $alternateUrls): void
+    {
+        $this->alternateUrls = $alternateUrls;
     }
 }

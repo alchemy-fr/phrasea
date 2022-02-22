@@ -15,7 +15,17 @@ resources:
         security: 'is_granted("EDIT", object)'
       delete:
         security: 'is_granted("DELETE", object)'
+      flush:
+        controller: App\Controller\Core\FlushWorkspaceAction
+        path: /workspaces/{id}/flush
+        method: POST
+        security: 'is_granted("EDIT", object)'
+        read: true
     collectionOperations:
       get: ~
+      get_by_slug:
+        method: GET
+        path: /workspaces-by-slug/{slug}
+        controller: App\Controller\Core\GetWorkspaceBySlugAction
       post:
         security: 'is_granted("ROLE_ADMIN")'

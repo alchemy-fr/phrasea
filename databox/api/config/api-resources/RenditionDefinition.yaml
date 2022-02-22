@@ -8,6 +8,7 @@ resources:
           - renddef:index
       denormalization_context:
         groups:
+          - _
           - renddef:write
     itemOperations:
       get:

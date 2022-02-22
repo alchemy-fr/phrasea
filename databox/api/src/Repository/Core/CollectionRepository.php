@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityRepository;
 
 class CollectionRepository extends EntityRepository
@@ -16,5 +17,17 @@ class CollectionRepository extends EntityRepository
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findByKey(string $key, string $workspaceId): ?Collection
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t')
+            ->andWhere('t.key = :key')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('key', $key)
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

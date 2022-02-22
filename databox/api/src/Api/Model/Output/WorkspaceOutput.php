@@ -26,9 +26,14 @@ class WorkspaceOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})
+     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read", "asset:index", "asset:read"})
      */
     private string $name;
+
+    /**
+     * @Groups({"workspace:index", "workspace:read"})
+     */
+    private string $slug;
 
     public function getName(): string
     {
@@ -38,5 +43,15 @@ class WorkspaceOutput extends AbstractUuidOutput
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

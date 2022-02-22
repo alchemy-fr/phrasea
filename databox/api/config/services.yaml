@@ -6,6 +6,7 @@
 parameters:
     default_locale: 'en'
     env(VERIFY_SSL): true
+    stof_doctrine_extensions.listener.softdeleteable.class: App\Doctrine\Listener\SoftDeleteableListener
 
 services:
     # default configuration for services in *this* file
@@ -54,9 +55,15 @@ services:
 
     App\Elasticsearch\Listener\DeferredIndexListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.terminate }
-            - { name: kernel.event_listener, event: console.terminate }
-            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onHandlerTerminate }
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush }
+            - { name: kernel.event_listener, event: console.terminate, method: flush }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
+
+    App\Elasticsearch\ESSearchIndexer:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush, priority: -255 }
+            - { name: kernel.event_listener, event: console.terminate, method: flush, priority: -255 }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush, priority: -255 }
 
     App\Listener\TerminateStackListener:
         tags:
@@ -115,3 +122,9 @@ services:
         arguments:
             $client: '@fos_elastica.client'
             $index: '@fos_elastica.index.asset'
+
+    App\Elasticsearch\IndexCleaner:
+        arguments:
+            $client: '@fos_elastica.client'
+            $collectionIndex: '@fos_elastica.index.collection'
+            $assetIndex: '@fos_elastica.index.asset'

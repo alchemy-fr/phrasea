@@ -15,6 +15,8 @@ use Elastica\Query;
 
 class AttributeSearch
 {
+    public const OPT_STRICT_PHRASE = 'strict';
+
     private FieldNameResolver $fieldNameResolver;
     private EntityManagerInterface $em;
     private AttributeTypeRegistry $typeRegistry;
@@ -78,6 +80,10 @@ class AttributeSearch
             $multiMatch = new Query\MultiMatch();
             $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
             $multiMatch->setQuery($queryString);
+
+            if ($options[self::OPT_STRICT_PHRASE] ?? false) {
+                $multiMatch->setOperator(Query\MultiMatch::OPERATOR_AND);
+            }
 //            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
             $fields = [];
             foreach ($weights as $field => $boost) {

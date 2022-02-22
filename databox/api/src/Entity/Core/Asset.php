@@ -21,7 +21,6 @@ use Doctrine\ORM\Mapping as ORM;
 use LogicException;
 
 /**
- * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
@@ -68,24 +67,36 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     private ?DoctrineCollection $storyCollection = null;
 
     /**
-     * Asset will inherits permissions from this collection.
+     * Asset will inherit permissions from this collection.
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="referenceAssets")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Collection $referenceCollection = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="asset", cascade={"persist", "remove"})
+     */
+    private ?DoctrineCollection $attributes = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
+     */
+    private ?DoctrineCollection $renditions = null;
 
     public function __construct()
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
+        $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->attributes = new ArrayCollection();
     }
 
     public function getOwnerId(): ?string
@@ -202,6 +213,15 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
         })->getValues();
     }
 
+    public function getReferenceCollectionId(): ?string
+    {
+        if (!$this->referenceCollection) {
+            return null;
+        }
+
+        return $this->referenceCollection->getId();
+    }
+
     public function getReferenceCollection(): ?Collection
     {
         return $this->referenceCollection;
@@ -230,5 +250,19 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function addAttribute(Attribute $attribute): void
+    {
+        $attribute->setAsset($this);
+        $this->attributes->add($attribute);
+    }
+
+    /**
+     * @return AssetRendition[]
+     */
+    public function getRenditions(): DoctrineCollection
+    {
+        return $this->renditions;
     }
 }

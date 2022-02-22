@@ -24,7 +24,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
-      - "traefik.http.routers.traefik-console.tls=true"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
@@ -32,7 +31,7 @@ services:
       - TRAEFIK_LOG_LEVEL=DEBUG
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=0
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
       - TRAEFIK_ENTRYPOINTS_WEB=true
       - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
       - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
@@ -145,6 +144,9 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
+    extra_hosts:
+      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-api-nginx:
     profiles:
@@ -164,7 +166,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.uploader-api.tls=true"
 
   auth-worker:
     profiles:
@@ -260,8 +261,8 @@ services:
     depends_on:
       - auth-api-php
     labels:
-      traefik.enable: true
-      traefik.http.routers.auth-api.rule: Host(`api-auth.${PHRASEA_DOMAIN}`)
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-api.rule=Host(`api-auth.${PHRASEA_DOMAIN}`)"
 
   expose-api-php:
     profiles:
@@ -376,7 +377,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.expose-api.tls=true"
 
   notify-api-php:
     profiles:
@@ -460,7 +460,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.notify-api.tls=true"
 
   redis:
     profiles:
@@ -499,7 +498,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.rabbitmq-console.tls=true"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
 
   dockerize:
@@ -540,11 +538,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.minio.tls=true"
       - "traefik.http.routers.minio.service=minio"
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.minio-console.tls=true"
       - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
 
@@ -597,7 +593,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.matomo.tls=true"
 
   matomo-db:
     profiles:
@@ -638,7 +633,7 @@ services:
   pgadmin:
     profiles:
       - tools
-    image: dpage/pgadmin4:4.14
+    image: dpage/pgadmin4:6.4
     networks:
       - internal
     environment:
@@ -651,7 +646,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.pgadmin.tls=true"
 
   phpmyadmin:
     profiles:
@@ -664,7 +658,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.phpmyadmin.tls=true"
 
   mailhog:
     profiles:
@@ -675,7 +668,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.mailhog.tls=true"
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
 
   weblate:
@@ -713,7 +705,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.weblate.rule=Host(`weblate.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.weblate.tls=true"
 
   dashboard:
     profiles:
@@ -780,6 +771,9 @@ services:
       - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
       - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}
       - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}
+      - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}
+      - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}
+      - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}
       - WEBLATE_BASE_URL=https://weblate.${PHRASEA_DOMAIN}
       - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
       - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
@@ -787,7 +781,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.tls=true"
 
   databox-api-php:
     profiles:
@@ -901,19 +894,60 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.databox-api.tls=true"
 
-  indexer-app:
+  databox-indexer-app:
+    image: ${REGISTRY_NAMESPACE}databox-indexer-app:$DOCKER_TAG
     build:
-      context: ./indexer/desktop-app
+      context: ./databox/indexer-app
     profiles:
-      - app-indexer
+      - indexer-app
     privileged: true
 
-  indexer-agent-amqp:
-    image: ${REGISTRY_NAMESPACE}indexer-agent-amqp:$DOCKER_TAG
+  databox-indexer:
+    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    command: [ "/bin/sh", "-c", "exit" ]
     build:
-      context: ./indexer/agent-amqp
+      context: ./databox/indexer
+    profiles:
+      - indexer
+    networks:
+      - internal
+    environment:
+      - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - IMPORT_FILES=${INDEXER_IMPORT_FILES}
+      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_VERIFY_SSL=${VERIFY_SSL}
+      - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
+      - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
+      - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
+      - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
+      - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
+      - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
+      - WATCH_DIR=${INDEXER_WATCH_DIR}
+      - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
+      - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
+      - PHRASEANET_BASE_URL
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
+      - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
+      - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
+    volumes:
+      - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  databox-watcher:
+    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    build:
+      context: ./databox/indexer
     profiles:
       - indexer
     networks:
@@ -922,14 +956,37 @@ services:
       - rabbitmq
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
+      - IMPORT_FILES=${INDEXER_IMPORT_FILES}
       - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
-      - DATABOX_CLIENT_ID=indexer_3x0hjx
-      - DATABOX_CLIENT_SECRET=1wq6n8w0mdlww0gg880w4g8ogk8ssk8sgk0k0s840og88cs88c
-      - PUBLIC_URL=https://indexer-agent-amqp.${PHRASEA_DOMAIN}
+      - DATABOX_VERIFY_SSL=${VERIFY_SSL}
+      - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
+      - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
+      - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
+      - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
+      - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ACCESS_KEY
+      - S3_STORAGE_SECRET_KEY
+      - S3_STORAGE_REGION
+      - S3_STORAGE_BUCKET_NAME=${INDEXER_BUCKET_NAME}
+      - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
+      - WATCH_DIR=${INDEXER_WATCH_DIR}
+      - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
+      - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
+      - PHRASEANET_BASE_URL
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
+      - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
+    volumes:
+      - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.indexer-agent-amqp.rule=Host(`indexer-agent-amqp.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.indexer-agent-amqp.tls=true"
+      - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
+    extra_hosts:
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   elasticsearch:
     profiles:
@@ -948,6 +1005,16 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  elastichq:
+    profiles:
+      - tools
+    image: elastichq/elasticsearch-hq
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
 
 volumes:
   db_vol:

@@ -1,8 +1,15 @@
 import {ApiHydraObjectResponse} from "./api/hydra";
 
+type AlternateUrl = {
+    type: string;
+    url: string;
+    label?: string;
+}
+
 export interface File {
     id: string;
-    url: string;
+    url?: string;
+    alternateUrls: AlternateUrl[];
     size: number;
 }
 
@@ -18,6 +25,30 @@ export interface Asset extends IPermissions {
     preview: File | null;
     thumbnail: File | null;
     thumbnailActive: File | null;
+}
+
+export interface Attribute extends IPermissions {
+    id: string;
+    definition: {
+        id: string;
+    }
+    origin: "human" | "machine";
+    originVendor?: string;
+    originUserId?: string;
+    originVendorContext?: string;
+    value: any;
+}
+
+export interface AttributeDefinition extends IPermissions {
+    id: string;
+    name: string;
+    type: string;
+    multiple: boolean;
+    editable: boolean;
+    searchable: boolean;
+    translatable: boolean;
+    allowInvalid: boolean;
+    searchBoost: number;
 }
 
 export interface IPermissions extends ApiHydraObjectResponse {

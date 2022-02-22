@@ -72,7 +72,7 @@ class PhraseanetController extends AbstractController
         }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $path = $pathGenerator->generatePath($extension);
+        $path = sprintf('%s/%s', $asset->getWorkspace()->getId(), $pathGenerator->generatePath($extension));
 
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $storageManager->storeStream($path, $stream);

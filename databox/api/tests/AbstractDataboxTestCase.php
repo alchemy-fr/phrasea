@@ -159,6 +159,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $ownerId = $options['ownerId'] ?? 'custom_owner';
         $workspace->setOwnerId($ownerId);
         $workspace->setEnabledLocales(['fr', 'en', 'de']);
+        $workspace->setSlug('my-workspace');
 
         $em->persist($workspace);
 

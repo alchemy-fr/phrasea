@@ -18,6 +18,7 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output = new WorkspaceOutput();
         $output->setId($object->getId());
         $output->setName($object->getName());
+        $output->setSlug($object->getSlug());
 
         $output->setCapabilities([
             'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $object),

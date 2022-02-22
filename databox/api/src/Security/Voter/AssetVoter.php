@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Asset;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
@@ -25,17 +26,26 @@ class AssetVoter extends AbstractVoter
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
 
+        $workspaceIds = $userId ? $this->getAllowedWorkspaceIds($userId, $user->getGroupIds()) : [];
+
         switch ($attribute) {
             case self::CREATE:
                 if (null !== $collection = $subject->getReferenceCollection()) {
                     return $this->security->isGranted(CollectionVoter::EDIT, $collection);
                 }
+                if ($subject->getWorkspace()) {
+                    return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+                }
 
                 return $user instanceof RemoteUser;
             case self::READ:
-                // TODO isGranted VIEW on asset
-                // AND validate permissions on tags
-                break;
+                return $isOwner
+                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
+                    || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                    || $this->security->isGranted(PermissionInterface::VIEW, $subject)
+                    || $this->collectionGrantsAccess($subject)
+                    ;
             case self::EDIT:
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
@@ -62,4 +72,14 @@ class AssetVoter extends AbstractVoter
         return false;
     }
 
+    private function collectionGrantsAccess(Asset $subject): bool
+    {
+        foreach ($subject->getCollections() as $collectionAsset) {
+            if ($this->security->isGranted(CollectionVoter::READ, $collectionAsset->getCollection())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

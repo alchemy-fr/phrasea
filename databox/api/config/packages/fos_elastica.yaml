@@ -82,6 +82,8 @@ fos_elastica:
                     analyzer: text_fr
                 attributes:
                     type: object
+                referenceCollectionId:
+                    type: keyword
                 collectionPaths:
                     property_path: false
                     type: text

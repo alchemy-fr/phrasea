@@ -10,7 +10,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\RenditionVoter;
+use App\Security\Voter\RenditionClassVoter;
 use App\Storage\RenditionManager;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -85,7 +85,7 @@ final class CreateRenditionAction extends AbstractController
         $rendition = new AssetRendition();
         $rendition->setAsset($asset);
 
-        $this->denyAccessUnlessGranted(RenditionVoter::CREATE, $rendition);
+        $this->denyAccessUnlessGranted(RenditionClassVoter::CREATE, $rendition);
     }
 
     private function handleMultipartUpload(Asset $asset, RenditionDefinition $definition, Request $request): AssetRendition

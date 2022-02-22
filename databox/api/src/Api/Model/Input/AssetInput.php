@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
@@ -33,7 +34,23 @@ class AssetInput extends AbstractOwnerIdInput
     public ?Collection $collection = null;
 
     /**
-     * The source URL (must be public)
+     * @var AttributeInput[]
      */
-    public ?string $source = null;
+    public ?array $attributes = null;
+
+    /**
+     * @var AssetSourceInput|null
+     */
+    public $source = null;
+
+    public $generateRenditions = true;
+
+    /**
+     * @var RenditionInput[]
+     */
+    public ?array $renditions = null;
+
+    // TODO implement
+
+    public ?bool $copySource = null;
 }

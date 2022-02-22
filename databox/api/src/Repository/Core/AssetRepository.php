@@ -22,4 +22,15 @@ class AssetRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return Asset[]
+     */
+    public function findByKey(string $key, string $workspaceId): ?Asset
+    {
+        return $this->findOneBy([
+            'key' => $key,
+            'workspace' => $workspaceId,
+        ]);
+    }
 }

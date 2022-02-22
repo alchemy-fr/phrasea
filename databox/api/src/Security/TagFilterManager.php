@@ -63,11 +63,16 @@ class TagFilterManager
     public function getUserRules(?string $userId, array $groupIds): array
     {
         $repo = $this->em->getRepository(TagFilterRule::class);
-        $workspaces = $this->em->getRepository(Workspace::class)->findAll();
 
+        /** @var TagFilterRule[] $rules */
+        $rules = $repo->getRules($userId, $groupIds, TagFilterRule::TYPE_WORKSPACE, null);
         $wsRules = [];
-        foreach ($workspaces as $workspace) {
-            $wsRules[$workspace->getId()] = $this->mergeRules($repo->getRules($userId, $groupIds, TagFilterRule::TYPE_WORKSPACE, $workspace->getId()));
+        foreach ($rules as $rule) {
+            $id = $rule->getObjectId();
+            $wsRules[$id][] = $rule;
+        }
+        foreach ($wsRules as $wsId => $rules) {
+            $wsRules[$wsId] = $this->mergeRules($rules);
         }
 
         $collRules = [];

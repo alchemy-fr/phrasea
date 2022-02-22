@@ -33,6 +33,6 @@ wait_for_es
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" fos:elastica:create
-"${BASEDIR}/console" fos:elastica:populate
+php -d memory_limit=1G "${BASEDIR}/console" fos:elastica:populate
 echo y | "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
 echo y | "${BASEDIR}/console" doctrine:migrations:version --add --all

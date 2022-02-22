@@ -1,5 +1,4 @@
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
-import {Asset} from "../../types";
 import {makeAuthorizationHeaders, uploadClient} from "../../api/file";
 
 const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3

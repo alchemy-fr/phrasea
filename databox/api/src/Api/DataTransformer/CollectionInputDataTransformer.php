@@ -7,10 +7,20 @@ namespace App\Api\DataTransformer;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CollectionInputDataTransformer extends AbstractInputDataTransformer
 {
     use WithOwnerIdDataTransformerTrait;
+
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
 
     /**
      * @param CollectionInput $data
@@ -22,12 +32,34 @@ class CollectionInputDataTransformer extends AbstractInputDataTransformer
         $object->setTitle($data->title);
         $this->transformPrivacy($data, $object);
 
+        $workspace = null;
+        if ($data->workspace) {
+            $workspace = $data->workspace;
+        } elseif (null !== $data->parent) {
+            $workspace = $data->parent->getWorkspace();
+        }
+
         if ($isNew) {
-            if ($data->workspace) {
-                $object->setWorkspace($data->workspace);
-            } elseif (null !== $data->parent) {
-                $object->setWorkspace($data->parent->getWorkspace());
+            if (!$workspace instanceof Workspace) {
+                throw new BadRequestHttpException('Missing workspace');
             }
+
+            if ($data->key) {
+                $collection = $this->em->getRepository(Collection::class)
+                    ->findByKey($data->key, $workspace->getId());
+
+                if ($collection) {
+                    $isNew = false;
+                    $object = $collection;
+                }
+            }
+        }
+
+        if ($isNew) {
+            if ($workspace) {
+                $object->setWorkspace($workspace);
+            }
+
             if ($data->getOwnerId()) {
                 $object->setOwnerId($data->getOwnerId());
             }
@@ -35,6 +67,10 @@ class CollectionInputDataTransformer extends AbstractInputDataTransformer
 
         if (null !== $data->parent) {
             $object->setParent($data->parent);
+        }
+
+        if (null !== $data->key) {
+            $object->setKey($data->key);
         }
 
         return $this->transformOwnerId($object, $to, $context);

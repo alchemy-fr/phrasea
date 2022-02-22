@@ -27,13 +27,17 @@ class RenditionClassVoter extends AbstractVoter
             return true;
         }
 
+        $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+
         switch ($attribute) {
             case self::CREATE:
-                return $this->security->isGranted(self::SCOPE_PREFIX.'CREATE');
+                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE');
             case self::EDIT:
-                return $this->security->isGranted(self::SCOPE_PREFIX.'EDIT');
+                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT');
             case self::DELETE:
-                return $this->security->isGranted(self::SCOPE_PREFIX.'DELETE');
+                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE');
+            case self::READ:
+                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'READ');
         }
 
         return false;

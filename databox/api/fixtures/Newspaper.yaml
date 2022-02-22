@@ -7,31 +7,49 @@ parameters:
 App\Entity\Core\Workspace:
   w_newspaper:
     name: Newspaper
+    slug: newspaper
     ownerId: super_user
 
 App\Entity\Core\RenditionClass:
-  sdc_public:
+  n_rc_public:
     workspace: '@w_newspaper'
     name: Public
-  sdc_restricted:
+  n_rc_restricted:
     workspace: '@w_newspaper'
     name: Restricted
 
 App\Entity\Core\RenditionDefinition:
-  sds_preview:
+  n_rd_original:
+    name: original
+    workspace: '@w_newspaper'
+    class: '@n_rc_public'
+    useAsOriginal: true
+  n_rd_preview:
     name: preview
     workspace: '@w_newspaper'
-    class: '@sdc_public'
+    class: '@n_rc_public'
     useAsPreview: true
-  sds_thumbnail:
+  n_rd_thumbnail:
     name: thumbnail
     workspace: '@w_newspaper'
-    class: '@sdc_public'
+    class: '@n_rc_public'
     useAsThumbnail: true
-  sds_thumbnailActive:
+  n_rd_preview_mobile:
+    name: preview_mobile
+    workspace: '@w_newspaper'
+    class: '@n_rc_public'
+    useAsPreview: true
+    priority: 1
+  n_rd_thumbnail_mobile:
+    name: thumbnail_mobile
+    workspace: '@w_newspaper'
+    class: '@n_rc_public'
+    useAsThumbnail: true
+    priority: 1
+  n_rd_thumbnailActive:
     name: thumbnailActive
     workspace: '@w_newspaper'
-    class: '@sdc_public'
+    class: '@n_rc_public'
     useAsThumbnailActive: true
 
 # Groups:

@@ -6,10 +6,12 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
@@ -19,17 +21,22 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
  */
-class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use DeletedAtTrait;
     use WorkspaceTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
@@ -54,33 +61,50 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     /**
      * @var self[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent")
      * @ORM\JoinColumn(nullable=true)
      * @MaxDepth(1)
      */
     private ?DoctrineCollection $children = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist"})
      */
     private ?DoctrineCollection $assets = null;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection")
+     */
+    private ?DoctrineCollection $referenceAssets = null;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     *
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     */
+    private ?string $key = null;
 
     public function __construct()
     {
         parent::__construct();
         $this->children = new ArrayCollection();
         $this->assets = new ArrayCollection();
+        $this->referenceAssets = new ArrayCollection();
     }
 
     public function getTitle(): ?string
     {
+        if (null !== $this->deletedAt) {
+            return sprintf('(being deleted...) %s', $this->title);
+        }
+
         return $this->title;
     }
 
@@ -218,5 +242,15 @@ class Collection extends AbstractUuidEntity implements WithOwnerIdInterface, Acl
     public function __toString()
     {
         return $this->getAbsoluteTitle() ?? $this->getId();
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
     }
 }
