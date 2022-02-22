@@ -61,9 +61,9 @@ services:
 
     App\Elasticsearch\ESSearchIndexer:
         tags:
-            - { name: kernel.event_listener, event: kernel.terminate, method: flush }
-            - { name: kernel.event_listener, event: console.terminate, method: flush }
-            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush }
+            - { name: kernel.event_listener, event: kernel.terminate, method: flush, priority: -255 }
+            - { name: kernel.event_listener, event: console.terminate, method: flush, priority: -255 }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush, priority: -255 }
 
     App\Listener\TerminateStackListener:
         tags:

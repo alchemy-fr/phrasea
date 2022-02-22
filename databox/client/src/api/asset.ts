@@ -43,8 +43,9 @@ export async function putAssetAttribute(id: string | undefined, assetId: string,
     }
 
     await apiClient.post(`/attributes`, {
+        origin: 'human',
         asset: `/assets/${assetId}`,
-        attribute: `/attribute-definitions/${definitionId}`,
+        definition: `/attribute-definitions/${definitionId}`,
         value,
     });
 }
@@ -55,8 +56,6 @@ export async function getWorkspaceAttributeDefinitions(workspaceId: string): Pro
             workspaceId,
         }
     });
-
-    console.log('res', res);
 
     return res.data['hydra:member'];
 }

@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class RenditionPermissionManager
 {
     private const IS_EMPTY = 0;
+    private const ANONYMOUS = '~';
 
     private EntityManagerInterface $em;
     private array $cache = [];
@@ -25,7 +26,7 @@ class RenditionPermissionManager
 
     public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool
     {
-        $assetKey = sprintf('%s:%s:%s', $asset->getId(), $class->getId(), $userId ?? 'anon.');
+        $assetKey = sprintf('%s:%s:%s', $asset->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$assetKey])) {
             return $this->cache[$assetKey];
         }
@@ -33,10 +34,10 @@ class RenditionPermissionManager
         /** @var RenditionRuleRepository $repo */
         $repo = $this->em->getRepository(RenditionRule::class);
 
-        /** @var Collection $container */
+        /** @var Collection|null $container */
         $container = $asset->getReferenceCollection();
         while ($container instanceof Collection) {
-            $collectionKey = sprintf('%s:%s:%s', $container->getId(), $class->getId(), $userId ?? 'anon.');
+            $collectionKey = sprintf('%s:%s', $container->getId(), $userId ?? self::ANONYMOUS);
             if (isset($this->cache[$collectionKey])) {
                 if ($this->cache[$collectionKey] !== self::IS_EMPTY) {
                     return $this->cache[$assetKey] = $this->cache[$collectionKey];
@@ -50,15 +51,15 @@ class RenditionPermissionManager
                     $this->cache[$assetKey] = $result;
 
                     return $result;
-                } else {
-                    $this->cache[$collectionKey] = self::IS_EMPTY;
                 }
+
+                $this->cache[$collectionKey] = self::IS_EMPTY;
             }
 
             $container = $container->getParent();
         }
 
-        $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $class->getId(), $userId ?? 'anon.');
+        $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$workspaceKey])) {
             return $this->cache[$assetKey] = $this->cache[$workspaceKey];
         }

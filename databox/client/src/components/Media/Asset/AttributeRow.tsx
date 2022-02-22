@@ -19,6 +19,7 @@ export default function AttributeRow({
                                          valueId,
                                          type,
                                      }: Props) {
+    const [error, setError] = useState<string>();
     const [realValue, setRealValue] = useState<any>(initialValue);
     const [value, setValue] = useState<any>(initialValue);
     const [saving, setSaving] = useState<any>(false);
@@ -39,15 +40,27 @@ export default function AttributeRow({
 
     const save = async () => {
         setSaving(true);
-        console.log('save value', value);
-        await putAssetAttribute(
-            valueId,
-            assetId,
-            id,
-            value
-        );
-        setRealValue(value);
-        setSaving(false);
+        try {
+            await putAssetAttribute(
+                valueId,
+                assetId,
+                id,
+                value
+            );
+            setRealValue(value);
+            setSaving(false);
+            if (error) {
+                setError(undefined);
+            }
+        } catch (e: any) {
+            setSaving(false);
+            if (e.response && typeof e.response.data === 'object') {
+                const data = e.response.data;
+                setError(`${data['hydra:title']}: ${data['hydra:description']}`);
+            } else {
+                setError(e.toString());
+            }
+        }
     }
 
     return <div
@@ -61,5 +74,6 @@ export default function AttributeRow({
             color="primary">
             Save
         </Button>
+        {error && <div>{error}</div>}
     </div>
 }

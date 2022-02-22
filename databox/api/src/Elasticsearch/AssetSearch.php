@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
+use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Security\Core\Security;
 
 class AssetSearch extends AbstractSearch
 {
@@ -18,17 +21,20 @@ class AssetSearch extends AbstractSearch
     private TagFilterManager $tagFilterManager;
     private EntityManagerInterface $em;
     private AttributeSearch $attributeSearch;
+    private Security $security;
 
     public function __construct(
         PaginatedFinderInterface $finder,
         TagFilterManager $tagFilterManager,
         EntityManagerInterface $em,
-        AttributeSearch $attributeSearch
+        AttributeSearch $attributeSearch,
+        Security $security
     ) {
         $this->finder = $finder;
         $this->tagFilterManager = $tagFilterManager;
         $this->em = $em;
         $this->attributeSearch = $attributeSearch;
+        $this->security = $security;
     }
 
     public function search(
@@ -106,7 +112,9 @@ class AssetSearch extends AbstractSearch
 
 //        dump($filterQuery->toArray());
 
-        $result = $this->finder->findPaginated($query);
+        $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
+            return $this->security->isGranted(AssetVoter::READ, $asset);
+        }, $this->finder->findPaginated($query)->getAdapter()));
         $result->setMaxPerPage($limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage($options['page']);

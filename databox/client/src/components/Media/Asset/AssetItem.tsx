@@ -176,9 +176,11 @@ class AssetItem extends Component<AllProps, State> {
                                     <Badge
                                         variant={'secondary'}
                                     >{privacyLabel}</Badge>
+                                    <Badge
+                                        variant={'primary'}
+                                    >{workspace.name}</Badge>
                                 </div>
                                 <div className={'a-desc'}>{description}</div>
-                                <div className={'a-ws'}>{workspace.name}</div>
                                 <ul className={'a-colls'}>
                                     {this.renderCollections(collections)}
                                 </ul>

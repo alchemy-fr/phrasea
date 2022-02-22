@@ -17,6 +17,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class ESSearchIndexer
 {
@@ -121,7 +122,7 @@ class ESSearchIndexer
 
         $ids = array_unique($ids);
 
-        $this->logger->debug(sprintf('ES index %s: ("%s")', $class, implode('", "', $ids)));
+        $this->logger->debug(sprintf('ES index %s %d: ("%s")', $class, $operation, implode('", "', $ids)));
 
         switch ($operation) {
             case self::ACTION_DELETE:
@@ -186,7 +187,15 @@ class ESSearchIndexer
 
     public function flush(): void
     {
-        $this->flushDependenciesStack(0);
+        $i = 0;
+        while (!empty($this->dependenciesStack)) {
+            $this->flushDependenciesStack(0);
+            ++$i;
+
+            if ($i++ > 100) {
+                throw new RuntimeException(sprintf('%s error: Infinite loop detected in flush', __CLASS__));
+            }
+        }
     }
 
     /**

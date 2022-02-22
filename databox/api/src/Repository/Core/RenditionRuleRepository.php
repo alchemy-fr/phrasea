@@ -7,7 +7,6 @@ namespace App\Repository\Core;
 use App\Entity\Core\RenditionRule;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
 
 class RenditionRuleRepository extends EntityRepository
 {
@@ -46,43 +45,6 @@ class RenditionRuleRepository extends EntityRepository
             $queryBuilder
                 ->andWhere('a.objectId = :oid')
                 ->setParameter('oid', $objectId);
-        }
-
-        return $queryBuilder
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findRules(array $params = []): array
-    {
-        $queryBuilder = $this->createBaseQueryBuilder();
-
-        foreach ([
-            'userType',
-            'objectType',
-            'objectId',
-            'userId',
-                 ] as $key) {
-            if (!array_key_exists($key, $params)) {
-                throw new InvalidArgumentException(sprintf('Missing "%s" key', $key));
-            }
-        }
-
-        foreach ([
-            'userType' => 'ut',
-            'userId' => 'uid',
-            'objectType' => 'ot',
-            'objectId' => 'oid',
-                 ] as $col => $alias) {
-            if (isset($params[$col])) {
-                $queryBuilder
-                    ->andWhere(sprintf('a.%s = :%s', $col, $alias))
-                    ->setParameter($alias, $params[$col]);
-            }
-        }
-
-        if (array_key_exists('userId', $params) && null === $params['userId']) {
-            $queryBuilder->andWhere('a.uid IS NULL');
         }
 
         return $queryBuilder
