@@ -1,13 +1,19 @@
 import axios, {AxiosInstance} from "axios";
 import https from "https";
+import axiosRetry from "axios-retry";
+import {createLogger} from "./logger";
 
 type Options = {
     baseURL: string;
     verifySSL?: boolean;
+    retries?: number;
 } & Record<string, any>;
+
+const logger = createLogger('http');
 
 export function createHttpClient({
                                      verifySSL = true,
+                                     retries = 20,
                                      ...rest
                                  }: Options): AxiosInstance {
     const client = axios.create({
@@ -21,17 +27,40 @@ export function createHttpClient({
         ...rest,
     });
 
+    axiosRetry(client, {
+        retries,
+        shouldResetTimeout: true,
+        retryCondition: (error) => {
+            const {config} = error;
+            logger.warn(`Request "${config.method.toUpperCase()} ${config.url}" failed, retrying...`);
+
+            if (error.response) {
+                if ([500, 400].includes(error.response.status)) {
+                    return false;
+                }
+            }
+
+            return true;
+        },
+        retryDelay: (retryCount) => {
+            return retryCount * 1000;
+        }
+    });
+
     client.interceptors.response.use(
         response => response,
         error => {
-            console.error(error.message);
+            logger.error(error.message);
             if (error.response) {
-                const filtered = {
-                    ...error.response.data,
-                    trace: ['filtered...'],
+                let filtered = error.response.data;
+                if (error.response.data.trace) {
+                    filtered = {
+                        ...filtered,
+                        trace: ['filtered...'],
+                    }
                 }
 
-                console.error(filtered);
+                logger.error(filtered);
             }
 
             return Promise.reject(error);
