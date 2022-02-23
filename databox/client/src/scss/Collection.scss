@@ -33,6 +33,10 @@
   background-color: #3f51b5 !important;
   padding: 0;
 
+  .Mui-selected {
+    background-color: #a40086 !important;
+  }
+
   .icon {
     @include svgFill(#FFF);
   }

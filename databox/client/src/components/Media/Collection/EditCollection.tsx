@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import AbstractEdit from "../AbstractEdit";
 import {Collection} from "../../../types";
 import {getCollection, patchCollection} from "../../../api/collection";
@@ -25,7 +25,7 @@ export default class EditCollection extends AbstractEdit<Collection, FormProps> 
         return 'collection';
     }
 
-    getTitle(): string | null {
+    getTitle(): ReactNode | null {
         const d = this.getData();
         return d ? d.title : null;
     }

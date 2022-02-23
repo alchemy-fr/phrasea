@@ -1,7 +1,7 @@
 import {Workspace} from "../../../types";
 import {getWorkspace} from "../../../api/workspace";
 import AbstractEdit from "../AbstractEdit";
-import React from "react";
+import React, {ReactNode} from "react";
 import {Field, Form, Formik} from "formik";
 import {TextField} from "formik-material-ui";
 import {patchWorkspace} from "../../../api/collection";
@@ -17,7 +17,7 @@ export default class EditWorkspace extends AbstractEdit<Workspace, FormProps> {
         return await getWorkspace(this.props.id);
     }
 
-    getTitle(): string | null {
+    getTitle(): ReactNode | null {
         const d = this.getData();
         return d ? d.name : null;
     }

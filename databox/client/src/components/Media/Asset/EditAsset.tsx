@@ -1,4 +1,4 @@
-import React, {RefObject} from "react";
+import React, {ReactNode, RefObject} from "react";
 import AbstractEdit, {AbstractEditProps} from "../AbstractEdit";
 import {getAsset, patchAsset} from "../../../api/asset";
 import {Asset} from "../../../types";
@@ -7,6 +7,8 @@ import {Field, Form, Formik} from "formik";
 import {TextField} from "formik-material-ui";
 import PrivacyField from "../../ui/PrivacyField";
 import {InputLabel} from "@material-ui/core";
+import Icon from "../../ui/Icon";
+import {ReactComponent as FolderImg} from "../../../images/icons/folder.svg";
 
 type FormProps = {
     title: string;
@@ -26,9 +28,37 @@ export default class EditAsset extends AbstractEdit<Asset, FormProps> {
         return 'asset';
     }
 
-    getTitle(): string | null {
+    getTitle(): ReactNode | null {
         const d = this.getData();
+
         return d ? d.title : null;
+    }
+
+    protected getSubTitle(): React.ReactNode | undefined {
+        const d = this.getData();
+
+        if (d) {
+            return <div style={{
+                fontSize: 15
+            }}>
+                {d.collections.length > 0 && <div>
+                    {`In collections : `}
+                        {d.collections.map(c => {
+                            return <div className={'badge badge-secondary'}>
+                                <Icon
+                                    variant={'xs'}
+                                    component={FolderImg}/>
+                                {c.title}
+                            </div>
+                        })}
+                </div>}
+                <div>{`Workspace : `}
+                    <div className={'badge badge-primary'}>
+                    {d.workspace.name}
+                    </div>
+                </div>
+            </div>
+        }
     }
 
     renderForm(): React.ReactNode {

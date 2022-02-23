@@ -15,7 +15,6 @@ import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import {Button, CssBaseline, Slide} from "@material-ui/core";
 import {useHistory, useLocation} from "react-router-dom";
 import {SelectionContext} from "../Media/SelectionContext";
-import {Link} from "@mui/material";
 
 interface HideProps {
     /**
@@ -88,6 +87,9 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         [theme.breakpoints.up('md')]: {
             width: '20ch',
+            '&:focus': {
+                width: '50ch',
+            }
         },
     },
     sectionDesktop: {
@@ -173,33 +175,10 @@ export default function MainAppBar(props: Props) {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            {/*<MenuItem>*/}
-            {/*    <IconButton aria-label="show 4 new mails" color="inherit">*/}
-            {/*        <Badge badgeContent={4} color="secondary">*/}
-            {/*            <MailIcon />*/}
-            {/*        </Badge>*/}
-            {/*    </IconButton>*/}
-            {/*    <p>Messages</p>*/}
-            {/*</MenuItem>*/}
-            {/*<MenuItem>*/}
-            {/*    <IconButton aria-label="show 11 new notifications" color="inherit">*/}
-            {/*        <Badge badgeContent={11} color="secondary">*/}
-            {/*            <NotificationsIcon />*/}
-            {/*        </Badge>*/}
-            {/*    </IconButton>*/}
-            {/*    <p>Notifications</p>*/}
-            {/*</MenuItem>*/}
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit"
-                >
-                    <AccountCircle/>
-                </IconButton>
-                <p>{props.username}</p>
+            <MenuItem onClick={handleMenuClose}>
+                {props.username}
             </MenuItem>
+            <MenuItem onClick={props.onLogout}>Logout</MenuItem>
         </Menu>
     );
 
@@ -234,10 +213,13 @@ export default function MainAppBar(props: Props) {
                         >
                             <MenuIcon/>
                         </IconButton>
-                        <Typography className={classes.title} variant="h6" noWrap>
-                            <Link onClick={onTitleClick}>
-                                {props.title}
-                            </Link>
+                        <Typography
+                            onClick={onTitleClick}
+                            style={{
+                                cursor: 'pointer'
+                            }}
+                            className={classes.title} variant="h6" noWrap>
+                            {props.title}
                         </Typography>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>
