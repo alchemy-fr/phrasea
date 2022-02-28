@@ -27,10 +27,12 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
     private readonly searchQuery?: string;
+    private readonly searchOrder?: string;
 
     constructor(options: PhraseanetConfig) {
         this.client = createPhraseanetClient(options);
         this.searchQuery = options.searchQuery;
+        this.searchOrder = options.searchOrder;
     }
 
     async getCollections(): Promise<PhraseanetCollection[]> {
@@ -40,6 +42,12 @@ export default class PhraseanetClient {
     }
 
     async search(params: Record<string, any>, offset: number = 0): Promise<PhraseanetRecord[]> {
+        if (this.searchOrder) {
+            const [col, way] = this.searchOrder.split(',');
+            params.sort = col;
+            params.ord = way || 'asc';
+        }
+
         const res = await this.client.get('/api/v3/search/', {
             params: {
                 offset,

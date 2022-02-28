@@ -52,6 +52,7 @@
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
         "importFiles": "%env(bool:IMPORT_FILES)%",
         "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%",
+        "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
         "databoxMapping": [
           {
             "databoxId": "%env(PHRASEANET_DATABOX_ID)%",

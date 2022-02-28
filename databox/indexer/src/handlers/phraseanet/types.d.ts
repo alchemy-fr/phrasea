@@ -6,6 +6,7 @@ export type ConfigDataboxMapping = {
 export type PhraseanetConfig = {
     url: string;
     searchQuery?: string;
+    searchOrder?: string;
     token: string;
     verifySSL?: boolean;
     importFiles?: boolean;
