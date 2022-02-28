@@ -36,7 +36,6 @@ const linearProgressStyle: CSSProperties = {
     right: '0',
     top: '0',
 };
-const imageListItemStyle: CSSProperties = {height: 'auto'};
 
 function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
     if (e.ctrlKey) {
@@ -159,7 +158,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
                         {!loading && total !== undefined ? <>
                             <b>
                                 {new Intl.NumberFormat('fr-FR', {}).format(total)}
-                        </b>
+                            </b>
                             {` result${total > 1 ? 's' : ''}`}
                         </> : 'Loading...'}
                     </ListSubheader>

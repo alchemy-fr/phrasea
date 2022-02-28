@@ -2,10 +2,17 @@ import apiClient from "./api-client";
 import {Collection, Workspace} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
+export const collectionChildrenLimit = 20;
+export const collectionSecondLimit = 30;
+
 type CollectionOptions = {
+    limit?: number;
+    childrenLimit?: number;
+    page?: number;
     query?: string;
     parent?: string;
     workspaces?: string[];
+    groupByWorkspace?: boolean;
 }
 
 export async function getCollections(options: CollectionOptions): Promise<ApiCollectionResponse<Collection>> {
@@ -19,7 +26,10 @@ export async function getCollections(options: CollectionOptions): Promise<ApiCol
 }
 
 export async function getWorkspaces(): Promise<Workspace[]> {
-    const collections = await getCollections({});
+    const collections = await getCollections({
+        groupByWorkspace: true,
+        limit: collectionChildrenLimit + 1,
+    });
 
     const workspaces: {[key: string]: Workspace} = {};
 
@@ -30,8 +40,13 @@ export async function getWorkspaces(): Promise<Workspace[]> {
                 collections: [],
             }
         }
+        const list = workspaces[c.workspace.id].collections;
 
-        workspaces[c.workspace.id].collections.push(c);
+        if (list.length === collectionChildrenLimit) {
+            return;
+        }
+
+        list.push(c);
     });
 
     return (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);

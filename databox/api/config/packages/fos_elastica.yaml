@@ -126,10 +126,14 @@ fos_elastica:
                                 delimiter: /
             properties:
                 title: ~
+                sortName:
+                    type: keyword
                 absolutePath:
                     type: text
                     analyzer: collection_path
                 root:
+                    type: boolean
+                hasChildren:
                     type: boolean
                 pathDepth:
                     type: integer

@@ -991,7 +991,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.16.1
+    image: elasticsearch:7.17.0
     networks:
       - internal
     volumes:

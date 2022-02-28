@@ -128,3 +128,13 @@ services:
             $client: '@fos_elastica.client'
             $collectionIndex: '@fos_elastica.index.collection'
             $assetIndex: '@fos_elastica.index.asset'
+
+    fos_elastica.elastica_to_model_transformer.prototype.orm:
+        class: App\Elasticsearch\Transformer\AppElasticaToModelTransformer
+        abstract: true
+        arguments:
+            - '@doctrine'
+            - ~ # model
+            - ~ # options
+        calls:
+            - [setPropertyAccessor, ['@fos_elastica.property_accessor']]

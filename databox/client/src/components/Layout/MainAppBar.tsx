@@ -175,10 +175,19 @@ export default function MainAppBar(props: Props) {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>
-                {props.username}
-            </MenuItem>
-            <MenuItem onClick={props.onLogout}>Logout</MenuItem>
+            {authenticated ? [
+                <MenuItem
+                    key={'username'}
+                    onClick={handleMenuClose}>
+                    {props.username}
+                </MenuItem>,
+                <MenuItem
+                    key={'logout'}
+                    onClick={props.onLogout}>Logout</MenuItem>
+            ] : <MenuItem onClick={() => history.push({
+                pathname: '/login',
+                state: {from: location}
+            })}>Sign in</MenuItem>}
         </Menu>
     );
 
