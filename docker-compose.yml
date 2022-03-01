@@ -1019,6 +1019,49 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
 
+  k6:
+    profiles:
+      - loadtest
+    image: grafana/k6:0.26.2
+    networks:
+      - internal
+    command: 'run /scripts/src/main.js'
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+    volumes:
+      - ./infra/load-test:/scripts
+    extra_hosts:
+      - expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  influxdb:
+    image: influxdb:1.8
+    profiles:
+      - loadtest
+    networks:
+      - internal
+    environment:
+      - INFLUXDB_DB=k6
+
+  grafana:
+    image: grafana/grafana:8.4.2
+    profiles:
+      - loadtest
+    networks:
+      - internal
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    volumes:
+      - ./infra/docker/grafana:/etc/grafana/provisioning
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
+
 volumes:
   db_vol:
   redis_vol:

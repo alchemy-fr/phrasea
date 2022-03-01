@@ -35,6 +35,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: title, template: 'admin/list/publication_title_link.html.twig' }
           - slug
           - { property: 'profile' }
@@ -68,6 +69,7 @@ easy_admin:
           - delete
         sort: [createdAt, DESC]
         fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - name
           - { property: config.layout, label: Layout }
           - { property: config.enabled, label: Enabled }
