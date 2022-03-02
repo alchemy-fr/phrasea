@@ -8,7 +8,6 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\File;
-use DateTime;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -21,16 +20,6 @@ class AssetOutput extends AbstractUuidOutput
      * @Groups({"asset:index", "asset:read"})
      */
     protected array $capabilities = [];
-
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
-    protected DateTime $createdAt;
-
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
-    protected DateTime $updatedAt;
 
     /**
      * @Groups({"asset:index", "asset:read"})

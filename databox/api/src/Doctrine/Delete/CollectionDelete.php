@@ -75,7 +75,7 @@ class CollectionDelete
             ->toIterable();
 
         foreach ($children as $c) {
-            $this->doDelete($c['id']);
+            $this->doDelete((string) $c['id']);
             $this->em->clear();
         }
 

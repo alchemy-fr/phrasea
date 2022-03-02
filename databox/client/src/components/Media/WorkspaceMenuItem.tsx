@@ -1,5 +1,5 @@
-import React, {PureComponent, MouseEvent, Component} from "react";
-import {Workspace} from "../../types";
+import React, {MouseEvent, Component} from "react";
+import {Collection, Workspace} from "../../types";
 import {SelectionContext} from "./SelectionContext";
 import CollectionMenuItem from "./CollectionMenuItem";
 import EditWorkspace from "./Workspace/EditWorkspace";
@@ -7,10 +7,11 @@ import CreateCollection from "./Collection/CreateCollection";
 import {IconButton, ListItem, ListItemSecondaryAction} from "@material-ui/core";
 import CreateNewFolder from "@material-ui/icons/CreateNewFolder";
 import EditIcon from "@material-ui/icons/Edit";
-import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import {ExpandLess, ExpandMore, MoreHoriz} from "@material-ui/icons";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import {ReactComponent as WorkspaceImg} from "../../images/icons/workspace.svg";
 import Icon from "../ui/Icon";
+import {collectionChildrenLimit, collectionSecondLimit, getCollections} from "../../api/collection";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -18,6 +19,9 @@ type State = {
     expanded: boolean,
     editing: boolean,
     addCollection: boolean,
+    loadingMore: boolean,
+    nextCollections?: Collection[];
+    totalCollections?: number;
 }
 
 function propsAreSame(a: Record<string, any>, b: Record<string, any>): boolean {
@@ -32,6 +36,8 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
         expanded: true,
         editing: false,
         addCollection: false,
+        loadingMore: false,
+        nextCollections: undefined,
     };
 
     shouldComponentUpdate(nextProps: Readonly<WorkspaceMenuItemProps>, nextState: Readonly<State>, nextContext: React.ContextType<typeof SelectionContext>): boolean {
@@ -53,6 +59,39 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
     onClick = (e: MouseEvent): void => {
         this.context.selectWorkspace(this.props.id, this.context.selectedWorkspace === this.props.id);
         this.expandWorkspace(true);
+    }
+
+    getNextPage(): number | undefined {
+        const {collections} = this.props;
+        const {nextCollections, totalCollections} = this.state;
+
+        if (collections.length >= collectionChildrenLimit) {
+            if (nextCollections && totalCollections) {
+                if (nextCollections.length < totalCollections) {
+                    return Math.floor(nextCollections.length / collectionSecondLimit) + 1;
+                }
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    loadMore = async (e: MouseEvent): Promise<void> => {
+        const nextPage = this.getNextPage();
+        this.setState({loadingMore: true});
+
+        const nextCollections = await getCollections({
+            workspaces: [this.props.id],
+            page: nextPage,
+            limit: collectionSecondLimit,
+            childrenLimit: collectionChildrenLimit,
+        });
+
+        this.setState(prevState => ({
+            loadingMore: false,
+            totalCollections: nextCollections.total,
+            nextCollections: (prevState.nextCollections || []).concat(nextCollections.result),
+        }));
     }
 
     onExpandClick = (e: MouseEvent) => {
@@ -85,9 +124,17 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
             capabilities,
             collections,
         } = this.props;
-        const {editing, expanded, addCollection} = this.state;
+        const {
+            editing,
+            expanded,
+            addCollection,
+            nextCollections,
+            loadingMore,
+        } = this.state;
 
         const selected = this.context.selectedWorkspace === id;
+
+        const nextPage = this.getNextPage();
 
         return <>
             <ListSubheader
@@ -138,12 +185,28 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
                 workspaceId={this.props['@id']}
                 onClose={this.closeCollection}
             />}
-            {expanded && collections.map(c => <CollectionMenuItem
+            {expanded && !nextCollections && collections.map(c => <CollectionMenuItem
                 {...c}
                 key={c.id}
                 absolutePath={c.id}
                 level={0}
             />)}
+            {expanded && nextCollections && nextCollections.map(c => <CollectionMenuItem
+                {...c}
+                key={c.id}
+                absolutePath={c.id}
+                level={0}
+            />)}
+            {expanded && Boolean(nextPage) && <ListItem
+                onClick={this.loadMore}
+                disabled={loadingMore}
+                button
+            >
+                <Icon
+                    component={MoreHoriz}
+                />
+                Load more collections
+            </ListItem>}
         </>
     }
 }

@@ -39,9 +39,16 @@ class CollectionSearch extends AbstractSearch
         $filterQuery = new Query\BoolQuery();
         $this->applyFilters($filterQuery, $userId, $groupIds, $options);
 
-        $data = $this->finder->findPaginated($filterQuery);
-        $data->setCurrentPage($options['page'] ?? 1);
+        $query = new Query();
+        $query->setQuery($filterQuery);
+        $query->setTrackTotalHits(true);
+        $query->setSort([
+            'sortName' => ['order'=> 'asc'],
+        ]);
+
+        $data = $this->finder->findPaginated($query);
         $data->setMaxPerPage($limit);
+        $data->setCurrentPage($options['page'] ?? 1);
 
         return $data;
     }
@@ -64,17 +71,20 @@ class CollectionSearch extends AbstractSearch
 
         $termAgg = new Aggregation\Terms('workspaceId');
         $termAgg->setField('workspaceId');
-        $termAgg->setSize(1000);
+        $termAgg->setSize(300);
 
         $aggregation->addAggregation($termAgg);
 
         $maxLimit = 30;
-        $limit = $options['limit'] ?? $maxLimit;
+        $limit = (int) ($options['limit'] ?? $maxLimit);
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
         }
         $top = new Aggregation\TopHits('top');
         $top->setSize($limit);
+        $top->setSort([
+            'sortName' => ['order'=> 'asc'],
+        ]);
         $termAgg->addAggregation($top);
 
         $result = $this->finder->findPaginated($query);

@@ -1,4 +1,4 @@
-import React, {PureComponent, RefObject} from "react";
+import React, {PureComponent, ReactNode, RefObject} from "react";
 import Modal from "../Layout/Modal";
 import Button from "../ui/Button";
 import {IPermissions} from "../../types";
@@ -44,19 +44,29 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
         });
     }
 
-    abstract loadItem(): Promise<T>;
+    protected abstract loadItem(): Promise<T>;
 
-    abstract handleSave(data: FP): Promise<boolean>;
+    protected abstract handleSave(data: FP): Promise<boolean>;
 
-    abstract getType(): string;
-    abstract getTitle(): string | null;
+    protected abstract getType(): string;
+    protected abstract getTitle(): ReactNode | null;
+
+    protected getSubTitle(): ReactNode | undefined {
+        return null;
+    }
 
     getData(): T | null {
         return this.state.data || null;
     }
 
     renderModalHeader() {
-        return <h4>Edit {this.getTitle()}</h4>
+        const title = this.getTitle();
+        const subTitle = this.getSubTitle();
+
+        return <div>
+            {title && <h4>Edit {title}</h4>}
+            {subTitle && <h5>{subTitle}</h5>}
+        </div>
     }
 
     save = (): void => {

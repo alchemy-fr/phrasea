@@ -35,7 +35,7 @@ export function createHttpClient({
             logger.warn(`Request "${config.method.toUpperCase()} ${config.url}" failed, retrying...`);
 
             if (error.response) {
-                if ([500, 400].includes(error.response.status)) {
+                if ([500, 400, 404].includes(error.response.status)) {
                     return false;
                 }
             }

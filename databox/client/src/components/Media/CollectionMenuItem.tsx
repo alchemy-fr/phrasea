@@ -1,6 +1,11 @@
 import React, {PureComponent, MouseEvent} from "react";
 import {Collection} from "../../types";
-import {addAssetToCollection, getCollections} from "../../api/collection";
+import {
+    addAssetToCollection,
+    collectionChildrenLimit,
+    collectionSecondLimit,
+    getCollections
+} from "../../api/collection";
 import apiClient from "../../api/api-client";
 import EditCollection from "./Collection/EditCollection";
 import ListItem from "@material-ui/core/ListItem";
@@ -10,7 +15,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import CreateNewFolder from '@material-ui/icons/CreateNewFolder';
 import AddPhotoAlternate from '@material-ui/icons/AddPhotoAlternate';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import {ExpandLess, ExpandMore, MoreHoriz} from "@material-ui/icons";
 import CreateCollection from "./Collection/CreateCollection";
 import {SelectionContext} from "./SelectionContext";
 import CreateAsset from "./Asset/CreateAsset";
@@ -18,6 +23,7 @@ import {ConnectDropTarget, DropTarget, DropTargetMonitor, DropTargetSpec} from '
 import {draggableTypes} from "./draggableTypes";
 import classnames from "classnames";
 import {AssetDragProps} from "./Asset/AssetItem";
+import Icon from "../ui/Icon";
 
 type DropTargetProps = {
     isOver: boolean,
@@ -33,11 +39,13 @@ type Props = {
 type AllProps = Props & DropTargetProps;
 
 type State = {
+    totalChildren?: number;
     collections?: Collection[],
     expanded: boolean,
     editing: boolean,
     addSubCollection: boolean,
     addAsset: boolean,
+    loadingMore: boolean,
 }
 
 class CollectionMenuItem extends PureComponent<AllProps, State> {
@@ -46,10 +54,29 @@ class CollectionMenuItem extends PureComponent<AllProps, State> {
 
     state: State = {
         expanded: false,
+        loadingMore: false,
         editing: false,
         addSubCollection: false,
         addAsset: false,
     };
+
+    loadMore = async (e: MouseEvent): Promise<void> => {
+        const nextPage = this.getNextPage();
+        this.setState({loadingMore: true});
+
+        const nextCollections = await getCollections({
+            parent: this.props.id,
+            page: nextPage,
+            limit: collectionSecondLimit,
+            childrenLimit: collectionChildrenLimit,
+        });
+
+        this.setState((prevState: State) => ({
+            loadingMore: false,
+            totalChildren: nextCollections.total,
+            collections: (prevState.collections || []).concat(nextCollections.result),
+        }));
+    }
 
     expandCollection = async (force = false): Promise<void> => {
         const {children} = this.props;
@@ -62,10 +89,23 @@ class CollectionMenuItem extends PureComponent<AllProps, State> {
             if (this.state.expanded && children && children.length > 0) {
                 const data = (await getCollections({
                     parent: this.props.id,
-                })).result;
-                this.setState({collections: data});
+                    limit: collectionSecondLimit,
+                    childrenLimit: collectionChildrenLimit,
+                }));
+                this.setState({
+                    collections: data.result,
+                    totalChildren: data.total,
+                });
             }
         });
+    }
+
+    getNextPage(): number | undefined {
+        const {collections, totalChildren} = this.state;
+
+        if (collections && totalChildren && collections.length < totalChildren) {
+            return Math.floor(collections.length / collectionSecondLimit) + 1;
+        }
     }
 
     onClick = (e: MouseEvent): void => {
@@ -199,10 +239,12 @@ class CollectionMenuItem extends PureComponent<AllProps, State> {
     }
 
     renderChildren() {
-        const {collections, expanded} = this.state;
+        const {collections, expanded, loadingMore} = this.state;
         if (!expanded || !collections) {
             return '';
         }
+
+        const nextPage = this.getNextPage();
 
         return <div className="sub-colls">
             {collections.map(c => <WrappedCollectionMenuItem
@@ -211,6 +253,16 @@ class CollectionMenuItem extends PureComponent<AllProps, State> {
                 absolutePath={`${this.props.absolutePath}/${c.id}`}
                 level={this.props.level + 1}
             />)}
+            {Boolean(nextPage) && <ListItem
+                onClick={this.loadMore}
+                disabled={loadingMore}
+                button
+            >
+                <Icon
+                    component={MoreHoriz}
+                />
+                Load more collections
+            </ListItem>}
         </div>
     }
 }

@@ -1,16 +1,16 @@
-import React, {PureComponent, MouseEvent, CSSProperties} from "react";
+import React, {CSSProperties, MouseEvent, PureComponent} from "react";
 import AssetItem from "./AssetItem";
 import {getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SelectionContext, TSelectionContext} from "../SelectionContext";
-import {Button, ImageList, LinearProgress, ListSubheader, ImageListItem} from "@material-ui/core";
+import {Button, ImageList, LinearProgress, ListSubheader} from "@material-ui/core";
 
 type Props = {
     query: string;
 };
 
 type State = {
-    data: Asset[];
+    data: Asset[][];
     total?: number;
     loading: boolean;
     next?: string | null;
@@ -18,11 +18,6 @@ type State = {
 
 const classes = {
     root: {
-        display: 'flex',
-        flexWrap: 'wrap' as 'wrap',
-        justifyContent: 'space-around',
-        overflow: 'hidden',
-        width: '100%',
     },
     gridList: {
         width: '100%',
@@ -30,7 +25,6 @@ const classes = {
 };
 
 const gridStyle: CSSProperties = {
-    position: 'relative',
     width: '100%',
     height: '100%',
     overflow: 'auto',
@@ -42,7 +36,6 @@ const linearProgressStyle: CSSProperties = {
     right: '0',
     top: '0',
 };
-const imageListItemStyle: CSSProperties = {height: 'auto'};
 
 function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
     if (e.ctrlKey) {
@@ -82,11 +75,11 @@ export default class AssetGrid extends PureComponent<Props, State> {
 
         if (
             (this.lastContext !== this.context
-            && (
-                this.lastContext.selectedCollection !== this.context.selectedCollection
-                || this.lastContext.selectedWorkspace !== this.context.selectedWorkspace
-                || this.lastContext.reloadInc < this.context.reloadInc
-            ))
+                && (
+                    this.lastContext.selectedCollection !== this.context.selectedCollection
+                    || this.lastContext.selectedWorkspace !== this.context.selectedWorkspace
+                    || this.lastContext.reloadInc < this.context.reloadInc
+                ))
             || prevProps.query !== this.props.query
         ) {
             this.search(undefined, this.lastContext.reloadInc < this.context.reloadInc);
@@ -122,14 +115,14 @@ export default class AssetGrid extends PureComponent<Props, State> {
             if (url) {
                 this.setState(prevState => ({
                     loading: false,
-                    data: prevState.data.concat(result.result),
+                    data: prevState.data.concat([result.result]),
                     total: result.total,
                     next: result.next,
                 }));
             } else {
                 this.setState({
                     loading: false,
-                    data: result.result,
+                    data: [result.result],
                     total: result.total,
                     next: result.next,
                 });
@@ -152,41 +145,56 @@ export default class AssetGrid extends PureComponent<Props, State> {
     render() {
         const {total, next, loading} = this.state;
 
-        return <div style={gridStyle}>
-            {loading && <div style={linearProgressStyle}>
-                <LinearProgress/>
-            </div>}
-            <div style={classes.root}>
-                <ImageList rowHeight={180} style={classes.gridList}>
-                    <ImageListItem key="Subheader" cols={2} style={imageListItemStyle}>
-                        <ListSubheader component="div">
-                            {!loading && total !== undefined ? `${total} result${total > 1 ? 's' : ''}` : 'Loading...'}
-                        </ListSubheader>
-                    </ImageListItem>
-                    {this.renderResult()}
-                </ImageList>
+        return <div style={{
+            position: 'relative',
+            height: '100%',
+        }}>
+            <div style={gridStyle}>
+                {loading && <div style={linearProgressStyle}>
+                    <LinearProgress/>
+                </div>}
+                <div style={classes.root}>
+                    <ListSubheader component="div" className={'result-info'}>
+                        {!loading && total !== undefined ? <>
+                            <b>
+                                {new Intl.NumberFormat('fr-FR', {}).format(total)}
+                            </b>
+                            {` result${total > 1 ? 's' : ''}`}
+                        </> : 'Loading...'}
+                    </ListSubheader>
+                    <div className={'grid-results'}>
+                        {this.renderResult()}
+                    </div>
+                </div>
+                {next ? <div className={'text-center mb-3'}>
+                    <Button
+                        disabled={loading}
+                        onClick={this.loadMore}
+                        variant="contained"
+                        color="secondary"
+                    >
+                        {loading ? 'Loading...' : 'Load more'}
+                    </Button>
+                </div> : ''}
             </div>
-            {next ? <div className={'text-center mb-3'}>
-                <Button
-                    disabled={loading}
-                    onClick={this.loadMore}
-                    variant="contained"
-                    color="secondary"
-                >
-                    {loading ? 'Loading...' : 'Load more'}
-                </Button>
-            </div> : ''}
         </div>
     }
 
     renderResult() {
         const {data} = this.state;
 
-        return data.map(a => <AssetItem
-            {...a}
-            selected={this.context.selectedAssets.includes(a.id)}
-            onClick={this.onSelect}
-            key={a.id}
-        />);
+        return data.map((rs, i) => <div
+            key={i}
+            className={'result-page'}>
+            <div className="page-num"># {i + 1}</div>
+            <ImageList rowHeight={180} style={classes.gridList}>
+                {rs.map(a => <AssetItem
+                    {...a}
+                    selected={this.context.selectedAssets.includes(a.id)}
+                    onClick={this.onSelect}
+                    key={a.id}
+                />)}
+            </ImageList>
+        </div>)
     }
 }

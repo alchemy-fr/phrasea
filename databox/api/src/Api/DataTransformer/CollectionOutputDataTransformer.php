@@ -33,14 +33,29 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setWorkspace($object->getWorkspace());
 
         if (in_array('collection:include_children', $context['groups'], true)) {
+            $maxChildrenLimit = 30;
+            if (preg_match('#(?:&|\?)childrenLimit=(\d+)#', $context['request_uri'], $regs)) {
+                $childrenLimit = $regs[1];
+            } else {
+                $childrenLimit = $maxChildrenLimit;
+            }
+            if ($childrenLimit > $maxChildrenLimit) {
+                $childrenLimit = $maxChildrenLimit;
+            }
+
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, get_class($output), 'children');
             $maxDepth = (in_array('collection:2_level_children', $context['groups'], true)) ? 2 : 1;
             if (($context[$key] ?? 0) < $maxDepth) {
-                $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
-                    'parent' => $object->getId(),
-                ]);
+                if (false !== $object->getHasChildren()) {
+                    $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
+                        'parent' => $object->getId(),
+                        'limit' => $childrenLimit,
+                    ]);
 
-                $output->setChildren($collections);
+                    $output->setChildren($collections);
+                } else {
+                    $output->setChildren([]);
+                }
             }
         }
 

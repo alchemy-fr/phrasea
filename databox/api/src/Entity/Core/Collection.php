@@ -68,6 +68,11 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     private ?DoctrineCollection $children = null;
 
     /**
+     * Virtual.
+     */
+    private ?bool $hasChildren = null;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist"})
      */
     private ?DoctrineCollection $assets = null;
@@ -125,6 +130,11 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         }
 
         $this->parent = $parent;
+    }
+
+    public function getSortName(): string
+    {
+        return strtolower($this->title ?? '');
     }
 
     /**
@@ -252,5 +262,18 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function getHasChildren(): ?bool
+    {
+        return $this->hasChildren;
+    }
+
+    /**
+     * @internal
+     */
+    public function setHasChildren(?bool $hasChildren): void
+    {
+        $this->hasChildren = $hasChildren;
     }
 }

@@ -59,6 +59,7 @@ class CollectionPostTransformListener implements EventSubscriberInterface
             $bestPrivacy = WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS;
         }
 
+        $document->set('hasChildren', !$collection->getChildren()->isEmpty());
         $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));

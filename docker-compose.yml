@@ -820,6 +820,8 @@ services:
       - PHRASEANET_BASE_URL
       - PHRASEANET_APP_OAUTH_TOKEN
       - UPLOAD_MAX_FILE_SIZE
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
     depends_on:
       - rabbitmq
       - redis
@@ -937,6 +939,7 @@ services:
       - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
       - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
       - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
+      - PHRASEANET_SEARCH_ORDER=${INDEXER_PHRASEANET_SEARCH_ORDER}
     volumes:
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
@@ -991,7 +994,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.16.1
+    image: elasticsearch:7.17.0
     networks:
       - internal
     volumes:
