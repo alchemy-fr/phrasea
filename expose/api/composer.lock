@@ -601,12 +601,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "6e18ee8402b8fd5142e4e12f2f06e884968dd559"
+                "reference": "86bf49362bd0a824301350946972167486949b2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/6e18ee8402b8fd5142e4e12f2f06e884968dd559",
-                "reference": "6e18ee8402b8fd5142e4e12f2f06e884968dd559",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/86bf49362bd0a824301350946972167486949b2e",
+                "reference": "86bf49362bd0a824301350946972167486949b2e",
                 "shasum": ""
             },
             "require": {
@@ -619,6 +619,7 @@
             },
             "require-dev": {
                 "doctrine/orm": "^2.8",
+                "phpunit/phpunit": "^9.5",
                 "symfony/console": "^5",
                 "symfony/framework-bundle": "^5",
                 "symfony/process": "^5.0",
@@ -626,6 +627,7 @@
             },
             "suggest": {
                 "doctrine/orm": "^2.3",
+                "ext-openssl": "*",
                 "twig/extensions": "^1.5"
             },
             "default-branch": true,
@@ -644,7 +646,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2021-12-02T13:00:56+00:00"
+            "time": "2022-01-19T21:37:12+00:00"
         },
         {
             "name": "arthem/request-signer-bundle",

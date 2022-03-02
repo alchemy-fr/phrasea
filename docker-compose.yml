@@ -366,6 +366,8 @@ services:
     build:
       context: ./expose/api
       target: expose-api-nginx
+    volumes:
+      - expose_nginx_cache:/var/cache/nginx
     networks:
       internal:
         aliases:
@@ -374,6 +376,7 @@ services:
       - expose-api-php
     environment:
       - UPLOAD_MAX_FILE_SIZE
+      - PS_SUBNET
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
@@ -1025,7 +1028,7 @@ services:
     image: grafana/k6:0.26.2
     networks:
       - internal
-    command: 'run /scripts/src/main.js'
+    command: '' # Manually run 'dc run --rm k6 /scripts/src/main.js'
     environment:
       - K6_OUT=influxdb=http://influxdb:8086/k6
     volumes:
@@ -1062,6 +1065,11 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
 
+  nginx-ngx-cache-purge:
+    image: localhost/nginx-ngx-cache-purge
+    build:
+      context: ./infra/docker/nginx-ngx-cache-purge
+
 volumes:
   db_vol:
   redis_vol:
@@ -1073,3 +1081,4 @@ volumes:
   rabbitmq_vol:
   elasticsearch_vol:
   weblate_vol:
+  expose_nginx_cache:

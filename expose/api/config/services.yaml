@@ -114,3 +114,21 @@ services:
     App\Admin\ClientUrlGenerator:
         arguments:
             $clientBaseUrl: '%env(EXPOSE_CLIENT_BASE_URL)%'
+
+    app.proxy_purge_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                base_uri: 'http://expose-api-nginx'
+                http_errors: false
+                timeout: 10
+
+    App\Http\Cache\ProxyCachePurger:
+        arguments:
+            $client: '@app.proxy_purge_client'
+
+    App\Listener\TerminateStackListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
+            - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
+            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }

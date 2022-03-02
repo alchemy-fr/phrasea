@@ -37,8 +37,8 @@ final class GetGlobalConfigAction extends AbstractController
 
         $response = new JsonResponse($this->configurationManager->getArray(), 200, $corsHeaders);
         $response->setCache([
-            's_maxage' => 3600,
-            'max_age' => 3600,
+            's_maxage' => 600,
+            'max_age' => 600,
             'public' => true,
         ]);
 
