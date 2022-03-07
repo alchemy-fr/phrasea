@@ -14,6 +14,8 @@ class ProxyCachePurger
     private UrlGeneratorInterface $urlGenerator;
     private TerminateStackListener $terminateStackListener;
 
+    private ?array $purgeStack = null;
+
     public function __construct(Client $client, UrlGeneratorInterface $urlGenerator, TerminateStackListener $terminateStackListener)
     {
         $this->client = $client;
@@ -23,9 +25,19 @@ class ProxyCachePurger
 
     public function purgeUri(string $uri): void
     {
-        $this->terminateStackListener->addCallback(function () use ($uri): void {
-            $this->client->get('/purge'.$uri);
-        });
+        if (null === $this->purgeStack) {
+            $this->purgeStack = [];
+            $this->terminateStackListener->addCallback(function () use ($uri): void {
+                $stack = array_unique($this->purgeStack);
+                $this->purgeStack = null;
+
+                foreach ($stack as $uri) {
+                    $this->client->get('/purge'.$uri);
+                }
+            });
+        }
+
+        $this->purgeStack[] = $uri;
     }
 
     public function purgeRoute(string $routeName, array $parameter = []): void

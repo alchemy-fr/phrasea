@@ -53,7 +53,7 @@
 
     return {
         customHTML: {
-            __HEAD_TPL__: scriptTpl,
+            __TPL_HEAD__: scriptTpl,
         },
         locales: config.available_locales,
         identityProviders,

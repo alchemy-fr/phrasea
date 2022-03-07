@@ -77,7 +77,7 @@ class PublicationVoter extends Voter
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
 
-        $isPublicationVisible = $subject instanceof Publication && $this->isPublicationVisible($subject);
+        $isPublicationVisible = $subject instanceof Publication && $subject->isVisible();
 
         switch ($attribute) {
             case self::CREATE:
@@ -106,15 +106,6 @@ class PublicationVoter extends Voter
             default:
                 return false;
         }
-    }
-
-    public function isPublicationVisible(Publication $publication): bool
-    {
-        $now = new DateTime();
-
-        return $publication->isEnabled()
-            && (null === $publication->getBeginsAt() || $publication->getBeginsAt() < $now)
-            && (null === $publication->getExpiresAt() || $publication->getExpiresAt() > $now);
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
