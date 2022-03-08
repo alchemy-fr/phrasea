@@ -100,6 +100,9 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=uploader-api
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -141,6 +144,9 @@ services:
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${UPLOADER_STORAGE_BUCKET_NAME}
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=uploader-worker
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -198,6 +204,9 @@ services:
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
       - REPORT_API_BASE_URL
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=auth-worker
 
   auth-api-php:
     profiles:
@@ -234,6 +243,9 @@ services:
       - REPORT_API_BASE_URL
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=auth-api
     volumes:
       - ./configs:/configs
     depends_on:
@@ -317,6 +329,9 @@ services:
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
       - EXPOSE_CLIENT_LOGO_ALT
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=expose-api
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -356,6 +371,9 @@ services:
       - REPORT_API_BASE_URL
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
       - UPLOAD_MAX_FILE_SIZE
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=expose-worker
     extra_hosts:
       - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -417,6 +435,9 @@ services:
       - MAIL_FROM
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=notify-api
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -446,6 +467,9 @@ services:
       - REPORT_API_BASE_URL
       - MAILER_DSN
       - MAIL_FROM
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=notify-worker
 
   notify-api-nginx:
     profiles:
@@ -825,6 +849,9 @@ services:
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=databox-api
     depends_on:
       - rabbitmq
       - redis
@@ -875,6 +902,9 @@ services:
       - DATABOX_REQUEST_SIGNATURE_TTL
       - PHRASEANET_BASE_URL
       - PHRASEANET_APP_OAUTH_TOKEN
+      - NEWRELIC_ENABLED
+      - NEWRELIC_LICENSE_KEY
+      - NEWRELIC_APP_NAME=databox-worker
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1028,7 +1058,7 @@ services:
     image: grafana/k6:0.26.2
     networks:
       - internal
-    command: '' # Manually run 'dc run --rm k6 /scripts/src/main.js'
+    command: '' # Manually run 'dc run --rm k6 run /scripts/src/main.js'
     environment:
       - K6_OUT=influxdb=http://influxdb:8086/k6
     volumes:
