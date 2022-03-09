@@ -25,6 +25,8 @@ type ClientParameters = {
     ownerId: string;
 }
 
+const maxTitleLength = 255;
+
 const collectionKeyMap: Record<string, string> = {};
 
 export class DataboxClient {
@@ -110,6 +112,12 @@ export class DataboxClient {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
+        }
+
+        if (data.title && data.title.length > maxTitleLength) {
+            const dots = ` ... [truncated]`;
+            data.title = data.title.substring(0, maxTitleLength - dots.length)+dots;
+            this.logger.warn(`Title truncated for asset ${JSON.stringify(data)}`);
         }
 
         await this.client.post(`/assets`, {
