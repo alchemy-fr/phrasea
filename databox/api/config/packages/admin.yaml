@@ -46,6 +46,7 @@ easy_admin:
         batch_actions:
           - delete
         sort: [createdAt, DESC]
+        filters: ['workspace']
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'title', label: Title }

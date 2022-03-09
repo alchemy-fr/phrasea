@@ -30,7 +30,13 @@ RUN set -eux \
 		xdebug-${XDEBUG_VERSION} \
 	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+    && curl -L https://download.newrelic.com/php_agent/release/newrelic-php5-9.19.0.309-linux-musl.tar.gz | tar -C /tmp -zx \
+    && export NR_INSTALL_USE_CP_NOT_LN=1 \
+    && export NR_INSTALL_SILENT=1 \
+    && /tmp/newrelic-php5-*/newrelic-install install \
+    && rm -rf /tmp/newrelic-php5-* /tmp/nrinstall* \
+    && rm $PHP_INI_DIR/conf.d/newrelic.ini
 
 COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
 COPY docker/app/conf.d/symfony.ini /usr/local/etc/php-fpm.d/
@@ -64,7 +70,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx:1.15.11-alpine AS expose-api-nginx
+FROM localhost/nginx-ngx-cache-purge AS expose-api-nginx
 
 COPY --from=expose-api-php /srv/app/public /srv/app/public
 COPY docker/nginx/entrypoint.sh /entrypoint.sh

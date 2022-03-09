@@ -16,6 +16,7 @@ use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -750,6 +751,15 @@ class Publication implements AclObjectInterface
     public function setCover(?Asset $cover): void
     {
         $this->cover = $cover;
+    }
+
+    public function isVisible(DateTimeInterface $now = null): bool
+    {
+        $now ??= new DateTime();
+
+        return $this->isEnabled()
+            && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
+            && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
     }
 
     public function getBeginsAt(): ?DateTime

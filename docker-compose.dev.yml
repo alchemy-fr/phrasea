@@ -86,6 +86,10 @@ services:
   expose-api-nginx:
     volumes:
       - ./expose/api/public:/srv/app/public
+      - ./expose/api/docker/nginx/tpl:/etc/nginx/tpl
+      - ./expose/api/docker/nginx/entrypoint.sh:/entrypoint.sh
+    ports:
+      - 8123:80 # TODO remove after tests
 
   expose-worker:
     volumes:
