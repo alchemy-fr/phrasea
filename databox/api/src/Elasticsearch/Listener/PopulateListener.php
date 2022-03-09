@@ -28,7 +28,9 @@ class PopulateListener implements EventSubscriberInterface
     {
         $index = $this->indexManager->getIndex($event->getIndex());
         $settings = $index->getSettings();
-        $settings->setRefreshInterval('-1');
+        if ($settings->getIndex()->exists()) {
+            $settings->setRefreshInterval('-1');
+        }
 
         $this->assetPostTransformListener->setCache($this->cache);
     }
