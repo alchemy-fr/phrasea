@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use App\Entity\EnvVar;
+use App\Entity\Publication;
 use App\Http\Cache\ProxyCachePurger;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
-class EnvVarListener implements EventSubscriber
+class EntityHttpCacheListener implements EventSubscriber
 {
     private ProxyCachePurger $proxyCachePurger;
 
@@ -25,6 +26,16 @@ class EnvVarListener implements EventSubscriber
 
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
+        } elseif ($entity instanceof Publication) {
+            // TODO fix purge on nginx side first
+//            $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+//                'id' => $entity->getId(),
+//            ]);
+//            if ($entity->getSlug()) {
+//                $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+//                    'id' => $entity->getSlug(),
+//                ]);
+//            }
         }
     }
 
@@ -38,7 +49,7 @@ class EnvVarListener implements EventSubscriber
         $this->handle($args);
     }
 
-    public function postRemove(LifecycleEventArgs $args): void
+    public function preRemove(LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }
@@ -48,7 +59,7 @@ class EnvVarListener implements EventSubscriber
         return  [
             Events::postUpdate,
             Events::postPersist,
-            Events::postRemove,
+            Events::preRemove,
         ];
     }
 }

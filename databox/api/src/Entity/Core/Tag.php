@@ -58,16 +58,6 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
         $this->name = $name;
     }
 
-    public function getWorkspace(): Workspace
-    {
-        return $this->workspace;
-    }
-
-    public function setWorkspace(Workspace $workspace): void
-    {
-        $this->workspace = $workspace;
-    }
-
     public function __toString()
     {
         return $this->getName() ?? $this->getId();
