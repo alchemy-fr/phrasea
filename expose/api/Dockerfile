@@ -70,7 +70,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM localhost/nginx-ngx-cache-purge AS expose-api-nginx
+FROM alchemyfr/nginx-cache-purge:1.0.0 AS expose-api-nginx
 
 COPY --from=expose-api-php /srv/app/public /srv/app/public
 COPY docker/nginx/entrypoint.sh /entrypoint.sh

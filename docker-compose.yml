@@ -1095,10 +1095,10 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
 
-  nginx-ngx-cache-purge:
-    image: localhost/nginx-ngx-cache-purge
+  nginx-cache-purge:
+    image: alchemyfr/nginx-cache-purge:1.0.0
     build:
-      context: ./infra/docker/nginx-ngx-cache-purge
+      context: ./infra/docker/nginx-cache-purge
 
 volumes:
   db_vol:

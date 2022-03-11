@@ -8,5 +8,5 @@ load-env
 
 $(dirname $0)/update-libs.sh
 
-docker-compose build nginx-ngx-cache-purge
+docker-compose build nginx-cache-purge
 docker-compose build
