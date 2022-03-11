@@ -8,6 +8,7 @@ use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -17,10 +18,10 @@ class PopulateListener implements EventSubscriberInterface
     private CacheInterface $cache;
     private AssetPostTransformListener $assetPostTransformListener;
 
-    public function __construct(IndexManager $indexManager, CacheInterface $cache, AssetPostTransformListener $assetPostTransformListener)
+    public function __construct(IndexManager $indexManager, CacheInterface $fosPopulateCache, AssetPostTransformListener $assetPostTransformListener)
     {
         $this->indexManager = $indexManager;
-        $this->cache = $cache;
+        $this->cache = $fosPopulateCache;
         $this->assetPostTransformListener = $assetPostTransformListener;
     }
 
@@ -30,6 +31,10 @@ class PopulateListener implements EventSubscriberInterface
         $settings = $index->getSettings();
         if ($settings->getIndex()->exists()) {
             $settings->setRefreshInterval('-1');
+        }
+
+        if ($this->cache instanceof CacheItemPoolInterface) {
+            $this->cache->clear();
         }
 
         $this->assetPostTransformListener->setCache($this->cache);
