@@ -10,6 +10,8 @@ use App\Security\Voter\WorkspaceVoter;
 
 class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
 {
+    private array $capCache = [];
+
     /**
      * @param Workspace $object
      */
@@ -20,11 +22,16 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setName($object->getName());
         $output->setSlug($object->getSlug());
 
-        $output->setCapabilities([
-            'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $object),
-            'canDelete' => $this->isGranted(WorkspaceVoter::DELETE, $object),
-            'canEditPermissions' => $this->isGranted(WorkspaceVoter::EDIT_PERMISSIONS, $object),
-        ]);
+        $k = $object->getId();
+        if (!isset($this->capCache[$k])) {
+            $this->capCache[$k] = [
+                'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $object),
+                'canDelete' => $this->isGranted(WorkspaceVoter::DELETE, $object),
+                'canEditPermissions' => $this->isGranted(WorkspaceVoter::EDIT_PERMISSIONS, $object),
+            ];
+        }
+
+        $output->setCapabilities($this->capCache[$k]);
 
         return $output;
     }

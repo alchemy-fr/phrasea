@@ -7,6 +7,7 @@ namespace App\Api\DataTransformer;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Api\Model\Output\AssetOutput;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\File;
@@ -44,6 +45,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setPrivacy($object->getPrivacy());
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
+        $output->setAttributes($this->resolveAttributes($object));
 
         $renditions = $this->em
             ->getRepository(AssetRendition::class)
@@ -62,9 +64,11 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
         $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
             return $collectionAsset->getCollection();
-        })->filter(function (Collection $collection): bool {
-            return $this->isGranted(CollectionVoter::LIST, $collection);
-        })->getValues());
+        })
+//            ->filter(function (Collection $collection): bool {
+//            return $this->isGranted(CollectionVoter::LIST, $collection);
+//        })
+            ->getValues());
 
         $output->setCapabilities([
             'canEdit' => $this->isGranted(AssetVoter::EDIT, $object),
@@ -73,6 +77,16 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         ]);
 
         return $output;
+    }
+
+    private function resolveAttributes(Asset $asset): array
+    {
+        $attributes = $this->em->getRepository(Attribute::class)
+        ->findBy([
+            'asset' => $asset->getId(),
+        ]);
+
+        return $attributes;
     }
 
     /**

@@ -24,6 +24,11 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
+    protected ?array $attributes;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
     private ?string $title = null;
 
     /**
@@ -161,5 +166,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setWorkspace($workspace): void
     {
         $this->workspace = $workspace;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
     }
 }

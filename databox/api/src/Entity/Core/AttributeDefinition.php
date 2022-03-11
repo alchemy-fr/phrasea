@@ -39,7 +39,7 @@ class AttributeDefinition extends AbstractUuidEntity
     protected ?Workspace $workspace = null;
 
     /**
-     * @Groups({"attributedef:index"})
+     * @Groups({"asset:index", "asset:read", "attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private string $name;

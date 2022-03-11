@@ -23,11 +23,11 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->originUserId = $object->getOriginUserId();
         $output->originVendor = $object->getOriginVendor();
         $output->originVendorContext = $object->getOriginVendorContext();
-        $output->definition = $object->getDefinition();
         $output->status = $object->getStatusLabel();
         $output->confidence = $object->getConfidence();
         $output->coordinates = $object->getCoordinates();
         $output->locale = $object->getLocale();
+        $output->definition = $object->getDefinition();
 
         return $output;
     }

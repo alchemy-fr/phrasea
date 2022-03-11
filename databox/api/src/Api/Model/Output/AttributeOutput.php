@@ -25,13 +25,13 @@ class AttributeOutput extends AbstractUuidOutput
      * Target definition by IRI. Or use $name.
      *
      * @var AttributeDefinition|null
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $definition;
 
     /**
      * @var string
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $value;
 

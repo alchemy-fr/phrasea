@@ -9,11 +9,11 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class CollectionVoter extends AbstractVoter
 {
+    private array $cache = [];
+
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Collection;
@@ -23,6 +23,16 @@ class CollectionVoter extends AbstractVoter
      * @param Collection $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    {
+        $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
+        }
+
+        return $this->cache[$key] = $this->doVote($attribute, $subject, $token);
+    }
+
+    private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
@@ -34,10 +44,10 @@ class CollectionVoter extends AbstractVoter
             case self::CREATE:
                 return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
             case self::LIST:
-                return $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                return $isOwner
+                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
                     || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
-                    || $isOwner
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
             case self::READ:
@@ -60,5 +70,7 @@ class CollectionVoter extends AbstractVoter
                     || $this->security->isGranted(PermissionInterface::OWNER, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
         }
+
+        return false;
     }
 }
