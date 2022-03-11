@@ -1,6 +1,7 @@
 $assetMargin: px2rem(15);
 
 .asset-item {
+  list-style: none;
   cursor: pointer;
   border: px2rem(2) solid #CCC;
   width: px2rem(200);
@@ -38,5 +39,21 @@ $assetMargin: px2rem(15);
     }
 
     @include svgFill(#FFF);
+  }
+}
+
+.asset-preview {
+  display: flex;
+
+  .attributes {
+    margin-left: px2rem(15);
+  }
+}
+
+.asset-list {
+  display: flex;
+
+  .attributes {
+    padding-top: px2rem(15);
   }
 }

@@ -20,6 +20,7 @@ export interface Asset extends IPermissions {
     privacy: number;
     tags: Tag[];
     workspace: Workspace;
+    attributes: Attribute[];
     collections: Collection[];
     original: File | null;
     preview: File | null;
@@ -29,9 +30,7 @@ export interface Asset extends IPermissions {
 
 export interface Attribute extends IPermissions {
     id: string;
-    definition: {
-        id: string;
-    }
+    definition: AttributeDefinition;
     origin: "human" | "machine";
     originVendor?: string;
     originUserId?: string;

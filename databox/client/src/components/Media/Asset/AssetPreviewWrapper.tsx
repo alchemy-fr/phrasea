@@ -2,6 +2,7 @@ import React, {PropsWithChildren, useEffect} from "react";
 import {createStyles, Popover, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {Asset} from "../../../types";
+import Attributes from "./Attributes";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -15,12 +16,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type Props = PropsWithChildren<{
+    displayAttributes: boolean;
     asset: Asset;
 }>;
 
 export default function AssetPreviewWrapper({
                                                 asset,
                                                 children,
+                                                displayAttributes,
                                             }: Props): JSX.Element {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
@@ -77,12 +80,19 @@ export default function AssetPreviewWrapper({
             onClose={handlePopoverClose}
             disableRestoreFocus
         >
-            <img src={asset.preview.url}
-                 style={{
-                     maxWidth: 400,
-                     maxHeight: 400,
-                 }}
-                 alt="Preview"/>
+            <div className={'asset-preview'}>
+                <img src={asset.preview.url}
+                     style={{
+                         maxWidth: 400,
+                         maxHeight: 400,
+                     }}
+                     alt="Preview"/>
+                {displayAttributes && <div>
+                    <Attributes
+                        asset={asset}
+                    />
+                </div>}
+            </div>
         </Popover>
     </>
 }

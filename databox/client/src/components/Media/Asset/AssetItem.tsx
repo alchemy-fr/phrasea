@@ -26,6 +26,7 @@ export type AssetDragProps = {
 
 type Props = {
     selected?: boolean;
+    displayAttributes: boolean;
     onClick?: (id: string, e: MouseEvent) => void;
 } & Asset;
 
@@ -158,6 +159,7 @@ class AssetItem extends Component<AllProps, State> {
                 onMouseLeave={this.onMouseLeave}
             >
                 <AssetPreviewWrapper
+                    displayAttributes={this.props.displayAttributes}
                     asset={this.props}
                 >
                     <ImageListItem
