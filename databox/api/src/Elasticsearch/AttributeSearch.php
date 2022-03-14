@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Aggregation;
 use Elastica\Query;
 
 class AttributeSearch
@@ -25,18 +28,27 @@ class AttributeSearch
         FieldNameResolver $fieldNameResolver,
         EntityManagerInterface $em,
         AttributeTypeRegistry $typeRegistry
-    )
-    {
+    ) {
         $this->fieldNameResolver = $fieldNameResolver;
         $this->em = $em;
         $this->typeRegistry = $typeRegistry;
     }
 
-    public function buildAttributeQuery(string $queryString, ?string $userId, array $groupIds, array $options = []): ?Query\AbstractQuery
-    {
+    public function buildAttributeQuery(
+        string $queryString,
+        ?string $userId,
+        array $groupIds,
+        array $options = []
+    ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
         $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
+
+        if (isset($options['workspaces'])) {
+            $workspaces = array_filter($workspaces, function (Workspace $workspace) use ($options): bool {
+                return in_array($options['workspaces'], $workspace->getId(), true);
+            });
+        }
 
         if (empty($workspaces)) {
             return null;
@@ -110,5 +122,58 @@ class AttributeSearch
         $multiMatch->setFields($fields);
 
         return $multiMatch;
+    }
+
+    public function buildAggregations(
+        Query $query,
+        Query\BoolQuery $boolQuery,
+        ?string $userId,
+        array $groupIds,
+        array $options = []
+    ): void {
+        $language = $options['locale'] ?? '*';
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
+
+        if (isset($options['workspaces'])) {
+            $workspaces = array_filter($workspaces, function (Workspace $workspace) use ($options): bool {
+                return in_array($options['workspaces'], $workspace->getId(), true);
+            });
+        }
+
+        if (empty($workspaces)) {
+            return;
+        }
+
+
+        /** @var AttributeDefinition[] $attributeDefinitions */
+        $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributes(array_map(function (Workspace $w): string {
+                return $w->getId();
+            }, $workspaces), $userId, $groupIds, [
+                AttributeDefinitionRepository::OPT_TYPE => KeywordAttributeType::getName(),
+            ]);
+
+        $aggs = [];
+        foreach ($attributeDefinitions as $definition) {
+            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            if (isset($aggs[$fieldName])) {
+                continue;
+            }
+
+            $aggs[$fieldName] = true;
+            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+
+            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
+            $field = sprintf('attributes.%s.%s', $l, $fieldName);
+
+            if (!$type instanceof TextAttributeType) {
+                $field .= '.text';
+            }
+
+            $termAgg = new Aggregation\Terms($definition->getName());
+            $termAgg->setField($field);
+            $termAgg->setSize(10);
+            $query->addAggregation($termAgg);
+        }
     }
 }

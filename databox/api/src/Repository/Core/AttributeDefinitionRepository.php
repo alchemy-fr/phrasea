@@ -11,10 +11,12 @@ use Doctrine\ORM\EntityRepository;
 
 class AttributeDefinitionRepository extends EntityRepository
 {
+    const OPT_TYPE = 'type';
+
     /**
      * @return AttributeDefinition[]
      */
-    public function getSearchableAttributes(?array $workspaceIds = null, ?string $userId, array $groupIds): array
+    public function getSearchableAttributes(?array $workspaceIds = null, ?string $userId, array $groupIds, array $options = []): array
     {
         $queryBuilder = $this
             ->createQueryBuilder('t')
@@ -41,6 +43,12 @@ class AttributeDefinitionRepository extends EntityRepository
                 ->andWhere('t.workspace IN (:w)')
                 ->setParameter('w', $workspaceIds)
             ;
+        }
+
+        if ($options[self::OPT_TYPE] ?? null) {
+            $queryBuilder
+                ->andWhere('t.fieldType IN (:type)')
+                ->setParameter('type', $options[self::OPT_TYPE]);
         }
 
         return $queryBuilder

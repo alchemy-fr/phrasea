@@ -137,6 +137,8 @@ class AssetSearch extends AbstractSearch
             ]
         ]);
 
+        $this->attributeSearch->buildAggregations($query, $filterQuery, $userId, $groupIds, $options);
+
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
@@ -150,21 +152,6 @@ class AssetSearch extends AbstractSearch
         $facets = $adapter->getAggregations();
 
         return [$result, $facets];
-    }
-
-    private function addFacets(): void
-    {
-        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
-        foreach ()
-        $aggregation = new Aggregation\Filter('ws');
-        $query->addAggregation($aggregation);
-        $aggregation->setFilter($boolQuery);
-
-        $termAgg = new Aggregation\Terms('workspaceId');
-        $termAgg->setField('workspaceId');
-        $termAgg->setSize(300);
-
-        $aggregation->addAggregation($termAgg);
     }
 
     /**
