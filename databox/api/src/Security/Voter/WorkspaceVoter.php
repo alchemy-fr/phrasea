@@ -13,6 +13,8 @@ use Symfony\Component\Security\Core\Security;
 
 class WorkspaceVoter extends AbstractVoter
 {
+    private array $cache = [];
+
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Workspace;
@@ -22,6 +24,16 @@ class WorkspaceVoter extends AbstractVoter
      * @param Workspace $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    {
+        $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
+        }
+
+        return $this->cache[$key] = $this->doVote($attribute, $subject, $token);
+    }
+
+    private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
@@ -41,6 +53,7 @@ class WorkspaceVoter extends AbstractVoter
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::OWNER, $subject);
         }
-    }
 
+        return false;
+    }
 }

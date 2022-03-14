@@ -34,29 +34,11 @@ class RenditionPermissionManager
         /** @var RenditionRuleRepository $repo */
         $repo = $this->em->getRepository(RenditionRule::class);
 
-        /** @var Collection|null $container */
-        $container = $asset->getReferenceCollection();
-        while ($container instanceof Collection) {
-            $collectionKey = sprintf('%s:%s', $container->getId(), $userId ?? self::ANONYMOUS);
-            if (isset($this->cache[$collectionKey])) {
-                if ($this->cache[$collectionKey] !== self::IS_EMPTY) {
-                    return $this->cache[$assetKey] = $this->cache[$collectionKey];
-                }
-            } else {
-                $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $container->getId());
-                if (!empty($rules)) {
-                    $result = $this->satisfyOneRule($rules, $class);
-
-                    $this->cache[$collectionKey] = $result;
-                    $this->cache[$assetKey] = $result;
-
-                    return $result;
-                }
-
-                $this->cache[$collectionKey] = self::IS_EMPTY;
+        if ($asset->getReferenceCollection()) {
+            $result = $this->isCollectionGranted($asset->getReferenceCollection(), $class, $userId, $groupIds);
+            if (null !== $result) {
+                return $this->cache[$assetKey] = $result;
             }
-
-            $container = $container->getParent();
         }
 
         $workspaceKey = sprintf('%s:%s:%s', $asset->getWorkspace()->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
@@ -74,6 +56,39 @@ class RenditionPermissionManager
         $this->cache[$assetKey] = $result;
 
         return $result;
+    }
+
+    private function isCollectionGranted(Collection $collection, $class, ?string $userId, array $groupIds): ?bool
+    {
+        /** @var RenditionRuleRepository $repo */
+        $repo = $this->em->getRepository(RenditionRule::class);
+
+        $collectionKey = sprintf('%s:%s:%s', $collection->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
+        if (isset($this->cache[$collectionKey])) {
+            if ($this->cache[$collectionKey] !== self::IS_EMPTY) {
+                return $this->cache[$collectionKey];
+            }
+        } else {
+            $rules = $repo->getRules($userId, $groupIds, RenditionRule::TYPE_COLLECTION, $collection->getId());
+            if (!empty($rules)) {
+                $result = $this->satisfyOneRule($rules, $class);
+
+                $this->cache[$collectionKey] = $result;
+
+                return $result;
+            }
+
+            $this->cache[$collectionKey] = self::IS_EMPTY;
+        }
+
+        if (null !== $collection->getParent()) {
+            $r = $this->isCollectionGranted($collection->getParent(), $class, $userId, $groupIds);
+            $this->cache[$collectionKey] = $r ?? self::IS_EMPTY;
+
+            return $r;
+        }
+
+        return null;
     }
 
     private function satisfyOneRule(array $ruleSets, RenditionClass $class): bool

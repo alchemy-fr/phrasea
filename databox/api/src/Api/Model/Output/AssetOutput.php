@@ -24,7 +24,17 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
+    protected ?array $attributes;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
     private ?string $title = null;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private ?string $titleHighlight = null;
 
     /**
      * @Groups({"asset:index", "asset:read"})
@@ -161,5 +171,25 @@ class AssetOutput extends AbstractUuidOutput
     public function setWorkspace($workspace): void
     {
         $this->workspace = $workspace;
+    }
+
+    public function getAttributes(): ?array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(?array $attributes): void
+    {
+        $this->attributes = $attributes;
+    }
+
+    public function getTitleHighlight(): ?string
+    {
+        return $this->titleHighlight;
+    }
+
+    public function setTitleHighlight(?string $titleHighlight): void
+    {
+        $this->titleHighlight = $titleHighlight;
     }
 }

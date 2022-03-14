@@ -4,6 +4,7 @@ import {getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SelectionContext, TSelectionContext} from "../SelectionContext";
 import {Button, ImageList, LinearProgress, ListSubheader} from "@material-ui/core";
+import Attributes from "./Attributes";
 
 type Props = {
     query: string;
@@ -14,11 +15,11 @@ type State = {
     total?: number;
     loading: boolean;
     next?: string | null;
+    layout: number;
 };
 
 const classes = {
-    root: {
-    },
+    root: {},
     gridList: {
         width: '100%',
     },
@@ -45,6 +46,9 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
     return [id];
 }
 
+const LAYOUT_GRID = 0;
+const LAYOUT_LIST = 1;
+
 function extractCollectionIdFromPath(path: string): string {
     const p = path.split('/');
     return p[p.length - 1];
@@ -57,6 +61,7 @@ export default class AssetGrid extends PureComponent<Props, State> {
     state: State = {
         data: [],
         loading: true,
+        layout: LAYOUT_GRID,
     };
 
     lastContext: TSelectionContext;
@@ -142,8 +147,12 @@ export default class AssetGrid extends PureComponent<Props, State> {
         this.context.selectAssets(ids);
     }
 
+    setLayout = (layout: number): void => {
+        this.setState({layout});
+    }
+
     render() {
-        const {total, next, loading} = this.state;
+        const {total, next, loading, layout} = this.state;
 
         return <div style={{
             position: 'relative',
@@ -155,6 +164,15 @@ export default class AssetGrid extends PureComponent<Props, State> {
                 </div>}
                 <div style={classes.root}>
                     <ListSubheader component="div" className={'result-info'}>
+                        <Button
+                            color={layout === LAYOUT_GRID ? "primary" : undefined}
+                            onClick={() => this.setLayout(LAYOUT_GRID)}>Grid</Button>
+
+                        <Button
+                            color={layout === LAYOUT_LIST ? "primary" : undefined}
+                            onClick={() => this.setLayout(LAYOUT_LIST)}
+                        >List</Button>
+                        {' '}
                         {!loading && total !== undefined ? <>
                             <b>
                                 {new Intl.NumberFormat('fr-FR', {}).format(total)}
@@ -181,20 +199,32 @@ export default class AssetGrid extends PureComponent<Props, State> {
     }
 
     renderResult() {
-        const {data} = this.state;
+        const {data, layout} = this.state;
 
         return data.map((rs, i) => <div
             key={i}
             className={'result-page'}>
             <div className="page-num"># {i + 1}</div>
-            <ImageList rowHeight={180} style={classes.gridList}>
+            {layout === LAYOUT_GRID ? <ImageList rowHeight={180} style={classes.gridList}>
                 {rs.map(a => <AssetItem
                     {...a}
+                    displayAttributes={true}
                     selected={this.context.selectedAssets.includes(a.id)}
                     onClick={this.onSelect}
                     key={a.id}
                 />)}
-            </ImageList>
+            </ImageList> : <div>
+                {rs.map(a => <div className={'asset-list'}>
+                        <AssetItem
+                            {...a}
+                            displayAttributes={false}
+                            selected={this.context.selectedAssets.includes(a.id)}
+                            onClick={this.onSelect}
+                            key={a.id}
+                        />
+                        <Attributes asset={a}/>
+                    </div>)}
+            </div>}
         </div>)
     }
 }

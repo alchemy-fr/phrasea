@@ -16,10 +16,12 @@ export interface File {
 export interface Asset extends IPermissions {
     id: string;
     title: string;
+    titleHighlight: string | null;
     description?: string;
     privacy: number;
     tags: Tag[];
     workspace: Workspace;
+    attributes: Attribute[];
     collections: Collection[];
     original: File | null;
     preview: File | null;
@@ -27,16 +29,17 @@ export interface Asset extends IPermissions {
     thumbnailActive: File | null;
 }
 
+type AttrValue = any;
+
 export interface Attribute extends IPermissions {
     id: string;
-    definition: {
-        id: string;
-    }
+    definition: AttributeDefinition;
     origin: "human" | "machine";
     originVendor?: string;
     originUserId?: string;
     originVendorContext?: string;
-    value: any;
+    value: AttrValue;
+    highlight: AttrValue;
 }
 
 export interface AttributeDefinition extends IPermissions {

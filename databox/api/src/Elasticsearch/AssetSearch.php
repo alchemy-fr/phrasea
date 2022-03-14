@@ -108,7 +108,7 @@ class AssetSearch extends AbstractSearch
         }
         foreach ($parsed['must'] as $must) {
             if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($must, $userId, $groupIds, array_merge($options, [
-                AttributeSearch::OPT_STRICT_PHRASE => true,
+                    AttributeSearch::OPT_STRICT_PHRASE => true,
                 ]))) {
                 $filterQuery->addMust($multiMatch);
             }
@@ -119,10 +119,21 @@ class AssetSearch extends AbstractSearch
         $query->setQuery($filterQuery);
         $query->setSort([
             '_score',
-            ['createdAt' => 'DESC']
+            ['createdAt' => 'DESC'],
         ]);
-
-//        dump($filterQuery->toArray());
+        $query->setHighlight([
+            'pre_tags' => ['<em class="hl">'],
+            'post_tags' => ['</em>'],
+            'fields' => [
+                'title' => [
+                    'fragment_size' => 255,
+                    'number_of_fragments' => 1
+                ],
+                'attributes.*' => [
+                    'number_of_fragments' => 1
+                ],
+            ]
+        ]);
 
         $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
             return $this->security->isGranted(AssetVoter::READ, $asset);
@@ -200,6 +211,11 @@ class AssetSearch extends AbstractSearch
         return $query;
     }
 
+    private function findWorkspace(string $id): ?Workspace
+    {
+        return $this->em->find(Workspace::class, $id);
+    }
+
     private function createIncludeQuery(string $termCol, string $termValue, array $include): Query\BoolQuery
     {
         $query = new Query\BoolQuery();
@@ -229,10 +245,5 @@ class AssetSearch extends AbstractSearch
     private function findCollection(string $id): ?Collection
     {
         return $this->em->find(Collection::class, $id);
-    }
-
-    private function findWorkspace(string $id): ?Workspace
-    {
-        return $this->em->find(Workspace::class, $id);
     }
 }

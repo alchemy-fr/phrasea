@@ -25,15 +25,21 @@ class AttributeOutput extends AbstractUuidOutput
      * Target definition by IRI. Or use $name.
      *
      * @var AttributeDefinition|null
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $definition;
 
     /**
      * @var string
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $value;
+
+    /**
+     * @var string|null
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     */
+    public $highlight;
 
     /**
      * Unique ID to group translations of the same attribute.

@@ -67,6 +67,11 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $value = null;
 
     /**
+     * Dynamically resolved.
+     */
+    private ?string $highlight = null;
+
+    /**
      * @ORM\Column(type="smallint", nullable=false)
      */
     private int $origin;
@@ -243,5 +248,15 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         return [
             $this->getAsset()
         ];
+    }
+
+    public function getHighlight(): ?string
+    {
+        return $this->highlight;
+    }
+
+    public function setHighlight(?string $highlight): void
+    {
+        $this->highlight = $highlight;
     }
 }
