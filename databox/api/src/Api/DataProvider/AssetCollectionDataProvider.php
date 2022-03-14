@@ -7,6 +7,7 @@ namespace App\Api\DataProvider;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
 use App\Entity\Core\Asset;
 use Symfony\Component\Security\Core\Security;
@@ -28,9 +29,12 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
 
-        $result = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        [$result, $facets] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
 
-        return new PagerFantaApiPlatformPaginator($result);
+        $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
+        $response->setMeta('facets', $facets);
+
+        return $response;
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

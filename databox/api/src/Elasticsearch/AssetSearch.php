@@ -12,8 +12,10 @@ use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Security\Core\Security;
+use Elastica\Aggregation;
 
 class AssetSearch extends AbstractSearch
 {
@@ -44,7 +46,7 @@ class AssetSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = []
-    ): Pagerfanta {
+    ): array {
         $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
@@ -135,15 +137,34 @@ class AssetSearch extends AbstractSearch
             ]
         ]);
 
+        /** @var FantaPaginatorAdapter $adapter */
+        $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
             return $this->security->isGranted(AssetVoter::READ, $asset);
-        }, $this->finder->findPaginated($query)->getAdapter()));
+        }, $adapter));
         $result->setMaxPerPage($limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage($options['page']);
         }
 
-        return $result;
+        $facets = $adapter->getAggregations();
+
+        return [$result, $facets];
+    }
+
+    private function addFacets(): void
+    {
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
+        foreach ()
+        $aggregation = new Aggregation\Filter('ws');
+        $query->addAggregation($aggregation);
+        $aggregation->setFilter($boolQuery);
+
+        $termAgg = new Aggregation\Terms('workspaceId');
+        $termAgg->setField('workspaceId');
+        $termAgg->setSize(300);
+
+        $aggregation->addAggregation($termAgg);
     }
 
     /**

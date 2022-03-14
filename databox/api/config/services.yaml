@@ -35,6 +35,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+            - '../src/Serializer/' # Should be explicitly declared
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -138,3 +139,9 @@ services:
             - ~ # options
         calls:
             - [setPropertyAccessor, ['@fos_elastica.property_accessor']]
+
+    hydra_meta.normalizer:
+        class:  App\Serializer\HydraMetaNormalizer
+        decorates:  api_platform.hydra.normalizer.collection_filters
+        public: true
+        arguments: ["@hydra_meta.normalizer.inner"]

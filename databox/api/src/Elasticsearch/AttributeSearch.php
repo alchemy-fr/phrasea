@@ -36,15 +36,7 @@ class AttributeSearch
     {
         $language = $options['locale'] ?? '*';
 
-        if (null !== $userId) {
-            $workspaces = $this->em
-                ->getRepository(Workspace::class)
-                ->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
-        } else {
-            // TODO fix this point
-            $workspaces = $this->em
-                ->getRepository(Workspace::class)->findAll();
-        }
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
 
         if (empty($workspaces)) {
             return null;

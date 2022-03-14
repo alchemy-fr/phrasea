@@ -11,6 +11,25 @@ use Doctrine\ORM\EntityRepository;
 
 class WorkspaceRepository extends EntityRepository
 {
+    private array $workspacesCache = [];
+
+    public function getUserWorkspaces(?string $userId, array $groupIds): array
+    {
+        $k = $userId ?? 'anon.';
+        if (isset($this->workspacesCache[$k])) {
+            return $this->workspacesCache[$k];
+        }
+
+        if (null !== $userId) {
+            $workspaces = $this->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
+        } else {
+            // TODO fix this point
+            $workspaces = $this->findAll();
+        }
+
+        return $this->workspacesCache[$k] = $workspaces;
+    }
+
     /**
      * @return string[]
      */
