@@ -137,7 +137,7 @@ class AssetSearch extends AbstractSearch
             ]
         ]);
 
-        $this->attributeSearch->buildAggregations($query, $filterQuery, $userId, $groupIds, $options);
+        $this->attributeSearch->buildFacets($query, $filterQuery, $userId, $groupIds, $options);
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();

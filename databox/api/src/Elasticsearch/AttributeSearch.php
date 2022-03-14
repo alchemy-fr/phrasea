@@ -42,13 +42,7 @@ class AttributeSearch
     ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
-        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
-
-        if (isset($options['workspaces'])) {
-            $workspaces = array_filter($workspaces, function (Workspace $workspace) use ($options): bool {
-                return in_array($options['workspaces'], $workspace->getId(), true);
-            });
-        }
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
 
         if (empty($workspaces)) {
             return null;
@@ -124,7 +118,7 @@ class AttributeSearch
         return $multiMatch;
     }
 
-    public function buildAggregations(
+    public function buildFacets(
         Query $query,
         Query\BoolQuery $boolQuery,
         ?string $userId,
@@ -132,18 +126,11 @@ class AttributeSearch
         array $options = []
     ): void {
         $language = $options['locale'] ?? '*';
-        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds);
-
-        if (isset($options['workspaces'])) {
-            $workspaces = array_filter($workspaces, function (Workspace $workspace) use ($options): bool {
-                return in_array($options['workspaces'], $workspace->getId(), true);
-            });
-        }
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
 
         if (empty($workspaces)) {
             return;
         }
-
 
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
@@ -153,27 +140,24 @@ class AttributeSearch
                 AttributeDefinitionRepository::OPT_TYPE => KeywordAttributeType::getName(),
             ]);
 
-        $aggs = [];
+        $facets = [];
         foreach ($attributeDefinitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldName($definition);
-            if (isset($aggs[$fieldName])) {
-                continue;
-            }
-
-            $aggs[$fieldName] = true;
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $field = sprintf('attributes.%s.%s', $l, $fieldName);
 
-            if (!$type instanceof TextAttributeType) {
-                $field .= '.text';
+            if (isset($facets[$field])) {
+                continue;
             }
+            $facets[$field] = true;
 
-            $termAgg = new Aggregation\Terms($definition->getName());
-            $termAgg->setField($field);
-            $termAgg->setSize(10);
-            $query->addAggregation($termAgg);
+            $agg = new Aggregation\Terms($definition->getName());
+            $agg->setField($field);
+            $agg->setSize(5);
+//            $agg->setOrder('_count', 'desc');
+
+            $query->addAggregation($agg);
         }
     }
 }

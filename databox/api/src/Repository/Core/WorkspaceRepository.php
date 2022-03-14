@@ -13,7 +13,7 @@ class WorkspaceRepository extends EntityRepository
 {
     private array $workspacesCache = [];
 
-    public function getUserWorkspaces(?string $userId, array $groupIds): array
+    public function getUserWorkspaces(?string $userId, array $groupIds, ?array $ids = null): array
     {
         $k = $userId ?? 'anon.';
         if (isset($this->workspacesCache[$k])) {
@@ -21,10 +21,19 @@ class WorkspaceRepository extends EntityRepository
         }
 
         if (null !== $userId) {
-            $workspaces = $this->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
+            $workspaces = $this->getAllowedWorkspaces($userId, $groupIds, $ids);
         } else {
             // TODO fix this point
-            $workspaces = $this->findAll();
+            if (null !== $ids) {
+                $workspaces = $this->createQueryBuilder('w')
+                    ->andWhere('w.id IN (:wIds)')
+                    ->setParameter('wIds', $ids)
+                    ->getQuery()
+                    ->getResult()
+                ;
+            } else {
+                $workspaces = $this->findAll();
+            }
         }
 
         return $this->workspacesCache[$k] = $workspaces;
