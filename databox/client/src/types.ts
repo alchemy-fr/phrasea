@@ -16,6 +16,7 @@ export interface File {
 export interface Asset extends IPermissions {
     id: string;
     title: string;
+    titleHighlight: string | null;
     description?: string;
     privacy: number;
     tags: Tag[];
@@ -28,6 +29,8 @@ export interface Asset extends IPermissions {
     thumbnailActive: File | null;
 }
 
+type AttrValue = any;
+
 export interface Attribute extends IPermissions {
     id: string;
     definition: AttributeDefinition;
@@ -35,7 +38,8 @@ export interface Attribute extends IPermissions {
     originVendor?: string;
     originUserId?: string;
     originVendorContext?: string;
-    value: any;
+    value: AttrValue;
+    highlight: AttrValue;
 }
 
 export interface AttributeDefinition extends IPermissions {

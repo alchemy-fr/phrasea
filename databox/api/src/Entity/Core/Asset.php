@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
@@ -18,13 +17,14 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use LogicException;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
-class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface,  WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -89,6 +89,8 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
      */
     private ?DoctrineCollection $renditions = null;
+
+    private ?array $highlights = null;
 
     public function __construct()
     {
@@ -264,5 +266,17 @@ class Asset extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjec
     public function getRenditions(): DoctrineCollection
     {
         return $this->renditions;
+    }
+
+    public function setElasticHighlights(array $highlights)
+    {
+        $this->highlights = $highlights;
+
+        return $this;
+    }
+
+    public function getElasticHighlights()
+    {
+        return $this->highlights;
     }
 }

@@ -53,6 +53,8 @@ class AttributeSearch
         $boolQuery = new Query\BoolQuery();
         $boolQuery->setMinimumShouldMatch(1);
 
+        $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
+
         foreach ($workspaces as $workspace) {
             $searchQuery = new Query\BoolQuery();
 
@@ -77,25 +79,44 @@ class AttributeSearch
                 $weights[$field] = $definition->getSearchBoost() ?? 1;
             }
 
-            $multiMatch = new Query\MultiMatch();
-            $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
-            $multiMatch->setQuery($queryString);
-
-            if ($options[self::OPT_STRICT_PHRASE] ?? false) {
-                $multiMatch->setOperator(Query\MultiMatch::OPERATOR_AND);
+            $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
+            if ($strict) {
+                $searchQuery->addMust($multiMatch);
+            } else {
+                $subBool = new Query\BoolQuery();
+                $multiMatch->setParam('boost', 50);
+                $subBool->addShould($multiMatch);
+                $subBool->addShould($this->createMultiMatch($queryString, $weights, true, $options));
+                $searchQuery->addMust($subBool);
             }
-//            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
-            $fields = [];
-            foreach ($weights as $field => $boost) {
-                $fields[] = $field.'^'.$boost;
-            }
-            $multiMatch->setFields($fields);
 
-            $searchQuery->addMust($multiMatch);
             $searchQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
             $boolQuery->addShould($searchQuery);
         }
 
         return $boolQuery;
+    }
+
+    private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch
+    {
+        $multiMatch = new Query\MultiMatch();
+        $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+        $multiMatch->setQuery($queryString);
+
+        if ($options[self::OPT_STRICT_PHRASE] ?? false) {
+            $multiMatch->setOperator(Query\MultiMatch::OPERATOR_AND);
+        }
+
+        if ($fuzziness) {
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+        }
+
+        $fields = [];
+        foreach ($weights as $field => $boost) {
+            $fields[] = $field.'^'.$boost;
+        }
+        $multiMatch->setFields($fields);
+
+        return $multiMatch;
     }
 }

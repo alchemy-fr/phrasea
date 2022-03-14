@@ -129,6 +129,7 @@ class AssetItem extends Component<AllProps, State> {
         const {
             id,
             title,
+            titleHighlight,
             description,
             workspace,
             tags,
@@ -152,6 +153,10 @@ class AssetItem extends Component<AllProps, State> {
 
         const opacity = isDragging ? 0.4 : 1;
 
+        const titleNode = titleHighlight ? <span dangerouslySetInnerHTML={{
+            __html: titleHighlight,
+        }} /> : title;
+
         return connectDragSource(
             <div
                 style={{opacity}}
@@ -168,7 +173,7 @@ class AssetItem extends Component<AllProps, State> {
                     >
                         <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={title}/>
                         <ImageListItemBar
-                            title={title}
+                            title={titleNode}
                             subtitle={<div>
                                 <div>
                                     {tags.map(t => <Badge

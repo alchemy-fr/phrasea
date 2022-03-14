@@ -36,6 +36,12 @@ class AttributeOutput extends AbstractUuidOutput
     public $value;
 
     /**
+     * @var string|null
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     */
+    public $highlight;
+
+    /**
      * Unique ID to group translations of the same attribute.
      *
      * @Groups({"attribute:index", "attribute:read"})
