@@ -10,16 +10,13 @@ use Alchemy\AclBundle\UserInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class AclVoter extends Voter
 {
-    private Security $security;
     private PermissionManager $permissionManager;
 
-    public function __construct(Security $security, PermissionManager $permissionManager)
+    public function __construct(PermissionManager $permissionManager)
     {
-        $this->security = $security;
         $this->permissionManager = $permissionManager;
     }
 
