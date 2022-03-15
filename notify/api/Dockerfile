@@ -31,7 +31,7 @@ RUN set -eux \
 	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& apk del .build-deps \
-    && curl -L https://download.newrelic.com/php_agent/release/newrelic-php5-9.19.0.309-linux-musl.tar.gz | tar -C /tmp -zx \
+    && curl -L https://download.newrelic.com/php_agent/archive/9.20.0.310/newrelic-php5-9.20.0.310-linux-musl.tar.gz | tar -C /tmp -zx \
     && export NR_INSTALL_USE_CP_NOT_LN=1 \
     && export NR_INSTALL_SILENT=1 \
     && /tmp/newrelic-php5-*/newrelic-install install \
@@ -39,6 +39,7 @@ RUN set -eux \
     && rm $PHP_INI_DIR/conf.d/newrelic.ini
 
 COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
+COPY docker/app/conf.d/symfony.ini /usr/local/etc/php-fpm.d/
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
@@ -64,8 +65,6 @@ RUN mkdir -p var/cache var/logs var/sessions \
 ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
 RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \
     && update-ca-certificates
-
-ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 

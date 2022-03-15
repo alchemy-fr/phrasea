@@ -9,6 +9,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
+use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
@@ -32,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
  */
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -275,5 +276,14 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     public function setHasChildren(?bool $hasChildren): void
     {
         $this->hasChildren = $hasChildren;
+    }
+
+    public function getSearchDeleteDependencies(): array
+    {
+        if ($this->parent) {
+            return [$this->parent];
+        }
+
+        return [];
     }
 }

@@ -1,21 +1,15 @@
 import React from "react";
 
-export type TSelectionContext = {
+export type TSearchFiltersContext = {
     selectedCollection?: string;
     selectedWorkspace?: string;
-    reloadInc: number;
-    selectedAssets: string[];
     selectCollection: (absolutePath: string | undefined, forceReload?: boolean) => void;
     selectWorkspace: (id: string | undefined, forceReload?: boolean) => void;
-    selectAssets: (ids: string[]) => void;
-    resetAssetSelection: () => void;
+    reloadInc: number;
 }
 
-export const SelectionContext = React.createContext<TSelectionContext>({
-    selectedAssets: [],
+export const SearchFiltersContext = React.createContext<TSearchFiltersContext>({
     reloadInc: 0,
     selectCollection: () => {},
     selectWorkspace: () => {},
-    selectAssets: (ids: string[]) => {},
-    resetAssetSelection: () => {},
 });

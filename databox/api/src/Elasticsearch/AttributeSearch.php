@@ -152,9 +152,12 @@ class AttributeSearch
             }
             $facets[$field] = true;
 
-            $agg = new Aggregation\Terms($definition->getName());
+            $agg = new Aggregation\Terms($fieldName);
             $agg->setField($field);
             $agg->setSize(5);
+            $agg->setMeta([
+                'title' => $definition->getName()
+            ]);
 //            $agg->setOrder('_count', 'desc');
 
             $query->addAggregation($agg);

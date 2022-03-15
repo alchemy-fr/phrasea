@@ -25,7 +25,13 @@ export async function getCollections(options: CollectionOptions): Promise<ApiCol
     return getHydraCollection(res.data);
 }
 
+const cache: Record<string, any> = {};
+
 export async function getWorkspaces(): Promise<Workspace[]> {
+    if (cache.hasOwnProperty('ws')) {
+        return cache.ws;
+    }
+
     const collections = await getCollections({
         groupByWorkspace: true,
         limit: collectionChildrenLimit + 1,
@@ -49,7 +55,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
         list.push(c);
     });
 
-    return (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);
+    return cache.ws = (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);
 }
 
 export async function getCollection(id: string): Promise<Collection> {

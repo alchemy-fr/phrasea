@@ -207,8 +207,9 @@ class AssetItem extends Component<AllProps, State> {
                                 </div> : undefined
                             }
                         />
-                        <Menu
+                        {this.state.menuOpen && <Menu
                             id={`item-menu-${id}`}
+                            key={`item-menu-${id}`}
                             keepMounted
                             anchorEl={this.ref.current}
                             open={this.state.menuOpen}
@@ -248,7 +249,7 @@ class AssetItem extends Component<AllProps, State> {
                                 </ListItemIcon>
                                 <ListItemText primary="Delete"/>
                             </MenuItem>}
-                        </Menu>
+                        </Menu>}
                         {this.state.editing ? <EditAsset
                             id={this.props.id}
                             onClose={this.closeEdit}

@@ -14,7 +14,8 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import {Button, CssBaseline, Slide} from "@material-ui/core";
 import {useHistory, useLocation} from "react-router-dom";
-import {SelectionContext} from "../Media/SelectionContext";
+import {SearchContext} from "../Media/Search/SearchContext";
+import {SearchFiltersContext} from "../Media/Search/SearchFiltersContext";
 
 interface HideProps {
     /**
@@ -110,15 +111,16 @@ type Props = {
     title: string;
     username?: string;
     onLogout: (e: React.MouseEvent<HTMLElement>) => void;
-    searchQuery?: string;
-    onSearchQueryChange: Function;
     toggleMenu: (e: React.MouseEvent) => void;
 }
 
 export default function MainAppBar(props: Props) {
-    const selectionContext = useContext(SelectionContext);
+    const searchContext = useContext(SearchContext);
+    const searchFiltersContext = useContext(SearchFiltersContext);
 
-    const onTitleClick = () => selectionContext!.selectWorkspace(undefined, true);
+    const {query, setQuery} = searchContext;
+
+    const onTitleClick = () => searchFiltersContext.selectWorkspace(undefined, true);
 
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -191,7 +193,7 @@ export default function MainAppBar(props: Props) {
         </Menu>
     );
 
-    const [searchValue, setSearchValue] = React.useState<string | undefined>(props.searchQuery);
+    const [searchValue, setSearchValue] = React.useState<string>(query);
 
     const onSearchQueryChange = (e: ChangeEvent<HTMLInputElement>): void => {
         setSearchValue(e.target.value);
@@ -204,7 +206,7 @@ export default function MainAppBar(props: Props) {
     }
 
     const doSearch = (): void => {
-        props.onSearchQueryChange(searchValue);
+        setQuery(searchValue);
     }
 
     return (
@@ -245,7 +247,7 @@ export default function MainAppBar(props: Props) {
                                 onKeyDown={onSearchKeyDown}
                                 value={searchValue}
                             />
-                            {searchValue && searchValue !== props.searchQuery && <Button
+                            {searchValue && searchValue !== searchContext.query && <Button
                                 onClick={doSearch}
                                 variant={"contained"}
                             >

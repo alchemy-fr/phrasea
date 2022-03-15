@@ -1,6 +1,4 @@
 import {Asset, Attribute} from "../../../types";
-import {ReactNode} from "react";
-
 
 function AttributeRow({
                           definition,
@@ -13,7 +11,7 @@ function AttributeRow({
             {' '}
             {highlight && <span dangerouslySetInnerHTML={{
                 __html: highlight,
-            }} />}
+            }}/>}
             {!highlight && value}
         </div>
     </div>
@@ -29,7 +27,7 @@ export default function Attributes({
     return <div className={'attributes'}>
         <div className={'attr-title'}>{asset.titleHighlight ? <span dangerouslySetInnerHTML={{
             __html: asset.titleHighlight,
-        }} /> : asset.title}</div>
+        }}/> : asset.title}</div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}

@@ -1,4 +1,4 @@
-import React, {PureComponent, MouseEvent} from "react";
+import React, {MouseEvent, PureComponent} from "react";
 import {Collection} from "../../types";
 import {
     addAssetToCollection,
@@ -17,13 +17,13 @@ import AddPhotoAlternate from '@material-ui/icons/AddPhotoAlternate';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {ExpandLess, ExpandMore, MoreHoriz} from "@material-ui/icons";
 import CreateCollection from "./Collection/CreateCollection";
-import {SelectionContext} from "./SelectionContext";
 import CreateAsset from "./Asset/CreateAsset";
 import {ConnectDropTarget, DropTarget, DropTargetMonitor, DropTargetSpec} from 'react-dnd';
 import {draggableTypes} from "./draggableTypes";
 import classnames from "classnames";
 import {AssetDragProps} from "./Asset/AssetItem";
 import Icon from "../ui/Icon";
+import {SearchFiltersContext} from "./Search/SearchFiltersContext";
 
 type DropTargetProps = {
     isOver: boolean,
@@ -49,8 +49,8 @@ type State = {
 }
 
 class CollectionMenuItem extends PureComponent<AllProps, State> {
-    static contextType = SelectionContext;
-    context: React.ContextType<typeof SelectionContext>;
+    static contextType = SearchFiltersContext;
+    context: React.ContextType<typeof SearchFiltersContext>;
 
     state: State = {
         expanded: false,

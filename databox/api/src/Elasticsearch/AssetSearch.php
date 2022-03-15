@@ -68,6 +68,17 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
+        if (isset($options['filters'])) {
+            if (is_string($options['filters'])) {
+                $options['filters'] = \GuzzleHttp\json_decode($options['filters']);
+            }
+            foreach ($options['filters'] as $field => $values) {
+                if (!empty($values)) {
+                    $filterQueries[] = new Query\Terms(sprintf('attributes._.%s', $field), $values);
+                }
+            }
+        }
+
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
             $tagsBoolQuery = new Query\BoolQuery();
             $filterQueries[] = $tagsBoolQuery;

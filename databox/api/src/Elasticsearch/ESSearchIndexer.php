@@ -178,6 +178,9 @@ class ESSearchIndexer
                     ->getCollectionAssets($object->getId()),
                 $depth
             );
+            if ($object->getParent()) {
+                $this->addDependency(Collection::class, $object->getParent()->getId(), $depth);
+            }
         } elseif ($object instanceof CollectionAsset) {
             $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth);
         } elseif ($object instanceof Attribute) {
