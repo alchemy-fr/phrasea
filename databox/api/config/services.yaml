@@ -142,6 +142,4 @@ services:
 
     hydra_meta.normalizer:
         class:  App\Serializer\HydraMetaNormalizer
-        decorates:  api_platform.hydra.normalizer.collection_filters
         public: true
-        arguments: ["@hydra_meta.normalizer.inner"]

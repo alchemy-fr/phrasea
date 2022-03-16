@@ -106,7 +106,7 @@ class AttributeSearch
         }
 
         if ($fuzziness) {
-            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO.':5,8');
         }
 
         $fields = [];

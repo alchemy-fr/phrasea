@@ -42,7 +42,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"asset:index", "asset:read", "attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
      * Apply this definition to files of this MIME type.

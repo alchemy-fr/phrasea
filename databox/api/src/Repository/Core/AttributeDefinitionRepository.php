@@ -47,7 +47,7 @@ class AttributeDefinitionRepository extends EntityRepository
 
         if ($options[self::OPT_TYPE] ?? null) {
             $queryBuilder
-                ->andWhere('t.fieldType IN (:type)')
+                ->andWhere('t.fieldType = :type')
                 ->setParameter('type', $options[self::OPT_TYPE]);
         }
 
