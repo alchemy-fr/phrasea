@@ -68,14 +68,12 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
         }
 
-        if (isset($options['filters'])) {
-            if (is_string($options['filters'])) {
-                $options['filters'] = \GuzzleHttp\json_decode($options['filters']);
+        if (null !== $attrFilters = ($options['filters'] ?? null)) {
+            if (is_string($attrFilters)) {
+                $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
             }
-            foreach ($options['filters'] as $field => $values) {
-                if (!empty($values)) {
-                    $filterQueries[] = new Query\Terms(sprintf('attributes._.%s', $field), $values);
-                }
+            if (!empty($attrFilters)) {
+                $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
             }
         }
 

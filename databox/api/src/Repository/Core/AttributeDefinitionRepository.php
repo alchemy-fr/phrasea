@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityRepository;
 
 class AttributeDefinitionRepository extends EntityRepository
 {
-    const OPT_TYPE = 'type';
+    const OPT_TYPES = 'types';
 
     /**
      * @return AttributeDefinition[]
@@ -45,10 +45,10 @@ class AttributeDefinitionRepository extends EntityRepository
             ;
         }
 
-        if ($options[self::OPT_TYPE] ?? null) {
+        if ($options[self::OPT_TYPES] ?? null) {
             $queryBuilder
-                ->andWhere('t.fieldType = :type')
-                ->setParameter('type', $options[self::OPT_TYPE]);
+                ->andWhere('t.fieldType IN (:types)')
+                ->setParameter('types', $options[self::OPT_TYPES]);
         }
 
         return $queryBuilder

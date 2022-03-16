@@ -24,7 +24,12 @@ class TextAttributeType extends AbstractAttributeType
 
     public function getElasticSearchMapping(string $language): array
     {
-        $mapping = [];
+        $mapping = [
+            'fields' => [
+                'raw' => [
+                    'type' => 'keyword',
+                ]
+            ],];
         if (IndexMappingUpdater::NO_LOCALE !== $language) {
             $mapping['analyzer'] = 'text_'.$language;
         }

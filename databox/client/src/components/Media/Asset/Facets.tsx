@@ -97,7 +97,7 @@ export default function Facets() {
         }
         className={classes.root}
     >
-        {Object.keys(facets).map((k) => <FacetRow
+        {Object.keys(facets).filter(k => facets[k].buckets.length > 0).map((k) => <FacetRow
             key={k}
             name={k}
             facet={facets[k]}

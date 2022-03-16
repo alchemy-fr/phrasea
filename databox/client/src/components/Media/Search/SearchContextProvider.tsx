@@ -102,6 +102,15 @@ export default function SearchContextProvider({children}: Props) {
         }));
     };
 
+    const removeAttrFilter = (attrName: string) => {
+        setAttrFilters(prev => {
+            const f = {...prev};
+            delete f[attrName];
+
+            return f;
+        });
+    };
+
     useEffect(() => {
         doSearch();
         // eslint-disable-next-line
@@ -119,6 +128,7 @@ export default function SearchContextProvider({children}: Props) {
             setQuery,
             reload,
             toggleAttrFilter: toggleAttrFilter,
+            removeAttrFilter: removeAttrFilter,
             attrFilters: attrFilters,
             loading: state.loading,
             pages: state.pages,

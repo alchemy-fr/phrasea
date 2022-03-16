@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -71,7 +72,7 @@ class AttributeSearch
                 $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
 
                 $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                if (!$type instanceof TextAttributeType) {
+                if ($type instanceof DateAttributeType) {
                     $field .= '.text';
                 }
                 $weights[$field] = $definition->getSearchBoost() ?? 1;
@@ -93,6 +94,24 @@ class AttributeSearch
         }
 
         return $boolQuery;
+    }
+
+    public function addAttributeFilters(array $filters): Query\BoolQuery
+    {
+        $bool = new Query\BoolQuery();
+        foreach ($filters as $field => $values) {
+            $info = $this->fieldNameResolver->extractField($field);
+
+            if ($info['type'] === 'text') {
+                $field .= '.raw';
+            }
+
+            if (!empty($values)) {
+                $bool->addMust(new Query\Terms(sprintf('attributes._.%s', $field), $values));
+            }
+        }
+
+        return $bool;
     }
 
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch
@@ -137,7 +156,11 @@ class AttributeSearch
             ->getSearchableAttributes(array_map(function (Workspace $w): string {
                 return $w->getId();
             }, $workspaces), $userId, $groupIds, [
-                AttributeDefinitionRepository::OPT_TYPE => KeywordAttributeType::getName(),
+                AttributeDefinitionRepository::OPT_TYPES => [
+                    KeywordAttributeType::getName(),
+                    TextAttributeType::getName(),
+                    DateAttributeType::getName(),
+                ],
             ]);
 
         $facets = [];
@@ -146,6 +169,9 @@ class AttributeSearch
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $field = sprintf('attributes.%s.%s', $l, $fieldName);
+            if ($type instanceof TextAttributeType) {
+                $field .= '.raw';
+            }
 
             if (isset($facets[$field])) {
                 continue;

@@ -3,6 +3,7 @@ import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Button, LinearProgress, ListSubheader} from "@material-ui/core";
 import {SearchContext} from "./SearchContext";
 import Pager, {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
+import SearchFilters from "./SearchFilters";
 
 const classes = {
     root: {},
@@ -72,6 +73,11 @@ export default function AssetResults() {
                         </b>
                         {` result${total > 1 ? 's' : ''}`}
                     </> : 'Loading...'}
+
+                    {search.attrFilters && <SearchFilters
+                        onDelete={(k) => search.removeAttrFilter(k)}
+                        filters={search.attrFilters}
+                    />}
                 </ListSubheader>
                 <div className={'asset-result'}>
                     <Pager
