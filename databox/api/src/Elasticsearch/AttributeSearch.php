@@ -101,13 +101,18 @@ class AttributeSearch
         $bool = new Query\BoolQuery();
         foreach ($filters as $field => $values) {
             $info = $this->fieldNameResolver->extractField($field);
-
+            $f = $info['field'];
             if ($info['type'] === 'text') {
-                $field .= '.raw';
+                $f .= '.raw';
             }
 
             if (!empty($values)) {
-                $bool->addMust(new Query\Terms(sprintf('attributes._.%s', $field), $values));
+                $termQuery = new Query\Terms(sprintf('attributes._.%s', $f), $values);
+                if ($info['inverted']) {
+                    $bool->addMustNot($termQuery);
+                } else {
+                    $bool->addMust($termQuery);
+                }
             }
         }
 

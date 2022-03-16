@@ -16,6 +16,7 @@ export type TSearchContext = {
     attrFilters: Record<string, string[]>;
     toggleAttrFilter: (attrName: string, value: string) => void;
     removeAttrFilter: (attrName: string) => void;
+    invertAttrFilter: (attrName: string) => void;
 }
 
 export const SearchContext = React.createContext<TSearchContext>({
@@ -27,4 +28,5 @@ export const SearchContext = React.createContext<TSearchContext>({
     reload: () => {},
     toggleAttrFilter: () => {},
     removeAttrFilter: () => {},
+    invertAttrFilter: () => {},
 });

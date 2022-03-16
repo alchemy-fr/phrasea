@@ -75,7 +75,8 @@ export default function AssetResults() {
                     </> : 'Loading...'}
 
                     {search.attrFilters && <SearchFilters
-                        onDelete={(k) => search.removeAttrFilter(k)}
+                        onDelete={search.removeAttrFilter}
+                        onInvert={search.invertAttrFilter}
                         filters={search.attrFilters}
                     />}
                 </ListSubheader>

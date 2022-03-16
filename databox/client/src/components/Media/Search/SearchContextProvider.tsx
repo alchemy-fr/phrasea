@@ -94,18 +94,47 @@ export default function SearchContextProvider({children}: Props) {
     };
 
     const toggleAttrFilter = (attrName: string, value: string) => {
-        setAttrFilters(prev => ({
-            ...prev,
-            [attrName]: prev[attrName] ? (
-                !prev[attrName].includes(value) ? prev[attrName].concat(value) : prev[attrName].filter(v => v !== value)
-            ) : [value],
-        }));
+        setAttrFilters(prev => {
+            const f = {...prev};
+
+            if (f[attrName]) {
+                if (f[attrName].includes(value)) {
+                    if (f[attrName].length === 1) {
+                        delete f[attrName];
+                    } else {
+                        f[attrName] = f[attrName].filter(v => v !== value);
+                    }
+                } else {
+                    f[attrName] = f[attrName].concat(value);
+                }
+            } else {
+                f[attrName] = [value];
+            }
+
+            return f;
+        });
     };
 
     const removeAttrFilter = (attrName: string) => {
         setAttrFilters(prev => {
             const f = {...prev};
             delete f[attrName];
+
+            return f;
+        });
+    };
+
+    const invertAttrFilter = (attrName: string) => {
+        setAttrFilters(prev => {
+            const f = {...prev};
+
+            if (f[attrName]) {
+                f[`-${attrName}`] = f[attrName];
+                delete f[attrName];
+            } else if (f[`-${attrName}`]) {
+                f[attrName] = f[`-${attrName}`];
+                delete f[`-${attrName}`];
+            }
 
             return f;
         });
@@ -129,6 +158,7 @@ export default function SearchContextProvider({children}: Props) {
             reload,
             toggleAttrFilter: toggleAttrFilter,
             removeAttrFilter: removeAttrFilter,
+            invertAttrFilter: invertAttrFilter,
             attrFilters: attrFilters,
             loading: state.loading,
             pages: state.pages,
