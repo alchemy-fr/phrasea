@@ -1,35 +1,33 @@
 import React from 'react';
-import {AttrFilters} from "./SearchContextProvider";
 import {Chip} from "@mui/material";
+import {FilterEntry, Filters} from "./Filter";
 
 type FilterProps = {
-    field: string;
-    inverted: boolean;
-    values: string[];
     onInvert: () => void;
     onDelete: () => void;
-}
+} & FilterEntry;
 
 function Filter({
-                    field,
-                    values,
+                    a,
+                    t,
+                    i,
+                    v,
                     onInvert,
                     onDelete,
-                    inverted,
                 }: FilterProps) {
     return <Chip
-        title={field}
-        label={values.join(', ').substring(0, 30)}
+        title={t}
+        label={v.join(', ').substring(0, 30)}
         onDelete={onDelete}
         onClick={onInvert}
-        color={inverted ? 'error' : 'primary'}
+        color={i ? 'error' : 'primary'}
     />
 }
 
 type Props = {
-    filters: AttrFilters;
-    onInvert: (name: string) => void;
-    onDelete: (name: string) => void;
+    filters: Filters;
+    onInvert: (key: number) => void;
+    onDelete: (key: number) => void;
 };
 
 export default function SearchFilters({
@@ -38,18 +36,13 @@ export default function SearchFilters({
                                           onInvert,
                                       }: Props) {
     return <div>
-        {Object.keys(filters).map(k => {
-            const f = k.replace(/^-/, '');
-
-            return <React.Fragment key={k}>
+        {filters.map((f, i) => {
+            return <React.Fragment key={i}>
                 {' '}
                 <Filter
-                    key={k}
-                    field={f}
-                    values={filters[k]}
-                    onDelete={() => onDelete(k)}
-                    onInvert={() => onInvert(f)}
-                    inverted={k.startsWith('-')}
+                    {...f}
+                    onDelete={() => onDelete(i)}
+                    onInvert={() => onInvert(i)}
                 />
             </React.Fragment>
         })}

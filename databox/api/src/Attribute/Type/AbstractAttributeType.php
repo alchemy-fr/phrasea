@@ -31,4 +31,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     public function validate($value, ExecutionContextInterface $context): void
     {
     }
+
+    public function supportsAggregation(): bool
+    {
+        return false;
+    }
 }

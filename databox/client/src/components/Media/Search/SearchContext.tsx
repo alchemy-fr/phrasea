@@ -1,6 +1,7 @@
 import React from "react";
 import {Asset} from "../../../types";
 import {TFacets} from "../Asset/Facets";
+import {Filters} from "./Filter";
 
 export type TSearchContext = {
     query: string;
@@ -13,16 +14,16 @@ export type TSearchContext = {
     pages: Asset[][];
     total?: number;
     facets?: TFacets;
-    attrFilters: Record<string, string[]>;
-    toggleAttrFilter: (attrName: string, value: string) => void;
-    removeAttrFilter: (attrName: string) => void;
-    invertAttrFilter: (attrName: string) => void;
+    attrFilters: Filters;
+    toggleAttrFilter: (attrName: string, value: string, attrTitle: string) => void;
+    removeAttrFilter: (key: number) => void;
+    invertAttrFilter: (key: number) => void;
 }
 
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
     pages: [],
-    attrFilters: {},
+    attrFilters: [],
     loading: false,
     setQuery: () => {},
     reload: () => {},

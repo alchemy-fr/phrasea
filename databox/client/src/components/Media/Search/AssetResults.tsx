@@ -45,7 +45,6 @@ export default function AssetResults() {
         // eslint-disable-next-line
     }, [assetSelection.selectAssets]);
 
-
     const {loading, total, loadMore, pages} = search;
 
     return <div style={{

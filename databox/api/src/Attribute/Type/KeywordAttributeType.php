@@ -60,4 +60,9 @@ class KeywordAttributeType extends AbstractAttributeType
             $context->addViolation('Invalid text value');
         }
     }
+
+    public function supportsAggregation(): bool
+    {
+        return true;
+    }
 }

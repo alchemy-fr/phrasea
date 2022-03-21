@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\TextAttributeType;
@@ -99,8 +100,12 @@ class AttributeSearch
     public function addAttributeFilters(array $filters): Query\BoolQuery
     {
         $bool = new Query\BoolQuery();
-        foreach ($filters as $field => $values) {
-            $info = $this->fieldNameResolver->extractField($field);
+        foreach ($filters as $filter) {
+            $attr = $filter['a'];
+            $values = $filter['v'];
+            $inverted = (bool) ($filter['i'] ?? false);
+
+            $info = $this->fieldNameResolver->extractField($attr);
             $f = $info['field'];
             if ($info['type'] === 'text') {
                 $f .= '.raw';
@@ -108,7 +113,7 @@ class AttributeSearch
 
             if (!empty($values)) {
                 $termQuery = new Query\Terms(sprintf('attributes._.%s', $f), $values);
-                if ($info['inverted']) {
+                if ($inverted) {
                     $bool->addMustNot($termQuery);
                 } else {
                     $bool->addMust($termQuery);
@@ -144,7 +149,6 @@ class AttributeSearch
 
     public function buildFacets(
         Query $query,
-        Query\BoolQuery $boolQuery,
         ?string $userId,
         array $groupIds,
         array $options = []
@@ -156,16 +160,19 @@ class AttributeSearch
             return;
         }
 
+        $facetTypes = array_map(function (AttributeTypeInterface $attributeType): string {
+            return $attributeType::getName();
+        }, array_filter($this->typeRegistry->getTypes(), function (AttributeTypeInterface $attributeType): bool {
+            return $attributeType->supportsAggregation();
+        }));
+
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes(array_map(function (Workspace $w): string {
                 return $w->getId();
             }, $workspaces), $userId, $groupIds, [
-                AttributeDefinitionRepository::OPT_TYPES => [
-                    KeywordAttributeType::getName(),
-                    TextAttributeType::getName(),
-                    DateAttributeType::getName(),
-                ],
+                AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
+                AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
             ]);
 
         $facets = [];
@@ -189,7 +196,6 @@ class AttributeSearch
             $agg->setMeta([
                 'title' => $definition->getName()
             ]);
-//            $agg->setOrder('_count', 'desc');
 
             $query->addAggregation($agg);
         }

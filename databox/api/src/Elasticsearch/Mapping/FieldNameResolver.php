@@ -38,14 +38,13 @@ class FieldNameResolver
             return $t->getElasticSearchType();
         }, $this->attributeTypeRegistry->getTypes());
 
-        $regex = sprintf('#^(-)?(.+)_(%s)_(s|m)$#', implode('|', $types));
+        $regex = sprintf('#^(.+)_(%s)_(s|m)$#', implode('|', $types));
         if (1 === preg_match($regex, $fieldName, $matches)) {
             return [
-                'inverted' => '-' === $matches[1],
-                'name' => $matches[2],
-                'field' => sprintf('%s_%s_%s', $matches[2], $matches[3], $matches[4]),
-                'type' => $matches[3],
-                'multiple' => 'm' === $matches[4],
+                'name' => $matches[1],
+                'field' => sprintf('%s_%s_%s', $matches[1], $matches[2], $matches[3]),
+                'type' => $matches[2],
+                'multiple' => 'm' === $matches[3],
             ];
         }
 

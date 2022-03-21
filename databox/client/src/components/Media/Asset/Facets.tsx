@@ -44,6 +44,8 @@ function FacetRow({
     const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
     const [open, setOpen] = useState(true);
 
+    const attrFilter = attrFilters.find(_f => _f.a === name);
+
     return <>
         <ListItem button onClick={() => setOpen(o => !o)}>
             <ListItemText primary={facet.meta.title}/>
@@ -52,10 +54,9 @@ function FacetRow({
         <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
                 {facet.buckets.map(b => {
-                    const selected = attrFilters.hasOwnProperty(name)
-                        && attrFilters[name].includes(b.key);
+                    const selected = attrFilter && attrFilter.v.includes(b.key);
 
-                    const onClick = () => toggleAttrFilter(name, b.key);
+                    const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
 
                     return <ListItem
                         button

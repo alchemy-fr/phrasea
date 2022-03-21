@@ -35,4 +35,9 @@ class BooleanAttributeType extends AbstractAttributeType
             $context->addViolation('Invalid boolean');
         }
     }
+
+    public function supportsAggregation(): bool
+    {
+        return true;
+    }
 }

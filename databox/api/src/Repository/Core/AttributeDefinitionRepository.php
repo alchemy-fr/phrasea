@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityRepository;
 class AttributeDefinitionRepository extends EntityRepository
 {
     const OPT_TYPES = 'types';
+    const OPT_FACET_ENABLED = 'facet_enabled';
 
     /**
      * @return AttributeDefinition[]
@@ -49,6 +50,12 @@ class AttributeDefinitionRepository extends EntityRepository
             $queryBuilder
                 ->andWhere('t.fieldType IN (:types)')
                 ->setParameter('types', $options[self::OPT_TYPES]);
+        }
+
+        if ($options[self::OPT_FACET_ENABLED] ?? null) {
+            $queryBuilder
+                ->andWhere('t.facetEnabled = :fc')
+                ->setParameter('fc', $options[self::OPT_FACET_ENABLED]);
         }
 
         return $queryBuilder

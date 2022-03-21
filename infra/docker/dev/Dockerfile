@@ -145,6 +145,7 @@ COPY entrypoint.sh /bootstrap/entrypoint.sh
 COPY symfony.ini /bootstrap/symfony.ini
 COPY entrypoint.d/* /bootstrap/entrypoint.d/
 COPY oh-my-zsh/themes/arthem.zsh-theme /bootstrap/.oh-my-zsh/themes/arthem.zsh-theme
+COPY php/dev-cli.ini $PHP_INI_DIR/conf.d/zz-dev-cli.ini
 
 RUN chmod -R +x \
         /bootstrap/entrypoint.sh \

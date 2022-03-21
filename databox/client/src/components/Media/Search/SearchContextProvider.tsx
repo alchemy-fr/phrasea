@@ -4,22 +4,38 @@ import {getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchFiltersContext} from "./SearchFiltersContext";
 import {TFacets} from "../Asset/Facets";
+import {Filters} from "./Filter";
+import axios from "axios";
 
-async function search(query: string, url?: string, collectionIds?: string[], workspaceIds?: string[], attrFilters?: AttrFilters): Promise<{
+let lastController: AbortController;
+
+async function search(query: string, url?: string, collectionIds?: string[], workspaceIds?: string[], attrFilters?: Filters): Promise<{
     result: Asset[];
     facets: TFacets;
     total: number;
     next: string | null;
 }> {
+
+    if (lastController) {
+        lastController.abort();
+    }
+
+    lastController = new AbortController();
+
     const options = {
         query,
         parents: collectionIds,
         workspaces: workspaceIds,
         url,
-        filters: attrFilters,
+        filters: attrFilters?.map(f => ({
+            ...f,
+            t: undefined,
+        })),
     };
 
-    const result = await getAssets(options);
+    const result = await getAssets(options, {
+        signal: lastController.signal,
+    });
 
     return {
         total: result.total,
@@ -33,8 +49,6 @@ function extractCollectionIdFromPath(path: string): string {
     const p = path.split('/');
     return p[p.length - 1];
 }
-
-export type AttrFilters = Record<string, string[]>;
 
 type State = {
     pages: Asset[][];
@@ -52,7 +66,7 @@ export default function SearchContextProvider({children}: Props) {
     const searchFiltersContext = useContext(SearchFiltersContext);
 
     const [query, setQuery] = useState('');
-    const [attrFilters, setAttrFilters] = useState<AttrFilters>({});
+    const [attrFilters, setAttrFilters] = useState<Filters>([]);
     const [state, setState] = useState<State>({
         pages: [],
         loading: false,
@@ -65,9 +79,6 @@ export default function SearchContextProvider({children}: Props) {
     }));
 
     const doSearch = async (nextUrl?: string) => {
-        if (state.loading) {
-            return;
-        }
         setLoading(true);
 
         const collectionIds = searchFiltersContext.selectedCollection ? [extractCollectionIdFromPath(searchFiltersContext.selectedCollection)] : undefined;
@@ -85,7 +96,11 @@ export default function SearchContextProvider({children}: Props) {
                 }
             });
         }).catch((e) => {
-            setLoading(false);
+            if (e instanceof axios.Cancel) {
+            } else {
+                console.log('e', e);
+                setLoading(false);
+            }
         })
     }
 
@@ -93,47 +108,52 @@ export default function SearchContextProvider({children}: Props) {
         doSearch();
     };
 
-    const toggleAttrFilter = (attrName: string, value: string) => {
+    const toggleAttrFilter = (attrName: string, value: string, attrTitle: string): void => {
         setAttrFilters(prev => {
-            const f = {...prev};
+            const f = [...prev];
 
-            if (f[attrName]) {
-                if (f[attrName].includes(value)) {
-                    if (f[attrName].length === 1) {
-                        delete f[attrName];
+            const key = f.findIndex(_f => _f.a === attrName);
+
+            if (key >= 0) {
+                const tf = f[key];
+                if (tf.v.includes(value)) {
+                    if (tf.v.length === 1) {
+                        f.splice(key, 1);
                     } else {
-                        f[attrName] = f[attrName].filter(v => v !== value);
+                        tf.v = tf.v.filter(v => v !== value);
                     }
                 } else {
-                    f[attrName] = f[attrName].concat(value);
+                    tf.v = tf.v.concat(value);
                 }
             } else {
-                f[attrName] = [value];
+                f.push({
+                    t: attrTitle,
+                    a: attrName,
+                    v: [value],
+                });
             }
 
             return f;
         });
     };
 
-    const removeAttrFilter = (attrName: string) => {
+    const removeAttrFilter = (key: number): void => {
         setAttrFilters(prev => {
-            const f = {...prev};
-            delete f[attrName];
+            const f = [...prev];
+            f.splice(key, 1);
 
             return f;
         });
     };
 
-    const invertAttrFilter = (attrName: string) => {
+    const invertAttrFilter = (key: number): void => {
         setAttrFilters(prev => {
-            const f = {...prev};
+            const f = [...prev];
 
-            if (f[attrName]) {
-                f[`-${attrName}`] = f[attrName];
-                delete f[attrName];
-            } else if (f[`-${attrName}`]) {
-                f[attrName] = f[`-${attrName}`];
-                delete f[`-${attrName}`];
+            if (f[key].i) {
+                delete f[key].i;
+            } else {
+                f[key].i = 1;
             }
 
             return f;
@@ -156,9 +176,9 @@ export default function SearchContextProvider({children}: Props) {
             query,
             setQuery,
             reload,
-            toggleAttrFilter: toggleAttrFilter,
-            removeAttrFilter: removeAttrFilter,
-            invertAttrFilter: invertAttrFilter,
+            toggleAttrFilter,
+            removeAttrFilter,
+            invertAttrFilter,
             attrFilters: attrFilters,
             loading: state.loading,
             pages: state.pages,

@@ -12,6 +12,8 @@ interface AttributeTypeInterface
 
     public function getElasticSearchType(): string;
 
+    public function supportsAggregation(): bool;
+
     public function getElasticSearchMapping(string $language): array;
 
     /**

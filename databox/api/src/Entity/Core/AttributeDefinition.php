@@ -77,6 +77,12 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
+    private bool $facetEnabled = false;
+
+    /**
+     * @Groups({"attributedef:index"})
+     * @ORM\Column(type="boolean", nullable=false)
+     */
     private bool $translatable = false;
 
     /**
@@ -265,5 +271,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function isFacetEnabled(): bool
+    {
+        return $this->facetEnabled;
+    }
+
+    public function setFacetEnabled(bool $facetEnabled): void
+    {
+        $this->facetEnabled = $facetEnabled;
     }
 }

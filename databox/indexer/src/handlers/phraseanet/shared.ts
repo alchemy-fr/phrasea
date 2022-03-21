@@ -22,6 +22,8 @@ export function createAsset(
 
     const path = `${escapeSlashes(collectionName)}/${escapeSlashes(record.original_name)}`;
 
+    console.log('record', record);
+
     return {
         workspaceId,
         key: record.uuid,

@@ -71,6 +71,10 @@ class AssetSearch extends AbstractSearch
         if (null !== $attrFilters = ($options['filters'] ?? null)) {
             if (is_string($attrFilters)) {
                 $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
+            } else {
+                $attrFilters = array_map(function ($f): array {
+                    return is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f;
+                }, $attrFilters);
             }
             if (!empty($attrFilters)) {
                 $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
@@ -146,7 +150,7 @@ class AssetSearch extends AbstractSearch
             ]
         ]);
 
-        $this->attributeSearch->buildFacets($query, $filterQuery, $userId, $groupIds, $options);
+        $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
