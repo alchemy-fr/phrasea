@@ -7,7 +7,6 @@ namespace App\Elasticsearch;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateAttributeType;
-use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -69,6 +68,13 @@ class AttributeSearch
             foreach ($attributeDefinitions as $definition) {
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);
                 $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+
+                if (!(
+                    $type instanceof TextAttributeType
+                    || $type instanceof DateAttributeType
+                )) {
+                    continue;
+                }
 
                 $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
 

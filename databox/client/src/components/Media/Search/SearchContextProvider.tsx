@@ -1,11 +1,13 @@
 import {SearchContext} from "./SearchContext";
-import {PropsWithChildren, useContext, useEffect, useState} from "react";
+import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
 import {getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchFiltersContext} from "./SearchFiltersContext";
 import {TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import axios from "axios";
+import useHash from "../../../lib/useHash";
+import {hashToQuery, queryToHash} from "./search";
 
 let lastController: AbortController;
 
@@ -65,13 +67,28 @@ type Props = PropsWithChildren<{}>;
 export default function SearchContextProvider({children}: Props) {
     const searchFiltersContext = useContext(SearchFiltersContext);
 
-    const [query, setQuery] = useState('');
-    const [attrFilters, setAttrFilters] = useState<Filters>([]);
+    const [hash, setHash] = useHash();
+
     const [state, setState] = useState<State>({
         pages: [],
         loading: false,
         inc: 0,
     });
+
+    const {query, filters} = hashToQuery(hash);
+
+    const setAttrFilters = useCallback((handler: (prev: Filters) => Filters): void => {
+        setHash(queryToHash(query, handler(filters)));
+    }, [setHash, query, filters]);
+
+    const setQuery = useCallback((handler: string | ((prev: string) => string)): void => {
+        if (typeof handler === 'string') {
+            setHash(queryToHash(handler, filters));
+            return;
+        }
+
+        setHash(queryToHash(handler(query), filters));
+    }, [setHash, query, filters]);
 
     const setLoading = (loading: boolean) => setState((prev) => ({
         ...prev,
@@ -84,7 +101,7 @@ export default function SearchContextProvider({children}: Props) {
         const collectionIds = searchFiltersContext.selectedCollection ? [extractCollectionIdFromPath(searchFiltersContext.selectedCollection)] : undefined;
         const workspaceIds = searchFiltersContext.selectedWorkspace ? [searchFiltersContext.selectedWorkspace] : undefined;
 
-        search(query, nextUrl, collectionIds, workspaceIds, attrFilters).then((r) => {
+        search(query, nextUrl, collectionIds, workspaceIds, filters).then((r) => {
             setState((prevState) => {
                 return {
                     pages: nextUrl ? prevState.pages.concat([r.result]) : [r.result],
@@ -164,11 +181,10 @@ export default function SearchContextProvider({children}: Props) {
         doSearch();
         // eslint-disable-next-line
     }, [
-        query,
         searchFiltersContext.selectedCollection,
         searchFiltersContext.selectedWorkspace,
         searchFiltersContext.reloadInc,
-        attrFilters,
+        hash,
     ]);
 
     return <SearchContext.Provider
@@ -179,7 +195,7 @@ export default function SearchContextProvider({children}: Props) {
             toggleAttrFilter,
             removeAttrFilter,
             invertAttrFilter,
-            attrFilters: attrFilters,
+            attrFilters: filters,
             loading: state.loading,
             pages: state.pages,
             facets: state.facets,
