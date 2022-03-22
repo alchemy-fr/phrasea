@@ -1,6 +1,5 @@
 import React, {MouseEvent, Component} from "react";
 import {Collection, Workspace} from "../../types";
-import {SelectionContext} from "./SelectionContext";
 import CollectionMenuItem from "./CollectionMenuItem";
 import EditWorkspace from "./Workspace/EditWorkspace";
 import CreateCollection from "./Collection/CreateCollection";
@@ -12,6 +11,7 @@ import ListSubheader from "@material-ui/core/ListSubheader";
 import {ReactComponent as WorkspaceImg} from "../../images/icons/workspace.svg";
 import Icon from "../ui/Icon";
 import {collectionChildrenLimit, collectionSecondLimit, getCollections} from "../../api/collection";
+import {SearchFiltersContext} from "./Search/SearchFiltersContext";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -29,8 +29,8 @@ function propsAreSame(a: Record<string, any>, b: Record<string, any>): boolean {
 }
 
 export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps, State> {
-    static contextType = SelectionContext;
-    context: React.ContextType<typeof SelectionContext>;
+    static contextType = SearchFiltersContext;
+    context: React.ContextType<typeof SearchFiltersContext>;
 
     state: State = {
         expanded: true,
@@ -40,7 +40,7 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
         nextCollections: undefined,
     };
 
-    shouldComponentUpdate(nextProps: Readonly<WorkspaceMenuItemProps>, nextState: Readonly<State>, nextContext: React.ContextType<typeof SelectionContext>): boolean {
+    shouldComponentUpdate(nextProps: Readonly<WorkspaceMenuItemProps>, nextState: Readonly<State>, nextContext: React.ContextType<typeof SearchFiltersContext>): boolean {
         return !nextContext ||
             (nextContext.selectedWorkspace !== this.context.selectedWorkspace
                 || nextContext.selectedCollection !== this.context.selectedCollection

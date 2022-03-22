@@ -137,7 +137,16 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             }
             if (!empty($data->attributes)) {
                 foreach ($data->attributes as $attribute) {
-                    $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
+                    if (is_array($attribute->values)) {
+                        foreach ($attribute->values as $value) {
+                            $attr = clone $attribute;
+                            unset($attr->values);
+                            $attr->value = $value;
+                            $object->addAttribute($this->attributeInputDataTransformer->transform($attr, Attribute::class, $context));
+                        }
+                    } else {
+                        $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
+                    }
                 }
             }
         }

@@ -1,7 +1,6 @@
 App\Entity\Core\Asset:
   properties:
     title:
-      - NotBlank: ~
       - Length:
           max: 255
     workspace:

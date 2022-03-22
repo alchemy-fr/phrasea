@@ -12,6 +12,7 @@ import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
 import {draggableTypes} from "../draggableTypes";
 import AssetPreviewWrapper from "./AssetPreviewWrapper";
 import EditAssetAttributes from "./EditAssetAttributes";
+import {replaceHighlight} from "./Attributes";
 
 export interface DragSourceProps {
     connectDragSource: ConnectDragSource
@@ -153,9 +154,7 @@ class AssetItem extends Component<AllProps, State> {
 
         const opacity = isDragging ? 0.4 : 1;
 
-        const titleNode = titleHighlight ? <span dangerouslySetInnerHTML={{
-            __html: titleHighlight,
-        }} /> : title;
+        const titleNode = replaceHighlight(titleHighlight  || title);
 
         return connectDragSource(
             <div
@@ -207,8 +206,9 @@ class AssetItem extends Component<AllProps, State> {
                                 </div> : undefined
                             }
                         />
-                        <Menu
+                        {this.state.menuOpen && <Menu
                             id={`item-menu-${id}`}
+                            key={`item-menu-${id}`}
                             keepMounted
                             anchorEl={this.ref.current}
                             open={this.state.menuOpen}
@@ -248,7 +248,7 @@ class AssetItem extends Component<AllProps, State> {
                                 </ListItemIcon>
                                 <ListItemText primary="Delete"/>
                             </MenuItem>}
-                        </Menu>
+                        </Menu>}
                         {this.state.editing ? <EditAsset
                             id={this.props.id}
                             onClose={this.closeEdit}

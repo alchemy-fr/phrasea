@@ -42,7 +42,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"asset:index", "asset:read", "attributedef:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
      * Apply this definition to files of this MIME type.
@@ -72,6 +72,12 @@ class AttributeDefinition extends AbstractUuidEntity
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $searchable = true;
+
+    /**
+     * @Groups({"attributedef:index"})
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $facetEnabled = false;
 
     /**
      * @Groups({"attributedef:index"})
@@ -265,5 +271,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function isFacetEnabled(): bool
+    {
+        return $this->facetEnabled;
+    }
+
+    public function setFacetEnabled(bool $facetEnabled): void
+    {
+        $this->facetEnabled = $facetEnabled;
     }
 }

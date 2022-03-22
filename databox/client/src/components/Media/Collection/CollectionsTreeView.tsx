@@ -64,7 +64,6 @@ export function CollectionsTreeView({workspaces, onChange}: Props) {
 
     const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
         setSelected(nodeIds);
-        console.log('nodeIds', nodeIds);
         onChange && onChange(nodeIds);
     };
 

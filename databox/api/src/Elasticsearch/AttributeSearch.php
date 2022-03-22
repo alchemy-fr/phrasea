@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Aggregation;
 use Elastica\Query;
 
 class AttributeSearch
@@ -25,26 +29,21 @@ class AttributeSearch
         FieldNameResolver $fieldNameResolver,
         EntityManagerInterface $em,
         AttributeTypeRegistry $typeRegistry
-    )
-    {
+    ) {
         $this->fieldNameResolver = $fieldNameResolver;
         $this->em = $em;
         $this->typeRegistry = $typeRegistry;
     }
 
-    public function buildAttributeQuery(string $queryString, ?string $userId, array $groupIds, array $options = []): ?Query\AbstractQuery
-    {
+    public function buildAttributeQuery(
+        string $queryString,
+        ?string $userId,
+        array $groupIds,
+        array $options = []
+    ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
-        if (null !== $userId) {
-            $workspaces = $this->em
-                ->getRepository(Workspace::class)
-                ->getAllowedWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
-        } else {
-            // TODO fix this point
-            $workspaces = $this->em
-                ->getRepository(Workspace::class)->findAll();
-        }
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
 
         if (empty($workspaces)) {
             return null;
@@ -70,10 +69,17 @@ class AttributeSearch
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);
                 $type = $this->typeRegistry->getStrictType($definition->getFieldType());
 
+                if (!(
+                    $type instanceof TextAttributeType
+                    || $type instanceof DateAttributeType
+                )) {
+                    continue;
+                }
+
                 $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
 
                 $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                if (!$type instanceof TextAttributeType) {
+                if ($type instanceof DateAttributeType) {
                     $field .= '.text';
                 }
                 $weights[$field] = $definition->getSearchBoost() ?? 1;
@@ -97,6 +103,33 @@ class AttributeSearch
         return $boolQuery;
     }
 
+    public function addAttributeFilters(array $filters): Query\BoolQuery
+    {
+        $bool = new Query\BoolQuery();
+        foreach ($filters as $filter) {
+            $attr = $filter['a'];
+            $values = $filter['v'];
+            $inverted = (bool) ($filter['i'] ?? false);
+
+            $info = $this->fieldNameResolver->extractField($attr);
+            $f = $info['field'];
+            if ($info['type'] === 'text') {
+                $f .= '.raw';
+            }
+
+            if (!empty($values)) {
+                $termQuery = new Query\Terms(sprintf('attributes._.%s', $f), $values);
+                if ($inverted) {
+                    $bool->addMustNot($termQuery);
+                } else {
+                    $bool->addMust($termQuery);
+                }
+            }
+        }
+
+        return $bool;
+    }
+
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch
     {
         $multiMatch = new Query\MultiMatch();
@@ -108,7 +141,7 @@ class AttributeSearch
         }
 
         if ($fuzziness) {
-            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO);
+            $multiMatch->setFuzziness(Query\MultiMatch::FUZZINESS_AUTO.':5,8');
         }
 
         $fields = [];
@@ -118,5 +151,57 @@ class AttributeSearch
         $multiMatch->setFields($fields);
 
         return $multiMatch;
+    }
+
+    public function buildFacets(
+        Query $query,
+        ?string $userId,
+        array $groupIds,
+        array $options = []
+    ): void {
+        $language = $options['locale'] ?? '*';
+        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
+
+        if (empty($workspaces)) {
+            return;
+        }
+
+        $facetTypes = array_map(function (AttributeTypeInterface $attributeType): string {
+            return $attributeType::getName();
+        }, array_filter($this->typeRegistry->getTypes(), function (AttributeTypeInterface $attributeType): bool {
+            return $attributeType->supportsAggregation();
+        }));
+
+        /** @var AttributeDefinition[] $attributeDefinitions */
+        $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributes(array_map(function (Workspace $w): string {
+                return $w->getId();
+            }, $workspaces), $userId, $groupIds, [
+                AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
+                AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
+            ]);
+
+        $facets = [];
+        foreach ($attributeDefinitions as $definition) {
+            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
+            $field = sprintf('attributes.%s.%s', $l, $fieldName);
+
+            if (isset($facets[$field])) {
+                continue;
+            }
+            $facets[$field] = true;
+
+            $agg = new Aggregation\Terms($fieldName);
+            $subField = $type->getAggregationField();
+            $agg->setField($field.($subField ? '.'.$subField : ''));
+            $agg->setSize(5);
+            $agg->setMeta([
+                'title' => $definition->getName()
+            ]);
+
+            $query->addAggregation($agg);
+        }
     }
 }

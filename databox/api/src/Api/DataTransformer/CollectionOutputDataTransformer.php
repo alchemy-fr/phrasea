@@ -45,7 +45,8 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
 
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, get_class($output), 'children');
             $maxDepth = (in_array('collection:2_level_children', $context['groups'], true)) ? 2 : 1;
-            if (($context[$key] ?? 0) < $maxDepth) {
+            $depth = $context[$key] ?? 0;
+            if ($depth < $maxDepth) {
                 if (false !== $object->getHasChildren()) {
                     $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
                         'parent' => $object->getId(),

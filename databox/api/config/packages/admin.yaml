@@ -302,6 +302,7 @@ easy_admin:
           - { property: 'fieldType' }
           - { property: 'multiple', type: boolean }
           - { property: 'editable' }
+          - { property: 'facetEnabled', label: 'Facet' }
           - { property: 'public', type: boolean }
           - { property: 'searchable', type: boolean }
           - createdAt

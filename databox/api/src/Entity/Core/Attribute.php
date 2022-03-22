@@ -67,9 +67,19 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $value = null;
 
     /**
+     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer
+     */
+    private ?array $values = null;
+
+    /**
      * Dynamically resolved.
      */
     private ?string $highlight = null;
+
+    /**
+     * Dynamically resolved.
+     */
+    private ?array $highlights = null;
 
     /**
      * @ORM\Column(type="smallint", nullable=false)
@@ -250,6 +260,16 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         ];
     }
 
+    public function getValues(): ?array
+    {
+        return $this->values;
+    }
+
+    public function setValues(?array $values): void
+    {
+        $this->values = $values;
+    }
+
     public function getHighlight(): ?string
     {
         return $this->highlight;
@@ -258,5 +278,15 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setHighlight(?string $highlight): void
     {
         $this->highlight = $highlight;
+    }
+
+    public function getHighlights(): ?array
+    {
+        return $this->highlights;
+    }
+
+    public function setHighlights(?array $highlights): void
+    {
+        $this->highlights = $highlights;
     }
 }

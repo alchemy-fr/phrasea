@@ -93,7 +93,7 @@ class AssetSearchTest extends AbstractSearchTest
         );
 
         $getMessage = function (string $m) use ($queryString, $expectedResults): string {
-            return sprintf('%s [case "%s", ["%s"]',
+            return sprintf('%s [case "%s", ["%s"]]',
                 $m,
                 $queryString,
                 implode('", "', $expectedResults)

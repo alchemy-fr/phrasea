@@ -1,6 +1,7 @@
 import apiClient from "./api-client";
 import {Asset, Attribute, AttributeDefinition} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
+import {AxiosRequestConfig} from "axios";
 
 interface AssetOptions {
     url?: string;
@@ -9,10 +10,13 @@ interface AssetOptions {
     parents?: string[];
 }
 
-export async function getAssets(options: AssetOptions): Promise<ApiCollectionResponse<Asset>> {
-    const res = options.url ? await apiClient.get(options.url) : await apiClient.get('/assets', {
-        params: options,
-    });
+export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset>> {
+    const res = options.url
+        ? await apiClient.get(options.url, requestConfig)
+        : await apiClient.get('/assets', {
+            params: options,
+            ...requestConfig,
+        });
 
     return getHydraCollection<Asset>(res.data);
 }

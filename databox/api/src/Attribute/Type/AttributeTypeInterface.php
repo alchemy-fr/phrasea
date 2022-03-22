@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 interface AttributeTypeInterface
@@ -12,7 +13,9 @@ interface AttributeTypeInterface
 
     public function getElasticSearchType(): string;
 
-    public function getElasticSearchMapping(string $language): array;
+    public function supportsAggregation(): bool;
+
+    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array;
 
     /**
      * Normalize value for Elastic search.
@@ -35,4 +38,6 @@ interface AttributeTypeInterface
     public function isLocaleAware(): bool;
 
     public function validate($value, ExecutionContextInterface $context): void;
+
+    public function getAggregationField(): ?string;
 }

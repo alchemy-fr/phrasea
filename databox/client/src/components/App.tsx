@@ -1,104 +1,54 @@
-import React, {PureComponent} from 'react';
-import AssetGrid from "./Media/Asset/AssetGrid";
+import React, {useContext, useState} from 'react';
 import {oauthClient} from "../oauth";
 import config from "../config";
-import CollectionsPanel from "./Media/CollectionsPanel";
-import MediaSelection from "./Media/MediaSelection";
+import AssetSelectionProvider from "./Media/AssetSelectionProvider";
 import {UserContext} from "./Security/UserContext";
 import MainAppBar from "./Layout/MainAppBar";
-import Dropzone from "react-dropzone";
-import UploadModal from "./Upload/UploadModal";
+import LeftPanel from "./Media/LeftPanel";
+import SearchContextProvider from "./Media/Search/SearchContextProvider";
+import AssetResults from "./Media/Search/AssetResults";
+import {HTML5Backend} from "react-dnd-html5-backend";
+import {DndProvider} from "react-dnd";
+import SearchFiltersProvider from "./Media/Search/SearchFiltersProvider";
+import AssetDropzone from "./Media/Asset/AssetDropzone";
 
-type State = {
-    searchQuery: string;
-    hideMenu: boolean;
-    uploadFiles?: File[];
-}
+export default function App() {
+    const [menuOpen, setMenuOpen] = useState(true);
+    const user = useContext(UserContext);
 
-type Props = {};
-
-export default class App extends PureComponent<Props, State> {
-    static contextType = UserContext;
-    context: React.ContextType<typeof UserContext>;
-
-    state: State = {
-        searchQuery: '',
-        hideMenu: false,
-    }
-
-    logout = () => {
+    const logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
             document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
         }
     }
 
-    onSearchQueryChange = (value: string) => {
-        this.setState({searchQuery: value});
-    }
+    const toggleMenu = () => setMenuOpen(open => !open);
 
-    toggleMenu = () => {
-        this.setState(prevState => ({
-            hideMenu: !prevState.hideMenu,
-        }))
-    }
-
-    render() {
-        const {uploadFiles} = this.state;
-
-        return <>
-            <Dropzone
-                noClick={true}
-                onDrop={this.onFileDrop}
-            >
-                {({getRootProps, getInputProps}) => (
-                    <div {...getRootProps()}>
-                        {uploadFiles ? <UploadModal
-                            files={uploadFiles}
-                            userId={this.context.user!.id}
-                            onClose={this.closeUpload}
-                        /> : ''}
-                        <input
-                            {...getInputProps()}
-                        />
-                        <MediaSelection>
-                            <MainAppBar
-                                toggleMenu={this.toggleMenu}
-                                title={'Databox Client.'}
-                                onLogout={this.logout}
-                                username={this.context.user ? this.context.user.username : undefined}
-                                onSearchQueryChange={this.onSearchQueryChange}
-                                searchQuery={this.state.searchQuery}
-                            />
+    return <>
+        <SearchFiltersProvider>
+            <SearchContextProvider>
+                <AssetDropzone>
+                    <MainAppBar
+                        toggleMenu={toggleMenu}
+                        title={'Databox Client.'}
+                        onLogout={logout}
+                        username={user.user ? user.user.username : undefined}
+                    />
+                    <AssetSelectionProvider>
+                        <DndProvider backend={HTML5Backend}>
                             <div className="main-layout">
-                                {!this.state.hideMenu && <div className="main-left-menu">
-                                    <CollectionsPanel/>
+                                {menuOpen && <div className="main-left-menu">
+                                    <LeftPanel/>
                                 </div>}
                                 <div className="main-content">
-                                    <AssetGrid
-                                        query={this.state.searchQuery}
-                                    />
+                                    <AssetResults/>
                                 </div>
                             </div>
-                        </MediaSelection>
-                    </div>
-                )}
-            </Dropzone>
-        </>
-    }
-
-    onFileDrop = (acceptedFiles: File[]) => {
-        const authenticated = Boolean(this.context.user);
-
-        if (!authenticated) {
-            window.alert('You must be authenticated in order to upload new files');
-            return;
-        }
-
-        this.setState({uploadFiles: acceptedFiles});
-    }
-
-    closeUpload = () => {
-        this.setState({uploadFiles: undefined});
-    }
+                        </DndProvider>
+                    </AssetSelectionProvider>
+                </AssetDropzone>
+            </SearchContextProvider>
+        </SearchFiltersProvider>
+    </>
 }

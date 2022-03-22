@@ -1,6 +1,7 @@
 import {Asset} from "../../indexers";
 import {PhraseanetRecord, SubDef} from "./types";
 import {escapeSlashes} from "../../lib/pathUtils";
+import {AttributeInput} from "../../databox/types";
 
 const renditionDefinitionMapping = {
     document: 'original',
@@ -9,7 +10,10 @@ const renditionDefinitionBlacklist = [
     'original',
 ];
 
-export type AttrDefinitionIndex = Record<string, string>;
+export type AttrDefinitionIndex = Record<string, {
+    id: string;
+    multiple: boolean;
+}>;
 
 export function createAsset(
     workspaceId: string,
@@ -30,12 +34,27 @@ export function createAsset(
         importFile: importFiles,
         publicUrl: document?.permalink.url,
         isPrivate: false,
-        attributes: record.caption?.map(c => ({
-            value: c.value,
-            definition: `/attribute-definitions/${attrDefinitionIndex[c.meta_structure_id.toString()]}`,
-            origin: 'machine',
-            originVendor: 'indexer-import',
-        })),
+        attributes: record.caption?.map(c => {
+            const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
+
+            const d = {
+                definition: `/attribute-definitions/${ad.id}`,
+                origin: 'machine',
+                originVendor: 'indexer-import',
+            } as Partial<AttributeInput>;
+
+            if (ad.multiple) {
+                return {
+                    ...d,
+                    values: c.value.split(' ; '),
+                } as AttributeInput;
+            }
+
+            return {
+                ...d,
+                value: c.value,
+            } as AttributeInput;
+        }),
         generateRenditions: false,
         renditions: record.subdefs.map(s => {
             const defName = renditionDefinitionMapping[s.name] || s.name;

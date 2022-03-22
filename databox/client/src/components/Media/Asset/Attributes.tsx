@@ -1,20 +1,27 @@
 import {Asset, Attribute} from "../../../types";
-import {ReactNode} from "react";
+import reactStringReplace from 'react-string-replace';
 
+export function replaceHighlight(value: string) {
+    return reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m) => {
+        return <em className="hl">{m}</em>;
+    });
+}
 
 function AttributeRow({
                           definition,
                           value,
                           highlight,
                       }: Attribute) {
+    const finalValue = highlight || value;
+
     return <div>
         <div>
             <b>{definition.name}</b>
             {' '}
-            {highlight && <span dangerouslySetInnerHTML={{
-                __html: highlight,
-            }} />}
-            {!highlight && value}
+            {finalValue && Array.isArray(finalValue)
+                ? <ul>{finalValue.map((v, i) => <li key={i}>
+                    {replaceHighlight(v)}
+                </li>)}</ul> : replaceHighlight(finalValue)}
         </div>
     </div>
 }
@@ -29,7 +36,7 @@ export default function Attributes({
     return <div className={'attributes'}>
         <div className={'attr-title'}>{asset.titleHighlight ? <span dangerouslySetInnerHTML={{
             __html: asset.titleHighlight,
-        }} /> : asset.title}</div>
+        }}/> : asset.title}</div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}

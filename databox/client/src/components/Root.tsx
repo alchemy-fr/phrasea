@@ -69,8 +69,8 @@ export default class Root extends PureComponent<{}, State> {
         this.setState({authenticating: true}, () => {
             authenticate().then(() => {
                 this.setState({authenticating: false});
-            }, (e: any) => {
-                console.log('e', e);
+            }, (error: any) => {
+                console.error(error);
                 oauthClient.logout();
             });
         });

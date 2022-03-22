@@ -12,8 +12,10 @@ use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
+use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Security\Core\Security;
+use Elastica\Aggregation;
 
 class AssetSearch extends AbstractSearch
 {
@@ -44,7 +46,7 @@ class AssetSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = []
-    ): Pagerfanta {
+    ): array {
         $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
@@ -64,6 +66,19 @@ class AssetSearch extends AbstractSearch
 
         if (isset($options['workspaces'])) {
             $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
+        }
+
+        if (null !== $attrFilters = ($options['filters'] ?? null)) {
+            if (is_string($attrFilters)) {
+                $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
+            } else {
+                $attrFilters = array_map(function ($f): array {
+                    return is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f;
+                }, $attrFilters);
+            }
+            if (!empty($attrFilters)) {
+                $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
+            }
         }
 
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
@@ -122,28 +137,34 @@ class AssetSearch extends AbstractSearch
             ['createdAt' => 'DESC'],
         ]);
         $query->setHighlight([
-            'pre_tags' => ['<em class="hl">'],
-            'post_tags' => ['</em>'],
+            'pre_tags' => ['[hl]'],
+            'post_tags' => ['[/hl]'],
             'fields' => [
                 'title' => [
                     'fragment_size' => 255,
                     'number_of_fragments' => 1
                 ],
                 'attributes.*' => [
-                    'number_of_fragments' => 1
+                    'number_of_fragments' => 20
                 ],
             ]
         ]);
 
+        $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
+
+        /** @var FantaPaginatorAdapter $adapter */
+        $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
             return $this->security->isGranted(AssetVoter::READ, $asset);
-        }, $this->finder->findPaginated($query)->getAdapter()));
+        }, $adapter));
         $result->setMaxPerPage($limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage($options['page']);
         }
 
-        return $result;
+        $facets = $adapter->getAggregations();
+
+        return [$result, $facets];
     }
 
     /**

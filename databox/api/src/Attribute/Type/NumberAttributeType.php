@@ -40,4 +40,9 @@ class NumberAttributeType extends AbstractAttributeType
             $context->addViolation('Invalid number');
         }
     }
+
+    public function supportsAggregation(): bool
+    {
+        return true;
+    }
 }

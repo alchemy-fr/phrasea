@@ -17,4 +17,9 @@ class IpAttributeType extends AbstractAttributeType
     {
         return 'ip';
     }
+
+    public function supportsAggregation(): bool
+    {
+        return true;
+    }
 }

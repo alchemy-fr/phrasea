@@ -1,6 +1,6 @@
 import {uploadMultipartFile} from "../lib/upload/multiPartUpload";
 import {oauthClient} from "../oauth";
-import axios from "axios";
+import axios, {AxiosRequestHeaders} from "axios";
 import config from "../config";
 
 let uploadId = 0; // TODO use UUID
@@ -9,7 +9,7 @@ export const uploadClient = axios.create({
     baseURL: config.get('uploaderApiBaseUrl'),
 });
 
-export function makeAuthorizationHeaders(accessToken?: string): object {
+export function makeAuthorizationHeaders(accessToken?: string): AxiosRequestHeaders {
     if (accessToken) {
         return { Authorization: `Bearer ${accessToken}` };
     }

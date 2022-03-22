@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Throwable;
 
@@ -22,9 +23,20 @@ class TextAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function getElasticSearchMapping(string $language): array
+    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array
     {
         $mapping = [];
+
+        if (true
+            // TODO Should always provision keyword?
+            || $definition->isFacetEnabled()) {
+            $mapping['fields'] = [
+                'raw' => [
+                    'type' => 'keyword',
+                ],
+            ];
+        }
+
         if (IndexMappingUpdater::NO_LOCALE !== $language) {
             $mapping['analyzer'] = 'text_'.$language;
         }
@@ -56,8 +68,18 @@ class TextAttributeType extends AbstractAttributeType
             return;
         }
 
-        if (!is_string($value) && !(is_object($value) && method_exists($value , '__toString'))) {
+        if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
             $context->addViolation('Invalid text value');
         }
+    }
+
+    public function getAggregationField(): ?string
+    {
+        return 'raw';
+    }
+
+    public function supportsAggregation(): bool
+    {
+        return true;
     }
 }
