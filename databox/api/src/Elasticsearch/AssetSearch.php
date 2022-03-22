@@ -137,15 +137,15 @@ class AssetSearch extends AbstractSearch
             ['createdAt' => 'DESC'],
         ]);
         $query->setHighlight([
-            'pre_tags' => ['<em class="hl">'],
-            'post_tags' => ['</em>'],
+            'pre_tags' => ['[hl]'],
+            'post_tags' => ['[/hl]'],
             'fields' => [
                 'title' => [
                     'fragment_size' => 255,
                     'number_of_fragments' => 1
                 ],
                 'attributes.*' => [
-                    'number_of_fragments' => 1
+                    'number_of_fragments' => 20
                 ],
             ]
         ]);

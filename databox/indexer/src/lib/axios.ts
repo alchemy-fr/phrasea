@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from "axios";
+import axios, {AxiosError, AxiosInstance} from "axios";
 import https from "https";
 import axiosRetry from "axios-retry";
 import {createLogger} from "./logger";
@@ -49,7 +49,7 @@ export function createHttpClient({
 
     client.interceptors.response.use(
         response => response,
-        error => {
+        (error: AxiosError) => {
             logger.error(error.message);
             if (error.response) {
                 let filtered = error.response.data;
@@ -60,7 +60,7 @@ export function createHttpClient({
                     }
                 }
 
-                logger.error(filtered);
+                logger.error(JSON.stringify(filtered, undefined, 2));
             }
 
             return Promise.reject(error);

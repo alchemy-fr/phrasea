@@ -95,22 +95,58 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
-            ->findBy([
-                'asset' => $asset->getId(),
-            ]);
+            ->getAssetAttributes($asset);
+
+        $groupedByDef = [];
+
+        foreach ($attributes as $attribute) {
+            $def = $attribute->getDefinition();
+            $k = $def->getId();
+
+            if (!isset($groupedByDef[$k])) {
+                $groupedByDef[$k] = $attribute;
+            }
+
+            if ($def->isMultiple()) {
+                $values = $groupedByDef[$k]->getValues() ?? [];
+                $values[] = $attribute->getValue();
+                $groupedByDef[$k]->setValues($values);
+            }
+        }
 
         if (!empty($highlights)) {
             $prefix = 'attributes._.';
-            foreach ($attributes as $attribute) {
-                $k = $this->fieldNameResolver->getFieldName($attribute->getDefinition());
+            foreach ($groupedByDef as $attribute) {
+                $f = $this->fieldNameResolver->getFieldName($attribute->getDefinition());
 
-                if ($h = ($highlights[$prefix.$k] ?? null)) {
-                    $attribute->setHighlight(reset($h));
+                if ($h = ($highlights[$prefix.$f] ?? null)) {
+                    if ($attribute->getDefinition()->isMultiple()) {
+                        $values = $attribute->getValues();
+                        $newValues = [];
+
+                        foreach ($values as $v) {
+                            $found = false;
+                            foreach ($highlights[$prefix.$f] as $hlValue) {
+                                if (preg_replace('#\[hl](.*)\[/hl]#', '$1', $hlValue) === $v) {
+                                    $found = true;
+                                    $newValues[] = $hlValue;
+                                    break;
+                                }
+                            }
+                            if (!$found) {
+                                $newValues[] = $v;
+                            }
+                        }
+
+                        $attribute->setHighlights($newValues);
+                    } else {
+                        $attribute->setHighlight(reset($h));
+                    }
                 }
             }
         }
 
-        $output->setAttributes($attributes);
+        $output->setAttributes(array_values($groupedByDef));
     }
 
     /**

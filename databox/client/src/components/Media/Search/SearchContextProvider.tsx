@@ -129,7 +129,7 @@ export default function SearchContextProvider({children}: Props) {
         setAttrFilters(prev => {
             const f = [...prev];
 
-            const key = f.findIndex(_f => _f.a === attrName);
+            const key = f.findIndex(_f => _f.a === attrName && !_f.i);
 
             if (key >= 0) {
                 const tf = f[key];

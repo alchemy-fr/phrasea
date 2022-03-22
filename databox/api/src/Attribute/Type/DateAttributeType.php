@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\AttributeDefinition;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -22,7 +23,7 @@ class DateAttributeType extends AbstractAttributeType
         return 'date';
     }
 
-    public function getElasticSearchMapping(string $language): array
+    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array
     {
         return [
             'fields' => [

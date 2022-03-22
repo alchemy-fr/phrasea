@@ -73,7 +73,7 @@ class IndexMappingUpdater
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
             ]
-        ], $type->getElasticSearchMapping($language));
+        ], $type->getElasticSearchMapping($language, $definition));
     }
 
     public function synchronizeWorkspace(Workspace $workspace): void

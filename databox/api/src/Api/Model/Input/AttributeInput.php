@@ -34,6 +34,11 @@ class AttributeInput
     public $value;
 
     /**
+     * @var array
+     */
+    public $values;
+
+    /**
      * "human" or "machine".
      *
      * @var string

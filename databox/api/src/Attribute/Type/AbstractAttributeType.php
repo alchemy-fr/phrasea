@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
@@ -23,7 +24,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return false;
     }
 
-    public function getElasticSearchMapping(string $language): array
+    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array
     {
         return [];
     }
@@ -35,5 +36,10 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     public function supportsAggregation(): bool
     {
         return false;
+    }
+
+    public function getAggregationField(): ?string
+    {
+        return null;
     }
 }

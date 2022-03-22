@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\ORM\EntityRepository;
 
@@ -23,6 +24,18 @@ class AttributeRepository extends EntityRepository
             ->setParameter('definition', $attribute->getDefinition()->getId())
             ->setParameter('asset', $attribute->getAsset()->getId())
             ->setParameter('id', $attribute->getId())
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getAssetAttributes(Asset $asset): array
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->select('a')
+            ->andWhere('a.asset = :asset')
+            ->setParameter('asset', $asset->getId())
+            ->addOrderBy('a.definition', 'ASC')
             ->getQuery()
             ->getResult();
     }

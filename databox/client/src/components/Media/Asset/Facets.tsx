@@ -44,7 +44,7 @@ function FacetRow({
     const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
     const [open, setOpen] = useState(true);
 
-    const attrFilter = attrFilters.find(_f => _f.a === name);
+    const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
 
     return <>
         <ListItem button onClick={() => setOpen(o => !o)}>

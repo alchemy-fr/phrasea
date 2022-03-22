@@ -36,7 +36,7 @@ class AttributeOutput extends AbstractUuidOutput
     public $value;
 
     /**
-     * @var string|null
+     * @var array|string|null
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $highlight;

@@ -31,9 +31,8 @@ export type CollectionInput = {
     key?: string;
 }
 
-export type AttributeInput = {
+export type AttributeInput = ({value: any} | {values: any[]}) & {
     definition: string;
-    value: any;
     origin?: string;
     originVendor?: string;
     originUserId?: string;
@@ -51,4 +50,15 @@ export type RenditionInput = {
 export type RenditionClass = {
     id: string;
     name: string;
+}
+
+export type AttributeDefinition = {
+    id: string;
+    multiple: boolean;
+    key?: string | undefined;
+    name: string;
+    editable: boolean;
+    public: boolean;
+    fieldType: string;
+    workspace: string;
 }

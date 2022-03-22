@@ -187,9 +187,6 @@ class AttributeSearch
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $field = sprintf('attributes.%s.%s', $l, $fieldName);
-            if ($type instanceof TextAttributeType) {
-                $field .= '.raw';
-            }
 
             if (isset($facets[$field])) {
                 continue;
@@ -197,7 +194,8 @@ class AttributeSearch
             $facets[$field] = true;
 
             $agg = new Aggregation\Terms($fieldName);
-            $agg->setField($field);
+            $subField = $type->getAggregationField();
+            $agg->setField($field.($subField ? '.'.$subField : ''));
             $agg->setSize(5);
             $agg->setMeta([
                 'title' => $definition->getName()
