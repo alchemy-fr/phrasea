@@ -71,17 +71,24 @@ export default class PhraseanetClient {
         return res.data.response.document_metadatas;
     }
 
-    async getSubDefinitions(): Promise<PhraseanetSubDef[]> {
-        const res = await this.client.get(`/api/v1/me/subdefs`);
+    async getSubDefinitions(databoxId?: string): Promise<PhraseanetSubDef[]> {
+        const dbid = typeof databoxId !== 'undefined' ? '/'+databoxId : '';
+        const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 
         const subdefs: PhraseanetSubDef[] = [];
 
-        const defs = res.data.response.subdefs;
-        Object.keys(defs).forEach(type => {
-            const sd = defs[type];
+        const dbxs = res.data.response.databoxes;
+        Object.keys(dbxs).forEach(id => {
+            const defs = dbxs[id].subdefs;
+            Object.keys(defs).forEach(type => {
+                const sd = defs[type];
 
-            Object.keys(sd).forEach(name => {
-                subdefs.push(sd[name]);
+                Object.keys(sd).forEach(name => {
+                    subdefs.push({
+                        ...sd[name],
+                        type,   // could be included by api, but for now add it here
+                    });
+                });
             });
         });
 
