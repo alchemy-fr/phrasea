@@ -1,25 +1,36 @@
-import axios, {AxiosRequestConfig} from "axios";
+import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
 
 const apiClient = axios.create({
     baseURL: window.config.baseUrl,
 });
 
-type RequestConfig = {
-    meta?: Record<string, any>;
-} & AxiosRequestConfig;
+type RequestMeta = {
+    requestStartedAt?: number;
+    responseTime?: number;
+};
 
-apiClient.interceptors.request.use<RequestConfig>( (x: RequestConfig) => {
+export type RequestConfig = {meta?: RequestMeta} & AxiosRequestConfig<RequestMeta>;
+
+apiClient.interceptors.request.use<RequestConfig>( (config: RequestConfig) => {
     // to avoid overwriting if another interceptor
     // already defined the same object (meta)
-    x.meta = x.meta || {}
-    x.meta.requestStartedAt = new Date().getTime();
+    config.meta = config.meta || {};
+    config.meta!.requestStartedAt = new Date().getTime();
 
-    return x;
+    return config;
 });
 
-apiClient.interceptors.response.use<RequestConfig>((x) => {
-    console.log(`Execution time for: ${x.config.url} - ${new Date().getTime() - (x.config as RequestConfig).meta!.requestStartedAt} ms`)
-    return x;
+apiClient.interceptors.response.use<AxiosResponse<any, {
+    meta?: Record<string, any>;
+    responseTime?: number;
+}>>((r) => {
+    const meta = (r.config as RequestConfig).meta!;
+
+    const responseTime = new Date().getTime() - meta.requestStartedAt!;
+    meta.responseTime = responseTime;
+    console.log(`Execution time for: ${r.config.url} - ${responseTime} ms`)
+
+    return r;
 });
 
 export default apiClient;

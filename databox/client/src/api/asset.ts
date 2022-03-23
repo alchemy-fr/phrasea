@@ -1,4 +1,4 @@
-import apiClient from "./api-client";
+import apiClient, {RequestConfig} from "./api-client";
 import {Asset, Attribute, AttributeDefinition} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
@@ -10,7 +10,16 @@ interface AssetOptions {
     parents?: string[];
 }
 
-export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset>> {
+export type ESDebug = {
+    query: object;
+    esQueryTime: number;
+    totalResponseTime: number;
+}
+
+
+export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
+    debug: ESDebug;
+}>> {
     const res = options.url
         ? await apiClient.get(options.url, requestConfig)
         : await apiClient.get('/assets', {
@@ -18,7 +27,14 @@ export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequ
             ...requestConfig,
         });
 
-    return getHydraCollection<Asset>(res.data);
+    return {
+        ...getHydraCollection<Asset>(res.data),
+        debug: {
+            query: res.data['debug:es'].query,
+            esQueryTime: res.data['debug:es'].time,
+            totalResponseTime: (res.config as RequestConfig).meta!.responseTime!,
+        }
+    };
 }
 
 export async function getAsset(id: string): Promise<Asset> {

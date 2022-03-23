@@ -4,6 +4,7 @@ import {Button, LinearProgress, ListSubheader} from "@material-ui/core";
 import {SearchContext} from "./SearchContext";
 import Pager, {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import SearchFilters from "./SearchFilters";
+import DebugEsModal from "./DebugEsModal";
 
 const classes = {
     root: {},
@@ -38,6 +39,7 @@ export default function AssetResults() {
     const search = useContext(SearchContext);
 
     const [layout, setLayout] = useState(LAYOUT_GRID);
+    const [debugOpen, setDebugOpen] = useState(false);
 
     const onSelect = useCallback((id: string, e: MouseEvent): void => {
         const ids = getAssetListFromEvent(assetSelection.selectedAssets, id, e);
@@ -45,7 +47,7 @@ export default function AssetResults() {
         // eslint-disable-next-line
     }, [assetSelection.selectAssets]);
 
-    const {loading, total, loadMore, pages} = search;
+    const {loading, total, loadMore, pages, debug} = search;
 
     return <div style={{
         position: 'relative',
@@ -70,7 +72,15 @@ export default function AssetResults() {
                         <b>
                             {new Intl.NumberFormat('fr-FR', {}).format(total)}
                         </b>
-                        {` result${total > 1 ? 's' : ''}`}
+                        {debugOpen && debug && <DebugEsModal
+                            onClose={() => setDebugOpen(false)}
+                            debug={debug}
+                        />}
+                        <span
+                            style={{cursor: 'pointer'}}
+                        onClick={() => setDebugOpen(true)}>
+                            {` result${total > 1 ? 's' : ''}`}
+                        </span>
                     </> : 'Loading...'}
 
                     {search.attrFilters && <SearchFilters

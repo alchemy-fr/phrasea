@@ -1,6 +1,6 @@
 import {SearchContext} from "./SearchContext";
 import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
-import {getAssets} from "../../../api/asset";
+import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchFiltersContext} from "./SearchFiltersContext";
 import {TFacets} from "../Asset/Facets";
@@ -16,6 +16,7 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
     facets: TFacets;
     total: number;
     next: string | null;
+    debug: ESDebug;
 }> {
 
     if (lastController) {
@@ -44,6 +45,7 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
         facets: result.facets!,
         result: result.result,
         next: result.next,
+        debug: result.debug,
     };
 }
 
@@ -60,6 +62,7 @@ type State = {
     next?: string | null;
     loadNext?: string;
     inc: number;
+    debug?: ESDebug;
 };
 
 type Props = PropsWithChildren<{}>;
@@ -110,6 +113,7 @@ export default function SearchContextProvider({children}: Props) {
                     loading: false,
                     facets: r.facets,
                     inc: 0,
+                    debug: r.debug,
                 }
             });
         }).catch((e) => {
@@ -200,6 +204,7 @@ export default function SearchContextProvider({children}: Props) {
             pages: state.pages,
             facets: state.facets,
             total: state.total,
+            debug: state.debug,
             loadMore: state.next ? async () => {
                 await doSearch(state.next!);
             } : undefined,

@@ -29,10 +29,14 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
 
-        [$result, $facets] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
         $response->setMeta('facets', $facets);
+        $response->setMeta('debug:es', [
+            'query' => $queryJson,
+            'time' => $searchTime,
+        ]);
 
         return $response;
     }

@@ -162,9 +162,13 @@ class AssetSearch extends AbstractSearch
             $result->setCurrentPage($options['page']);
         }
 
+        $start = microtime(true);
         $facets = $adapter->getAggregations();
+        $searchTime = microtime(true) - $start;
 
-        return [$result, $facets];
+        $esQuery = $query->toArray();
+
+        return [$result, $facets, $esQuery, $searchTime];
     }
 
     /**
