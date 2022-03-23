@@ -1,6 +1,6 @@
 import React from "react";
 import {Asset} from "../../../types";
-import {TFacets} from "../Asset/Facets";
+import {BucketKeyValue, TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import {ESDebug} from "../../../api/asset";
 
@@ -17,7 +17,7 @@ export type TSearchContext = {
     facets?: TFacets;
     debug?: ESDebug;
     attrFilters: Filters;
-    toggleAttrFilter: (attrName: string, value: string, attrTitle: string) => void;
+    toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
 }

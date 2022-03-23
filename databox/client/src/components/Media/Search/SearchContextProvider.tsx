@@ -3,7 +3,7 @@ import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "r
 import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchFiltersContext} from "./SearchFiltersContext";
-import {TFacets} from "../Asset/Facets";
+import {BucketKeyValue, extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import axios from "axios";
 import useHash from "../../../lib/useHash";
@@ -30,8 +30,9 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
         parents: collectionIds,
         workspaces: workspaceIds,
         url,
-        filters: attrFilters?.map(f => ({
+        filters: attrFilters?.map((f) => ({
             ...f,
+            v: f.v.map(v => extractLabelValueFromKey(v).value),
             t: undefined,
         })),
     };
@@ -129,28 +130,30 @@ export default function SearchContextProvider({children}: Props) {
         doSearch();
     };
 
-    const toggleAttrFilter = (attrName: string, value: string, attrTitle: string): void => {
+    const toggleAttrFilter = (attrName: string, keyValue: BucketKeyValue, attrTitle: string): void => {
         setAttrFilters(prev => {
             const f = [...prev];
 
             const key = f.findIndex(_f => _f.a === attrName && !_f.i);
 
             if (key >= 0) {
+                const {value} = extractLabelValueFromKey(keyValue);
+
                 const tf = f[key];
-                if (tf.v.includes(value)) {
+                if (tf.v.find(v => extractLabelValueFromKey(v).value === value)) {
                     if (tf.v.length === 1) {
                         f.splice(key, 1);
                     } else {
-                        tf.v = tf.v.filter(v => v !== value);
+                        tf.v = tf.v.filter(v => extractLabelValueFromKey(v).value !== value);
                     }
                 } else {
-                    tf.v = tf.v.concat(value);
+                    tf.v = tf.v.concat(keyValue);
                 }
             } else {
                 f.push({
                     t: attrTitle,
                     a: attrName,
-                    v: [value],
+                    v: [keyValue],
                 });
             }
 

@@ -88,6 +88,11 @@ fos_elastica:
                     property_path: false
                     type: text
                     analyzer: collection_path
+                    search_analyzer: keyword
+                    fielddata: true
+                    fields:
+                        raw:
+                            type: keyword
                 privacy:
                     property_path: false
                     type: byte

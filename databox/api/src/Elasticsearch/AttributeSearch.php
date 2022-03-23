@@ -111,14 +111,20 @@ class AttributeSearch
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
-            $info = $this->fieldNameResolver->extractField($attr);
-            $f = $info['field'];
-            if ($info['type'] === 'text') {
-                $f .= '.raw';
+            if ('ws' === $attr) {
+                $f = 'workspaceId';
+            } elseif ('c' === $attr) {
+                $f = 'collectionPaths';
+            } else {
+                $info = $this->fieldNameResolver->extractField($attr);
+                $f = sprintf('attributes._.%s', $info['field']);
+                if ($info['type'] === 'text') {
+                    $f .= '.raw';
+                }
             }
 
             if (!empty($values)) {
-                $termQuery = new Query\Terms(sprintf('attributes._.%s', $f), $values);
+                $termQuery = new Query\Terms($f, $values);
                 if ($inverted) {
                     $bool->addMustNot($termQuery);
                 } else {

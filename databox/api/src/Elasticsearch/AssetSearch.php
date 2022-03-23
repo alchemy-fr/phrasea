@@ -15,7 +15,6 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\Security\Core\Security;
-use Elastica\Aggregation;
 
 class AssetSearch extends AbstractSearch
 {
@@ -25,6 +24,7 @@ class AssetSearch extends AbstractSearch
     private AttributeSearch $attributeSearch;
     private Security $security;
     private QueryStringParser $queryStringParser;
+    private FacetHandler $facetHandler;
 
     public function __construct(
         PaginatedFinderInterface $finder,
@@ -32,7 +32,8 @@ class AssetSearch extends AbstractSearch
         EntityManagerInterface $em,
         AttributeSearch $attributeSearch,
         Security $security,
-        QueryStringParser $queryStringParser
+        QueryStringParser $queryStringParser,
+        FacetHandler $facetHandler
     ) {
         $this->finder = $finder;
         $this->tagFilterManager = $tagFilterManager;
@@ -40,6 +41,7 @@ class AssetSearch extends AbstractSearch
         $this->attributeSearch = $attributeSearch;
         $this->security = $security;
         $this->queryStringParser = $queryStringParser;
+        $this->facetHandler = $facetHandler;
     }
 
     public function search(
@@ -150,6 +152,8 @@ class AssetSearch extends AbstractSearch
             ]
         ]);
 
+        $this->facetHandler->buildWorkspaceFacet($query);
+        $this->facetHandler->buildCollectionFacet($query);
         $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
 
         /** @var FantaPaginatorAdapter $adapter */
@@ -164,6 +168,9 @@ class AssetSearch extends AbstractSearch
 
         $start = microtime(true);
         $facets = $adapter->getAggregations();
+
+        $facets = $this->facetHandler->normalizeBuckets($facets);
+
         $searchTime = microtime(true) - $start;
 
         $esQuery = $query->toArray();
