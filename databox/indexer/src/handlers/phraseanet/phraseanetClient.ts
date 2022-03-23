@@ -84,9 +84,10 @@ export default class PhraseanetClient {
                 const sd = defs[type];
 
                 Object.keys(sd).forEach(name => {
-                    let s = sd[name];
-                    s['type'] = type;   // could be included by api, but for now add it here
-                    subdefs.push(s);
+                    subdefs.push({
+                        ...sd[name],
+                        type,   // could be included by api, but for now add it here
+                    });
                 });
             });
         });
