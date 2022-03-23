@@ -79,7 +79,7 @@ class FacetHandler
             $index[$c->getId()] = $c;
         }
 
-        return implode(' / ', array_map(function (string $id) use ($index): string {
+        return implode(' / ', array_map(function (string $id) use ($index): ?string {
             return $index[$id]->getTitle();
         }, $ids));
     }
