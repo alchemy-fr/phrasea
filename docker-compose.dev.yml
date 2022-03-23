@@ -260,6 +260,7 @@ services:
   databox-indexer:
     volumes:
       - ./databox/indexer:/usr/app
+      - ./alpha-config.json:/usr/app/config/config.json
 
   db:
     ports:

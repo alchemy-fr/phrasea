@@ -61,7 +61,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
             classIndex[rc.name] = rc.id;
         })
 
-        const subDefs = (await client.getSubDefinitions()).filter(s => s.databox_id.toString() === dm.databoxId);
+        const subDefs = (await client.getSubDefinitions(dm.databoxId));
         for (let sd of subDefs) {
             if (!classIndex[sd.class]) {
                 logger.debug(`Creating rendition class "${sd.class}" `);
@@ -71,7 +71,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
                 });
             }
 
-            logger.debug(`Creating rendition "${sd.name}"`);
+            logger.debug(`Creating rendition "${sd.name}" of class "${sd.class}" for type="${sd.type}"`);
             await databoxClient.createRenditionDefinition({
                 name: sd.name,
                 class: `/rendition-classes/${classIndex[sd.class]}`,

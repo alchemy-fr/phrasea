@@ -36,9 +36,11 @@ export type PhraseanetMetaStruct = {
 }
 
 export type PhraseanetSubDef = {
-    name: string;
+    type: string;                       // image | video | audio | document
+    name: string;                       // thumbnail, thumbnail_gif, preview, preview_webm ...
     databox_id: number;
-    class: string;
+    class: string;                      // thumbnail | preview (todo: check other possible values ?)
+    preset: Record<string, string>;
     downloadable: boolean;
     devices: string[];
     labels: Record<string, string>;
