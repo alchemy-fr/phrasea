@@ -1,3 +1,4 @@
 
 arthem_rabbit:
   failure: ~
+  deffered: false

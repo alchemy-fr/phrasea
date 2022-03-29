@@ -1,6 +1,6 @@
 import React from "react";
 import AssetItem from "../../Asset/AssetItem";
-import Attributes from "../../Asset/Attributes";
+import Attributes from "../../Asset/Attribute/Attributes";
 import {LayoutProps} from "./Layout";
 
 export default function ListLayout({

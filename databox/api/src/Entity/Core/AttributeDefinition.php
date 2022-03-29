@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -15,7 +16,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
  * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"})},
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_name",columns={"workspace_id", "name"}),
+ *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"})
+ *     },
  *     indexes={
  *       @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
  *       @ORM\Index(name="searchable_idx", columns={"searchable"}),
@@ -34,7 +38,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * Override trait for annotation
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"_"})
+     * @Groups({"attributedef:index"})
      */
     protected ?Workspace $workspace = null;
 
@@ -54,7 +58,7 @@ class AttributeDefinition extends AbstractUuidEntity
     private ?string $fileType = null;
 
     /**
-     * @Groups({"attributedef:index"})
+     * @Groups({"attributedef:index", "asset:index"})
      * @ORM\Column(type="string", length=50, nullable=false)
      */
     private string $fieldType = TextAttributeType::NAME;
@@ -181,6 +185,16 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setFallbackFR(?string $fallback): void
     {
         $this->fallback['fr'] = $fallback;
+    }
+
+    public function setFallbackAll(?string $fallback): void
+    {
+        $this->fallback[IndexMappingUpdater::NO_LOCALE] = $fallback;
+    }
+
+    public function getFallbackAll(): ?string
+    {
+        return $this->fallback[IndexMappingUpdater::NO_LOCALE] ?? null;
     }
 
     public function getFallbackEN(): ?string

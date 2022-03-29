@@ -6,10 +6,16 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class AttributeRepository extends EntityRepository
+class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
 {
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Attribute::class);
+    }
+
     /**
      * @return string[]
      */

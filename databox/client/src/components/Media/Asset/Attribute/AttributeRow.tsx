@@ -1,6 +1,7 @@
-import React, {useState} from "react";
-import {Button, TextField} from "@mui/material";
-import {putAssetAttribute} from "../../../api/asset";
+import React, {useCallback, useState} from "react";
+import {Button} from "@mui/material";
+import {deleteAssetAttribute, putAssetAttribute} from "../../../../api/asset";
+import AttributeWidget from "./AttributeWidget";
 
 type Props = {
     id: string;
@@ -24,29 +25,23 @@ export default function AttributeRow({
     const [value, setValue] = useState<any>(initialValue);
     const [saving, setSaving] = useState<any>(false);
 
-    let widget;
-    switch (type) {
-        default:
-        case 'text':
-            widget = <TextField
-                id={id}
-                fullWidth
-                disabled={saving}
-                label={name}
-                onChange={(v) => setValue(v.target.value)}
-                value={value}
-            />
-    }
+    const onChange = useCallback((value: any) => {
+        setValue(value);
+    }, [setValue]);
 
     const save = async () => {
         setSaving(true);
         try {
-            await putAssetAttribute(
-                valueId,
-                assetId,
-                id,
-                value
-            );
+            if (valueId && !value) {
+                await deleteAssetAttribute(valueId);
+            } else {
+                await putAssetAttribute(
+                    valueId,
+                    assetId,
+                    id,
+                    value
+                );
+            }
             setRealValue(value);
             setSaving(false);
             if (error) {
@@ -66,7 +61,14 @@ export default function AttributeRow({
     return <div
         className={'form-group'}
     >
-        {widget}
+        <AttributeWidget
+            value={value}
+            disabled={saving}
+            type={type}
+            name={name}
+            onChange={onChange}
+            id={id}
+        />
         <Button
             variant="contained"
             disabled={saving || realValue === value}

@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\MappedSuperclass
  */
-abstract class AbstractUuidEntity
+abstract class AbstractUuidEntity implements \Serializable
 {
     /**
      * @var UuidInterface|string
@@ -24,7 +24,7 @@ abstract class AbstractUuidEntity
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::uuid4()->toString();
     }
 
     public function getId(): string
@@ -34,5 +34,17 @@ abstract class AbstractUuidEntity
         }
 
         return $this->id->__toString();
+    }
+
+    public function serialize()
+    {
+        $this->id = $this->getId();
+    }
+
+    public function unserialize($data)
+    {
+        if (is_string($this->id)) {
+            $this->id = Uuid::fromString($this->id);
+        }
     }
 }

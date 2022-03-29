@@ -1,4 +1,4 @@
-import {Asset, Attribute} from "../../../types";
+import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
 
 export function replaceHighlight(value: string) {
@@ -34,9 +34,7 @@ export default function Attributes({
                                        asset,
                                    }: Props) {
     return <div className={'attributes'}>
-        <div className={'attr-title'}>{asset.titleHighlight ? <span dangerouslySetInnerHTML={{
-            __html: asset.titleHighlight,
-        }}/> : asset.title}</div>
+        <div className={'attr-title'}>{asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}</div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}

@@ -1099,6 +1099,8 @@ services:
     image: alchemyfr/nginx-cache-purge:1.0.0
     build:
       context: ./infra/docker/nginx-cache-purge
+    networks:
+      - internal
 
 volumes:
   db_vol:

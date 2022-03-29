@@ -53,6 +53,11 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private array $enabledLocales = [];
 
     /**
+     * @ORM\Column(type="json", nullable=false)
+     */
+    private ?array $localeFallbacks = ['en'];
+
+    /**
      * @var Collection[]
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      */
@@ -187,5 +192,15 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getLocaleFallbacks(): ?array
+    {
+        return $this->localeFallbacks;
+    }
+
+    public function setLocaleFallbacks(?array $localeFallbacks): void
+    {
+        $this->localeFallbacks = $localeFallbacks;
     }
 }

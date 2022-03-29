@@ -12,7 +12,7 @@ import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
 import {draggableTypes} from "../draggableTypes";
 import AssetPreviewWrapper from "./AssetPreviewWrapper";
 import EditAssetAttributes from "./EditAssetAttributes";
-import {replaceHighlight} from "./Attributes";
+import {replaceHighlight} from "./Attribute/Attributes";
 
 export interface DragSourceProps {
     connectDragSource: ConnectDragSource

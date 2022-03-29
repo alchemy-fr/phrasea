@@ -13,7 +13,6 @@ trait WorkspaceTrait
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 

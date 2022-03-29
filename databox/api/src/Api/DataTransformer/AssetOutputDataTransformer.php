@@ -6,7 +6,9 @@ namespace App\Api\DataTransformer;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Api\Model\Output\AssetOutput;
-use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Asset\Attribute\AssetTitleResolver;
+use App\Asset\Attribute\AttributesResolver;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -17,21 +19,38 @@ use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
     private EntityManagerInterface $em;
     private RenditionPermissionManager $renditionPermissionManager;
-    private FieldNameResolver $fieldNameResolver;
+    private AttributesResolver $attributesResolver;
+    private AssetTitleResolver $assetTitleResolver;
+    private RequestStack $requestStack;
 
     public function __construct(
         EntityManagerInterface $em,
         RenditionPermissionManager $renditionPermissionManager,
-        FieldNameResolver $fieldNameResolver
+        AttributesResolver $attributesResolver,
+        AssetTitleResolver $assetTitleResolver,
+        RequestStack $requestStack
     ) {
         $this->em = $em;
         $this->renditionPermissionManager = $renditionPermissionManager;
-        $this->fieldNameResolver = $fieldNameResolver;
+        $this->attributesResolver = $attributesResolver;
+        $this->assetTitleResolver = $assetTitleResolver;
+        $this->requestStack = $requestStack;
+    }
+
+    private function getUserLocale(): ?string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if (null !== $request) {
+            return $request->getLocale();
+        }
+
+        return null;
     }
 
     /**
@@ -39,6 +58,9 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
      */
     public function transform($object, string $to, array $context = [])
     {
+        $userLocale = $this->getUserLocale();
+        $preferredLocales = array_unique(array_filter(array_merge([$userLocale], $object->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
+
         $user = $this->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
         $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
@@ -49,15 +71,37 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
 
         $highlights = $object->getElasticHighlights();
-        $output->setTitle($object->getTitle());
-        if (!empty($highlights) && isset($highlights['title'])) {
-            $output->setTitleHighlight(reset($highlights['title']));
+
+        $attributes = $this->attributesResolver->resolveAttributes($object);
+        $this->attributesResolver->assignHighlight($attributes, $highlights);
+
+        $preferredAttributes = [];
+        foreach ($attributes as $_attrs) {
+            foreach ($preferredLocales as $l) {
+                if (isset($_attrs[$l])) {
+                    $preferredAttributes[] = $_attrs[$l];
+                    continue 2;
+                }
+            }
+        }
+
+
+        $output->setAttributes($preferredAttributes);
+
+        $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
+        if ($titleAttribute instanceof Attribute) {
+            $output->setTitle($titleAttribute->getValue());
+            $output->setTitleHighlight($titleAttribute->getHighlight());
+        } else {
+            $output->setTitle($object->getTitle());
+            if (isset($highlights['title'])) {
+                $output->setTitleHighlight(reset($highlights['title']));
+            }
         }
 
         $output->setPrivacy($object->getPrivacy());
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
-        $this->resolveAttributesAndHighlights($object, $output, $highlights);
 
         $renditions = $this->em
             ->getRepository(AssetRendition::class)
@@ -93,60 +137,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
     private function resolveAttributesAndHighlights(Asset $asset, AssetOutput $output, ?array $highlights = []): void
     {
-        /** @var Attribute[] $attributes */
-        $attributes = $this->em->getRepository(Attribute::class)
-            ->getAssetAttributes($asset);
 
-        $groupedByDef = [];
-
-        foreach ($attributes as $attribute) {
-            $def = $attribute->getDefinition();
-            $k = $def->getId();
-
-            if (!isset($groupedByDef[$k])) {
-                $groupedByDef[$k] = $attribute;
-            }
-
-            if ($def->isMultiple()) {
-                $values = $groupedByDef[$k]->getValues() ?? [];
-                $values[] = $attribute->getValue();
-                $groupedByDef[$k]->setValues($values);
-            }
-        }
-
-        if (!empty($highlights)) {
-            $prefix = 'attributes._.';
-            foreach ($groupedByDef as $attribute) {
-                $f = $this->fieldNameResolver->getFieldName($attribute->getDefinition());
-
-                if ($h = ($highlights[$prefix.$f] ?? null)) {
-                    if ($attribute->getDefinition()->isMultiple()) {
-                        $values = $attribute->getValues();
-                        $newValues = [];
-
-                        foreach ($values as $v) {
-                            $found = false;
-                            foreach ($highlights[$prefix.$f] as $hlValue) {
-                                if (preg_replace('#\[hl](.*)\[/hl]#', '$1', $hlValue) === $v) {
-                                    $found = true;
-                                    $newValues[] = $hlValue;
-                                    break;
-                                }
-                            }
-                            if (!$found) {
-                                $newValues[] = $v;
-                            }
-                        }
-
-                        $attribute->setHighlights($newValues);
-                    } else {
-                        $attribute->setHighlight(reset($h));
-                    }
-                }
-            }
-        }
-
-        $output->setAttributes(array_values($groupedByDef));
     }
 
     /**

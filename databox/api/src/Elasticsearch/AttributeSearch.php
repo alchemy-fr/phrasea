@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateAttributeType;
@@ -24,15 +25,18 @@ class AttributeSearch
     private FieldNameResolver $fieldNameResolver;
     private EntityManagerInterface $em;
     private AttributeTypeRegistry $typeRegistry;
+    private AssetTitleResolver $assetTitleResolver;
 
     public function __construct(
         FieldNameResolver $fieldNameResolver,
         EntityManagerInterface $em,
-        AttributeTypeRegistry $typeRegistry
+        AttributeTypeRegistry $typeRegistry,
+        AssetTitleResolver $assetTitleResolver
     ) {
         $this->fieldNameResolver = $fieldNameResolver;
         $this->em = $em;
         $this->typeRegistry = $typeRegistry;
+        $this->assetTitleResolver = $assetTitleResolver;
     }
 
     public function buildAttributeQuery(
@@ -61,9 +65,10 @@ class AttributeSearch
             $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
                 ->getSearchableAttributes([$workspace->getId()], $userId, $groupIds);
 
-            $weights = [
-                'title' => 10,
-            ];
+            $weights = [];
+            if (!$this->assetTitleResolver->hasTitleOverride($workspace->getId())) {
+                $weights['title'] = 10;
+            }
 
             foreach ($attributeDefinitions as $definition) {
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);

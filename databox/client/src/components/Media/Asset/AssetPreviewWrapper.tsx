@@ -2,7 +2,7 @@ import React, {PropsWithChildren, useEffect} from "react";
 import {createStyles, Popover, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
 import {Asset} from "../../../types";
-import Attributes from "./Attributes";
+import Attributes from "./Attribute/Attributes";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

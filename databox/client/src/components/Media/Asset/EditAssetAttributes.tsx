@@ -3,7 +3,8 @@ import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api
 import {Attribute, AttributeDefinition} from "../../../types";
 import Button from "../../ui/Button";
 import Modal from "../../Layout/Modal";
-import AttributeRow from "./AttributeRow";
+import AttributeRow from "./Attribute/AttributeRow";
+import MultiAttributeRow, {AttrValue} from "./Attribute/MultiAttributeRow";
 
 type Props = {
     id: string;
@@ -14,11 +15,6 @@ type Props = {
 type State = {
     attributeDefinitions: AttributeDefinition[] | undefined;
     attributes: Attribute[] | undefined;
-}
-
-type AttrValue = {
-    id: string;
-    value: any;
 }
 
 export default class EditAssetAttributes extends PureComponent<Props, State> {
@@ -81,15 +77,14 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
             const value = values[ad.id] || (ad.multiple ? [] : undefined);
 
             if (ad.multiple) {
-                return (value as AttrValue[]).map(v => <AttributeRow
-                    id={v.id}
+                return <MultiAttributeRow
+                    id={ad.id}
                     assetId={this.props.id}
-                    name={ad.name}
-                    valueId={v.id}
-                    key={v.id}
+                    key={ad.id}
                     type={ad.type}
-                    value={v.value}
-                />)
+                    name={ad.name}
+                    values={value as AttrValue[]}
+                />
             }
 
             const v = value as AttrValue;

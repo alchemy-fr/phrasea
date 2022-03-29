@@ -10,6 +10,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\TranslatableInterface;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -19,10 +20,12 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
 {
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
+    public const ORIGIN_FALLBACK = 2;
 
     public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
+        self::ORIGIN_FALLBACK => 'fallback',
     ];
 
     const STATUS_VALID = 0;
@@ -288,5 +291,15 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setHighlights(?array $highlights): void
     {
         $this->highlights = $highlights;
+    }
+
+    public function setCreatedAt(DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function setUpdatedAt(DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

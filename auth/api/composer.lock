@@ -429,12 +429,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c"
+                "reference": "86bf49362bd0a824301350946972167486949b2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/f2fd91602e6056b2575021cb65d535eece8a6f2c",
-                "reference": "f2fd91602e6056b2575021cb65d535eece8a6f2c",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/86bf49362bd0a824301350946972167486949b2e",
+                "reference": "86bf49362bd0a824301350946972167486949b2e",
                 "shasum": ""
             },
             "require": {
@@ -447,6 +447,7 @@
             },
             "require-dev": {
                 "doctrine/orm": "^2.8",
+                "phpunit/phpunit": "^9.5",
                 "symfony/console": "^5",
                 "symfony/framework-bundle": "^5",
                 "symfony/process": "^5.0",
@@ -454,6 +455,7 @@
             },
             "suggest": {
                 "doctrine/orm": "^2.3",
+                "ext-openssl": "*",
                 "twig/extensions": "^1.5"
             },
             "default-branch": true,
@@ -472,7 +474,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2021-09-08T14:05:36+00:00"
+            "time": "2022-01-19T21:37:12+00:00"
         },
         {
             "name": "brick/math",

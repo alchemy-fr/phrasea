@@ -6,18 +6,26 @@ namespace App\Doctrine\Listener;
 
 use App\Consumer\Handler\File\FileDeleteHandler;
 use App\Entity\Core\File;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
-class FileListener extends PostFlushStackListener
+class FileListener implements EventSubscriber
 {
+    private PostFlushStack $postFlushStack;
+
+    public function __construct(PostFlushStack $postFlushStack)
+    {
+        $this->postFlushStack = $postFlushStack;
+    }
+
     public function preRemove(LifecycleEventArgs $args): void
     {
         $object = $args->getEntity();
 
         if ($object instanceof File) {
             if (File::STORAGE_S3_MAIN === $object->getStorage()) {
-                $this->addEvent(FileDeleteHandler::createEvent([$object->getPath()]));
+                $this->postFlushStack->addEvent(FileDeleteHandler::createEvent([$object->getPath()]));
             }
         }
     }
