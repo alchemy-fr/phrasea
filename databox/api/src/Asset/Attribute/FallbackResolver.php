@@ -50,8 +50,7 @@ class FallbackResolver
         string $locale,
         AttributeDefinition $definition,
         array &$attributes
-    ): ?Attribute
-    {
+    ): ?Attribute {
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
@@ -71,7 +70,7 @@ class FallbackResolver
                             $depDef,
                             $attributes
                         );
-                    }, $locale)
+                    }, $locale),
                 ]);
 
                 $attribute = new Attribute();

@@ -72,7 +72,7 @@ class IndexMappingUpdater
             'meta' => [
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
-            ]
+            ],
         ], $type->getElasticSearchMapping($language, $definition));
     }
 

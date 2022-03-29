@@ -68,7 +68,8 @@ class FacetHandler
         return $facets;
     }
 
-    private function normalizeCollectionPath(string $path): string {
+    private function normalizeCollectionPath(string $path): string
+    {
         $ids = explode('/', $path);
         array_shift($ids);
         $collections = $this->em->getRepository(Collection::class)->findByIds($ids);

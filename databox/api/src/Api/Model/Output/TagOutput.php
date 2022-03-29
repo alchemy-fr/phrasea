@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
-use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class TagOutput extends AbstractUuidOutput

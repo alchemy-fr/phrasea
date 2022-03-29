@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use App\Consumer\Handler\AbstractBatchHandler;
 use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use phpDocumentor\Reflection\Types\Iterable_;
 
 class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
 {

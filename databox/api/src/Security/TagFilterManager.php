@@ -6,7 +6,6 @@ namespace App\Security;
 
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
-use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -26,8 +25,7 @@ class TagFilterManager
         string $objectId,
         array $include,
         array $exclude
-    ): TagFilterRule
-    {
+    ): TagFilterRule {
         $repo = $this->em->getRepository(TagFilterRule::class);
 
         $existingRules = $repo->findRules([

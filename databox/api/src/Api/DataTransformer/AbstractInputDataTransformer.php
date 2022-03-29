@@ -15,7 +15,7 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
 {
     /**
      * @param AssetInput|CollectionInput $data
-     * @param Asset|Collection $object
+     * @param Asset|Collection           $object
      */
     protected function transformPrivacy($data, $object): void
     {

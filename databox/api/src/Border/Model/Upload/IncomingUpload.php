@@ -34,7 +34,7 @@ final class IncomingUpload
 
     public static function fromArray(array $data): self
     {
-        $self = new self;
+        $self = new self();
         $self->commit_id = $data['commit_id'] ?? null;
         $self->assets = $data['assets'] ?? null;
         $self->publisher = $data['publisher'] ?? null;

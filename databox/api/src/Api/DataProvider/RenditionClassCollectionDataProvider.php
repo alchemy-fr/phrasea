@@ -41,5 +41,4 @@ class RenditionClassCollectionDataProvider implements ContextAwareCollectionData
     {
         return RenditionClass::class === $resourceClass;
     }
-
 }

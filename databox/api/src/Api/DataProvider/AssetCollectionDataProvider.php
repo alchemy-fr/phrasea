@@ -45,5 +45,4 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
     {
         return Asset::class === $resourceClass;
     }
-
 }

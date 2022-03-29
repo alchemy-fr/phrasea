@@ -6,6 +6,8 @@ namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Api\Model\Output\TagOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -13,8 +15,6 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
-use App\Api\Model\Output\TagOutput;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -41,7 +41,8 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     private string $name;
 
     /**
-     * Override trait for annotation
+     * Override trait for annotation.
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"_"})

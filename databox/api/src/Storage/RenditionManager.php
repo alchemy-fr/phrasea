@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Storage;
 
 use App\Entity\Core\Asset;
-use App\Entity\Core\File;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,8 +26,7 @@ class RenditionManager
         string $type,
         int $size,
         Workspace $workspace
-    ): File
-    {
+    ): File {
         $file = new File();
         $file->setStorage($storage);
         $file->setType($type);

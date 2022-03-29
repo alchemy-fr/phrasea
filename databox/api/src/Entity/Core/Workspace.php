@@ -13,8 +13,8 @@ use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**

@@ -6,7 +6,6 @@ namespace App\Entity\Traits;
 
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 trait WorkspaceTrait
 {

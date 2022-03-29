@@ -35,8 +35,7 @@ class AttributeSplitter
 
         foreach ($attributes as $attr) {
             $value = $attr['value'];
-            if (strpos($value, $delimiter) !== false) {
-
+            if (false !== strpos($value, $delimiter)) {
                 $attribute = $this->em->find(Attribute::class, $attr['id']);
 
                 $parts = explode($delimiter, $attribute->getValue());

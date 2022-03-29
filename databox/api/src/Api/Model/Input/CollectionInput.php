@@ -10,7 +10,6 @@ use App\Entity\Core\Workspace;
 
 class CollectionInput extends AbstractOwnerIdInput
 {
-
     public ?string $title = null;
 
     public ?int $privacy = null;
@@ -29,8 +28,5 @@ class CollectionInput extends AbstractOwnerIdInput
      */
     public $workspace = null;
 
-    /**
-     * @var Collection|null
-     */
     public ?Collection $parent = null;
 }

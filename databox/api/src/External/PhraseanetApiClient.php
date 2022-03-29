@@ -6,20 +6,20 @@ namespace App\External;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use GuzzleHttp\Promise;
 
 /**
- * @method ResponseInterface get(string|UriInterface $uri, array $options = [])
- * @method ResponseInterface head(string|UriInterface $uri, array $options = [])
- * @method ResponseInterface put(string|UriInterface $uri, array $options = [])
- * @method ResponseInterface post(string|UriInterface $uri, array $options = [])
- * @method ResponseInterface patch(string|UriInterface $uri, array $options = [])
- * @method ResponseInterface delete(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        get(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        head(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        put(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        post(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        patch(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface        delete(string|UriInterface $uri, array $options = [])
  * @method Promise\PromiseInterface getAsync(string|UriInterface $uri, array $options = [])
  * @method Promise\PromiseInterface headAsync(string|UriInterface $uri, array $options = [])
  * @method Promise\PromiseInterface putAsync(string|UriInterface $uri, array $options = [])

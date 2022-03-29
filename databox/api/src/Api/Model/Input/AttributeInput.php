@@ -59,7 +59,7 @@ class AttributeInput
     public ?string $coordinates = null;
 
     /**
-     * "valid" | "review_pending" | "declined"
+     * "valid" | "review_pending" | "declined".
      *
      * @var string
      */

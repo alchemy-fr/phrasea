@@ -46,4 +46,3 @@ class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAgg
         return $this->pagerfanta;
     }
 }
-

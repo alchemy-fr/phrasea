@@ -21,8 +21,7 @@ class AdminController extends EasyAdminController
     public function __construct(
         EventProducer $eventProducer,
         FailedEventManager $failedEventManager
-    )
-    {
+    ) {
         $this->eventProducer = $eventProducer;
         $this->failedEventManager = $failedEventManager;
     }

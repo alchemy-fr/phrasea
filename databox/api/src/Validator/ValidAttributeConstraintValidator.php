@@ -19,7 +19,7 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param Attribute      $value
+     * @param Attribute               $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint)
@@ -32,6 +32,6 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
         $type = $this->typeRegistry->getStrictType($definition->getFieldType());
 
         $this->context->setNode($value->getValue(), $value, null, 'value');
-        $type->validate($value->getValue(),  $this->context);
+        $type->validate($value->getValue(), $this->context);
     }
 }

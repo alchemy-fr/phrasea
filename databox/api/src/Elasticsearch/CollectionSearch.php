@@ -7,10 +7,10 @@ namespace App\Elasticsearch;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
-use Elastica\Aggregation;
 
 class CollectionSearch extends AbstractSearch
 {
@@ -43,7 +43,7 @@ class CollectionSearch extends AbstractSearch
         $query->setQuery($filterQuery);
         $query->setTrackTotalHits(true);
         $query->setSort([
-            'sortName' => ['order'=> 'asc'],
+            'sortName' => ['order' => 'asc'],
         ]);
 
         $data = $this->finder->findPaginated($query);
@@ -83,7 +83,7 @@ class CollectionSearch extends AbstractSearch
         $top = new Aggregation\TopHits('top');
         $top->setSize($limit);
         $top->setSort([
-            'sortName' => ['order'=> 'asc'],
+            'sortName' => ['order' => 'asc'],
         ]);
         $termAgg->addAggregation($top);
 

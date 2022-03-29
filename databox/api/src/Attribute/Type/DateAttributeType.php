@@ -7,7 +7,6 @@ namespace App\Attribute\Type;
 use App\Entity\Core\AttributeDefinition;
 use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Throwable;
 
@@ -29,8 +28,8 @@ class DateAttributeType extends AbstractAttributeType
             'fields' => [
                 'text' => [
                     'type' => 'text',
-                ]
-            ]
+                ],
+            ],
         ];
     }
 

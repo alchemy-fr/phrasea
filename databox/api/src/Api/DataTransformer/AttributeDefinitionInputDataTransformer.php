@@ -6,10 +6,7 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeDefinitionInput;
-use App\Api\Model\Input\AttributeInput;
-use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

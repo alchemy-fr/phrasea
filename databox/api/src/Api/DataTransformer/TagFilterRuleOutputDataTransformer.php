@@ -6,8 +6,6 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
 use App\Api\Model\Output\TagFilterRuleOutput;
-use App\Api\Model\Output\TagOutput;
-use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 
 class TagFilterRuleOutputDataTransformer implements DataTransformerInterface
@@ -20,15 +18,15 @@ class TagFilterRuleOutputDataTransformer implements DataTransformerInterface
         $output = new TagFilterRuleOutput();
         $output->setId($object->getId());
         $output->setCreatedAt($object->getCreatedAt());
-        if ($object->getUserType() === TagFilterRule::TYPE_USER) {
+        if (TagFilterRule::TYPE_USER === $object->getUserType()) {
             $output->setUserId($object->getUserId());
-        } elseif ($object->getUserType() === TagFilterRule::TYPE_GROUP) {
+        } elseif (TagFilterRule::TYPE_GROUP === $object->getUserType()) {
             $output->setGroupId($object->getUserId());
         }
 
-        if ($object->getObjectType() === TagFilterRule::TYPE_COLLECTION) {
+        if (TagFilterRule::TYPE_COLLECTION === $object->getObjectType()) {
             $output->setCollectionId($object->getObjectId());
-        } elseif ($object->getObjectType() === TagFilterRule::TYPE_WORKSPACE) {
+        } elseif (TagFilterRule::TYPE_WORKSPACE === $object->getObjectType()) {
             $output->setWorkspaceId($object->getObjectId());
         }
 

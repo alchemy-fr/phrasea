@@ -13,7 +13,7 @@ class ChuckNorrisVoter extends AbstractVoter
 
     protected function supports(string $attribute, $subject)
     {
-        return $attribute !== self::ROLE;
+        return self::ROLE !== $attribute;
     }
 
     /**

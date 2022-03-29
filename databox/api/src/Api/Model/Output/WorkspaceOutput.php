@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Entity\Core\Collection;

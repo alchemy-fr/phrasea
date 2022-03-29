@@ -30,5 +30,4 @@ class AttributeVoter extends AbstractVoter
 
         return false;
     }
-
 }

@@ -85,7 +85,6 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             }
         }
 
-
         $output->setAttributes($preferredAttributes);
 
         $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
@@ -137,7 +136,6 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
     private function resolveAttributesAndHighlights(Asset $asset, AssetOutput $output, ?array $highlights = []): void
     {
-
     }
 
     /**

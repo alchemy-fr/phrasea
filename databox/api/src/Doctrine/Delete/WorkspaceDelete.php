@@ -68,7 +68,7 @@ class WorkspaceDelete
                 ->toIterable();
 
             foreach ($collections as $c) {
-                $this->collectionDelete->deleteCollection((string)$c['id'], true);
+                $this->collectionDelete->deleteCollection((string) $c['id'], true);
             }
 
             $this->deleteDependencies(Tag::class, $workspaceId);

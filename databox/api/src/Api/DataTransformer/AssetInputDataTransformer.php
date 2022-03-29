@@ -35,8 +35,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         EntityManagerInterface $em,
         OriginalRenditionManager $originalRenditionManager,
         AttributeInputDataTransformer $attributeInputDataTransformer
-    )
-    {
+    ) {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;

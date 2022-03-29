@@ -24,7 +24,8 @@ class RenditionClass extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
-     * Override trait for annotation
+     * Override trait for annotation.
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionClasses")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"_"})

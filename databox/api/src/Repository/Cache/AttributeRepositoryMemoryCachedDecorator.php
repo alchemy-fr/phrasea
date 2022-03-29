@@ -34,10 +34,10 @@ class AttributeRepositoryMemoryCachedDecorator implements AttributeRepositoryInt
         return $this->cache->get(
             'attr_'.$asset->getId(),
             function (ItemInterface $item) use ($asset) {
-            $item->tag(self::LIST_TAG);
+                $item->tag(self::LIST_TAG);
 
-            return $this->decorated->getAssetAttributes($asset);
-        });
+                return $this->decorated->getAssetAttributes($asset);
+            });
     }
 
     public function invalidateEntity(string $id): void

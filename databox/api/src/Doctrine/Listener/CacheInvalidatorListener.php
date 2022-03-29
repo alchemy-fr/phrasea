@@ -46,7 +46,6 @@ class CacheInvalidatorListener implements EventSubscriber
         $this->invalidateEntity($args);
     }
 
-
     public function preUpdate(LifecycleEventArgs $args): void
     {
         $this->invalidateEntity($args);

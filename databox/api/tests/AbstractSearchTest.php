@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 abstract class AbstractSearchTest extends AbstractDataboxTestCase
 {
-    static protected array $documentIndices = [];
+    protected static array $documentIndices = [];
 
     protected static function bootKernel(array $options = [])
     {

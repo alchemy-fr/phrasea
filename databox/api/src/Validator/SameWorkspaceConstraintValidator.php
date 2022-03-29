@@ -23,17 +23,17 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param CollectionAsset      $value
+     * @param CollectionAsset         $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint)
     {
         $workspaceId = null;
         foreach ($constraint->properties as $propertyPath) {
-            /** @var Workspace $workspace */
+            /* @var Workspace $workspace */
             try {
                 $workspace = $this->getPropertyAccessor()->getValue($value, $propertyPath);
-            } catch(NoSuchPropertyException|UnexpectedTypeException $e) {
+            } catch (NoSuchPropertyException|UnexpectedTypeException $e) {
                 $workspace = null;
             }
             $wId = $workspace ? $workspace->getId() : null;

@@ -24,7 +24,7 @@ use LogicException;
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface,  WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -211,7 +211,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface,  
     public function getTagIds(): array
     {
         return $this->tags->map(function (Tag $tag): string {
-           return $tag->getId();
+            return $tag->getId();
         })->getValues();
     }
 

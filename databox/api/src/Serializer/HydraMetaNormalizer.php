@@ -26,7 +26,7 @@ class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterfa
     {
         $normalized = $this->normalizer->normalize($object->getResult(), $format, $context);
 
-        if ($format !== CollectionNormalizer::FORMAT) {
+        if (CollectionNormalizer::FORMAT !== $format) {
             return $normalized;
         }
 

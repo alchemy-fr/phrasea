@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Border\Consumer\Handler;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
@@ -28,8 +27,7 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         BorderManager $borderManager,
         EventProducer $eventProducer,
         UploaderClient $uploaderClient
-    )
-    {
+    ) {
         $this->borderManager = $borderManager;
         $this->eventProducer = $eventProducer;
         $this->uploaderClient = $uploaderClient;

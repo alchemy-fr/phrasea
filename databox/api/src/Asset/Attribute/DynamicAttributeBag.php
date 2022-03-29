@@ -27,8 +27,7 @@ class DynamicAttributeBag
         array $definitionsIndex,
         callable $resolve,
         string $locale
-    )
-    {
+    ) {
         $this->attributes = $attributesIndex;
         $this->definitions = $definitionsIndex;
         $this->resolve = $resolve;

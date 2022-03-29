@@ -6,5 +6,4 @@ namespace App\Border\Exception;
 
 class FileInputValidationException extends \Exception
 {
-
 }

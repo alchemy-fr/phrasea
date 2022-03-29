@@ -31,7 +31,7 @@ class UploaderClient
             ->get($path, [
                 'headers' => [
                     'Authorization' => 'AssetToken '.$token,
-                ]
+                ],
             ]);
 
         return \GuzzleHttp\json_decode($response->getBody()->getContents(), true);

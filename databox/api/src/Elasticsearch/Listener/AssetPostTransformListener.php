@@ -7,15 +7,10 @@ namespace App\Elasticsearch\Listener;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Asset\Attribute\AttributesResolver;
-use App\Asset\Attribute\FallbackResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -96,7 +91,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 return [
                     $absPath,
                     $cUsers,
-                    $cGroups
+                    $cGroups,
                 ];
             });
 

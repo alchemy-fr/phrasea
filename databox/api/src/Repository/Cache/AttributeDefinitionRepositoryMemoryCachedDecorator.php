@@ -39,7 +39,7 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
 
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this->cache->get(sprintf('attr_def_fb_%s', $workspaceId), function (ItemInterface $item) use($workspaceId) {
+        return $this->cache->get(sprintf('attr_def_fb_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
             $item->tag(self::LIST_TAG);
 
             return $this->decorated->getWorkspaceFallbackDefinitions($workspaceId);
@@ -48,7 +48,7 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
 
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
-        return $this->cache->get(sprintf('attr_defs_%s', $workspaceId), function (ItemInterface $item) use($workspaceId) {
+        return $this->cache->get(sprintf('attr_defs_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
             $item->tag(self::LIST_TAG);
 
             return $this->decorated->getWorkspaceDefinitions($workspaceId);

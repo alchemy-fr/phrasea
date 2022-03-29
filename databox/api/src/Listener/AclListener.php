@@ -73,5 +73,4 @@ class AclListener implements EventSubscriberInterface
             AclDeleteEvent::NAME => 'onAclDelete',
         ];
     }
-
 }

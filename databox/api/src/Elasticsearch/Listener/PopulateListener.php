@@ -56,6 +56,4 @@ class PopulateListener implements EventSubscriberInterface
             PostIndexPopulateEvent::class => 'postIndexPopulate',
         ];
     }
-
-
 }

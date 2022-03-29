@@ -65,7 +65,7 @@ class RenditionPermissionManager
 
         $collectionKey = sprintf('%s:%s:%s', $collection->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$collectionKey])) {
-            if ($this->cache[$collectionKey] !== self::IS_EMPTY) {
+            if (self::IS_EMPTY !== $this->cache[$collectionKey]) {
                 return $this->cache[$collectionKey];
             }
         } else {

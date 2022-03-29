@@ -123,7 +123,7 @@ class AttributeSearch
             } else {
                 $info = $this->fieldNameResolver->extractField($attr);
                 $f = sprintf('attributes._.%s', $info['field']);
-                if ($info['type'] === 'text') {
+                if ('text' === $info['type']) {
                     $f .= '.raw';
                 }
             }
@@ -209,7 +209,7 @@ class AttributeSearch
             $agg->setField($field.($subField ? '.'.$subField : ''));
             $agg->setSize(5);
             $agg->setMeta([
-                'title' => $definition->getName()
+                'title' => $definition->getName(),
             ]);
 
             $query->addAggregation($agg);

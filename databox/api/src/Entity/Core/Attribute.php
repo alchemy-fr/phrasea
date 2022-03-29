@@ -7,9 +7,7 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\TranslatableInterface;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,6 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInterface
 {
+    use CreatedAtTrait;
+    use UpdatedAtTrait;
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
     public const ORIGIN_FALLBACK = 2;
@@ -38,9 +38,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         self::STATUS_DECLINED => 'declined',
     ];
 
-    use CreatedAtTrait;
-    use UpdatedAtTrait;
-
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
@@ -59,7 +56,8 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     protected ?AttributeDefinition $definition = null;
 
     /**
-     * Unique ID to group translations of the same attribute
+     * Unique ID to group translations of the same attribute.
+     *
      * @ORM\Column(type="uuid", nullable=true)
      */
     private ?string $translationId = null;
@@ -70,7 +68,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $value = null;
 
     /**
-     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer
+     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer.
      */
     private ?array $values = null;
 
@@ -259,7 +257,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function getSearchDeleteDependencies(): array
     {
         return [
-            $this->getAsset()
+            $this->getAsset(),
         ];
     }
 

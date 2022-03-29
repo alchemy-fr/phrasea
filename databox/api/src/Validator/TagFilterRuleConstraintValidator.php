@@ -22,12 +22,11 @@ class TagFilterRuleConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param TagFilterRule      $value
-     * @param Constraint $constraint
+     * @param TagFilterRule $value
      */
     public function validate($value, Constraint $constraint)
     {
-        if ($value->getObjectType() === TagFilterRule::TYPE_COLLECTION) {
+        if (TagFilterRule::TYPE_COLLECTION === $value->getObjectType()) {
             $collection = $this->em->getRepository(Collection::class)->find($value->getObjectId());
             if (!$collection instanceof Collection) {
                 throw new RuntimeException('Collection not found when validating tag filter rule');

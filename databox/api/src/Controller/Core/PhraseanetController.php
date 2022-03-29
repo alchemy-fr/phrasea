@@ -26,14 +26,13 @@ class PhraseanetController extends AbstractController
      */
     public function incomingRenditionAction(
         string $assetId,
-        Request $request, 
+        Request $request,
         RenditionManager $renditionManager,
         PathGenerator $pathGenerator,
         FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
         EntityManagerInterface $em
-    ): Response
-    {
+    ): Response {
         ini_set('max_execution_time', '600');
         $fileInfo = $request->request->get('file_info');
         $name = $fileInfo['name'] ?? null;
@@ -58,10 +57,10 @@ class PhraseanetController extends AbstractController
         if (0 === $uploadedFile->getSize()) {
             throw new BadRequestHttpException('Empty file');
         }
-        
+
         $asset = $em->getRepository(Asset::class)
             ->find($assetId);
-        
+
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset "%s" not found', $assetId));
         }
@@ -77,7 +76,7 @@ class PhraseanetController extends AbstractController
         $stream = fopen($uploadedFile->getRealPath(), 'r+');
         $storageManager->storeStream($path, $stream);
         fclose($stream);
-        
+
         $renditionManager->createOrReplaceRendition(
             $asset,
             $definition,

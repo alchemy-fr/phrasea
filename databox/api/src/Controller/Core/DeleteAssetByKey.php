@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Api\Model\Input\DeleteAssetByKeyInput;
 use App\Consumer\Handler\Asset\AssetDeleteHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AssetVoter;
@@ -40,7 +39,7 @@ class DeleteAssetByKey extends AbstractController
 
         $asset = $this->em->getRepository(Asset::class)
             ->findByKey($key, $workspaceId);
-        ;
+
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException('Asset not found');
         }
