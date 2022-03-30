@@ -7,6 +7,7 @@ namespace App\Doctrine;
 use App\Annotation\IgnoreAutowire;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
@@ -30,7 +31,13 @@ class TagAwareQueryResultCache implements CacheItemPoolInterface
 
     public function getItem($key)
     {
-        return $this->cache->getItem($key);
+        $item = $this->cache->getItem($key);
+
+        if ($item instanceof ItemInterface) {
+            $item->tag($this->tags);
+        }
+
+        return $item;
     }
 
     public function getItems(array $keys = [])

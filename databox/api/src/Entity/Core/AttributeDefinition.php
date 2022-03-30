@@ -10,6 +10,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -44,7 +45,13 @@ class AttributeDefinition extends AbstractUuidEntity
     protected ?Workspace $workspace = null;
 
     /**
-     * @Groups({"asset:index", "asset:read", "attributedef:index"})
+     * @var Attribute[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="definition", cascade={"remove"})
+     */
+    private ?DoctrineCollection $attributes = null;
+
+    /**
+     * @Groups({"asset:index", "asset:read", "attributedef:index", "attribute:index"})
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;

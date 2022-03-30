@@ -28,7 +28,7 @@ apiClient.interceptors.response.use<AxiosResponse<any, {
 
     const responseTime = new Date().getTime() - meta.requestStartedAt!;
     meta.responseTime = responseTime;
-    console.log(`Execution time for: ${r.config.url} - ${responseTime} ms`)
+    console.log(`Execution time for: ${r.config.method?.toUpperCase()} ${r.config.url} - ${responseTime} ms`)
 
     return r;
 });

@@ -40,6 +40,14 @@ class AttributeRepositoryMemoryCachedDecorator implements AttributeRepositoryInt
 
     public function invalidateEntity(string $id): void
     {
+    }
+
+    public function invalidateList(): void
+    {
         $this->cache->invalidateTags([self::LIST_TAG]);
+
+        if ($this->decorated instanceof CacheRepositoryInterface) {
+            $this->decorated->invalidateList();
+        }
     }
 }

@@ -7,11 +7,12 @@ namespace App\Repository\Core;
 use App\Doctrine\TagAwareQueryResultCache;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Repository\Cache\CacheRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
+class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface, CacheRepositoryInterface
 {
     private TagAwareCacheInterface $doctrineCache;
 
@@ -31,9 +32,11 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->select('a')
             ->andWhere('a.definition = :definition')
             ->andWhere('a.asset = :asset')
+            ->andWhere('a.locale = :locale')
             ->andWhere('a.id != :id')
             ->setParameter('definition', $attribute->getDefinition()->getId())
             ->setParameter('asset', $attribute->getAsset()->getId())
+            ->setParameter('locale', $attribute->getLocale())
             ->setParameter('id', $attribute->getId())
             ->getQuery()
             ->getResult();
@@ -55,5 +58,14 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
 
         return $query
             ->getResult();
+    }
+
+    public function invalidateEntity(string $id): void
+    {
+    }
+
+    public function invalidateList(): void
+    {
+        $this->doctrineCache->invalidateTags([self::LIST_TAG]);
     }
 }

@@ -50,7 +50,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $locale = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
      */
     protected ?AttributeDefinition $definition = null;

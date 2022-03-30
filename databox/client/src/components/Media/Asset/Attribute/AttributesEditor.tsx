@@ -5,6 +5,8 @@ import {deleteAssetAttribute, putAssetAttribute} from "../../../../api/asset";
 import {AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import Modal from "../../../Layout/Modal";
+import {NO_LOCALE} from "../EditAssetAttributes";
+import {toast} from "react-toastify";
 
 export type AttrValue<T = string> = {
     id: T;
@@ -24,7 +26,7 @@ type Props = {
 
 let idInc = 1;
 
-export function createNewValue(type: string): any {
+export function createNewValue(type: string): AttrValue<number> {
     switch (type) {
         default:
         case 'text':
@@ -49,11 +51,15 @@ export default function AttributesEditor({
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
     const [saving, setSaving] = useState<any>(false);
 
-    const onChange = useCallback((defId: string, value: LocalizedAttributeIndex<string | number>) => {
+    const onChange = useCallback((defId: string, value: LocalizedAttributeIndex<string | number> | undefined) => {
         setAttributes((prev: AttributeIndex<string | number>): AttributeIndex<string | number> => {
             const newValues = {...prev};
 
-            newValues[defId] = value;
+            if (value === undefined) {
+                delete newValues[defId];
+            } else {
+                newValues[defId] = value;
+            }
 
             return newValues;
         });
@@ -67,28 +73,35 @@ export default function AttributesEditor({
             await Promise.all(Object.keys(attributes).map(async (defId): Promise<void> => {
                 const lv = attributes[defId];
                 if (remoteAttrs[defId] && isSame(remoteAttrs[defId], lv)) {
-                    newValues[defId] = lv as LocalizedAttributeIndex<string>;
+                    newValues[defId] = lv as LocalizedAttributeIndex;
                     return;
                 }
 
                 await Promise.all(Object.keys(attributes[defId]).map(async (locale) => {
-                    const v = lv[locale];
+                    const currValue = lv[locale];
 
-                    const updateAttr = async (v: AttrValue<string | number>): Promise<void> => {
+                    const updateAttr = async (removeValue: AttrValue | undefined, v: AttrValue<string | number>): Promise<AttrValue | undefined> => {
+                        if (isSame(removeValue, v)) {
+                            return removeValue;
+                        }
+
+                        if (!v) {
+                            return undefined;
+                        }
+
                         if (typeof v.id === 'string') {
                             if (!v.value) {
                                 await deleteAssetAttribute(v.id as string);
-
-                                delete newValues[defId][locale];
                             } else {
                                 await putAssetAttribute(
                                     v.id,
                                     assetId,
                                     defId,
-                                    v.value
+                                    v.value,
+                                    locale !== NO_LOCALE ? locale : undefined
                                 );
 
-                                newValues[defId][locale] = {
+                                return {
                                     id: v.id,
                                     value: v.value,
                                 };
@@ -98,20 +111,32 @@ export default function AttributesEditor({
                                 undefined,
                                 assetId,
                                 defId,
-                                v.value
+                                v.value,
+                                locale !== NO_LOCALE ? locale : undefined
                             );
 
-                            newValues[defId][locale] = {
+                            return {
                                 id: result.id,
                                 value: result.value,
                             }
                         }
                     };
 
-                    if (v instanceof Array) {
-                        await Promise.all(v.map(updateAttr));
+                    if (!newValues[defId]) {
+                        newValues[defId] = {};
+                    }
+                    if (currValue instanceof Array) {
+                        newValues[defId][locale] = await Promise.all(
+                            currValue.map(_v => {
+                                const rv = remoteAttrs[defId][locale] ? (remoteAttrs[defId][locale] as AttrValue[]).find(
+                                    __v => __v.id === _v.id
+                                ) : undefined;
+
+                                return updateAttr(rv, _v) as Promise<AttrValue>
+                            })
+                        );
                     } else {
-                        await updateAttr(v as AttrValue<string | number>);
+                        newValues[defId][locale] = await updateAttr(remoteAttrs[defId][locale] as AttrValue | undefined, currValue as AttrValue<string | number>);
                     }
                 }));
             }));
@@ -131,16 +156,18 @@ export default function AttributesEditor({
                             }
                         }));
                     } else {
-                        if (!newValues[defId] || !newValues[defId][locale]) {
+                        if (!newValues[defId] || !newValues[defId][locale] || !(newValues[defId][locale] as AttrValue).value) {
                             await deleteAssetAttribute((v as AttrValue).id);
                         }
                     }
                 }));
-
             }));
 
             setRemoteAttrs(newValues);
             setAttributes(newValues);
+
+            toast.success("Attributes saved !", {});
+
             setSaving(false);
 
             // TODO
@@ -148,7 +175,7 @@ export default function AttributesEditor({
                 setError(undefined);
             }
         } catch (e: any) {
-            console.log('e', e);
+            console.error('e', e);
             setSaving(false);
             if (e.response && typeof e.response.data === 'object') {
                 const data = e.response.data;
@@ -182,13 +209,17 @@ export default function AttributesEditor({
         {Object.keys(definitions).map(defId => {
             const d = definitions[defId];
 
-            return <AttributeType
-                attributes={attributes[defId]}
-                disabled={saving}
-                definition={d}
-                onChange={onChange}
+            return <div
                 key={defId}
-            />
+            >
+                <AttributeType
+                    attributes={attributes[defId]}
+                    disabled={saving}
+                    definition={d}
+                    onChange={onChange}
+                />
+                <hr/>
+            </div>
         })}
     </Modal>
 }

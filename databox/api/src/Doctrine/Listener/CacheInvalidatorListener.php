@@ -31,6 +31,7 @@ class CacheInvalidatorListener implements EventSubscriber
                 $id = $entity->getId();
                 $this->postFlushStack->addCallback(function () use ($repo, $id): void {
                     $repo->invalidateEntity($id);
+                    $repo->invalidateList();
                 });
             }
         }

@@ -1,14 +1,15 @@
 import React, {ChangeEvent, useCallback, useState} from "react";
 import {TextField} from "@mui/material";
+import {AttrValue, createNewValue} from "./AttributesEditor";
 
 type Props = {
     id: string;
     type: string;
     name: string;
-    value: any;
+    value: AttrValue<string | number> | undefined;
     disabled: boolean;
-    required?: boolean;
-    onChange: (value: any) => void;
+    required: boolean;
+    onChange: (value: AttrValue<string | number>) => void;
 }
 
 export default function AttributeWidget({
@@ -20,12 +21,14 @@ export default function AttributeWidget({
                                             required,
                                             type,
                                         }: Props) {
-    const [value, setValue] = useState<any>(initialValue);
+    const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);
 
     const changeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const {value} = e.target;
-        onChange(value);
-        setValue(value);
+        const nv = {...(value || createNewValue(type))};
+        nv.value = e.target.value;
+        setValue(nv);
+        setTimeout(() => onChange(nv), 10);
+        // eslint-disable-next-line
     }, [onChange, setValue]);
 
     switch (type) {
@@ -37,7 +40,7 @@ export default function AttributeWidget({
                 disabled={disabled}
                 label={name}
                 onChange={changeHandler}
-                value={value || ''}
+                value={value ? value.value : ''}
                 required={required}
             />
     }

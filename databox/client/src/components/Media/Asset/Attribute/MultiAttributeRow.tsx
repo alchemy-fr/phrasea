@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Button, InputLabel} from "@mui/material";
 import AttributeWidget from "./AttributeWidget";
 import {AttrValue, createNewValue} from "./AttributesEditor";
@@ -12,38 +12,51 @@ type Props = {
     disabled: boolean;
 }
 
+const deferred = 0;
+
 export default function MultiAttributeRow({
-                                         id,
-                                         name,
-                                         values: initialValues,
-    disabled,
+                                              id,
+                                              name,
+                                              values: initialValues,
+                                              disabled,
                                               onChange,
-                                         type,
-                                     }: Props) {
+                                              type,
+                                          }: Props) {
     const [values, setValues] = useState<AttrValue<string | number>[]>(initialValues.length > 0 ? initialValues : [createNewValue(type)]);
 
-    const changeHandler = useCallback((index: number, value: any) => {
+    useEffect(() => {
+        setValues(initialValues.length > 0 ? initialValues : []);
+    }, [initialValues]);
+
+    const changeHandler = useCallback((index: number, value: AttrValue<string | number>) => {
         setValues((prev: AttrValue<string | number>[]): AttrValue<string | number>[] => {
-            const newValues = [...prev];
-            newValues[index] = {
-                ...newValues[index],
-                value,
+            const nv = [...prev];
+            nv[index] = {
+                ...nv[index],
+                value: value.value,
             };
 
-            onChange(newValues);
+            setTimeout(() => onChange(nv), deferred);
 
-            return newValues;
+            return nv;
         });
-    }, [setValues]);
+    }, [setValues, onChange]);
 
     const add = () => {
-        setValues(prev => prev.concat(createNewValue(type)));
+        setValues(prev => {
+            const nv = prev.concat(createNewValue(type));
+
+            setTimeout(() => onChange(nv), deferred);
+
+            return nv;
+        });
     }
 
     const remove = (i: number) => {
         setValues(prev => {
             const nv = [...prev];
             nv.splice(i, 1);
+            setTimeout(() => onChange(nv), deferred);
 
             return nv;
         });
@@ -58,28 +71,34 @@ export default function MultiAttributeRow({
             return <div
                 key={v.id}
             >
-                <AttributeWidget
-                    value={v.value}
-                    disabled={disabled}
-                    name={`${name} #${i + 1}`}
-                    type={type}
-                    required={true}
-                    onChange={(v) => {
-                        changeHandler(i, v);
-                    }}
-                    id={`${id}`}
-                />
-                <Button
-                    variant="contained"
-                    disabled={disabled}
-                    onClick={() => remove(i)}
-                    color="secondary">
-                    Remove
-                </Button>
+                <div
+                    className={'form-group'}
+                    style={{
+                    display: 'flex',
+                }}>
+
+                    <AttributeWidget
+                        value={v}
+                        disabled={disabled}
+                        name={`${name} #${i + 1}`}
+                        type={type}
+                        required={true}
+                        onChange={(v) => {
+                            changeHandler(i, v);
+                        }}
+                        id={`${id}_${i}`}
+                    />
+                    <Button
+                        variant="contained"
+                        disabled={disabled}
+                        onClick={() => remove(i)}
+                        color="secondary">
+                        Remove
+                    </Button>
+                </div>
             </div>
         })}
 
-        <hr/>
         <Button
             variant="contained"
             disabled={disabled}

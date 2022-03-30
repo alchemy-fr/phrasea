@@ -16,31 +16,40 @@ export default function AttributeType({
                                           definition,
                                           attributes,
                                           disabled,
+                                          onChange,
                                       }: Props) {
-    const onChange = (v: any) => {
-        console.log('v', v);
-    };
+    const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
+        const na = {...attributes};
 
-    console.log('attributes', attributes);
+        if (v && !(v instanceof Array)) {
+            v = (v as AttrValue<string | number>).value ? v : undefined as any;
+        }
+
+        na[locale] = v;
+
+        onChange(definition.id, na);
+    };
 
     if (definition.translatable) {
         return <>
             {definition.locales!.map(locale => {
+                const label = `${definition.name} ${locale.toUpperCase()}`;
+
                 return <div className={'form-group'}>
-                    <b>{locale}</b>
                     {definition.multiple ? <MultiAttributeRow
                         disabled={disabled}
                         type={definition.type}
-                        name={definition.name}
+                        name={label}
                         values={(attributes[locale] || []) as AttrValue<string | number>[]}
-                        onChange={onChange}
+                        onChange={(values) => changeHandler(locale, values)}
                         id={definition.id}
                     /> : <AttributeWidget
-                        value={attributes[locale] ? (attributes[locale] as AttrValue<string | number>).value : undefined}
+                        value={attributes[locale] as AttrValue<string | number> | undefined}
                         disabled={disabled}
                         type={definition.type}
-                        name={definition.name}
-                        onChange={onChange}
+                        name={label}
+                        required={false}
+                        onChange={(v) => changeHandler(locale, v)}
                         id={definition.id}
                     />}
                 </div>
@@ -56,14 +65,15 @@ export default function AttributeType({
             type={definition.type}
             name={definition.name}
             values={(attributes[NO_LOCALE] || []) as AttrValue<string | number>[]}
-            onChange={onChange}
+            onChange={(values) => changeHandler(NO_LOCALE, values)}
             id={definition.id}
         /> : <AttributeWidget
-            value={attributes[NO_LOCALE] ? (attributes[NO_LOCALE] as AttrValue<string | number>).value : undefined}
+            value={attributes[NO_LOCALE] as AttrValue<string | number> | undefined}
+            required={false}
             disabled={disabled}
             name={definition.name}
             type={definition.type}
-            onChange={onChange}
+            onChange={(v) => changeHandler(NO_LOCALE, v)}
             id={definition.id}
         />}
     </div>

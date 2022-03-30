@@ -56,6 +56,7 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
                 }
                 (attributeIndex[a.definition.id][l]! as AttrValue[]).push(v);
             } else {
+
                 attributeIndex[a.definition.id][l] = v;
             }
         }

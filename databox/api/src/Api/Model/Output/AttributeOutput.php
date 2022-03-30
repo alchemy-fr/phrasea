@@ -80,6 +80,7 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var string|null
+     * @Groups({"attribute:index", "attribute:read"})
      */
     public $locale;
 
