@@ -10,6 +10,7 @@ type Props = {
     name: string;
     value: any;
     valueId?: string | undefined;
+    locales: string[];
 }
 
 export default function AttributeRow({
@@ -17,11 +18,13 @@ export default function AttributeRow({
                                          assetId,
                                          name,
                                          value: initialValue,
-                                         valueId,
+                                         valueId: initialValueId,
                                          type,
+                                         locales,
                                      }: Props) {
     const [error, setError] = useState<string>();
     const [realValue, setRealValue] = useState<any>(initialValue);
+    const [valueId, setValueId] = useState<any>(initialValueId);
     const [value, setValue] = useState<any>(initialValue);
     const [saving, setSaving] = useState<any>(false);
 
@@ -34,13 +37,16 @@ export default function AttributeRow({
         try {
             if (valueId && !value) {
                 await deleteAssetAttribute(valueId);
+                setValueId(undefined);
             } else {
-                await putAssetAttribute(
+                const res = await putAssetAttribute(
                     valueId,
                     assetId,
                     id,
                     value
                 );
+                console.log('res', res);
+                setValueId(res.id);
             }
             setRealValue(value);
             setSaving(false);

@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Doctrine\TagAwareQueryResultCache;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    private TagAwareCacheInterface $doctrineCache;
+
+    public function __construct(ManagerRegistry $registry, TagAwareCacheInterface $doctrineCache)
     {
         parent::__construct($registry, Attribute::class);
+        $this->doctrineCache = $doctrineCache;
     }
 
     /**
@@ -36,13 +41,19 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
 
     public function getAssetAttributes(Asset $asset): array
     {
-        return $this
+        $query = $this
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.asset = :asset')
             ->setParameter('asset', $asset->getId())
             ->addOrderBy('a.definition', 'ASC')
-            ->getQuery()
+            ->getQuery();
+
+        $query
+            ->setResultCache(new TagAwareQueryResultCache($this->doctrineCache, [self::LIST_TAG]))
+            ->setResultCacheId('attr_'.$asset->getId());
+
+        return $query
             ->getResult();
     }
 }

@@ -297,4 +297,16 @@ class AttributeDefinition extends AbstractUuidEntity
     {
         $this->facetEnabled = $facetEnabled;
     }
+
+    /**
+     * @Groups({"attributedef:index"})
+     */
+    public function getLocales(): ?array
+    {
+        if ($this->isTranslatable()) {
+            return $this->getWorkspace()->getEnabledLocales();
+        }
+
+        return null;
+    }
 }

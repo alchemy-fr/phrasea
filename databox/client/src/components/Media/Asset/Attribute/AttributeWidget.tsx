@@ -4,9 +4,10 @@ import {TextField} from "@mui/material";
 type Props = {
     id: string;
     type: string;
-    name?: string;
+    name: string;
     value: any;
     disabled: boolean;
+    required?: boolean;
     onChange: (value: any) => void;
 }
 
@@ -16,6 +17,7 @@ export default function AttributeWidget({
                                             name,
                                             value: initialValue,
                                             onChange,
+                                            required,
                                             type,
                                         }: Props) {
     const [value, setValue] = useState<any>(initialValue);
@@ -35,7 +37,8 @@ export default function AttributeWidget({
                 disabled={disabled}
                 label={name}
                 onChange={changeHandler}
-                value={value}
+                value={value || ''}
+                required={required}
             />
     }
 }

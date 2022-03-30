@@ -14,8 +14,6 @@ class AttributeRepositoryMemoryCachedDecorator implements AttributeRepositoryInt
 {
     use CacheDecoratorTrait;
 
-    public const LIST_TAG = 'attr_list';
-
     private TagAwareCacheInterface $cache;
 
     public function __construct(AttributeRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache)
@@ -34,7 +32,7 @@ class AttributeRepositoryMemoryCachedDecorator implements AttributeRepositoryInt
         return $this->cache->get(
             'attr_'.$asset->getId(),
             function (ItemInterface $item) use ($asset) {
-                $item->tag(self::LIST_TAG);
+                $item->tag(AttributeRepositoryInterface::LIST_TAG);
 
                 return $this->decorated->getAssetAttributes($asset);
             });

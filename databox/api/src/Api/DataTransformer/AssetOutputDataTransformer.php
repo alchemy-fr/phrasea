@@ -43,14 +43,14 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $this->requestStack = $requestStack;
     }
 
-    private function getUserLocale(): ?string
+    private function getUserLocales(): array
     {
         $request = $this->requestStack->getCurrentRequest();
         if (null !== $request) {
-            return $request->getLocale();
+            return $request->getLanguages();
         }
 
-        return null;
+        return [];
     }
 
     /**
@@ -58,8 +58,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
      */
     public function transform($object, string $to, array $context = [])
     {
-        $userLocale = $this->getUserLocale();
-        $preferredLocales = array_unique(array_filter(array_merge([$userLocale], $object->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
+        $userLocales = $this->getUserLocales();
+        $preferredLocales = array_unique(array_filter(array_merge($userLocales, $object->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
 
         $user = $this->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
@@ -73,7 +73,10 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $highlights = $object->getElasticHighlights();
 
         $attributes = $this->attributesResolver->resolveAttributes($object);
-        $this->attributesResolver->assignHighlight($attributes, $highlights);
+
+        if (!empty($highlights)) {
+            $this->attributesResolver->assignHighlight($attributes, $highlights);
+        }
 
         $preferredAttributes = [];
         foreach ($attributes as $_attrs) {
@@ -89,10 +92,11 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
         $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
         if ($titleAttribute instanceof Attribute) {
-            $output->setTitle($titleAttribute->getValue());
+            $output->setResolvedTitle($titleAttribute->getValue());
             $output->setTitleHighlight($titleAttribute->getHighlight());
         } else {
             $output->setTitle($object->getTitle());
+            $output->setResolvedTitle($object->getTitle());
             if (isset($highlights['title'])) {
                 $output->setTitleHighlight(reset($highlights['title']));
             }

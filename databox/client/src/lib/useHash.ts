@@ -14,6 +14,7 @@ const useHash = (): [string, (newHash: string) => void] => {
         return () => {
             window.removeEventListener(e, hashChangeHandler);
         };
+        // eslint-disable-next-line
     }, []);
 
     const updateHash = useCallback((newHash: string) => {

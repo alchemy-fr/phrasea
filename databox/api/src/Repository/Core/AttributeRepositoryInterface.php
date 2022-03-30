@@ -10,6 +10,8 @@ use Doctrine\Persistence\ObjectRepository;
 
 interface AttributeRepositoryInterface extends ObjectRepository
 {
+    public const LIST_TAG = 'attr_list';
+
     /**
      * @return string[]
      */

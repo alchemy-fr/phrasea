@@ -15,7 +15,8 @@ export interface File {
 
 export interface Asset extends IPermissions {
     id: string;
-    title: string;
+    title?: string | undefined;
+    resolvedTitle?: string;
     titleHighlight: string | null;
     description?: string;
     privacy: number;
@@ -36,6 +37,7 @@ export interface Attribute extends IPermissions {
     definition: AttributeDefinition;
     origin: "human" | "machine";
     originVendor?: string;
+    locale?: string | undefined;
     originUserId?: string;
     originVendorContext?: string;
     value: AttrValue;
@@ -50,6 +52,7 @@ export interface AttributeDefinition extends IPermissions {
     editable: boolean;
     searchable: boolean;
     translatable: boolean;
+    locales?: string[];
     allowInvalid: boolean;
     searchBoost: number;
 }

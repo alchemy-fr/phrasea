@@ -55,17 +55,17 @@ export async function getAssetAttributes(assetId: string): Promise<Attribute[]> 
 
 export async function putAssetAttribute(id: string | undefined, assetId: string, definitionId: string, value: any): Promise<Attribute> {
     if (id) {
-        return await apiClient.put(`/attributes/${id}`, {
+        return ((await apiClient.put(`/attributes/${id}`, {
             value,
-        });
+        })).data);
     }
 
-    return await apiClient.post(`/attributes`, {
+    return (await apiClient.post(`/attributes`, {
         origin: 'human',
         asset: `/assets/${assetId}`,
         definition: `/attribute-definitions/${definitionId}`,
         value,
-    });
+    })).data;
 }
 
 export async function deleteAssetAttribute(id: string): Promise<void> {

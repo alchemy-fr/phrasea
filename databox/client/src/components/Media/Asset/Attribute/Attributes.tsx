@@ -1,9 +1,16 @@
 import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
 
-export function replaceHighlight(value: string) {
-    return reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m) => {
-        return <em className="hl">{m}</em>;
+export function replaceHighlight(value?: string): React.ReactNodeArray {
+    if (!value) {
+        return [];
+    }
+
+    return reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m, index) => {
+        return <em
+            className="hl"
+            key={index}
+        >{m}</em>;
     });
 }
 
