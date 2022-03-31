@@ -10,6 +10,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
@@ -61,6 +62,27 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
      * @ORM\Column(type="uuid", nullable=true)
      */
     private ?string $translationId = null;
+
+    /**
+     * Unique ID to group translations of the same attribute.
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Attribute", inversedBy="translations")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?self $translationOrigin = null;
+
+    /**
+     * Hashed value of the original translated string.
+     *
+     * @ORM\Column(type="string", length=32, nullable=true)
+     */
+    private ?string $translationOriginHash = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="translationOrigin", cascade={"remove"})
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?DoctrineCollection $translations = null;
 
     /**
      * @ORM\Column(type="text", nullable=false)
@@ -299,5 +321,20 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslationOrigin(): ?Attribute
+    {
+        return $this->translationOrigin;
+    }
+
+    public function getTranslationOriginHash(): ?string
+    {
+        return $this->translationOriginHash;
+    }
+
+    public function setTranslationOriginHash(?string $translationOriginHash): void
+    {
+        $this->translationOriginHash = $translationOriginHash;
     }
 }
