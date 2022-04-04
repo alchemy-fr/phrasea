@@ -147,10 +147,6 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
 create_db "${REPORT_DB_NAME}"
 
 
-# Setup Weblate
-## Create DB
-create_db "${WEBLATE_POSTGRES_DB}"
-
 # Create default admin user in Auth (must be execute after Notify & Auth setup)
 exec_container auth-api-php "bin/console app:user:create \
     --update-if-exist ${DEFAULT_USER_EMAIL} \
