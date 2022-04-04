@@ -12,6 +12,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -19,7 +20,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table(
  *     uniqueConstraints={
  *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_name",columns={"workspace_id", "name"}),
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"})
+ *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"}),
+ *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_slug",columns={"workspace_id", "slug"})
  *     },
  *     indexes={
  *       @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
@@ -55,6 +57,12 @@ class AttributeDefinition extends AbstractUuidEntity
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
+
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Gedmo\Slug(fields={"name"}, style="lower", separator="", unique=false)
+     */
+    private ?string $slug = null;
 
     /**
      * Apply this definition to files of this MIME type.
@@ -315,5 +323,15 @@ class AttributeDefinition extends AbstractUuidEntity
         }
 
         return null;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

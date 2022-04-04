@@ -7,17 +7,14 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\AttributeDefinition;
-use Cocur\Slugify\Slugify;
 use InvalidArgumentException;
 
 class FieldNameResolver
 {
-    private Slugify $slugify;
     private AttributeTypeRegistry $attributeTypeRegistry;
 
     public function __construct(AttributeTypeRegistry $attributeTypeRegistry)
     {
-        $this->slugify = new Slugify();
         $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
@@ -26,7 +23,7 @@ class FieldNameResolver
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
         return sprintf('%s_%s_%s',
-            $this->slugify->slugify($definition->getName()),
+            $definition->getSlug(),
             $type->getElasticSearchType(),
             $definition->isMultiple() ? 'm' : 's'
         );
