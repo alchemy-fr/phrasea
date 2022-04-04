@@ -51,6 +51,11 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $locale = null;
 
     /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $position = 0;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -336,5 +341,15 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setTranslationOriginHash(?string $translationOriginHash): void
     {
         $this->translationOriginHash = $translationOriginHash;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

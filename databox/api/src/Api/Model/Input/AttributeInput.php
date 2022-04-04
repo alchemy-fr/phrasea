@@ -50,6 +50,11 @@ class AttributeInput
      */
     public $locale;
 
+    /**
+     * @var int
+     */
+    public $position;
+
     public ?string $originVendor = null;
 
     public ?string $originUserId = null;

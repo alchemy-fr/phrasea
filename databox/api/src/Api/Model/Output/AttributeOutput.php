@@ -85,6 +85,12 @@ class AttributeOutput extends AbstractUuidOutput
     public $locale;
 
     /**
+     * @var int
+     * @Groups({"attribute:index", "attribute:read"})
+     */
+    public $position;
+
+    /**
      * @var string
      * @Groups({"attribute:index", "attribute:read"})
      */

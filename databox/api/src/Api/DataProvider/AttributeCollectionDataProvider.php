@@ -45,7 +45,9 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
             'asset' => $asset->getId(),
         ];
 
-        return $this->em->getRepository(Attribute::class)->findBy($criteria);
+        return $this->em->getRepository(Attribute::class)->findBy($criteria, [
+            'position' => 'ASC',
+        ]);
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

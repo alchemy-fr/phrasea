@@ -53,7 +53,14 @@ export async function getAssetAttributes(assetId: string): Promise<Attribute[]> 
     return res.data['hydra:member'];
 }
 
-export async function putAssetAttribute(id: string | undefined, assetId: string, definitionId: string, value: any, locale: string | undefined): Promise<Attribute> {
+export async function putAssetAttribute(
+    id: string | undefined,
+    assetId: string,
+    definitionId: string,
+    value: any,
+    locale: string | undefined,
+    position?: number
+): Promise<Attribute> {
     if (id) {
         return ((await apiClient.put(`/attributes/${id}`, {
             value,
@@ -66,6 +73,7 @@ export async function putAssetAttribute(id: string | undefined, assetId: string,
         definition: `/attribute-definitions/${definitionId}`,
         value,
         locale,
+        position,
     })).data;
 }
 

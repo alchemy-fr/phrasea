@@ -80,7 +80,11 @@ export default function AttributesEditor({
                 await Promise.all(Object.keys(attributes[defId]).map(async (locale) => {
                     const currValue = lv[locale];
 
-                    const updateAttr = async (removeValue: AttrValue | undefined, v: AttrValue<string | number>): Promise<AttrValue | undefined> => {
+                    const updateAttr = async (
+                        removeValue: AttrValue | undefined,
+                        v: AttrValue<string | number>,
+                        position?: number
+                    ): Promise<AttrValue | undefined> => {
                         if (isSame(removeValue, v)) {
                             return removeValue;
                         }
@@ -112,7 +116,8 @@ export default function AttributesEditor({
                                 assetId,
                                 defId,
                                 v.value,
-                                locale !== NO_LOCALE ? locale : undefined
+                                locale !== NO_LOCALE ? locale : undefined,
+                                position
                             );
 
                             return {
@@ -127,12 +132,12 @@ export default function AttributesEditor({
                     }
                     if (currValue instanceof Array) {
                         newValues[defId][locale] = await Promise.all(
-                            currValue.map(_v => {
+                            currValue.map((_v, pos) => {
                                 const rv = remoteAttrs[defId][locale] ? (remoteAttrs[defId][locale] as AttrValue[]).find(
                                     __v => __v.id === _v.id
                                 ) : undefined;
 
-                                return updateAttr(rv, _v) as Promise<AttrValue>
+                                return updateAttr(rv, _v, pos) as Promise<AttrValue>
                             })
                         );
                     } else {

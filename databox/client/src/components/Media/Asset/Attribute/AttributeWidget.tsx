@@ -42,6 +42,7 @@ export default function AttributeWidget({
                 onChange={changeHandler}
                 value={value ? value.value : ''}
                 required={required}
+                autoFocus={true}
             />
     }
 }

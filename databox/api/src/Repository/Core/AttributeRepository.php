@@ -50,6 +50,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->andWhere('a.asset = :asset')
             ->setParameter('asset', $asset->getId())
             ->addOrderBy('a.definition', 'ASC')
+            ->addOrderBy('a.position', 'ASC')
             ->getQuery();
 
         $query
