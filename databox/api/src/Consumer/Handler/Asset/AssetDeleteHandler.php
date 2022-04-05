@@ -32,6 +32,7 @@ class AssetDeleteHandler extends AbstractEntityManagerHandler
     {
         return [self::EVENT];
     }
+
     public static function createEvent(string $id): EventMessage
     {
         return new EventMessage(self::EVENT, [

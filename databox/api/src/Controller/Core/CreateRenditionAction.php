@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -12,8 +14,6 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\RenditionClassVoter;
 use App\Storage\RenditionManager;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Upload\UploadManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;

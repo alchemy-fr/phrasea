@@ -54,7 +54,7 @@ class JWTTokenManager
 
         $constraints = $config->validationConstraints();
 
-        if (! $config->validator()->validate($token, ...$constraints)) {
+        if (!$config->validator()->validate($token, ...$constraints)) {
             throw new AccessDeniedHttpException('Invalid JWT');
         }
     }

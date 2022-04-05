@@ -20,9 +20,6 @@
     "alchemy/storage-bundle": {
         "version": "dev-ps-355"
     },
-    "api-platform/api-pack": {
-        "version": "v1.3.0"
-    },
     "api-platform/core": {
         "version": "2.5",
         "recipe": {
@@ -146,9 +143,6 @@
     "doctrine/persistence": {
         "version": "2.0.0"
     },
-    "doctrine/reflection": {
-        "version": "1.2.1"
-    },
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
@@ -167,9 +161,6 @@
     },
     "elasticsearch/elasticsearch": {
         "version": "v7.10.0"
-    },
-    "emag-tech-labs/rabbitmq-bundle": {
-        "version": "2.4.0"
     },
     "ezimuel/guzzlestreams": {
         "version": "3.0.1"
@@ -245,12 +236,6 @@
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
-    "laminas/laminas-eventmanager": {
-        "version": "3.3.0"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.1.1"
-    },
     "lcobucci/clock": {
         "version": "2.0.0"
     },
@@ -317,9 +302,6 @@
     },
     "paragonie/constant_time_encoding": {
         "version": "v2.4.0"
-    },
-    "php": {
-        "version": "7.4"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.12.1"
@@ -533,17 +515,11 @@
             "src/Kernel.php"
         ]
     },
-    "symfony/http-client-contracts": {
-        "version": "v2.2.0"
-    },
     "symfony/http-foundation": {
         "version": "v5.1.5"
     },
     "symfony/http-kernel": {
         "version": "v5.1.5"
-    },
-    "symfony/intl": {
-        "version": "v5.2.0"
     },
     "symfony/mime": {
         "version": "v5.3.8"
@@ -568,9 +544,6 @@
     },
     "symfony/options-resolver": {
         "version": "v5.1.6"
-    },
-    "symfony/orm-pack": {
-        "version": "v2.0.0"
     },
     "symfony/password-hasher": {
         "version": "v5.3.3"
@@ -616,9 +589,6 @@
     },
     "symfony/process": {
         "version": "v5.1.6"
-    },
-    "symfony/profiler-pack": {
-        "version": "v1.0.5"
     },
     "symfony/property-access": {
         "version": "v5.1.6"
@@ -666,9 +636,6 @@
     },
     "symfony/serializer": {
         "version": "v5.1.6"
-    },
-    "symfony/serializer-pack": {
-        "version": "v1.0.3"
     },
     "symfony/service-contracts": {
         "version": "v2.2.0"

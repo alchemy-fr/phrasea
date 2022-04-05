@@ -77,7 +77,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = function (RenditionClass $class) use($classMap): RenditionClass {
+        $replace = function (RenditionClass $class) use ($classMap): RenditionClass {
             return $classMap[$class->getId()];
         };
         foreach ($items as $item) {
@@ -113,7 +113,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = function (Tag $t) use($map): Tag {
+        $replace = function (Tag $t) use ($map): Tag {
             return $map[$t->getId()];
         };
         foreach ($items as $item) {

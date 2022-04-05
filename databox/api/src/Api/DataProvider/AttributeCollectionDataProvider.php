@@ -8,9 +8,7 @@ use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\RenditionClass;
 use App\Security\Voter\AssetVoter;
-use App\Security\Voter\RenditionClassVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -47,12 +45,13 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
             'asset' => $asset->getId(),
         ];
 
-        return $this->em->getRepository(Attribute::class)->findBy($criteria);
+        return $this->em->getRepository(Attribute::class)->findBy($criteria, [
+            'position' => 'ASC',
+        ]);
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Attribute::class === $resourceClass;
     }
-
 }

@@ -69,6 +69,7 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
         $object->setOriginUserId($data->originUserId);
         $object->setOriginVendor($data->originVendor);
         $object->setOriginVendorContext($data->originVendorContext);
+        $object->setPosition($data->position ?? 0);
         if ($data->confidence) {
             $object->setConfidence($data->confidence);
         }

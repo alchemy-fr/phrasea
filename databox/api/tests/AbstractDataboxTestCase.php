@@ -23,6 +23,9 @@ use App\Security\TagFilterManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 abstract class AbstractDataboxTestCase extends ApiTestCase
 {
@@ -247,6 +250,22 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $this->defaultWorkspace = $this->createWorkspace();
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $application = new Application(static::$kernel);
+        $application->setAutoExit(false);
+        $input = new ArrayInput([
+            'command' => 'cache:pool:clear',
+            'pools' => ['doctrine.cache', 'memory.cache']
+        ]);
+        $exitCode = $application->run($input, new NullOutput());
+        if (0 !== $exitCode) {
+            throw new \InvalidArgumentException(sprintf('Failed to clear pool cache'));
+        }
     }
 
     protected function clearEmBeforeApiCall(): void

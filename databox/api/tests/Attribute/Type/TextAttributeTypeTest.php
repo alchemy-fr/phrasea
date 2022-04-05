@@ -7,7 +7,8 @@ namespace App\Tests\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 
-class DummyString {
+class DummyString
+{
     private string $str;
 
     public function __construct(string $str)

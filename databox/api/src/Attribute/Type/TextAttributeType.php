@@ -39,6 +39,8 @@ class TextAttributeType extends AbstractAttributeType
 
         if (IndexMappingUpdater::NO_LOCALE !== $language) {
             $mapping['analyzer'] = 'text_'.$language;
+        } else {
+            $mapping['analyzer'] = 'text';
         }
 
         return $mapping;
@@ -51,7 +53,7 @@ class TextAttributeType extends AbstractAttributeType
         }
 
         try {
-            return (string)$value;
+            return (string) $value;
         } catch (Throwable $e) {
             return null;
         }

@@ -11,7 +11,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 
-class PostFlushStackListener implements EventSubscriber
+final class PostFlushStack implements EventSubscriber
 {
     private array $callbacks = [];
     private array $events = [];

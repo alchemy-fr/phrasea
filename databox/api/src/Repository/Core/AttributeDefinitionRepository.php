@@ -7,17 +7,20 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AttributeDefinition;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class AttributeDefinitionRepository extends EntityRepository
+class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
 {
-    const OPT_TYPES = 'types';
-    const OPT_FACET_ENABLED = 'facet_enabled';
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, AttributeDefinition::class);
+    }
 
     /**
      * @return AttributeDefinition[]
      */
-    public function getSearchableAttributes(?array $workspaceIds = null, ?string $userId, array $groupIds, array $options = []): array
+    public function getSearchableAttributes(?array $workspaceIds, ?string $userId, array $groupIds, array $options = []): array
     {
         $queryBuilder = $this
             ->createQueryBuilder('t')
@@ -73,5 +76,26 @@ class AttributeDefinitionRepository extends EntityRepository
             ->setParameter('ws', $workspaceId)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function getWorkspaceFallbackDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.fallback IS NOT NULL')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getWorkspaceDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
     }
 }

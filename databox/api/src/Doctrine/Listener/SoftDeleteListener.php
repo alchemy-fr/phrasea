@@ -8,11 +8,19 @@ use App\Consumer\Handler\Collection\DeleteCollectionHandler;
 use App\Consumer\Handler\Workspace\DeleteWorkspaceHandler;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
-class SoftDeleteListener extends PostFlushStackListener
+class SoftDeleteListener implements EventSubscriber
 {
+    private PostFlushStack $postFlushStack;
+
+    public function __construct(PostFlushStack $postFlushStack)
+    {
+        $this->postFlushStack = $postFlushStack;
+    }
+
     public function preSoftDelete(LifecycleEventArgs $args): void
     {
         $entity = $args->getEntity();
@@ -24,12 +32,12 @@ class SoftDeleteListener extends PostFlushStackListener
             }
 
             if ($entity instanceof Collection) {
-                $this->addEvent(DeleteCollectionHandler::createEvent($entity->getId()));
+                $this->postFlushStack->addEvent(DeleteCollectionHandler::createEvent($entity->getId()));
 
                 return;
             }
             if ($entity instanceof Workspace) {
-                $this->addEvent(DeleteWorkspaceHandler::createEvent($entity->getId()));
+                $this->postFlushStack->addEvent(DeleteWorkspaceHandler::createEvent($entity->getId()));
 
                 return;
             }
@@ -38,8 +46,8 @@ class SoftDeleteListener extends PostFlushStackListener
 
     public function getSubscribedEvents()
     {
-        return array_merge(parent::getSubscribedEvents(), [
+        return [
             SoftDeleteableListener::PRE_SOFT_DELETE => 'preSoftDelete',
-        ]);
+        ];
     }
 }

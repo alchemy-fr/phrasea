@@ -24,6 +24,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.admin-secured.basicauth.realm=Secured"
+      - "traefik.http.middlewares.admin-secured.basicauth.users=${ADMIN_BASIC_AUTH_USER}"
+      - "traefik.http.routers.traefik-console.middlewares=admin-secured@docker"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
@@ -685,6 +688,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
 
   mailhog:
     profiles:
@@ -696,42 +700,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
-
-  weblate:
-    image: weblate/weblate:4.9.1-1
-    profiles:
-      - weblate
-    volumes:
-      - weblate_vol:/app/data
-    networks:
-      - internal
-    depends_on:
-      - db
-      - redis
-    environment:
-      - WEBLATE_EMAIL_HOST
-      - WEBLATE_EMAIL_PORT
-      - WEBLATE_EMAIL_HOST_USER
-      - WEBLATE_EMAIL_HOST_PASSWORD
-      - WEBLATE_ALLOWED_HOSTS=weblate.${PHRASEA_DOMAIN}
-      - WEBLATE_ADMIN_PASSWORD
-      - WEBLATE_EMAIL_USE_TLS=0
-      - WEBLATE_EMAIL_USE_SSL=0
-      - WEBLATE_ADMIN_EMAIL
-      - WEBLATE_ADMIN_NAME
-      - WEBLATE_SERVER_EMAIL=$WEBLATE_SERVER_EMAIL
-      - WEBLATE_DEFAULT_FROM_EMAIL=weblate@example.com
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - WEBLATE_SITE_DOMAIN=weblate.${PHRASEA_DOMAIN}
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DATABASE=${WEBLATE_POSTGRES_DB}
-      - POSTGRES_HOST
-      - POSTGRES_PORT
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.weblate.rule=Host(`weblate.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
 
   dashboard:
     profiles:
@@ -774,15 +743,6 @@ services:
       - REGISTRY_NAMESPACE
       - REPORT_DB_NAME
       - UPLOADER_API_PORT
-      - WEBLATE_ADMIN_EMAIL
-      - WEBLATE_ADMIN_NAME
-      - WEBLATE_ADMIN_PASSWORD
-      - WEBLATE_ALLOWED_HOSTS
-      - WEBLATE_EMAIL_HOST
-      - WEBLATE_EMAIL_PORT
-      - WEBLATE_PORT
-      - WEBLATE_POSTGRES_DB
-      - WEBLATE_SERVER_EMAIL
       - XDEBUG_ENABLED
       - UPLOADER_API_BASE_URL
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
@@ -801,7 +761,6 @@ services:
       - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}
       - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}
       - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}
-      - WEBLATE_BASE_URL=https://weblate.${PHRASEA_DOMAIN}
       - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
       - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
       - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}
@@ -1051,6 +1010,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
 
   k6:
     profiles:
@@ -1094,11 +1054,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
 
   nginx-cache-purge:
     image: alchemyfr/nginx-cache-purge:1.0.0
     build:
       context: ./infra/docker/nginx-cache-purge
+    networks:
+      - internal
 
 volumes:
   db_vol:
@@ -1110,5 +1073,4 @@ volumes:
   pgadmin_vol:
   rabbitmq_vol:
   elasticsearch_vol:
-  weblate_vol:
   expose_nginx_cache:

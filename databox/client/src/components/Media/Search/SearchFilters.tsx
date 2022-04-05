@@ -1,14 +1,15 @@
 import React from 'react';
 import {Chip} from "@mui/material";
-import {FilterEntry, Filters, FilterValue} from "./Filter";
+import {FilterEntry, Filters} from "./Filter";
+import {extractLabelValueFromKey} from "../Asset/Facets";
 
 type FilterProps = {
     onInvert: () => void;
     onDelete: () => void;
 } & FilterEntry;
 
-function truncate(value: FilterValue, maxLength: number): FilterValue {
-    if (typeof value === 'string' && value.length > maxLength) {
+function truncate(value: string, maxLength: number): string {
+    if (value.length > maxLength) {
         return value.substring(0, maxLength-1)+'…';
     }
 
@@ -23,8 +24,8 @@ function Filter({
                     onDelete,
                 }: FilterProps) {
     return <Chip
-        title={`${t} = "${v.join('" or "')}"`}
-        label={v.map(s => truncate(s, 15)).join(', ')}
+        title={`${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`}
+        label={v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ')}
         onDelete={onDelete}
         onClick={onInvert}
         color={i ? 'error' : 'primary'}

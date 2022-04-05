@@ -25,5 +25,4 @@ class TagFilterRuleVoter extends AbstractVoter
 
         return $this->security->isGranted(PermissionInterface::OWNER, $object);
     }
-
 }

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Api\Model\Input\TagFilterRuleInput;
+use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
-use App\Api\Model\Output\TagFilterRuleOutput;
-use App\Api\Model\Input\TagFilterRuleInput;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(

@@ -118,6 +118,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
             throw $e;
         }
     }
+
     public static function getHandledEvents(): array
     {
         return [self::EVENT];

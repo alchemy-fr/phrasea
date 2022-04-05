@@ -35,6 +35,12 @@
     "clue/stream-filter": {
         "version": "v1.4.1"
     },
+    "composer/package-versions-deprecated": {
+        "version": "1.11.99.4"
+    },
+    "composer/pcre": {
+        "version": "1.0.1"
+    },
     "composer/semver": {
         "version": "1.5.0"
     },
@@ -163,9 +169,6 @@
     "friendsofsymfony/oauth2-php": {
         "version": "1.2.3"
     },
-    "fzaninotto/faker": {
-        "version": "v1.8.0"
-    },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
     },
@@ -204,12 +207,6 @@
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
-    "laminas/laminas-eventmanager": {
-        "version": "3.2.1"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.0.2"
-    },
     "monolog/monolog": {
         "version": "1.25.4"
     },
@@ -244,12 +241,6 @@
     "nikic/php-parser": {
         "version": "v4.9.1"
     },
-    "ocramius/package-versions": {
-        "version": "1.4.0"
-    },
-    "ocramius/proxy-manager": {
-        "version": "2.1.1"
-    },
     "onelogin/php-saml": {
         "version": "3.4.1"
     },
@@ -267,9 +258,6 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php": {
-        "version": "7.4"
     },
     "php-amqplib/php-amqplib": {
         "version": "v2.11.1"
@@ -794,16 +782,7 @@
     "twig/twig": {
         "version": "v2.8.1"
     },
-    "webimpress/safe-writer": {
-        "version": "2.0.1"
-    },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "zendframework/zend-code": {
-        "version": "3.3.1"
-    },
-    "zendframework/zend-eventmanager": {
-        "version": "3.2.1"
     }
 }

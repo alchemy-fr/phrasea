@@ -16,7 +16,7 @@ trait CreatedAtTrait
      * @Gedmo\Timestampable(on="create")
      * @Groups({"_"})
      */
-    private ?DateTimeInterface $createdAt = null;
+    protected ?DateTimeInterface $createdAt = null;
 
     public function getCreatedAt(): DateTimeInterface
     {

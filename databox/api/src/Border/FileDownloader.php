@@ -19,7 +19,7 @@ class FileDownloader
     {
         $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
         $this->client->get($uri, [
-            'sink' => $tmpFile
+            'sink' => $tmpFile,
         ]);
 
         return $tmpFile;

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-use App\Entity\Core\Asset;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 
 class AttributeDefinitionInput
@@ -33,32 +31,32 @@ class AttributeDefinitionInput
     public $fileType;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $editable;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $searchable;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $translatable;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $multiple;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $allowInvalid;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $public;
 
@@ -69,7 +67,7 @@ class AttributeDefinitionInput
 
     /**
      * Language-indexed fallbacks.
-     * i.e: {"en":"English fallback","fr":"Valeur par défaut en français"}
+     * i.e: {"en":"English fallback","fr":"Valeur par défaut en français"}.
      *
      * @var string[]
      */

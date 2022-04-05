@@ -8,12 +8,20 @@ use App\Consumer\Handler\Search\Mapping\UpdateAttributesMappingHandler;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
-class AttributeMappingListener extends PostFlushStackListener
+class AttributeMappingListener implements EventSubscriber
 {
     use ChangeFieldListenerTrait;
+
+    private PostFlushStack $postFlushStack;
+
+    public function __construct(PostFlushStack $postFlushStack)
+    {
+        $this->postFlushStack = $postFlushStack;
+    }
 
     public function postUpdate(LifecycleEventArgs $args): void
     {
@@ -47,16 +55,16 @@ class AttributeMappingListener extends PostFlushStackListener
 
     public function updateWorkspace(string $workspaceId): void
     {
-        $this->addEvent(new EventMessage(UpdateAttributesMappingHandler::EVENT, [
+        $this->postFlushStack->addEvent(new EventMessage(UpdateAttributesMappingHandler::EVENT, [
             'id' => $workspaceId,
         ]));
     }
 
     public function getSubscribedEvents()
     {
-        return array_merge(parent::getSubscribedEvents(), [
+        return [
             Events::postUpdate => 'postUpdate',
             Events::postPersist => 'postPersist',
-        ]);
+        ];
     }
 }

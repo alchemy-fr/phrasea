@@ -1,9 +1,7 @@
 import React, {PureComponent} from "react";
 import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api/asset";
 import {Attribute, AttributeDefinition} from "../../../types";
-import Button from "../../ui/Button";
-import Modal from "../../Layout/Modal";
-import AttributeRow from "./AttributeRow";
+import AttributesEditor, {AttributeIndex, AttrValue, DefinitionIndex} from "./Attribute/AttributesEditor";
 
 type Props = {
     id: string;
@@ -12,20 +10,14 @@ type Props = {
 };
 
 type State = {
-    attributeDefinitions: AttributeDefinition[] | undefined;
-    attributes: Attribute[] | undefined;
+    attributeIndex?: AttributeIndex;
+    definitionIndex?: DefinitionIndex;
 }
 
-type AttrValue = {
-    id: string;
-    value: any;
-}
+export const NO_LOCALE = '_';
 
 export default class EditAssetAttributes extends PureComponent<Props, State> {
-    state: State = {
-        attributeDefinitions: undefined,
-        attributes: undefined,
-    };
+    state: State = {};
 
     componentDidMount() {
         this.loadItem();
@@ -33,93 +25,58 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
 
     async loadItem() {
         const [
-            attributeDefinitions,
+            definitions,
             attributes,
-        ] = await Promise.all([
+        ]: [AttributeDefinition[], Attribute[]] = await Promise.all([
             getWorkspaceAttributeDefinitions(this.props.workspaceId),
             getAssetAttributes(this.props.id),
         ]);
 
-        this.setState({
-            attributeDefinitions,
-            attributes,
-        });
-    }
-
-    renderContent() {
-        const {attributes, attributeDefinitions} = this.state;
-
-        if (!attributeDefinitions || !attributes) {
-            return <div>Loading...</div>
+        const attributeIndex: AttributeIndex = {};
+        const definitionIndex: DefinitionIndex = {};
+        for (let ad of definitions) {
+            attributeIndex[ad.id] = {};
+            definitionIndex[ad.id] = ad;
         }
 
-        const definitions: Record<string, AttributeDefinition> = {};
-        attributeDefinitions.forEach(ad => {
-            definitions[ad.id] = ad;
-        });
-
-        const values: Record<string, AttrValue | AttrValue[] | undefined> = {};
-        for (let ad of attributeDefinitions) {
-            values[ad.id] = undefined;
-        }
         for (let a of attributes) {
+            const l = a.locale || NO_LOCALE;
             const v = {
                 id: a.id,
                 value: a.value,
             };
-            if (definitions[a.definition.id].multiple) {
-                if (!values[a.definition.id]) {
-                    values[a.definition.id] = [];
+
+            if (!attributeIndex[a.definition.id]) {
+                attributeIndex[a.definition.id] = {};
+            }
+
+            if (definitionIndex[a.definition.id].multiple) {
+                if (!attributeIndex[a.definition.id][l]) {
+                    attributeIndex[a.definition.id][l] = [];
                 }
-                (values[a.definition.id]! as AttrValue[]).push(v);
+                (attributeIndex[a.definition.id][l]! as AttrValue[]).push(v);
             } else {
-                values[a.definition.id] = v;
+
+                attributeIndex[a.definition.id][l] = v;
             }
         }
 
-        return attributeDefinitions.map(ad => {
-            const value = values[ad.id] || (ad.multiple ? [] : undefined);
-
-            if (ad.multiple) {
-                return (value as AttrValue[]).map(v => <AttributeRow
-                    id={v.id}
-                    assetId={this.props.id}
-                    name={ad.name}
-                    valueId={v.id}
-                    key={v.id}
-                    type={ad.type}
-                    value={v.value}
-                />)
-            }
-
-            const v = value as AttrValue;
-
-            return <AttributeRow
-                id={ad.id}
-                assetId={this.props.id}
-                key={ad.id}
-                type={ad.type}
-                name={ad.name}
-                value={v ? v.value : undefined}
-                valueId={v ? v.id : undefined}
-            />
-        })
+        this.setState({
+            definitionIndex,
+            attributeIndex,
+        });
     }
 
     render() {
-        return <Modal
-            onClose={this.props.onClose}
-            header={() => <div>Attributes</div>}
-            footer={({onClose}) => <>
-                <Button
-                    onClick={onClose}
-                    className={'btn-secondary'}
-                >
-                    Close
-                </Button>
-            </>}
-        >
-            {this.renderContent()}
-        </Modal>
+        if (!this.state.attributeIndex || !this.state.definitionIndex) {
+            return 'Loading';
+        }
+
+        return <AttributesEditor
+                attributes={this.state.attributeIndex}
+                definitions={this.state.definitionIndex}
+                assetId={this.props.id}
+                onClose={this.props.onClose}
+            />
     }
 }

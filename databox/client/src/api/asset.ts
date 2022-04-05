@@ -1,4 +1,4 @@
-import apiClient from "./api-client";
+import apiClient, {RequestConfig} from "./api-client";
 import {Asset, Attribute, AttributeDefinition} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
@@ -10,7 +10,16 @@ interface AssetOptions {
     parents?: string[];
 }
 
-export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset>> {
+export type ESDebug = {
+    query: object;
+    esQueryTime: number;
+    totalResponseTime: number;
+}
+
+
+export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
+    debug: ESDebug;
+}>> {
     const res = options.url
         ? await apiClient.get(options.url, requestConfig)
         : await apiClient.get('/assets', {
@@ -18,7 +27,14 @@ export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequ
             ...requestConfig,
         });
 
-    return getHydraCollection<Asset>(res.data);
+    return {
+        ...getHydraCollection<Asset>(res.data),
+        debug: {
+            query: res.data['debug:es'].query,
+            esQueryTime: res.data['debug:es'].time,
+            totalResponseTime: (res.config as RequestConfig).meta!.responseTime!,
+        }
+    };
 }
 
 export async function getAsset(id: string): Promise<Asset> {
@@ -37,21 +53,32 @@ export async function getAssetAttributes(assetId: string): Promise<Attribute[]> 
     return res.data['hydra:member'];
 }
 
-export async function putAssetAttribute(id: string | undefined, assetId: string, definitionId: string, value: any): Promise<void> {
+export async function putAssetAttribute(
+    id: string | undefined,
+    assetId: string,
+    definitionId: string,
+    value: any,
+    locale: string | undefined,
+    position?: number
+): Promise<Attribute> {
     if (id) {
-        await apiClient.put(`/attributes/${id}`, {
+        return ((await apiClient.put(`/attributes/${id}`, {
             value,
-        });
-
-        return;
+        })).data);
     }
 
-    await apiClient.post(`/attributes`, {
+    return (await apiClient.post(`/attributes`, {
         origin: 'human',
         asset: `/assets/${assetId}`,
         definition: `/attribute-definitions/${definitionId}`,
         value,
-    });
+        locale,
+        position,
+    })).data;
+}
+
+export async function deleteAssetAttribute(id: string): Promise<void> {
+    await apiClient.delete(`/attributes/${id}`);
 }
 
 export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {

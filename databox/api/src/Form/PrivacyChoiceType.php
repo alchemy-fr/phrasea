@@ -22,5 +22,4 @@ class PrivacyChoiceType extends AbstractType
     {
         return ChoiceType::class;
     }
-
 }

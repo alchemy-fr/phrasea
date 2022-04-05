@@ -4,8 +4,13 @@ import {Checkbox, Collapse, List, ListItem, ListItemSecondaryAction, ListItemTex
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {ExpandLess, ExpandMore} from "@material-ui/icons";
 
+export type BucketKeyValue = string | {
+    value: string;
+    label: string;
+}
+
 type Bucket = {
-    key: string;
+    key: BucketKeyValue;
     doc_count: number;
 }
 
@@ -19,6 +24,20 @@ type Facet = {
 }
 
 export type TFacets = Record<string, Facet>;
+
+export function extractLabelValueFromKey(key: BucketKeyValue): {
+    label: string;
+    value: string;
+} {
+    if (typeof key === 'string') {
+        return {
+            label: key,
+            value: key,
+        };
+    }
+
+    return key;
+}
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,22 +73,23 @@ function FacetRow({
         <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
                 {facet.buckets.map(b => {
-                    const selected = attrFilter && attrFilter.v.includes(b.key);
+                    const {value: keyV, label} = extractLabelValueFromKey(b.key);
+                    const selected = Boolean(attrFilter && attrFilter.v.find(v => extractLabelValueFromKey(v).value === keyV));
 
                     const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
 
                     return <ListItem
                         button
-                        key={b.key}
+                        key={keyV}
                         onClick={onClick}
                     >
-                        <ListItemText secondary={`${b.key} (${b.doc_count})`}/>
+                        <ListItemText secondary={`${label} (${b.doc_count})`}/>
                         <ListItemSecondaryAction>
                             <Checkbox
                                 edge="end"
                                 onChange={onClick}
-                                checked={selected}
-                                inputProps={{ 'aria-labelledby': b.key }}
+                                checked={selected || false}
+                                inputProps={{ 'aria-labelledby': keyV }}
                             />
                         </ListItemSecondaryAction>
                     </ListItem>

@@ -19,15 +19,14 @@ class PostIndexMappingListener implements EventSubscriberInterface
     public function __construct(
         EntityManagerInterface $em,
         IndexMappingUpdater $indexMappingUpdater
-    )
-    {
+    ) {
         $this->em = $em;
         $this->indexMappingUpdater = $indexMappingUpdater;
     }
 
     public function configureIndex(PostIndexMappingBuildEvent $event): void
     {
-        if ($event->getIndex() !== 'asset') {
+        if ('asset' !== $event->getIndex()) {
             return;
         }
 

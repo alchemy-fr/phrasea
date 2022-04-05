@@ -62,12 +62,15 @@ services:
         read_only: true
     environment:
       - ELASTICSEARCH_HOST=report-elasticsearch:9200
-    ports:
-      - "${PS_REPORT_KIBANA_PORT}:5601"
     networks:
       - internal
     depends_on:
       - report-elasticsearch
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.report-kibana.rule=Host(`report-kibana.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.report-kibana.loadbalancer.server.port=5601"
+      - "traefik.http.routers.report-kibana.middlewares=admin-secured@docker"
 
 volumes:
   report_elasticsearch:

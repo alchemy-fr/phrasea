@@ -12,14 +12,12 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
-                            text_fr:
+                            text:
                                 type: custom
                                 tokenizer: whitespace
                                 filter:
                                     - worddelimiter
                                     - lowercase
-                                    - stopwords_fr
-                                    - snowball_fr
                                     - asciifolding
                                     - elision
                             text_en:
@@ -30,6 +28,16 @@ fos_elastica:
                                     - lowercase
                                     - stopwords_en
                                     - snowball_en
+                                    - asciifolding
+                                    - elision
+                            text_fr:
+                                type: custom
+                                tokenizer: whitespace
+                                filter:
+                                    - worddelimiter
+                                    - lowercase
+                                    - stopwords_fr
+                                    - snowball_fr
                                     - asciifolding
                                     - elision
                             text_de:
@@ -88,6 +96,11 @@ fos_elastica:
                     property_path: false
                     type: text
                     analyzer: collection_path
+                    search_analyzer: keyword
+                    fielddata: true
+                    fields:
+                        raw:
+                            type: keyword
                 privacy:
                     property_path: false
                     type: byte

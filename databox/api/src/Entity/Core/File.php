@@ -18,15 +18,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class File extends AbstractUuidEntity
 {
-    public const STORAGE_S3_MAIN = 's3_main';
-    public const STORAGE_URL = 'url';
-
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    public const STORAGE_S3_MAIN = 's3_main';
+    public const STORAGE_URL = 'url';
 
     /**
-     * Override trait for annotation
+     * Override trait for annotation.
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"_"})

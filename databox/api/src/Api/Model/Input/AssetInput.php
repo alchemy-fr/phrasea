@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
@@ -28,9 +27,6 @@ class AssetInput extends AbstractOwnerIdInput
      */
     public $workspace = null;
 
-    /**
-     * @var Collection|null
-     */
     public ?Collection $collection = null;
 
     /**

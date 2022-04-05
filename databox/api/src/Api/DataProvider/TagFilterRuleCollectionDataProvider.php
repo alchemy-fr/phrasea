@@ -6,8 +6,6 @@ namespace App\Api\DataProvider;
 
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
-use App\Elasticsearch\CollectionSearch;
-use App\Entity\Core\Collection;
 use App\Entity\Core\TagFilterRule;
 use Doctrine\ORM\EntityManagerInterface;
 

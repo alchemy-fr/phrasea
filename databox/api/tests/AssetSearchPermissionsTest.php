@@ -277,8 +277,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         array $include,
         array $exclude,
         array $expectedResults
-    ): void
-    {
+    ): void {
         $collection = $this->createCollection();
 
         foreach ($assets as $assetName => $tags) {
@@ -291,7 +290,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         }
         self::releaseIndex();
 
-        $resolveTag = function (string $tagName) use ($collection): string {
+        $resolveTag = function (string $tagName): string {
             $tag = $this->findOrCreateTagByName($tagName);
 
             return $tag->getId();
@@ -323,6 +322,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
                     return true;
                 }
             }
+
             return false;
         };
         foreach ($expectedResults as $expectedName) {

@@ -31,6 +31,7 @@ abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
     }
 
     abstract protected function getIterator(EventMessage $message): iterable;
+
     abstract protected function flushIndexStack(array $stack): void;
 
     protected function getBatchSize(): int

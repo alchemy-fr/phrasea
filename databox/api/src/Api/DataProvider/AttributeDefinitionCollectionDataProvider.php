@@ -6,13 +6,8 @@ namespace App\Api\DataProvider;
 
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
-use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AssetVoter;
-use App\Security\Voter\RenditionClassVoter;
 use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -57,5 +52,4 @@ class AttributeDefinitionCollectionDataProvider implements ContextAwareCollectio
     {
         return AttributeDefinition::class === $resourceClass;
     }
-
 }

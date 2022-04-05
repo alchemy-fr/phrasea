@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
-use Gedmo\SoftDeleteable\SoftDeleteableListener as BaseSoftDeleteableListener;
 use Doctrine\Common\EventArgs;
+use Gedmo\SoftDeleteable\SoftDeleteableListener as BaseSoftDeleteableListener;
 
 /**
- * See https://github.com/doctrine-extensions/DoctrineExtensions/issues/1175#issuecomment-149493409
+ * See https://github.com/doctrine-extensions/DoctrineExtensions/issues/1175#issuecomment-149493409.
  */
 class SoftDeleteableListener extends BaseSoftDeleteableListener
 {
@@ -25,7 +25,7 @@ class SoftDeleteableListener extends BaseSoftDeleteableListener
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onFlush(EventArgs $args)
     {

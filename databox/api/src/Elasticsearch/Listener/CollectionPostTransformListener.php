@@ -6,7 +6,6 @@ namespace App\Elasticsearch\Listener;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
-use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
@@ -90,5 +89,4 @@ class CollectionPostTransformListener implements EventSubscriberInterface
             PostTransformEvent::class => 'hydrateDocument',
         ];
     }
-
 }

@@ -1,9 +1,9 @@
 import {SearchContext} from "./SearchContext";
 import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
-import {getAssets} from "../../../api/asset";
+import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchFiltersContext} from "./SearchFiltersContext";
-import {TFacets} from "../Asset/Facets";
+import {BucketKeyValue, extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import axios from "axios";
 import useHash from "../../../lib/useHash";
@@ -16,6 +16,7 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
     facets: TFacets;
     total: number;
     next: string | null;
+    debug: ESDebug;
 }> {
 
     if (lastController) {
@@ -29,8 +30,9 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
         parents: collectionIds,
         workspaces: workspaceIds,
         url,
-        filters: attrFilters?.map(f => ({
+        filters: attrFilters?.map((f) => ({
             ...f,
+            v: f.v.map(v => extractLabelValueFromKey(v).value),
             t: undefined,
         })),
     };
@@ -44,6 +46,7 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
         facets: result.facets!,
         result: result.result,
         next: result.next,
+        debug: result.debug,
     };
 }
 
@@ -60,6 +63,7 @@ type State = {
     next?: string | null;
     loadNext?: string;
     inc: number;
+    debug?: ESDebug;
 };
 
 type Props = PropsWithChildren<{}>;
@@ -110,6 +114,7 @@ export default function SearchContextProvider({children}: Props) {
                     loading: false,
                     facets: r.facets,
                     inc: 0,
+                    debug: r.debug,
                 }
             });
         }).catch((e) => {
@@ -125,28 +130,30 @@ export default function SearchContextProvider({children}: Props) {
         doSearch();
     };
 
-    const toggleAttrFilter = (attrName: string, value: string, attrTitle: string): void => {
+    const toggleAttrFilter = (attrName: string, keyValue: BucketKeyValue, attrTitle: string): void => {
         setAttrFilters(prev => {
             const f = [...prev];
 
             const key = f.findIndex(_f => _f.a === attrName && !_f.i);
 
             if (key >= 0) {
+                const {value} = extractLabelValueFromKey(keyValue);
+
                 const tf = f[key];
-                if (tf.v.includes(value)) {
+                if (tf.v.find(v => extractLabelValueFromKey(v).value === value)) {
                     if (tf.v.length === 1) {
                         f.splice(key, 1);
                     } else {
-                        tf.v = tf.v.filter(v => v !== value);
+                        tf.v = tf.v.filter(v => extractLabelValueFromKey(v).value !== value);
                     }
                 } else {
-                    tf.v = tf.v.concat(value);
+                    tf.v = tf.v.concat(keyValue);
                 }
             } else {
                 f.push({
                     t: attrTitle,
                     a: attrName,
-                    v: [value],
+                    v: [keyValue],
                 });
             }
 
@@ -200,6 +207,7 @@ export default function SearchContextProvider({children}: Props) {
             pages: state.pages,
             facets: state.facets,
             total: state.total,
+            debug: state.debug,
             loadMore: state.next ? async () => {
                 await doSearch(state.next!);
             } : undefined,

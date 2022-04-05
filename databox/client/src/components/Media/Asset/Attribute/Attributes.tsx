@@ -1,9 +1,16 @@
-import {Asset, Attribute} from "../../../types";
+import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
 
-export function replaceHighlight(value: string) {
-    return reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m) => {
-        return <em className="hl">{m}</em>;
+export function replaceHighlight(value?: string): React.ReactNodeArray {
+    if (!value) {
+        return [];
+    }
+
+    return reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m, index) => {
+        return <em
+            className="hl"
+            key={index}
+        >{m}</em>;
     });
 }
 
@@ -34,9 +41,7 @@ export default function Attributes({
                                        asset,
                                    }: Props) {
     return <div className={'attributes'}>
-        <div className={'attr-title'}>{asset.titleHighlight ? <span dangerouslySetInnerHTML={{
-            __html: asset.titleHighlight,
-        }}/> : asset.title}</div>
+        <div className={'attr-title'}>{asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}</div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}

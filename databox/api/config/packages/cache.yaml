@@ -2,5 +2,9 @@ framework:
     cache:
         pools:
             fos_populate.cache:
+                adapter: cache.adapter.array
+            memory.cache:
+                adapter: cache.adapter.array
+            doctrine.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'

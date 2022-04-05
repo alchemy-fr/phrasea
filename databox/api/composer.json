@@ -64,7 +64,7 @@
         "alchemy/storage-bundle": "*",
         "api-platform/core": "^2.5",
         "arthem/rabbit-bundle": "dev-master",
-        "cocur/slugify": "^4.0",
+        "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
         "doctrine/dbal": "<3",
@@ -112,7 +112,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {
@@ -146,7 +149,7 @@
             "@cache-clear",
             "@auto-scripts"
         ],
-        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && ./bin/phpunit"
+        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

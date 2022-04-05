@@ -13,8 +13,8 @@ use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -51,6 +51,11 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
      * @ORM\Column(type="json", nullable=false)
      */
     private array $enabledLocales = [];
+
+    /**
+     * @ORM\Column(type="json", nullable=false)
+     */
+    private ?array $localeFallbacks = ['en'];
 
     /**
      * @var Collection[]
@@ -187,5 +192,15 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getLocaleFallbacks(): ?array
+    {
+        return $this->localeFallbacks;
+    }
+
+    public function setLocaleFallbacks(?array $localeFallbacks): void
+    {
+        $this->localeFallbacks = $localeFallbacks;
     }
 }

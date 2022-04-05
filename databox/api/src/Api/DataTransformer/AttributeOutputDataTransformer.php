@@ -29,6 +29,7 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->coordinates = $object->getCoordinates();
         $output->locale = $object->getLocale();
         $output->definition = $object->getDefinition();
+        $output->position = $object->getPosition();
 
         return $output;
     }

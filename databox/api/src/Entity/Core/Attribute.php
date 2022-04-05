@@ -7,22 +7,26 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\TranslatableInterface;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
  */
 class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInterface
 {
+    use CreatedAtTrait;
+    use UpdatedAtTrait;
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
+    public const ORIGIN_FALLBACK = 2;
 
     public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
+        self::ORIGIN_FALLBACK => 'fallback',
     ];
 
     const STATUS_VALID = 0;
@@ -34,9 +38,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         self::STATUS_REVIEW_PENDING => 'review_pending',
         self::STATUS_DECLINED => 'declined',
     ];
-
-    use CreatedAtTrait;
-    use UpdatedAtTrait;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="attributes")
@@ -50,16 +51,43 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $locale = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition")
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $position = 0;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
      */
     protected ?AttributeDefinition $definition = null;
 
     /**
-     * Unique ID to group translations of the same attribute
+     * Unique ID to group translations of the same attribute.
+     *
      * @ORM\Column(type="uuid", nullable=true)
      */
     private ?string $translationId = null;
+
+    /**
+     * Unique ID to group translations of the same attribute.
+     *
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Attribute", inversedBy="translations")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?self $translationOrigin = null;
+
+    /**
+     * Hashed value of the original translated string.
+     *
+     * @ORM\Column(type="string", length=32, nullable=true)
+     */
+    private ?string $translationOriginHash = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="translationOrigin", cascade={"remove"})
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?DoctrineCollection $translations = null;
 
     /**
      * @ORM\Column(type="text", nullable=false)
@@ -67,7 +95,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $value = null;
 
     /**
-     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer
+     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer.
      */
     private ?array $values = null;
 
@@ -256,7 +284,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function getSearchDeleteDependencies(): array
     {
         return [
-            $this->getAsset()
+            $this->getAsset(),
         ];
     }
 
@@ -288,5 +316,40 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setHighlights(?array $highlights): void
     {
         $this->highlights = $highlights;
+    }
+
+    public function setCreatedAt(DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function setUpdatedAt(DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getTranslationOrigin(): ?Attribute
+    {
+        return $this->translationOrigin;
+    }
+
+    public function getTranslationOriginHash(): ?string
+    {
+        return $this->translationOriginHash;
+    }
+
+    public function setTranslationOriginHash(?string $translationOriginHash): void
+    {
+        $this->translationOriginHash = $translationOriginHash;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

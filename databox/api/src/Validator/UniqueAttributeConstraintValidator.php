@@ -6,7 +6,6 @@ namespace App\Validator;
 
 use App\Entity\Core\Attribute;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -20,7 +19,7 @@ class UniqueAttributeConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param Attribute      $value
+     * @param Attribute               $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint)

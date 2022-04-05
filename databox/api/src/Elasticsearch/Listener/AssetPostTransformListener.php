@@ -6,15 +6,11 @@ namespace App\Elasticsearch\Listener;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
-use App\Asset\Attribute\FallbackResolver;
+use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,25 +19,22 @@ use Symfony\Contracts\Cache\CacheInterface;
 class AssetPostTransformListener implements EventSubscriberInterface
 {
     private PermissionManager $permissionManager;
-    private EntityManagerInterface $em;
-    private FallbackResolver $variableResolver;
     private AttributeTypeRegistry $attributeTypeRegistry;
     private FieldNameResolver $fieldNameResolver;
     private CacheInterface $cache;
+    private AttributesResolver $attributesResolver;
 
     public function __construct(
         PermissionManager $permissionManager,
-        EntityManagerInterface $em,
-        FallbackResolver $variableResolver,
         AttributeTypeRegistry $attributeTypeRegistry,
-        FieldNameResolver $fieldNameResolver
+        FieldNameResolver $fieldNameResolver,
+        AttributesResolver $attributesResolver
     ) {
         $this->permissionManager = $permissionManager;
-        $this->em = $em;
-        $this->variableResolver = $variableResolver;
         $this->attributeTypeRegistry = $attributeTypeRegistry;
         $this->fieldNameResolver = $fieldNameResolver;
         $this->disableCache();
+        $this->attributesResolver = $attributesResolver;
     }
 
     public function setCache(CacheInterface $cache): void
@@ -98,7 +91,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 return [
                     $absPath,
                     $cUsers,
-                    $cGroups
+                    $cGroups,
                 ];
             });
 
@@ -118,78 +111,31 @@ class AssetPostTransformListener implements EventSubscriberInterface
     {
         $data = [];
 
-        /** @var Attribute[] $attributes */
-        $attributes = $this->em->getRepository(Attribute::class)
-            ->createQueryBuilder('a')
-            ->innerJoin('a.definition', 'd')
-            ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.searchable = true')
-            ->andWhere('a.asset = :asset')
-            ->setParameter('asset', $asset->getId())
-            ->setParameter('workspace', $asset->getWorkspaceId())
-            ->getQuery()
-            ->getResult();
+        $attributes = $this->attributesResolver->resolveAttributes($asset);
 
-        foreach ($attributes as $a) {
-            $definition = $a->getDefinition();
-            $v = $a->getValue();
-            $fieldName = $this->fieldNameResolver->getFieldName($definition);
-            $l = $a->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
+        foreach ($attributes as $_attrs) {
+            foreach ($_attrs as $l => $a) {
+                $definition = $a->getDefinition();
 
-            if (null !== $v) {
-                $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-                $v = $type->normalizeValue($v);
-            }
+                if (!$definition->isSearchable()) {
+                    continue;
+                }
 
-            if (!empty($v)) {
-                if ($definition->isMultiple()) {
-                    if (!isset($data[$l][$fieldName])) {
-                        $data[$l][$fieldName] = [];
-                    }
-                    $data[$l][$fieldName][] = $v;
-                } else {
+                $v = $definition->isMultiple() ? $a->getValues() : $a->getValue();
+
+                if (null !== $v) {
+                    $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+                    $v = $type->normalizeValue($v);
+                }
+
+                if (!empty($v)) {
+                    $fieldName = $this->fieldNameResolver->getFieldName($definition);
                     $data[$l][$fieldName] = $v;
                 }
             }
         }
 
-        $workspaceId = $asset->getWorkspaceId();
-        /** @var AttributeDefinition[] $definitions */
-        $definitions = $this->cache->get(sprintf('def_%s', $workspaceId), function () use ($workspaceId): array {
-            return $this->em->getRepository(AttributeDefinition::class)
-                    ->createQueryBuilder('d')
-                    ->andWhere('d.fallback IS NOT NULL')
-                    ->andWhere('d.workspace = :workspace')
-                    ->setParameter('workspace', $workspaceId)
-                    ->getQuery()
-                    ->getResult();
-        });
-
-        foreach ($definitions as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition);
-
-            if (null !== $definition->getFallback()) {
-                foreach ($definition->getFallback() as $locale => $fallback) {
-                    if (!isset($data[$locale][$fieldName])) {
-                        $fallbackValue = $this->resolveFallback($fallback, $asset);
-                        if ($definition->isMultiple()) {
-                            $fallbackValue = [$fallbackValue];
-                        }
-                        $data[$locale][$fieldName] = $fallbackValue;
-                    }
-                }
-            }
-        }
-
         return [$data];
-    }
-
-    private function resolveFallback(string $fallback, Asset $asset): string
-    {
-        return $this->variableResolver->resolveFallback($fallback, [
-            'file' => $asset->getFile(),
-            'asset' => $asset,
-        ]);
     }
 
     public static function getSubscribedEvents()
@@ -198,5 +144,4 @@ class AssetPostTransformListener implements EventSubscriberInterface
             PostTransformEvent::class => 'hydrateDocument',
         ];
     }
-
 }

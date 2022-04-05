@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Doctrine\TagAwareQueryResultCache;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use Doctrine\ORM\EntityRepository;
+use App\Repository\Cache\CacheRepositoryInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class AttributeRepository extends EntityRepository
+class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface, CacheRepositoryInterface
 {
+    private TagAwareCacheInterface $doctrineCache;
+
+    public function __construct(ManagerRegistry $registry, TagAwareCacheInterface $doctrineCache)
+    {
+        parent::__construct($registry, Attribute::class);
+        $this->doctrineCache = $doctrineCache;
+    }
+
     /**
      * @return string[]
      */
@@ -20,9 +32,11 @@ class AttributeRepository extends EntityRepository
             ->select('a')
             ->andWhere('a.definition = :definition')
             ->andWhere('a.asset = :asset')
+            ->andWhere('a.locale = :locale')
             ->andWhere('a.id != :id')
             ->setParameter('definition', $attribute->getDefinition()->getId())
             ->setParameter('asset', $attribute->getAsset()->getId())
+            ->setParameter('locale', $attribute->getLocale())
             ->setParameter('id', $attribute->getId())
             ->getQuery()
             ->getResult();
@@ -30,13 +44,29 @@ class AttributeRepository extends EntityRepository
 
     public function getAssetAttributes(Asset $asset): array
     {
-        return $this
+        $query = $this
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.asset = :asset')
             ->setParameter('asset', $asset->getId())
             ->addOrderBy('a.definition', 'ASC')
-            ->getQuery()
+            ->addOrderBy('a.position', 'ASC')
+            ->getQuery();
+
+        $query
+            ->setResultCache(new TagAwareQueryResultCache($this->doctrineCache, [self::LIST_TAG]))
+            ->setResultCacheId('attr_'.$asset->getId());
+
+        return $query
             ->getResult();
+    }
+
+    public function invalidateEntity(string $id): void
+    {
+    }
+
+    public function invalidateList(): void
+    {
+        $this->doctrineCache->invalidateTags([self::LIST_TAG]);
     }
 }

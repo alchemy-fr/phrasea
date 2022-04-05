@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Border;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Border\Exception\FileInputValidationException;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
@@ -13,7 +12,6 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Storage\RenditionPathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 
 class BorderManager
 {
@@ -27,8 +25,7 @@ class BorderManager
         FileDownloader $fileDownloader,
         FileStorageManager $storageManager,
         RenditionPathGenerator $pathGenerator
-    )
-    {
+    ) {
         $this->em = $em;
         $this->fileDownloader = $fileDownloader;
         $this->storageManager = $storageManager;

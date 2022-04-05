@@ -11,6 +11,8 @@ import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndProvider} from "react-dnd";
 import SearchFiltersProvider from "./Media/Search/SearchFiltersProvider";
 import AssetDropzone from "./Media/Asset/AssetDropzone";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
     const [menuOpen, setMenuOpen] = useState(true);
@@ -26,6 +28,7 @@ export default function App() {
     const toggleMenu = () => setMenuOpen(open => !open);
 
     return <>
+        <ToastContainer />
         <SearchFiltersProvider>
             <SearchContextProvider>
                 <AssetDropzone>

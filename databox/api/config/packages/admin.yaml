@@ -23,6 +23,7 @@ easy_admin:
           - Asset
           - File
           - Attribute
+          - AssetTitleAttribute
           - AttributeDefinition
           - Tag
           - TagFilterRule
@@ -75,6 +76,25 @@ easy_admin:
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
 
+    AssetTitleAttribute:
+      class: App\Entity\Core\AssetTitleAttribute
+      list:
+        max_results: 200
+        filters: ['workspace', 'definition']
+        sort: [workspace, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'workspace' }
+          - { property: 'definition' }
+          - { property: 'priority' }
+          - { property: 'overrides' }
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'definition' }
+          - { property: 'priority' }
+          - { property: 'overrides' }
+
     File:
       class: App\Entity\Core\File
       list:
@@ -125,6 +145,7 @@ easy_admin:
           - { property: 'name' }
           - { property: 'slug' }
           - { property: 'enabledLocales', type: array }
+          - { property: 'localeFallbacks', type: array }
           - updatedAt
           - createdAt
       form:
@@ -133,6 +154,7 @@ easy_admin:
           - { property: 'slug' }
           - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
+          - { property: 'localeFallbacks', type: collection }
           - { property: 'phraseanetDataboxId', type: number }
 
     RenditionDefinition:
@@ -320,12 +342,17 @@ easy_admin:
           - { property: 'searchable' }
           - { property: 'searchBoost', type: number }
           -
+            property: fallbackAll
+            label: "Fallback value template (no locale)"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
+          -
             property: fallbackEN
             label: "Fallback value template EN"
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
-
           -
             property: fallbackFR
             label: "Fallback value template FR"

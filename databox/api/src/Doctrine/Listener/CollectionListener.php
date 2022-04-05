@@ -7,12 +7,20 @@ namespace App\Doctrine\Listener;
 use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
-class CollectionListener extends PostFlushStackListener
+class CollectionListener implements EventSubscriber
 {
     use ChangeFieldListenerTrait;
+
+    private PostFlushStack $postFlushStack;
+
+    public function __construct(PostFlushStack $postFlushStack)
+    {
+        $this->postFlushStack = $postFlushStack;
+    }
 
     public function postUpdate(LifecycleEventArgs $args): void
     {
@@ -29,15 +37,15 @@ class CollectionListener extends PostFlushStackListener
             return;
         }
 
-        $this->addEvent(new EventMessage(IndexCollectionBranchHandler::EVENT, [
+        $this->postFlushStack->addEvent(new EventMessage(IndexCollectionBranchHandler::EVENT, [
             'id' => $entity->getId(),
         ]));
     }
 
     public function getSubscribedEvents()
     {
-        return array_merge(parent::getSubscribedEvents(), [
+        return [
             Events::postUpdate => 'postUpdate',
-        ]);
+        ];
     }
 }

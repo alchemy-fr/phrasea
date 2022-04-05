@@ -30,7 +30,6 @@ class AlternateUrlOutput extends AbstractUuidOutput
         $this->label = $label;
     }
 
-
     public function getUrl(): string
     {
         return $this->url;

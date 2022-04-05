@@ -48,7 +48,7 @@ RUN set -eux \
 	&& apk del .build-deps \
 	&& adduser -D -u 1000 app
 
-COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.3.2 /usr/bin/composer /usr/bin/composer
 
 ENV NODE_VERSION 14.18.2
 

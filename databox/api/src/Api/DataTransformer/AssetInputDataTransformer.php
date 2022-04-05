@@ -10,7 +10,7 @@ use App\Api\Model\Input\AssetSourceInput;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Consumer\Handler\File\ImportRenditionHandler;
-use App\Doctrine\Listener\PostFlushStackListener;
+use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -25,18 +25,17 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
     use WithOwnerIdDataTransformerTrait;
 
-    private PostFlushStackListener $postFlushStackListener;
+    private PostFlushStack $postFlushStackListener;
     private EntityManagerInterface $em;
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
 
     public function __construct(
-        PostFlushStackListener $postFlushStackListener, 
+        PostFlushStack $postFlushStackListener,
         EntityManagerInterface $em,
         OriginalRenditionManager $originalRenditionManager,
         AttributeInputDataTransformer $attributeInputDataTransformer
-    )
-    {
+    ) {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;

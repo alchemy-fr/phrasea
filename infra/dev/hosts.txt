@@ -15,7 +15,6 @@
 127.0.0.1 saml-idp.${PHRASEA_DOMAIN}
 127.0.0.1 pma.${PHRASEA_DOMAIN}
 127.0.0.1 mailhog.${PHRASEA_DOMAIN}
-127.0.0.1 weblate.${PHRASEA_DOMAIN}
 127.0.0.1 dashboard.${PHRASEA_DOMAIN}
 127.0.0.1 databox.${PHRASEA_DOMAIN}
 127.0.0.1 elastichq.${PHRASEA_DOMAIN}

@@ -34,6 +34,11 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
+    private ?string $resolvedTitle = null;
+
+    /**
+     * @Groups({"asset:index", "asset:read"})
+     */
     private ?string $titleHighlight = null;
 
     /**
@@ -191,5 +196,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setTitleHighlight(?string $titleHighlight): void
     {
         $this->titleHighlight = $titleHighlight;
+    }
+
+    public function getResolvedTitle(): ?string
+    {
+        return $this->resolvedTitle;
+    }
+
+    public function setResolvedTitle(?string $resolvedTitle): void
+    {
+        $this->resolvedTitle = $resolvedTitle;
     }
 }

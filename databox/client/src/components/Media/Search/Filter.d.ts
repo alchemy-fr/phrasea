@@ -1,11 +1,10 @@
-
-type FilterValue = string | number | boolean;
+import {BucketKeyValue} from "../Asset/Facets";
 
 export type FilterEntry = {
     t: string; // Attribute title
     a: string; // Attribute name
     i?: 1 | undefined; // Inverted
-    v: FilterValue[];
+    v: BucketKeyValue[];
 }
 
 export type Filters = FilterEntry[];

@@ -33,8 +33,8 @@ class IndexCleaner
                     'query' => [
                         'term' => [
                             'workspaceId' => $workspaceId,
-                        ]
-                    ]
+                        ],
+                    ],
                 ]
             );
         }
@@ -48,8 +48,8 @@ class IndexCleaner
                 'query' => [
                     'term' => [
                         'referenceCollectionId' => $collectionId,
-                    ]
-                ]
+                    ],
+                ],
             ]
         );
     }

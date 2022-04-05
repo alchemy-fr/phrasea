@@ -6,14 +6,12 @@ namespace App\Entity\Traits;
 
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 trait WorkspaceTrait
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 

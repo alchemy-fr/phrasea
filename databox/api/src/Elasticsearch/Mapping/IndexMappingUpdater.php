@@ -72,7 +72,7 @@ class IndexMappingUpdater
             'meta' => [
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
-            ]
+            ],
         ], $type->getElasticSearchMapping($language, $definition));
     }
 
@@ -102,6 +102,7 @@ class IndexMappingUpdater
         }
 
         $indexName = $this->getAliasedIndex($this->index->getName());
+
         $this->client->request($indexName.'/_mapping',
             'PUT',
             $newMapping
@@ -116,7 +117,7 @@ class IndexMappingUpdater
 
         $workspace = $definition->getWorkspace();
 
-        $assign = function (string $locale) use ($fieldName, $definition, &$newMapping, &$upsert): void {
+        $assign = function (string $locale) use ($existingAttributes, $fieldName, $definition, &$newMapping, &$upsert): void {
             if (isset($existingAttributes[$locale][$fieldName])) {
                 $a = $existingAttributes[$locale][$fieldName];
 

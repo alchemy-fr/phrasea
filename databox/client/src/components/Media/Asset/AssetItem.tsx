@@ -12,7 +12,7 @@ import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
 import {draggableTypes} from "../draggableTypes";
 import AssetPreviewWrapper from "./AssetPreviewWrapper";
 import EditAssetAttributes from "./EditAssetAttributes";
-import {replaceHighlight} from "./Attributes";
+import {replaceHighlight} from "./Attribute/Attributes";
 
 export interface DragSourceProps {
     connectDragSource: ConnectDragSource
@@ -129,7 +129,7 @@ class AssetItem extends Component<AllProps, State> {
     render() {
         const {
             id,
-            title,
+            resolvedTitle,
             titleHighlight,
             description,
             workspace,
@@ -154,7 +154,7 @@ class AssetItem extends Component<AllProps, State> {
 
         const opacity = isDragging ? 0.4 : 1;
 
-        const titleNode = replaceHighlight(titleHighlight  || title);
+        const titleNode = replaceHighlight(titleHighlight  || resolvedTitle);
 
         return connectDragSource(
             <div
@@ -170,7 +170,7 @@ class AssetItem extends Component<AllProps, State> {
                         onClick={this.onClick}
                         className={`asset-item ${selected ? 'selected' : ''}`}
                     >
-                        <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={title}/>
+                        <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={resolvedTitle}/>
                         <ImageListItemBar
                             title={titleNode}
                             subtitle={<div>

@@ -11,7 +11,7 @@ import Icon from "../../ui/Icon";
 import {ReactComponent as FolderImg} from "../../../images/icons/folder.svg";
 
 type FormProps = {
-    title: string;
+    title: string | undefined;
     privacy: number;
 }
 
