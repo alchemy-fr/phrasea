@@ -268,7 +268,6 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
     }
 
-
     protected function clearEmBeforeApiCall(): void
     {
         self::getEntityManager()->clear();

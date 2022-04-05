@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-class ApiMetaWrapperOutput
+use Traversable;
+
+class ApiMetaWrapperOutput implements \IteratorAggregate
 {
-    private iterable $result;
+    private Traversable $result;
     private array $meta = [];
 
-    public function __construct(iterable $result)
+    public function __construct(Traversable $result)
     {
         $this->result = $result;
     }
@@ -27,5 +29,10 @@ class ApiMetaWrapperOutput
     public function setMeta($key, $value): void
     {
         $this->meta[$key] = $value;
+    }
+
+    public function getIterator(): Traversable
+    {
+        return $this->result;
     }
 }
