@@ -335,6 +335,10 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=expose-api
+      - CLOUD_FRONT_URL
+      - CLOUD_FRONT_REGION
+      - CLOUD_FRONT_PRIVATE_KEY
+      - CLOUD_FRONT_KEY_PAIR_ID
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -377,6 +381,10 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=expose-worker
+      - CLOUD_FRONT_URL
+      - CLOUD_FRONT_REGION
+      - CLOUD_FRONT_PRIVATE_KEY
+      - CLOUD_FRONT_KEY_PAIR_ID
     extra_hosts:
       - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 

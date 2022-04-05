@@ -18,11 +18,11 @@ class JWTManager
     private string $baseUri;
     private int $ttl;
 
-    public function __construct(string $signingKey, string $baseUri, int $ttl)
+    public function __construct(string $signingKey, string $baseUri, int $requestSignatureTtl)
     {
         $this->signingKey = $signingKey;
         $this->baseUri = $baseUri;
-        $this->ttl = $ttl;
+        $this->ttl = $requestSignatureTtl;
     }
 
     public function signUri(string $uri, ?int $ttl = null): string
