@@ -75,6 +75,6 @@ class IndexSyncState
 
         $expectedMapping = $this->getCurrentConfigMapping($indexName);
 
-        return $this->mappingDiff->shouldReindex($expectedMapping, $stateMapping);
+        return $this->mappingDiff->shouldReindex($stateMapping, $expectedMapping);
     }
 }
