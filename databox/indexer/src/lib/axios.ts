@@ -35,7 +35,7 @@ export function createHttpClient({
             logger.warn(`Request "${config.method.toUpperCase()} ${config.url}" failed, retrying...`);
 
             if (error.response) {
-                if ([500, 400, 404].includes(error.response.status)) {
+                if ([500, 400, 404, 403, 401].includes(error.response.status)) {
                     return false;
                 }
             }
@@ -53,14 +53,15 @@ export function createHttpClient({
             logger.error(error.message);
             if (error.response) {
                 let filtered = error.response.data;
-                if (error.response.data.trace) {
+
+                if (typeof filtered === 'object' && filtered.trace) {
                     filtered = {
                         ...filtered,
                         trace: ['filtered...'],
                     }
                 }
 
-                logger.error(JSON.stringify(filtered, undefined, 2));
+                logger.error('Error response: '+JSON.stringify(filtered, undefined, 2));
             }
 
             return Promise.reject(error);

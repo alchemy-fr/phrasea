@@ -144,8 +144,5 @@ services:
         class:  App\Serializer\HydraMetaNormalizer
         public: true
 
-    App\Repository\Cache\AttributeRepositoryMemoryCachedDecorator:
-        decorates: 'App\Repository\Core\AttributeRepository'
-
     App\Repository\Cache\AttributeDefinitionRepositoryMemoryCachedDecorator:
         decorates: 'App\Repository\Core\AttributeDefinitionRepository'
