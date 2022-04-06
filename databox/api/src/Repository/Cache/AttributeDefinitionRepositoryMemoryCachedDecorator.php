@@ -37,7 +37,7 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
 
     public function findByKey(string $key, string $workspaceId): ?AttributeDefinition
     {
-        return $this->findByKey($key, $workspaceId);
+        return $this->decorated->findByKey($key, $workspaceId);
     }
 
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
