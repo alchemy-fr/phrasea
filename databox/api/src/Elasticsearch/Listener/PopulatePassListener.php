@@ -16,18 +16,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PopulatePassListener implements EventSubscriberInterface
 {
-    private IndexManager $indexManager;
     private array $pendingPasses = [];
     private EntityManagerInterface $em;
     private IndexSyncState $indexSyncState;
 
     public function __construct(
-        IndexManager $indexManager,
         EntityManagerInterface $em,
         IndexSyncState $indexSyncState
     )
     {
-        $this->indexManager = $indexManager;
         $this->em = $em;
         $this->indexSyncState = $indexSyncState;
     }
@@ -35,7 +32,6 @@ class PopulatePassListener implements EventSubscriberInterface
     public function preIndexPopulate(PreIndexPopulateEvent $event)
     {
         $indexName = $event->getIndex();
-        $index = $this->indexManager->getIndex($indexName);
 
         $currentPopulate = $this->em->getRepository(PopulatePass::class)->findOneBy([
             'endedAt' => null,
@@ -46,10 +42,10 @@ class PopulatePassListener implements EventSubscriberInterface
         }
 
         $populatePass = new PopulatePass();
-        $populatePass->setIndexName($index->getName());
+        $populatePass->setIndexName($indexName);
 
-        $mapping = $index->getMapping();
-        $entityName = $mapping['_meta']['model'];
+        $mapping = $this->indexSyncState->getCurrentConfigMapping($indexName);
+        $entityName = $mapping['mappings']['_meta']['model'];
         $populatePass->setMapping($mapping);
 
         $count = $this->em->getRepository($entityName)
