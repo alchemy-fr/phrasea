@@ -65,7 +65,10 @@ final class CacheListener implements EventSubscriberInterface
 
         if (null !== $cache = $request->attributes->get(self::CACHE_ATTR)) {
             $response = $event->getResponse();
-            $response->setCache($cache);
+
+            if ($response->getStatusCode() < 300) {
+                $response->setCache($cache);
+            }
         }
     }
 }
