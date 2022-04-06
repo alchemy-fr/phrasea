@@ -6,7 +6,6 @@ namespace App\Repository\Cache;
 
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
-use App\Repository\Core\AttributeRepositoryInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -17,13 +16,11 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
     public const LIST_TAG = 'attr_def_list';
 
     private TagAwareCacheInterface $cache;
-    private AttributeRepositoryInterface $attributeRepository;
 
-    public function __construct(AttributeDefinitionRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache, AttributeRepositoryMemoryCachedDecorator $attributeRepository)
+    public function __construct(AttributeDefinitionRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache)
     {
         $this->decorated = $decorated;
         $this->cache = $memoryCache;
-        $this->attributeRepository = $attributeRepository;
     }
 
     public function getSearchableAttributes(
@@ -68,9 +65,5 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
             self::LIST_TAG,
             AttributeRepositoryMemoryCachedDecorator::LIST_TAG,
         ]);
-
-        if ($this->attributeRepository instanceof CacheRepositoryInterface) {
-            $this->attributeRepository->invalidateList();
-        }
     }
 }
