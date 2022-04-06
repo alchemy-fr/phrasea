@@ -53,7 +53,7 @@ class PopulatePassListener implements EventSubscriberInterface
             ->select('COUNT(t) as total')
             ->getQuery()
             ->getSingleScalarResult();
-        $populatePass->setDocumentCount($count);
+        $populatePass->setDocumentCount((int) $count);
 
         $this->em->persist($populatePass);
         $this->em->flush();
