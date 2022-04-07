@@ -63,7 +63,6 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
     {
         $this->cache->invalidateTags([
             self::LIST_TAG,
-            AttributeRepositoryMemoryCachedDecorator::LIST_TAG,
         ]);
     }
 }
