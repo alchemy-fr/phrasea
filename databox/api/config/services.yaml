@@ -121,8 +121,16 @@ services:
 
     App\Elasticsearch\Mapping\IndexMappingUpdater:
         arguments:
-            $client: '@fos_elastica.client'
             $index: '@fos_elastica.index.asset'
+
+    App\Elasticsearch\Mapping\ElasticsearchClient:
+        arguments:
+            $client: '@fos_elastica.client'
+
+    App\Elasticsearch\Mapping\IndexSyncState:
+        arguments:
+            $configManager: '@fos_elastica.config_manager'
+            $mappingBuilder: '@fos_elastica.mapping_builder'
 
     App\Elasticsearch\IndexCleaner:
         arguments:

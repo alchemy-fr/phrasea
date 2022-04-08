@@ -32,6 +32,10 @@ easy_admin:
           - RenditionClass
           - RenditionRule
           - AlternateUrl
+      - label: 'Admin'
+        children:
+          - PopulatePass
+          - ESIndexState
       - OAuthClient
       - label: 'Dev'
         children:
@@ -396,3 +400,52 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'type' }
           - { property: 'label' }
+
+    PopulatePass:
+      class: App\Entity\Admin\PopulatePass
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+          - show
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'indexName', label: 'Index' }
+          - { property: 'documentCount' }
+          - { property: 'timeTakenUnit', label: 'Time taken' }
+          - { property: 'endedAt' }
+          - { property: 'createdAt' }
+
+        show:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'indexName', label: 'Index' }
+          - { property: 'timeTakenUnit', label: 'Time taken' }
+          - { property: 'mapping' }
+          - { property: 'endedAt' }
+          - { property: 'createdAt' }
+
+    ESIndexState:
+      class: App\Entity\Admin\ESIndexState
+      list:
+        actions:
+          - '-new'
+          - '-edit'
+          - show
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'indexName', label: 'Index' }
+          - { property: 'createdAt' }
+          - { property: 'updatedAt' }
+
+        show:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'indexName', label: 'Index' }
+          - { property: 'mapping' }
+          - { property: 'createdAt' }
+          - { property: 'updatedAt' }

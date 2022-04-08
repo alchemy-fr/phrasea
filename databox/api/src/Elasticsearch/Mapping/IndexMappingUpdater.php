@@ -9,23 +9,20 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Util\LocaleUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Elastica\Index;
-use FOS\ElasticaBundle\Exception\AliasIsIndexException;
-use RuntimeException;
 
 class IndexMappingUpdater
 {
     public const NO_LOCALE = '_';
 
-    private Client $client;
+    private ElasticsearchClient $client;
     private Index $index;
     private EntityManagerInterface $em;
     private AttributeTypeRegistry $attributeTypeRegistry;
     private FieldNameResolver $fieldNameResolver;
 
     public function __construct(
-        Client $client,
+        ElasticsearchClient $client,
         Index $index,
         EntityManagerInterface $em,
         AttributeTypeRegistry $attributeTypeRegistry,
@@ -101,12 +98,9 @@ class IndexMappingUpdater
             $this->assignAttributeDefinitionToMapping($newMapping, $definition, $attributes);
         }
 
-        $indexName = $this->getAliasedIndex($this->index->getName());
+        $indexName = $this->client->getAliasedIndex($this->index->getName());
 
-        $this->client->request($indexName.'/_mapping',
-            'PUT',
-            $newMapping
-        );
+        $this->client->updateMapping($indexName, $newMapping);
     }
 
     public function assignAttributeDefinitionToMapping(array &$newMapping, AttributeDefinition $definition, array $existingAttributes = []): bool
@@ -151,37 +145,5 @@ class IndexMappingUpdater
     private function isSameMapping(array $mapping, AttributeDefinition $definition, string $locale): bool
     {
         return empty(array_diff($mapping, $this->getFieldMapping($definition, $locale)));
-    }
-
-    /**
-     * Returns the name of a single index that an alias points to or throws
-     * an exception if there is more than one.
-     *
-     * @throws AliasIsIndexException
-     */
-    private function getAliasedIndex(string $aliasName): ?string
-    {
-        $aliasesInfo = $this->client->request('_aliases', 'GET')->getData();
-        $aliasedIndexes = [];
-
-        foreach ($aliasesInfo as $indexName => $indexInfo) {
-            if ($indexName === $aliasName) {
-                throw new AliasIsIndexException($indexName);
-            }
-            if (!isset($indexInfo['aliases'])) {
-                continue;
-            }
-
-            $aliases = array_keys($indexInfo['aliases']);
-            if (in_array($aliasName, $aliases, true)) {
-                $aliasedIndexes[] = $indexName;
-            }
-        }
-
-        if (count($aliasedIndexes) > 1) {
-            throw new RuntimeException(sprintf('Alias "%s" is used for multiple indexes: ["%s"]. Make sure it\'s'.'either not used or is assigned to one index only', $aliasName, implode('", "', $aliasedIndexes)));
-        }
-
-        return array_shift($aliasedIndexes);
     }
 }
