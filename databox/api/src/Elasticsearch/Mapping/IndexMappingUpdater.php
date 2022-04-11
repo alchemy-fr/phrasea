@@ -62,7 +62,6 @@ class IndexMappingUpdater
     private function getFieldMapping(AttributeDefinition $definition, string $locale): array
     {
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-        $language = LocaleUtils::extractLanguageFromLocale($locale);
 
         return array_merge([
             'type' => $type->getElasticSearchType(),
@@ -70,7 +69,7 @@ class IndexMappingUpdater
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
             ],
-        ], $type->getElasticSearchMapping($language, $definition));
+        ], $type->getElasticSearchMapping($locale, $definition));
     }
 
     public function synchronizeWorkspace(Workspace $workspace): void

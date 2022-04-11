@@ -149,6 +149,7 @@ export default function AttributesEditor({
             await Promise.all(Object.keys(remoteAttrs).map(async (defId): Promise<void> => {
                 await Promise.all(Object.keys(remoteAttrs[defId]).map(async (locale) => {
                     const v = remoteAttrs[defId][locale];
+                    console.log('v', v);
 
                     if (v instanceof Array) {
                         await Promise.all(v.map(async (value: AttrValue<string | number>) => {

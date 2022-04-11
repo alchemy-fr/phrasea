@@ -4,6 +4,7 @@ import {AttributeDefinition} from "../../../../types";
 import {AttrValue, LocalizedAttributeIndex, OnChangeHandler} from "./AttributesEditor";
 import MultiAttributeRow from "./MultiAttributeRow";
 import {NO_LOCALE} from "../EditAssetAttributes";
+import {isRtlLocale} from "../../../../lib/lang";
 
 type Props = {
     definition: AttributeDefinition;
@@ -18,6 +19,7 @@ export default function AttributeType({
                                           disabled,
                                           onChange,
                                       }: Props) {
+
     const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
         const na = {...attributes};
 
@@ -38,7 +40,8 @@ export default function AttributeType({
                 return <div className={'form-group'}>
                     {definition.multiple ? <MultiAttributeRow
                         disabled={disabled}
-                        type={definition.type}
+                        type={definition.fieldType}
+                        isRtl={isRtlLocale(locale)}
                         name={label}
                         values={(attributes[locale] || []) as AttrValue<string | number>[]}
                         onChange={(values) => changeHandler(locale, values)}
@@ -46,7 +49,8 @@ export default function AttributeType({
                     /> : <AttributeWidget
                         value={attributes[locale] as AttrValue<string | number> | undefined}
                         disabled={disabled}
-                        type={definition.type}
+                        type={definition.fieldType}
+                        isRtl={isRtlLocale(locale)}
                         name={label}
                         required={false}
                         onChange={(v) => changeHandler(locale, v)}
@@ -61,18 +65,20 @@ export default function AttributeType({
         className={'form-group'}
     >
         {definition.multiple ? <MultiAttributeRow
+            isRtl={false}
             disabled={disabled}
-            type={definition.type}
+            type={definition.fieldType}
             name={definition.name}
             values={(attributes[NO_LOCALE] || []) as AttrValue<string | number>[]}
             onChange={(values) => changeHandler(NO_LOCALE, values)}
             id={definition.id}
         /> : <AttributeWidget
+            isRtl={false}
             value={attributes[NO_LOCALE] as AttrValue<string | number> | undefined}
             required={false}
             disabled={disabled}
             name={definition.name}
-            type={definition.type}
+            type={definition.fieldType}
             onChange={(v) => changeHandler(NO_LOCALE, v)}
             id={definition.id}
         />}

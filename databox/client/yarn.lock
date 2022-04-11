@@ -10465,6 +10465,11 @@ react-loader-spinner@^3.1.14:
     babel-runtime "^6.26.0"
     prop-types "^15.7.2"
 
+react-nl2br@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-nl2br/-/react-nl2br-1.0.3.tgz#fb1500b12527cd7df5a78c70e9489ff1955ea76e"
+  integrity sha512-TXKX/PggEJtURACse1BCfdYjXMvfpZA0i0B22krD8klPvb1IX8Ws2nniv4RsJgi1Tc8JM0xsKP3BxRK/eRluAQ==
+
 react-overlays@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/react-overlays/-/react-overlays-5.1.1.tgz#2e7cf49744b56537c7828ccb94cfc63dd778ae4f"

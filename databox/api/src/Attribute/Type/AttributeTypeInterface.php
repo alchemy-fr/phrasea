@@ -15,7 +15,7 @@ interface AttributeTypeInterface
 
     public function supportsAggregation(): bool;
 
-    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array;
+    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array;
 
     /**
      * Normalize value for Elastic search.

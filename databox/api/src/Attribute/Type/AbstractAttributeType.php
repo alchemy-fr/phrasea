@@ -24,7 +24,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return false;
     }
 
-    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
     {
         return [];
     }

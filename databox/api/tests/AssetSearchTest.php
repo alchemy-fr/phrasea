@@ -9,7 +9,7 @@ use DateTimeImmutable;
 
 class AssetSearchTest extends AbstractSearchTest
 {
-    public function testFrenchQuery(): void
+    public function testLocalizedQuery(): void
     {
         $textDefinition = $this->createAttributeDefinition([
             'name' => 'Description',
@@ -56,6 +56,23 @@ class AssetSearchTest extends AbstractSearchTest
             'no_flush' => true,
         ]);
 
+        $this->createAsset([
+            'title' => 'AR',
+            'public' => true,
+            'attributes' => [
+                [
+                    'definition' => $textDefinition,
+                    'locale' => 'ar',
+                    'value' => 'أنا سمة عربية',
+                ],
+                [
+                    'definition' => $dateDefinition,
+                    'value' => new DateTimeImmutable('2008-07-12'),
+                ],
+            ],
+            'no_flush' => true,
+        ]);
+
         $this->getEntityManager()->flush();
 
         AssetSearchTest::releaseIndex();
@@ -80,6 +97,8 @@ class AssetSearchTest extends AbstractSearchTest
             ['suis', ['EN']],
             ['2009', ['EN']],
             ['2021', ['FR']],
+            ['عربية', ['AR']],
+            ['2008', ['AR']],
             ['2020', []],
         ];
     }
