@@ -413,9 +413,11 @@ easy_admin:
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'indexName', label: 'Index' }
-          - { property: 'documentCount' }
+          - { property: 'progressString', label: Progress }
           - { property: 'timeTakenUnit', label: 'Time taken' }
           - { property: 'endedAt' }
+          - { property: 'successful', type: boolean }
+          - { property: 'error' }
           - { property: 'createdAt' }
 
         show:

@@ -10,7 +10,8 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
-use FOS\ElasticaBundle\Index\IndexManager;
+use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
+use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -29,7 +30,7 @@ class PopulatePassListener implements EventSubscriberInterface
         $this->indexSyncState = $indexSyncState;
     }
 
-    public function preIndexPopulate(PreIndexPopulateEvent $event)
+    public function preIndexPopulate(PreIndexPopulateEvent $event): void
     {
         $indexName = $event->getIndex();
 
@@ -42,6 +43,7 @@ class PopulatePassListener implements EventSubscriberInterface
         }
 
         $populatePass = new PopulatePass();
+        $populatePass->setProgress(0);
         $populatePass->setIndexName($indexName);
 
         $mapping = $this->indexSyncState->getCurrentConfigMapping($indexName);
@@ -61,12 +63,11 @@ class PopulatePassListener implements EventSubscriberInterface
         $this->pendingPasses[$indexName] = $populatePass->getId();
     }
 
-    public function postIndexPopulate(PostIndexPopulateEvent $event)
+    public function postIndexPopulate(PostIndexPopulateEvent $event): void
     {
         $indexName = $event->getIndex();
-        /** @var PopulatePass $populatePass */
-        $populatePass = $this->em->find(PopulatePass::class, $this->pendingPasses[$event->getIndex()]);
-
+        $populatePass = $this->getPass($indexName);
+        $populatePass->setProgress($populatePass->getDocumentCount());
         $populatePass->setEndedAt(new DateTimeImmutable());
         $this->em->persist($populatePass);
 
@@ -75,11 +76,44 @@ class PopulatePassListener implements EventSubscriberInterface
         $this->em->flush();
     }
 
+    public function postInsertObjects(PostInsertObjectsEvent $event): void
+    {
+        $indexName = $event->getOptions()['indexName'];
+        $populatePass = $this->getPass($indexName);
+        $populatePass->setProgress($populatePass->getProgress() + count($event->getObjects()));
+        $this->em->persist($populatePass);
+        $this->em->flush();
+    }
+
+    public function onException(OnExceptionEvent $event): void
+    {
+        $indexName = $event->getOptions()['indexName'];
+        $populatePass = $this->getPass($indexName);
+        $populatePass->setError($event->getException()->getMessage());
+        $populatePass->setEndedAt(new DateTimeImmutable());
+        $this->em->persist($populatePass);
+        $this->em->flush();
+    }
+
+    private function getPass(string $indexName): PopulatePass
+    {
+        /** @var PopulatePass $populatePass */
+        $populatePass = $this->em->find(PopulatePass::class, $this->pendingPasses[$indexName]);
+        if (null === $populatePass) {
+            // Pass has been deleted/cancelled
+            throw new RuntimeException('Populate cancelled');
+        }
+
+        return $populatePass;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',
             PostIndexPopulateEvent::class => 'postIndexPopulate',
+            PostInsertObjectsEvent::class => 'postInsertObjects',
+            OnExceptionEvent::class => 'onException',
         ];
     }
 }
