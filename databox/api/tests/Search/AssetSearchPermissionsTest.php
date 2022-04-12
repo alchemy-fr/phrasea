@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Search;
 
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
