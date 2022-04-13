@@ -9,9 +9,10 @@
   "license": "MIT",
   "require": {
     "php": "^7.4",
+    "arthem/rabbit-bundle": "@dev",
+    "guzzlehttp/guzzle": "^6.3",
     "ramsey/uuid-doctrine": "^1.5",
-    "symfony/framework-bundle": "^4.0 || ^5.2",
-    "guzzlehttp/guzzle": "^6.3"
+    "symfony/framework-bundle": "^4.0 || ^5.2"
   },
   "config": {
     "sort-packages": true

@@ -829,6 +829,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     profiles:
@@ -877,6 +878,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-api-nginx:
     profiles:

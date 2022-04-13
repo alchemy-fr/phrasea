@@ -8,6 +8,8 @@ easy_admin:
         sort: [createdAt, DESC]
         batch_actions:
           - delete
+        actions:
+          - test
         fields:
           - { property: url, label: URL }
           - { property: active }
@@ -21,3 +23,19 @@ easy_admin:
           - { property: secret }
           - { property: timeout, type: integer }
           - { property: active }
+
+    WebhookLog:
+      label: Webhook errors
+      helper: Failed webhook triggers
+      class: Alchemy\WebhookBundle\Entity\WebhookLog
+      list:
+        sort: [createdAt, DESC]
+        actions:
+          - 'show'
+          - '-new'
+          - '-edit'
+        batch_actions:
+          - delete
+        fields:
+          - { property: webhook.url, label: URL }
+          - { property: createdAt }

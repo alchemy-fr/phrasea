@@ -143,6 +143,15 @@ class Webhook
         return $this->events;
     }
 
+    public function hasEvent(string $event): bool
+    {
+        if (null === $this->events) {
+            return true;
+        }
+
+        return in_array($event, $this->events, true);
+    }
+
     public function setEvents(?array $events): void
     {
         $this->events = $events;

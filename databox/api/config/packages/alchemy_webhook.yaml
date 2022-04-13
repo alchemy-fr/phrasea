@@ -4,3 +4,10 @@ alchemy_webhook:
       description: A new asset is created
     'asset:delete':
       description: An asset is deleted
+#
+#  entities:
+#    App\Entity\Core\Asset:
+#      prefix: asset
+#    App\Entity\Core\Attribute:
+#      prefix: attribute
+#    App\Entity\Core\AttributeDefinition:

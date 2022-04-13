@@ -14,3 +14,15 @@ easy_admin:
       - '...'
       - '@AlchemyWebhookBundle/views/form.html.twig'
 ```
+
+Add AdminControllerTrait to your AdminController
+
+```php
+use Alchemy\WebhookBundle\Controller\AdminControllerTrait;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
+
+class AdminController extends EasyAdminController
+{
+    use AdminControllerTrait;
+}
+```

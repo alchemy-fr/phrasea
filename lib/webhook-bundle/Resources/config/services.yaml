@@ -9,3 +9,8 @@ services:
   Alchemy\WebhookBundle\Form\EventsChoiceType:
     arguments:
       $events: '%alchemy_webhook.events%'
+
+  Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
+    arguments:
+      $client: '@alchemy.webhook_client'
+    tags: ['arthem_rabbit.event_handler']
