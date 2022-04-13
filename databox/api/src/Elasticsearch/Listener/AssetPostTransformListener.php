@@ -117,15 +117,20 @@ class AssetPostTransformListener implements EventSubscriberInterface
             foreach ($_attrs as $l => $a) {
                 $definition = $a->getDefinition();
 
-                if (!$definition->isSearchable()) {
-                    continue;
-                }
+                $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
-                $v = $definition->isMultiple() ? $a->getValues() : $a->getValue();
-
-                if (null !== $v) {
-                    $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-                    $v = $type->normalizeValue($v);
+                if ($definition->isMultiple()) {
+                    $v = $a->getValues();
+                    if (!empty($v)) {
+                        $v = array_map(function (string $v) use ($type): string {
+                            return $type->normalizeValue($v);
+                        }, $v);
+                    }
+                } else {
+                    $v = $a->getValue();
+                    if (null !== $v) {
+                        $v = $type->normalizeValue($v);
+                    }
                 }
 
                 if (!empty($v)) {

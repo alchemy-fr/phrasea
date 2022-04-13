@@ -47,7 +47,7 @@ export interface Attribute extends IPermissions {
 export interface AttributeDefinition extends IPermissions {
     id: string;
     name: string;
-    type: string;
+    fieldType: string;
     multiple: boolean;
     editable: boolean;
     searchable: boolean;

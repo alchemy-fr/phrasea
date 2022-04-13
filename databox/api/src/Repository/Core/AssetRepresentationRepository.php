@@ -20,7 +20,7 @@ class AssetRepresentationRepository extends EntityRepository
             ->innerJoin('t.definition', 's')
             ->andWhere('t.asset = :asset')
             ->setParameter('asset', $assetId)
-            ->addOrderBy('s.priority', 'ASC')
+            ->addOrderBy('s.priority', 'DESC')
             ->getQuery()
             ->getResult();
     }

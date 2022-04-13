@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
+use App\Util\LocaleUtils;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Throwable;
 
@@ -23,7 +23,7 @@ class TextAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function getElasticSearchMapping(string $language, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
     {
         $mapping = [];
 
@@ -37,8 +37,51 @@ class TextAttributeType extends AbstractAttributeType
             ];
         }
 
-        if (IndexMappingUpdater::NO_LOCALE !== $language) {
-            $mapping['analyzer'] = 'text_'.$language;
+        $locales = [
+            'ar' => 'arabic',
+            'bg' => 'bulgarian',
+            'bn' => 'bengali',
+            'ca' => 'catalan',
+            'ch' => 'cjk',
+            'ckb' => 'sorani',
+            'cs' => 'czech',
+            'da' => 'danish',
+            'de' => 'german',
+            'el' => 'greek',
+            'en' => 'english',
+            'es' => 'spanish',
+            'et' => 'estonian',
+            'eu' => 'basque',
+            'fa' => 'persian',
+            'fi' => 'finnish',
+            'fr' => 'french',
+            'ga' => 'irish',
+            'gl' => 'galician',
+            'hi' => 'hindi',
+            'hu' => 'hungarian',
+            'hy' => 'armenian',
+            'id' => 'indonesian',
+            'it' => 'italian',
+            'ja' => 'cjk',
+            'ko' => 'cjk',
+            'lt' => 'lithuanian',
+            'lv' => 'latvian',
+            'nl' => 'dutch',
+            'no' => 'norwegian',
+            'pt' => 'portuguese',
+            'pt_BR' => 'brazilian',
+            'ro' => 'romanian',
+            'ru' => 'russian',
+            'sv' => 'swedish',
+            'th' => 'thai',
+            'tr' => 'turkish',
+        ];
+
+        $language = LocaleUtils::extractLanguageFromLocale($locale);
+        if (isset($locales[$locale])) {
+            $mapping['analyzer'] = $locales[$locale];
+        } elseif (isset($locales[$language])) {
+            $mapping['analyzer'] = $locales[$language];
         } else {
             $mapping['analyzer'] = 'text';
         }
@@ -53,7 +96,7 @@ class TextAttributeType extends AbstractAttributeType
         }
 
         try {
-            return (string) $value;
+            return (string)$value;
         } catch (Throwable $e) {
             return null;
         }

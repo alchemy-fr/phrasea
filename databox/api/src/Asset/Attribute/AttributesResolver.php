@@ -49,12 +49,15 @@ class AttributesResolver
                 }
 
                 $groupedByDef[$k][$locale] = $attribute;
+                $attribute->setValues(null); // Reset values aggregation
             }
 
+            $groupAttr = $groupedByDef[$k][$locale];
+
             if ($def->isMultiple()) {
-                $values = $groupedByDef[$k][$locale]->getValues() ?? [];
+                $values = $groupAttr->getValues() ?? [];
                 $values[] = $attribute->getValue();
-                $groupedByDef[$k][$locale]->setValues($values);
+                $groupAttr->setValues($values);
             }
         }
         unset($attributes);

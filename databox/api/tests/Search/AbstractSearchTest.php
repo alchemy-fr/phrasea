@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Search;
 
+use App\Tests\AbstractDataboxTestCase;
 use Elastica\Index;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;

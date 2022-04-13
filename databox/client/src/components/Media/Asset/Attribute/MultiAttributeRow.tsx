@@ -9,6 +9,7 @@ type Props = {
     name: string;
     values: AttrValue<string | number>[];
     onChange: (values: AttrValue<string | number>[]) => void;
+    isRtl: boolean;
     disabled: boolean;
 }
 
@@ -19,6 +20,7 @@ export default function MultiAttributeRow({
                                               name,
                                               values: initialValues,
                                               disabled,
+                                              isRtl,
                                               onChange,
                                               type,
                                           }: Props) {
@@ -74,11 +76,12 @@ export default function MultiAttributeRow({
                 <div
                     className={'form-group'}
                     style={{
-                    display: 'flex',
-                }}>
+                        display: 'flex',
+                    }}>
 
                     <AttributeWidget
                         value={v}
+                        isRtl={isRtl}
                         disabled={disabled}
                         name={`${name} #${i + 1}`}
                         type={type}

@@ -7,6 +7,7 @@ namespace App\Tests;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use App\Tests\Search\AbstractSearchTest;
 
 class CollectionSearchTest extends AbstractSearchTest
 {

@@ -118,7 +118,7 @@ export default function MainAppBar(props: Props) {
     const searchContext = useContext(SearchContext);
     const searchFiltersContext = useContext(SearchFiltersContext);
 
-    const {query, setQuery} = searchContext;
+    const {query, setQuery, reload} = searchContext;
 
     const onTitleClick = () => searchFiltersContext.selectWorkspace(undefined, true);
 
@@ -201,11 +201,15 @@ export default function MainAppBar(props: Props) {
 
     const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            doSearch();
+            doSearch(true);
         }
     }
 
-    const doSearch = (): void => {
+    const doSearch = (force?: boolean): void => {
+        if (force && query === searchValue) {
+            reload();
+            return;
+        }
         setQuery(searchValue);
     }
 
@@ -248,7 +252,7 @@ export default function MainAppBar(props: Props) {
                                 value={searchValue}
                             />
                             {searchValue && searchValue !== searchContext.query && <Button
-                                onClick={doSearch}
+                                onClick={() => doSearch()}
                                 variant={"contained"}
                             >
                                 Search

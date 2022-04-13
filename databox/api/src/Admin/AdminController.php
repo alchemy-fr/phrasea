@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin;
 
 use Alchemy\AclBundle\Admin\PermissionTrait;
+use App\Consumer\Handler\Search\ESPopulateHandler;
 use Arthem\Bundle\RabbitBundle\Controller\AdminReplayControllerTrait;
 use Arthem\Bundle\RabbitBundle\Model\FailedEventManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -34,5 +35,14 @@ class AdminController extends EasyAdminController
     protected function getEventProducer(): EventProducer
     {
         return $this->eventProducer;
+    }
+
+    protected function newPopulatePassAction()
+    {
+        $this->eventProducer->publish(ESPopulateHandler::createEvent());
+
+        $this->addFlash('info', 'Populate command was triggered');
+
+        return $this->redirectToReferrer();
     }
 }

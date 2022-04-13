@@ -2,18 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Search;
 
 use App\Attribute\Type\DateAttributeType;
 use DateTimeImmutable;
 
 class AssetSearchTest extends AbstractSearchTest
 {
-    public function testFrenchQuery(): void
+    public function testLocalizedQuery(): void
     {
         $textDefinition = $this->createAttributeDefinition([
             'name' => 'Description',
             'translatable' => true,
+            'no_flush' => true,
+        ]);
+        $multiValuedDefinition = $this->createAttributeDefinition([
+            'name' => 'Keywords',
+            'translatable' => true,
+            'multiple' => true,
             'no_flush' => true,
         ]);
         $dateDefinition = $this->createAttributeDefinition([
@@ -30,6 +36,16 @@ class AssetSearchTest extends AbstractSearchTest
                     'definition' => $textDefinition,
                     'locale' => 'fr',
                     'value' => 'The suis Phraseanet',
+                ],
+                [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'fr',
+                    'value' => 'avion',
+                ],
+                [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'fr',
+                    'value' => 'ananas',
                 ],
                 [
                     'definition' => $dateDefinition,
@@ -49,8 +65,45 @@ class AssetSearchTest extends AbstractSearchTest
                     'value' => 'The suis Phraseanet Phraseanet',
                 ],
                 [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'en',
+                    'value' => 'plane',
+                ],
+                [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'en',
+                    'value' => 'pineapple',
+                ],
+                [
                     'definition' => $dateDefinition,
                     'value' => new DateTimeImmutable('2009-05-19'),
+                ],
+            ],
+            'no_flush' => true,
+        ]);
+
+        $this->createAsset([
+            'title' => 'AR',
+            'public' => true,
+            'attributes' => [
+                [
+                    'definition' => $textDefinition,
+                    'locale' => 'ar',
+                    'value' => 'أنا سمة عربية',
+                ],
+                [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'ar',
+                    'value' => 'مطار',
+                ],
+                [
+                    'definition' => $multiValuedDefinition,
+                    'locale' => 'ar',
+                    'value' => 'أناناس',
+                ],
+                [
+                    'definition' => $dateDefinition,
+                    'value' => new DateTimeImmutable('2008-07-12'),
                 ],
             ],
             'no_flush' => true,
@@ -80,7 +133,12 @@ class AssetSearchTest extends AbstractSearchTest
             ['suis', ['EN']],
             ['2009', ['EN']],
             ['2021', ['FR']],
+            ['عربية', ['AR']],
+            ['2008', ['AR']],
             ['2020', []],
+            ['ananas', ['FR']],
+            ['pineappl', ['EN']],
+            ['أناناس', ['AR']],
         ];
     }
 

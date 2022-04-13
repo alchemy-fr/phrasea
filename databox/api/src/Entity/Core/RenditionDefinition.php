@@ -49,6 +49,12 @@ class RenditionDefinition extends AbstractUuidEntity
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
      */
+    private bool $download = true;
+
+    /**
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     * @ORM\Column(type="boolean")
+     */
     private bool $useAsOriginal = false;
 
     /**
@@ -177,5 +183,15 @@ class RenditionDefinition extends AbstractUuidEntity
     public function __toString()
     {
         return $this->getName();
+    }
+
+    public function isDownload(): bool
+    {
+        return $this->download;
+    }
+
+    public function setDownload(bool $download): void
+    {
+        $this->download = $download;
     }
 }

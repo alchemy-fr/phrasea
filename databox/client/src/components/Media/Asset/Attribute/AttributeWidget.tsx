@@ -9,6 +9,7 @@ type Props = {
     value: AttrValue<string | number> | undefined;
     disabled: boolean;
     required: boolean;
+    isRtl: boolean;
     onChange: (value: AttrValue<string | number>) => void;
 }
 
@@ -18,6 +19,7 @@ export default function AttributeWidget({
                                             name,
                                             value: initialValue,
                                             onChange,
+                                            isRtl,
                                             required,
                                             type,
                                         }: Props) {
@@ -34,15 +36,22 @@ export default function AttributeWidget({
     switch (type) {
         default:
         case 'text':
+        case 'textarea':
+            const isMultiline = 'textarea' === type;
             return <TextField
                 id={id}
                 fullWidth
+                rows={isMultiline ? 3 : undefined}
+                multiline={isMultiline}
                 disabled={disabled}
                 label={name}
                 onChange={changeHandler}
                 value={value ? value.value : ''}
                 required={required}
                 autoFocus={true}
+                style={isRtl ? {
+                    direction: 'rtl',
+                } : undefined}
             />
     }
 }

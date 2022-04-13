@@ -7,6 +7,7 @@ namespace App\Entity\Admin;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Util\Time;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,6 +30,11 @@ class PopulatePass extends AbstractUuidEntity
     private int $documentCount;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private ?int $progress = null;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     private string $indexName;
@@ -38,9 +44,18 @@ class PopulatePass extends AbstractUuidEntity
      */
     private array $mapping;
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $error = null;
+
     public function getTimeTaken(): ?int
     {
         if (null === $this->endedAt) {
+            if (null === $this->error) {
+                return (new DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
+            }
+
             return null;
         }
 
@@ -96,5 +111,43 @@ class PopulatePass extends AbstractUuidEntity
     public function setIndexName(string $indexName): void
     {
         $this->indexName = $indexName;
+    }
+
+    public function getProgress(): ?int
+    {
+        return $this->progress;
+    }
+
+    public function setProgress(int $progress): void
+    {
+        $this->progress = $progress;
+    }
+
+    public function getProgressString(): ?string
+    {
+        if (null !== $this->progress) {
+            return sprintf('%d/%d (%d%%)', $this->progress, $this->documentCount, round($this->progress / $this->documentCount * 100));
+        }
+
+        return null;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(?string $error): void
+    {
+        $this->error = $error;
+    }
+
+    public function isSuccessful(): ?bool
+    {
+        if (null === $this->endedAt) {
+            return null;
+        }
+
+        return null === $this->error;
     }
 }

@@ -10,7 +10,8 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APCU_VERSION=5.1.18 \
     XDEBUG_VERSION=2.9.4 \
-    APP_ENV=prod
+    APP_ENV=prod \
+    PHP_MEMORY_LIMIT=132M
 
 RUN set -eux \
 	&& apk add --no-cache --virtual .build-deps \
@@ -84,6 +85,8 @@ EXPOSE 80
 
 FROM databox-api-php as databox-worker
 
+ENV PHP_MEMORY_LIMIT=1G
+
 RUN apk add --no-cache \
         supervisor \
     && mkdir -p /var/log/supervisor \
@@ -91,6 +94,6 @@ RUN apk add --no-cache \
 
 COPY docker/supervisor/* /etc/supervisor.d/
 
-ENTRYPOINT []
+ENTRYPOINT ["/srv/app/docker/worker-entrypoint.sh"]
 
 CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && /usr/bin/supervisord -n"]

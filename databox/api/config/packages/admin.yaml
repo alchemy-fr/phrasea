@@ -96,7 +96,7 @@ easy_admin:
         fields:
           - { property: 'workspace' }
           - { property: 'definition' }
-          - { property: 'priority' }
+          - { property: 'priority', help: 'Higher value is more prioritized' }
           - { property: 'overrides' }
 
     File:
@@ -189,7 +189,7 @@ easy_admin:
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }
           - { property: 'useAsThumbnailActive' }
-          - { property: 'priority', help: 'Less is more prioritized' }
+          - { property: 'priority', help: 'Higher value is more prioritized' }
 
     AssetRendition:
       class: App\Entity\Core\AssetRendition
@@ -405,7 +405,6 @@ easy_admin:
       class: App\Entity\Admin\PopulatePass
       list:
         actions:
-          - '-new'
           - '-edit'
           - show
         batch_actions:
@@ -414,9 +413,11 @@ easy_admin:
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'indexName', label: 'Index' }
-          - { property: 'documentCount' }
+          - { property: 'progressString', label: Progress }
           - { property: 'timeTakenUnit', label: 'Time taken' }
           - { property: 'endedAt' }
+          - { property: 'successful', type: boolean }
+          - { property: 'error' }
           - { property: 'createdAt' }
 
         show:

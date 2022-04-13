@@ -71,6 +71,7 @@ class AssetItem extends Component<AllProps, State> {
             || this.state.menuOpen !== nextState.menuOpen
             || this.state.hover !== nextState.hover
             || this.props.selected !== nextProps.selected
+            || this.props.titleHighlight !== nextProps.titleHighlight
             ;
     }
 

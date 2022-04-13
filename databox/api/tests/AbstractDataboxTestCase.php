@@ -129,6 +129,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
         $definition->setPublic($options['public'] ?? true);
         $definition->setTranslatable($options['translatable'] ?? false);
+        $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? true);
         $definition->setFallback($options['fallback'] ?? null);
