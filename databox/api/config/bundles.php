@@ -27,4 +27,5 @@ return [
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
+    Alchemy\WebhookBundle\AlchemyWebhookBundle::class => ['all' => true],
 ];

@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  alchemy.webhook_client:
+    class: GuzzleHttp\Client
+
+  Alchemy\WebhookBundle\Form\EventsChoiceType:
+    arguments:
+      $events: '%alchemy_webhook.events%'

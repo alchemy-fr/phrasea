@@ -23,4 +23,5 @@
 127.0.0.1 traefik-console.${PHRASEA_DOMAIN}
 127.0.0.1 databox-indexer.${PHRASEA_DOMAIN}
 127.0.0.1 grafana.${PHRASEA_DOMAIN}
+127.0.0.1 webhook-endpoint.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

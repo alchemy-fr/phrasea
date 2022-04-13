@@ -20,6 +20,9 @@
     "alchemy/storage-bundle": {
         "version": "dev-ps-355"
     },
+    "alchemy/webhook-bundle": {
+        "version": "dev-master"
+    },
     "api-platform/core": {
         "version": "2.5",
         "recipe": {

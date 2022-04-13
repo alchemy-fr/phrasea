@@ -1,0 +1,6 @@
+alchemy_webhook:
+  events:
+    'asset:create':
+      description: A new asset is created
+    'asset:delete':
+      description: An asset is deleted

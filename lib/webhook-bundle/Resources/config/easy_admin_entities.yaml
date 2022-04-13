@@ -1,0 +1,23 @@
+easy_admin:
+  entities:
+    Webhook:
+      label: Webhooks
+      helper: Trigger external services on events
+      class: Alchemy\WebhookBundle\Entity\Webhook
+      list:
+        sort: [createdAt, DESC]
+        batch_actions:
+          - delete
+        fields:
+          - { property: url, label: URL }
+          - { property: active }
+          - { property: eventsLabel }
+          - { property: createdAt }
+      form:
+        fields:
+          - { property: url, label: URL }
+          - { property: events, type: Alchemy\WebhookBundle\Form\EventsChoiceType }
+          - { property: verifySSL, label: 'Verify SSL' }
+          - { property: secret }
+          - { property: timeout, type: integer }
+          - { property: active }

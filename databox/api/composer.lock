@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76531214d99df90a44893267730684be",
+    "content-hash": "d98570599c6b329b324d9c9c3fe3b062",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -108,7 +108,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -155,7 +155,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -201,7 +201,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -250,7 +250,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -291,6 +291,55 @@
             ],
             "description": "Symfony storage bundle",
             "homepage": "https://www.alchemy.fr/",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "alchemy/webhook-bundle",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/webhook-bundle",
+                "reference": "d9cbb2f8b59b96e9d900ebc1a9d1cfcdd16b3ae8"
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3",
+                "php": "^7.4",
+                "ramsey/uuid-doctrine": "^1.5",
+                "symfony/framework-bundle": "^4.0 || ^5.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\WebhookBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\WebhookBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony webhook bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "webhook"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11226,7 +11275,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-databox-features",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
@@ -12105,6 +12154,7 @@
         "alchemy/admin-bundle": 20,
         "alchemy/core-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
+        "alchemy/webhook-bundle": 20,
         "arthem/rabbit-bundle": 20,
         "friendsofsymfony/elastica-bundle": 20,
         "friendsofsymfony/oauth-server-bundle": 20,

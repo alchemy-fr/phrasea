@@ -1071,6 +1071,16 @@ services:
     networks:
       - internal
 
+  webhook-endpoint:
+    image: mendhak/http-https-echo:23
+    profiles:
+      - webhooks
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
+
 volumes:
   db_vol:
   redis_vol:
