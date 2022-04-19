@@ -2,6 +2,7 @@
 
 namespace Alchemy\WebhookBundle\DependencyInjection;
 
+use Alchemy\WebhookBundle\Doctrine\Listener\EntityListener;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -24,10 +25,32 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('alchemy_webhook.events', $config['events']);
+        $container->setParameter('alchemy_webhook.events', $this->buildEvents($config));
+        $container->setParameter('alchemy_webhook.listener_config', $config['entities']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+    }
+
+    private function buildEvents(array $config): array
+    {
+        $events = $config['events'];
+        $eventTypes = [
+            EntityListener::EVENT_CREATE,
+            EntityListener::EVENT_UPDATE,
+            EntityListener::EVENT_DELETE,
+        ];
+
+        foreach ($config['entities'] as $class => $crud) {
+            foreach ($eventTypes as $e) {
+                $eventName = sprintf('%s:%s', $crud['name'], $e);
+                $events[$eventName] = [
+                    'description' => sprintf('%s %s', $e, $class),
+                ];
+            }
+        }
+
+        return $events;
     }
 
     public function prepend(ContainerBuilder $container)

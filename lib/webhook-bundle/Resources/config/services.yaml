@@ -14,3 +14,16 @@ services:
     arguments:
       $client: '@alchemy.webhook_client'
     tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Consumer\SerializeObjectHandler:
+    tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Consumer\WebhookHandler:
+    tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Doctrine\Listener\EntityListener:
+    arguments:
+      $config: '%alchemy_webhook.listener_config%'
+    tags: ['doctrine.event_subscriber']
+
+  Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~

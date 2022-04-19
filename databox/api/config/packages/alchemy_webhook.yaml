@@ -1,13 +1,14 @@
 alchemy_webhook:
   events:
-    'asset:create':
-      description: A new asset is created
-    'asset:delete':
-      description: An asset is deleted
-#
-#  entities:
-#    App\Entity\Core\Asset:
-#      prefix: asset
-#    App\Entity\Core\Attribute:
-#      prefix: attribute
-#    App\Entity\Core\AttributeDefinition:
+    'custom:event':
+      description: A custom event
+  entities:
+    App\Entity\Core\Asset:
+      groups: ['asset:read']
+      name: asset
+    App\Entity\Core\AttributeDefinition:
+      groups: ['attributedef:index']
+      name: attribute_definition
+      create: ~
+      update: ~
+      delete: ~

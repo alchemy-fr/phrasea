@@ -2,6 +2,7 @@
 
 namespace Alchemy\WebhookBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -31,6 +32,28 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
+        $this->getEntitiesConfig($treeBuilder->getRootNode());
+
         return $treeBuilder;
+    }
+
+    private function getEntitiesConfig(NodeDefinition $parent): void
+    {
+        $parent
+            ->children()
+                ->arrayNode('entities')
+                    ->useAttributeAsKey('class')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->isRequired()->end()
+                            ->arrayNode('groups')->scalarPrototype()->end()->defaultValue(['Webhook'])->end()
+                            ->arrayNode('create')->canBeDisabled()->end()
+                            ->arrayNode('update')->canBeDisabled()->end()
+                            ->arrayNode('delete')->canBeDisabled()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+            ;
     }
 }

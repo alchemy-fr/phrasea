@@ -41,7 +41,7 @@ class WebhookHandler extends AbstractEntityManagerHandler
     public static function createEvent(string $event, array $payload): EventMessage
     {
         return new EventMessage(self::EVENT, [
-            'event '=> $event,
+            'event'=> $event,
             'payload' => $payload,
         ]);
     }
