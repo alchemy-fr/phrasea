@@ -45,8 +45,9 @@ class EntityListener implements EventSubscriber
 
         foreach ($uow->getScheduledEntityUpdates() as $updatedEntity) {
             $scalarData = $uow->getOriginalEntityData($updatedEntity);
-            $scalarData = $this->entitySerializer->convertToDatabaseValue(get_class($updatedEntity), $scalarData);
-            $entityChangeSet = $uow->getEntityChangeSet($updatedEntity);
+            $class = get_class($updatedEntity);
+            $scalarData = $this->entitySerializer->convertToDatabaseValue($class, $scalarData);
+            $entityChangeSet = $this->entitySerializer->convertChangeSetToDatabaseValue($class, $uow->getEntityChangeSet($updatedEntity));
 
             $this->handleUpdate($updatedEntity, $scalarData, $entityChangeSet);
         }

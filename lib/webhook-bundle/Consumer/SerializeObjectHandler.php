@@ -32,6 +32,7 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         $entityClass = $p['class'];
         $changeSet = $p['change_set'];
         $data = $this->entitySerializer->convertToPhpValue($entityClass, $p['data']);
+        $changeSet = $this->entitySerializer->convertChangeSetToPhpValue($entityClass, $changeSet);
 
         $unitOfWork = $this->getEntityManager()->getUnitOfWork();
         $entityAfter = $unitOfWork->createEntity($entityClass, $data);
@@ -42,8 +43,9 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         foreach ($changeSet as $field => $values) {
             $data[$field] = $values[0];
         }
-        $entityAfter = $unitOfWork->createEntity($entityClass, $data);
-        $before = $this->normalizer->normalize($entityAfter, 'json', [
+        $unitOfWork->clear($entityClass);
+        $entityBefore = $unitOfWork->createEntity($entityClass, $data);
+        $before = $this->normalizer->normalize($entityBefore, 'json', [
             'groups' => 'Webhook',
         ]);
 
