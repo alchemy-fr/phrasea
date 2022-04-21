@@ -14,7 +14,7 @@ use Gedmo\Tool\Wrapper\EntityWrapper;
 
 class EntitySerializer
 {
-    public const MAX_COLLECTION_COUNT = 100;
+    private const MAX_COLLECTION_COUNT = 100;
     private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)

@@ -32,6 +32,8 @@ services:
 
   Alchemy\WebhookBundle\Webhook\WebhookTrigger: ~
 
+  Alchemy\WebhookBundle\Webhook\ObjectNormalizer: ~
+
   Alchemy\WebhookBundle\Listener\TerminateStackListener:
     tags:
       - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }

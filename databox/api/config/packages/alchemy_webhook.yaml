@@ -1,4 +1,6 @@
 alchemy_webhook:
+  normalizer_roles:
+    - ROLE_CHUCK-NORRIS
   events:
     'custom:event':
       description: A custom event
@@ -15,6 +17,8 @@ alchemy_webhook:
     App\Entity\Core\Collection:
       groups: ['collection:read']
       name: collection
+      ignoreProperties:
+        - assets
     App\Entity\Core\RenditionClass:
       groups: ['rendclass:read']
       name: rendition_class

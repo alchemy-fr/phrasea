@@ -6,32 +6,32 @@ namespace Alchemy\WebhookBundle\Consumer;
 
 use Alchemy\WebhookBundle\Config\EntityRegistry;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
+use Alchemy\WebhookBundle\Webhook\ObjectNormalizer;
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class SerializeObjectHandler extends AbstractEntityManagerHandler
 {
     private const EVENT = 'webhook_serialize_update';
 
-    private NormalizerInterface $normalizer;
     private EntitySerializer $entitySerializer;
     private EntityRegistry $entityRegistry;
     private WebhookTrigger $webhookTrigger;
+    private ObjectNormalizer $objectNormalizer;
 
     public function __construct(
-        NormalizerInterface $normalizer,
         EntitySerializer $entitySerializer,
         EntityRegistry $entityRegistry,
-        WebhookTrigger $webhookTrigger
+        WebhookTrigger $webhookTrigger,
+        ObjectNormalizer $objectNormalizer
     )
     {
-        $this->normalizer = $normalizer;
         $this->entitySerializer = $entitySerializer;
         $this->entityRegistry = $entityRegistry;
         $this->webhookTrigger = $webhookTrigger;
+        $this->objectNormalizer = $objectNormalizer;
     }
 
     public function handle(EventMessage $message): void
@@ -69,11 +69,9 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $uow = $em->getUnitOfWork();
         $uow->clear($meta->name);
-        $entityBefore = $uow->createEntity($meta->name, $data);
+        $entity = $uow->createEntity($meta->name, $data);
 
-        return $this->normalizer->normalize($entityBefore, 'json', [
-            'groups' => $groups,
-        ]);
+        return $this->objectNormalizer->normalize($entity, $groups);
     }
 
     public static function createEvent(string $class, string $event, array $data, ?array $changeSet = null): EventMessage

@@ -3,6 +3,7 @@
 namespace Alchemy\WebhookBundle\DependencyInjection;
 
 use Alchemy\WebhookBundle\Doctrine\Listener\EntityListener;
+use Alchemy\WebhookBundle\Webhook\ObjectNormalizer;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -30,6 +31,11 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        if (isset($config['normalizer_roles'])) {
+            $def = $container->getDefinition(ObjectNormalizer::class);
+            $def->setArgument('$normalizerRoles', $config['normalizer_roles']);
+        }
     }
 
     private function buildEvents(array $config): array
@@ -56,9 +62,6 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
     public function prepend(ContainerBuilder $container)
     {
         $bundles = $container->getParameter('kernel.bundles');
-
-        $configs = $container->getExtensionConfig($this->getAlias());
-        $config = $this->processConfiguration(new Configuration(), $configs);
 
         if (isset($bundles['EasyAdminBundle'])) {
             $data = (new Parser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));

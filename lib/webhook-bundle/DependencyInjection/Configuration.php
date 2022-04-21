@@ -41,6 +41,10 @@ class Configuration implements ConfigurationInterface
     {
         $parent
             ->children()
+                ->arrayNode('normalizer_roles')
+                    ->scalarPrototype()->end()
+                    ->info('Roles assigned to security token when normalizing object data')
+                ->end()
                 ->arrayNode('entities')
                     ->useAttributeAsKey('class')
                     ->arrayPrototype()
@@ -50,6 +54,7 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('create')->canBeDisabled()->end()
                             ->arrayNode('update')->canBeDisabled()->end()
                             ->arrayNode('delete')->canBeDisabled()->end()
+                            ->arrayNode('ignoreProperties')->scalarPrototype()->end()->defaultValue([])->end()
                         ->end()
                     ->end()
                 ->end()

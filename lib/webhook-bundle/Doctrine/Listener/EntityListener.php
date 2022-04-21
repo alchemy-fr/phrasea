@@ -13,6 +13,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Common\Collections\Collection;
 
 class EntityListener implements EventSubscriber
 {
@@ -55,6 +56,7 @@ class EntityListener implements EventSubscriber
             }
         }
 
+        /** @var Collection $collectionUpdate */
         foreach (array_merge(
             $uow->getScheduledCollectionUpdates(),
             $uow->getScheduledCollectionDeletions()
@@ -111,6 +113,12 @@ class EntityListener implements EventSubscriber
             return;
         }
 
+        if (null !== $changeSet && !empty($configNode['ignoreProperties'])) {
+            if (empty(array_diff(array_keys($changeSet), $configNode['ignoreProperties']))) {
+                return;
+            }
+        }
+
         $node = $this->changes[$event][$oid] ?? [
             'config' => $configNode,
         ];
@@ -130,7 +138,9 @@ class EntityListener implements EventSubscriber
 
     private function commitChanges(): void
     {
-        foreach ($this->changes as $event => $entities) {
+        $changes = $this->changes;
+        $this->changes = [];
+        foreach ($changes as $event => $entities) {
             foreach ($entities as $change) {
                 $configNode = $change['config'];
                 $data = $change['data'];

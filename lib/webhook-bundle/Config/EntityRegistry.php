@@ -13,6 +13,17 @@ class EntityRegistry
         $this->config = $config;
     }
 
+    /**
+     * @param string $class
+     * @param string $event
+     *
+     * @return array{
+     *           eventName: string,
+     *           event: string,
+     *           entityClass: string,
+     *           ignoreProperties: string[]
+     *         }|null
+     */
     public function getConfigNodeForEvent(string $class, string $event): ?array
     {
         $configNode = $this->getConfigNode($class);
