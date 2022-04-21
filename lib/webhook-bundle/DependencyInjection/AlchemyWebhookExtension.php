@@ -36,16 +36,16 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
     {
         $events = $config['events'];
         $eventTypes = [
-            EntityListener::EVENT_CREATE,
-            EntityListener::EVENT_UPDATE,
-            EntityListener::EVENT_DELETE,
+            EntityListener::EVENT_CREATE => 'When resource <b>%s</b> is created',
+            EntityListener::EVENT_UPDATE => 'When resource <b>%s</b> is updated',
+            EntityListener::EVENT_DELETE => 'When resource <b>%s</b> is deleted',
         ];
 
-        foreach ($config['entities'] as $class => $crud) {
-            foreach ($eventTypes as $e) {
+        foreach ($config['entities'] as $crud) {
+            foreach ($eventTypes as $e => $desc) {
                 $eventName = sprintf('%s:%s', $crud['name'], $e);
                 $events[$eventName] = [
-                    'description' => sprintf('%s %s', $e, $class),
+                    'description' => sprintf($desc, $crud['name']),
                 ];
             }
         }

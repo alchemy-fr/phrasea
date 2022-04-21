@@ -7,8 +7,26 @@ alchemy_webhook:
       groups: ['asset:read']
       name: asset
     App\Entity\Core\AttributeDefinition:
-      groups: ['attributedef:index']
+      groups: ['attributedef:read']
       name: attribute_definition
-      create: ~
-      update: ~
-      delete: ~
+    App\Entity\Core\Attribute:
+      groups: ['attribute:read']
+      name: attribute
+    App\Entity\Core\Collection:
+      groups: ['collection:read']
+      name: collection
+    App\Entity\Core\RenditionClass:
+      groups: ['rendclass:read']
+      name: rendition_class
+    App\Entity\Core\RenditionDefinition:
+      groups: ['renddef:read']
+      name: rendition_definition
+    App\Entity\Core\RenditionRule:
+      groups: ['rendrule:read']
+      name: rendition_rule
+    App\Entity\Core\Tag:
+      groups: ['tag:read']
+      name: tag
+    App\Entity\Core\Workspace:
+      groups: ['workspace:read']
+      name: workspace

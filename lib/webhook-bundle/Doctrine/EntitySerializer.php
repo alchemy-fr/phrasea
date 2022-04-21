@@ -8,10 +8,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
 use Gedmo\Tool\Wrapper\EntityWrapper;
 
 class EntitySerializer
 {
+    public const MAX_COLLECTION_COUNT = 100;
     private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
@@ -25,6 +28,9 @@ class EntitySerializer
 
         $meta = $this->em->getClassMetadata($class);
         foreach ($data as $field => $value) {
+            if (!$meta->hasField($field) && !$meta->hasAssociation($field)) {
+                continue;
+            }
             $newData[$field] = $this->convertFieldToDatabaseValue($meta, $field, $value);
         }
 
@@ -45,18 +51,36 @@ class EntitySerializer
 
     private function convertFieldToDatabaseValue(ClassMetadata $meta, string $field, $value)
     {
-        if ($meta->isCollectionValuedAssociation($field)) {
-            return null;
-        } elseif ($meta->isSingleValuedAssociation($field)) {
-            if (null !== $value) {
-                $wrappedAssoc = new EntityWrapper($value, $this->em);
-                return $wrappedAssoc->getIdentifier(false);
-            } else {
+        $assocType = $meta->hasAssociation($field) ? $meta->getAssociationMapping($field)['type'] : null;
+
+        switch ($assocType) {
+            case ClassMetadata::MANY_TO_ONE:
+                if (null !== $value) {
+                    $wrappedAssoc = new EntityWrapper($value, $this->em);
+                    return $wrappedAssoc->getIdentifier(false);
+                }
                 return null;
-            }
-        } else {
-            $type = Type::getType($meta->getTypeOfField($field));
-            return $type->convertToDatabaseValue($value, $this->em->getConnection()->getDatabasePlatform());
+            case ClassMetadata::MANY_TO_MANY:
+                if ($value instanceof Collection) {
+                    if ($value->count() > self::MAX_COLLECTION_COUNT) {
+                        return null;
+                    }
+
+                    return $value->map(function (object $object) {
+                        $wrappedAssoc = new EntityWrapper($object, $this->em);
+
+                        return $wrappedAssoc->getIdentifier(false);
+                    })->toArray();
+                }
+
+                return null;
+            default:
+            case ClassMetadata::ONE_TO_MANY:
+                return null;
+            case null:
+                $type = Type::getType($meta->getTypeOfField($field));
+
+                return $type->convertToDatabaseValue($value, $this->em->getConnection()->getDatabasePlatform());
         }
     }
 
@@ -87,7 +111,19 @@ class EntitySerializer
     private function convertFieldToPhpValue(ClassMetadata $meta, string $field, $value)
     {
         if ($meta->isCollectionValuedAssociation($field)) {
-            return new ArrayCollection(); // TODO fix and set lazy
+            if (null === $value) {
+                return null;
+            }
+
+            $target = $meta->getAssociationTargetClass($field);
+            $targetMeta = $this->em->getClassMetadata($target);
+            $collection = new PersistentCollection($this->em, $targetMeta, new ArrayCollection(array_map(function ($id
+            ) use ($target): object {
+                return $this->em->getReference($target, $id);
+            }, $value)));
+            $collection->takeSnapshot();
+
+            return $collection;
         } elseif ($meta->isSingleValuedAssociation($field)) {
             $mapping = $meta->getAssociationMapping($field);
             return $value ? $this->em->getReference($mapping['targetEntity'], $value) : null;

@@ -22,8 +22,18 @@ services:
     tags: ['arthem_rabbit.event_handler']
 
   Alchemy\WebhookBundle\Doctrine\Listener\EntityListener:
-    arguments:
-      $config: '%alchemy_webhook.listener_config%'
     tags: ['doctrine.event_subscriber']
 
   Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~
+
+  Alchemy\WebhookBundle\Config\EntityRegistry:
+    arguments:
+      $config: '%alchemy_webhook.listener_config%'
+
+  Alchemy\WebhookBundle\Webhook\WebhookTrigger: ~
+
+  Alchemy\WebhookBundle\Listener\TerminateStackListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
+      - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
+      - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }
