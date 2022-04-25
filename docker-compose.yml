@@ -829,6 +829,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     profiles:
@@ -877,6 +878,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-api-nginx:
     profiles:
@@ -1070,6 +1072,16 @@ services:
       context: ./infra/docker/nginx-cache-purge
     networks:
       - internal
+
+  webhook-endpoint:
+    image: mendhak/http-https-echo:23
+    profiles:
+      - webhooks
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
 
 volumes:
   db_vol:

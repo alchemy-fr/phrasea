@@ -27,12 +27,12 @@ class AssetOutput extends AbstractUuidOutput
     protected ?array $attributes;
 
     /**
-     * @Groups({"asset:index", "asset:read"})
+     * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private ?string $title = null;
 
     /**
-     * @Groups({"asset:index", "asset:read"})
+     * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private ?string $resolvedTitle = null;
 
@@ -42,12 +42,12 @@ class AssetOutput extends AbstractUuidOutput
     private ?string $titleHighlight = null;
 
     /**
-     * @Groups({"asset:index", "asset:read"})
+     * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private int $privacy;
 
     /**
-     * @Groups({"asset:index", "asset:read"})
+     * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private $workspace;
 

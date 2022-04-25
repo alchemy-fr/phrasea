@@ -1,0 +1,41 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  alchemy.webhook_client:
+    class: GuzzleHttp\Client
+
+  Alchemy\WebhookBundle\Form\EventsChoiceType:
+    arguments:
+      $events: '%alchemy_webhook.events%'
+
+  Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
+    arguments:
+      $client: '@alchemy.webhook_client'
+    tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Consumer\SerializeObjectHandler:
+    tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Consumer\WebhookHandler:
+    tags: ['arthem_rabbit.event_handler']
+
+  Alchemy\WebhookBundle\Doctrine\Listener\EntityListener:
+    tags: ['doctrine.event_subscriber']
+
+  Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~
+
+  Alchemy\WebhookBundle\Config\EntityRegistry:
+    arguments:
+      $config: '%alchemy_webhook.listener_config%'
+
+  Alchemy\WebhookBundle\Webhook\WebhookTrigger: ~
+
+  Alchemy\WebhookBundle\Webhook\ObjectNormalizer: ~
+
+  Alchemy\WebhookBundle\Listener\TerminateStackListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
+      - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
+      - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }

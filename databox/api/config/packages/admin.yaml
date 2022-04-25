@@ -8,6 +8,7 @@ easy_admin:
     form_theme:
       - '@EasyAdmin/form/bootstrap_4.html.twig'
       - 'form/ace_editor.html.twig'
+      - '@AlchemyWebhookBundle/views/form.html.twig'
     menu:
       - label: 'Permissions'
         children:
@@ -41,6 +42,10 @@ easy_admin:
         children:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
+      - label: 'Webhooks'
+        children:
+          - Webhook
+          - WebhookLog
   entities:
     Asset:
       class: App\Entity\Core\Asset

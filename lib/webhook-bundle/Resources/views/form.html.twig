@@ -1,0 +1,26 @@
+{% block alchemy_webhook_events_widget %}
+    {{ form_widget(form) }}
+    <script>
+        $(function () {
+            var $w = $('#{{ form.vars.id }}');
+            var $others = $w.find(':input:gt(0)');
+            function u(e) {
+                var $c = $(this);
+                if ($c.is(':checked')) {
+                    $others
+                        .attr('disabled', true)
+                        .prop('checked', true)
+                    ;
+                } else if (!!e) {
+                    $others
+                        .removeAttr('disabled')
+                        .prop('checked', false)
+                    ;
+                }
+            };
+            var $a = $('#{{ form._all.vars.id }}');
+            u.call($a);
+            $a.on('change', u)
+        })
+    </script>
+{% endblock %}

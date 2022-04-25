@@ -18,6 +18,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/webhook-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/storage-bundle",
             "options": {
                 "symlink": true
@@ -62,6 +69,7 @@
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "alchemy/storage-bundle": "*",
+        "alchemy/webhook-bundle": "@dev",
         "api-platform/core": "^2.5",
         "arthem/rabbit-bundle": "dev-master",
         "cocur/slugify": "^4.1",

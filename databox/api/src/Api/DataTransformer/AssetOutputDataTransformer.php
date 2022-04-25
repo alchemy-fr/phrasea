@@ -90,12 +90,12 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
         $output->setAttributes($preferredAttributes);
 
+        $output->setTitle($object->getTitle());
         $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
         if ($titleAttribute instanceof Attribute) {
             $output->setResolvedTitle($titleAttribute->getValue());
             $output->setTitleHighlight($titleAttribute->getHighlight());
         } else {
-            $output->setTitle($object->getTitle());
             $output->setResolvedTitle($object->getTitle());
             if (isset($highlights['title'])) {
                 $output->setTitleHighlight(reset($highlights['title']));
