@@ -18,6 +18,7 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setCreatedAt($object->getCreatedAt());
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
+        $output->asset = $object->getAsset();
         $output->value = $object->getValues() ?? $object->getValue();
         $output->highlight = $object->getHighlights() ?? $object->getHighlight();
         $output->origin = $object->getOriginLabel();

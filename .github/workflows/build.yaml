@@ -38,9 +38,26 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
+          function push() {
+            local n=1
+            local max=5
+            local delay=10
+            while true; do
+              bin/publish.sh && break || {
+                if [[ $n -lt $max ]]; then
+                  ((n++))
+                  echo "Push failed. Attempt $n/$max:"
+                  sleep $delay;
+                else
+                  echo "Push has failed after $n attempts." >&2
+                  exit 1
+                fi
+              }
+            done
+          }
           if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
             docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}" \
-              && bin/publish.sh
+              && push
           else
             echo "Publish step skipped."
           fi
