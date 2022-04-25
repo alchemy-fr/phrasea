@@ -35,18 +35,29 @@ jobs:
         run: |
           docker-compose down --volumes
 
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Push images
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
           function push() {
             local n=1
-            local max=50
+            local max=5
+            local delay=10
             while true; do
-              bin/publish.sh && break || {
+              docker-compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                -f docker-compose.report-elk.yml && break || {
                 if [[ $n -lt $max ]]; then
                   ((n++))
                   echo "Push failed. Attempt $n/$max:"
-                  docker logout || rm -f ~/.docker/config.json
+                  sleep $delay;
                 else
                   echo "Push has failed after $n attempts." >&2
                   exit 1
