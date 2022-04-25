@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
@@ -17,6 +18,14 @@ class AssetOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
 
     /**
+     * @var array{
+     *     canEdit: boolean,
+     *     canDelete: boolean,
+     *     canEditPermissions: boolean,
+     * }
+     * @ApiProperty(openapiContext={
+     *     type="object"
+     * })
      * @Groups({"asset:index", "asset:read"})
      */
     protected array $capabilities = [];

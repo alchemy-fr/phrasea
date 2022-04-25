@@ -9,7 +9,14 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 trait CapabilitiesDTOTrait
 {
     /**
-     * @ApiProperty()
+     * @var array{
+     *     canEdit: boolean,
+     *     canDelete: boolean,
+     *     canEditPermissions: boolean,
+     * }
+     * @ApiProperty(openapiContext={
+     *     type="object"
+     * })
      */
     protected array $capabilities = [];
 
