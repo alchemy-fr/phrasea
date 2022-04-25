@@ -46,7 +46,7 @@ jobs:
                 if [[ $n -lt $max ]]; then
                   ((n++))
                   echo "Push failed. Attempt $n/$max:"
-                  docker logout
+                  docker logout || rm -f ~/.docker/config.json
                 else
                   echo "Push has failed after $n attempts." >&2
                   exit 1
