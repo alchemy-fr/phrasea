@@ -40,14 +40,13 @@ jobs:
         run: |
           function push() {
             local n=1
-            local max=5
-            local delay=10
+            local max=50
             while true; do
               bin/publish.sh && break || {
                 if [[ $n -lt $max ]]; then
                   ((n++))
                   echo "Push failed. Attempt $n/$max:"
-                  sleep $delay;
+                  docker logout
                 else
                   echo "Push has failed after $n attempts." >&2
                   exit 1
@@ -56,8 +55,7 @@ jobs:
             done
           }
           if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
-            docker login -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}" \
-              && push
+            push
           else
             echo "Publish step skipped."
           fi
