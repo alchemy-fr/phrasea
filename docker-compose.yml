@@ -753,9 +753,8 @@ services:
       - RABBITMQ_SSL
       - REGISTRY_NAMESPACE
       - REPORT_DB_NAME
-      - UPLOADER_API_PORT
       - XDEBUG_ENABLED
-      - UPLOADER_API_BASE_URL
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
       - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
@@ -775,6 +774,7 @@ services:
       - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
       - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
       - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}
+      - PHRASEANET_BASE_URL
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
