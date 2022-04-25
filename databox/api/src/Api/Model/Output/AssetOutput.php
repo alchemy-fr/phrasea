@@ -18,13 +18,29 @@ class AssetOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
 
     /**
-     * @var array{
-     *     canEdit: boolean,
-     *     canDelete: boolean,
-     *     canEditPermissions: boolean,
+     * @ApiProperty(attributes={
+     *  "openapi_context"={
+     *     "type"="object",
+     *     "properties"={
+     *       "canEdit"={
+     *         "type"="boolean"
+     *       },
+     *       "canDelete"={
+     *         "type"="boolean"
+     *       },
+     *       "canEditPermissions"={
+     *         "type"="boolean"
+     *       },
+     *     }
+     *  },
+     *  "json_schema_context"={
+     *     "type"="object",
+     *     "properties"={
+     *       "canEdit"="boolean",
+     *       "canDelete"="boolean",
+     *       "canEditPermissions"="boolean",
+     *     }
      * }
-     * @ApiProperty(openapiContext={
-     *     type="object"
      * })
      * @Groups({"asset:index", "asset:read"})
      */
