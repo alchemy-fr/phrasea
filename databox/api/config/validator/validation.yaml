@@ -5,6 +5,8 @@ App\Entity\Core\Asset:
           max: 255
     workspace:
       - NotNull: ~
+    ownerId:
+      - NotNull: ~
 
 App\Entity\Core\Collection:
   properties:

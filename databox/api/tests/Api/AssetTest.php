@@ -67,8 +67,12 @@ class AssetTest extends ApiTestCase
 
     public function testCreateInvalidAsset(): void
     {
-        static::createClient()->request('POST', '/assets', ['json' => [
-            'isbn' => 'invalid',
+        static::createClient()->request('POST', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+            ],
+            'json' => [
+            'title' => 'Invalid payload',
         ]]);
 
         $this->assertResponseStatusCodeSame(422);
@@ -78,11 +82,7 @@ class AssetTest extends ApiTestCase
             '@context' => '/contexts/ConstraintViolationList',
             '@type' => 'ConstraintViolationList',
             'hydra:title' => 'An error occurred',
-            'hydra:description' => 'isbn: This value is neither a valid ISBN-10 nor a valid ISBN-13.
-title: This value should not be blank.
-description: This value should not be blank.
-author: This value should not be blank.
-publicationDate: This value should not be null.',
+            'hydra:description' => 'workspace: This value should not be null.',
         ]);
     }
 

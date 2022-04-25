@@ -59,11 +59,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
 
         if ($isNew) {
-            if (!$workspace instanceof Workspace) {
-                throw new BadRequestHttpException('Missing workspace');
-            }
-
-            if ($data->key) {
+            if ($workspace instanceof Workspace && $data->key) {
                 $asset = $this->em->getRepository(Asset::class)
                     ->findOneBy([
                         'key' => $data->key,
