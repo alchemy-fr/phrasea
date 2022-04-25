@@ -56,7 +56,7 @@ Add and configure the following lines to your `env.local`:
 TRAEFIK_PROVIDERS_FILE_FILENAME=
 LETS_ENCRYPT_ENABLED=true
 LETS_ENCRYPT_PROVIDER=gandiv5
-GANDIV5_API_KEY=<Your API key>
+LEGO_GANDIV5_API_KEY=<Your API key>
 ```
 
 Then just update the traefik container:
