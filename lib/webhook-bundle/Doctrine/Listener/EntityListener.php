@@ -87,9 +87,7 @@ class EntityListener implements EventSubscriber
         foreach ($uow->getScheduledEntityDeletions() as $deletedEntity) {
             $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($deletedEntity), self::EVENT_DELETE);
             if (null !== $configNode) {
-                $this->addChange($configNode, $em,$deletedEntity, [
-                    'id' => $deletedEntity->getId(),
-                ]);
+                $this->addChange($configNode, $em,$deletedEntity);
             }
         }
 
@@ -123,7 +121,9 @@ class EntityListener implements EventSubscriber
             'config' => $configNode,
         ];
 
-        if ($event !== self::EVENT_DELETE && !isset($node['data'])) {
+        if ($event === self::EVENT_DELETE) {
+            $node['data'] = $this->entitySerializer->getEntityIdentifier($entity);
+        } elseif (!isset($node['data'])) {
             $node['data'] = $this->snapshotEntityData($em, $entity);
         }
 

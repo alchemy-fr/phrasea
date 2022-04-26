@@ -6,7 +6,6 @@ resources:
       input: App\Api\Model\Input\WorkspaceInput
       normalization_context:
         groups:
-          - _
           - workspace:index
     itemOperations:
       get:

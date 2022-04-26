@@ -48,7 +48,7 @@ class AttributesResolver
                     $groupedByDef[$k] = [];
                 }
 
-                $groupedByDef[$k][$locale] = $attribute;
+                $groupedByDef[$k][$locale] = clone $attribute;
                 $attribute->setValues(null); // Reset values aggregation
             }
 

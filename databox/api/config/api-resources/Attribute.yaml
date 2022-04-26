@@ -4,7 +4,6 @@ resources:
     attributes:
       normalization_context:
         groups:
-          - _
           - attribute:index
       input: App\Api\Model\Input\AttributeInput
       output: App\Api\Model\Output\AttributeOutput

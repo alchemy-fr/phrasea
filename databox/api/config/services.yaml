@@ -154,3 +154,8 @@ services:
 
     App\Repository\Cache\AttributeDefinitionRepositoryMemoryCachedDecorator:
         decorates: 'App\Repository\Core\AttributeDefinitionRepository'
+
+    App\Api\Serializer\GroupNormalizerContextBuilder:
+        decorates: 'alchemy_webhook.normalizer.context_builder'
+        arguments: [ '@App\Api\Serializer\GroupNormalizerContextBuilder.inner' ]
+        autoconfigure: false

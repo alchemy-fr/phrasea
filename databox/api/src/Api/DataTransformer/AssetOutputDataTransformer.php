@@ -72,33 +72,32 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
         $highlights = $object->getElasticHighlights();
 
-        $attributes = $this->attributesResolver->resolveAttributes($object);
-
-        if (!empty($highlights)) {
-            $this->attributesResolver->assignHighlight($attributes, $highlights);
-        }
-
-        $preferredAttributes = [];
-        foreach ($attributes as $_attrs) {
-            foreach ($preferredLocales as $l) {
-                if (isset($_attrs[$l])) {
-                    $preferredAttributes[] = $_attrs[$l];
-                    continue 2;
+        if (isset($context['groups']) && in_array('asset:index', $context['groups'], true)) {
+            $attributes = $this->attributesResolver->resolveAttributes($object);
+            if (!empty($highlights)) {
+                $this->attributesResolver->assignHighlight($attributes, $highlights);
+            }
+            $preferredAttributes = [];
+            foreach ($attributes as $_attrs) {
+                foreach ($preferredLocales as $l) {
+                    if (isset($_attrs[$l])) {
+                        $preferredAttributes[] = $_attrs[$l];
+                        continue 2;
+                    }
                 }
             }
-        }
+            $output->setAttributes($preferredAttributes);
 
-        $output->setAttributes($preferredAttributes);
-
-        $output->setTitle($object->getTitle());
-        $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
-        if ($titleAttribute instanceof Attribute) {
-            $output->setResolvedTitle($titleAttribute->getValue());
-            $output->setTitleHighlight($titleAttribute->getHighlight());
-        } else {
-            $output->setResolvedTitle($object->getTitle());
-            if (isset($highlights['title'])) {
-                $output->setTitleHighlight(reset($highlights['title']));
+            $output->setTitle($object->getTitle());
+            $titleAttribute = $this->assetTitleResolver->resolveTitle($object, $attributes, $preferredLocales);
+            if ($titleAttribute instanceof Attribute) {
+                $output->setResolvedTitle($titleAttribute->getValue());
+                $output->setTitleHighlight($titleAttribute->getHighlight());
+            } else {
+                $output->setResolvedTitle($object->getTitle());
+                if (isset($highlights['title'])) {
+                    $output->setTitleHighlight(reset($highlights['title']));
+                }
             }
         }
 

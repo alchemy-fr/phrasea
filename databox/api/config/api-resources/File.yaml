@@ -5,11 +5,9 @@ resources:
       output: App\Api\Model\Output\FileOutput
       normalization_context:
         groups:
-          - _
           - file:index
       denormalization_context:
         groups:
-          - _
           - file:write
     collectionOperations: {}
     itemOperations: {}

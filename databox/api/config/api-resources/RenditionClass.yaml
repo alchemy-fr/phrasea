@@ -3,7 +3,6 @@ resources:
     attributes:
       normalization_context:
         groups:
-          - _
           - rendclass:index
     shortName: rendition-class
     itemOperations:

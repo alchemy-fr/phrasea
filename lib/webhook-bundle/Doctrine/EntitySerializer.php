@@ -49,6 +49,13 @@ class EntitySerializer
         return $data;
     }
 
+    public function getEntityIdentifier(object $entity)
+    {
+        $wrappedAssoc = new EntityWrapper($entity, $this->em);
+
+        return $wrappedAssoc->getIdentifier(false);
+    }
+
     private function convertFieldToDatabaseValue(ClassMetadata $meta, string $field, $value)
     {
         $assocType = $meta->hasAssociation($field) ? $meta->getAssociationMapping($field)['type'] : null;
@@ -56,8 +63,7 @@ class EntitySerializer
         switch ($assocType) {
             case ClassMetadata::MANY_TO_ONE:
                 if (null !== $value) {
-                    $wrappedAssoc = new EntityWrapper($value, $this->em);
-                    return $wrappedAssoc->getIdentifier(false);
+                    return $this->getEntityIdentifier($value);
                 }
                 return null;
             case ClassMetadata::MANY_TO_MANY:
@@ -67,9 +73,7 @@ class EntitySerializer
                     }
 
                     return $value->map(function (object $object) {
-                        $wrappedAssoc = new EntityWrapper($object, $this->em);
-
-                        return $wrappedAssoc->getIdentifier(false);
+                        return $this->getEntityIdentifier($object);
                     })->toArray();
                 }
 

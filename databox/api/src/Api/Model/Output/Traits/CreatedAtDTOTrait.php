@@ -12,7 +12,7 @@ trait CreatedAtDTOTrait
 {
     /**
      * @ApiProperty()
-     * @Groups({"_"})
+     * @Groups({"dates"})
      */
     protected DateTimeInterface $createdAt;
 

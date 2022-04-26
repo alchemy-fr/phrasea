@@ -38,6 +38,11 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
     {
         $p = $message->getPayload();
         $event = $p['event'];
+
+        if (empty($this->webhookTrigger->getWebhooksForEvent($event))) {
+            return;
+        }
+
         $entityClass = $p['class'];
         $data = $this->entitySerializer->convertToPhpValue($entityClass, $p['data']);
         $config = $this->entityRegistry->getConfigNode($entityClass);

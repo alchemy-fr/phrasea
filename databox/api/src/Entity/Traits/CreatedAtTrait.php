@@ -14,7 +14,7 @@ trait CreatedAtTrait
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
-     * @Groups({"_"})
+     * @Groups({"dates"})
      */
     protected ?DateTimeInterface $createdAt = null;
 
