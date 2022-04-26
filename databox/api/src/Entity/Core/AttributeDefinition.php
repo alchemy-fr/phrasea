@@ -16,6 +16,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
  * @ORM\Table(
  *     uniqueConstraints={

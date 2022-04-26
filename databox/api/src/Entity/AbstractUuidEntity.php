@@ -24,7 +24,7 @@ abstract class AbstractUuidEntity implements \Serializable
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4()->toString();
+        $this->id = Uuid::uuid4();
     }
 
     public function getId(): string
@@ -42,6 +42,10 @@ abstract class AbstractUuidEntity implements \Serializable
     }
 
     public function unserialize($data)
+    {
+    }
+
+    public function __wakeup()
     {
         if (is_string($this->id)) {
             $this->id = Uuid::fromString($this->id);
