@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback, useState} from "react";
+import React, {ChangeEvent, useCallback, useEffect, useState} from "react";
 import {TextField} from "@mui/material";
 import {AttrValue, createNewValue} from "./AttributesEditor";
 
@@ -25,8 +25,12 @@ export default function AttributeWidget({
                                         }: Props) {
     const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);
 
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue?.id]);
+
     const changeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const nv = {...(value || createNewValue(type))};
+        const nv: AttrValue<string | number> = {...(value || createNewValue(type))};
         nv.value = e.target.value;
         setValue(nv);
         setTimeout(() => onChange(nv), 10);

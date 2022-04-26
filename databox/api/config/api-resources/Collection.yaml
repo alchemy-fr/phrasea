@@ -7,7 +7,6 @@ resources:
       normalization_context:
         enable_max_depth: true
         groups:
-          - _
           - collection:index
           - collection:include_children
           - collection:2_level_children

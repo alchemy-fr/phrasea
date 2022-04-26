@@ -6,6 +6,7 @@ namespace App\Api\Model\Output;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
+use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Entity\Core\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -18,6 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class WorkspaceOutput extends AbstractUuidOutput
 {
     use CapabilitiesDTOTrait;
+    use CreatedAtDTOTrait;
 
     /**
      * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})

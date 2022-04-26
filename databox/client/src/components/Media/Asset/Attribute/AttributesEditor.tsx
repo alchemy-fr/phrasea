@@ -46,7 +46,6 @@ export default function AttributesEditor({
                                              onClose,
                                          }: Props) {
     const [error, setError] = useState<string>();
-
     const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
     const [saving, setSaving] = useState<any>(false);
@@ -81,12 +80,12 @@ export default function AttributesEditor({
                     const currValue = lv[locale];
 
                     const updateAttr = async (
-                        removeValue: AttrValue | undefined,
+                        remoteValue: AttrValue | undefined,
                         v: AttrValue<string | number>,
                         position?: number
                     ): Promise<AttrValue | undefined> => {
-                        if (isSame(removeValue, v)) {
-                            return removeValue;
+                        if (isSame(remoteValue, v)) {
+                            return remoteValue;
                         }
 
                         if (!v) {
@@ -95,7 +94,8 @@ export default function AttributesEditor({
 
                         if (typeof v.id === 'string') {
                             if (!v.value) {
-                                await deleteAssetAttribute(v.id as string);
+                                // will be deleted later
+                                return undefined;
                             } else {
                                 await putAssetAttribute(
                                     v.id,
@@ -131,7 +131,7 @@ export default function AttributesEditor({
                         newValues[defId] = {};
                     }
                     if (currValue instanceof Array) {
-                        newValues[defId][locale] = await Promise.all(
+                        newValues[defId][locale] = (await Promise.all(
                             currValue.map((_v, pos) => {
                                 const rv = remoteAttrs[defId][locale] ? (remoteAttrs[defId][locale] as AttrValue[]).find(
                                     __v => __v.id === _v.id
@@ -139,7 +139,7 @@ export default function AttributesEditor({
 
                                 return updateAttr(rv, _v, pos) as Promise<AttrValue>
                             })
-                        );
+                        )).filter(v => !!v);
                     } else {
                         newValues[defId][locale] = await updateAttr(remoteAttrs[defId][locale] as AttrValue | undefined, currValue as AttrValue<string | number>);
                     }
@@ -149,14 +149,15 @@ export default function AttributesEditor({
             await Promise.all(Object.keys(remoteAttrs).map(async (defId): Promise<void> => {
                 await Promise.all(Object.keys(remoteAttrs[defId]).map(async (locale) => {
                     const v = remoteAttrs[defId][locale];
-                    console.log('v', v);
 
                     if (v instanceof Array) {
                         await Promise.all(v.map(async (value: AttrValue<string | number>) => {
                             if (!newValues[defId]
                                 || !newValues[defId][locale]
                                 || !(newValues[defId][locale] instanceof Array)
-                                || !(newValues[defId][locale] as AttrValue<string | number>[]).some(v => v.id === value.id)
+                                || !(newValues[defId][locale] as AttrValue<string | number>[]).some(v => {
+                                    return v && v.value && v.id === value.id
+                                })
                             ) {
                                 await deleteAssetAttribute(value.id as string);
                             }

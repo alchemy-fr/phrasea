@@ -21,6 +21,7 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
         $output->setName($object->getName());
         $output->setSlug($object->getSlug());
+        $output->setCreatedAt($object->getCreatedAt());
 
         $k = $object->getId();
         if (!isset($this->capCache[$k])) {
