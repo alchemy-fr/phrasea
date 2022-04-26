@@ -1,10 +1,9 @@
 # Debugging PHP application with Xdebug
 
-Xdebug is enabled in each PHP application by default in the `docker-compose.override.yml`
-You can disable it with:
+You can enable Xdebug with:
 
 ```bash
-export XDEBUG_ENABLED=0
+export XDEBUG_ENABLED=1
 docker-compose up -d
 ```
 
@@ -23,3 +22,12 @@ Then you need to enable path mappings for the server. See the example below:
 For the uploader application you would have:
 - a server named `server-docker-uploader` in PhpStorm
 - set the path mapping: `~/projects/phrasea/uploader/api` ->  `/srv/app`
+
+## Debugging commands
+
+```bash
+XDEBUG_ENABLED=1 dc run --rm dev
+cd databox/api
+export XDEBUG_CONFIG="remote_enable=1"
+sf app:command
+```
