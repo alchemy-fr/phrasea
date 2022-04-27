@@ -35,6 +35,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+            - '../src/Api/Model/'
             - '../src/Serializer/' # Should be explicitly declared
 
     # controllers are imported separately to make sure services can be injected

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use App\Api\Model\Input\Attribute\BatchAssetAttributeInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
@@ -19,7 +20,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use LogicException;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
@@ -92,6 +92,8 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     private ?DoctrineCollection $renditions = null;
 
     private ?array $highlights = null;
+
+    public ?BatchAssetAttributeInput $attributeActions = null;
 
     public function __construct()
     {
