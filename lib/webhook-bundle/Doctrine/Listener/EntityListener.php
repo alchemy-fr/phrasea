@@ -9,6 +9,7 @@ use Alchemy\WebhookBundle\Consumer\SerializeObjectHandler;
 use Alchemy\WebhookBundle\Consumer\WebhookHandler;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
 use Alchemy\WebhookBundle\Listener\TerminateStackListener;
+use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -25,19 +26,37 @@ class EntityListener implements EventSubscriber
     private EntityRegistry $entityRegistry;
     private array $changes = [];
     private TerminateStackListener $terminateStackListener;
+    private WebhookTrigger $webhookTrigger;
+    private static bool $enabled = true;
+
+    public static function enable(): void
+    {
+        self::$enabled = true;
+    }
+
+    public static function disable(): void
+    {
+        self::$enabled = false;
+    }
 
     public function __construct(
         EntitySerializer $entitySerializer,
         EntityRegistry $entityRegistry,
-        TerminateStackListener $terminateStackListener
+        TerminateStackListener $terminateStackListener,
+        WebhookTrigger $webhookTrigger
     ) {
         $this->entitySerializer = $entitySerializer;
         $this->entityRegistry = $entityRegistry;
         $this->terminateStackListener = $terminateStackListener;
+        $this->webhookTrigger = $webhookTrigger;
     }
 
     public function onFlush(OnFlushEventArgs $args): void
     {
+        if (!self::$enabled || !$this->webhookTrigger->hasWebhooks()) {
+            return;
+        }
+
         $this->changes = [];
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();

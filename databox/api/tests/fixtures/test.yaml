@@ -1,0 +1,22 @@
+parameters:
+  user_id: '123'
+
+App\Entity\Core\Workspace:
+  w_test:
+    name: Test Workspace
+    slug: test-workspace
+    ownerId: super_user
+
+App\Entity\Core\Asset:
+  asset{1..99}:
+    title: 'Asset #<current()>'
+    ownerId: <{user_id}>
+    workspace: '@w_test'
+    privacy: 4
+
+  asset_foo:
+    title: 'Asset Foo'
+    key: foo
+    ownerId: <{user_id}>
+    workspace: '@w_test'
+    privacy: 4

@@ -82,7 +82,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
     public function testSearchNonOwnedAssetsAsOwner(): void
     {
         $this->createAsset([
-            'title' => 'Foo',
+            'title' => 'Bar',
             'ownerId' => 'another_owner',
         ]);
 
