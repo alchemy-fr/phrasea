@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-class AttributeActionInput extends AbstractAttributeInput
+class AttributeActionInput
 {
     /**
      * Attribute ID
      */
     public ?string $id = null;
-
-    /**
-     * Attribute definition name
-     */
-    public ?string $name = null;
 
     public ?string $definitionId = null;
 
@@ -28,6 +23,11 @@ class AttributeActionInput extends AbstractAttributeInput
      * Default is "set"
      */
     public ?string $action = 'set';
+
+    /**
+     * @var string|array|int|bool|null
+     */
+    public $value;
 
     public ?bool $regex = null;
 
