@@ -13,6 +13,7 @@ class WebhookTrigger
 {
     private EventProducer $eventProducer;
     private EntityManagerInterface $em;
+    private ?array $webhooks = null;
 
     public function __construct(EventProducer $eventProducer, EntityManagerInterface $em)
     {
@@ -33,13 +34,29 @@ class WebhookTrigger
 
     public function getWebhooksForEvent(string $event): array
     {
-        /** @var Webhook[] $webhooks */
-        $webhooks = $this->em->getRepository(Webhook::class)->findBy([
-            'active' => true,
-        ]);
+        $this->loadWebhooks();
 
-        return array_filter($webhooks, function (Webhook $webhook) use ($event): bool {
+        return array_filter($this->webhooks, function (Webhook $webhook) use ($event): bool {
             return $webhook->hasEvent($event);
         });
+    }
+
+    private function loadWebhooks(): void
+    {
+        if (null !== $this->webhooks) {
+            return;
+        }
+
+        /** @var Webhook[] $webhooks */
+        $this->webhooks = $this->em->getRepository(Webhook::class)->findBy([
+            'active' => true,
+        ]);
+    }
+
+    public function hasWebhooks(): bool
+    {
+        $this->loadWebhooks();
+
+        return !empty($this->webhooks);
     }
 }

@@ -146,8 +146,8 @@ App\Entity\Core\Asset:
     title: 'Asset #<ucwords($current)>'
     ownerId: <{user_bob}>
     workspace: '@w_newspaper'
+    privacy: 1
     __calls:
-      - setPrivacy: [1]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
@@ -155,8 +155,8 @@ App\Entity\Core\Asset:
     title: 'Asset #<ucwords($current)>'
     ownerId: <{user_bob}>
     workspace: '@w_newspaper'
+    privacy: 2
     __calls:
-      - setPrivacy: [2]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
@@ -164,8 +164,8 @@ App\Entity\Core\Asset:
     title: 'Asset #<ucwords($current)>'
     ownerId: <{user_bob}>
     workspace: '@w_newspaper'
+    privacy: 3
     __calls:
-      - setPrivacy: [3]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
@@ -173,8 +173,8 @@ App\Entity\Core\Asset:
     title: 'Asset #<ucwords($current)>'
     ownerId: <{user_bob}>
     workspace: '@w_newspaper'
+    privacy: 4
     __calls:
-      - setPrivacy: [4]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
@@ -182,8 +182,8 @@ App\Entity\Core\Asset:
     title: 'Asset #<ucwords($current)>'
     ownerId: <{user_jack}>
     workspace: '@w_newspaper'
+    privacy: 5
     __calls:
-      - setPrivacy: [5]
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 

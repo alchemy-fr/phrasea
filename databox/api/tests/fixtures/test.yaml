@@ -8,7 +8,15 @@ App\Entity\Core\Workspace:
     ownerId: super_user
 
 App\Entity\Core\Asset:
-  asset{1..100}:
+  asset{1..99}:
     title: 'Asset #<current()>'
     ownerId: <{user_id}>
     workspace: '@w_test'
+    privacy: 4
+
+  asset_foo:
+    title: 'Asset Foo'
+    key: foo
+    ownerId: <{user_id}>
+    workspace: '@w_test'
+    privacy: 4

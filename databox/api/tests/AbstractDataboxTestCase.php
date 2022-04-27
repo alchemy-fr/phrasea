@@ -20,18 +20,23 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractDataboxTestCase extends ApiTestCase
 {
-    use ReloadDatabaseTrait;
+    use FixturesTrait;
 
     private ?Workspace $defaultWorkspace = null;
+
+    protected static function bootKernel(array $options = []): KernelInterface
+    {
+        return static::fixturesBootKernel($options);
+    }
 
     protected function createAsset(array $options = []): Asset
     {
