@@ -13,7 +13,7 @@ use App\Tests\FixturesTrait;
 use App\Tests\Search\SearchTestTrait;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class AttributeBatchTest extends ApiTestCase
+class CreateAssetWithAttributeTest extends ApiTestCase
 {
     use FixturesTrait;
     use SearchTestTrait;
@@ -57,9 +57,9 @@ class AttributeBatchTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
 
-        $assertAttributes = [];
+        $attrAssertions = [];
         foreach ($expectedValues as $name => $value) {
-            $assertAttributes[] = [
+            $attrAssertions[] = [
                 'definition' => [
                     'name' => $name,
                 ],
@@ -69,7 +69,7 @@ class AttributeBatchTest extends ApiTestCase
         $this->assertJsonContains([
             '@type' => 'asset',
             'title' => 'Batch attribute Asset',
-            'attributes' => $assertAttributes,
+            'attributes' => $attrAssertions,
         ]);
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
         $this->assertMatchesResourceItemJsonSchema(Asset::class);

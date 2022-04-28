@@ -8,7 +8,6 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 final class BatchAssetAttributeAction extends AbstractController
 {
@@ -23,6 +22,6 @@ final class BatchAssetAttributeAction extends AbstractController
     {
         $this->batchAttributeManager->handleBatch($data, $data->attributeActions);
 
-        return new Response('');
+        return $data;
     }
 }

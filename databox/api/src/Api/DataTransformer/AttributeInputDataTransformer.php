@@ -6,6 +6,7 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeInput;
+use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,10 +17,12 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
     public const ATTRIBUTE_DEFINITION = '_ATTR_DEF';
 
     private EntityManagerInterface $em;
+    private AttributeAssigner $attributeAssigner;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner)
     {
         $this->em = $em;
+        $this->attributeAssigner = $attributeAssigner;
     }
 
     /**
@@ -53,29 +56,7 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
             }
         }
 
-        if ($data->origin) {
-            if (false !== $k = array_search($data->origin, Attribute::ORIGIN_LABELS, true)) {
-                $object->setOrigin($k);
-            }
-        }
-        if ($data->status) {
-            if (false !== $k = array_search($data->status, Attribute::STATUS_LABELS, true)) {
-                $object->setStatus($k);
-            }
-        }
-
-        if ($data->locale) {
-            $object->setLocale($data->locale);
-        }
-        $object->setValue($data->value);
-        $object->setOriginUserId($data->originUserId);
-        $object->setOriginVendor($data->originVendor);
-        $object->setOriginVendorContext($data->originVendorContext);
-        $object->setPosition($data->position ?? 0);
-        if ($data->confidence) {
-            $object->setConfidence($data->confidence);
-        }
-        $object->setCoordinates($data->coordinates);
+        $this->attributeAssigner->assignAttributeFromInput($object, $data);
 
         return $object;
     }
