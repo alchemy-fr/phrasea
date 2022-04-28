@@ -21,6 +21,15 @@ resources:
         input: App\Api\Model\Input\AssetGenerateRenditionsInput
         controller: App\Controller\Core\GenerateRenditionsAction
         read: false
+        security: 'is_granted("EDIT", object)'
+      post_batch_attributes:
+        attributes:
+          receive: true
+        method: POST
+        path: /assets/{id}/attributes
+        input: App\Api\Model\Input\Attribute\BatchAssetAttributeInput
+        controller: App\Controller\Core\BatchAssetAttributeAction
+        security: 'is_granted("EDIT", object)'
     collectionOperations:
       get: ~
       post:

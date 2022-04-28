@@ -10,6 +10,16 @@ App\Entity\Core\Workspace:
     slug: newspaper
     ownerId: super_user
 
+App\Entity\Core\AttributeDefinition:
+  ad_desc:
+    name: Description
+    workspace: '@w_newspaper'
+  ad_keywords:
+    name: Keywords
+    multiple: true
+    facetEnabled: true
+    workspace: '@w_newspaper'
+
 App\Entity\Core\RenditionClass:
   n_rc_public:
     workspace: '@w_newspaper'

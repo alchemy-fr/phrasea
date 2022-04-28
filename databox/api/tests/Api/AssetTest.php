@@ -26,10 +26,9 @@ class AssetTest extends ApiTestCase
         return $kernel;
     }
 
-    public function testGetCollection(): void
+    public function testGetAssetCollection(): void
     {
         self::enableFixtures();
-        // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
         $response = static::createClient()->request('GET', '/assets', [
             'headers' => [
                 'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
@@ -37,20 +36,17 @@ class AssetTest extends ApiTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-
-        // Asserts that the returned JSON is a superset of this one
         $this->assertJsonContains([
             '@context' => '/contexts/asset',
             '@id' => '/assets',
             '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 100,
+            'hydra:totalItems' => 61,
             'hydra:view' => [
                 '@id' => '/assets?page=1',
                 '@type' => 'hydra:PartialCollectionView',
                 'hydra:first' => '/assets?page=1',
-                'hydra:last' => '/assets?page=4',
+                'hydra:last' => '/assets?page=3',
                 'hydra:next' => '/assets?page=2',
             ],
         ]);

@@ -13,6 +13,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeInputDataTransformer extends AbstractInputDataTransformer
 {
+    public const ATTRIBUTE_DEFINITION = '_ATTR_DEF';
+
     private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
@@ -36,9 +38,9 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
             if ($data->definition) {
                 $definition = $data->definition;
             } elseif ($data->name && $object->getAsset()) {
-                $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+                $definition = $context[self::ATTRIBUTE_DEFINITION] ?? $this->em->getRepository(AttributeDefinition::class)->findOneBy([
                     'name' => $data->name,
-                    'workspace' => $object->getAsset()->getWorkspace()->getId(),
+                    'workspace' => $object->getAsset()->getWorkspaceId(),
                 ]);
 
                 if (!$definition instanceof AttributeDefinition) {

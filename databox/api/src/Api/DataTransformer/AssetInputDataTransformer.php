@@ -14,12 +14,12 @@ use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -132,16 +132,30 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             }
             if (!empty($data->attributes)) {
                 foreach ($data->attributes as $attribute) {
-                    if (is_array($attribute->values)) {
-                        foreach ($attribute->values as $value) {
-                            $attr = clone $attribute;
-                            unset($attr->values);
-                            $attr->value = $value;
-                            $object->addAttribute($this->attributeInputDataTransformer->transform($attr, Attribute::class, $context));
+                    $attribute->asset = $object;
+
+                    if (is_array($attribute->value)) {
+                        $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+                            'name' => $attribute->name,
+                            'workspace' => $object->getWorkspaceId(),
+                        ]);
+
+                        if ($definition->isMultiple()) {
+                            foreach ($attribute->value as $value) {
+                                $attr = clone $attribute;
+                                unset($attr->values);
+                                $attr->value = $value;
+                                $object->addAttribute($this->attributeInputDataTransformer->transform($attr, Attribute::class, array_merge([
+                                    AttributeInputDataTransformer::ATTRIBUTE_DEFINITION => $definition,
+                                ], $context)));
+                            }
+
+                            continue;
                         }
-                    } else {
-                        $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
+                        // else add single attr below
                     }
+
+                    $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
                 }
             }
         }

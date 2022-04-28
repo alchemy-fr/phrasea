@@ -47,6 +47,7 @@ class AssetOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     /**
+     * @var AttributeOutput[]
      * @Groups({"asset:index", "asset:read"})
      */
     protected ?array $attributes;
