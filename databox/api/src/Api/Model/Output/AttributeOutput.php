@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
@@ -30,7 +31,11 @@ class AttributeOutput extends AbstractUuidOutput
     public $definition;
 
     /**
-     * @var string
+     * @ApiProperty(attributes={
+     *    "json_schema_context"={"type"={"string", "number", "boolean", "array", "null"}},
+     *     "openapi_context"={"type":null,"oneOf":{{"type":"string"},{"type":"number"},{"type":"boolean"},{"type":"array"}}},
+     * })
+     * @var string|float|int|bool|array|null
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $value;

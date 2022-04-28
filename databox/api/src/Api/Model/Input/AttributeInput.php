@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
+use App\Api\Model\Input\Attribute\AbstractAttributeInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AttributeDefinition;
 
-class AttributeInput
+class AttributeInput extends AbstractAttributeInput
 {
     /**
      * @var Asset
@@ -27,51 +28,4 @@ class AttributeInput
      * @var AttributeDefinition|null
      */
     public $definition;
-
-    /**
-     * @var string
-     */
-    public $value;
-
-    /**
-     * @var array
-     */
-    public $values;
-
-    /**
-     * "human" or "machine".
-     *
-     * @var string
-     */
-    public $origin;
-
-    /**
-     * @var string
-     */
-    public $locale;
-
-    /**
-     * @var int
-     */
-    public $position;
-
-    public ?string $originVendor = null;
-
-    public ?string $originUserId = null;
-
-    public ?string $originVendorContext = null;
-
-    public ?string $coordinates = null;
-
-    /**
-     * "valid" | "review_pending" | "declined".
-     *
-     * @var string
-     */
-    public $status;
-
-    /**
-     * @var float
-     */
-    public $confidence;
 }

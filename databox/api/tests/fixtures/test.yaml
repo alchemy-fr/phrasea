@@ -8,7 +8,7 @@ App\Entity\Core\Workspace:
     ownerId: super_user
 
 App\Entity\Core\Asset:
-  asset{1..99}:
+  asset{1..60}:
     title: 'Asset #<current()>'
     ownerId: <{user_id}>
     workspace: '@w_test'
@@ -20,3 +20,12 @@ App\Entity\Core\Asset:
     ownerId: <{user_id}>
     workspace: '@w_test'
     privacy: 4
+
+App\Entity\Core\AttributeDefinition:
+  ad_desc:
+    name: Description
+    workspace: '@w_test'
+  ad_keywords:
+    name: Keywords
+    multiple: true
+    workspace: '@w_test'
