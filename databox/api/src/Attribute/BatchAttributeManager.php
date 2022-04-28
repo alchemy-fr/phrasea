@@ -21,17 +21,25 @@ class BatchAttributeManager
     public const ACTION_ADD = 'add';
 
     private EntityManagerInterface $em;
+    private AttributeAssigner $attributeAssigner;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner)
     {
         $this->em = $em;
+        $this->attributeAssigner = $attributeAssigner;
     }
 
     public function handleBatch(Asset $asset, BatchAssetAttributeInput $input): void
     {
         $this->em->wrapInTransaction(function () use ($input, $asset): void {
             foreach ($input->actions as $i => $action) {
-                $definition = $action->definitionId ? $this->getAttributeDefinition($asset->getWorkspaceId(), $action->definitionId) : null;
+                if ($action->definitionId) {
+                    $definition = $this->getAttributeDefinition($asset->getWorkspaceId(), $action->definitionId);
+                } else if ($action->name) {
+                    $definition = $this->getAttributeDefinitionByName($asset->getWorkspaceId(), $action->name);
+                } else {
+                    $definition = null;
+                }
 
                 switch ($action->action) {
                     case self::ACTION_ADD:
@@ -45,38 +53,68 @@ class BatchAttributeManager
                         $this->upsertAttribute(null, $asset, $definition, $action);
                         break;
                     case self::ACTION_DELETE:
-                        $qb = $this->em->createQueryBuilder()
-                            ->delete()
-                            ->from(Attribute::class, 'a')
-                            ->andWhere('a.asset = :asset')
-                            ->setParameter('asset', $asset->getId());
-                        if ($definition) {
-                            $qb
-                                ->andWhere('a.definition = :def')
-                            ->setParameter('def', $definition->getId());
-                        }
-                        if ($action->id) {
-                            $qb
-                                ->andWhere('a.id = :id')
-                            ->setParameter('id', $action->id);
-                        }
-                        $qb->getQuery()->execute();
+                        $this->deleteAttributes($asset, $definition, [
+                            'id' => $action->id,
+                        ]);
                         break;
                     case self::ACTION_SET:
                         if (!$definition) {
                             throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                         }
                         if ($definition->isMultiple()) {
-                            throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute', $definition->getName(), $i));
+                            if (!is_array($action->value)) {
+                            throw new BadRequestHttpException(sprintf(
+                                'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
+                            }
+
+                            $this->deleteAttributes($asset, $definition);
+                            foreach ($action->value as $value) {
+                                $vAction = clone $action;
+                                $vAction->value = $value;
+                                $this->upsertAttribute(null, $asset, $definition, $vAction);
+                            }
+
+                        } else {
+                            $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
+                                'definition' => $definition->getId(),
+                                'asset' => $asset->getId(),
+                            ]);
+                            $this->upsertAttribute($attribute, $asset, $definition, $action);
                         }
-                        $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
-                            'definition' => $definition->getId(),
-                            'asset' => $asset->getId(),
-                        ]);
-                        $this->upsertAttribute($attribute, $asset, $definition, $action);
                         break;
                     case self::ACTION_REPLACE:
-                        // TODO
+                        $qb = $this->em->createQueryBuilder()
+                            ->update();
+                        if ($action->regex) {
+                            if ($action->flags) {
+                                $qb
+                                    ->set('a.value', 'REGEXP_REPLACE(a.value, :from, :to, :flags)')
+                                    ->setParameter('flags', $action->flags)
+                                ;
+                            } else {
+                                $qb->set('a.value', 'REGEXP_REPLACE(a.value, :from, :to)');
+                            }
+                        } else {
+                            $qb->set('a.value', 'REPLACE(a.value, :from, :to)');
+                        }
+                        $qb
+                            ->from(Attribute::class, 'a')
+                            ->andWhere('a.asset = :asset')
+                            ->setParameter('asset', $asset->getId())
+                            ->setParameter('from', $action->value)
+                            ->setParameter('to', $action->replaceWith)
+                        ;
+                        if ($definition) {
+                            $qb
+                                ->andWhere('a.definition = :def')
+                                ->setParameter('def', $definition->getId());
+                        }
+                        if ($action->id) {
+                            $qb
+                                ->andWhere('a.id = :id')
+                                ->setParameter('id', $action->id);
+                        }
+                        $qb->getQuery()->execute();
                         break;
                     default:
                         throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action->action));
@@ -94,7 +132,8 @@ class BatchAttributeManager
             $attribute->setAsset($asset);
             $attribute->setDefinition($definition);
         }
-        $attribute->setValue($action->value);
+
+        $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
 
         $this->em->persist($attribute);
 
@@ -112,5 +151,45 @@ class BatchAttributeManager
         }
 
         return $def;
+    }
+
+    private function getAttributeDefinitionByName(string $workspaceId, string $name): AttributeDefinition
+    {
+        $def = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+            'name' => $name,
+            'workspace' => $workspaceId,
+        ]);
+        if (!$def instanceof AttributeDefinition) {
+            throw new BadRequestHttpException(sprintf('Attribute definition "%s" not found in workspace "%s"', $name, $workspaceId));
+        }
+
+        return $def;
+    }
+
+    /**
+     * @param Asset                    $asset
+     * @param AttributeDefinition|null $definition
+     * @param                          $action
+     *
+     * @return void
+     */
+    function deleteAttributes(Asset $asset, ?AttributeDefinition $definition, array $options = []): void
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->delete()
+            ->from(Attribute::class, 'a')
+            ->andWhere('a.asset = :asset')
+            ->setParameter('asset', $asset->getId());
+        if ($definition) {
+            $qb
+                ->andWhere('a.definition = :def')
+                ->setParameter('def', $definition->getId());
+        }
+        if ($options['id'] ?? null) {
+            $qb
+                ->andWhere('a.id = :id')
+                ->setParameter('id', $options['id']);
+        }
+        $qb->getQuery()->execute();
     }
 }

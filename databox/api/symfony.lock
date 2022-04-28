@@ -46,6 +46,9 @@
     "aws/aws-sdk-php": {
         "version": "3.198.5"
     },
+    "beberlei/doctrineextensions": {
+        "version": "v1.3.0"
+    },
     "behat/transliterator": {
         "version": "v1.3.0"
     },

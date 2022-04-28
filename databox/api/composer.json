@@ -3,6 +3,10 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/DoctrineExtensions.git"
+        },
+        {
             "type": "path",
             "url": "./__lib/core-bundle",
             "options": {
@@ -72,6 +76,7 @@
         "alchemy/webhook-bundle": "@dev",
         "api-platform/core": "^2.5",
         "arthem/rabbit-bundle": "dev-master",
+        "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
