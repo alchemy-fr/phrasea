@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Attribute\BatchAttributeManager;
-use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-final class BatchAssetAttributeAction extends AbstractController
+final class AttributeBatchUpdateAction extends AbstractController
 {
     private BatchAttributeManager $batchAttributeManager;
 
@@ -18,10 +19,10 @@ final class BatchAssetAttributeAction extends AbstractController
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function __invoke(string $id, Asset $data, Request $request)
+    public function __invoke(Attribute $data, Request $request)
     {
-        $this->batchAttributeManager->handleBatch($data, $data->attributeActions);
+        $this->batchAttributeManager->handleMultiAssetBatch($data->batchUpdate);
 
-        return $data;
+        return new Response('');
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use App\Api\Model\Input\Attribute\BatchAssetAttributeInput;
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
@@ -93,7 +93,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     private ?array $highlights = null;
 
-    public ?BatchAssetAttributeInput $attributeActions = null;
+    public ?AssetAttributeBatchUpdateInput $attributeActions = null;
 
     public function __construct()
     {

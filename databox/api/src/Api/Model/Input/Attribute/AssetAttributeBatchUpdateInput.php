@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-class BatchAssetAttributeInput
+class AssetAttributeBatchUpdateInput
 {
     /**
      * @var AttributeActionInput[]

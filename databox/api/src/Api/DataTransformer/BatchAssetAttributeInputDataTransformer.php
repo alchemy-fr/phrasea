@@ -6,13 +6,13 @@ namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Api\Model\Input\Attribute\BatchAssetAttributeInput;
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
 
 class BatchAssetAttributeInputDataTransformer implements DataTransformerInterface
 {
     /**
-     * @param BatchAssetAttributeInput $data
+     * @param AssetAttributeBatchUpdateInput $data
      */
     public function transform($data, string $to, array $context = [])
     {
@@ -30,6 +30,6 @@ class BatchAssetAttributeInputDataTransformer implements DataTransformerInterfac
             return false;
         }
 
-        return Asset::class === $to && BatchAssetAttributeInput::class === ($context['input']['class'] ?? null);
+        return Asset::class === $to && AssetAttributeBatchUpdateInput::class === ($context['input']['class'] ?? null);
     }
 }

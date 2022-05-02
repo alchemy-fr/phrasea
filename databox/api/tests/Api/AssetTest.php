@@ -20,10 +20,13 @@ class AssetTest extends ApiTestCase
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        $kernel = static::fixturesBootKernel($options);
-        self::bootSearch($kernel);
+        if (static::$kernel) {
+            return static::$kernel;
+        }
+        static::fixturesBootKernel($options);
+        self::bootSearch(static::$kernel);
 
-        return $kernel;
+        return static::$kernel;
     }
 
     public function testGetAssetCollection(): void
@@ -41,7 +44,7 @@ class AssetTest extends ApiTestCase
             '@context' => '/contexts/asset',
             '@id' => '/assets',
             '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 61,
+            'hydra:totalItems' => 62,
             'hydra:view' => [
                 '@id' => '/assets?page=1',
                 '@type' => 'hydra:PartialCollectionView',

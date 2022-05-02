@@ -20,10 +20,13 @@ class CreateAssetWithAttributeTest extends ApiTestCase
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        $kernel = static::fixturesBootKernel($options);
-        self::bootSearch($kernel);
+        if (static::$kernel) {
+            return static::$kernel;
+        }
+        static::fixturesBootKernel($options);
+        self::bootSearch(static::$kernel);
 
-        return $kernel;
+        return static::$kernel;
     }
 
     /**

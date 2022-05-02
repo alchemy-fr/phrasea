@@ -21,6 +21,13 @@ App\Entity\Core\Asset:
     workspace: '@w_test'
     privacy: 4
 
+  asset_bar:
+    title: 'Asset Bar'
+    key: bar
+    ownerId: <{user_id}>
+    workspace: '@w_test'
+    privacy: 4
+
 App\Entity\Core\AttributeDefinition:
   ad_photographer:
     name: Photographer
@@ -44,4 +51,16 @@ App\Entity\Core\Attribute:
     origin: 0
     value: 'This is KW #<current()>'
     asset: '@asset_foo'
+    position: '<current()>'
+
+  a_bar_desc:
+    definition: '@ad_desc'
+    origin: 0
+    value: 'This is a Bar description test.'
+    asset: '@asset_bar'
+  a_bar_keyword{1..3}:
+    definition: '@ad_keywords'
+    origin: 0
+    value: 'This is a Bar KW #<current()>'
+    asset: '@asset_bar'
     position: '<current()>'
