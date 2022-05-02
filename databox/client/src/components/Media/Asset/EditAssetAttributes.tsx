@@ -3,7 +3,6 @@ import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api
 import {Attribute, AttributeDefinition} from "../../../types";
 import AttributesEditor, {
     AttributeIndex,
-    AttrValue,
     buildAttributeIndex,
     DefinitionIndex
 } from "./Attribute/AttributesEditor";

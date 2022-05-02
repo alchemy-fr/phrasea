@@ -35,6 +35,7 @@ class AttributeOutput extends AbstractUuidOutput
      *    "json_schema_context"={"type"={"string", "number", "boolean", "array", "null"}},
      *     "openapi_context"={"type":null,"oneOf":{{"type":"string"},{"type":"number"},{"type":"boolean"},{"type":"array"}}},
      * })
+     *
      * @var string|float|int|bool|array|null
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */

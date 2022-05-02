@@ -6,7 +6,8 @@ namespace App\Util;
 
 abstract class ArrayUtil
 {
-    public static function arrayAreSame(array $a, array $b): bool {
+    public static function arrayAreSame(array $a, array $b): bool
+    {
         if (count($a) !== count($b)) {
             return false;
         }

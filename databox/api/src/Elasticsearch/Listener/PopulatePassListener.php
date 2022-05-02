@@ -24,8 +24,7 @@ class PopulatePassListener implements EventSubscriberInterface
     public function __construct(
         EntityManagerInterface $em,
         IndexSyncState $indexSyncState
-    )
-    {
+    ) {
         $this->em = $em;
         $this->indexSyncState = $indexSyncState;
     }

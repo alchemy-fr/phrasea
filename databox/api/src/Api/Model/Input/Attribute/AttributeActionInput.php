@@ -7,12 +7,12 @@ namespace App\Api\Model\Input\Attribute;
 class AttributeActionInput extends AbstractAttributeInput
 {
     /**
-     * Attribute ID
+     * Attribute ID.
      */
     public ?string $id = null;
 
     /**
-     * Attribute definition name
+     * Attribute definition name.
      */
     public ?string $name = null;
 
@@ -23,7 +23,7 @@ class AttributeActionInput extends AbstractAttributeInput
      *  - "set"
      *  - "add"
      *  - "delete"
-     *  - "replace"
+     *  - "replace".
      *
      * Default is "set"
      */
@@ -32,7 +32,7 @@ class AttributeActionInput extends AbstractAttributeInput
     public ?bool $regex = null;
 
     /**
-     * Regex flags (i.e. 'g')
+     * Regex flags (i.e. 'g').
      */
     public ?string $flags = null;
 

@@ -31,7 +31,7 @@ class IndexMappingDiffTest extends TestCase
                     'attribute_id' => 'def_a',
                     'attribute_name' => 'name_a',
                 ],
-            ]
+            ],
         ];
         $attributes2 = [
             'a' => [
@@ -43,9 +43,9 @@ class IndexMappingDiffTest extends TestCase
                 'fields' => [
                     'raw' => [
                         'type' => 'keyword',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         return [
@@ -58,7 +58,7 @@ class IndexMappingDiffTest extends TestCase
                         'attribute_id' => 'def_a',
                         'attribute_name' => 'name_a',
                     ],
-                ]
+                ],
             ]],
             [true, $attributes, [
                 'a' => [
@@ -67,7 +67,7 @@ class IndexMappingDiffTest extends TestCase
                         'attribute_id' => 'def_a_CHANGED',
                         'attribute_name' => 'name_a',
                     ],
-                ]
+                ],
             ]],
             [false, $attributes, [
                 'a' => [
@@ -86,7 +86,7 @@ class IndexMappingDiffTest extends TestCase
                         'attribute_id' => 'def_a',
                         'attribute_name' => 'name_a_CHANGED',
                     ],
-                ]
+                ],
             ]],
             [true, $attributes, [
                 'a' => [
@@ -96,7 +96,7 @@ class IndexMappingDiffTest extends TestCase
                         'attribute_id' => 'def_a',
                         'attribute_name' => 'name_a',
                     ],
-                ]
+                ],
             ]],
             [true, $attributes, [
                 'a' => [
@@ -108,9 +108,9 @@ class IndexMappingDiffTest extends TestCase
                     'fields' => [
                         'raw' => [
                             'type' => 'keyword',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]],
             [false, $attributes2, [
                 'a' => [
@@ -122,9 +122,9 @@ class IndexMappingDiffTest extends TestCase
                     'fields' => [
                         'raw' => [
                             'type' => 'keyword',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]],
             [true, $attributes2, [
                 'a' => [
@@ -136,9 +136,9 @@ class IndexMappingDiffTest extends TestCase
                     'fields' => [
                         'raw' => [
                             'type' => 'text',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]],
         ];
     }

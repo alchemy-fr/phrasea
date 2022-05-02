@@ -7,7 +7,6 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
-use App\Util\LocaleUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Elastica\Index;
 

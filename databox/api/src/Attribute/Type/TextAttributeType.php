@@ -96,7 +96,7 @@ class TextAttributeType extends AbstractAttributeType
         }
 
         try {
-            return (string)$value;
+            return (string) $value;
         } catch (Throwable $e) {
             return null;
         }

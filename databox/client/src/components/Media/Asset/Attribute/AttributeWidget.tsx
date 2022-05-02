@@ -27,6 +27,7 @@ export default function AttributeWidget({
 
     useEffect(() => {
         setValue(initialValue);
+        // eslint-disable-next-line
     }, [initialValue?.id]);
 
     const changeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {

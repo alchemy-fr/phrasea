@@ -20,11 +20,11 @@ final class RemoveUnwantedAutoWiredServicesPass implements CompilerPassInterface
         $annotationReader = new AnnotationReader();
         $definitions = $container->getDefinitions();
         foreach ($definitions as $fqcn => $definition) {
-            if (substr($fqcn, 0, 4) === 'App\\') {
+            if ('App\\' === substr($fqcn, 0, 4)) {
                 try {
                     $refl = new \ReflectionClass($fqcn);
                     $result = $annotationReader->getClassAnnotation($refl, IgnoreAutowire::class);
-                    if ($result !== null) {
+                    if (null !== $result) {
                         $container->removeDefinition($fqcn);
                     }
                 } catch (Exception $e) {

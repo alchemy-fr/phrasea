@@ -54,7 +54,6 @@ class ESMappingValidateCommand extends Command
             } else {
                 $output->writeln(sprintf('<fg=green>[OK]</> Index <comment>%s</comment> is synced.', $indexName));
             }
-
         }
 
         return $returnCode;

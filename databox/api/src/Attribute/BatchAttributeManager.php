@@ -101,8 +101,7 @@ class BatchAttributeManager
                             }
                             if ($definition->isMultiple()) {
                                 if (!is_array($action->value)) {
-                                    throw new BadRequestHttpException(sprintf(
-                                        'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
+                                    throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                                 }
 
                                 $this->deleteAttributes($assetsId, $definition);
@@ -216,7 +215,7 @@ class BatchAttributeManager
         return $def;
     }
 
-    function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
+    public function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
     {
         $qb = $this->em->createQueryBuilder()
             ->delete()

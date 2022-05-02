@@ -34,7 +34,7 @@ class ESPopulateHandler extends AbstractEntityManagerHandler
             'command' => 'fos:elastica:populate',
         ]);
         $code = $application->run($input, new NullOutput());
-        
+
         if (0 !== $code) {
             $unterminated = $this->em->getRepository(PopulatePass::class)->findBy([
                 'endedAt' => null,

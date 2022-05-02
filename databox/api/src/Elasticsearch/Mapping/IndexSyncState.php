@@ -21,8 +21,7 @@ class IndexSyncState
         ManagerInterface $configManager,
         MappingBuilder $mappingBuilder,
         IndexMappingDiff $mappingDiff
-    )
-    {
+    ) {
         $this->em = $em;
         $this->configManager = $configManager;
         $this->mappingBuilder = $mappingBuilder;
@@ -31,7 +30,7 @@ class IndexSyncState
 
     public function snapshotStateMapping(string $indexName): void
     {
-        /** @var  ESIndexState|null $state */
+        /** @var ESIndexState|null $state */
         $state = $this->em->getRepository(ESIndexState::class)->findOneBy([
             'indexName' => $indexName,
         ]);
@@ -47,16 +46,16 @@ class IndexSyncState
 
     public function getStateMapping(string $indexName): ?array
     {
-        /** @var  ESIndexState|null $state */
+        /** @var ESIndexState|null $state */
         $state = $this->em->getRepository(ESIndexState::class)->findOneBy([
             'indexName' => $indexName,
         ]);
 
         if (null === $state) {
-           return null;
+            return null;
         }
 
-       return $state->getMapping();
+        return $state->getMapping();
     }
 
     public function getCurrentConfigMapping(string $indexName): array

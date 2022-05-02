@@ -266,7 +266,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $application->setAutoExit(false);
         $input = new ArrayInput([
             'command' => 'cache:pool:clear',
-            'pools' => ['doctrine.cache', 'memory.cache']
+            'pools' => ['doctrine.cache', 'memory.cache'],
         ]);
         $exitCode = $application->run($input, new NullOutput());
         if (0 !== $exitCode) {

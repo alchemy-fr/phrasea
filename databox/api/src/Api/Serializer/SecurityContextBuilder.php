@@ -20,8 +20,7 @@ class SecurityContextBuilder implements SerializerContextBuilderInterface
         SerializerContextBuilderInterface $decorated,
         Security $security,
         NormalizerContextBuilderInterface $normalizerContextBuilder
-    )
-    {
+    ) {
         $this->decorated = $decorated;
         $this->security = $security;
         $this->normalizerContextBuilder = $normalizerContextBuilder;

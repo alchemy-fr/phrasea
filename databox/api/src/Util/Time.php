@@ -10,7 +10,7 @@ abstract class Time
 {
     public static function time2string(int $time): string
     {
-        if ($time == 0) {
+        if (0 == $time) {
             return '0 seconds';
         }
 

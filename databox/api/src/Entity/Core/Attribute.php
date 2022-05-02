@@ -10,8 +10,8 @@ use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use DateTimeInterface;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")

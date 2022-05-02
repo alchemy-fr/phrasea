@@ -25,7 +25,7 @@ class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
                 }
             }
             $context['_level'] = $context['_level'] ?? 0;
-            if ($context['_level'] === 0) {
+            if (0 === $context['_level']) {
                 $context['groups'][] = 'dates';
             }
             ++$context['_level'];

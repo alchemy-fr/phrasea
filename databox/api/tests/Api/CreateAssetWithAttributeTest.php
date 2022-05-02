@@ -54,7 +54,7 @@ class CreateAssetWithAttributeTest extends ApiTestCase
                     'slug' => 'test-workspace',
                 ]),
                 'attributes' => $attrs,
-            ]
+            ],
         ]);
 
         $this->assertResponseStatusCodeSame(201);

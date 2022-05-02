@@ -9,8 +9,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 trait FixturesTrait
 {
-    private static bool $withFixtures = false;
     use BaseDatabaseTrait;
+    private static bool $withFixtures = false;
 
     protected static function fixturesBootKernel(array $options = []): KernelInterface
     {
@@ -46,7 +46,6 @@ trait FixturesTrait
                     copy($emptyDbPath, $dbPath);
                 }
             }
-
         } elseif (self::$withFixtures) {
             static::populateDatabase();
         }

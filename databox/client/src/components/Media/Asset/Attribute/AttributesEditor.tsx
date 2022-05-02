@@ -3,7 +3,8 @@ import {Button} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
 import {
     assetAttributeBatchUpdate,
-    AttributeBatchAction, getAssetAttributes,
+    AttributeBatchAction,
+    getAssetAttributes,
 } from "../../../../api/asset";
 import {Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
@@ -103,9 +104,9 @@ export default function AttributesEditor({
         try {
             const actions: AttributeBatchAction[] = [];
 
-            Object.keys(attributes).map((defId): void => {
+            Object.keys(attributes).forEach((defId): void => {
                 const lv = attributes[defId];
-                Object.keys(lv).map((locale): void => {
+                Object.keys(lv).forEach((locale): void => {
                     const currValue = lv[locale];
                     if (isSame(remoteAttrs[defId][locale], currValue)) {
                         return;
@@ -164,8 +165,8 @@ export default function AttributesEditor({
                 });
             });
 
-            Object.keys(remoteAttrs).map((defId): void => {
-                Object.keys(remoteAttrs[defId]).map((locale) => {
+            Object.keys(remoteAttrs).forEach((defId): void => {
+                Object.keys(remoteAttrs[defId]).forEach((locale): void => {
                     const remoteV = remoteAttrs[defId][locale];
 
                     if (remoteV) {

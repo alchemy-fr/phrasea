@@ -71,7 +71,8 @@ class AssetTest extends ApiTestCase
             'json' => [
                 'title' => 'Dummy asset',
                 'workspace' => $this->findIriBy(Workspace::class, []),
-            ]]);
+            ],
+        ]);
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
@@ -91,7 +92,8 @@ class AssetTest extends ApiTestCase
             ],
             'json' => [
                 'title' => 'Invalid payload',
-            ]]);
+            ],
+        ]);
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
@@ -119,7 +121,7 @@ class AssetTest extends ApiTestCase
             ],
             'json' => [
                 'title' => 'updated title',
-            ]
+            ],
         ]);
 
         $this->assertResponseIsSuccessful();
