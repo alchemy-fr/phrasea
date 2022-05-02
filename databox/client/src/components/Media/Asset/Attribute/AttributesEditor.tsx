@@ -110,7 +110,7 @@ export default function AttributesEditor({
                                     value: v.value,
                                 };
                             }
-                        } else {
+                        } else if (v.value) {
                             const result = await putAssetAttribute(
                                 undefined,
                                 assetId,
@@ -162,7 +162,7 @@ export default function AttributesEditor({
                                 await deleteAssetAttribute(value.id as string);
                             }
                         }));
-                    } else {
+                    } else if (v) {
                         if (!newValues[defId] || !newValues[defId][locale] || !(newValues[defId][locale] as AttrValue).value) {
                             await deleteAssetAttribute((v as AttrValue).id);
                         }
