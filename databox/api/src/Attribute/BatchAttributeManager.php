@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute;
 
-use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
+use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -67,7 +67,7 @@ class BatchAttributeManager
             foreach ($input->actions as $i => $action) {
                 if ($action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
-                } else if ($action->name) {
+                } elseif ($action->name) {
                     $definition = $this->getAttributeDefinitionByName($workspaceId, $action->name);
                 } else {
                     $definition = null;
@@ -90,28 +90,35 @@ class BatchAttributeManager
                         ]);
                         break;
                     case self::ACTION_SET:
-                        if (!$definition) {
-                            throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
-                        }
-                        if ($definition->isMultiple()) {
-                            if (!is_array($action->value)) {
-                                throw new BadRequestHttpException(sprintf(
-                                    'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
-                            }
-
-                            $this->deleteAttributes($assetsId, $definition);
-                            foreach ($action->value as $value) {
-                                $vAction = clone $action;
-                                $vAction->value = $value;
-                                $this->upsertAttribute(null, $assetsId, $definition, $vAction);
+                        if ($action->id) {
+                            $attribute = $this->em->find(Attribute::class, $action->id);
+                            if ($attribute instanceof Attribute) {
+                                $this->upsertAttribute($attribute, $assetsId, $definition, $action);
                             }
                         } else {
-                            foreach ($assetsId as $assetId) {
-                                $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
-                                    'definition' => $definition->getId(),
-                                    'asset' => $assetId,
-                                ]);
-                                $this->upsertAttribute($attribute, [$assetId], $definition, $action);
+                            if (!$definition) {
+                                throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
+                            }
+                            if ($definition->isMultiple()) {
+                                if (!is_array($action->value)) {
+                                    throw new BadRequestHttpException(sprintf(
+                                        'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
+                                }
+
+                                $this->deleteAttributes($assetsId, $definition);
+                                foreach ($action->value as $value) {
+                                    $vAction = clone $action;
+                                    $vAction->value = $value;
+                                    $this->upsertAttribute(null, $assetsId, $definition, $vAction);
+                                }
+                            } else {
+                                foreach ($assetsId as $assetId) {
+                                    $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
+                                        'definition' => $definition->getId(),
+                                        'asset' => $assetId,
+                                    ]);
+                                    $this->upsertAttribute($attribute, [$assetId], $definition, $action);
+                                }
                             }
                         }
                         break;
@@ -158,8 +165,12 @@ class BatchAttributeManager
         });
     }
 
-    private function upsertAttribute(?Attribute $attribute, array $assetsId, AttributeDefinition $definition, AttributeActionInput $action): void
-    {
+    private function upsertAttribute(
+        ?Attribute $attribute,
+        array $assetsId,
+        AttributeDefinition $definition,
+        AttributeActionInput $action
+    ): void {
         if (null !== $attribute && count($assetsId) > 1) {
             throw new InvalidArgumentException(sprintf('Attribute update is provided with many assets ID'));
         }

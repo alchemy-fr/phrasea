@@ -1,7 +1,12 @@
 import React, {PureComponent} from "react";
 import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api/asset";
 import {Attribute, AttributeDefinition} from "../../../types";
-import AttributesEditor, {AttributeIndex, AttrValue, DefinitionIndex} from "./Attribute/AttributesEditor";
+import AttributesEditor, {
+    AttributeIndex,
+    AttrValue,
+    buildAttributeIndex,
+    DefinitionIndex
+} from "./Attribute/AttributesEditor";
 
 type Props = {
     id: string;
@@ -32,38 +37,14 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
             getAssetAttributes(this.props.id),
         ]);
 
-        const attributeIndex: AttributeIndex = {};
         const definitionIndex: DefinitionIndex = {};
         for (let ad of definitions) {
-            attributeIndex[ad.id] = {};
             definitionIndex[ad.id] = ad;
-        }
-
-        for (let a of attributes) {
-            const l = a.locale || NO_LOCALE;
-            const v = {
-                id: a.id,
-                value: a.value,
-            };
-
-            if (!attributeIndex[a.definition.id]) {
-                attributeIndex[a.definition.id] = {};
-            }
-
-            if (definitionIndex[a.definition.id].multiple) {
-                if (!attributeIndex[a.definition.id][l]) {
-                    attributeIndex[a.definition.id][l] = [];
-                }
-                (attributeIndex[a.definition.id][l]! as AttrValue[]).push(v);
-            } else {
-
-                attributeIndex[a.definition.id][l] = v;
-            }
         }
 
         this.setState({
             definitionIndex,
-            attributeIndex,
+            attributeIndex: buildAttributeIndex(definitionIndex, attributes),
         });
     }
 

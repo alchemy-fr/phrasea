@@ -1,8 +1,11 @@
 import React, {useCallback, useState} from "react";
 import {Button} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {deleteAssetAttribute, putAssetAttribute} from "../../../../api/asset";
-import {AttributeDefinition} from "../../../../types";
+import {
+    assetAttributeBatchUpdate,
+    AttributeBatchAction, getAssetAttributes,
+} from "../../../../api/asset";
+import {Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import Modal from "../../../Layout/Modal";
 import {NO_LOCALE} from "../EditAssetAttributes";
@@ -37,6 +40,37 @@ export function createNewValue(type: string): AttrValue<number> {
     }
 }
 
+export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes: Attribute[]): AttributeIndex {
+    const attributeIndex: AttributeIndex = {};
+    Object.keys(definitionIndex).forEach((k) => {
+        attributeIndex[definitionIndex[k].id] = {};
+    });
+
+    for (let a of attributes) {
+        const l = a.locale || NO_LOCALE;
+        const v = {
+            id: a.id,
+            value: a.value,
+        };
+
+        if (!attributeIndex[a.definition.id]) {
+            attributeIndex[a.definition.id] = {};
+        }
+
+        if (definitionIndex[a.definition.id].multiple) {
+            if (!attributeIndex[a.definition.id][l]) {
+                attributeIndex[a.definition.id][l] = [];
+            }
+            (attributeIndex[a.definition.id][l]! as AttrValue[]).push(v);
+        } else {
+
+            attributeIndex[a.definition.id][l] = v;
+        }
+    }
+
+    return attributeIndex;
+}
+
 export type OnChangeHandler = (defId: string, value: LocalizedAttributeIndex<string | number>) => void;
 
 export default function AttributesEditor({
@@ -67,111 +101,106 @@ export default function AttributesEditor({
     const save = async () => {
         setSaving(true);
         try {
-            const newValues: AttributeIndex = {};
+            const actions: AttributeBatchAction[] = [];
 
-            await Promise.all(Object.keys(attributes).map(async (defId): Promise<void> => {
+            Object.keys(attributes).map((defId): void => {
                 const lv = attributes[defId];
-                if (remoteAttrs[defId] && isSame(remoteAttrs[defId], lv)) {
-                    newValues[defId] = lv as LocalizedAttributeIndex;
-                    return;
-                }
-
-                await Promise.all(Object.keys(attributes[defId]).map(async (locale) => {
+                Object.keys(lv).map((locale): void => {
                     const currValue = lv[locale];
+                    if (isSame(remoteAttrs[defId][locale], currValue)) {
+                        return;
+                    }
 
-                    const updateAttr = async (
-                        remoteValue: AttrValue | undefined,
-                        v: AttrValue<string | number>,
-                        position?: number
-                    ): Promise<AttrValue | undefined> => {
-                        if (isSame(remoteValue, v)) {
-                            return remoteValue;
-                        }
-
-                        if (!v) {
-                            return undefined;
-                        }
-
-                        if (typeof v.id === 'string') {
-                            if (!v.value) {
-                                // will be deleted later
-                                return undefined;
+                    if (currValue) {
+                        const removeV = remoteAttrs[defId][locale] as AttrValue[];
+                        if (currValue instanceof Array) {
+                            if (!removeV) {
+                                actions.push({
+                                    action: 'set',
+                                    definitionId: defId,
+                                    value: currValue.map(_v => _v.value),
+                                    locale: locale !== NO_LOCALE ? locale : undefined,
+                                });
                             } else {
-                                await putAssetAttribute(
-                                    v.id,
-                                    assetId,
-                                    defId,
-                                    v.value,
-                                    locale !== NO_LOCALE ? locale : undefined
-                                );
-
-                                return {
-                                    id: v.id,
-                                    value: v.value,
-                                };
+                                currValue.forEach((v: AttrValue<string | number>) => {
+                                    if (v.value) {
+                                        const found = removeV.find(_v => _v.id === v.id);
+                                        if (!found) {
+                                            actions.push({
+                                                action: 'add',
+                                                definitionId: defId,
+                                                value: v.value,
+                                                locale: locale !== NO_LOCALE ? locale : undefined,
+                                            });
+                                        } else {
+                                            if (!isSame(found.value, v.value)) {
+                                                actions.push({
+                                                    action: 'set',
+                                                    id: found.id,
+                                                    definitionId: defId,
+                                                    value: v.value,
+                                                    locale: locale !== NO_LOCALE ? locale : undefined,
+                                                });
+                                            }
+                                        }
+                                    } else if (typeof v.id === 'string') {
+                                        actions.push({
+                                            action: 'delete',
+                                            definitionId: defId,
+                                            id: v.id,
+                                        });
+                                    }
+                                });
                             }
-                        } else if (v.value) {
-                            const result = await putAssetAttribute(
-                                undefined,
-                                assetId,
-                                defId,
-                                v.value,
-                                locale !== NO_LOCALE ? locale : undefined,
-                                position
-                            );
-
-                            return {
-                                id: result.id,
-                                value: result.value,
-                            }
-                        }
-                    };
-
-                    if (!newValues[defId]) {
-                        newValues[defId] = {};
-                    }
-                    if (currValue instanceof Array) {
-                        newValues[defId][locale] = (await Promise.all(
-                            currValue.map((_v, pos) => {
-                                const rv = remoteAttrs[defId][locale] ? (remoteAttrs[defId][locale] as AttrValue[]).find(
-                                    __v => __v.id === _v.id
-                                ) : undefined;
-
-                                return updateAttr(rv, _v, pos) as Promise<AttrValue>
-                            })
-                        )).filter(v => !!v);
-                    } else {
-                        newValues[defId][locale] = await updateAttr(remoteAttrs[defId][locale] as AttrValue | undefined, currValue as AttrValue<string | number>);
-                    }
-                }));
-            }));
-
-            await Promise.all(Object.keys(remoteAttrs).map(async (defId): Promise<void> => {
-                await Promise.all(Object.keys(remoteAttrs[defId]).map(async (locale) => {
-                    const v = remoteAttrs[defId][locale];
-
-                    if (v instanceof Array) {
-                        await Promise.all(v.map(async (value: AttrValue<string | number>) => {
-                            if (!newValues[defId]
-                                || !newValues[defId][locale]
-                                || !(newValues[defId][locale] instanceof Array)
-                                || !(newValues[defId][locale] as AttrValue<string | number>[]).some(v => {
-                                    return v && v.value && v.id === value.id
-                                })
-                            ) {
-                                await deleteAssetAttribute(value.id as string);
-                            }
-                        }));
-                    } else if (v) {
-                        if (!newValues[defId] || !newValues[defId][locale] || !(newValues[defId][locale] as AttrValue).value) {
-                            await deleteAssetAttribute((v as AttrValue).id);
+                        } else {
+                            actions.push({
+                                action: 'set',
+                                definitionId: defId,
+                                value: currValue.value,
+                                locale: locale !== NO_LOCALE ? locale : undefined,
+                            });
                         }
                     }
-                }));
-            }));
+                });
+            });
 
-            setRemoteAttrs(newValues);
-            setAttributes(newValues);
+            Object.keys(remoteAttrs).map((defId): void => {
+                Object.keys(remoteAttrs[defId]).map((locale) => {
+                    const remoteV = remoteAttrs[defId][locale];
+
+                    if (remoteV) {
+                        if (remoteV instanceof Array) {
+                            const attrV = attributes[defId][locale] as AttrValue<string | number>[];
+
+                            remoteV.forEach(v => {
+                                const found = attrV.find(_v => _v.id === v.id);
+                                if (!found) {
+                                    actions.push({
+                                        action: 'delete',
+                                        definitionId: defId,
+                                        id: v.id,
+                                    });
+                                }
+                            });
+                        } else {
+                            if (!attributes[defId] || !attributes[defId][locale] || !(attributes[defId][locale] as AttrValue).value) {
+                                actions.push({
+                                    action: 'delete',
+                                    definitionId: defId,
+                                    id: remoteV.id,
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+
+            await assetAttributeBatchUpdate(assetId, actions);
+            const res = await getAssetAttributes(assetId);
+            const attributeIndex = buildAttributeIndex(definitions, res);
+
+            setRemoteAttrs(attributeIndex);
+            setAttributes(attributeIndex);
 
             toast.success("Attributes saved !", {});
 

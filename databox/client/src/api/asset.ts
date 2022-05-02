@@ -77,6 +77,33 @@ export async function putAssetAttribute(
     })).data;
 }
 
+export type AttributeBatchAction = {
+    action?: "set" | "replace" | "add" | "delete" | undefined;
+    id?: string | undefined;
+    value?: any | undefined;
+    definitionId?: string | undefined;
+    locale?: string | undefined;
+    position?: number | undefined;
+}
+
+export async function assetAttributeBatchUpdate(
+    assetId: string,
+    actions: AttributeBatchAction[]
+): Promise<Asset> {
+    return (await apiClient.post(`/assets/${assetId}/attributes`, {
+        actions: actions.map(a => {
+            if (a.action === 'delete') {
+                return a;
+            }
+
+            return {
+                ...a,
+                origin: 'human',
+            };
+        })
+    })).data;
+}
+
 export async function deleteAssetAttribute(id: string): Promise<void> {
     await apiClient.delete(`/attributes/${id}`);
 }
