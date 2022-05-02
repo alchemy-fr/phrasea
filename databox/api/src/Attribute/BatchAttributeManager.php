@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Attribute;
 
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Api\Model\Input\Attribute\BatchAssetAttributeInput;
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
+use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -29,14 +30,45 @@ class BatchAttributeManager
         $this->attributeAssigner = $attributeAssigner;
     }
 
-    public function handleBatch(Asset $asset, BatchAssetAttributeInput $input): void
+    public function handleMultiAssetBatch(AttributeBatchUpdateInput $input): void
     {
-        $this->em->wrapInTransaction(function () use ($input, $asset): void {
+        if (!is_array($input->assets)) {
+            throw new InvalidArgumentException(sprintf('Missing "assets" property'));
+        }
+        if (empty($input->assets)) {
+            return;
+        }
+        $firstId = $input->assets[0];
+        /** @var Asset $assetOne */
+        $assetOne = $this->em->getRepository(Asset::class)->find($firstId);
+        if (!$assetOne instanceof Asset) {
+            throw new InvalidArgumentException(sprintf('Asset "%s" not found', $firstId));
+        }
+
+        $assetIds = array_map(function (array $row): string {
+            return $row['id'];
+        }, $this->em->createQueryBuilder()
+            ->select('a.id')
+            ->from(Asset::class, 'a')
+            ->andWhere('a.workspace = :w')
+            ->setParameter('w', $assetOne->getWorkspaceId())
+            ->andWhere('a.id IN (:ids)')
+            ->setParameter('ids', $input->assets)
+            ->getQuery()
+            ->getScalarResult()
+        );
+
+        $this->handleBatch($assetOne->getWorkspaceId(), $assetIds, $input);
+    }
+
+    public function handleBatch(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input): void
+    {
+        $this->em->wrapInTransaction(function () use ($input, $assetsId, $workspaceId): void {
             foreach ($input->actions as $i => $action) {
                 if ($action->definitionId) {
-                    $definition = $this->getAttributeDefinition($asset->getWorkspaceId(), $action->definitionId);
+                    $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
                 } else if ($action->name) {
-                    $definition = $this->getAttributeDefinitionByName($asset->getWorkspaceId(), $action->name);
+                    $definition = $this->getAttributeDefinitionByName($workspaceId, $action->name);
                 } else {
                     $definition = null;
                 }
@@ -50,10 +82,10 @@ class BatchAttributeManager
                             throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                         }
 
-                        $this->upsertAttribute(null, $asset, $definition, $action);
+                        $this->upsertAttribute(null, $assetsId, $definition, $action);
                         break;
                     case self::ACTION_DELETE:
-                        $this->deleteAttributes($asset, $definition, [
+                        $this->deleteAttributes($assetsId, $definition, [
                             'id' => $action->id,
                         ]);
                         break;
@@ -63,23 +95,24 @@ class BatchAttributeManager
                         }
                         if ($definition->isMultiple()) {
                             if (!is_array($action->value)) {
-                            throw new BadRequestHttpException(sprintf(
-                                'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
+                                throw new BadRequestHttpException(sprintf(
+                                    'Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                             }
 
-                            $this->deleteAttributes($asset, $definition);
+                            $this->deleteAttributes($assetsId, $definition);
                             foreach ($action->value as $value) {
                                 $vAction = clone $action;
                                 $vAction->value = $value;
-                                $this->upsertAttribute(null, $asset, $definition, $vAction);
+                                $this->upsertAttribute(null, $assetsId, $definition, $vAction);
                             }
-
                         } else {
-                            $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
-                                'definition' => $definition->getId(),
-                                'asset' => $asset->getId(),
-                            ]);
-                            $this->upsertAttribute($attribute, $asset, $definition, $action);
+                            foreach ($assetsId as $assetId) {
+                                $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
+                                    'definition' => $definition->getId(),
+                                    'asset' => $assetId,
+                                ]);
+                                $this->upsertAttribute($attribute, [$assetId], $definition, $action);
+                            }
                         }
                         break;
                     case self::ACTION_REPLACE:
@@ -99,8 +132,8 @@ class BatchAttributeManager
                         }
                         $qb
                             ->from(Attribute::class, 'a')
-                            ->andWhere('a.asset = :asset')
-                            ->setParameter('asset', $asset->getId())
+                            ->andWhere('a.asset IN (:assets)')
+                            ->setParameter('assets', $assetsId)
                             ->setParameter('from', $action->value)
                             ->setParameter('to', $action->replaceWith)
                         ;
@@ -125,19 +158,25 @@ class BatchAttributeManager
         });
     }
 
-    private function upsertAttribute(?Attribute $attribute, Asset $asset, AttributeDefinition $definition, AttributeActionInput $action): Attribute
+    private function upsertAttribute(?Attribute $attribute, array $assetsId, AttributeDefinition $definition, AttributeActionInput $action): void
     {
-        if (null === $attribute) {
-            $attribute = new Attribute();
-            $attribute->setAsset($asset);
-            $attribute->setDefinition($definition);
+        if (null !== $attribute && count($assetsId) > 1) {
+            throw new InvalidArgumentException(sprintf('Attribute update is provided with many assets ID'));
         }
 
-        $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
+        foreach ($assetsId as $assetId) {
+            if (null === $attribute) {
+                $attribute = new Attribute();
+                $attribute->setAsset($this->em->getReference(Asset::class, $assetId));
+                $attribute->setDefinition($definition);
+            }
 
-        $this->em->persist($attribute);
+            $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
 
-        return $attribute;
+            $this->em->persist($attribute);
+
+            $attribute = null;
+        }
     }
 
     private function getAttributeDefinition(string $workspaceId, string $id): AttributeDefinition
@@ -166,20 +205,13 @@ class BatchAttributeManager
         return $def;
     }
 
-    /**
-     * @param Asset                    $asset
-     * @param AttributeDefinition|null $definition
-     * @param                          $action
-     *
-     * @return void
-     */
-    function deleteAttributes(Asset $asset, ?AttributeDefinition $definition, array $options = []): void
+    function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
     {
         $qb = $this->em->createQueryBuilder()
             ->delete()
             ->from(Attribute::class, 'a')
-            ->andWhere('a.asset = :asset')
-            ->setParameter('asset', $asset->getId());
+            ->andWhere('a.asset IN (:assets)')
+            ->setParameter('assets', $assetsId);
         if ($definition) {
             $qb
                 ->andWhere('a.definition = :def')

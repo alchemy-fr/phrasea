@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-use App\Entity\Core\Attribute;
-
 abstract class AbstractAttributeInput
 {
     /**
@@ -16,17 +14,17 @@ abstract class AbstractAttributeInput
     /**
      * "human" or "machine".
      *
-     * @var string
+     * @var string|null
      */
-    public $origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_MACHINE];
+    public $origin;
 
     /**
-     * @var string
+     * @var string|null
      */
     public $locale;
 
     /**
-     * @var int
+     * @var int|null
      */
     public $position;
 

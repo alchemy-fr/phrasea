@@ -14,9 +14,13 @@ trait FixturesTrait
 
     protected static function fixturesBootKernel(array $options = []): KernelInterface
     {
+        if (static::$kernel) {
+            return static::$kernel;
+        }
+
         static::ensureKernelTestCase();
-        $kernel = parent::bootKernel($options);
-        $container = $kernel->getContainer();
+        parent::bootKernel($options);
+        $container = static::$kernel->getContainer();
 
         $dbPath = $container->hasParameter('test_db_path')
             ? $container->getParameter('test_db_path')
@@ -47,7 +51,7 @@ trait FixturesTrait
             static::populateDatabase();
         }
 
-        return $kernel;
+        return static::$kernel;
     }
 
     public static function enableFixtures(): void

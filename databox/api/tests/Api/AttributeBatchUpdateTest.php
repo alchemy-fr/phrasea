@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Asset;
 use App\Tests\FixturesTrait;
 use App\Tests\Search\SearchTestTrait;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -18,17 +18,15 @@ class AttributeBatchUpdateTest extends ApiTestCase
     use FixturesTrait;
     use SearchTestTrait;
 
-    private static array $defaultAttributes = [
-        'Description' => 'This is a description test.',
-        'Keywords' => ['This is KW #1', 'This is KW #2', 'This is KW #3'],
-    ];
-
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        $kernel = static::fixturesBootKernel($options);
-        self::bootSearch($kernel);
+        if (static::$kernel) {
+            return static::$kernel;
+        }
+        static::fixturesBootKernel($options);
+        self::bootSearch(static::$kernel);
 
-        return $kernel;
+        return static::$kernel;
     }
 
     public function testAttributesBatchUpdateWithInvalidValue(): void
@@ -45,8 +43,7 @@ class AttributeBatchUpdateTest extends ApiTestCase
     public function testAttributesBatchUpdateWithNoAction(): void
     {
         $this->batchAction([]);
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseStatusCodeSame(200);
     }
 
     public function testAttributesBatchUpdateWithInvalidAttributeName(): void
@@ -74,70 +71,70 @@ class AttributeBatchUpdateTest extends ApiTestCase
     /**
      * @dataProvider getCases
      */
-    public function testAttributesBatchUpdateOK(array $actions, array $expectedValues): void
+    public function testAttributesBatchUpdateOK(array $actions, array $expectedAssets): void
     {
         $response = $this->batchAction($actions);
+        $this->assertEmpty($response->getContent());
+        $this->assertResponseStatusCodeSame(200);
 
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        foreach ($expectedAssets as $key => $expectedValues) {
+            ksort($expectedValues);
+            $attrAssertions = [];
+            foreach ($expectedValues as $name => $value) {
+                $attrAssertions[] = [
+                    'definition' => [
+                        'name' => $name,
+                    ],
+                    'value' => $value,
+                ];
+            }
 
-        $attrAssertions = [];
-
-        ksort($expectedValues);
-        foreach ($expectedValues as $name => $value) {
-            $attrAssertions[] = [
-                'definition' => [
-                    'name' => $name,
+            $asset = $em->getRepository(Asset::class)->findOneBy([
+                'key' => $key,
+            ]);
+            static::createClient()->request('GET', '/assets/'.$asset->getId(), [
+                'headers' => [
+                    'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
                 ],
-                'value' => $value,
-            ];
+            ]);
+
+            $this->assertJsonContains([
+                '@type' => 'asset',
+                'attributes' => $attrAssertions,
+            ]);
         }
-        $this->assertJsonContains([
-            '@type' => 'asset',
-            'attributes' => $attrAssertions,
-        ]);
-        $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(Asset::class);
+
+        $this->assertResponseIsSuccessful();
     }
 
     private function batchAction(array $actions): ResponseInterface
     {
         self::enableFixtures();
+        $client = static::createClient();
 
-        $assetIri = $this->findIriBy(Asset::class, [
-            'key' => 'foo',
-        ]);
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $assetsIds = array_map(function (array $r): string {
+            return $r['id'];
+        }, $em->getRepository(Asset::class)->createQueryBuilder('a')
+            ->select('a.id')
+            ->andWhere('a.key IS NOT NULL')
+            ->getQuery()
+            ->getScalarResult());
 
-        return static::createClient()->request('POST', $assetIri.'/attributes', [
+        return $client->request('POST', '/attributes/batch-update', [
             'headers' => [
                 'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'actions' => $actions,
+                'assets' => $assetsIds,
             ],
         ]);
     }
 
     public function getCases(): array
     {
-        $withoutDesc = self::$defaultAttributes;
-        unset($withoutDesc['Description']);
-        $withoutKeywords = self::$defaultAttributes;
-        unset($withoutKeywords['Keywords']);
-
-        $replacedDesc = self::$defaultAttributes;
-        $replacedDesc['Description'] = 'This is a replaced test.';
-
-        $replacedAll = self::$defaultAttributes;
-        $repl = function (string $str): string {
-            return str_replace(' is', ' IS', $str);
-        };
-        $replacedAll['Description'] = $repl($replacedAll['Description']);
-        $replacedAll['Keywords'] = array_map($repl, $replacedAll['Keywords']);
-
-//        $regexDesc = self::$defaultAttributes;
-//        $regexDesc['Description'] = 'This is a de!scription te!st.';
-
         return [
             [
                 [
@@ -149,59 +146,11 @@ class AttributeBatchUpdateTest extends ApiTestCase
                         'name' => 'Keywords',
                         'value' => ['This is KW #1'],
                     ],
-                ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']]),
+                ], [
+                    'foo' => ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']],
+                    'bar' => ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']],
+                ],
             ],
-            [
-                [
-                    [
-                        'name' => 'Description',
-                        'action' => 'delete',
-                    ],
-                ], $withoutDesc,
-            ],
-            [
-                [
-                    [
-                        'name' => 'Keywords',
-                        'action' => 'delete',
-                    ],
-                ], $withoutKeywords,
-            ],
-            [
-                [
-                    [
-                        'name' => 'Description',
-                        'action' => 'replace',
-                        'value' => 'description',
-                        'replaceWith' => 'replaced',
-                    ],
-                ], $replacedDesc,
-            ],
-            [
-                [
-                    [
-                        'action' => 'replace',
-                        'value' => ' is',
-                        'replaceWith' => ' IS',
-                    ],
-                ], $replacedAll,
-            ],
-        // regex test cannot be done with SQLite
-//            [
-//                [
-//                    [
-//                        'name' => 'Description',
-//                        'action' => 'replace',
-//                        'regex' => true,
-//                        'value' => '(e|#)',
-//                        'replaceWith' => '$1-',
-//                    ],
-//                ], $regexDesc,
-//            ],
-//            [
-//                [
-//                ], self::$defaultAttributes,
-//            ],
         ];
     }
 }

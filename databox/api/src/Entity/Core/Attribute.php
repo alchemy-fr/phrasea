@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
@@ -112,7 +113,7 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     /**
      * @ORM\Column(type="smallint", nullable=false)
      */
-    private int $origin;
+    private ?int $origin = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -145,6 +146,8 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
      * @ORM\Column(type="float", nullable=false)
      */
     private float $confidence = 1.0;
+
+    public ?AttributeBatchUpdateInput $batchUpdate = null;
 
     public function getAsset(): ?Asset
     {
@@ -184,6 +187,11 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setValue(?string $value): void
     {
         $this->value = $value;
+    }
+
+    public function hasOrigin(): bool
+    {
+        return null !== $this->origin;
     }
 
     public function getOrigin(): int

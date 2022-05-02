@@ -27,8 +27,8 @@ resources:
           receive: true
         method: POST
         path: /assets/{id}/attributes
-        input: App\Api\Model\Input\Attribute\BatchAssetAttributeInput
-        controller: App\Controller\Core\BatchAssetAttributeAction
+        input: App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput
+        controller: App\Controller\Core\AssetAttributeBatchUpdateAction
         security: 'is_granted("EDIT", object)'
     collectionOperations:
       get: ~
