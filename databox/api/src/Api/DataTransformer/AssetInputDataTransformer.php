@@ -20,6 +20,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -135,15 +136,21 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                     $attribute->asset = $object;
 
                     if (is_array($attribute->value)) {
-                        $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-                            'name' => $attribute->name,
-                            'workspace' => $object->getWorkspaceId(),
-                        ]);
+                        $definition = $attribute->definition;
+                        if (!$definition instanceof AttributeDefinition) {
+                            $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+                                'name' => $attribute->name,
+                                'workspace' => $object->getWorkspaceId(),
+                            ]);
+
+                            if (!$definition instanceof AttributeDefinition) {
+                                throw new InvalidArgumentException(sprintf('Attribute definition "%s" not found', $attribute->name));
+                            }
+                        }
 
                         if ($definition->isMultiple()) {
                             foreach ($attribute->value as $value) {
                                 $attr = clone $attribute;
-                                unset($attr->values);
                                 $attr->value = $value;
                                 $object->addAttribute($this->attributeInputDataTransformer->transform($attr, Attribute::class, array_merge([
                                     AttributeInputDataTransformer::ATTRIBUTE_DEFINITION => $definition,
@@ -179,7 +186,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
-            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
         }
 
         return $definition;

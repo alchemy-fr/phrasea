@@ -43,16 +43,9 @@ export function createAsset(
                 originVendor: 'indexer-import',
             } as Partial<AttributeInput>;
 
-            if (ad.multiple) {
-                return {
-                    ...d,
-                    values: c.value.split(' ; '),
-                } as AttributeInput;
-            }
-
             return {
                 ...d,
-                value: c.value,
+                value: ad.multiple ? c.value.split(' ; ') : c.value,
             } as AttributeInput;
         }),
         generateRenditions: false,
