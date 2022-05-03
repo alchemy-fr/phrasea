@@ -119,16 +119,14 @@ class AssetSearch extends AbstractSearch
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
         if (!empty($parsed['should'])) {
-            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($parsed['should'], $userId, $groupIds, $options)) {
-                $filterQuery->addMust($multiMatch);
-            }
+            $multiMatch = $this->attributeSearch->buildAttributeQuery($parsed['should'], $userId, $groupIds, $options);
+            $filterQuery->addMust($multiMatch);
         }
         foreach ($parsed['must'] as $must) {
-            if (null !== $multiMatch = $this->attributeSearch->buildAttributeQuery($must, $userId, $groupIds, array_merge($options, [
-                    AttributeSearch::OPT_STRICT_PHRASE => true,
-                ]))) {
-                $filterQuery->addMust($multiMatch);
-            }
+            $multiMatch = $this->attributeSearch->buildAttributeQuery($must, $userId, $groupIds, array_merge($options, [
+                AttributeSearch::OPT_STRICT_PHRASE => true,
+            ]));
+            $filterQuery->addMust($multiMatch);
         }
 
         $query = new Query();
@@ -148,6 +146,7 @@ class AssetSearch extends AbstractSearch
                 ],
                 'attributes.*' => [
                     'number_of_fragments' => 20,
+                    'max_analyzed_offset' => 1000000,
                 ],
             ],
         ]);

@@ -15,17 +15,26 @@ class AttributeRepository extends EntityRepository implements AttributeRepositor
      */
     public function getDuplicates(Attribute $attribute): array
     {
-        return $this
+        $definition = $attribute->getDefinition();
+
+        $queryBuilder = $this
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.definition = :definition')
             ->andWhere('a.asset = :asset')
-            ->andWhere('a.locale = :locale')
             ->andWhere('a.id != :id')
-            ->setParameter('definition', $attribute->getDefinition()->getId())
+            ->setParameter('definition', $definition->getId())
             ->setParameter('asset', $attribute->getAsset()->getId())
-            ->setParameter('locale', $attribute->getLocale())
-            ->setParameter('id', $attribute->getId())
+            ->setParameter('id', $attribute->getId());
+
+        if ($definition->isTranslatable()) {
+            $queryBuilder
+                ->andWhere('a.locale = :locale')
+                ->setParameter('locale', $attribute->getLocale())
+            ;
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->getResult();
     }
