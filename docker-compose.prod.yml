@@ -7,7 +7,7 @@ services:
     image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
     build:
       context: ./uploader/client
-      target: uploader-client-nginx
+      target: client-nginx
     volumes:
       - ./configs:/configs
     networks:
@@ -31,7 +31,7 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
     build:
       context: ./expose/client
-      target: expose-client-nginx
+      target: client-nginx
     volumes:
       - ./configs:/configs
     networks:
@@ -54,7 +54,7 @@ services:
     image: ${REGISTRY_NAMESPACE}databox-client:$DOCKER_TAG
     build:
       context: ./databox/client
-      target: databox-client-nginx
+      target: client-nginx
     volumes:
       - ./configs:/configs
     networks:
