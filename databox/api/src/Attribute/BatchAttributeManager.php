@@ -10,6 +10,7 @@ use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -91,9 +92,14 @@ class BatchAttributeManager
                         break;
                     case self::ACTION_SET:
                         if ($action->id) {
-                            $attribute = $this->em->find(Attribute::class, $action->id);
-                            if ($attribute instanceof Attribute) {
+                            try {
+                                $attribute = $this->em->find(Attribute::class, $action->id);
+                                if (!$attribute instanceof Attribute) {
+                                    throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
+                                }
                                 $this->upsertAttribute($attribute, $assetsId, $definition, $action);
+                            } catch (ConversionException $e) {
+                                throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
                             }
                         } else {
                             if (!$definition) {

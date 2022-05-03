@@ -72,6 +72,13 @@ class AssetAttributeBatchUpdateTest extends ApiTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
+        $this->assetBatchAction([
+            [
+                'id' => '9881c5a7-586d-4563-9dc1-333ff6ed84b3',
+                'value' => 'Foo',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
     }
 
     /**
