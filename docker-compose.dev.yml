@@ -6,7 +6,7 @@ services:
       - uploader
     build:
       context: ./uploader/client
-      target: uploader-client-build
+      target: client-build
     networks:
       - internal
     volumes:
@@ -30,7 +30,7 @@ services:
       - expose
     build:
       context: ./expose/client
-      target: expose-client-build
+      target: client-build
     networks:
       - internal
     volumes:
@@ -53,7 +53,7 @@ services:
       - databox
     build:
       context: ./databox/client
-      target: databox-client-build
+      target: client-build
     networks:
       - internal
     volumes:

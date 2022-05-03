@@ -67,7 +67,7 @@ services:
     image: ${REGISTRY_NAMESPACE}uploader-api-php:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader-api-php
+      target: api-php
     networks:
       internal:
         aliases:
@@ -122,7 +122,7 @@ services:
     image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader-worker
+      target: worker
     networks:
       - internal
     depends_on:
@@ -166,7 +166,7 @@ services:
     image: ${REGISTRY_NAMESPACE}uploader-api-nginx:$DOCKER_TAG
     build:
       context: ./uploader/api
-      target: uploader-api-nginx
+      target: api-nginx
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
@@ -189,7 +189,7 @@ services:
     image: ${REGISTRY_NAMESPACE}auth-worker:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth-worker
+      target: worker
     networks:
       - internal
     depends_on:
@@ -224,7 +224,7 @@ services:
     image: ${REGISTRY_NAMESPACE}auth-api-php:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth-api-php
+      target: api-php
     networks:
       internal:
         aliases:
@@ -271,7 +271,7 @@ services:
     image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
     build:
       context: ./auth/api
-      target: auth-api-nginx
+      target: api-nginx
     networks:
       internal:
         aliases:
@@ -288,7 +288,7 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose-api-php
+      target: api-php
     networks:
       internal:
         aliases:
@@ -353,7 +353,7 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose-worker
+      target: worker
     networks:
       - internal
     volumes:
@@ -397,7 +397,7 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
     build:
       context: ./expose/api
-      target: expose-api-nginx
+      target: api-nginx
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
@@ -419,7 +419,7 @@ services:
     image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify-api-php
+      target: api-php
     networks:
       internal:
         aliases:
@@ -461,7 +461,7 @@ services:
     image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify-worker
+      target: worker
     networks:
       - internal
     depends_on:
@@ -491,7 +491,7 @@ services:
     image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG
     build:
       context: ./notify/api
-      target: notify-api-nginx
+      target: api-nginx
     networks:
       internal:
         aliases:
@@ -785,7 +785,7 @@ services:
     image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
     build:
       context: ./databox/api
-      target: databox-api-php
+      target: api-php
     networks:
       internal:
         aliases:
@@ -840,7 +840,7 @@ services:
     image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
     build:
       context: ./databox/api
-      target: databox-worker
+      target: worker
     networks:
       - internal
     depends_on:
@@ -889,7 +889,7 @@ services:
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
     build:
       context: ./databox/api
-      target: databox-api-nginx
+      target: api-nginx
     networks:
       internal:
         aliases:
@@ -1068,13 +1068,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
-
-  nginx-cache-purge:
-    image: alchemyfr/nginx-cache-purge:1.0.0
-    build:
-      context: ./infra/docker/nginx-cache-purge
-    networks:
-      - internal
 
   webhook-endpoint:
     image: mendhak/http-https-echo:23
