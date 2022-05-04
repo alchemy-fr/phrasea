@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
     name: 'Build, Test and Push'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       COMPOSE_PROJECT_NAME: build
