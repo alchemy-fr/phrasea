@@ -25,7 +25,7 @@ jobs:
       - name: Share image
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
@@ -39,7 +39,7 @@ jobs:
       - name: Share image
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "nginx-fpm-base:${DOCKER_TAG}"
+          image: "nginx-fpm-base:${{ env.DOCKER_TAG }}"
 
   build_nodejs-base:
     name: 'Build nodejs-base'
@@ -53,7 +53,7 @@ jobs:
       - name: Share image
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "nodejs-base:${DOCKER_TAG}"
+          image: "nodejs-base:${{ env.DOCKER_TAG }}"
 
   build_nginx-cache-purge:
     name: 'Build nginx-cache-purge'
@@ -67,7 +67,7 @@ jobs:
       - name: Share image
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "nginx-cache-purge:${DOCKER_TAG}"
+          image: "nginx-cache-purge:${{ env.DOCKER_TAG }}"
 
   build_auth_api:
     name: 'Build Auth API'
@@ -81,11 +81,11 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nginx-fpm-base:${DOCKER_TAG}"
+          image: "nginx-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           bin/update-libs.sh
@@ -113,11 +113,11 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nginx-fpm-base:${DOCKER_TAG}"
+          image: "nginx-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           bin/update-libs.sh
@@ -134,7 +134,7 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nodejs-base:${DOCKER_TAG}"
+          image: "nodejs-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
@@ -172,11 +172,11 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nginx-cache-purge:${DOCKER_TAG}"
+          image: "nginx-cache-purge:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           bin/update-libs.sh
@@ -193,7 +193,7 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nodejs-base:${DOCKER_TAG}"
+          image: "nodejs-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
@@ -221,11 +221,11 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nginx-fpm-base:${DOCKER_TAG}"
+          image: "nginx-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           bin/update-libs.sh
@@ -253,11 +253,11 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "php-fpm-base:${DOCKER_TAG}"
+          image: "php-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nginx-fpm-base:${DOCKER_TAG}"
+          image: "nginx-fpm-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           bin/update-libs.sh
@@ -274,7 +274,7 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "nodejs-base:${DOCKER_TAG}"
+          image: "nodejs-base:${{ env.DOCKER_TAG }}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
