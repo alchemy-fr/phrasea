@@ -36,6 +36,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build auth-api-php auth-api-nginx auth-worker
 
@@ -63,6 +64,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build databox-api-php databox-api-nginx databox-worker
 
@@ -77,6 +79,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
           docker-compose build databox-client
 
   build_databox_indexer:
@@ -116,6 +119,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-cache-purge
           bin/update-libs.sh
           docker-compose build expose-api-php expose-api-nginx expose-worker
 
@@ -130,6 +134,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
           docker-compose build expose-client
 
   build_matomo:
@@ -156,6 +161,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build notify-api-php notify-api-nginx notify-worker
 
@@ -183,6 +189,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build uploader-api-php uploader-api-nginx uploader-worker
 
@@ -197,6 +204,7 @@ jobs:
         continue-on-error: true
       - name: Build
         run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
           docker-compose build uploader-client
 
   setup:
