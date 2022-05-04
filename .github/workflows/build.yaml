@@ -19,16 +19,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build php-fpm-base
-          mkdir -p _docker-images && docker save -o _docker-images/image.tar "php-fpm-base:${DOCKER_TAG}"
-      - uses: actions/upload-artifact@v2
+      - name: Share image
+        uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          name: php-fpm-base
-          path: _docker-images
+          image: "php-fpm-base:${DOCKER_TAG}"
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
@@ -36,16 +33,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nginx-fpm-base
-          mkdir -p _docker-images && docker save -o _docker-images/image.tar "nginx-fpm-base:${DOCKER_TAG}"
-      - uses: actions/upload-artifact@v2
+      - name: Share image
+        uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          name: nginx-fpm-base
-          path: _docker-images
+          image: "nginx-fpm-base:${DOCKER_TAG}"
 
   build_nodejs-base:
     name: 'Build nodejs-base'
@@ -53,16 +47,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
-          mkdir -p _docker-images && docker save -o _docker-images/image.tar "nodejs-base:${DOCKER_TAG}"
-      - uses: actions/upload-artifact@v2
+      - name: Share image
+        uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          name: nodejs-base
-          path: _docker-images
+          image: "nodejs-base:${DOCKER_TAG}"
 
   build_nginx-cache-purge:
     name: 'Build nginx-cache-purge'
@@ -70,16 +61,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nginx-cache-purge
-          mkdir -p _docker-images && docker save -o _docker-images/image.tar "nginx-cache-purge:${DOCKER_TAG}"
-      - uses: actions/upload-artifact@v2
+      - name: Share image
+        uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          name: nginx-cache-purge
-          path: _docker-images
+          image: "nginx-cache-purge:${DOCKER_TAG}"
 
   build_auth_api:
     name: 'Build Auth API'
@@ -90,9 +78,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "php-fpm-base:${DOCKER_TAG}"
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nginx-fpm-base:${DOCKER_TAG}"
       - name: Build
         run: |
-          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build auth-api-php auth-api-nginx auth-worker
 
@@ -115,9 +110,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "php-fpm-base:${DOCKER_TAG}"
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nginx-fpm-base:${DOCKER_TAG}"
       - name: Build
         run: |
-          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build databox-api-php databox-api-nginx databox-worker
 
@@ -129,6 +131,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nodejs-base:${DOCKER_TAG}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
@@ -159,13 +165,20 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build_php-fpm-base
-      - build_nginx-fpm-base
+      - build_nginx-cache-purge
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "php-fpm-base:${DOCKER_TAG}"
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nginx-cache-purge:${DOCKER_TAG}"
       - name: Build
         run: |
-          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-cache-purge
           bin/update-libs.sh
           docker-compose build expose-api-php expose-api-nginx expose-worker
 
@@ -177,6 +190,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nodejs-base:${DOCKER_TAG}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
@@ -201,9 +218,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "php-fpm-base:${DOCKER_TAG}"
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nginx-fpm-base:${DOCKER_TAG}"
       - name: Build
         run: |
-          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build notify-api-php notify-api-nginx notify-worker
 
@@ -226,9 +250,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "php-fpm-base:${DOCKER_TAG}"
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nginx-fpm-base:${DOCKER_TAG}"
       - name: Build
         run: |
-          docker-compose -f docker-compose.init.yml build php-fpm-base nginx-fpm-base
           bin/update-libs.sh
           docker-compose build uploader-api-php uploader-api-nginx uploader-worker
 
@@ -240,6 +271,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "nodejs-base:${DOCKER_TAG}"
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
