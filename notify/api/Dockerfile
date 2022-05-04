@@ -1,4 +1,4 @@
-ARG BASE_TAG
+ARG BASE_TAG=latest
 FROM php-fpm-base:${BASE_TAG} AS api-php
 
 # Warm up composer cache for faster builds

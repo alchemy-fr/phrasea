@@ -1,4 +1,4 @@
-ARG BASE_TAG
+ARG BASE_TAG=latest
 FROM nodejs-base:${BASE_TAG} as client-build
 
 COPY . .

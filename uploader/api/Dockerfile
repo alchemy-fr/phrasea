@@ -1,4 +1,4 @@
-ARG BASE_TAG
+ARG BASE_TAG=latest
 FROM php-fpm-base:${BASE_TAG} AS api-php
 
 RUN printf "\nrequest_terminate_timeout = 600\n" >> /usr/local/etc/php-fpm.d/large-upload.conf
