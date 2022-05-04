@@ -221,8 +221,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+
       - name: Setup
         run: |
+          bin/build.sh
           docker-compose down --volumes
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh
