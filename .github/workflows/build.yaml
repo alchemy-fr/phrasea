@@ -10,7 +10,7 @@ env:
   TRAEFIK_HTTPS_PORT: 4442
   TRAEFIK_HTTP_PORT: 8042
   HTTPS_PORT_PREFIX: ':4442'
-  DOCKER_TAG: ${{ env.GITHUB_SHA }}
+  DOCKER_TAG: ${{ github.sha }}
 
 jobs:
   build_base:
