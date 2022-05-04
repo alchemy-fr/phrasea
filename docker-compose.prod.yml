@@ -4,7 +4,7 @@ services:
   uploader-client:
     profiles:
       - uploader
-    image: ${REGISTRY_NAMESPACE}uploader-client:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
     build:
       context: ./uploader/client
       target: client-nginx
@@ -14,13 +14,13 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
@@ -28,7 +28,7 @@ services:
   expose-client:
     profiles:
       - expose
-    image: ${REGISTRY_NAMESPACE}expose-client:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
     build:
       context: ./expose/client
       target: client-nginx
@@ -37,8 +37,8 @@ services:
     networks:
       - internal
     environment:
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
@@ -51,7 +51,7 @@ services:
   databox-client:
     profiles:
       - databox
-    image: ${REGISTRY_NAMESPACE}databox-client:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
     build:
       context: ./databox/client
       target: client-nginx
@@ -61,16 +61,16 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DATABOX_REQUEST_SIGNATURE_TTL
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client.rule=Host(`databox.${PHRASEA_DOMAIN}`)"

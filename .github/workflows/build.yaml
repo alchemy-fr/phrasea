@@ -2,24 +2,224 @@ name: Build, test and push
 
 on: [push]
 
-jobs:
-  build:
-    name: 'Build, Test and Push'
-    runs-on: self-hosted
+env:
+  COMPOSE_PROJECT_NAME: build
+  PS_SUBNET: 172.34.202.0/16
+  PS_GATEWAY_IP: 172.34.0.1
+  PHRASEA_DOMAIN: phrasea.local
+  TRAEFIK_HTTPS_PORT: 4442
+  TRAEFIK_HTTP_PORT: 8042
+  HTTPS_PORT_PREFIX: ':4442'
+  DOCKER_TAG: ${{ env.GITHUB_SHA }}
 
-    env:
-      COMPOSE_PROJECT_NAME: build
-      PS_SUBNET: 172.33.202.0/16
-      PS_GATEWAY_IP: 172.33.0.1
-      PHRASEA_DOMAIN: phrasea.local
+jobs:
+  build_base:
+    name: 'Build base images'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose -f docker-compose.init.yml build
+
+  build_auth_api:
+    name: 'Build Auth API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build auth-api-php auth-api-nginx auth-worker
+
+  build_dashboard:
+    name: 'Build Dashboard'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build dashboard
+
+  build_databox_api:
+    name: 'Build Databox API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build databox-api-php databox-api-nginx databox-worker
+
+  build_databox_client:
+    name: 'Build Databox Client'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build databox-client
+
+  build_databox_indexer:
+    name: 'Build Databox Indexer'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build databox-indexer
+
+  build_databox_indexer_app:
+    name: 'Build Databox Indexer App'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build databox-indexer-app
+
+  build_expose_api:
+    name: 'Build Expose API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build expose-api-php expose-api-nginx expose-worker
+
+  build_expose_client:
+    name: 'Build Expose Client'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build expose-client
+
+  build_matomo:
+    name: 'Build Matomo'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build matomo-php matomo-nginx
+
+  build_notify_api:
+    name: 'Build Notify API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build notify-api-php notify-api-nginx notify-worker
+
+  build_report_api:
+    name: 'Build Report API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build report-api
+
+  build_uploader_api:
+    name: 'Build Uploader API'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build uploader-api-php uploader-api-nginx uploader-worker
+
+  build_uploader_client:
+    name: 'Build Uploader Client'
+    runs-on: self-hosted
+    needs: [build_base]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+      - name: Build
+        run: |
+          docker-compose build uploader-client
+
+  setup:
+    name: 'Setup stack'
+    runs-on: self-hosted
+    needs:
+      - build_auth_api
+      #- build_dashboard
+      - build_databox_api
+      - build_databox_client
+#      - build_databox_indexer
+#      - build_databox_indexer_app
+      - build_expose_api
+      - build_expose_client
+#      - build_matomo
+      - build_notify_api
+      - build_report_api
+      - build_uploader_api
+      - build_uploader_client
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Build
-        run: |
-          bin/build.sh
 
       - name: Setup
         run: |

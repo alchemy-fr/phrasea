@@ -64,7 +64,7 @@ services:
   uploader-api-php:
     profiles:
       - uploader
-    image: ${REGISTRY_NAMESPACE}uploader-api-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}uploader-api-php:${DOCKER_TAG}
     build:
       context: ./uploader/api
       target: api-php
@@ -89,22 +89,22 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - REPORT_API_BASE_URL
       - UPLOAD_MAX_FILE_SIZE
       - UPLOADER_REQUEST_SIGNATURE_TTL
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${UPLOADER_STORAGE_BUCKET_NAME}
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DELETE_ASSET_GRACEFUL_TIME=${UPLOADER_DELETE_ASSET_GRACEFUL_TIME}
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
@@ -119,7 +119,7 @@ services:
   uploader-worker:
     profiles:
       - uploader
-    image: ${REGISTRY_NAMESPACE}uploader-worker:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}uploader-worker:${DOCKER_TAG}
     build:
       context: ./uploader/api
       target: worker
@@ -140,10 +140,10 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - REPORT_API_BASE_URL
       - UPLOADER_REQUEST_SIGNATURE_TTL
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -163,7 +163,7 @@ services:
   uploader-api-nginx:
     profiles:
       - uploader
-    image: ${REGISTRY_NAMESPACE}uploader-api-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}uploader-api-nginx:${DOCKER_TAG}
     build:
       context: ./uploader/api
       target: api-nginx
@@ -186,7 +186,7 @@ services:
       - expose
       - notify
       - uploader
-    image: ${REGISTRY_NAMESPACE}auth-worker:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}auth-worker:${DOCKER_TAG}
     build:
       context: ./auth/api
       target: worker
@@ -200,7 +200,7 @@ services:
     environment:
       - APP_ENV
       - APP_ID=auth
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -221,7 +221,7 @@ services:
       - expose
       - notify
       - uploader
-    image: ${REGISTRY_NAMESPACE}auth-api-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}auth-api-php:${DOCKER_TAG}
     build:
       context: ./auth/api
       target: api-php
@@ -234,7 +234,7 @@ services:
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - APP_ID=auth
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${AUTH_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
@@ -248,7 +248,7 @@ services:
       - RABBITMQ_SSL
       - REPORT_API_BASE_URL
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=auth-api
@@ -268,7 +268,7 @@ services:
       - expose
       - notify
       - uploader
-    image: ${REGISTRY_NAMESPACE}auth-api-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}auth-api-nginx:${DOCKER_TAG}
     build:
       context: ./auth/api
       target: api-nginx
@@ -285,7 +285,7 @@ services:
   expose-api-php:
     profiles:
       - expose
-    image: ${REGISTRY_NAMESPACE}expose-api-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}expose-api-php:${DOCKER_TAG}
     build:
       context: ./expose/api
       target: api-php
@@ -311,23 +311,23 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${EXPOSE_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${EXPOSE_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
       - S3_STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - REPORT_API_BASE_URL
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
-      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
       - ZIPPY_BASE_URL
@@ -350,7 +350,7 @@ services:
   expose-worker:
     profiles:
       - expose
-    image: ${REGISTRY_NAMESPACE}expose-worker:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
     build:
       context: ./expose/api
       target: worker
@@ -371,7 +371,7 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${EXPOSE_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -379,7 +379,7 @@ services:
       - S3_STORAGE_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - REPORT_API_BASE_URL
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOAD_MAX_FILE_SIZE
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
@@ -394,7 +394,7 @@ services:
   expose-api-nginx:
     profiles:
       - expose
-    image: ${REGISTRY_NAMESPACE}expose-api-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}expose-api-nginx:${DOCKER_TAG}
     build:
       context: ./expose/api
       target: api-nginx
@@ -416,7 +416,7 @@ services:
   notify-api-php:
     profiles:
       - notify
-    image: ${REGISTRY_NAMESPACE}notify-api-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}notify-api-php:${DOCKER_TAG}
     build:
       context: ./notify/api
       target: api-php
@@ -440,7 +440,7 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_RANDOM_ID=${NOTIFY_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
@@ -448,7 +448,7 @@ services:
       - MAILER_DSN
       - MAIL_FROM
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=notify-api
@@ -458,7 +458,7 @@ services:
   notify-worker:
     profiles:
       - notify
-    image: ${REGISTRY_NAMESPACE}notify-worker:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
     build:
       context: ./notify/api
       target: worker
@@ -488,7 +488,7 @@ services:
   notify-api-nginx:
     profiles:
       - notify
-    image: ${REGISTRY_NAMESPACE}notify-api-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}notify-api-nginx:${DOCKER_TAG}
     build:
       context: ./notify/api
       target: api-nginx
@@ -575,7 +575,7 @@ services:
     environment:
       - MINIO_ROOT_USER=${S3_STORAGE_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_STORAGE_SECRET_KEY}
-      - MINIO_BROWSER_REDIRECT_URL=https://minio-console.${PHRASEA_DOMAIN}
+      - MINIO_BROWSER_REDIRECT_URL=https://minio-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
@@ -604,7 +604,7 @@ services:
   matomo-php:
     profiles:
       - matomo
-    image: ${REGISTRY_NAMESPACE}matomo-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}matomo-php:${DOCKER_TAG}
     build: ./infra/docker/matomo-php
     networks:
       internal:
@@ -623,7 +623,7 @@ services:
   matomo-nginx:
     profiles:
       - matomo
-    image: ${REGISTRY_NAMESPACE}matomo-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}matomo-nginx:${DOCKER_TAG}
     build: ./infra/docker/matomo-nginx
     networks:
       - internal
@@ -657,7 +657,7 @@ services:
   report-api:
     profiles:
       - report
-    image: ${REGISTRY_NAMESPACE}report-api:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
     build: report
     networks:
       internal:
@@ -716,7 +716,7 @@ services:
   dashboard:
     profiles:
       - dashboard
-    image: ${REGISTRY_NAMESPACE}dashboard:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}dashboard:${DOCKER_TAG}
     build: dashboard
     networks:
       - internal
@@ -754,26 +754,26 @@ services:
       - REGISTRY_NAMESPACE
       - REPORT_DB_NAME
       - XDEBUG_ENABLED
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
-      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}
-      - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
-      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
-      - NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - REPORT_API_BASE_URL
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
-      - ZIPPY_BASE_URL=https://zippy.${PHRASEA_DOMAIN}
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
-      - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}
-      - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}
-      - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}
-      - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}
-      - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}
-      - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}
-      - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}
-      - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - ZIPPY_BASE_URL=https://zippy.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - PHRASEANET_BASE_URL
     labels:
       - "traefik.enable=true"
@@ -782,7 +782,7 @@ services:
   databox-api-php:
     profiles:
       - databox
-    image: ${REGISTRY_NAMESPACE}databox-api-php:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-api-php:${DOCKER_TAG}
     build:
       context: ./databox/api
       target: api-php
@@ -792,10 +792,10 @@ services:
           - databox-php
     environment:
       - APP_ENV
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - TRUSTED_PROXIES=${PS_SUBNET}
       - VERIFY_SSL
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -807,7 +807,7 @@ services:
       - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -818,7 +818,7 @@ services:
       - PHRASEANET_APP_OAUTH_TOKEN
       - UPLOAD_MAX_FILE_SIZE
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=databox-api
@@ -837,7 +837,7 @@ services:
   databox-worker:
     profiles:
       - databox
-    image: ${REGISTRY_NAMESPACE}databox-worker:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-worker:${DOCKER_TAG}
     build:
       context: ./databox/api
       target: worker
@@ -850,8 +850,8 @@ services:
       - elasticsearch
     environment:
       - APP_ENV
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -864,7 +864,7 @@ services:
       - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${DATABOX_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
@@ -886,7 +886,7 @@ services:
   databox-api-nginx:
     profiles:
       - databox
-    image: ${REGISTRY_NAMESPACE}databox-api-nginx:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-api-nginx:${DOCKER_TAG}
     build:
       context: ./databox/api
       target: api-nginx
@@ -903,7 +903,7 @@ services:
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
   databox-indexer-app:
-    image: ${REGISTRY_NAMESPACE}databox-indexer-app:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-indexer-app:${DOCKER_TAG}
     build:
       context: ./databox/indexer-app
     profiles:
@@ -911,7 +911,7 @@ services:
     privileged: true
 
   databox-indexer:
-    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
       context: ./databox/indexer
@@ -922,15 +922,15 @@ services:
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - IMPORT_FILES=${INDEXER_IMPORT_FILES}
-      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
       - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
       - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
       - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
@@ -953,7 +953,7 @@ services:
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-watcher:
-    image: ${REGISTRY_NAMESPACE}databox-indexer:$DOCKER_TAG
+    image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     build:
       context: ./databox/indexer
     profiles:
@@ -965,15 +965,15 @@ services:
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - IMPORT_FILES=${INDEXER_IMPORT_FILES}
-      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}
+      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
       - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
       - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
       - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}
+      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_STORAGE_ACCESS_KEY
       - S3_STORAGE_SECRET_KEY
       - S3_STORAGE_REGION
