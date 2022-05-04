@@ -47,15 +47,10 @@ class AttributeSearch
     ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
-        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
-
-        if (empty($workspaces)) {
-            return null;
-        }
+        $workspaces = $this->em->getRepository(Workspace::class)->findAll();
 
         $boolQuery = new Query\BoolQuery();
         $boolQuery->setMinimumShouldMatch(1);
-
         $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
 
         foreach ($workspaces as $workspace) {

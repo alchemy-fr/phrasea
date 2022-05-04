@@ -111,7 +111,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $this->getEntityManager()->flush();
 
-        AssetSearchTest::releaseIndex();
+        self::releaseIndex();
 
         foreach ($this->getSearchCases() as $args) {
             $this->assertSearchResults(...$args);

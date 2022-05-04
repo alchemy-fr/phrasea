@@ -33,6 +33,7 @@ class TextAttributeType extends AbstractAttributeType
             $mapping['fields'] = [
                 'raw' => [
                     'type' => 'keyword',
+                    'ignore_above' => 10000,
                 ],
             ];
         }

@@ -7,6 +7,13 @@ App\Entity\Core\Workspace:
     slug: test-workspace
     ownerId: super_user
 
+Alchemy\AclBundle\Entity\AccessControlEntry:
+  acl_user_ws:
+    userType: 0
+    objectType: 0
+    objectId: '@w_test->id'
+    mask: 1
+
 App\Entity\Core\Asset:
   asset{1..60}:
     title: 'Asset #<current()>'

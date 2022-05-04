@@ -17,11 +17,7 @@ abstract class AbstractSearch
     {
         $aclBoolQuery = new Query\BoolQuery();
 
-        $shoulds = [
-            new Query\Range('privacy', [
-                'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
-            ]),
-        ];
+        $shoulds = [];
 
         if (null !== $userId) {
             $shoulds[] = new Query\Range('privacy', [
@@ -45,6 +41,10 @@ abstract class AbstractSearch
             if (!empty($groupIds)) {
                 $shoulds[] = new Query\Terms('groups', $groupIds);
             }
+        } else {
+            $shoulds[] = new Query\Range('privacy', [
+                'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
+            ]);
         }
 
         foreach ($shoulds as $query) {
