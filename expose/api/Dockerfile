@@ -1,4 +1,5 @@
-FROM php-fpm-base AS api-php
+ARG BASE_TAG
+FROM php-fpm-base:${BASE_TAG} AS api-php
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
@@ -21,7 +22,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx-cache-purge AS api-nginx
+FROM nginx-cache-purge:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
 COPY docker/nginx/entrypoint.sh /entrypoint.sh

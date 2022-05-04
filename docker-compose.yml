@@ -225,6 +225,8 @@ services:
     build:
       context: ./auth/api
       target: api-php
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -272,6 +274,8 @@ services:
     build:
       context: ./auth/api
       target: api-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -289,6 +293,8 @@ services:
     build:
       context: ./expose/api
       target: api-php
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -354,6 +360,8 @@ services:
     build:
       context: ./expose/api
       target: worker
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       - internal
     volumes:
@@ -398,6 +406,8 @@ services:
     build:
       context: ./expose/api
       target: api-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
@@ -420,6 +430,8 @@ services:
     build:
       context: ./notify/api
       target: api-php
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -462,6 +474,8 @@ services:
     build:
       context: ./notify/api
       target: worker
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       - internal
     depends_on:
@@ -492,6 +506,8 @@ services:
     build:
       context: ./notify/api
       target: api-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -786,6 +802,8 @@ services:
     build:
       context: ./databox/api
       target: api-php
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -841,6 +859,8 @@ services:
     build:
       context: ./databox/api
       target: worker
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       - internal
     depends_on:
@@ -890,6 +910,8 @@ services:
     build:
       context: ./databox/api
       target: api-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:

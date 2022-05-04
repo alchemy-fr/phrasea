@@ -1,4 +1,5 @@
-FROM nodejs-base as client-build
+ARG BASE_TAG
+FROM nodejs-base:${BASE_TAG} as client-build
 
 COPY . .
 

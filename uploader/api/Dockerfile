@@ -1,4 +1,5 @@
-FROM php-fpm-base AS api-php
+ARG BASE_TAG
+FROM php-fpm-base:${BASE_TAG} AS api-php
 
 RUN printf "\nrequest_terminate_timeout = 600\n" >> /usr/local/etc/php-fpm.d/large-upload.conf
 
@@ -23,7 +24,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx-fpm-base AS api-nginx
+FROM nginx-fpm-base:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
 ENV FPM_HOSTNAME=uploader-api-php
