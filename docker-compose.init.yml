@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  php-fpm-base:
+    image: php-fpm-base
+    build:
+      context: ./infra/docker/php-fpm-base
+
+  nginx-fpm-base:
+    image: nginx-fpm-base
+    build:
+      context: ./infra/docker/nginx-fpm-base
+
+  nodejs-base:
+    image: nodejs-base
+    build:
+      context: ./infra/docker/nodejs-base
+
+  nginx-cache-purge:
+    image: nginx-cache-purge
+    build:
+      context: ./infra/docker/nginx-cache-purge

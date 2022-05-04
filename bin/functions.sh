@@ -18,7 +18,7 @@ function export_env_from_file {
         # Otherwise use value from .env file
         [[ -z $value ]] && value=${varvalue}
 
-        eval $(echo "export ${varname}=$value")
+        export ${varname}=$value
       fi
     done < "$1"
 }
