@@ -27,6 +27,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.init.yml build php-fpm-base
       - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
         with:
           image: "php-fpm-base"
           tags: ${{ env.DOCKER_TAG }}
@@ -44,6 +45,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.init.yml build nginx-fpm-base
       - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
         with:
           image: "nginx-fpm-base"
           tags: ${{ env.DOCKER_TAG }}
@@ -61,6 +63,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
       - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
         with:
           image: "nodejs-base"
           tags: ${{ env.DOCKER_TAG }}
@@ -78,6 +81,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.init.yml build nginx-cache-purge
       - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
         with:
           image: "nginx-cache-purge"
           tags: ${{ env.DOCKER_TAG }}
