@@ -164,7 +164,6 @@ jobs:
       - build_databox_api
       - build_databox_client
       - build_databox_indexer
-      - build_databox_indexer_app
       - build_expose_api
       - build_expose_client
       - build_matomo
