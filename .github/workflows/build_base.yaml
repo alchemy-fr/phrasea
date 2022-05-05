@@ -6,10 +6,6 @@ on:
       images:
         required: true
         type: string
-      withLibs:
-        required: false
-        default: false
-        type: boolean
 
 env:
   COMPOSE_PROJECT_NAME: build
@@ -25,11 +21,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Update libs
-        if: ${{ inputs.withLibs }}
-        shell: bash
-        run: |
-          bin/update-libs.sh
       - name: Build
         shell: bash
         run: |

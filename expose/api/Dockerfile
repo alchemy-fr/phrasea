@@ -23,7 +23,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx-cache-purge:${BASE_TAG} AS api-nginx
+FROM ${REGISTRY_NAMESPACE}nginx-cache-purge:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
 COPY docker/nginx/entrypoint.sh /entrypoint.sh
