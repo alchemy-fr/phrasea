@@ -21,6 +21,8 @@ jobs:
     name: 'Build php-fpm-base'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - uses: ./.github/workflows/build.yaml
         with:
           images: php-fpm-base
@@ -29,6 +31,8 @@ jobs:
     name: 'Build nginx-fpm-base'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - uses: ./.github/workflows/build.yaml
         with:
           images: nginx-fpm-base
@@ -37,6 +41,8 @@ jobs:
     name: 'Build nodejs-base'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - uses: ./.github/workflows/build.yaml
         with:
           images: nodejs-base
@@ -45,6 +51,8 @@ jobs:
     name: 'Build nginx-cache-purge'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - uses: ./.github/workflows/build.yaml
         with:
           images: nginx-cache-purge
