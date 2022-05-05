@@ -68,6 +68,8 @@ services:
     build:
       context: ./uploader/api
       target: api-php
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       internal:
         aliases:
@@ -123,6 +125,8 @@ services:
     build:
       context: ./uploader/api
       target: worker
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       - internal
     depends_on:
@@ -167,6 +171,8 @@ services:
     build:
       context: ./uploader/api
       target: api-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
@@ -190,6 +196,8 @@ services:
     build:
       context: ./auth/api
       target: worker
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     networks:
       - internal
     depends_on:
