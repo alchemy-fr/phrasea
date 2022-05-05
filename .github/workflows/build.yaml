@@ -1,11 +1,9 @@
 name: Build and push image
 
-on:
-  workflow_call:
-    inputs:
-      images:
-        required: true
-        type: string
+inputs:
+  images:
+    required: true
+    type: string
 
 env:
   COMPOSE_PROJECT_NAME: build
