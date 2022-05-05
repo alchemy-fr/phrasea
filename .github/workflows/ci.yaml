@@ -26,6 +26,7 @@ jobs:
       - uses: ./.github/workflows/build
         with:
           images: php-fpm-base
+        secrets: inherit
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
@@ -36,6 +37,7 @@ jobs:
       - uses: ./.github/workflows/build
         with:
           images: nginx-fpm-base
+        secrets: inherit
 
   build_nodejs-base:
     name: 'Build nodejs-base'
@@ -46,6 +48,7 @@ jobs:
       - uses: ./.github/workflows/build
         with:
           images: nodejs-base
+        secrets: inherit
 
   build_nginx-cache-purge:
     name: 'Build nginx-cache-purge'
@@ -56,6 +59,7 @@ jobs:
       - uses: ./.github/workflows/build
         with:
           images: nginx-cache-purge
+        secrets: inherit
 
   build_auth_api:
     name: 'Build Auth API'
