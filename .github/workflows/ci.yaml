@@ -18,17 +18,11 @@ env:
 
 jobs:
   build_php-fpm-base:
-    name: 'Build php-fpm-base'
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: debug
-        run: |
-          ls -la ./.github/workflows
-      - uses: ./.github/workflows/build.yaml
-        with:
-          images: php-fpm-base
+    name: 'Build php-fpm-base'
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: php-fpm-base
 
 #  build_nginx-fpm-base:
 #    name: 'Build nginx-fpm-base'
