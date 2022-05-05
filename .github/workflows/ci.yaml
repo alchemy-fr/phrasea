@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: ./.github/workflows/build
+      - uses: ./.github/workflows/build.yaml
         with:
           images: php-fpm-base
         secrets: inherit
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: ./.github/workflows/build
+      - uses: ./.github/workflows/build.yaml
         with:
           images: nginx-fpm-base
         secrets: inherit
@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: ./.github/workflows/build
+      - uses: ./.github/workflows/build.yaml
         with:
           images: nodejs-base
         secrets: inherit
@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: ./.github/workflows/build
+      - uses: ./.github/workflows/build.yaml
         with:
           images: nginx-cache-purge
         secrets: inherit

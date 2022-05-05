@@ -1,0 +1,30 @@
+name: Build and push image
+
+on:
+  workflow_call:
+    inputs:
+      images:
+        required: true
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        shell: bash
+        run: |
+          docker-compose -f docker-compose.init.yml build ${{ inputs.images }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push
+        shell: bash
+        run: |
+          docker-compose -f docker-compose.init.yml push ${{ inputs.images }}
