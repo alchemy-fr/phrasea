@@ -8,6 +8,8 @@ services:
     build:
       context: ./uploader/client
       target: client-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     volumes:
       - ./configs:/configs
     networks:
@@ -32,6 +34,8 @@ services:
     build:
       context: ./expose/client
       target: client-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     volumes:
       - ./configs:/configs
     networks:
@@ -55,6 +59,8 @@ services:
     build:
       context: ./databox/client
       target: client-nginx
+      args:
+        BASE_TAG: ${DOCKER_TAG}
     volumes:
       - ./configs:/configs
     networks:
