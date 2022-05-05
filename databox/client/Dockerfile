@@ -1,5 +1,6 @@
 ARG BASE_TAG=latest
-FROM nodejs-base:${BASE_TAG} as client-build
+ARG REGISTRY_NAMESPACE
+FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
 COPY . .
 

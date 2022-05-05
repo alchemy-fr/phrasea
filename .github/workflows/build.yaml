@@ -10,7 +10,7 @@ env:
   TRAEFIK_HTTPS_PORT: 4442
   TRAEFIK_HTTP_PORT: 8042
   HTTPS_PORT_PREFIX: ':4442'
-  REGISTRY_NAMESPACE: ghcr.io/ps-
+  REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
@@ -23,17 +23,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build php-fpm-base
-      - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: "php-fpm-base"
-          tags: ${{ env.DOCKER_TAG }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          docker-compose -f docker-compose.init.yml push php-fpm-base
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
@@ -41,17 +40,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nginx-fpm-base
-      - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: "nginx-fpm-base"
-          tags: ${{ env.DOCKER_TAG }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          docker-compose -f docker-compose.init.yml push nginx-fpm-base
 
   build_nodejs-base:
     name: 'Build nodejs-base'
@@ -59,17 +57,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nodejs-base
-      - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: "nodejs-base"
-          tags: ${{ env.DOCKER_TAG }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          docker-compose -f docker-compose.init.yml push nodejs-base
 
   build_nginx-cache-purge:
     name: 'Build nginx-cache-purge'
@@ -77,17 +74,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           docker-compose -f docker-compose.init.yml build nginx-cache-purge
-      - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: "nginx-cache-purge"
-          tags: ${{ env.DOCKER_TAG }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          docker-compose -f docker-compose.init.yml push nginx-cache-purge
 
   build_auth_api:
     name: 'Build Auth API'

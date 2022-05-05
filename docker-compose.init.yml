@@ -2,21 +2,21 @@ version: '3.9'
 
 services:
   php-fpm-base:
-    image: php-fpm-base:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}php-fpm-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/php-fpm-base
 
   nginx-fpm-base:
-    image: nginx-fpm-base:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}nginx-fpm-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/nginx-fpm-base
 
   nodejs-base:
-    image: nodejs-base:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}nodejs-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/nodejs-base
 
   nginx-cache-purge:
-    image: nginx-cache-purge:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}nginx-cache-purge:${DOCKER_TAG}
     build:
       context: ./infra/docker/nginx-cache-purge

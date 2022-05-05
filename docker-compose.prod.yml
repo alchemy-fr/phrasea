@@ -10,6 +10,7 @@ services:
       target: client-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./configs:/configs
     networks:
@@ -36,6 +37,7 @@ services:
       target: client-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./configs:/configs
     networks:
@@ -61,6 +63,7 @@ services:
       target: client-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./configs:/configs
     networks:
