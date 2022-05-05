@@ -18,7 +18,7 @@ env:
 
 jobs:
   build_php-fpm-base:
-    uses: ./.github/workflows/called-workflow.yml
+    uses: ./.github/workflows/build.yaml
     with:
       images: php-fpm-base
     secrets: inherit
