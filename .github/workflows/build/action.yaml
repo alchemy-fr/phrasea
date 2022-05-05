@@ -5,14 +5,6 @@ inputs:
     required: true
     type: string
 
-env:
-  COMPOSE_PROJECT_NAME: build
-  REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
-  DOCKER_TAG: ${{ github.sha }}
-  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  REGISTRY_USER: ${{ github.actor }}
-  REGISTRY_PASSWORD: ${{ github.token }}
-
 runs:
   using: "composite"
   steps:
