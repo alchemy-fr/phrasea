@@ -18,62 +18,65 @@ env:
 
 jobs:
   build_php-fpm-base:
-    runs-on: ubuntu-latest
     name: 'Build php-fpm-base'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: php-fpm-base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: ./.github/workflows/build
+        with:
+          images: php-fpm-base
 
-#  build_nginx-fpm-base:
-#    name: 'Build nginx-fpm-base'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - uses: ./.github/workflows/build.yaml
-#        with:
-#          images: nginx-fpm-base
-#
-#  build_nodejs-base:
-#    name: 'Build nodejs-base'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - uses: ./.github/workflows/build.yaml
-#        with:
-#          images: nodejs-base
-#
-#  build_nginx-cache-purge:
-#    name: 'Build nginx-cache-purge'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - uses: ./.github/workflows/build.yaml
-#        with:
-#          images: nginx-cache-purge
-#
-#  build_auth_api:
-#    name: 'Build Auth API'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_php-fpm-base
-#      - build_nginx-fpm-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          bin/update-libs.sh
-#          docker-compose build auth-api-php auth-api-nginx auth-worker
-#
+  build_nginx-fpm-base:
+    name: 'Build nginx-fpm-base'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: ./.github/workflows/build
+        with:
+          images: nginx-fpm-base
+
+  build_nodejs-base:
+    name: 'Build nodejs-base'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: ./.github/workflows/build
+        with:
+          images: nodejs-base
+
+  build_nginx-cache-purge:
+    name: 'Build nginx-cache-purge'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: ./.github/workflows/build
+        with:
+          images: nginx-cache-purge
+
+  build_auth_api:
+    name: 'Build Auth API'
+    runs-on: ubuntu-latest
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build auth-api-php auth-api-nginx auth-worker
+
 #  build_dashboard:
 #    name: 'Build Dashboard'
 #    runs-on: ubuntu-latest
@@ -90,125 +93,50 @@ jobs:
 #        run: |
 #          docker-compose build dashboard
 #          docker-compose push dashboard
-#
-#  build_databox_api:
-#    name: 'Build Databox API'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_php-fpm-base
-#      - build_nginx-fpm-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          bin/update-libs.sh
-#          docker-compose build databox-api-php databox-api-nginx databox-worker
-#          docker-compose push databox-api-php databox-api-nginx databox-worker
-#
-#  build_databox_client:
-#    name: 'Build Databox Client'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_nodejs-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          docker-compose -f docker-compose.init.yml build nodejs-base
-#          docker-compose build databox-client
-#          docker-compose push databox-client
-#
-##  build_databox_indexer:
-##    name: 'Build Databox Indexer'
-##    runs-on: ubuntu-latest
-##    steps:
-##      - name: Checkout code
-##        uses: actions/checkout@v2
-##      - name: Log in to the Container registry
-##        uses: docker/login-action@v1
-##        with:
-##          registry: ${{ env.IMAGE_REGISTRY }}
-##          username: ${{ github.actor }}
-##          password: ${{ secrets.GITHUB_TOKEN }}
-##      - name: Build
-##        run: |
-##          docker-compose build databox-indexer
-##          docker-compose push databox-indexer
-#
-#  #  build_databox_indexer_app:
-#  #    name: 'Build Databox Indexer App'
-#  #    runs-on: ubuntu-latest
-#  #    steps:
-#  #      - name: Checkout code
-#  #        uses: actions/checkout@v2
-#  #      - name: Log in to the Container registry
-#  #        uses: docker/login-action@v1
-#  #        with:
-#  #          registry: ${{ env.IMAGE_REGISTRY }}
-#  #          username: ${{ github.actor }}
-#  #          password: ${{ secrets.GITHUB_TOKEN }}
-#  #      - name: Build
-#  #        run: |
-#  #          docker-compose build databox-indexer-app
-#  #          docker-compose push databox-indexer-app
-#
-#  build_expose_api:
-#    name: 'Build Expose API'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_php-fpm-base
-#      - build_nginx-cache-purge
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          bin/update-libs.sh
-#          docker-compose build expose-api-php expose-api-nginx expose-worker
-#          docker-compose push expose-api-php expose-api-nginx expose-worker
-#
-#  build_expose_client:
-#    name: 'Build Expose Client'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_nodejs-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          docker-compose -f docker-compose.init.yml build nodejs-base
-#          docker-compose build expose-client
-#          docker-compose push expose-client
-#
-#  build_matomo:
-#    name: 'Build Matomo'
+
+  build_databox_api:
+    name: 'Build Databox API'
+    runs-on: ubuntu-latest
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build databox-api-php databox-api-nginx databox-worker
+          docker-compose push databox-api-php databox-api-nginx databox-worker
+
+  build_databox_client:
+    name: 'Build Databox Client'
+    runs-on: ubuntu-latest
+    needs:
+      - build_nodejs-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
+          docker-compose build databox-client
+          docker-compose push databox-client
+
+#  build_databox_indexer:
+#    name: 'Build Databox Indexer'
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Checkout code
@@ -221,159 +149,234 @@ jobs:
 #          password: ${{ secrets.GITHUB_TOKEN }}
 #      - name: Build
 #        run: |
-#          docker-compose build matomo-php matomo-nginx
-#          docker-compose push matomo-php matomo-nginx
-#
-#  build_notify_api:
-#    name: 'Build Notify API'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_php-fpm-base
-#      - build_nginx-fpm-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          bin/update-libs.sh
-#          docker-compose build notify-api-php notify-api-nginx notify-worker
-#          docker-compose push notify-api-php notify-api-nginx notify-worker
-#
-#  build_report_api:
-#    name: 'Build Report API'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          docker-compose build report-api
-#          docker-compose push report-api
-#
-#  build_uploader_api:
-#    name: 'Build Uploader API'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_php-fpm-base
-#      - build_nginx-fpm-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          bin/update-libs.sh
-#          docker-compose build uploader-api-php uploader-api-nginx uploader-worker
-#          docker-compose push uploader-api-php uploader-api-nginx uploader-worker
-#
-#  build_uploader_client:
-#    name: 'Build Uploader Client'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_nodejs-base
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build
-#        run: |
-#          docker-compose -f docker-compose.init.yml build nodejs-base
-#          docker-compose build uploader-client
-#          docker-compose push uploader-client
-#
-#  setup:
-#    name: 'Setup stack'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - build_auth_api
-#      #- build_dashboard
-#      - build_databox_api
-#      - build_databox_client
-#      #      - build_databox_indexer
-#      #      - build_databox_indexer_app
-#      - build_expose_api
-#      - build_expose_client
-#      #      - build_matomo
-#      - build_notify_api
-#      - build_report_api
-#      - build_uploader_api
-#      - build_uploader_client
-#
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.IMAGE_REGISTRY }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Setup
-#        run: |
-#          docker-compose pull
-#          docker-compose down --volumes
-#          sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
-#          bin/setup.sh
-#      - name: Test
-#        run: bin/test.sh
-#      - name: Clean containers
-#        if: ${{ always() }}
-#        run: |
-#          docker-compose down --volumes
-#      - name: Login to Docker Hub
-#        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
-#      - name: Push images
-#        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
-#        run: |
-#          bin/build.sh
-#          function push() {
-#            local n=1
-#            local max=5
-#            local delay=10
-#            while true; do
-#              docker-compose \
-#                -f docker-compose.yml \
-#                -f docker-compose.prod.yml \
-#                -f docker-compose.report-elk.yml && break || {
-#                if [[ $n -lt $max ]]; then
-#                  ((n++))
-#                  echo "Push failed. Attempt $n/$max:"
-#                  sleep $delay;
-#                else
-#                  echo "Push has failed after $n attempts." >&2
-#                  exit 1
-#                fi
-#              }
-#            done
-#          }
-#          if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
-#            push
-#          else
-#            echo "Publish step skipped."
-#          fi
+#          docker-compose build databox-indexer
+#          docker-compose push databox-indexer
+
+  #  build_databox_indexer_app:
+  #    name: 'Build Databox Indexer App'
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v2
+  #      - name: Log in to the Container registry
+  #        uses: docker/login-action@v1
+  #        with:
+  #          registry: ${{ env.IMAGE_REGISTRY }}
+  #          username: ${{ github.actor }}
+  #          password: ${{ secrets.GITHUB_TOKEN }}
+  #      - name: Build
+  #        run: |
+  #          docker-compose build databox-indexer-app
+  #          docker-compose push databox-indexer-app
+
+  build_expose_api:
+    name: 'Build Expose API'
+    runs-on: ubuntu-latest
+    needs:
+      - build_php-fpm-base
+      - build_nginx-cache-purge
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build expose-api-php expose-api-nginx expose-worker
+          docker-compose push expose-api-php expose-api-nginx expose-worker
+
+  build_expose_client:
+    name: 'Build Expose Client'
+    runs-on: ubuntu-latest
+    needs:
+      - build_nodejs-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
+          docker-compose build expose-client
+          docker-compose push expose-client
+
+  build_matomo:
+    name: 'Build Matomo'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          docker-compose build matomo-php matomo-nginx
+          docker-compose push matomo-php matomo-nginx
+
+  build_notify_api:
+    name: 'Build Notify API'
+    runs-on: ubuntu-latest
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build notify-api-php notify-api-nginx notify-worker
+          docker-compose push notify-api-php notify-api-nginx notify-worker
+
+  build_report_api:
+    name: 'Build Report API'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          docker-compose build report-api
+          docker-compose push report-api
+
+  build_uploader_api:
+    name: 'Build Uploader API'
+    runs-on: ubuntu-latest
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          bin/update-libs.sh
+          docker-compose build uploader-api-php uploader-api-nginx uploader-worker
+          docker-compose push uploader-api-php uploader-api-nginx uploader-worker
+
+  build_uploader_client:
+    name: 'Build Uploader Client'
+    runs-on: ubuntu-latest
+    needs:
+      - build_nodejs-base
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: |
+          docker-compose -f docker-compose.init.yml build nodejs-base
+          docker-compose build uploader-client
+          docker-compose push uploader-client
+
+  setup:
+    name: 'Setup stack'
+    runs-on: ubuntu-latest
+    needs:
+      - build_auth_api
+      #- build_dashboard
+      - build_databox_api
+      - build_databox_client
+      #      - build_databox_indexer
+      #      - build_databox_indexer_app
+      - build_expose_api
+      - build_expose_client
+      #      - build_matomo
+      - build_notify_api
+      - build_report_api
+      - build_uploader_api
+      - build_uploader_client
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup
+        run: |
+          docker-compose pull
+          docker-compose down --volumes
+          sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
+          bin/setup.sh
+      - name: Test
+        run: bin/test.sh
+      - name: Clean containers
+        if: ${{ always() }}
+        run: |
+          docker-compose down --volumes
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push images
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        run: |
+          bin/build.sh
+          function push() {
+            local n=1
+            local max=5
+            local delay=10
+            while true; do
+              docker-compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                -f docker-compose.report-elk.yml && break || {
+                if [[ $n -lt $max ]]; then
+                  ((n++))
+                  echo "Push failed. Attempt $n/$max:"
+                  sleep $delay;
+                else
+                  echo "Push has failed after $n attempts." >&2
+                  exit 1
+                fi
+              }
+            done
+          }
+          if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
+            push
+          else
+            echo "Publish step skipped."
+          fi
