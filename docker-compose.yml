@@ -947,14 +947,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
-  databox-indexer-app:
-    image: ${REGISTRY_NAMESPACE}databox-indexer-app:${DOCKER_TAG}
-    build:
-      context: ./databox/indexer-app
-    profiles:
-      - indexer-app
-    privileged: true
-
   databox-indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]

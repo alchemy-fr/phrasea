@@ -253,14 +253,6 @@ services:
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
 
-  databox-indexer-app:
-    command: ["yarn", "start"]
-    environment:
-      - DISPLAY=unix${DISPLAY}
-    volumes:
-      - ./databox/indexer-app:/usr/app
-      - /tmp/.X11-unix:/tmp/.X11-unix
-
   databox-watcher:
     command: ["yarn", "start:dev"]
     volumes:

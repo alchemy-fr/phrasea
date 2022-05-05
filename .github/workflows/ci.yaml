@@ -90,13 +90,6 @@ jobs:
       images: databox-indexer
     secrets: inherit
 
-  build_databox_indexer_app:
-      name: 'Build Databox Indexer App'
-      uses: ./.github/workflows/build.yaml
-      with:
-        images: databox-indexer-app
-      secrets: inherit
-
   build_expose_api:
     name: 'Build Expose API'
     uses: ./.github/workflows/build.yaml
