@@ -1,4 +1,6 @@
-FROM php-fpm-base AS api-php
+ARG BASE_TAG=latest
+ARG REGISTRY_NAMESPACE
+FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
@@ -21,7 +23,7 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx-fpm-base AS api-nginx
+FROM ${REGISTRY_NAMESPACE}nginx-fpm-base:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
 ENV FPM_HOSTNAME=databox-api-php

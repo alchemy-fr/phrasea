@@ -1,4 +1,6 @@
-FROM nodejs-base as client-build
+ARG BASE_TAG=latest
+ARG REGISTRY_NAMESPACE
+FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
 COPY . .
 
