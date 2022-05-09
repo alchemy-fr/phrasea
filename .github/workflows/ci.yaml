@@ -200,9 +200,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push images
-        env:
-          REGISTRY_NAMESPACE: 'alchemyfr/ps-'
-          DOCKER_TAG: latest
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
           set -x
