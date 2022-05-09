@@ -205,25 +205,9 @@ jobs:
           DOCKER_TAG: latest
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
-          function push() {
-            local n=1
-            local max=5
-            local delay=10
-            while true; do
-              docker-compose push && break || {
-                if [[ $n -lt $max ]]; then
-                  ((n++))
-                  echo "Push failed. Attempt $n/$max:"
-                  sleep $delay;
-                else
-                  echo "Push has failed after $n attempts." >&2
-                  exit 1
-                fi
-              }
-            done
-          }
           if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
-            push
+            docker image ls | grep ${DOCKER_TAG} | awk '{print $1}' | xargs -I {} docker tag {}:${DOCKER_TAG} {}:latest
+            docker-compose push
           else
             echo "Publish step skipped."
           fi
