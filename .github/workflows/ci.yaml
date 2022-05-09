@@ -205,7 +205,13 @@ jobs:
           DOCKER_TAG: latest
         if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
         run: |
+          set -x
           if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
+            docker image ls
+            docker image ls | grep ${DOCKER_TAG}
+            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }'
+            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest
+            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2"
             docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2" | bash
             docker-compose push
           else
