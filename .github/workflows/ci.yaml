@@ -213,7 +213,7 @@ jobs:
             docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest
             docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2"
             docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2" | bash
-            docker-compose push
+            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker-compose push
           else
             echo "Publish step skipped."
           fi
