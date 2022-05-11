@@ -24,6 +24,7 @@ services:
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - WDS_SOCKET_PORT=443
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
@@ -50,6 +51,7 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
       - EXPOSE_REQUEST_SIGNATURE_TTL
+      - WDS_SOCKET_PORT=443
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
@@ -80,6 +82,7 @@ services:
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - WDS_SOCKET_PORT=443
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
@@ -122,8 +125,6 @@ services:
   uploader-api-nginx:
     volumes:
       - ./uploader/api/public:/srv/app/public
-      - ./uploader/api/docker/nginx/entrypoint.sh:/entrypoint.sh
-      - ./uploader/api/docker/nginx/tpl:/etc/nginx/tpl
 
   auth-worker:
     command: [ "/bin/sh", "-c", "exit" ]

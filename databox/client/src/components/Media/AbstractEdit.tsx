@@ -1,9 +1,9 @@
 import React, {PureComponent, ReactNode, RefObject} from "react";
-import Modal from "../Layout/Modal";
-import Button from "../ui/Button";
 import {IPermissions} from "../../types";
 import AclForm from "../Acl/AclForm";
 import {FormikHelpers, FormikProps} from "formik";
+import AppDialog from "../Layout/AppDialog";
+import {Button} from "@mui/material";
 
 export type AbstractEditProps = {
     id: string,
@@ -89,21 +89,21 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
     render() {
         const {saving} = this.state;
 
-        return <Modal
+        return <AppDialog
             loading={saving}
             onClose={this.props.onClose}
-            header={this.renderModalHeader.bind(this)}
-            footer={({onClose}) => <>
+            title={this.renderModalHeader()}
+            actions={({onClose}) => <>
                 <Button
                     onClick={onClose}
-                    className={'btn-secondary'}
+                    color={'secondary'}
                     disabled={saving}
                 >
                     Close
                 </Button>
                 <Button
                     onClick={this.save}
-                    className={'btn-primary'}
+                    color={'primary'}
                     disabled={saving}
                 >
                     Save changes
@@ -111,12 +111,12 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
             </>}
         >
             {this.renderContent()}
-        </Modal>
+        </AppDialog>
     }
 
     renderContent() {
         if (this.state.loading) {
-            return 'Loading...';
+            return 'Loadidng...';
         }
 
         if (!this.state.data) {

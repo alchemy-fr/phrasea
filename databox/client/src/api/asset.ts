@@ -118,8 +118,8 @@ export async function getWorkspaceAttributeDefinitions(workspaceId: string): Pro
     return res.data['hydra:member'];
 }
 
-export async function patchAsset(id: string, data: Partial<any>): Promise<Asset> {
-    const res = await apiClient.patch(`/assets/${id}`, data, {
+export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
+    const res = await apiClient.put(`/assets/${id}`, data, {
         headers: {
             'Content-Type': 'application/merge-patch+json',
         },

@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
 
 const apiClient = axios.create({
     baseURL: window.config.baseUrl,
@@ -20,6 +20,9 @@ apiClient.interceptors.request.use<RequestConfig>( (config: RequestConfig) => {
     return config;
 });
 
+type ErrorListener = (error: AxiosError) => void;
+const errorListeners: ErrorListener[] = [];
+
 apiClient.interceptors.response.use<AxiosResponse<any, {
     meta?: Record<string, any>;
     responseTime?: number;
@@ -31,6 +34,24 @@ apiClient.interceptors.response.use<AxiosResponse<any, {
     console.log(`Execution time for: ${r.config.method?.toUpperCase()} ${r.config.url} - ${responseTime} ms`)
 
     return r;
+}, (error: AxiosError) => {
+    errorListeners.forEach(l => l(error));
+
+    return Promise.reject(error);
 });
+
+export function addErrorListener(listener: ErrorListener): void {
+    errorListeners.push(listener);
+}
+
+export function removeErrorListener(listener: ErrorListener): void {
+    const i = errorListeners.findIndex(l => l === listener);
+    errorListeners.splice(i, 1);
+}
+
+export function setApiLocale(locale: string): void {
+    apiClient.defaults.headers.common['Accept-Language'] = locale.replace(/_/g, '-');
+}
+
 
 export default apiClient;

@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import Facets from "./Asset/Facets";
 import CollectionsPanel from "./CollectionsPanel";
-import {TabPanelProps} from "@material-ui/lab";
-import {Tab, Tabs} from "@mui/material";
-import {createStyles, makeStyles, Theme, withStyles} from "@material-ui/core/styles";
+import {Box, Tab, Tabs} from "@mui/material";
+import {createStyles, makeStyles, styled, Theme, withStyles} from "@mui/material/styles";
+import {TabPanelProps} from "@mui/lab";
 
 type TabValue = "facets" | "tree";
 
@@ -14,20 +14,6 @@ function a11yProps(name: TabValue) {
         'aria-controls': `tabpanel-${name}`,
     };
 }
-
-interface StyledTabProps {
-    label: string;
-}
-
-const useStyles = makeStyles((theme: Theme) => ({
-    root: {
-        flexGrow: 1,
-        backgroundColor: 'none',
-    },
-    paper: {
-        backgroundColor: '#FFF',
-    }
-}));
 
 function TabPanel(props: { index: string } & TabPanelProps) {
     const {children, value, index} = props;
@@ -45,7 +31,7 @@ function TabPanel(props: { index: string } & TabPanelProps) {
 }
 
 
-const AntTabs = withStyles({
+const AntTabs = styled(Tabs)({
     root: {
         backgroundColor: 'none',
         borderBottom: '1px solid #e8e8e8',
@@ -53,36 +39,32 @@ const AntTabs = withStyles({
     indicator: {
         backgroundColor: '#1890ff',
     },
-})(Tabs);
+});
 
-const AntTab = withStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            '&:hover': {
-                color: '#40a9ff',
-                opacity: 1,
-            },
-            '&$selected': {
-                color: '#1890ff',
-            },
-            '&:focus': {
-                color: '#40a9ff',
-            },
+const AntTab = styled(Tab)({
+    root: {
+        '&:hover': {
+            color: '#40a9ff',
+            opacity: 1,
         },
-        selected: {},
-    }),
-)((props: StyledTabProps) => <Tab disableRipple {...props} />);
-
+        '&$selected': {
+            color: '#1890ff',
+        },
+        '&:focus': {
+            color: '#40a9ff',
+        },
+    },
+    selected: {},
+})
 
 export default function LeftPanel() {
-    const classes = useStyles();
     const [t, setTab] = useState<TabValue>('tree');
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: TabValue) => {
         setTab(newValue);
     };
 
-    return <div className={classes.root}>
+    return <>
         <AntTabs
             value={t}
             onChange={handleChange}
@@ -97,5 +79,5 @@ export default function LeftPanel() {
         <TabPanel value={t} index={'facets'}>
             <Facets/>
         </TabPanel>
-    </div>
+    </>
 }

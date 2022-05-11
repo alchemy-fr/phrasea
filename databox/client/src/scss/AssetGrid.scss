@@ -5,7 +5,6 @@
 .result-page {
   position: relative;
   width: 100%;
-  border-top: px2rem(1) solid $gray-500;
   padding: px2rem(10) 0;
 
   &:first-child {
@@ -20,17 +19,14 @@
 .result-info {
   color: rgb(7, 36, 242 / 54%);
   font-size: px2rem(14);
-  background-color: $gray-200 !important;
   border-radius: 0 0 px2rem(20) 0;
   width: fit-content !important;
   box-shadow: 0 0 px2rem(15) rgba(#FFF, 0.3);
 }
 
-
 .result-layout {
   color: rgb(7, 36, 242 / 54%);
   font-size: px2rem(14);
-  background-color: $gray-200 !important;
   border-radius: 0 0 0 px2rem(20);
   width: fit-content !important;
   box-shadow: 0 0 px2rem(15) rgba(#FFF, 0.3);

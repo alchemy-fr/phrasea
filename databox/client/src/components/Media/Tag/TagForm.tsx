@@ -1,7 +1,6 @@
 import {PureComponent} from "react";
-import Modal from "../../Layout/Modal";
-import Button from "../../ui/Button";
-import {Form} from "react-bootstrap";
+import AppDialog from "../../Layout/AppDialog";
+import {Button} from "@mui/material";
 
 type Props = {
     id?: string;
@@ -13,27 +12,27 @@ export default class TagForm extends PureComponent<Props> {
     render() {
         const isNew = !!this.props.id;
 
-        return <Modal
+        return <AppDialog
             onClose={this.props.onCancel}
-            header={() => <h4>{isNew ? 'New tag' : 'Edit tag'}</h4>}
-            footer={({onClose}) => <>
+            title={isNew ? 'New tag' : 'Edit tag'}
+            actions={({onClose}) => <>
                 <Button
                     onClick={onClose}
-                    className={'btn-secondary'}
+                    color={'secondary'}
                 >
                     Close
                 </Button>
             </>}
         >
-            <Form>
-            <Form.Group controlId="include">
-                <Form.Label>Tag name</Form.Label>
-                <Form.Control type={'text'} />
-                <Form.Text className="text-muted">
-                    Assets in this collection will only be visible if they contains theses tags.
-                </Form.Text>
-            </Form.Group>
-        </Form>
-        </Modal>
+        {/*    <Form>*/}
+        {/*    <Form.Group controlId="include">*/}
+        {/*        <Form.Label>Tag name</Form.Label>*/}
+        {/*        <Form.Control type={'text'} />*/}
+        {/*        <Form.Text className="text-muted">*/}
+        {/*            Assets in this collection will only be visible if they contains theses tags.*/}
+        {/*        </Form.Text>*/}
+        {/*    </Form.Group>*/}
+        {/*</Form>*/}
+        </AppDialog>
     }
 }

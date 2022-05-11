@@ -1,9 +1,9 @@
 import {PureComponent} from "react";
-import Modal from "../../Layout/Modal";
-import Button from "../../ui/Button";
 import apiClient from "../../../api/api-client";
 import {Tag} from "../../../types";
 import TagForm from "./TagForm";
+import AppDialog from "../../Layout/AppDialog";
+import {Button} from "@mui/material";
 
 type Props = {
     onClose: () => void;
@@ -42,13 +42,13 @@ export default class TagList extends PureComponent<Props, State> {
     render() {
         const {tags, newTag} = this.state;
 
-        return <Modal
+        return <AppDialog
             onClose={this.props.onClose}
-            header={() => <h4>Edit</h4>}
-            footer={({onClose}) => <>
+            title={`Edit</`}
+            actions={({onClose}) => <>
                 <Button
                     onClick={onClose}
-                    className={'btn-secondary'}
+                    color={'secondary'}
                 >
                     Close
                 </Button>
@@ -68,6 +68,6 @@ export default class TagList extends PureComponent<Props, State> {
             >
                 {r.name}
             </div>)}
-        </Modal>
+        </AppDialog>
     }
 }

@@ -1,29 +1,25 @@
 import React, {Component, MouseEvent, RefObject} from "react";
 import {Asset, Collection} from "../../../types";
-import {Badge} from "react-bootstrap";
 import apiClient from "../../../api/api-client";
-import {CloudDownload, Delete, Edit, Link as LinkIcon} from '@material-ui/icons';
-import {ImageListItem, ImageListItemBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@material-ui/core";
-import InfoIcon from '@material-ui/icons/Info';
-import EditAsset from "./EditAsset";
-import Icon from "../../ui/Icon";
-import {ReactComponent as FolderImg} from '../../../images/icons/folder.svg';
-import {ConnectDragSource, DragSource, DragSourceSpec} from 'react-dnd'
-import {draggableTypes} from "../draggableTypes";
 import AssetPreviewWrapper from "./AssetPreviewWrapper";
 import EditAssetAttributes from "./EditAssetAttributes";
 import {replaceHighlight} from "./Attribute/Attributes";
-
-export interface DragSourceProps {
-    connectDragSource: ConnectDragSource
-    isDragging: boolean
-}
-
-export type AssetDragProps = {
-    '@id': string;
-    id: string;
-    collectionIds: string[];
-}
+import {
+    Badge,
+    IconButton,
+    ImageListItem,
+    ImageListItemBar,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem
+} from "@mui/material";
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import InfoIcon from '@mui/icons-material/Info';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import LinkIcon from '@mui/icons-material/Link';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     selected?: boolean;
@@ -31,7 +27,7 @@ type Props = {
     onClick?: (id: string, e: MouseEvent) => void;
 } & Asset;
 
-type AllProps = Props & DragSourceProps;
+type AllProps = Props;
 
 export const privacyIndices = [
     'Secret',
@@ -142,8 +138,6 @@ class AssetItem extends Component<AllProps, State> {
             selected,
             collections,
             capabilities,
-            connectDragSource,
-            isDragging,
         } = this.props;
 
         const privacyLabel = privacyIndices[privacy];
@@ -153,116 +147,111 @@ class AssetItem extends Component<AllProps, State> {
             image = thumbnail.url;
         }
 
-        const opacity = isDragging ? 0.4 : 1;
+        const titleNode = replaceHighlight(titleHighlight || resolvedTitle);
 
-        const titleNode = replaceHighlight(titleHighlight  || resolvedTitle);
-
-        return connectDragSource(
-            <div
-                style={{opacity}}
-                onMouseEnter={this.onMouseEnter}
-                onMouseLeave={this.onMouseLeave}
+        return <div
+            onMouseEnter={this.onMouseEnter}
+            onMouseLeave={this.onMouseLeave}
+        >
+            <AssetPreviewWrapper
+                displayAttributes={this.props.displayAttributes}
+                asset={this.props}
             >
-                <AssetPreviewWrapper
-                    displayAttributes={this.props.displayAttributes}
-                    asset={this.props}
+                <ImageListItem
+                    onClick={this.onClick}
+                    className={`asset-item ${selected ? 'selected' : ''}`}
                 >
-                    <ImageListItem
-                        onClick={this.onClick}
-                        className={`asset-item ${selected ? 'selected' : ''}`}
-                    >
-                        <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={resolvedTitle}/>
-                        <ImageListItemBar
-                            title={titleNode}
-                            subtitle={<div>
-                                <div>
-                                    {tags.map(t => <Badge
-                                        variant={'success'}
-                                        key={t.id}
-                                    >{t.name}</Badge>)}
-                                    <Badge
-                                        variant={'secondary'}
-                                    >{privacyLabel}</Badge>
-                                    <Badge
-                                        variant={'primary'}
-                                    >{workspace.name}</Badge>
-                                </div>
-                                <div className={'a-desc'}>{description}</div>
-                                <ul className={'a-colls'}>
-                                    {this.renderCollections(collections)}
-                                </ul>
-                            </div>}
-                            actionIcon={(original || capabilities.canEdit || capabilities.canDelete) ?
-                                <div
-                                    ref={this.ref}
+                    <img src={thumbnailActive && this.state.hover ? thumbnailActive.url : image} alt={resolvedTitle}/>
+                    <ImageListItemBar
+                        title={titleNode}
+                        subtitle={<div>
+                            <div>
+                                {tags.map(t => <Badge
+                                    color={'success'}
+                                    key={t.id}
+                                >{t.name}</Badge>)}
+                                <Badge
+                                    color={'secondary'}
+                                >{privacyLabel}</Badge>
+                                <Badge
+                                    color={'primary'}
+                                >{workspace.name}</Badge>
+                            </div>
+                            <div className={'a-desc'}>{description}</div>
+                            <ul className={'a-colls'}>
+                                {this.renderCollections(collections)}
+                            </ul>
+                        </div>}
+                        actionIcon={(original || capabilities.canEdit || capabilities.canDelete) ?
+                            <div
+                                ref={this.ref}
+                            >
+                                <IconButton
+                                    color={'secondary'}
+                                    aria-controls={`item-menu-${id}`}
+                                    aria-haspopup="true"
+                                    onClick={this.openMenu}
                                 >
-                                    <IconButton
-                                        color={'secondary'}
-                                        aria-controls={`item-menu-${id}`}
-                                        aria-haspopup="true"
-                                        onClick={this.openMenu}
-                                    >
-                                        <InfoIcon/>
-                                    </IconButton>
-                                </div> : undefined
-                            }
-                        />
-                        {this.state.menuOpen && <Menu
-                            id={`item-menu-${id}`}
-                            key={`item-menu-${id}`}
-                            keepMounted
-                            anchorEl={this.ref.current}
-                            open={this.state.menuOpen}
-                            onClose={this.closeMenu}
-                        >
-                            {original?.alternateUrls && <>
-                                {original.alternateUrls.map(a => <MenuItem
-                                    key={a.type}
-                                    onClick={() => this.openUrl(a.url)}>
-                                    <ListItemIcon>
-                                        <LinkIcon fontSize="small"/>
-                                    </ListItemIcon>
-                                    <ListItemText primary={a.label || a.type}/>
-                                </MenuItem>)}
-                            </>}
-                            {original?.url && <MenuItem onClick={this.download}>
+                                    <InfoIcon/>
+                                </IconButton>
+                            </div> : undefined
+                        }
+                    />
+                    {this.state.menuOpen && <Menu
+                        id={`item-menu-${id}`}
+                        key={`item-menu-${id}`}
+                        keepMounted
+                        anchorEl={this.ref.current}
+                        open={this.state.menuOpen}
+                        onClose={this.closeMenu}
+                    >
+                        {original?.alternateUrls && <>
+                            {original.alternateUrls.map(a => <MenuItem
+                                key={a.type}
+                                onClick={() => this.openUrl(a.url)}>
                                 <ListItemIcon>
-                                    <CloudDownload fontSize="small"/>
+                                    <LinkIcon fontSize="small"/>
                                 </ListItemIcon>
-                                <ListItemText primary="Download"/>
-                            </MenuItem>}
-                            {capabilities.canEdit && <MenuItem onClick={this.edit}>
-                                <ListItemIcon>
-                                    <Edit fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText primary="Edit"/>
-                            </MenuItem>}
-                            {capabilities.canEdit && <MenuItem onClick={this.editAttributes}>
-                                <ListItemIcon>
-                                    <Edit fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText primary="Edit attributes"/>
-                            </MenuItem>}
-                            {capabilities.canDelete && <MenuItem onClick={this.delete}>
-                                <ListItemIcon>
-                                    <Delete fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText primary="Delete"/>
-                            </MenuItem>}
-                        </Menu>}
-                        {this.state.editing ? <EditAsset
-                            id={this.props.id}
-                            onClose={this.closeEdit}
-                        /> : ''}
-                        {this.state.editingAttributes ? <EditAssetAttributes
-                            id={this.props.id}
-                            workspaceId={this.props.workspace.id}
-                            onClose={this.closeEdit}
-                        /> : ''}
-                    </ImageListItem>
-                </AssetPreviewWrapper>
-            </div>
-        )
+                                <ListItemText primary={a.label || a.type}/>
+                            </MenuItem>)}
+                        </>}
+                        {original?.url && <MenuItem onClick={this.download}>
+                            <ListItemIcon>
+                                <CloudDownloadIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText primary="Download"/>
+                        </MenuItem>}
+                        {capabilities.canEdit && <MenuItem onClick={this.edit}>
+                            <ListItemIcon>
+                                <EditIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText primary="Edit"/>
+                        </MenuItem>}
+                        {capabilities.canEdit && <MenuItem onClick={this.editAttributes}>
+                            <ListItemIcon>
+                                <EditIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText primary="Edit attributes"/>
+                        </MenuItem>}
+                        {capabilities.canDelete && <MenuItem onClick={this.delete}>
+                            <ListItemIcon>
+                                <DeleteIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText primary="Delete"/>
+                        </MenuItem>}
+                    </Menu>}
+                    {/*{this.state.editing ? <EditAsset*/}
+                    {/*    id={this.props.id}*/}
+                    {/*    onClose={this.closeEdit}*/}
+                    {/*/> : ''}*/}
+                    {this.state.editingAttributes ? <EditAssetAttributes
+                        id={this.props.id}
+                        workspaceId={this.props.workspace.id}
+                        onClose={this.closeEdit}
+                    /> : ''}
+                </ImageListItem>
+            </AssetPreviewWrapper>
+        </div>
     }
 
     renderCollections(collections: Collection[]) {
@@ -273,9 +262,7 @@ class AssetItem extends Component<AllProps, State> {
         const r = (c: Collection) => <li
             key={c.id}
         >
-            <Icon
-                variant={'xs'}
-                component={FolderImg}/>
+            <FolderOpenIcon/>
             {c.title}
         </li>;
 
@@ -288,37 +275,11 @@ class AssetItem extends Component<AllProps, State> {
             <li
                 title={collections.slice(1).map(c => c.title).join("\n")}
             >
-                <Icon
-                    variant={'xs'}
-                    component={FolderImg}/>
+                <FolderOpenIcon/>
                 {`+ ${collections.length - 1} other${collections.length - 1 > 1 ? 's' : ''}`}
             </li>
         </>
     }
 }
 
-const itemSource: DragSourceSpec<Props> = {
-    canDrag(props) {
-        return props.capabilities.canEdit;
-    },
-
-    beginDrag(props: Props): AssetDragProps {
-        const collectionIds = props.collections.map(c => c.id);
-
-        return {
-            '@id': props['@id'],
-            id: props.id,
-            collectionIds,
-        };
-    },
-}
-
-export default DragSource<Props>(draggableTypes.ASSET, itemSource, (connect, monitor): DragSourceProps => {
-    return {
-        // Call this function inside render()
-        // to let React DnD handle the drag events:
-        connectDragSource: connect.dragSource(),
-        // You can ask the monitor about the current drag state:
-        isDragging: monitor.isDragging(),
-    }
-})(AssetItem);
+export default AssetItem;

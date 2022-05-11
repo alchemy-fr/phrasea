@@ -1,32 +1,21 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import {FileBlobThumb} from "../../lib/upload/fileBlob";
-import {Grid, Paper} from "@material-ui/core";
+import {Grid, Paper} from "@mui/material";
 import byteSize from 'byte-size';
 
 const size = 128;
-
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        padding: theme.spacing(2),
-        margin: 'auto',
-    },
-    image: {
-        width: size,
-        height: size,
-    },
-}));
 
 type Props = {
     file: File,
 }
 
 export default function FileCard({file}: Props) {
-    const classes = useStyles();
-
-    return <Paper className={classes.paper}>
+    return <Paper sx={(theme) => ({
+        padding: theme.spacing(2),
+        margin: 'auto',
+    })}>
         <Grid container spacing={2}>
             <Grid item>
                 <FileBlobThumb

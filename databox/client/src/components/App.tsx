@@ -1,54 +1,86 @@
-import React, {useContext, useState} from 'react';
-import {oauthClient} from "../oauth";
-import config from "../config";
+import React, {useContext, useEffect} from 'react';
 import AssetSelectionProvider from "./Media/AssetSelectionProvider";
-import {UserContext} from "./Security/UserContext";
-import MainAppBar from "./Layout/MainAppBar";
+import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
 import LeftPanel from "./Media/LeftPanel";
 import SearchContextProvider from "./Media/Search/SearchContextProvider";
 import AssetResults from "./Media/Search/AssetResults";
-import {HTML5Backend} from "react-dnd-html5-backend";
-import {DndProvider} from "react-dnd";
 import SearchFiltersProvider from "./Media/Search/SearchFiltersProvider";
 import AssetDropzone from "./Media/Asset/AssetDropzone";
-import {ToastContainer} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import {Box} from "@mui/material";
+import {AxiosError} from "axios";
+import {UserContext} from "./Security/UserContext";
+import {useTranslation} from "react-i18next";
+import {addErrorListener, removeErrorListener} from "../api/api-client";
 
 export default function App() {
-    const [menuOpen, setMenuOpen] = useState(true);
-    const user = useContext(UserContext);
+    const userContext = useContext(UserContext);
+    const {t} = useTranslation();
 
-    const logout = () => {
-        oauthClient.logout();
-        if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
+    useEffect(() => {
+        const onError = (error: AxiosError<any>) => {
+            if (error.config.errorHandled) {
+                return;
+            }
+
+            const status = error.response?.status;
+            switch (status) {
+                case 401:
+                    toast.error(t('error.session_expired', 'Your session has expired'));
+                    userContext.logout && userContext.logout();
+                    break;
+                case 403:
+                    toast.error(t('error.http_unauthorized', 'Unauthorized'));
+                    break;
+                case 400:
+                    toast.error(error.response?.data['hydra:description']);
+                    break;
+                case 422:
+                    // Handled by form
+                    break;
+                default:
+                    toast.error(t('error.http_error', 'Server error'));
+                    break;
+
+            }
         }
-    }
+        addErrorListener(onError);
 
-    const toggleMenu = () => setMenuOpen(open => !open);
+        return () => {
+            removeErrorListener(onError);
+        }
+    }, [])
+
 
     return <>
-        <ToastContainer />
+        <ToastContainer/>
         <SearchFiltersProvider>
             <SearchContextProvider>
                 <AssetDropzone>
-                    <MainAppBar
-                        toggleMenu={toggleMenu}
-                        title={'Databox Client.'}
-                        onLogout={logout}
-                        username={user.user ? user.user.username : undefined}
-                    />
+                    <MainAppBar/>
                     <AssetSelectionProvider>
-                        <DndProvider backend={HTML5Backend}>
-                            <div className="main-layout">
-                                {menuOpen && <div className="main-left-menu">
-                                    <LeftPanel/>
-                                </div>}
-                                <div className="main-content">
-                                    <AssetResults/>
-                                </div>
-                            </div>
-                        </DndProvider>
+                        <Box style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            height: `calc(100vh - ${menuHeight}px)`,
+                        }}>
+                            <Box sx={(theme) => ({
+                                width: 360,
+                                flexGrow: 0,
+                                flexShrink: 0,
+                                height: `calc(100vh - ${menuHeight}px)`,
+                                overflow: 'auto',
+                                boxShadow: theme.shadows[5],
+                            })}>
+                                <LeftPanel/>
+                            </Box>
+                            <Box sx={{
+                                flexGrow: 1,
+                            }}>
+                                <AssetResults/>
+                            </Box>
+                        </Box>
                     </AssetSelectionProvider>
                 </AssetDropzone>
             </SearchContextProvider>

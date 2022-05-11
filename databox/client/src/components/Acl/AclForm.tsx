@@ -52,16 +52,16 @@ export default class AclForm extends PureComponent<Props, State> {
             <div className={'row'}>
                 <div className="col-md-6">
                     <GroupSelect
-                        clearOnSelect={true}
-                        onSelect={this.onSelectGroup}
-                        disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}
+                        // clearOnSelect={true}
+                        onChange={(e) => this.onSelectGroup(e.target.value)}
+                        // disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}
                     />
                 </div>
                 <div className="col-md-6">
                     <UserSelect
-                        clearOnSelect={true}
-                        onSelect={this.onSelectUser}
-                        disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}
+                        // clearOnSelect={true}
+                        onChange={(e) => this.onSelectUser(e.target.value)}
+                        // disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}
                     />
                 </div>
             </div>
@@ -83,17 +83,17 @@ export default class AclForm extends PureComponent<Props, State> {
         await deleteAce(userType, userId, this.props.objectType, this.props.objectId);
     }
 
-    onSelectUser = (user: User) => {
+    onSelectUser = (id: string) => {
         this.addEntry({
             type: 'user',
-            id: user.id,
+            id,
         }, 1);
     }
 
-    onSelectGroup = (group: Group) => {
+    onSelectGroup = (id: string) => {
         this.addEntry({
             type: 'group',
-            id: group.id,
+            id,
         }, 1);
     }
 

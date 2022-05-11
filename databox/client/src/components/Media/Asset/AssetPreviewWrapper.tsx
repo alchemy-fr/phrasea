@@ -1,19 +1,7 @@
 import React, {PropsWithChildren, useEffect} from "react";
-import {createStyles, Popover, Theme} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
 import {Asset} from "../../../types";
 import Attributes from "./Attribute/Attributes";
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        popover: {
-            pointerEvents: 'none',
-        },
-        paper: {
-            padding: theme.spacing(1),
-        },
-    }),
-);
+import {Popover} from "@mui/material";
 
 type Props = PropsWithChildren<{
     displayAttributes: boolean;
@@ -25,7 +13,6 @@ export default function AssetPreviewWrapper({
                                                 children,
                                                 displayAttributes,
                                             }: Props): JSX.Element {
-    const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const timeout = React.useRef<ReturnType<typeof setTimeout> | undefined>();
 
@@ -63,10 +50,12 @@ export default function AssetPreviewWrapper({
         </div>
         <Popover
             id="mouse-over-popover"
-            className={classes.popover}
-            classes={{
-                paper: classes.paper,
-            }}
+            sx={(theme) => ({
+                pointerEvents: 'none',
+                'paper': {
+                    padding: theme.spacing(1),
+                }
+            })}
             open={open}
             anchorEl={anchorEl}
             anchorOrigin={{

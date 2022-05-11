@@ -1,6 +1,7 @@
 import apiClient from "./api-client";
 import {Collection, Workspace} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
+import {clearAssociationIds} from "./clearAssociation";
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -64,12 +65,8 @@ export async function getCollection(id: string): Promise<Collection> {
     return res.data;
 }
 
-export async function patchCollection(id: string, data: Partial<Collection>): Promise<Collection> {
-    const res = await apiClient.patch(`/collections/${id}`, data, {
-        headers: {
-            'Content-Type': 'application/merge-patch+json',
-        },
-    });
+export async function putCollection(id: string, data: Partial<Collection>): Promise<Collection> {
+    const res = await apiClient.put(`/collections/${id}`, clearAssociationIds(data));
 
     return res.data;
 }
@@ -88,14 +85,14 @@ export async function postCollection(data: CollectionPostType): Promise<Collecti
     return res.data;
 }
 
-export async function patchWorkspace(id: string, data: Partial<Workspace>): Promise<Workspace> {
-    const res = await apiClient.patch(`/workspaces/${id}`, data, {
-        headers: {
-            'Content-Type': 'application/merge-patch+json',
-        },
-    });
+export async function putWorkspace(id: string, data: Partial<Workspace>): Promise<Workspace> {
+    const res = await apiClient.put(`/workspaces/${id}`, clearAssociationIds(data));
 
     return res.data;
+}
+
+export async function deleteCollection(id: string): Promise<void> {
+    await apiClient.delete(`/collections/${id}`);
 }
 
 export async function addAssetToCollection(collectionIri: string, assetIri: string): Promise<Boolean> {

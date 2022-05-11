@@ -8,9 +8,9 @@ import {
 } from "../../../../api/asset";
 import {Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
-import Modal from "../../../Layout/Modal";
 import {NO_LOCALE} from "../EditAssetAttributes";
 import {toast} from "react-toastify";
+import AppDialog from "../../../Layout/AppDialog";
 
 export type AttrValue<T = string> = {
     id: T;
@@ -223,10 +223,10 @@ export default function AttributesEditor({
         }
     }
 
-    return <Modal
+    return <AppDialog
         onClose={onClose}
-        header={() => <div>Attributes</div>}
-        footer={({onClose}) => <>
+        title={`Attributes`}
+        actions={({onClose}) => <>
             {error && <div>{error}</div>}
             <Button
                 variant="contained"
@@ -258,5 +258,5 @@ export default function AttributesEditor({
                 <hr/>
             </div>
         })}
-    </Modal>
+    </AppDialog>
 }

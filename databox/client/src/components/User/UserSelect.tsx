@@ -1,27 +1,30 @@
+import React from "react";
+import AsyncSelectWidget, {AsyncSelectProps} from "../Form/AsyncSelectWidget";
+import {SelectOption, TSelect} from "../Form/SelectWidget";
 import {User} from "../../types";
 import {getUsers} from "../../api/user";
-import AbstractSelect, {UserOrGroupOption} from "./AbstractSelect";
 
-export default class UserSelect extends AbstractSelect<User> {
-    optionToData(option: UserOrGroupOption): User {
-        return {
-            id: option.value,
-            username: option.label,
-        };
-    }
+type Props = AsyncSelectProps;
 
-    getType(): string {
-        return 'user';
-    }
+const UserSelect = React.forwardRef<TSelect, Props>(({
+                                                         ...rest
+                                                     }, ref) => {
+    const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
+        const data = await getUsers();
 
-    dataToOption(data: User): UserOrGroupOption {
-        return {
-            value: data.id,
-            label: data.username,
-        };
-    }
+        return data.map((t: User) => ({
+            value: t.id,
+            label: t.username,
+        })).filter(i =>
+            i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+        );
+    };
 
-    async load() {
-        return await getUsers();
-    }
-}
+    return <AsyncSelectWidget
+        load={load}
+        {...rest}
+        ref={ref}
+    />
+});
+
+export default UserSelect;

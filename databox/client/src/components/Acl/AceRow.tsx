@@ -1,7 +1,7 @@
 import React, {ChangeEvent, PureComponent} from 'react';
 import {Ace} from "../../types";
-import Button from "../ui/Button";
 import {aclPermissions} from "./AclForm";
+import {Button} from "@mui/material";
 
 type Props = {
     onMaskChange: (userType: string, userId: string, mask: number) => void;
@@ -65,7 +65,7 @@ export default class AceRow extends PureComponent<Props, State> {
             })}
             <td>
                 <Button
-                    className={'btn-danger'}
+                    color={'error'}
                     onClick={this.delete}
                 >
                     Delete

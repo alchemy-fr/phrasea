@@ -1,18 +1,10 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import TreeView from '@material-ui/lab/TreeView';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import TreeItem from '@material-ui/lab/TreeItem';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import TreeItem from '@mui/lab/TreeItem';
 import {Collection, Workspace} from "../../../types";
 import {getCollection} from "../../../api/collection";
-
-const useStyles = makeStyles({
-    root: {
-        flexGrow: 1,
-        maxWidth: 400,
-    },
-});
+import {TreeView} from "@mui/lab";
 
 type Props = {
     workspaces: Workspace[];
@@ -42,8 +34,7 @@ function CollectionTree({collection, depth = 0}: CollectionTreeProps) {
     }
 
     return <TreeItem
-        onLabelClick={load}
-        onIconClick={load}
+        onClick={load}
         nodeId={collection['@id']}
         label={collection.title}
     >
@@ -54,7 +45,6 @@ function CollectionTree({collection, depth = 0}: CollectionTreeProps) {
 }
 
 export function CollectionsTreeView({workspaces, onChange}: Props) {
-    const classes = useStyles();
     const [expanded, setExpanded] = React.useState<string[]>([]);
     const [selected, setSelected] = React.useState<string[]>([]);
 
@@ -68,7 +58,10 @@ export function CollectionsTreeView({workspaces, onChange}: Props) {
     };
 
     return <TreeView
-        className={classes.root}
+        sx={{
+            flexGrow: 1,
+            maxWidth: 400,
+        }}
         defaultCollapseIcon={<ExpandMoreIcon/>}
         defaultExpandIcon={<ChevronRightIcon/>}
         expanded={expanded}

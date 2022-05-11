@@ -1,27 +1,30 @@
-import {Group} from "../../types";
+import React from "react";
+import AsyncSelectWidget, {AsyncSelectProps} from "../Form/AsyncSelectWidget";
+import {SelectOption, TSelect} from "../Form/SelectWidget";
+import {Group, User} from "../../types";
 import {getGroups} from "../../api/user";
-import AbstractSelect, {UserOrGroupOption} from "./AbstractSelect";
 
-export default class GroupSelect extends AbstractSelect<Group> {
-    optionToData(option: UserOrGroupOption): Group {
-        return {
-            id: option.value,
-            name: option.label,
-        };
-    }
+type Props = AsyncSelectProps;
 
-    dataToOption(data: Group): UserOrGroupOption {
-        return {
-            value: data.id,
-            label: data.name,
-        };
-    }
+const GroupSelect = React.forwardRef<TSelect, Props>(({
+                                                          ...rest
+                                                      }, ref) => {
+    const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
+        const data = await getGroups();
 
-    getType(): string {
-        return 'group';
-    }
+        return data.map((t: Group) => ({
+            value: t.id,
+            label: t.name,
+        })).filter(i =>
+            i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+        );
+    };
 
-    async load() {
-        return await getGroups();
-    }
-}
+    return <AsyncSelectWidget
+        load={load}
+        {...rest}
+        ref={ref}
+    />
+});
+
+export default GroupSelect;

@@ -1,6 +1,6 @@
 import React from "react";
 import AssetItem from "../../Asset/AssetItem";
-import {ImageList} from "@material-ui/core";
+import {ImageList} from "@mui/material";
 import {LayoutProps} from "./Layout";
 
 const classes = {

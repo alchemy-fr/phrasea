@@ -1,6 +1,6 @@
 import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
-import {Button, LinearProgress, ListSubheader} from "@material-ui/core";
+import {Button, LinearProgress, ListSubheader} from "@mui/material";
 import {SearchContext} from "./SearchContext";
 import Pager, {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import SearchFilters from "./SearchFilters";

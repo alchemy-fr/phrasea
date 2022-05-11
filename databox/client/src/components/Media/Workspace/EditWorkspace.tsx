@@ -1,79 +1,68 @@
+import React, {useEffect, useState} from 'react';
 import {Workspace} from "../../../types";
+import {putWorkspace} from "../../../api/collection";
+import EditDialog from "../../Dialog/EditDialog";
+import {useTranslation} from "react-i18next";
+import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
+import FullPageLoader from "../../Ui/FullPageLoader";
+import {useModals} from "@mattjennings/react-modal-stack";
+import {toast} from "react-toastify";
+import useFormSubmit from "../../../hooks/useFormSubmit";
+import {WorkspaceForm} from "../../Form/WorkspaceForm";
 import {getWorkspace} from "../../../api/workspace";
-import AbstractEdit from "../AbstractEdit";
-import React, {ReactNode} from "react";
-import {Field, Form, Formik} from "formik";
-import {TextField} from "formik-material-ui";
-import {patchWorkspace} from "../../../api/collection";
-import TagManager from "../Collection/TagManager";
-import TagFilterRules from "../TagFilterRule/TagFilterRules";
+// import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
-type FormProps = {
-    name: string;
-}
+export type OnWorkspaceEdit = (item: Workspace) => void;
 
-export default class EditWorkspace extends AbstractEdit<Workspace, FormProps> {
-    async loadItem(): Promise<Workspace> {
-        return await getWorkspace(this.props.id);
-    }
+type Props = {
+    id: string;
+    onEdit: OnWorkspaceEdit;
+} & StackedModalProps;
 
-    getTitle(): ReactNode | null {
-        const d = this.getData();
-        return d ? d.name : null;
-    }
+export default function EditWorkspace({
+                                          id,
+                                          onEdit,
+                                      }: Props) {
+    const {closeModal} = useModals();
+    const {t} = useTranslation();
 
-    getType(): string {
-        return 'workspace';
-    }
-
-
-    renderForm(): React.ReactNode {
-        const data: Workspace | null = this.getData();
-        if (null === data) {
-            return '';
+    const {
+        submitting,
+        handleSubmit,
+        errors,
+    } = useFormSubmit({
+        onSubmit: async (data: Workspace) => {
+            return await putWorkspace(data.id, data);
+        },
+        onSuccess: (item) => {
+            toast.success(t('form.workspace_edit.success', 'Workspace edited!'))
+            closeModal();
+            onEdit(item);
         }
+    });
+    const [data, setData] = useState<Workspace>();
 
-        const initialValues: FormProps = {
-            name: data!.name,
-        };
+    useEffect(() => {
+        getWorkspace(id).then(c => setData(c));
+    }, []);
 
-        return <div>
-            <Formik
-                innerRef={this.formRef}
-                initialValues={initialValues}
-                onSubmit={(values, actions) => {
-                    this.onSubmit(values, actions);
-                }}
-            >
-                <Form>
-                    <Field
-                        component={TextField}
-                        name="name"
-                        type="text"
-                        label="Workspace name"
-                    />
-                </Form>
-            </Formik>
-            <hr/>
-            <div>
-                <h4>Manage tags</h4>
-                <TagManager workspaceId={this.getData()!['@id']}/>
-            </div>
-            <hr/>
-            <div>
-                <h4>Tag filter rules</h4>
-                <TagFilterRules
-                    id={this.props.id}
-                    workspaceId={this.props.id}
-                    type={'workspace'}
-                />
-            </div>
-        </div>
+    if (!data) {
+        return <FullPageLoader/>
     }
 
-    async handleSave(data: FormProps): Promise<boolean> {
-        await patchWorkspace(this.props.id, data);
+    const formId = 'edit-ws';
 
-        return true;
-    }
+    return <EditDialog
+        title={t('form.workspace_edit.title', 'Edit workspace')}
+        formId={formId}
+        loading={submitting}
+        errors={errors}
+    >
+        <WorkspaceForm
+            data={data}
+            formId={formId}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+        />
+    </EditDialog>
 }

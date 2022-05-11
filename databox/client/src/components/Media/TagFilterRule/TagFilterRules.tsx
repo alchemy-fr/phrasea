@@ -2,10 +2,8 @@ import {PureComponent} from "react";
 import {TagFilterRule,} from "../../../types";
 import {getTagFilterRules} from "../../../api/tag-filter-rule";
 import FilterRule, {FilterRuleProps} from "./FilterRule";
-import Button from "../../ui/Button";
-import {Badge} from "react-bootstrap";
-import Icon from "../../ui/Icon";
-import {ReactComponent as EditImg} from '../../../images/icons/edit.svg';
+import {Badge, Button} from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {
     id: string;
@@ -73,21 +71,21 @@ export default class TagFilterRules extends PureComponent<Props, State> {
 
         return <div>
             {newRule && <div>
-                <FilterRule
-                    include={[]}
-                    exclude={[]}
-                    disabledUsers={disabledUsers}
-                    disabledGroups={disabledGroups}
-                    onDelete={this.onDelete}
-                    onSave={this.onSave}
-                    collectionId={this.props.type === 'collection' ? this.props.id : undefined}
-                    workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}
-                    workspaceIdForTags={this.props.workspaceId}
-                    onCancel={this.onCancel}
-                />
+                {/*<FilterRule*/}
+                {/*    include={[]}*/}
+                {/*    exclude={[]}*/}
+                {/*    disabledUsers={disabledUsers}*/}
+                {/*    disabledGroups={disabledGroups}*/}
+                {/*    onDelete={this.onDelete}*/}
+                {/*    onSave={this.onSave}*/}
+                {/*    collectionId={this.props.type === 'collection' ? this.props.id : undefined}*/}
+                {/*    workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}*/}
+                {/*    workspaceIdForTags={this.props.workspaceId}*/}
+                {/*    onCancel={this.onCancel}*/}
+                {/*/>*/}
             </div>}
             {!newRule && <Button
-                className={'btn-primary'}
+                color={'primary'}
                 onClick={this.addRule}
             >New rule</Button>}
             <div>
@@ -96,15 +94,15 @@ export default class TagFilterRules extends PureComponent<Props, State> {
                         return <div
                             key={r.id}
                         >
-                            <FilterRule
-                                {...r}
-                                workspaceIdForTags={this.props.workspaceId}
-                                onDelete={this.onDelete}
-                                onSave={this.onSave}
-                                onCancel={this.onCancel}
-                                disabledUsers={disabledUsers}
-                                disabledGroups={disabledGroups}
-                            />
+                            {/*<FilterRule*/}
+                            {/*    {...r}*/}
+                            {/*    workspaceIdForTags={this.props.workspaceId}*/}
+                            {/*    onDelete={this.onDelete}*/}
+                            {/*    onSave={this.onSave}*/}
+                            {/*    onCancel={this.onCancel}*/}
+                            {/*    disabledUsers={disabledUsers}*/}
+                            {/*    disabledGroups={disabledGroups}*/}
+                            {/*/>*/}
                         </div>
                     } else {
                         return this.renderRule(r);
@@ -125,11 +123,11 @@ export default class TagFilterRules extends PureComponent<Props, State> {
             </div>
             <div className="col-md-7 tag-container tag-inc-excl">
                 {rule.include.map(t => <Badge
-                    variant={'success'}
+                    color={'success'}
                     key={t.id}
                 >{t.name}</Badge>)}
                 {rule.exclude.map(t => <Badge
-                    variant={'danger'}
+                    color={'error'}
                     key={t.id}
                 >{t.name}</Badge>)}
             </div>
@@ -137,7 +135,7 @@ export default class TagFilterRules extends PureComponent<Props, State> {
                 <Button
                     onClick={this.editRule.bind(this, rule.id)}
                 >
-                    <Icon component={EditImg}/>
+                    <EditIcon />
                 </Button>
             </div>
         </div>

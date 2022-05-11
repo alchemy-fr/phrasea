@@ -23,11 +23,11 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     }
 
     render() {
-        return <ul className="collections">
+        return <div>
             {this.state.workspaces.map(w => <WorkspaceMenuItem
                 {...w}
                 key={w.id}
             />)}
-        </ul>
+        </div>
     }
 }

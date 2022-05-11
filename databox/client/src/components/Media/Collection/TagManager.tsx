@@ -1,10 +1,8 @@
 import {FormEvent, PureComponent} from "react";
 import {deleteTag, getTags, postTag} from "../../../api/tag";
 import {Tag} from "../../../types";
-import {TextField} from "@material-ui/core";
-import Button from "../../ui/Button";
-import Icon from "../../ui/Icon";
-import {ReactComponent as TrashImg} from "../../../images/icons/trash.svg";
+import {Button, IconButton, TextField} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
     workspaceId: string;
@@ -72,12 +70,12 @@ export default class TagManager extends PureComponent<Props, State> {
                         {t.name}
                     </div>
                     <div className="col-md-4">
-                        <Button
-                            size={"sm"}
+                        <IconButton
+                            size={"small"}
                             onClick={this.deleteTag.bind(this, t.id)}
-                        ><Icon
-                            component={TrashImg}
-                        /></Button>
+                        >
+                            <DeleteIcon/>
+                        </IconButton>
                     </div>
                 </div>
             })}
@@ -91,7 +89,7 @@ export default class TagManager extends PureComponent<Props, State> {
                     />
                     <Button
                         type={'submit'}
-                        className={'btn-primary'}
+                        color={'primary'}
                         disabled={!Boolean(this.state.tagInput)}
                     >
                         Add

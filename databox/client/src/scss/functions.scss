@@ -1,3 +1,4 @@
+$root-rem: 16px;
 
 @function strip-unit($number) {
   @if type-of($number) == 'number' and not unitless($number) {
