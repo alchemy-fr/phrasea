@@ -1,13 +1,13 @@
 import {PureComponent} from "react";
 import {TagFilterRule,} from "../../../types";
 import {getTagFilterRules} from "../../../api/tag-filter-rule";
-import FilterRule, {FilterRuleProps} from "./FilterRule";
+import FilterRule, {FilterRuleProps, TagFilterRuleType} from "./FilterRule";
 import {Badge, Button} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {
     id: string;
-    type: string;
+    type: TagFilterRuleType;
     workspaceId: string;
 };
 
@@ -71,18 +71,17 @@ export default class TagFilterRules extends PureComponent<Props, State> {
 
         return <div>
             {newRule && <div>
-                {/*<FilterRule*/}
-                {/*    include={[]}*/}
-                {/*    exclude={[]}*/}
-                {/*    disabledUsers={disabledUsers}*/}
-                {/*    disabledGroups={disabledGroups}*/}
-                {/*    onDelete={this.onDelete}*/}
-                {/*    onSave={this.onSave}*/}
-                {/*    collectionId={this.props.type === 'collection' ? this.props.id : undefined}*/}
-                {/*    workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}*/}
-                {/*    workspaceIdForTags={this.props.workspaceId}*/}
-                {/*    onCancel={this.onCancel}*/}
-                {/*/>*/}
+                <FilterRule
+                    type={this.props.type}
+                    disabledUsers={disabledUsers}
+                    disabledGroups={disabledGroups}
+                    onDelete={this.onDelete}
+                    onSubmit={this.onSave}
+                    collectionId={this.props.type === 'collection' ? this.props.id : undefined}
+                    workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}
+                    workspaceIdForTags={this.props.workspaceId}
+                    onCancel={this.onCancel}
+                />
             </div>}
             {!newRule && <Button
                 color={'primary'}
@@ -94,15 +93,20 @@ export default class TagFilterRules extends PureComponent<Props, State> {
                         return <div
                             key={r.id}
                         >
-                            {/*<FilterRule*/}
-                            {/*    {...r}*/}
-                            {/*    workspaceIdForTags={this.props.workspaceId}*/}
-                            {/*    onDelete={this.onDelete}*/}
-                            {/*    onSave={this.onSave}*/}
-                            {/*    onCancel={this.onCancel}*/}
-                            {/*    disabledUsers={disabledUsers}*/}
-                            {/*    disabledGroups={disabledGroups}*/}
-                            {/*/>*/}
+                            <FilterRule
+                                data={{
+                                    ...r,
+                                    include: r.include.map(i => i.id),
+                                    exclude: r.exclude.map(i => i.id),
+                                }}
+                                type={this.props.type}
+                                workspaceIdForTags={this.props.workspaceId}
+                                onDelete={this.onDelete}
+                                onSubmit={this.onSave}
+                                onCancel={this.onCancel}
+                                disabledUsers={disabledUsers}
+                                disabledGroups={disabledGroups}
+                            />
                         </div>
                     } else {
                         return this.renderRule(r);

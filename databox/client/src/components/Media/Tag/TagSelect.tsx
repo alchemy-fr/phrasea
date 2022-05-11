@@ -1,19 +1,18 @@
 import React from "react";
 import {Tag} from "../../../types";
 import {getTags} from "../../../api/tag";
-import AsyncSelectWidget from "../../Form/AsyncSelectWidget";
-import {SelectOption, SelectWidgetProps, TSelect} from "../../Form/SelectWidget";
+import {FieldValues} from "react-hook-form/dist/types/fields";
+import RSelectWidget, {RSelectProps, SelectOption} from "../../Form/RSelect";
 
-type Props = {
+type Props<TFieldValues> = {
     workspaceId: string;
-    value: Tag[],
-} & SelectWidgetProps;
+} & RSelectProps<TFieldValues, false>;
 
-const TagSelect = React.forwardRef<TSelect, Props>(({
-                                                        workspaceId,
-                                                        ...rest
-                                                    }, ref) => {
-    const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
+export default function TagSelect<TFieldValues extends FieldValues>({
+                                                                        workspaceId,
+                                                                        ...rest
+                                                                    }: Props<TFieldValues>) {
+    const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getTags({
             //query: inputValue,
             workspace: workspaceId,
@@ -22,17 +21,14 @@ const TagSelect = React.forwardRef<TSelect, Props>(({
         return data.map((t: Tag) => ({
             value: t.id,
             label: t.name,
-            data: t,
         })).filter(i =>
             i.label.toLowerCase().includes((inputValue || '').toLowerCase())
         );
     };
 
-    return <AsyncSelectWidget
+    return <RSelectWidget
+        loadOptions={load}
+        isMulti={true}
         {...rest}
-        load={load}
-        ref={ref}
     />
-});
-
-export default TagSelect;
+}

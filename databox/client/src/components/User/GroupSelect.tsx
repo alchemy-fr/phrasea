@@ -1,14 +1,11 @@
 import React from "react";
-import AsyncSelectWidget, {AsyncSelectProps} from "../Form/AsyncSelectWidget";
-import {SelectOption, TSelect} from "../Form/SelectWidget";
-import {Group, User} from "../../types";
+import {SelectOption} from "../Form/SelectWidget";
+import {Group} from "../../types";
 import {getGroups} from "../../api/user";
+import RSelectWidget, {RSelectProps} from "../Form/RSelect";
+import {FieldValues} from "react-hook-form/dist/types/fields";
 
-type Props = AsyncSelectProps;
-
-const GroupSelect = React.forwardRef<TSelect, Props>(({
-                                                          ...rest
-                                                      }, ref) => {
+export default function GroupSelect<TFieldValues extends FieldValues>(props: RSelectProps<TFieldValues, false>) {
     const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
         const data = await getGroups();
 
@@ -20,11 +17,8 @@ const GroupSelect = React.forwardRef<TSelect, Props>(({
         );
     };
 
-    return <AsyncSelectWidget
-        load={load}
-        {...rest}
-        ref={ref}
+    return <RSelectWidget
+        loadOptions={load}
+        {...props}
     />
-});
-
-export default GroupSelect;
+}

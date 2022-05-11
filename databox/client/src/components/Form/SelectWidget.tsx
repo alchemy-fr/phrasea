@@ -16,6 +16,7 @@ type Props = {
     options: Option[];
     label?: ReactNode;
     control?: Control<any>;
+    disabledValues?: string[];
 } & SelectProps<string>;
 
 export type {Props as SelectWidgetProps};
@@ -53,6 +54,7 @@ const Widget = React.forwardRef<TSelect, Props>(({
         autoWidth
         labelId={`${id}-label`}
         id={id!}
+        defaultValue={defaultValue || ''}
         {...props}
     >
         {options.map(({value, label, image}) => {
@@ -84,6 +86,7 @@ const SelectWidget = React.forwardRef<TSelect, Props>(({
                                                            name,
                                                            control,
                                                            defaultValue,
+    multiple,
                                                            options,
                                                            required,
                                                            label,
@@ -91,7 +94,6 @@ const SelectWidget = React.forwardRef<TSelect, Props>(({
                                                            value,
                                                            ...props
                                                        }, ref) => {
-
     return <FormControl sx={sx ? {
         ...defaultSx,
         ...sx,
@@ -106,17 +108,19 @@ const SelectWidget = React.forwardRef<TSelect, Props>(({
                     id={id}
                     {...props}
                     {...field}
+                    label={label}
                     options={options}
-                    ref={ref}
+                    ref={field.ref}
                 />
             }}
             name={name!}
             control={control}
-            defaultValue={defaultValue}
+            defaultValue={defaultValue || ''}
         />}
         {!control && <Widget
             id={id}
             {...props}
+            label={label}
             options={options}
             ref={ref}
         />}

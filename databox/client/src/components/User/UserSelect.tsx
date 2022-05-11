@@ -1,14 +1,10 @@
 import React from "react";
-import AsyncSelectWidget, {AsyncSelectProps} from "../Form/AsyncSelectWidget";
-import {SelectOption, TSelect} from "../Form/SelectWidget";
 import {User} from "../../types";
 import {getUsers} from "../../api/user";
+import RSelectWidget, {RSelectProps, SelectOption} from "../Form/RSelect";
+import {FieldValues} from "react-hook-form/dist/types/fields";
 
-type Props = AsyncSelectProps;
-
-const UserSelect = React.forwardRef<TSelect, Props>(({
-                                                         ...rest
-                                                     }, ref) => {
+export default function UserSelect<TFieldValues extends FieldValues>(props: RSelectProps<TFieldValues, false>) {
     const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
         const data = await getUsers();
 
@@ -20,11 +16,8 @@ const UserSelect = React.forwardRef<TSelect, Props>(({
         );
     };
 
-    return <AsyncSelectWidget
-        load={load}
-        {...rest}
-        ref={ref}
+    return <RSelectWidget
+        loadOptions={load}
+        {...props}
     />
-});
-
-export default UserSelect;
+}

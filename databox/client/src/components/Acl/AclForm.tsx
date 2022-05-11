@@ -51,18 +51,18 @@ export default class AclForm extends PureComponent<Props, State> {
         return <div>
             <div className={'row'}>
                 <div className="col-md-6">
-                    <GroupSelect
-                        // clearOnSelect={true}
-                        onChange={(e) => this.onSelectGroup(e.target.value)}
-                        // disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}
-                    />
+                    {/*<GroupSelect*/}
+                    {/*    // clearOnSelect={true}*/}
+                    {/*    onChange={(e) => this.onSelectGroup(e.target.value)}*/}
+                    {/*    // disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}*/}
+                    {/*/>*/}
                 </div>
                 <div className="col-md-6">
-                    <UserSelect
-                        // clearOnSelect={true}
-                        onChange={(e) => this.onSelectUser(e.target.value)}
-                        // disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}
-                    />
+                    {/*<UserSelect*/}
+                    {/*    // clearOnSelect={true}*/}
+                    {/*    onChange={(value) => this.onSelectUser(value)}*/}
+                    {/*    // disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}*/}
+                    {/*/>*/}
                 </div>
             </div>
             {this.renderAces()}

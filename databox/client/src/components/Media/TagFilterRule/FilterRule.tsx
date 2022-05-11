@@ -1,34 +1,168 @@
-import React, {PureComponent, RefObject} from "react";
+import React from "react";
 import TagSelect from "../Tag/TagSelect";
-import {Tag, TagFilterRule} from "../../../types";
 import GroupSelect from "../../User/GroupSelect";
 import UserSelect from "../../User/UserSelect";
-import {deleteTagFilterRule, saveTagFilterRule} from "../../../api/tag-filter-rule";
+import {Button, FormGroup, FormHelperText, FormLabel} from "@mui/material";
+import {useTranslation} from "react-i18next";
+import {useForm} from "react-hook-form";
+import FormRow from "../../Form/FormRow";
+import {postTag} from "../../../api/tag";
+import {saveTagFilterRule} from "../../../api/tag-filter-rule";
 
-export type FilterRuleProps = {
-    id?: string;
-    workspaceIdForTags: string;
-    userId?: string;
-    groupId?: string;
-    workspaceId?: string;
-    collectionId?: string;
-    include: Tag[];
-    exclude: Tag[];
+type FilterRule = {
+    id?: string | undefined;
+    userId?: string | undefined;
+    groupId?: string | undefined;
+    include: string[];
+    exclude: string[];
 };
 
+export type {FilterRule as FilterRuleProps};
+
+export type TagFilterRuleType = "workspace" | "collection";
+
 type Props = {
+    data?: FilterRule | undefined;
     onCancel: () => void;
     onDelete: (id?: string) => void;
-    onSave: (data: FilterRuleProps) => void;
+    onSubmit: (data: FilterRule) => void;
     disabledUsers: string[];
     disabledGroups: string[];
-} & FilterRuleProps;
+    type: TagFilterRuleType;
+    workspaceId?: string;
+    collectionId?: string;
+    workspaceIdForTags: string;
+};
 
-export default function FilterRule() {
-    return <></>;
+export default function FilterRule({
+                                       data,
+                                       onSubmit,
+                                       disabledGroups,
+                                       disabledUsers,
+                                       type,
+                                       onDelete,
+                                       onCancel,
+                                       workspaceId,
+                                       collectionId,
+                                       workspaceIdForTags,
+                                   }: Props) {
+    const {t} = useTranslation();
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: {errors}
+    } = useForm<any>({
+        defaultValues: data,
+    });
+
+    const saveRule = async (data: FilterRule) => {
+        console.log('data', data);
+        await saveTagFilterRule({
+            ...data,
+            include: data.include.map(id => `/tags/${id}`),
+            exclude: data.exclude.map(id => `/tags/${id}`),
+            workspaceId,
+            collectionId,
+        });
+
+        onSubmit(data);
+    }
+
+    return <form
+        onSubmit={handleSubmit(saveRule)}
+    >
+        <FormRow>
+            <div className="col-md-12">
+                Rule applies for:
+            </div>
+        </FormRow>
+        {data?.id ? <FormRow>
+                <div className={'col-md-12 mb-3'}>
+                    <b>
+                        {data?.userId && `User ${data.userId}`}
+                        {data?.groupId && `Group ${data.groupId}`}
+                    </b>
+                </div>
+            </FormRow>
+            :
+            <div className={'row mb-3'}>
+                <div className="col-md-5">
+                    <GroupSelect
+                        name={'groupId'}
+                        control={control}
+                        disabledValues={disabledGroups}
+                    />
+                </div>
+                <div className="col-md-2">
+                    <b>or</b>
+                </div>
+                <div className="col-md-5">
+                    <UserSelect
+                        name={'userId'}
+                        control={control}
+                        disabledValues={disabledUsers}
+                    />
+                </div>
+            </div>}
+        <FormRow>
+            <div className="col-md-6">
+                <FormGroup>
+                    <FormLabel>Tags to <b>include</b></FormLabel>
+                    <TagSelect
+                        name={'include'}
+                        control={control}
+                        workspaceId={workspaceIdForTags}
+                    />
+                    <FormHelperText>
+                        Assets in this {type} will only be visible if they contains theses tags.
+                    </FormHelperText>
+                </FormGroup>
+            </div>
+            <div className="col-md-6">
+                <FormGroup>
+                    <FormLabel>Tags to <b>exclude</b></FormLabel>
+                    <TagSelect
+                        name={'exclude'}
+                        control={control}
+                        workspaceId={workspaceIdForTags}
+                    />
+                    <FormHelperText>
+                        Assets in this {type} will only be visible if they DOES NOT contains theses tags.
+                    </FormHelperText>
+                </FormGroup>
+            </div>
+        </FormRow>
+        <FormRow>
+            <div className="col-md-12">
+                <Button
+                    className={'btn-primary'}
+                    type={'submit'}
+                >
+                    Save
+                </Button>
+                {' '}
+                <Button
+                    className={'btn-secondary'}
+                    onClick={onCancel}
+                >
+                    Cancel
+                </Button>
+                {' '}
+                {data?.id && <Button
+                    className={'btn-danger float-right'}
+                    onClick={() => onDelete(data!.id)}
+                >
+                    Delete
+                </Button>}
+            </div>
+        </FormRow>
+    </form>
 }
 
-// export default class FilterRule extends PureComponent<Props> {
+
+// class ssFilterRule extends PureComponent<Props> {
 //     private readonly includeRef: RefObject<TagSelect>;
 //     private readonly excludeRef: RefObject<TagSelect>;
 //     private readonly userRef: RefObject<UserSelect>;
@@ -94,91 +228,92 @@ export default function FilterRule() {
 //         const type = collectionId ? 'collection' : 'workspace';
 //
 //         return <div className={'filter-rule'}>
-//             {/*<Form>*/}
-//             {/*    <div className="row">*/}
-//             {/*        <div className="col-md-12">*/}
-//             {/*            Rule applies for:*/}
-//             {/*        </div>*/}
-//             {/*    </div>*/}
-//             {/*    {id ? <div className="row">*/}
-//             {/*            <div className={'col-md-12 mb-3'}>*/}
-//             {/*                <b>*/}
-//             {/*                    {userId && `User ${userId}`}*/}
-//             {/*                    {groupId && `Group ${groupId}`}*/}
-//             {/*                </b>*/}
-//             {/*            </div>*/}
-//             {/*        </div>*/}
-//             {/*        :*/}
-//             {/*        <div className={'row mb-3'}>*/}
-//             {/*            <div className="col-md-5">*/}
-//             {/*                <GroupSelect*/}
-//             {/*                    ref={this.groupRef}*/}
-//             {/*                    disabledValues={this.props.disabledGroups}*/}
-//             {/*                />*/}
-//             {/*            </div>*/}
-//             {/*            <div className="col-md-2">*/}
-//             {/*                <b>or</b>*/}
-//             {/*            </div>*/}
-//             {/*            <div className="col-md-5">*/}
-//             {/*                <UserSelect*/}
-//             {/*                    ref={this.userRef}*/}
-//             {/*                    disabledValues={this.props.disabledUsers}*/}
-//             {/*                />*/}
-//             {/*            </div>*/}
-//             {/*        </div>}*/}
-//             {/*    <div className="row">*/}
-//             {/*        <div className="col-md-6">*/}
-//             {/*            <Form.Group controlId="include">*/}
-//             {/*                <Form.Label>Tags to <b>include</b></Form.Label>*/}
-//             {/*                <TagSelect*/}
-//             {/*                    ref={this.includeRef}*/}
-//             {/*                    value={this.props.include}*/}
-//             {/*                    workspaceId={this.props.workspaceIdForTags}*/}
-//             {/*                />*/}
-//             {/*                <Form.Text className="text-muted">*/}
-//             {/*                    Assets in this {type} will only be visible if they contains theses tags.*/}
-//             {/*                </Form.Text>*/}
-//             {/*            </Form.Group>*/}
-//             {/*        </div>*/}
-//             {/*        <div className="col-md-6">*/}
-//             {/*            <Form.Group controlId="exclude">*/}
-//             {/*                <Form.Label>Tags to <b>exclude</b></Form.Label>*/}
-//             {/*                <TagSelect*/}
-//             {/*                    ref={this.excludeRef}*/}
-//             {/*                    value={this.props.exclude}*/}
-//             {/*                    workspaceId={this.props.workspaceIdForTags}*/}
-//             {/*                />*/}
-//             {/*                <Form.Text className="text-muted">*/}
-//             {/*                    Assets in this {type} will only be visible if they DOES NOT contains theses tags.*/}
-//             {/*                </Form.Text>*/}
-//             {/*            </Form.Group>*/}
-//             {/*        </div>*/}
-//             {/*    </div>*/}
-//             {/*    <div className="row">*/}
-//             {/*        <div className="col-md-12">*/}
-//             {/*            <Button*/}
-//             {/*                className={'btn-primary'}*/}
-//             {/*                onClick={this.save}*/}
-//             {/*            >*/}
-//             {/*                Save*/}
-//             {/*            </Button>*/}
-//             {/*            {' '}*/}
-//             {/*            <Button*/}
-//             {/*                className={'btn-secondary'}*/}
-//             {/*                onClick={this.cancel}*/}
-//             {/*            >*/}
-//             {/*                Cancel*/}
-//             {/*            </Button>*/}
-//             {/*            {' '}*/}
-//             {/*            {this.props.id && <Button*/}
-//             {/*                className={'btn-danger float-right'}*/}
-//             {/*                onClick={this.delete}*/}
-//             {/*            >*/}
-//             {/*                {this.props.id ? 'Delete' : 'Cancel'}*/}
-//             {/*            </Button>}*/}
-//             {/*        </div>*/}
-//             {/*    </div>*/}
-//             {/*</Form>*/}
+//             <Form>
+//                 <div className="row">
+//                     <div className="col-md-12">
+//                         Rule applies for:
+//                     </div>
+//                 </div>
+//                 {id ? <div className="row">
+//                         <div className={'col-md-12 mb-3'}>
+//                             <b>
+//                                 {userId && `User ${userId}`}
+//                                 {groupId && `Group ${groupId}`}
+//                             </b>
+//                         </div>
+//                     </div>
+//                     :
+//                     <div className={'row mb-3'}>
+//                         <div className="col-md-5">
+//                             <GroupSelect
+//                                 ref={this.groupRef}
+//                                 disabledValues={this.props.disabledGroups}
+//                             />
+//                         </div>
+//                         <div className="col-md-2">
+//                             <b>or</b>
+//                         </div>
+//                         <div className="col-md-5">
+//                             <UserSelect
+//                                 ref={this.userRef}
+//                                 disabledValues={this.props.disabledUsers}
+//                             />
+//                         </div>
+//                     </div>}
+//                 <div className="row">
+//                     <div className="col-md-6">
+//                         <FormGroup controlId="include">
+//                             <FormLabel>Tags to <b>include</b></FormLabel>
+//                             <TagSelect
+//                                 label={<>Tags to <b>include</b></>}
+//                                 ref={this.includeRef}
+//                                 value={this.props.include}
+//                                 workspaceId={this.props.workspaceIdForTags}
+//                             />
+//                             <Form.Text className="text-muted">
+//                                 Assets in this {type} will only be visible if they contains theses tags.
+//                             </Form.Text>
+//                         </FormGroup>
+//                     </div>
+//                     <div className="col-md-6">
+//                         <FormGroup controlId="exclude">
+//                             <FormLabel>Tags to <b>exclude</b></FormLabel>
+//                             <TagSelect
+//                                 ref={this.excludeRef}
+//                                 value={this.props.exclude}
+//                                 workspaceId={this.props.workspaceIdForTags}
+//                             />
+//                             <Form.Text className="text-muted">
+//                                 Assets in this {type} will only be visible if they DOES NOT contains theses tags.
+//                             </Form.Text>
+//                         </FormGroup>
+//                     </div>
+//                 </div>
+//                 <div className="row">
+//                     <div className="col-md-12">
+//                         <Button
+//                             className={'btn-primary'}
+//                             onClick={this.save}
+//                         >
+//                             Save
+//                         </Button>
+//                         {' '}
+//                         <Button
+//                             className={'btn-secondary'}
+//                             onClick={this.cancel}
+//                         >
+//                             Cancel
+//                         </Button>
+//                         {' '}
+//                         {this.props.id && <Button
+//                             className={'btn-danger float-right'}
+//                             onClick={this.delete}
+//                         >
+//                             {this.props.id ? 'Delete' : 'Cancel'}
+//                         </Button>}
+//                     </div>
+//                 </div>
+//             </Form>
 //         </div>
 //     }
 // }
