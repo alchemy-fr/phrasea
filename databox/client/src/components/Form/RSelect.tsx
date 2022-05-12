@@ -5,6 +5,7 @@ import {FieldPath} from "react-hook-form/dist/types";
 import AsyncSelect from 'react-select/async';
 import React, {ReactNode} from "react";
 import {AsyncProps} from "react-select/dist/declarations/src/useAsync";
+import {ActionMeta, OnChangeValue} from "react-select/dist/declarations/src/types";
 
 interface GroupBase<Option> {
     readonly options: readonly Option[];
@@ -28,15 +29,23 @@ export type {Props as RSelectProps};
 
 const optionsCache: Record<string, Option> = {};
 
-function valueToOption(value: string | string[] | undefined): Option | Option[] | undefined {
-    if (value instanceof Array) {
-        return value.map(valueToOption) as Option[];
+type CompositeValue<IsMulti extends boolean> = IsMulti extends true ? string[] : string | undefined;
+type CompositeOption<IsMulti extends boolean> = IsMulti extends true ? Option[] : Option | undefined;
+
+function valueToOption<IsMulti extends boolean>(
+    isMulti: IsMulti,
+    value: CompositeValue<IsMulti>
+): CompositeOption<IsMulti> {
+    if (isMulti) {
+        return (value as string[]).map(v => valueToOption(false, v)) as CompositeOption<IsMulti>;
     } else if (value) {
-        return optionsCache[value] || undefined;
+        return optionsCache[value as string] as CompositeOption<IsMulti>;
     }
+
+    return undefined as CompositeOption<IsMulti>;
 }
 
-export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti extends boolean>({
+export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti extends boolean = false>({
                                                                                                              control,
                                                                                                              name,
                                                                                                              loadOptions,
@@ -59,21 +68,22 @@ export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti 
         control={control}
         name={name}
         render={({field: {onChange, value, ref}}) => {
-            return <AsyncSelect
+            return <AsyncSelect<Option, any>
                 ref={ref}
-                value={valueToOption(value as string | string[] | undefined) as any}
-                onChange={(val) => {
-                    onChange(isMulti ? (val as Option[]).map(v => v.value) : (val as Option | undefined)?.value);
-                }}
+                value={valueToOption(isMulti || false, value as CompositeValue<IsMulti>)}
+                onChange={((newValue: any) => {
+                    console.log('newValue', newValue);
+                    onChange(isMulti ? (newValue as Option[]).map(v => v.value) : (newValue as Option | undefined)?.value);
+                }) as any}
                 isOptionDisabled={disabledValues ? o => {
                     return disabledValues!.includes(o.value);
                 } : undefined}
                 options={options}
                 cacheOptions
                 defaultOptions
-                isMulti={isMulti}
                 loadOptions={loadOptionsWrapper}
                 {...rest}
+                isMulti={isMulti}
             />
         }}
     />

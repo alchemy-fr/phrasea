@@ -26,9 +26,9 @@ export default function TagSelect<TFieldValues extends FieldValues>({
         );
     };
 
-    return <RSelectWidget
-        loadOptions={load}
-        isMulti={true}
+    return <RSelectWidget<TFieldValues, false>
         {...rest}
+        loadOptions={load}
+        isMulti={true as any}
     />
 }
