@@ -10,7 +10,6 @@ import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {WorkspaceForm} from "../../Form/WorkspaceForm";
 import {getWorkspace} from "../../../api/workspace";
-// import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
 export type OnWorkspaceEdit = (item: Workspace) => void;
 

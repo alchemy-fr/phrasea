@@ -1,11 +1,11 @@
 import {FormEvent, PureComponent} from "react";
 import {deleteTag, getTags, postTag} from "../../../api/tag";
 import {Tag} from "../../../types";
-import {Button, IconButton, TextField} from "@mui/material";
+import {Button, Grid, IconButton, TextField} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
-    workspaceId: string;
+    workspaceIri: string;
 }
 
 type State = {
@@ -25,7 +25,7 @@ export default class TagManager extends PureComponent<Props, State> {
 
     async loadTags() {
         const tags = await getTags({
-            workspace: this.props.workspaceId,
+            workspace: this.props.workspaceIri,
         });
 
         this.setState({tags: tags.result});
@@ -37,7 +37,7 @@ export default class TagManager extends PureComponent<Props, State> {
 
         const res = await postTag({
             name: tag,
-            workspaceId: this.props.workspaceId,
+            workspaceId: this.props.workspaceIri,
         });
 
         this.setState((prevState: State) => ({
@@ -62,22 +62,22 @@ export default class TagManager extends PureComponent<Props, State> {
 
         return <div>
             {tags.map(t => {
-                return <div
+                return <Grid container
                     key={t.id}
-                    className={'row'}
                 >
-                    <div className="col-md-8">
+                    <Grid item md={8}>
                         {t.name}
-                    </div>
-                    <div className="col-md-4">
+                    </Grid>
+                    <Grid item md={4}>
                         <IconButton
+                            color={'error'}
                             size={"small"}
                             onClick={this.deleteTag.bind(this, t.id)}
                         >
                             <DeleteIcon/>
                         </IconButton>
-                    </div>
-                </div>
+                    </Grid>
+                </Grid>
             })}
             <div>
                 <form onSubmit={this.addTag}>
@@ -90,6 +90,8 @@ export default class TagManager extends PureComponent<Props, State> {
                     <Button
                         type={'submit'}
                         color={'primary'}
+                        size={'large'}
+                        variant={'contained'}
                         disabled={!Boolean(this.state.tagInput)}
                     >
                         Add

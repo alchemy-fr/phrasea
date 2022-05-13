@@ -16,10 +16,12 @@ import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
+import CreateAsset from "./Asset/CreateAsset";
 
 type Props = {
     level: number;
     absolutePath: string;
+    titlePath?: string[];
     onCollectionEdit: OnCollectionEdit;
     onCollectionDelete: () => void;
 } & Collection;
@@ -29,10 +31,12 @@ export default function CollectionMenuItem({
                                                ['@id']: iri,
                                                children,
                                                absolutePath,
+                                                titlePath,
                                                title,
                                                capabilities,
                                                onCollectionEdit,
                                                onCollectionDelete,
+    workspace,
                                                level,
                                            }: Props) {
     const {t} = useTranslation();
@@ -179,6 +183,11 @@ export default function CollectionMenuItem({
                 {capabilities.canEdit && <IconButton
                     className={'c-action'}
                     title={'Add new asset to collection'}
+                    onClick={() => openModal(CreateAsset, {
+                        collectionId: id,
+                        workspaceTitle: workspace.name,
+                        titlePath: (titlePath ?? []).concat(title),
+                    })}
                     aria-label="create-asset">
                     <AddPhotoAlternateIcon/>
                 </IconButton>}
@@ -187,7 +196,8 @@ export default function CollectionMenuItem({
                     title={'Create new collection in this one'}
                     onClick={() => openModal(CreateCollection, {
                         parent: iri,
-                        parentTitle: title,
+                        workspaceTitle: workspace.name,
+                        titlePath: (titlePath ?? []).concat(title),
                         onCreate: onCollectionCreate,
                     })}
                     aria-label="add-child">
@@ -238,6 +248,7 @@ export default function CollectionMenuItem({
                     onCollectionDelete={() => onSubCollDelete(c.id)}
                     key={c.id}
                     absolutePath={`${absolutePath}/${c.id}`}
+                    titlePath={(titlePath ?? []).concat(title)}
                     level={level + 1}
                 />)}
                 {Boolean(nextPage) && <ListItemButton

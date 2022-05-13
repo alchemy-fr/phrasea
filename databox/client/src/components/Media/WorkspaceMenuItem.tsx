@@ -139,6 +139,7 @@ export default function WorkspaceMenuItem({
                         title={'Add collection in this workspace'}
                         onClick={() => openModal(CreateCollection, {
                             workspaceId: id,
+                            workspaceTitle: name,
                             onCreate: onCollectionCreate,
                         })}
                         className={'c-action'}

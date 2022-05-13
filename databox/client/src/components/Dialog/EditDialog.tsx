@@ -3,10 +3,11 @@ import {Alert, Button} from "@mui/material";
 import React, {PropsWithChildren, ReactNode} from "react";
 import {useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
+import SaveIcon from '@mui/icons-material/Save';
 
 
 type Props<T extends object> = PropsWithChildren<{
-    title: string;
+    title: ReactNode;
     loading: boolean;
     formId?: string;
     onSave?: () => void;
@@ -31,12 +32,13 @@ export default function EditDialog<T extends object>({
         actions={({onClose}) => <>
             <Button
                 onClick={onClose}
-                color={'error'}
+                color={'warning'}
                 disabled={loading}
             >
                 {t('dialog.dismiss', 'Dismiss')}
             </Button>
             <Button
+                startIcon={<SaveIcon />}
                 type={formId ? 'submit' : 'button'}
                 form={formId}
                 onClick={onSave}

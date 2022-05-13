@@ -129,7 +129,7 @@ export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
 }
 
 type AssetPostType = {
-    title: string;
+    title?: string;
     privacy: number;
     collection?: string,
     workspace?: string;

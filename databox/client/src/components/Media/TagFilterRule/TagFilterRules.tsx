@@ -2,8 +2,9 @@ import {PureComponent} from "react";
 import {TagFilterRule,} from "../../../types";
 import {getTagFilterRules} from "../../../api/tag-filter-rule";
 import FilterRule, {FilterRuleProps, TagFilterRuleType} from "./FilterRule";
-import {Badge, Button} from "@mui/material";
+import {Button, Chip, Grid, IconButton, Paper, Tooltip} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 
 type Props = {
     id: string;
@@ -83,10 +84,11 @@ export default class TagFilterRules extends PureComponent<Props, State> {
                     onCancel={this.onCancel}
                 />
             </div>}
-            {!newRule && <Button
+            {!newRule && <div><Button
+                startIcon={<AddIcon/>}
                 color={'primary'}
                 onClick={this.addRule}
-            >New rule</Button>}
+            >New rule</Button></div>}
             <div>
                 {rules!.map((r: TagFilterRule) => {
                     if (editRule === r.id) {
@@ -117,31 +119,46 @@ export default class TagFilterRules extends PureComponent<Props, State> {
     }
 
     renderRule(rule: TagFilterRule) {
-        return <div
-            className={'row filter-rule'}
-            key={rule.id}
-        >
-            <div className="col-md-4">
-                {rule.userId && `User ${rule.userId}`}
-                {rule.groupId && `Group ${rule.groupId}`}
-            </div>
-            <div className="col-md-7 tag-container tag-inc-excl">
-                {rule.include.map(t => <Badge
-                    color={'success'}
-                    key={t.id}
-                >{t.name}</Badge>)}
-                {rule.exclude.map(t => <Badge
-                    color={'error'}
-                    key={t.id}
-                >{t.name}</Badge>)}
-            </div>
-            <div className="col-md-1">
-                <Button
-                    onClick={this.editRule.bind(this, rule.id)}
+        return <Paper elevation={2} sx={{p: 2, mt: 2}}>
+            <Grid container spacing={2}
+                  key={rule.id}
+            >
+                <Grid item md={4}>
+                    {rule.userId && `User ${rule.userId}`}
+                    {rule.groupId && `Group ${rule.groupId}`}
+                </Grid>
+                <Grid item md={7}
+                      sx={{
+                          '.MuiChip-root': {
+                              ml: 1,
+                          }
+                      }}
                 >
-                    <EditIcon />
-                </Button>
-            </div>
-        </div>
+                <span>
+                    {rule.include.map(t => <Chip
+                        color={'success'}
+                        key={t.id}
+                        label={t.name}
+                    />)}
+                </span>
+                    <span>
+                    {rule.exclude.map(t => <Chip
+                        color={'error'}
+                        key={t.id}
+                        label={t.name}
+                    />)}
+                </span>
+                </Grid>
+                <Grid item md={1}>
+                    <Tooltip title={`Edit this rule`}>
+                        <IconButton
+                            onClick={this.editRule.bind(this, rule.id)}
+                        >
+                            <EditIcon/>
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+            </Grid>
+        </Paper>
     }
 }

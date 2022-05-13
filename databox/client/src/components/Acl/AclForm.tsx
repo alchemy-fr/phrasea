@@ -5,9 +5,11 @@ import {deleteAce, getAces, putAce} from "../../api/acl";
 import {getGroups, getUsers} from "../../api/user";
 import UserSelect from "../User/UserSelect";
 import GroupSelect from "../User/GroupSelect";
+import {Grid} from "@mui/material";
+import FormRow from "../Form/FormRow";
 
 type Props = {
-    objectType: string;
+    objectType: "collection" | "asset" | "workspace";
     objectId: string;
 };
 
@@ -48,23 +50,34 @@ export default class AclForm extends PureComponent<Props, State> {
 
     render() {
         const {aces} = this.state;
+
         return <div>
-            <div className={'row'}>
-                <div className="col-md-6">
-                    {/*<GroupSelect*/}
-                    {/*    // clearOnSelect={true}*/}
-                    {/*    onChange={(e) => this.onSelectGroup(e.target.value)}*/}
-                    {/*    // disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}*/}
-                    {/*/>*/}
-                </div>
-                <div className="col-md-6">
-                    {/*<UserSelect*/}
-                    {/*    // clearOnSelect={true}*/}
-                    {/*    onChange={(value) => this.onSelectUser(value)}*/}
-                    {/*    // disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}*/}
-                    {/*/>*/}
-                </div>
-            </div>
+            <Grid container spacing={2}>
+                <Grid item md={6}>
+                    <FormRow>
+                        <GroupSelect
+                            placeholder={`Select group`}
+                            clearOnSelect={true}
+                            onChange={(option) => {
+                                option && this.onSelectGroup(option.value);
+                            }}
+                            disabledValues={aces ? aces.filter(ace => ace.userType === 'group').map(ace => ace.userId) : undefined}
+                        />
+                    </FormRow>
+                </Grid>
+                <Grid item md={6}>
+                    <FormRow>
+                        <UserSelect
+                            placeholder={`Select user`}
+                            clearOnSelect={true}
+                            onChange={(option) => {
+                                option && this.onSelectUser(option.value)
+                            }}
+                            disabledValues={aces ? aces.filter(ace => ace.userType === 'user').map(ace => ace.userId) : undefined}
+                        />
+                    </FormRow>
+                </Grid>
+            </Grid>
             {this.renderAces()}
         </div>
     }

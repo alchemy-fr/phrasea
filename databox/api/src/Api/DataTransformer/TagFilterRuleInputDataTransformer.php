@@ -16,6 +16,7 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
      */
     public function transform($data, string $to, array $context = [])
     {
+        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         $tagFilterRule = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new TagFilterRule();
 
         if ($data->collectionId) {
@@ -24,7 +25,7 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
         } elseif ($data->workspaceId) {
             $tagFilterRule->setObjectType(TagFilterRule::TYPE_WORKSPACE);
             $tagFilterRule->setObjectId($data->workspaceId);
-        } else {
+        } else if ($isNew) {
             throw new InvalidArgumentException('Missing collectionId or workspaceId');
         }
 
@@ -34,19 +35,17 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
         } elseif ($data->userId) {
             $tagFilterRule->setUserType(TagFilterRule::TYPE_USER);
             $tagFilterRule->setUserId($data->userId);
-        } else {
-            throw new InvalidArgumentException('Missing groupId or userId');
         }
 
         $collection = $tagFilterRule->getInclude();
         $collection->clear();
-        foreach ($data->include as $rule) {
+        foreach ($data->include ?? [] as $rule) {
             $collection->add($rule);
         }
 
         $collection = $tagFilterRule->getExclude();
         $collection->clear();
-        foreach ($data->exclude as $rule) {
+        foreach ($data->exclude ?? [] as $rule) {
             $collection->add($rule);
         }
 

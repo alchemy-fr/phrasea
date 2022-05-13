@@ -9,6 +9,7 @@ import FullPageLoader from "../../Ui/FullPageLoader";
 import {useModals} from "@mattjennings/react-modal-stack";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
+import AclForm from "../../Acl/AclForm";
 // import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
 export type OnCollectionEdit = (coll: Collection) => void;
@@ -59,73 +60,13 @@ export default function EditCollection({
             onSubmit={handleSubmit}
             submitting={submitting}
         />
+        {data.capabilities.canEditPermissions ? <div>
+            <hr/>
+            <h4>Permissions</h4>
+            <AclForm
+                objectId={id}
+                objectType={'collection'}
+            />
+        </div> : ''}
     </EditDialog>
 }
-
-//
-// export default class EditCollection extends AbstractEdit<Collection, FormProps> {
-//     async loadItem() {
-//         return await getCollection(this.props.id);
-//     }
-//
-//     getType(): string {
-//         return 'collection';
-//     }
-//
-//     getTitle(): ReactNode | null {
-//         const d = this.getData();
-//         return d ? d.title : null;
-//     }
-//
-//     renderForm(): React.ReactNode {
-//         const data: Collection | null = this.getData();
-//         if (null === data) {
-//             return '';
-//         }
-//
-//         const initialValues: FormProps = {
-//             title: data!.title,
-//             privacy: data!.privacy,
-//         };
-//
-//         return <div>
-//             <Formik
-//                 innerRef={this.formRef}
-//                 initialValues={initialValues}
-//                 onSubmit={(values, actions) => {
-//                     this.onSubmit(values, actions);
-//                 }}
-//             >
-//                 <Form>
-//                     <div className="form-group">
-//                         <Field
-//                             component={TextField}
-//                             name="title"
-//                             type="text"
-//                             label="Collection title"
-//                         />
-//                     </div>
-//                     <Field
-//                         component={PrivacyField}
-//                         name="privacy"
-//                     />
-//                 </Form>
-//             </Formik>
-//             <hr/>
-//             <div>
-//                 <h4>Tag filter rules</h4>
-//                 {/*<TagFilterRules*/}
-//                 {/*    id={this.props.id}*/}
-//                 {/*    workspaceId={this.getData()!.workspace.id}*/}
-//                 {/*    type={'collection'}*/}
-//                 {/*/>*/}
-//             </div>
-//         </div>
-//     }
-//
-//     async handleSave(data: FormProps): Promise<boolean> {
-//         await patchCollection(this.props.id, data);
-//
-//         return true;
-//     }
-// }

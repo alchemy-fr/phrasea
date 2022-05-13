@@ -126,14 +126,6 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
 
         return <div>
             {this.renderForm()}
-            <hr/>
-            {data.capabilities.canEditPermissions ? <div>
-                <h4>Permissions</h4>
-                <AclForm
-                    objectId={this.props.id}
-                    objectType={this.getType()}
-                />
-            </div> : ''}
         </div>;
     }
 
