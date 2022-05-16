@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useContext} from 'react';
+import {useContext, useState} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,26 +11,29 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import {blue} from '@mui/material/colors';
 import {UserContext} from "../Security/UserContext";
 import {useTranslation} from "react-i18next";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Divider, ListItemIcon, ListItemText} from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
+import {ResultContext} from "../Media/Search/ResultContext";
 import {SearchContext} from "../Media/Search/SearchContext";
-import {SearchFiltersContext} from "../Media/Search/SearchFiltersContext";
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import ChangeTheme from "./ChangeTheme";
 
-export const menuHeight = 64;
+export const menuHeight = 42;
 
 export default function MainAppBar() {
     const {t} = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
+    const [changeTheme, setChangeTheme] = useState(false);
     const userContext = useContext(UserContext);
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const searchContext = useContext(SearchContext);
-    const searchFiltersContext = useContext(SearchFiltersContext);
+    const searchContext = useContext(ResultContext);
+    const searchFiltersContext = useContext(SearchContext);
     const onTitleClick = () => searchFiltersContext.selectWorkspace(undefined, true);
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -56,14 +59,21 @@ export default function MainAppBar() {
                 height: menuHeight,
             }}
             position="static">
+            {changeTheme && <ChangeTheme onClose={() => setChangeTheme(false)} />}
             <Container maxWidth={false}>
-                <Toolbar disableGutters>
+                <Toolbar disableGutters
+                         variant={'dense'}
+                         sx={{
+                    height: menuHeight,
+                    minHeight: 'unset',
+                }}>
                     <Typography
-                        variant="h6"
+                        variant="h1"
                         noWrap
                         component="div"
                         onClick={onTitleClick}
                         sx={{
+                            fontSize: 17,
                             mr: 2,
                             display: {
                                 xs: 'none', md: 'flex'
@@ -112,7 +122,12 @@ export default function MainAppBar() {
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                                     <Avatar
-                                        sx={{bgcolor: blue[500]}}
+                                        sx={{
+                                            width: menuHeight - 8,
+                                            height: menuHeight - 8,
+                                            bgcolor: 'secondary.main',
+                                            color: 'secondary.contrastText'
+                                    }}
                                         alt={username}
                                         src="/broken-image.jpg"
                                     >
@@ -121,7 +136,7 @@ export default function MainAppBar() {
                                 </IconButton>
                             </Tooltip>
                             <Menu
-                                sx={{mt: '45px'}}
+                                sx={{mt: `${menuHeight - 10}px`}}
                                 id="menu-appbar"
                                 anchorEl={anchorElUser}
                                 anchorOrigin={{
@@ -141,9 +156,27 @@ export default function MainAppBar() {
                                     // to={getPath('account')}
                                     onClick={handleCloseUserMenu}
                                 >
+                                    <ListItemIcon>
+                                        <AccountBoxIcon/>
+                                    </ListItemIcon>
                                     <ListItemText
                                         primary={t('menu.account', 'My account')}
                                         secondary={username}
+                                    />
+                                </MenuItem>
+                                <MenuItem
+                                    // component={Link}
+                                    // to={getPath('account')}
+                                    onClick={() => {
+                                        setChangeTheme(true);
+                                        handleCloseUserMenu();
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <ColorLensIcon/>
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t('menu.change_theme', 'Change theme')}
                                     />
                                 </MenuItem>
                                 <Divider light/>

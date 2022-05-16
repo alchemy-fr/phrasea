@@ -1,6 +1,15 @@
 import {useContext, useState} from "react";
-import {SearchContext} from "../Search/SearchContext";
-import {Checkbox, Collapse, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader} from "@mui/material";
+import {ResultContext} from "../Search/ResultContext";
+import {
+    Checkbox,
+    Collapse,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemSecondaryAction,
+    ListItemText,
+    ListSubheader
+} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 
 export type BucketKeyValue = string | {
@@ -45,7 +54,7 @@ function FacetRow({
     facet: Facet;
     name: string;
 }) {
-    const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
+    const {attrFilters, toggleAttrFilter} = useContext(ResultContext);
     const [open, setOpen] = useState(true);
 
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
@@ -63,8 +72,7 @@ function FacetRow({
 
                     const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
 
-                    return <ListItem
-                        button
+                    return <ListItemButton
                         key={keyV}
                         onClick={onClick}
                     >
@@ -77,7 +85,7 @@ function FacetRow({
                                 inputProps={{ 'aria-labelledby': keyV }}
                             />
                         </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                 })}
             </List>
         </Collapse>
@@ -85,7 +93,7 @@ function FacetRow({
 }
 
 export default function Facets() {
-    const search = useContext(SearchContext);
+    const search = useContext(ResultContext);
     const {facets} = search;
 
     if (!facets) {

@@ -6,33 +6,25 @@ import config from "../config";
 import apiClient from "../api/api-client";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
-import {createTheme, CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
+import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
 import {flattenRoutes, RouteDefinition} from "../routes";
 import createRoute from "./Router/router";
 import {ModalStack} from "@mattjennings/react-modal-stack";
 import FullPageLoader from "./Ui/FullPageLoader";
+import {createCachedTheme, ThemeName} from "../lib/theme";
 
 type State = {
-    user?: User,
-    authenticating: boolean,
+    user?: User;
+    authenticating: boolean;
+    theme: ThemeName;
 };
-
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#1f4b80',
-        },
-        secondary: {
-            main: '#fa7515',
-        },
-    }
-});
 
 const scrollbarWidth = 8;
 
 export default class Root extends PureComponent<{}, State> {
     state: State = {
         authenticating: oauthClient.hasAccessToken(),
+        theme: 'default',
     }
 
     componentDidMount() {
@@ -81,7 +73,7 @@ export default class Root extends PureComponent<{}, State> {
     }
 
     render() {
-        return <ThemeProvider theme={theme}>
+        return <ThemeProvider theme={createCachedTheme(this.state.theme)}>
             <CssBaseline/>
             <GlobalStyles
                 styles={(theme) => ({
@@ -103,6 +95,10 @@ export default class Root extends PureComponent<{}, State> {
                 <UserContext.Provider value={{
                     user: this.state.user,
                     logout: this.state.user ? this.logout : undefined,
+                    currentTheme: this.state.theme,
+                    changeTheme: (theme: ThemeName) => {
+                        this.setState({theme});
+                    },
                 }}>
                     {this.state.authenticating
                         ? <FullPageLoader/>

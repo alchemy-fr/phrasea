@@ -1,17 +1,11 @@
 import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Button, LinearProgress, ListSubheader} from "@mui/material";
-import {SearchContext} from "./SearchContext";
+import {ResultContext} from "./ResultContext";
 import Pager, {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import SearchFilters from "./SearchFilters";
 import DebugEsModal from "./DebugEsModal";
-
-const classes = {
-    root: {},
-    gridList: {
-        width: '100%',
-    },
-};
+import SearchBar from "./SearchBar";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -36,7 +30,7 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
 
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
-    const search = useContext(SearchContext);
+    const search = useContext(ResultContext);
 
     const [layout, setLayout] = useState(LAYOUT_GRID);
     const [debugOpen, setDebugOpen] = useState(false);
@@ -57,16 +51,11 @@ export default function AssetResults() {
             {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
-            <div style={classes.root}>
+            <div>
+                <SearchBar />
+                <SearchActions />
                 <ListSubheader component="div" className={'result-info'}>
-                    <Button
-                        color={layout === LAYOUT_GRID ? "primary" : undefined}
-                        onClick={() => setLayout(LAYOUT_GRID)}>Grid</Button>
 
-                    <Button
-                        color={layout === LAYOUT_LIST ? "primary" : undefined}
-                        onClick={() => setLayout(LAYOUT_LIST)}
-                    >List</Button>
                     {' '}
                     {!loading && total !== undefined ? <>
                         <b>
@@ -82,12 +71,6 @@ export default function AssetResults() {
                             {` result${total > 1 ? 's' : ''}`}
                         </span>
                     </> : 'Loading...'}
-
-                    {search.attrFilters && <SearchFilters
-                        onDelete={search.removeAttrFilter}
-                        onInvert={search.invertAttrFilter}
-                        filters={search.attrFilters}
-                    />}
                 </ListSubheader>
                 <div className={'asset-result'}>
                     <Pager

@@ -36,7 +36,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         {isDragActive && <Backdrop
             sx={(theme) => ({
                 zIndex: theme.zIndex.drawer + 1,
-                color: '#fff',
+                color: theme.palette.common.white,
             })}
             open={true}
         >

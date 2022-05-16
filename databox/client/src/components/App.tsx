@@ -2,7 +2,7 @@ import React, {useContext, useEffect} from 'react';
 import AssetSelectionProvider from "./Media/AssetSelectionProvider";
 import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
 import LeftPanel from "./Media/LeftPanel";
-import SearchContextProvider from "./Media/Search/SearchContextProvider";
+import ResultProvider from "./Media/Search/ResultProvider";
 import AssetResults from "./Media/Search/AssetResults";
 import SearchFiltersProvider from "./Media/Search/SearchFiltersProvider";
 import AssetDropzone from "./Media/Asset/AssetDropzone";
@@ -56,7 +56,7 @@ export default function App() {
     return <>
         <ToastContainer/>
         <SearchFiltersProvider>
-            <SearchContextProvider>
+            <ResultProvider>
                 <AssetDropzone>
                     <MainAppBar/>
                     <AssetSelectionProvider>
@@ -83,7 +83,7 @@ export default function App() {
                         </Box>
                     </AssetSelectionProvider>
                 </AssetDropzone>
-            </SearchContextProvider>
+            </ResultProvider>
         </SearchFiltersProvider>
     </>
 }

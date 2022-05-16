@@ -2,7 +2,7 @@ import React, {MouseEvent, useContext, useState} from "react";
 import {Collection, Workspace} from "../../types";
 import CollectionMenuItem from "./CollectionMenuItem";
 import {collectionChildrenLimit, collectionSecondLimit, getCollections} from "../../api/collection";
-import {SearchFiltersContext} from "./Search/SearchFiltersContext";
+import {SearchContext} from "./Search/SearchContext";
 import {Collapse, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -23,7 +23,7 @@ export default function WorkspaceMenuItem({
                                               collections,
                                               capabilities,
                                           }: WorkspaceMenuItemProps) {
-    const filterContext = useContext(SearchFiltersContext);
+    const filterContext = useContext(SearchContext);
     const {openModal} = useModals();
     const selected = filterContext.selectedWorkspace === id;
     const [expanded, setExpanded] = useState(false);

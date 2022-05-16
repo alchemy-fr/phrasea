@@ -1,8 +1,8 @@
-import {SearchContext} from "./SearchContext";
+import {ResultContext} from "./ResultContext";
 import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
 import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
-import {SearchFiltersContext} from "./SearchFiltersContext";
+import {SearchContext} from "./SearchContext";
 import {BucketKeyValue, extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import axios from "axios";
@@ -68,8 +68,8 @@ type State = {
 
 type Props = PropsWithChildren<{}>;
 
-export default function SearchContextProvider({children}: Props) {
-    const searchFiltersContext = useContext(SearchFiltersContext);
+export default function ResultProvider({children}: Props) {
+    const searchFiltersContext = useContext(SearchContext);
 
     const [hash, setHash] = useHash();
 
@@ -194,7 +194,7 @@ export default function SearchContextProvider({children}: Props) {
         hash,
     ]);
 
-    return <SearchContext.Provider
+    return <ResultContext.Provider
         value={{
             query,
             setQuery,
@@ -214,5 +214,5 @@ export default function SearchContextProvider({children}: Props) {
         }}
     >
         {children}
-    </SearchContext.Provider>
+    </ResultContext.Provider>
 }

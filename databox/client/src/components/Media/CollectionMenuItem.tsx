@@ -2,7 +2,7 @@ import React, {MouseEvent, useContext, useEffect, useState} from "react";
 import {Collection} from "../../types";
 import {collectionChildrenLimit, collectionSecondLimit, deleteCollection, getCollections} from "../../api/collection";
 import apiClient from "../../api/api-client";
-import {SearchFiltersContext} from "./Search/SearchFiltersContext";
+import {SearchContext} from "./Search/SearchContext";
 import {Collapse, IconButton, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -41,7 +41,7 @@ export default function CollectionMenuItem({
                                            }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const filterContext = useContext(SearchFiltersContext);
+    const filterContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
         loadingMore: boolean;

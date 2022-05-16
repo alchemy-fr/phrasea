@@ -1,5 +1,5 @@
 import React, {PropsWithChildren, useState} from "react";
-import {SearchFiltersContext} from "./SearchFiltersContext";
+import {SearchContext} from "./SearchContext";
 
 type State = {
     selectedWorkspace?: string | undefined;
@@ -29,7 +29,7 @@ export default function SearchFiltersProvider({children}: PropsWithChildren<{}>)
         }));
     };
 
-    return <SearchFiltersContext.Provider value={{
+    return <SearchContext.Provider value={{
         selectWorkspace,
         selectCollection,
         selectedWorkspace: state.selectedWorkspace,
@@ -37,5 +37,5 @@ export default function SearchFiltersProvider({children}: PropsWithChildren<{}>)
         reloadInc: state.reloadInc,
     }}>
         {children}
-    </SearchFiltersContext.Provider>
+    </SearchContext.Provider>
 }
