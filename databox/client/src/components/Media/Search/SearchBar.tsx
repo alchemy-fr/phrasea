@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchFilters from "./SearchFilters";
 import {ResultContext} from "./ResultContext";
 import {useTranslation} from "react-i18next";
+import {SearchContext} from "./SearchContext";
 
 type Props = {};
 
@@ -46,7 +47,7 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
 
 
 export default function SearchBar({}: Props) {
-    const search = useContext(ResultContext);
+    const search = useContext(SearchContext);
     const [queryValue, setQueryValue] = useState('');
     const inputRef = useRef<HTMLInputElement>();
     const {t} = useTranslation();

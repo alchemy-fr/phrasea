@@ -4,7 +4,7 @@ import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
 import LeftPanel from "./Media/LeftPanel";
 import ResultProvider from "./Media/Search/ResultProvider";
 import AssetResults from "./Media/Search/AssetResults";
-import SearchFiltersProvider from "./Media/Search/SearchFiltersProvider";
+import SearchProvider from "./Media/Search/SearchProvider";
 import AssetDropzone from "./Media/Asset/AssetDropzone";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,7 +20,7 @@ export default function App() {
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
-            if (error.config.errorHandled) {
+            if (error.config?.errorHandled) {
                 return;
             }
 
@@ -55,7 +55,7 @@ export default function App() {
 
     return <>
         <ToastContainer/>
-        <SearchFiltersProvider>
+        <SearchProvider>
             <ResultProvider>
                 <AssetDropzone>
                     <MainAppBar/>
@@ -84,6 +84,6 @@ export default function App() {
                     </AssetSelectionProvider>
                 </AssetDropzone>
             </ResultProvider>
-        </SearchFiltersProvider>
+        </SearchProvider>
     </>
 }

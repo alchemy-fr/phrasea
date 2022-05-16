@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Dialog, DialogTitle, List, ListItemButton} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogTitle, List, ListItemButton} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import themes from "../../themes";
 import {UserContext} from "../Security/UserContext";
@@ -18,7 +18,6 @@ export default function ChangeTheme({
 
     const handleClick = (name: ThemeName) => {
         changeTheme!(name);
-        onClose();
     }
 
     return <>
@@ -32,6 +31,11 @@ export default function ChangeTheme({
                     {t}
                 </ListItemButton>)}
             </List>
+            <DialogActions>
+                <Button autoFocus onClick={onClose}>
+                    {t('change_theme.save', 'Save')}
+                </Button>
+            </DialogActions>
         </Dialog>
     </>
 }

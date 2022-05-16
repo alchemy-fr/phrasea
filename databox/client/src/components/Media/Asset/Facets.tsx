@@ -11,6 +11,7 @@ import {
     ListSubheader
 } from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
+import {SearchContext} from "../Search/SearchContext";
 
 export type BucketKeyValue = string | {
     value: string;
@@ -54,7 +55,7 @@ function FacetRow({
     facet: Facet;
     name: string;
 }) {
-    const {attrFilters, toggleAttrFilter} = useContext(ResultContext);
+    const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
     const [open, setOpen] = useState(true);
 
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);

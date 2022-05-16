@@ -23,9 +23,9 @@ export default function WorkspaceMenuItem({
                                               collections,
                                               capabilities,
                                           }: WorkspaceMenuItemProps) {
-    const filterContext = useContext(SearchContext);
+    const searchContext = useContext(SearchContext);
     const {openModal} = useModals();
-    const selected = filterContext.selectedWorkspace === id;
+    const selected = searchContext.workspaceId === id;
     const [expanded, setExpanded] = useState(false);
     const [name, setName] = useState(initialName);
     const [nextCollections, setNextCollections] = useState<{
@@ -60,7 +60,7 @@ export default function WorkspaceMenuItem({
     const nextPage = getNextPage();
 
     const onClick = () => {
-        filterContext.selectWorkspace(id, filterContext.selectedWorkspace === id);
+        searchContext.selectWorkspace(id, searchContext.workspaceId === id);
         expand(true);
     };
 
@@ -167,7 +167,11 @@ export default function WorkspaceMenuItem({
                 disablePadding
             >
                 <ListItemButton
-                    role={undefined}
+                    sx={{
+                        '&.Mui-selected': {
+                            bgcolor: 'secondary.main'
+                        }
+                    }}
                     onClick={onClick}
                     selected={selected}
                 >

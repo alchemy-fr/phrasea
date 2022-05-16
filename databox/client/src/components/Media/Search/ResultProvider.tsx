@@ -1,13 +1,11 @@
 import {ResultContext} from "./ResultContext";
-import {PropsWithChildren, useCallback, useContext, useEffect, useState} from "react";
+import {PropsWithChildren, useContext, useEffect, useState} from "react";
 import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchContext} from "./SearchContext";
-import {BucketKeyValue, extractLabelValueFromKey, TFacets} from "../Asset/Facets";
+import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import axios from "axios";
-import useHash from "../../../lib/useHash";
-import {hashToQuery, queryToHash} from "./search";
 
 let lastController: AbortController;
 
@@ -69,30 +67,13 @@ type State = {
 type Props = PropsWithChildren<{}>;
 
 export default function ResultProvider({children}: Props) {
-    const searchFiltersContext = useContext(SearchContext);
-
-    const [hash, setHash] = useHash();
+    const searchContext = useContext(SearchContext);
 
     const [state, setState] = useState<State>({
         pages: [],
         loading: false,
         inc: 0,
     });
-
-    const {query, filters} = hashToQuery(hash);
-
-    const setAttrFilters = useCallback((handler: (prev: Filters) => Filters): void => {
-        setHash(queryToHash(query, handler(filters)));
-    }, [setHash, query, filters]);
-
-    const setQuery = useCallback((handler: string | ((prev: string) => string)): void => {
-        if (typeof handler === 'string') {
-            setHash(queryToHash(handler, filters));
-            return;
-        }
-
-        setHash(queryToHash(handler(query), filters));
-    }, [setHash, query, filters]);
 
     const setLoading = (loading: boolean) => setState((prev) => ({
         ...prev,
@@ -102,10 +83,10 @@ export default function ResultProvider({children}: Props) {
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
 
-        const collectionIds = searchFiltersContext.selectedCollection ? [extractCollectionIdFromPath(searchFiltersContext.selectedCollection)] : undefined;
-        const workspaceIds = searchFiltersContext.selectedWorkspace ? [searchFiltersContext.selectedWorkspace] : undefined;
+        const collectionIds = searchContext.collectionId ? [extractCollectionIdFromPath(searchContext.collectionId)] : undefined;
+        const workspaceIds = searchContext.workspaceId ? [searchContext.workspaceId] : undefined;
 
-        search(query, nextUrl, collectionIds, workspaceIds, filters).then((r) => {
+        search(searchContext.query, nextUrl, collectionIds, workspaceIds, searchContext.attrFilters).then((r) => {
             setState((prevState) => {
                 return {
                     pages: nextUrl ? prevState.pages.concat([r.result]) : [r.result],
@@ -126,83 +107,16 @@ export default function ResultProvider({children}: Props) {
         })
     }
 
-    const reload = () => {
-        doSearch();
-    };
-
-    const toggleAttrFilter = (attrName: string, keyValue: BucketKeyValue, attrTitle: string): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-
-            const key = f.findIndex(_f => _f.a === attrName && !_f.i);
-
-            if (key >= 0) {
-                const {value} = extractLabelValueFromKey(keyValue);
-
-                const tf = f[key];
-                if (tf.v.find(v => extractLabelValueFromKey(v).value === value)) {
-                    if (tf.v.length === 1) {
-                        f.splice(key, 1);
-                    } else {
-                        tf.v = tf.v.filter(v => extractLabelValueFromKey(v).value !== value);
-                    }
-                } else {
-                    tf.v = tf.v.concat(keyValue);
-                }
-            } else {
-                f.push({
-                    t: attrTitle,
-                    a: attrName,
-                    v: [keyValue],
-                });
-            }
-
-            return f;
-        });
-    };
-
-    const removeAttrFilter = (key: number): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-            f.splice(key, 1);
-
-            return f;
-        });
-    };
-
-    const invertAttrFilter = (key: number): void => {
-        setAttrFilters(prev => {
-            const f = [...prev];
-
-            if (f[key].i) {
-                delete f[key].i;
-            } else {
-                f[key].i = 1;
-            }
-
-            return f;
-        });
-    };
-
     useEffect(() => {
         doSearch();
         // eslint-disable-next-line
     }, [
-        searchFiltersContext.selectedCollection,
-        searchFiltersContext.selectedWorkspace,
-        searchFiltersContext.reloadInc,
-        hash,
+        searchContext.hash,
+        searchContext.reloadInc,
     ]);
 
     return <ResultContext.Provider
         value={{
-            query,
-            setQuery,
-            reload,
-            toggleAttrFilter,
-            removeAttrFilter,
-            invertAttrFilter,
-            attrFilters: filters,
             loading: state.loading,
             pages: state.pages,
             facets: state.facets,
@@ -211,6 +125,7 @@ export default function ResultProvider({children}: Props) {
             loadMore: state.next ? async () => {
                 await doSearch(state.next!);
             } : undefined,
+            reload: doSearch,
         }}
     >
         {children}

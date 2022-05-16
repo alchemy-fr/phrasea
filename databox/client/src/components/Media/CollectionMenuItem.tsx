@@ -41,7 +41,7 @@ export default function CollectionMenuItem({
                                            }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const filterContext = useContext(SearchContext);
+    const searchContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
         loadingMore: boolean;
@@ -114,8 +114,7 @@ export default function CollectionMenuItem({
     const nextPage = getNextPage();
 
     const onClick = () => {
-        filterContext.selectCollection(absolutePath, filterContext.selectedCollection === absolutePath);
-        filterContext.selectWorkspace(id, filterContext.selectedWorkspace === id);
+        searchContext.selectCollection(absolutePath, searchContext.collectionId === absolutePath);
         expand(true);
     };
 
@@ -166,8 +165,8 @@ export default function CollectionMenuItem({
         setExpanded(true);
     };
 
-    const selected = filterContext.selectedCollection === absolutePath;
-    const currentInSelectedHierarchy = filterContext.selectedCollection && filterContext.selectedCollection.startsWith(absolutePath);
+    const selected = searchContext.collectionId === absolutePath;
+    const currentInSelectedHierarchy = searchContext.collectionId && searchContext.collectionId.startsWith(absolutePath);
 
     return <>
         <ListItem

@@ -2,6 +2,7 @@ import GridLayout from "./Layout/GridLayout";
 import ListLayout from "./Layout/ListLayout";
 import React, {MouseEvent} from "react";
 import {Asset} from "../../../types";
+import {Box} from "@mui/material";
 
 export const LAYOUT_GRID = 0;
 export const LAYOUT_LIST = 1;
@@ -21,11 +22,28 @@ export default React.memo(function Pager({
                                          }: Props) {
     return <div>
         {pages.map((assets, i) => {
-            return <div
+            return <Box
                 key={i}
-                className={'result-page'}
+                sx={{
+                    position: 'relative',
+                    width: '100%',
+                    p: 3,
+                    '&:first-child': {
+                        borderTop: 0,
+                        '> div:first-child': {
+                            display: 'none',
+                        }
+                    }
+                }}
             >
-                <div className="page-num"># {i + 1}</div>
+                <Box sx={{
+                    position: 'absolute',
+                    top: -12,
+                    left: 10,
+                    fontWeight: 700,
+                    padding: `2px 10px`,
+                    backgroundColor: 'inherit',
+                }}># {i + 1}</Box>
                 {layout === LAYOUT_GRID ? <GridLayout
                     assets={assets}
                     onSelect={onSelect}
@@ -35,7 +53,7 @@ export default React.memo(function Pager({
                     onSelect={onSelect}
                     selectedAssets={selectedAssets}
                 />}
-            </div>
+            </Box>
         })}
     </div>
 })

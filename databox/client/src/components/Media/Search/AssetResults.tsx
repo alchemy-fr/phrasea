@@ -2,10 +2,11 @@ import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} fro
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Button, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
-import Pager, {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
-import SearchFilters from "./SearchFilters";
+import Pager, {LAYOUT_GRID} from "./Pager";
 import DebugEsModal from "./DebugEsModal";
 import SearchBar from "./SearchBar";
+import SearchActions from "./SearchActions";
+import {Asset} from "../../../types";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -20,9 +21,33 @@ const linearProgressStyle: CSSProperties = {
     top: '0',
 };
 
-function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent): string[] {
+function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent, pages: Asset[][]): string[] {
     if (e.ctrlKey) {
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
+    }
+    if (e.shiftKey && currentSelection.length > 0) {
+        let boundaries: [[number, number] | undefined, [number, number] | undefined] = [undefined, undefined];
+
+        for (let i = 0; i < pages.length; ++i) {
+            const assets = pages[i];
+            for (let j = 0; j < assets.length; ++j) {
+                const a = assets[j];
+                if (currentSelection.includes(a.id) || id === a.id) {
+                    boundaries = [boundaries[0] ?? [i, j], [i, j]];
+                }
+            }
+        }
+
+        const selection = [];
+        for (let i = boundaries[0]![0]; i <= boundaries[1]![0]; ++i) {
+            const start = i === boundaries[0]![0] ? boundaries[0]![1] : 0;
+            const end = i === boundaries[1]![0] ? boundaries[1]![1] : pages[i].length - 1;
+            for (let j = start; j <= end; ++j) {
+                selection.push(pages[i][j].id);
+            }
+        }
+
+        return selection;
     }
 
     return [id];
@@ -30,18 +55,19 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
 
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
-    const search = useContext(ResultContext);
+    const resultContext = useContext(ResultContext);
 
     const [layout, setLayout] = useState(LAYOUT_GRID);
     const [debugOpen, setDebugOpen] = useState(false);
 
     const onSelect = useCallback((id: string, e: MouseEvent): void => {
-        const ids = getAssetListFromEvent(assetSelection.selectedAssets, id, e);
+        e.preventDefault();
+        const ids = getAssetListFromEvent(assetSelection.selectedAssets, id, e, resultContext.pages);
         assetSelection.selectAssets(ids);
         // eslint-disable-next-line
-    }, [assetSelection.selectAssets]);
+    }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
 
-    const {loading, total, loadMore, pages, debug} = search;
+    const {loading, total, pages, loadMore, debug} = resultContext;
 
     return <div style={{
         position: 'relative',
@@ -52,27 +78,17 @@ export default function AssetResults() {
                 <LinearProgress/>
             </div>}
             <div>
-                <SearchBar />
-                <SearchActions />
-                <ListSubheader component="div" className={'result-info'}>
-
-                    {' '}
-                    {!loading && total !== undefined ? <>
-                        <b>
-                            {new Intl.NumberFormat('fr-FR', {}).format(total)}
-                        </b>
-                        {debugOpen && debug && <DebugEsModal
-                            onClose={() => setDebugOpen(false)}
-                            debug={debug}
-                        />}
-                        <span
-                            style={{cursor: 'pointer'}}
-                        onClick={() => setDebugOpen(true)}>
-                            {` result${total > 1 ? 's' : ''}`}
-                        </span>
-                    </> : 'Loading...'}
+                <SearchBar/>
+                <ListSubheader
+                    component="div"
+                    disableGutters={true}
+                >
+                    <SearchActions
+                        layout={layout}
+                        onLayoutChange={(l) => setLayout(l)}
+                    />
                 </ListSubheader>
-                <div className={'asset-result'}>
+                <div>
                     <Pager
                         pages={pages}
                         layout={layout}
