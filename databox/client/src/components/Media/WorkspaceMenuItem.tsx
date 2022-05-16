@@ -3,7 +3,7 @@ import {Collection, Workspace} from "../../types";
 import CollectionMenuItem from "./CollectionMenuItem";
 import {collectionChildrenLimit, collectionSecondLimit, getCollections} from "../../api/collection";
 import {SearchFiltersContext} from "./Search/SearchFiltersContext";
-import {IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
+import {Collapse, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
@@ -178,20 +178,22 @@ export default function WorkspaceMenuItem({
                 </ListItemButton>
             </ListItem>
         </ListSubheader>
-        {expanded && nextCollections.items && nextCollections.items.map(c => <CollectionMenuItem
-            {...c}
-            onCollectionEdit={onSubCollEdit}
-            onCollectionDelete={() => onSubCollDelete(c.id)}
-            key={c.id}
-            absolutePath={c.id}
-            level={0}
-        />)}
-        {expanded && Boolean(nextPage) && <ListItemButton
-            onClick={loadMore}
-            disabled={nextCollections.loadingMore}
-        >
-            <MoreHorizIcon/>
-            Load more collections
-        </ListItemButton>}
+        <Collapse in={expanded && nextCollections.items.length > 0} timeout="auto" unmountOnExit>
+            {nextCollections.items && nextCollections.items.map(c => <CollectionMenuItem
+                {...c}
+                onCollectionEdit={onSubCollEdit}
+                onCollectionDelete={() => onSubCollDelete(c.id)}
+                key={c.id}
+                absolutePath={c.id}
+                level={0}
+            />)}
+            {expanded && Boolean(nextPage) && <ListItemButton
+                onClick={loadMore}
+                disabled={nextCollections.loadingMore}
+            >
+                <MoreHorizIcon/>
+                Load more collections
+            </ListItemButton>}
+        </Collapse>
     </>
 }
