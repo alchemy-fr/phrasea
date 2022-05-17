@@ -88,6 +88,9 @@ export default class Root extends PureComponent<{}, State> {
                             borderRadius: scrollbarWidth,
                             backgroundColor: theme.palette.primary.main,
                         }
+                    },
+                    body: {
+                        backgroundColor: theme.palette.common.white,
                     }
                 })}
             />

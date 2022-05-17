@@ -6,6 +6,10 @@ type Props = PropsWithChildren<{
     size: number;
 }>;
 
+export function createSizeTransition(theme: Theme) {
+    return theme.transitions.create(['height', 'width'], {duration: 300});
+}
+
 const assetSx = (thumbSize: number) => (theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
@@ -17,6 +21,7 @@ const assetSx = (thumbSize: number) => (theme: Theme) => ({
     },
     width: thumbSize,
     height: thumbSize,
+    transition: createSizeTransition(theme),
 });
 
 export default function Thumb({

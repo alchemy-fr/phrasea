@@ -1,12 +1,14 @@
 import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
-import {Button, LinearProgress, ListSubheader} from "@mui/material";
+import {Box, Button, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
 import Pager, {LAYOUT_GRID} from "./Pager";
-import DebugEsModal from "./DebugEsModal";
 import SearchBar from "./SearchBar";
-import SearchActions from "./SearchActions";
+import SelectionActions from "./SelectionActions";
 import {Asset} from "../../../types";
+import {useTranslation} from "react-i18next";
+import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
+import {LoadingButton} from "@mui/lab";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -56,10 +58,8 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
-
+    const {t} = useTranslation();
     const [layout, setLayout] = useState(LAYOUT_GRID);
-    const [thumbSize, setThumbSize] = useState(200);
-    const [debugOpen, setDebugOpen] = useState(false);
 
     const onSelect = useCallback((id: string, e: MouseEvent): void => {
         e.preventDefault();
@@ -78,37 +78,40 @@ export default function AssetResults() {
             {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
-            <div>
+            <>
                 <SearchBar/>
                 <ListSubheader
                     component="div"
                     disableGutters={true}
                 >
-                    <SearchActions
+                    <SelectionActions
                         layout={layout}
                         onLayoutChange={(l) => setLayout(l)}
                     />
                 </ListSubheader>
-                <div>
-                    <Pager
-                        pages={pages}
-                        thumbSize={thumbSize}
-                        layout={layout}
-                        selectedAssets={assetSelection.selectedAssets}
-                        onSelect={onSelect}
-                    />
-                </div>
-            </div>
-            {loadMore ? <div className={'text-center mb-3'}>
-                <Button
-                    disabled={loading}
+                <Pager
+                    pages={pages}
+                    layout={layout}
+                    selectedAssets={assetSelection.selectedAssets}
+                    onSelect={onSelect}
+                />
+            </>
+            {loadMore ? <Box
+                sx={{
+                    textAlign: 'center',
+                    mb: 4,
+                }}
+            >
+                <LoadingButton
+                    loading={loading}
+                    startIcon={<ArrowCircleDownIcon/>}
                     onClick={loadMore}
                     variant="contained"
                     color="secondary"
                 >
-                    {loading ? 'Loading...' : 'Load more'}
-                </Button>
-            </div> : ''}
+                    {loading ? t('load_more.button.loading', 'Loading...') : t('load_more.button.loading', 'Load more')}
+                </LoadingButton>
+            </Box> : ''}
         </div>
     </div>
 }

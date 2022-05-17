@@ -13,45 +13,49 @@ type Props = {
     layout: number;
     selectedAssets: string[];
     onSelect: (id: string, e: MouseEvent) => void;
-    thumbSize: number;
 };
 
 export default React.memo(function Pager({
                                              pages,
                                              layout,
-                                             thumbSize,
                                              selectedAssets,
                                              onSelect,
                                          }: Props) {
-    return <div>
+    return <Box
+        sx={{
+            bgcolor: 'common.white',
+        }}
+    >
         {pages.map((assets, i) => {
             return <Box
                 key={i}
-                sx={{
+                sx={(theme) => ({
                     position: 'relative',
                     width: '100%',
                     p: 3,
+                    borderTop: `1px solid ${theme.palette.divider}`,
                     '&:first-of-type': {
                         borderTop: 0,
                         pt: 2,
                     }
-                }}
+                })}
             >
-                {i > 0 && <Box sx={{
+                {i > 0 && <Box sx={(theme) => ({
                     position: 'absolute',
-                    top: -12,
+                    top: -13,
                     left: 10,
+                    color: theme.palette.divider,
                     fontWeight: 700,
+                    fontSize: 15,
                     padding: `2px 10px`,
-                    backgroundColor: 'inherit',
-                }}># {i + 1}</Box>}
+                    backgroundColor: theme.palette.common.white,
+                })}># {i + 1}</Box>}
                 {React.createElement(layout === LAYOUT_GRID ? GridLayout : ListLayout, {
                     assets,
-                    thumbSize,
                     onSelect,
                     selectedAssets,
                 })}
             </Box>
         })}
-    </div>
+    </Box>
 })

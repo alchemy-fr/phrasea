@@ -6,7 +6,6 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
@@ -15,6 +14,8 @@ import {ResultContext} from "./ResultContext";
 import {useModals} from "@mattjennings/react-modal-stack";
 import DebugEsModal from "./DebugEsModal";
 import {styled} from "@mui/material/styles";
+import DeleteAssetsConfirm from "../Asset/Actions/DeleteAssetsConfirm";
+import DisplayOptionsMenu from "./DisplayOptionsMenu";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -37,10 +38,10 @@ type Props = {
     onLayoutChange: (l: number) => void;
 };
 
-export default function SearchActions({
-                                          layout,
-                                          onLayoutChange
-                                      }: Props) {
+export default function SelectionActions({
+                                             layout,
+                                             onLayoutChange,
+                                         }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const selectionContext = useContext(AssetSelectionContext);
@@ -51,12 +52,11 @@ export default function SearchActions({
     const allSelected = hasSelection && selectionLength === resultContext.pages.reduce((currentCount, row) => currentCount + row.length, 0);
 
     const toggleSelectAll = useCallback(() => {
-        console.log('hasSelection', hasSelection);
-        if (hasSelection) {
-            selectionContext.selectAssets([]);
-        } else {
-            selectionContext.selectAssets(resultContext.pages.map(p => p.map(a => a.id)).flat());
-        }
+        selectionContext.selectAssets(
+            hasSelection ?
+                []
+                : resultContext.pages.map(p => p.map(a => a.id)).flat()
+        );
     }, [resultContext.pages, selectionContext.selectedAssets, hasSelection]);
 
     const openDebug = resultContext.debug ? () => {
@@ -64,6 +64,16 @@ export default function SearchActions({
             debug: resultContext.debug!,
         });
     } : undefined;
+
+    const onDelete = () => {
+        openModal(DeleteAssetsConfirm, {
+            assetIds: selectionContext.selectedAssets,
+            count: selectionLength,
+            onDelete: () => {
+                resultContext.reload();
+            }
+        });
+    };
 
     const selectAllDisabled = (resultContext.total ?? 0) === 0;
 
@@ -130,6 +140,7 @@ export default function SearchActions({
             <Button
                 disabled={!hasSelection}
                 color={'error'}
+                onClick={onDelete}
                 variant={'contained'}
                 startIcon={<DeleteIcon/>}
             >
@@ -180,15 +191,8 @@ export default function SearchActions({
                 </TooltipToggleButton>
             </StyledToggleButtonGroup>
             <Divider flexItem orientation="vertical" sx={{mx: 0.5, my: 1}}/>
-            <StyledToggleButtonGroup>
+            <DisplayOptionsMenu/>
 
-                <TooltipToggleButton
-                    tooltipProps={{title: t('layout.options.more', 'More options')}}
-                    value={'d'}
-                >
-                    <ArrowDropDownIcon/>
-                </TooltipToggleButton>
-            </StyledToggleButtonGroup>
         </Paper>
     </Box>
 }

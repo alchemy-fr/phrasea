@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {PropsWithChildren, ReactNode} from "react";
 import {LinearProgress} from "@mui/material";
+import {Breakpoint} from "@mui/system";
 
 const BootstrapDialog = styled(Dialog)(({theme}) => ({
     '& .MuiDialogContent-root': {
@@ -57,6 +58,7 @@ type Props = PropsWithChildren<{
     actions?: (args: ActionArgs) => React.ReactNode;
     onClose: () => void;
     loading?: boolean;
+    maxWidth?: Breakpoint | false;
 }>;
 
 const progressHeight = 3;
@@ -67,6 +69,7 @@ export default function AppDialog({
                                       actions,
                                       loading,
                                       onClose,
+                                      maxWidth = 'md',
                                   }: Props) {
     const [open, setOpen] = React.useState(true);
 
@@ -79,7 +82,7 @@ export default function AppDialog({
         onClose={handleClose}
         open={open}
         fullWidth={true}
-        maxWidth={'md'}
+        maxWidth={maxWidth}
     >
         {title && <AppDialogTitle onClose={handleClose}>
             {title}

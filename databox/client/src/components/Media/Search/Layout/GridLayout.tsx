@@ -1,20 +1,22 @@
-import React from "react";
+import React, {useContext} from "react";
 import {Box, Grid, Typography} from "@mui/material";
 import {LayoutProps, OnSelectAsset, SelectedAssets} from "./Layout";
 import AssetThumb from "../../Asset/AssetThumb";
 import {Asset} from "../../../../types";
+import {DisplayContext} from "../../DisplayContext";
+import {createSizeTransition} from "../../Asset/Thumb";
 
 function AssetItem({
                        asset,
                        selectedAssets,
                        onSelect,
-                       thumbSize,
                    }: {
     asset: Asset;
     onSelect: OnSelectAsset;
     selectedAssets: SelectedAssets;
-    thumbSize: number;
 }) {
+    const {thumbSize} = useContext(DisplayContext);
+
     const isSelected = selectedAssets.includes(asset.id);
     return <Box
         onMouseDown={(e) => onSelect(asset.id, e)}
@@ -24,6 +26,7 @@ function AssetItem({
             boxShadow: isSelected ? theme.shadows[2] : 'none',
             width: thumbSize,
             height: thumbSize + 38,
+            transition: createSizeTransition(theme),
         })}
     >
         <AssetThumb
@@ -47,7 +50,6 @@ function AssetItem({
 
 export default function GridLayout({
                                        assets,
-                                       thumbSize,
                                        selectedAssets,
                                        onSelect,
                                    }: LayoutProps) {
@@ -63,7 +65,6 @@ export default function GridLayout({
                 key={a.id}
             >
                 <AssetItem
-                    thumbSize={thumbSize}
                     asset={a}
                     selectedAssets={selectedAssets}
                     onSelect={onSelect}

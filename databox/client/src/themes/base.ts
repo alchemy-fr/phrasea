@@ -7,6 +7,11 @@ const baseTheme: ThemeOptions = {
             fontWeight: 600,
         }
     },
+    palette: {
+        common: {
+            white: '#FFF',
+        }
+    }
 }
 
 export default baseTheme;
