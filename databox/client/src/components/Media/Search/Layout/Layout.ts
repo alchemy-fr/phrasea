@@ -8,4 +8,5 @@ export type LayoutProps = {
     assets: Asset[];
     onSelect: OnSelectAsset;
     selectedAssets: SelectedAssets;
+    thumbSize: number;
 }

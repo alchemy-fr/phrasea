@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Collection} from "../../../types";
 import {getCollection, putCollection} from "../../../api/collection";
 import {CollectionForm} from "../../Form/CollectionForm";
-import EditDialog from "../../Dialog/EditDialog";
+import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
@@ -48,7 +48,7 @@ export default function EditCollection({
 
     const formId = 'edit-collection';
 
-    return <EditDialog
+    return <FormDialog
         title={t('form.collection_edit.title', 'Edit collection')}
         formId={formId}
         loading={submitting}
@@ -68,5 +68,5 @@ export default function EditCollection({
                 objectType={'collection'}
             />
         </div> : ''}
-    </EditDialog>
+    </FormDialog>
 }

@@ -1,88 +1,80 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {UploadFiles} from "../../api/file";
-import {Box, Button, TextField} from "@mui/material";
-import {Workspace} from "../../types";
+import React, {useContext, useEffect, useState} from 'react';
+import {Box, Grid} from "@mui/material";
+import {Asset, Workspace} from "../../types";
 import {getWorkspaces} from "../../api/collection";
 import FileCard from "./FileCard";
-import AppDialog from "../Layout/AppDialog";
-import {useForm} from "react-hook-form";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import {mapApiErrors} from "../../lib/form";
-import FormError from "../Form/FormError";
+import {UserContext} from "../Security/UserContext";
+import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import UploadIcon from '@mui/icons-material/Upload';
+import useFormSubmit from "../../hooks/useFormSubmit";
+import FormDialog from "../Dialog/FormDialog";
+import {UploadData, UploadForm} from "./UploadForm";
+import {UploadFiles} from "../../api/file";
 
 type Props = {
-    userId: string;
-    onClose: () => void;
     files: File[];
-}
+    userId: string;
+} & StackedModalProps;
 
-type UploadData = {
-    title: string;
-    destinations: string[];
+type FileWrapper = {
+    id: string;
+    file: File;
 };
 
-export default function UploadModal({userId, files, onClose}: Props) {
+export default function UploadModal({
+                                        files: initFiles,
+    userId,
+}: Props) {
     const {t} = useTranslation();
-    const formRef = useRef<HTMLFormElement>();
-    const [workspaces, setWorkspaces] = useState<Workspace[]>();
-    const [loading, setLoading] = useState(false);
-    const [remoteError, setRemoteError] = useState<string | undefined>();
-    const [data, setData] = useState<UploadData>({
-        title: '',
-        destinations: [],
-    });
+    const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
+        file: f,
+        id: i.toString(),
+    })));
+    const {closeModal} = useModals();
 
     useEffect(() => {
-        getWorkspaces().then(setWorkspaces);
-    }, []);
+        if (files.length === 0) {
+            closeModal();
+        }
+    }, [closeModal, files]);
 
     const {
-        register,
+        submitting,
         handleSubmit,
-        setError,
-        formState: {errors}
-    } = useForm<UploadData>({
-        defaultValues: data,
-    });
-
-    const onSubmit = async (data: UploadData): Promise<void> => {
-        setRemoteError(undefined);
-        setLoading(true);
-        try {
-            await UploadFiles(userId, files, {
+        errors
+    } = useFormSubmit({
+        onSubmit: async (data: UploadData) => {
+            return await UploadFiles(userId, files.map(f => f.file), {
                 destinations: data.destinations!,
             });
-            toast.success(t('form.file_upload.uploaded', 'Files uploaded!'));
-            onClose();
-        } catch (e: any) {
-            mapApiErrors(e, setError);
+        },
+        onSuccess: (item) => {
+            toast.success(t('form.upload.success', 'Files uploaded!'))
+            closeModal();
         }
-    }
+    });
 
-    return <AppDialog
-        loading={loading}
-        onClose={onClose}
-        title={`Upload`}
-        actions={() => <>
-            <Button
-                onClick={onClose}
-                className={'btn-secondary'}
-            >
-                Cancel
-            </Button>
-            <Button
-                onClick={() => formRef.current!.submitForm()}
-                className={'btn-primary'}
-            >
-                Upload
-            </Button>
-        </>}
+    const onFileRemove = (id: string) => {
+        setFiles(p => p.filter(f => f.id !== id));
+    };
+
+    const formId = 'upload';
+
+    return <FormDialog
+        title={t('form.upload.title', 'Upload')}
+        formId={formId}
+        loading={submitting}
+        errors={errors}
+        submitIcon={<UploadIcon/>}
+        submitLabel={t('form.upload.submit.title', 'Upload')}
     >
         <Box
             sx={(theme) => ({
                 display: 'flex',
                 flexWrap: 'wrap',
+                bgcolor: theme.palette.grey[100],
                 justifyContent: 'start',
                 '& > *': {
                     margin: theme.spacing(1),
@@ -90,44 +82,32 @@ export default function UploadModal({userId, files, onClose}: Props) {
                 },
                 maxHeight: 400,
                 overflow: 'auto',
+                m: theme.spacing(-2),
+                mb: 5,
+                p: 0,
+                pb: 2,
             })}
         >
-            {files.map((f, i) => <FileCard
-                key={i}
-                file={f}
-            />)}
+            <Grid
+                spacing={2}
+                container
+                xs
+            >
+                {files.map((f) => <Grid
+                    item
+                    key={f.id}
+                >
+                    <FileCard
+                    file={f.file}
+                    onRemove={() => onFileRemove(f.id)}
+                    />
+                </Grid>)}
+            </Grid>
         </Box>
-        {workspaces && <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-                <TextField
-                    label={t('form.upload_asset.title.label', 'Asset title')}
-                    {...register('title', {
-                        required: true
-                    })}
-                />
-                {errors.title && <FormError>{errors.title.message}</FormError>}
-            </div>
-            {/*<Field*/}
-            {/*    name="destinations"*/}
-            {/*>*/}
-            {/*    {({field, form: {errors, setFieldValue}}: FieldProps) => {*/}
-            {/*        return <FormControl*/}
-            {/*            variant="outlined"*/}
-            {/*        >*/}
-            {/*            <label>*/}
-            {/*                Where?*/}
-            {/*            </label>*/}
-            {/*            <CollectionsTreeView*/}
-            {/*                onChange={(selection) => setFieldValue(field.name, selection)}*/}
-            {/*                workspaces={workspaces}/>*/}
-            {/*            {errors.destinations && <div className="error text-danger">{errors.destinations}</div>}*/}
-            {/*        </FormControl>*/}
-            {/*    }}*/}
-            {/*</Field>*/}
-
-            {(remoteError) && <FormError>
-                {remoteError || ''}
-            </FormError>}
-        </form>}
-    </AppDialog>
+        <UploadForm
+            formId={formId}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+        />
+    </FormDialog>
 }

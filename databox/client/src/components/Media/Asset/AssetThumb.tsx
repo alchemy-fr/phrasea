@@ -1,53 +1,31 @@
 import React, {MouseEvent} from 'react';
 import {Asset} from "../../../types";
-import {Box} from "@mui/material";
-import {Theme} from "@mui/material/styles";
+import Thumb from "./Thumb";
 
 type Props = {
     selected?: boolean;
     displayAttributes: boolean;
     onClick?: (id: string, e: MouseEvent) => void;
+    thumbSize: number;
 } & Asset;
-
-const size = 150;
-
-const assetSx = (theme: Theme) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: size,
-    height: size,
-    backgroundColor: theme.palette.grey[100],
-    'img': {
-        maxWidth: '100%',
-        maxHeight: '100%',
-    }
-});
 
 export default function AssetThumb({
 
-                                      id,
-                                      resolvedTitle,
-                                      titleHighlight,
-                                      description,
-                                      workspace,
-                                      tags,
-                                      original,
-                                      thumbnail,
-                                      thumbnailActive,
-                                      privacy,
-                                      selected,
-                                      collections,
-                                      capabilities,
-                                  }: Props) {
+                                       resolvedTitle,
+                                       thumbSize,
+                                       thumbnail,
+                                       thumbnailActive,
+                                   }: Props) {
 
 
-    return <Box sx={assetSx}>
+    return <Thumb
+        size={thumbSize}
+    >
         {thumbnail && <img src={thumbnail.url} alt={resolvedTitle}/>}
         {thumbnailActive && <img
             src={thumbnailActive.url}
             alt={resolvedTitle}
             className={'ta'}
         />}
-    </Box>
+    </Thumb>
 }

@@ -3,23 +3,25 @@ import {useDropzone} from "react-dropzone";
 import {UserContext} from "../../Security/UserContext";
 import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
+import {useModals} from "@mattjennings/react-modal-stack";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
+    const {openModal} = useModals();
 
-    const [files, setFiles] = useState<File[] | undefined>();
     const onDrop = useCallback((acceptedFiles: File[]) => {
+        console.log('acceptedFiles', acceptedFiles);
         const authenticated = Boolean(userContext.user);
         if (!authenticated) {
             window.alert('You must be authenticated in order to upload new files');
             return;
         }
-        setFiles(acceptedFiles);
-    }, [userContext]);
 
-    const closeUpload = () => {
-        setFiles(undefined)
-    }
+        openModal(UploadModal, {
+            files: acceptedFiles,
+            userId: userContext.user!.id,
+        });
+    }, [userContext]);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         noClick: true,
@@ -27,11 +29,6 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     });
 
     return <div {...getRootProps()}>
-        {files ? <UploadModal
-            files={files}
-            userId={userContext.user!.id}
-            onClose={closeUpload}
-        /> : ''}
         <input {...getInputProps()} />
         {isDragActive && <Backdrop
             sx={(theme) => ({

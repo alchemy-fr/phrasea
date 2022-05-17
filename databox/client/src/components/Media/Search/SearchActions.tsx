@@ -1,16 +1,36 @@
 import React, {useCallback, useContext} from 'react';
-import {Box, Button, ButtonGroup, Checkbox, ToggleButton, ToggleButtonGroup, Tooltip} from "@mui/material";
+import {Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import EditIcon from '@mui/icons-material/Edit';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {ResultContext} from "./ResultContext";
+import {useModals} from "@mattjennings/react-modal-stack";
+import DebugEsModal from "./DebugEsModal";
+import {styled} from "@mui/material/styles";
+
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
+    '& .MuiToggleButtonGroup-grouped': {
+        border: 0,
+        margin: theme.spacing(0.5),
+        '&.Mui-disabled': {
+            border: 0,
+        },
+        '&:not(:first-of-type)': {
+            borderRadius: theme.shape.borderRadius,
+        },
+        '&:first-of-type': {
+            borderRadius: theme.shape.borderRadius,
+        },
+    },
+}));
 
 type Props = {
     layout: number;
@@ -22,21 +42,30 @@ export default function SearchActions({
                                           onLayoutChange
                                       }: Props) {
     const {t} = useTranslation();
+    const {openModal} = useModals();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
 
-    const hasSelection = selectionContext.selectedAssets.length > 0;
-    const allSelected = selectionContext.selectedAssets.length === resultContext.pages.reduce((currentCount, row) => currentCount + row.length, 0);
+    const selectionLength = selectionContext.selectedAssets.length;
+    const hasSelection = selectionLength > 0;
+    const allSelected = hasSelection && selectionLength === resultContext.pages.reduce((currentCount, row) => currentCount + row.length, 0);
 
     const toggleSelectAll = useCallback(() => {
-        console.log('allSelected', allSelected);
+        console.log('hasSelection', hasSelection);
         if (hasSelection) {
             selectionContext.selectAssets([]);
         } else {
-            console.log('resultContext.pages.map(p => p.map(a => a.id)).flat()', resultContext.pages.map(p => p.map(a => a.id)).flat());
             selectionContext.selectAssets(resultContext.pages.map(p => p.map(a => a.id)).flat());
         }
-    }, [selectionContext.selectedAssets, hasSelection]);
+    }, [resultContext.pages, selectionContext.selectedAssets, hasSelection]);
+
+    const openDebug = resultContext.debug ? () => {
+        openModal(DebugEsModal, {
+            debug: resultContext.debug!,
+        });
+    } : undefined;
+
+    const selectAllDisabled = (resultContext.total ?? 0) === 0;
 
     return <Box
         sx={(theme) => ({
@@ -55,13 +84,14 @@ export default function SearchActions({
                 title={hasSelection ? t('asset_actions.unselect_all', 'Unselect all') : t('asset_actions.select_all', 'Select all')}
             >
                 <Button
+                    disabled={selectAllDisabled}
                     variant={'contained'}
                     sx={(theme) => ({
                         '.MuiCheckbox-root': {
                             p: 0,
                             m: 0,
                             color: theme.palette.primary.contrastText,
-                            '&:checked': {
+                            '&.Mui-checked, &.MuiCheckbox-indeterminate': {
                                 m: 0,
                                 color: theme.palette.primary.contrastText,
                             }
@@ -72,28 +102,33 @@ export default function SearchActions({
                     <Checkbox
                         indeterminate={!allSelected && hasSelection}
                         checked={allSelected}
+                        disabled={selectAllDisabled}
                     />
                 </Button>
             </Tooltip>
             <Button
+                disabled={!hasSelection}
                 variant={'contained'}
                 startIcon={<FileDownloadIcon/>}
             >
                 {t('asset_actions.export', 'Export')}
             </Button>
             <Button
+                disabled={!hasSelection}
                 variant={'contained'}
                 startIcon={<EditIcon/>}
             >
                 {t('asset_actions.edit', 'Edit')}
             </Button>
             <Button
+                disabled={!hasSelection}
                 variant={'contained'}
                 startIcon={<ShareIcon/>}
             >
                 {t('asset_actions.share', 'Share')}
             </Button>
             <Button
+                disabled={!hasSelection}
                 color={'error'}
                 variant={'contained'}
                 startIcon={<DeleteIcon/>}
@@ -101,23 +136,59 @@ export default function SearchActions({
                 {t('asset_actions.delete', 'Delete')}
             </Button>
         </Box>
-
-        <ToggleButtonGroup
-            value={layout}
-            exclusive
-            onChange={(e, newValue) => onLayoutChange(newValue)}
+        <Paper
+            elevation={0}
+            sx={{
+                display: 'flex',
+                border: (theme) => `1px solid ${theme.palette.divider}`,
+                borderTop: 0,
+                borderRight: 0,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+            }}
         >
+            <Box sx={{
+                px: 2,
+            }}>
+                {!resultContext.loading && resultContext.total !== undefined ? <>
+                    <b>
+                        {new Intl.NumberFormat('fr-FR', {}).format(resultContext.total)}
+                    </b>
+                    <span
+                        style={{cursor: 'pointer'}}
+                        onClick={openDebug}>
+                                {` result${resultContext.total > 1 ? 's' : ''}`}
+                            </span>
+                </> : 'Loading...'}
+            </Box>
+            <Divider flexItem orientation="vertical" sx={{mx: 0.5, my: 1}}/>
+            <StyledToggleButtonGroup
+                value={layout}
+                exclusive
+                onChange={(e, newValue) => onLayoutChange(newValue)}
+            >
                 <TooltipToggleButton
                     tooltipProps={{title: t('layout.view.grid', 'Grid view')}}
                     value={LAYOUT_GRID}
                 >
-                    <GridViewIcon />
+                    <GridViewIcon/>
                 </TooltipToggleButton>
-                <TooltipToggleButton 
+                <TooltipToggleButton
                     tooltipProps={{title: t('layout.view.list', 'List view')}}
                     value={LAYOUT_LIST}>
-                    <ViewListIcon />
+                    <ViewListIcon/>
                 </TooltipToggleButton>
-        </ToggleButtonGroup>
+            </StyledToggleButtonGroup>
+            <Divider flexItem orientation="vertical" sx={{mx: 0.5, my: 1}}/>
+            <StyledToggleButtonGroup>
+
+                <TooltipToggleButton
+                    tooltipProps={{title: t('layout.options.more', 'More options')}}
+                    value={'d'}
+                >
+                    <ArrowDropDownIcon/>
+                </TooltipToggleButton>
+            </StyledToggleButtonGroup>
+        </Paper>
     </Box>
 }

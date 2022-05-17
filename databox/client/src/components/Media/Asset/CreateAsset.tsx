@@ -1,5 +1,5 @@
 import React from 'react';
-import EditDialog from "../../Dialog/EditDialog";
+import FormDialog from "../../Dialog/FormDialog";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import {Asset} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
@@ -60,7 +60,7 @@ export default function CreateAsset({
             <WorkspaceChip label={workspaceTitle}/>
         </>;
 
-    return <EditDialog
+    return <FormDialog
         title={title}
         formId={formId}
         loading={submitting}
@@ -71,5 +71,5 @@ export default function CreateAsset({
             onSubmit={handleSubmit}
             submitting={submitting}
         />
-    </EditDialog>
+    </FormDialog>
 }

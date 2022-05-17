@@ -173,51 +173,50 @@ export default function CollectionMenuItem({
             sx={{
                 '.c-action': {
                     visibility: 'hidden',
+                    bgcolor: 'inherit',
                 },
                 '&:hover .c-action': {
                     visibility: 'visible',
-                }
+                },
             }}
             secondaryAction={<>
-                {capabilities.canEdit && <IconButton
-                    className={'c-action'}
-                    title={'Add new asset to collection'}
-                    onClick={() => openModal(CreateAsset, {
-                        collectionId: id,
-                        workspaceTitle: workspace.name,
-                        titlePath: (titlePath ?? []).concat(title),
-                    })}
-                    aria-label="create-asset">
-                    <AddPhotoAlternateIcon/>
-                </IconButton>}
-                {capabilities.canEdit && <IconButton
-                    className={'c-action'}
-                    title={'Create new collection in this one'}
-                    onClick={() => openModal(CreateCollection, {
-                        parent: iri,
-                        workspaceTitle: workspace.name,
-                        titlePath: (titlePath ?? []).concat(title),
-                        onCreate: onCollectionCreate,
-                    })}
-                    aria-label="add-child">
-                    <CreateNewFolderIcon/>
-                </IconButton>}
-                {capabilities.canEdit && <IconButton
-                    title={'Edit this collection'}
-                    onClick={() => openModal(EditCollection, {
-                        id,
-                        onEdit: onCollectionEdit,
-                    })}
-                    className={'c-action'}
-                    aria-label="edit">
-                    <EditIcon/>
-                </IconButton>}
-                {capabilities.canDelete && <IconButton
-                    onClick={onDelete}
-                    className={'c-action'}
-                    aria-label="delete">
-                    <DeleteIcon/>
-                </IconButton>}
+                <span className="c-action">
+                    {capabilities.canEdit && <IconButton
+                        title={'Add new asset to collection'}
+                        onClick={() => openModal(CreateAsset, {
+                            collectionId: id,
+                            workspaceTitle: workspace.name,
+                            titlePath: (titlePath ?? []).concat(title),
+                        })}
+                        aria-label="create-asset">
+                        <AddPhotoAlternateIcon/>
+                    </IconButton>}
+                    {capabilities.canEdit && <IconButton
+                        title={'Create new collection in this one'}
+                        onClick={() => openModal(CreateCollection, {
+                            parent: iri,
+                            workspaceTitle: workspace.name,
+                            titlePath: (titlePath ?? []).concat(title),
+                            onCreate: onCollectionCreate,
+                        })}
+                        aria-label="add-child">
+                        <CreateNewFolderIcon/>
+                    </IconButton>}
+                    {capabilities.canEdit && <IconButton
+                        title={'Edit this collection'}
+                        onClick={() => openModal(EditCollection, {
+                            id,
+                            onEdit: onCollectionEdit,
+                        })}
+                        aria-label="edit">
+                        <EditIcon/>
+                    </IconButton>}
+                    {capabilities.canDelete && <IconButton
+                        onClick={onDelete}
+                        aria-label="delete">
+                        <DeleteIcon/>
+                    </IconButton>}
+                </span>
                 <IconButton
                     style={{
                         visibility: childCount > 0 ? 'visible' : 'hidden'

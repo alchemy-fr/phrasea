@@ -12,13 +12,17 @@ type Props<T extends object> = PropsWithChildren<{
     formId?: string;
     onSave?: () => void;
     errors?: ReactNode[];
+    submitLabel?: ReactNode;
+    submitIcon?: ReactNode;
 }>;
 
-export default function EditDialog<T extends object>({
+export default function FormDialog<T extends object>({
                                                          title,
                                                          formId,
                                                          onSave,
                                                          errors,
+                                                         submitLabel,
+                                                         submitIcon,
                                                          loading,
                                                          children,
                                                      }: Props<T>) {
@@ -35,17 +39,17 @@ export default function EditDialog<T extends object>({
                 color={'warning'}
                 disabled={loading}
             >
-                {t('dialog.dismiss', 'Dismiss')}
+                {t('dialog.cancel', 'Cancel')}
             </Button>
             <Button
-                startIcon={<SaveIcon />}
+                startIcon={submitIcon || <SaveIcon />}
                 type={formId ? 'submit' : 'button'}
                 form={formId}
                 onClick={onSave}
                 color={'primary'}
                 disabled={loading}
             >
-                {t('dialog.save', 'Save')}
+                {submitLabel || t('dialog.save', 'Save')}
             </Button>
         </>}
     >

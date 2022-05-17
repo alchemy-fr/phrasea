@@ -1,14 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import {Collection, Workspace} from "../../../types";
-import {getCollection} from "../../../api/collection";
+import {getCollection, getWorkspaces} from "../../../api/collection";
 import {TreeView} from "@mui/lab";
+import {CircularProgress} from "@mui/material";
 
 type Props = {
-    workspaces: Workspace[];
-    onChange?: (selection: string[]) => void
+    onChange?: (selection: string[]) => void;
+    value?: string[];
 }
 
 type CollectionTreeProps = {
@@ -44,9 +45,19 @@ function CollectionTree({collection, depth = 0}: CollectionTreeProps) {
     </TreeItem>
 }
 
-export function CollectionsTreeView({workspaces, onChange}: Props) {
+export function CollectionsTreeView({
+                                        onChange,
+                                        value,
+}: Props) {
+    const [workspaces, setWorkspaces] = useState<Workspace[]>();
+
+    useEffect(() => {
+        getWorkspaces().then(setWorkspaces);
+    }, []);
+
+
     const [expanded, setExpanded] = React.useState<string[]>([]);
-    const [selected, setSelected] = React.useState<string[]>([]);
+    const [selected, setSelected] = React.useState<string[]>(value ?? []);
 
     const handleToggle = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
         setExpanded(nodeIds);
@@ -56,6 +67,12 @@ export function CollectionsTreeView({workspaces, onChange}: Props) {
         setSelected(nodeIds);
         onChange && onChange(nodeIds);
     };
+
+    if (!workspaces) {
+        return <CircularProgress
+            size={50}
+        />
+    }
 
     return <TreeView
         sx={{

@@ -18,7 +18,10 @@ const fourTheme: ThemeOptions = {
         common: {
             white: '#FFF',
         }
-    }
+    },
+    shape: {
+        borderRadius: 20,
+    },
 };
 
 export default fourTheme;

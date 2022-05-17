@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Workspace} from "../../../types";
 import {putWorkspace} from "../../../api/collection";
-import EditDialog from "../../Dialog/EditDialog";
+import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
@@ -51,7 +51,7 @@ export default function EditWorkspace({
 
     const formId = 'edit-ws';
 
-    return <EditDialog
+    return <FormDialog
         title={t('form.workspace_edit.title', 'Edit workspace')}
         formId={formId}
         loading={submitting}
@@ -63,5 +63,5 @@ export default function EditWorkspace({
             onSubmit={handleSubmit}
             submitting={submitting}
         />
-    </EditDialog>
+    </FormDialog>
 }

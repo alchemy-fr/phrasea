@@ -60,7 +60,6 @@ type State = {
     total?: number;
     next?: string | null;
     loadNext?: string;
-    inc: number;
     debug?: ESDebug;
 };
 
@@ -72,7 +71,6 @@ export default function ResultProvider({children}: Props) {
     const [state, setState] = useState<State>({
         pages: [],
         loading: false,
-        inc: 0,
     });
 
     const setLoading = (loading: boolean) => setState((prev) => ({
@@ -94,7 +92,6 @@ export default function ResultProvider({children}: Props) {
                     total: r.total,
                     loading: false,
                     facets: r.facets,
-                    inc: 0,
                     debug: r.debug,
                 }
             });

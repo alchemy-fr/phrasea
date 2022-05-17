@@ -3,6 +3,7 @@ import ListLayout from "./Layout/ListLayout";
 import React, {MouseEvent} from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
+import {LayoutProps} from "./Layout/Layout";
 
 export const LAYOUT_GRID = 0;
 export const LAYOUT_LIST = 1;
@@ -12,11 +13,13 @@ type Props = {
     layout: number;
     selectedAssets: string[];
     onSelect: (id: string, e: MouseEvent) => void;
+    thumbSize: number;
 };
 
 export default React.memo(function Pager({
                                              pages,
                                              layout,
+                                             thumbSize,
                                              selectedAssets,
                                              onSelect,
                                          }: Props) {
@@ -28,31 +31,26 @@ export default React.memo(function Pager({
                     position: 'relative',
                     width: '100%',
                     p: 3,
-                    '&:first-child': {
+                    '&:first-of-type': {
                         borderTop: 0,
-                        '> div:first-child': {
-                            display: 'none',
-                        }
+                        pt: 2,
                     }
                 }}
             >
-                <Box sx={{
+                {i > 0 && <Box sx={{
                     position: 'absolute',
                     top: -12,
                     left: 10,
                     fontWeight: 700,
                     padding: `2px 10px`,
                     backgroundColor: 'inherit',
-                }}># {i + 1}</Box>
-                {layout === LAYOUT_GRID ? <GridLayout
-                    assets={assets}
-                    onSelect={onSelect}
-                    selectedAssets={selectedAssets}
-                /> : <ListLayout
-                    assets={assets}
-                    onSelect={onSelect}
-                    selectedAssets={selectedAssets}
-                />}
+                }}># {i + 1}</Box>}
+                {React.createElement(layout === LAYOUT_GRID ? GridLayout : ListLayout, {
+                    assets,
+                    thumbSize,
+                    onSelect,
+                    selectedAssets,
+                })}
             </Box>
         })}
     </div>

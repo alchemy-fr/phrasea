@@ -58,6 +58,7 @@ export default function AssetResults() {
     const resultContext = useContext(ResultContext);
 
     const [layout, setLayout] = useState(LAYOUT_GRID);
+    const [thumbSize, setThumbSize] = useState(200);
     const [debugOpen, setDebugOpen] = useState(false);
 
     const onSelect = useCallback((id: string, e: MouseEvent): void => {
@@ -67,7 +68,7 @@ export default function AssetResults() {
         // eslint-disable-next-line
     }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
 
-    const {loading, total, pages, loadMore, debug} = resultContext;
+    const {loading, pages, loadMore} = resultContext;
 
     return <div style={{
         position: 'relative',
@@ -91,6 +92,7 @@ export default function AssetResults() {
                 <div>
                     <Pager
                         pages={pages}
+                        thumbSize={thumbSize}
                         layout={layout}
                         selectedAssets={assetSelection.selectedAssets}
                         onSelect={onSelect}

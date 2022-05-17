@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Asset, Collection} from "../../../types";
 import {getCollection, putCollection} from "../../../api/collection";
 import {CollectionForm} from "../../Form/CollectionForm";
-import EditDialog from "../../Dialog/EditDialog";
+import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
@@ -49,7 +49,7 @@ export default function EditAsset({
 
     const formId = 'edit-asset';
 
-    return <EditDialog
+    return <FormDialog
         title={t('form.asset_edit.title', 'Edit asset')}
         formId={formId}
         loading={submitting}
@@ -61,7 +61,7 @@ export default function EditAsset({
             onSubmit={handleSubmit}
             submitting={submitting}
         />
-    </EditDialog>
+    </FormDialog>
 
     // return <FormDrawer
     //     id={id}

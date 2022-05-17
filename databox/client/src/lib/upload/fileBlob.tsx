@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import Thumb from "../../components/Media/Asset/Thumb";
 
 export function fileToDataUri(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -12,14 +13,12 @@ export function fileToDataUri(file: File): Promise<string> {
 
 type Props = {
     file: File;
-    width: number | string;
-    height?: number | string;
+    size: number;
 }
 
 export function FileBlobThumb({
                                   file,
-                                  width,
-                                  height
+                                  size,
                               }: Props) {
 
     const [dataUri, setDataUri] = useState<string>();
@@ -28,26 +27,15 @@ export function FileBlobThumb({
         fileToDataUri(file).then(setDataUri);
     }, [file]);
 
-    height = height === undefined ? width : height;
-
-    if (!dataUri) {
-        return <div
+    return <Thumb
+        size={size}
+    >
+        {dataUri && <img
             style={{
-                backgroundColor: '#CCC',
-                width,
-                height,
+                objectFit: "contain",
             }}
-        />
-    }
-
-    return <img
-        style={{
-            backgroundColor: '#EEE',
-            objectFit: "contain",
-        }}
-        src={dataUri}
-        width={width}
-        height={height}
-        alt={file.name}
-    />
+            src={dataUri}
+            alt={file.name}
+        />}
+    </Thumb>
 }

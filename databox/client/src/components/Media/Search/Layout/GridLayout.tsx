@@ -1,5 +1,5 @@
 import React from "react";
-import {Box, Grid} from "@mui/material";
+import {Box, Grid, Typography} from "@mui/material";
 import {LayoutProps, OnSelectAsset, SelectedAssets} from "./Layout";
 import AssetThumb from "../../Asset/AssetThumb";
 import {Asset} from "../../../../types";
@@ -8,10 +8,12 @@ function AssetItem({
                        asset,
                        selectedAssets,
                        onSelect,
+                       thumbSize,
                    }: {
     asset: Asset;
     onSelect: OnSelectAsset;
     selectedAssets: SelectedAssets;
+    thumbSize: number;
 }) {
     const isSelected = selectedAssets.includes(asset.id);
     return <Box
@@ -20,10 +22,13 @@ function AssetItem({
             backgroundColor: isSelected ? theme.palette.primary.main : 'transparent',
             color: isSelected ? theme.palette.primary.contrastText : undefined,
             boxShadow: isSelected ? theme.shadows[2] : 'none',
+            width: thumbSize,
+            height: thumbSize + 38,
         })}
     >
         <AssetThumb
             {...asset}
+            thumbSize={thumbSize}
             displayAttributes={true}
             selected={selectedAssets.includes(asset.id)}
             onClick={onSelect}
@@ -31,6 +36,9 @@ function AssetItem({
         <Box sx={{
             fontSize: 14,
             p: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
         }}>
             {asset.resolvedTitle}
         </Box>
@@ -39,6 +47,7 @@ function AssetItem({
 
 export default function GridLayout({
                                        assets,
+                                       thumbSize,
                                        selectedAssets,
                                        onSelect,
                                    }: LayoutProps) {
@@ -52,9 +61,9 @@ export default function GridLayout({
             return <Grid
                 item
                 key={a.id}
-
             >
                 <AssetItem
+                    thumbSize={thumbSize}
                     asset={a}
                     selectedAssets={selectedAssets}
                     onSelect={onSelect}

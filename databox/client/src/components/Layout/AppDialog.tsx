@@ -19,12 +19,11 @@ const BootstrapDialog = styled(Dialog)(({theme}) => ({
 }));
 
 export interface DialogTitleProps {
-    id: string;
     children?: React.ReactNode;
     onClose: () => void;
 }
 
-const BootstrapDialogTitle = (props: DialogTitleProps) => {
+const AppDialogTitle = (props: DialogTitleProps) => {
     const {children, onClose, ...other} = props;
 
     return (
@@ -78,17 +77,15 @@ export default function AppDialog({
 
     return <BootstrapDialog
         onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
         open={open}
         fullWidth={true}
         maxWidth={'md'}
     >
-        {title && <BootstrapDialogTitle id="dialog-title" onClose={handleClose}>
+        {title && <AppDialogTitle onClose={handleClose}>
             {title}
-        </BootstrapDialogTitle>}
+        </AppDialogTitle>}
         <DialogContent dividers>
             {children}
-
         </DialogContent>
         {loading && <LinearProgress
             style={{

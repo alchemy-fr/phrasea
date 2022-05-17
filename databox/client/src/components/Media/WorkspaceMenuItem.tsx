@@ -131,7 +131,10 @@ export default function WorkspaceMenuItem({
                     },
                     '&:hover .c-action': {
                         visibility: 'visible',
-                    }
+                    },
+                    '.MuiListItemSecondaryAction-root': {
+                        zIndex: 1,
+                    },
                 }}
                 secondaryAction={<>
                     {capabilities.canEdit && <IconButton
