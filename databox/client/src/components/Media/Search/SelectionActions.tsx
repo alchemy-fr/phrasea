@@ -1,4 +1,4 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
@@ -16,6 +16,9 @@ import DebugEsModal from "./DebugEsModal";
 import {styled} from "@mui/material/styles";
 import DeleteAssetsConfirm from "../Asset/Actions/DeleteAssetsConfirm";
 import DisplayOptionsMenu from "./DisplayOptionsMenu";
+import {Asset} from "../../../types";
+import {LoadingButton} from "@mui/lab";
+import ExportAssetsDialog from "../Asset/Actions/ExportAssetsDialog";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -37,6 +40,18 @@ type Props = {
     layout: number;
     onLayoutChange: (l: number) => void;
 };
+
+function getAsset(pages: Asset[][], id: string): Asset {
+    for (let i = 0; i < pages.length; i++) {
+        const p = pages[i];
+        const a = p.find(a => a.id === id);
+        if (a) {
+            return a;
+        }
+    }
+
+    throw new Error(`Undefined asset ${id}`);
+}
 
 export default function SelectionActions({
                                              layout,
@@ -74,6 +89,39 @@ export default function SelectionActions({
             }
         });
     };
+
+    const {
+        canDownload,
+        canDelete,
+        canEdit,
+    } = useMemo(() => {
+        let canDownload = false;
+        let canDelete = false;
+        let canEdit = false;
+        selectionContext.selectedAssets.map(id => getAsset(resultContext.pages, id)).forEach(a => {
+            if (a?.original?.url) {
+                canDownload = true;
+            }
+            if (a?.capabilities.canDelete) {
+                canDelete = true;
+            }
+            if (a?.capabilities.canEdit) {
+                canEdit = true;
+            }
+        });
+
+        return {
+            canDownload,
+            canDelete,
+            canEdit,
+        };
+    }, [selectionContext.selectedAssets]);
+
+    const download = canDownload ? () => {
+        openModal(ExportAssetsDialog, {
+            assets: selectionContext.selectedAssets.map(id => getAsset(resultContext.pages, id)),
+        })
+    } : undefined;
 
     const selectAllDisabled = (resultContext.total ?? 0) === 0;
 
@@ -116,15 +164,16 @@ export default function SelectionActions({
                     />
                 </Button>
             </Tooltip>
-            <Button
-                disabled={!hasSelection}
+            <LoadingButton
+                disabled={!canDownload}
                 variant={'contained'}
+                onClick={download}
                 startIcon={<FileDownloadIcon/>}
             >
                 {t('asset_actions.export', 'Export')}
-            </Button>
+            </LoadingButton>
             <Button
-                disabled={!hasSelection}
+                disabled={!canEdit}
                 variant={'contained'}
                 startIcon={<EditIcon/>}
             >
@@ -138,7 +187,7 @@ export default function SelectionActions({
                 {t('asset_actions.share', 'Share')}
             </Button>
             <Button
-                disabled={!hasSelection}
+                disabled={!canDelete}
                 color={'error'}
                 onClick={onDelete}
                 variant={'contained'}

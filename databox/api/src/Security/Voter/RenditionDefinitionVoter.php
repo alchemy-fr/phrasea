@@ -6,21 +6,20 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\RenditionClass;
+use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class RenditionClassVoter extends AbstractVoter
+class RenditionDefinitionVoter extends AbstractVoter
 {
-    public const READ_ADMIN = 'READ_ADMIN';
-
-    const SCOPE_PREFIX = 'ROLE_RENDITION-CLASS:';
+    const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
 
     protected function supports(string $attribute, $subject)
     {
-        return $subject instanceof RenditionClass;
+        return $subject instanceof RenditionDefinition;
     }
 
     /**
-     * @param RenditionClass $subject
+     * @param RenditionDefinition $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
@@ -38,8 +37,6 @@ class RenditionClassVoter extends AbstractVoter
                 return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT');
             case self::DELETE:
                 return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE');
-            case self::READ_ADMIN:
-                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'READ');
             case self::READ:
                 return true;
         }

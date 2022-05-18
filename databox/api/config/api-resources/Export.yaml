@@ -1,0 +1,20 @@
+resources:
+  App\Model\Export:
+    shortName: export
+    attributes:
+      normalization_context:
+        groups:
+          - 'export:output'
+      denormalization_context:
+        groups:
+          - 'export:input'
+    itemOperations:
+      get: ~
+    collectionOperations:
+      post:
+        validate: false
+        read: true
+        attributes:
+          _api_receive: true
+        path: /export
+        controller: App\Controller\Core\ExportAction

@@ -129,3 +129,14 @@ App\Entity\Core\Tag:
           - workspace
           - name
         errorPath: name
+
+App\Model\Export:
+  properties:
+    assets:
+      - NotNull: ~
+      - Count:
+          min: 1
+    renditions:
+      - NotNull: ~
+      - Count:
+          min: 1

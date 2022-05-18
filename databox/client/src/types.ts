@@ -57,12 +57,20 @@ export interface AttributeDefinition extends IPermissions {
     searchBoost: number;
 }
 
+export interface RenditionDefinition extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    workspace: Workspace;
+}
+
+export type TPermission = {
+    canEdit: boolean,
+    canDelete: boolean,
+    canEditPermissions: boolean,
+}
+
 export interface IPermissions extends ApiHydraObjectResponse {
-    capabilities: {
-        canEdit: boolean,
-        canDelete: boolean,
-        canEditPermissions: boolean,
-    };
+    capabilities: TPermission;
 }
 
 export interface TagFilterRule extends ApiHydraObjectResponse {

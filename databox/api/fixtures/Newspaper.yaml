@@ -197,6 +197,49 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
+
+App\Entity\Core\File:
+  f_o{1..100}:
+    workspace: '@w_newspaper'
+    type: image/jpeg
+    storage: s3_main
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
+  f_p{1..100}:
+    workspace: '@w_newspaper'
+    type: image/jpeg
+    storage: s3_main
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
+  f_t{1..100}:
+    workspace: '@w_newspaper'
+    type: image/jpeg
+    storage: s3_main
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
+
+App\Entity\Core\AssetRendition:
+  ar_o{1..100}:
+    definition: '@n_rd_original'
+    ready: true
+    file: '@f_o<current()>'
+    asset: '@asset<current()>'
+  ar_p{1..100}:
+    definition: '@n_rd_preview'
+    ready: true
+    file: '@f_p<current()>'
+    asset: '@asset<current()>'
+  ar_t{1..100}:
+    definition: '@n_rd_thumbnail'
+    ready: true
+    file: '@f_t<current()>'
+    asset: '@asset<current()>'
+
+App\Entity\Core\RenditionRule:
+  rr:
+    userType: 0
+    objectType: 0
+    objectId: '@w_newspaper->id'
+    allowed:
+      - '@n_rc_public'
+
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:
     name: '<current()>'

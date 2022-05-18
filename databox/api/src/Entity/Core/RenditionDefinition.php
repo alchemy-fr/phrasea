@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -42,6 +43,7 @@ class RenditionDefinition extends AbstractUuidEntity
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=true)
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     protected ?RenditionClass $class = null;
 
@@ -54,36 +56,42 @@ class RenditionDefinition extends AbstractUuidEntity
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsOriginal = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsPreview = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsThumbnail = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="boolean")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsThumbnailActive = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="text")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private ?string $definition = '';
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\Column(type="smallint", nullable=false)
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private int $priority = 0;
 

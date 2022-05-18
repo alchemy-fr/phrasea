@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a76aa34cd9ba40728838ffd6e4fdfbb",
+    "content-hash": "d04b2638bec69e3eee1a1675e3c5c081",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -108,7 +108,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -155,7 +155,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -201,7 +201,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -250,7 +250,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/webhook-bundle",
@@ -8102,16 +8102,16 @@
         },
         {
             "name": "symfony/mime",
-            "version": "v5.4.7",
+            "version": "v5.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
-                "reference": "92d27a34dea2e199fa9b687e3fff3a7d169b7b1c"
+                "reference": "af49bc163ec3272f677bde3bc44c0d766c1fd662"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mime/zipball/92d27a34dea2e199fa9b687e3fff3a7d169b7b1c",
-                "reference": "92d27a34dea2e199fa9b687e3fff3a7d169b7b1c",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/af49bc163ec3272f677bde3bc44c0d766c1fd662",
+                "reference": "af49bc163ec3272f677bde3bc44c0d766c1fd662",
                 "shasum": ""
             },
             "require": {
@@ -8165,7 +8165,7 @@
                 "mime-type"
             ],
             "support": {
-                "source": "https://github.com/symfony/mime/tree/v5.4.7"
+                "source": "https://github.com/symfony/mime/tree/v5.4.8"
             },
             "funding": [
                 {
@@ -8181,7 +8181,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-11T16:08:05+00:00"
+            "time": "2022-04-12T15:48:08+00:00"
         },
         {
             "name": "symfony/monolog-bridge",
@@ -11345,7 +11345,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-430-attribute-batch-update",
+            "version": "dev-PS-397-upgrade-mui",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
@@ -13860,7 +13860,8 @@
     "platform": {
         "php": ">=7.4",
         "ext-ctype": "*",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "ext-json": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

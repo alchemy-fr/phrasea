@@ -15,6 +15,8 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $defaultLocale: '%default_locale%'
+            $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
+            $zippyClient: '@app.zippy_client'
 
     _instanceof:
         Doctrine\Common\EventSubscriber:
@@ -160,3 +162,21 @@ services:
         decorates: 'alchemy_webhook.normalizer.context_builder'
         arguments: [ '@App\Api\Serializer\GroupNormalizerContextBuilder.inner' ]
         autoconfigure: false
+
+    App\Fixture\Faker\ImageUrlFaker:
+        calls:
+            - [setCacheDir, ['%kernel.cache_dir%/fixtures']]
+
+    app.zippy_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                base_uri: '%env(ZIPPY_BASE_URL)%'
+                verify: '%env(bool:VERIFY_SSL)%'
+                headers:
+                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
+                options:
+                    timeout: 10
+                    http_errors: false
+                    headers:
+                        Accept: "application/json"

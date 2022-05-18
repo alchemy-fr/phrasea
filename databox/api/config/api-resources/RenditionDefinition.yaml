@@ -18,8 +18,6 @@ resources:
       patch:
         security: 'is_granted("EDIT", object)'
     collectionOperations:
-      get:
-        # TODO implement with workspace permissions
-        controller: App\Controller\NotFoundAction
+      get: ~
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'
