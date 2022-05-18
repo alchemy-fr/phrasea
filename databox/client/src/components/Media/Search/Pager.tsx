@@ -3,16 +3,19 @@ import ListLayout from "./Layout/ListLayout";
 import React, {MouseEvent} from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
-import {LayoutProps} from "./Layout/Layout";
+import {LayoutProps, TOnContextMenuOpen} from "./Layout/Layout";
 
 export const LAYOUT_GRID = 0;
 export const LAYOUT_LIST = 1;
+
+
 
 type Props = {
     pages: Asset[][];
     layout: number;
     selectedAssets: string[];
     onSelect: (id: string, e: MouseEvent) => void;
+    onContextMenuOpen: TOnContextMenuOpen;
 };
 
 export default React.memo(function Pager({
@@ -20,6 +23,7 @@ export default React.memo(function Pager({
                                              layout,
                                              selectedAssets,
                                              onSelect,
+                                             onContextMenuOpen,
                                          }: Props) {
     return <Box
         sx={{
@@ -54,6 +58,7 @@ export default React.memo(function Pager({
                     assets,
                     onSelect,
                     selectedAssets,
+                    onContextMenuOpen,
                 })}
             </Box>
         })}

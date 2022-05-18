@@ -16,7 +16,6 @@ import {useTranslation} from "react-i18next";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Divider, ListItemIcon, ListItemText} from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
-import {ResultContext} from "../Media/Search/ResultContext";
 import {SearchContext} from "../Media/Search/SearchContext";
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
@@ -58,14 +57,14 @@ export default function MainAppBar() {
                 height: menuHeight,
             }}
             position="static">
-            {changeTheme && <ChangeTheme onClose={() => setChangeTheme(false)} />}
+            {changeTheme && <ChangeTheme onClose={() => setChangeTheme(false)}/>}
             <Container maxWidth={false}>
                 <Toolbar disableGutters
                          variant={'dense'}
                          sx={{
-                    height: menuHeight,
-                    minHeight: 'unset',
-                }}>
+                             height: menuHeight,
+                             minHeight: 'unset',
+                         }}>
                     <Typography
                         variant="h1"
                         noWrap
@@ -78,7 +77,7 @@ export default function MainAppBar() {
                                 xs: 'none', md: 'flex'
                             },
                             cursor: 'pointer',
-                    }}
+                        }}
                     >
                         Databox
                     </Typography>
@@ -126,7 +125,7 @@ export default function MainAppBar() {
                                             height: menuHeight - 8,
                                             bgcolor: 'secondary.main',
                                             color: 'secondary.contrastText'
-                                    }}
+                                        }}
                                         alt={username}
                                         src="/broken-image.jpg"
                                     >

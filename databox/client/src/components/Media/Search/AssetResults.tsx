@@ -1,6 +1,6 @@
 import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
-import {Box, Button, LinearProgress, ListSubheader} from "@mui/material";
+import {Box, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
 import Pager, {LAYOUT_GRID} from "./Pager";
 import SearchBar from "./SearchBar";
@@ -9,6 +9,8 @@ import {Asset} from "../../../types";
 import {useTranslation} from "react-i18next";
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from "@mui/lab";
+import AssetContextMenu from "../Asset/AssetContextMenu";
+import {PopoverPosition} from "@mui/material/Popover/Popover";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -58,6 +60,11 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
+        ref: HTMLElement;
+        asset: Asset;
+        pos: PopoverPosition
+    }>(null);
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LAYOUT_GRID);
 
@@ -70,11 +77,28 @@ export default function AssetResults() {
 
     const {loading, pages, loadMore} = resultContext;
 
+    const onContextMenuOpen = (e: MouseEvent<HTMLElement>, asset: Asset) => {
+        e.preventDefault();
+        setAnchorElMenu({
+            asset,
+            pos: {
+                left: e.clientX + 2,
+                top: e.clientY,
+            },
+            ref: e.currentTarget,
+        });
+    };
+    const onMenuClose = () => {
+        setAnchorElMenu(null);
+    }
+
     return <div style={{
         position: 'relative',
         height: '100%',
     }}>
-        <div style={gridStyle}>
+        <div
+            style={gridStyle}
+        >
             {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
@@ -94,6 +118,7 @@ export default function AssetResults() {
                     layout={layout}
                     selectedAssets={assetSelection.selectedAssets}
                     onSelect={onSelect}
+                    onContextMenuOpen={onContextMenuOpen}
                 />
             </>
             {loadMore ? <Box
@@ -112,6 +137,12 @@ export default function AssetResults() {
                     {loading ? t('load_more.button.loading', 'Loading...') : t('load_more.button.loading', 'Load more')}
                 </LoadingButton>
             </Box> : ''}
+            {anchorElMenu && <AssetContextMenu
+                asset={anchorElMenu.asset}
+                anchorPosition={anchorElMenu.pos}
+                open={Boolean(anchorElMenu)}
+                onClose={onMenuClose}
+            />}
         </div>
     </div>
 }

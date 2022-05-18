@@ -1,5 +1,5 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
+import React, {useCallback, useContext, useMemo} from 'react';
+import {Badge, BadgeProps, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -157,11 +157,16 @@ export default function SelectionActions({
                     })}
                     onClick={toggleSelectAll}
                 >
-                    <Checkbox
-                        indeterminate={!allSelected && hasSelection}
-                        checked={allSelected}
-                        disabled={selectAllDisabled}
-                    />
+                    <Badge
+                        badgeContent={selectionLength}
+                        color="secondary"
+                    >
+                        <Checkbox
+                            indeterminate={!allSelected && hasSelection}
+                            checked={allSelected}
+                            disabled={selectAllDisabled}
+                        />
+                    </Badge>
                 </Button>
             </Tooltip>
             <LoadingButton

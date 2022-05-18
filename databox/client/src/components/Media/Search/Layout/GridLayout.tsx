@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {Box, Grid, Typography} from "@mui/material";
+import {Box, Grid} from "@mui/material";
 import {LayoutProps, OnSelectAsset, SelectedAssets} from "./Layout";
 import AssetThumb from "../../Asset/AssetThumb";
 import {Asset} from "../../../../types";
@@ -52,6 +52,7 @@ export default function GridLayout({
                                        assets,
                                        selectedAssets,
                                        onSelect,
+    onContextMenuOpen,
                                    }: LayoutProps) {
 
     return <Grid
@@ -63,6 +64,9 @@ export default function GridLayout({
             return <Grid
                 item
                 key={a.id}
+                onContextMenu={(e) => {
+                    onContextMenuOpen(e, a);
+                }}
             >
                 <AssetItem
                     asset={a}
