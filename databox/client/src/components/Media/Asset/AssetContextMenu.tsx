@@ -1,12 +1,17 @@
-import React from 'react';
-import {ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
+import React, {useContext} from 'react';
+import {Divider, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {Asset} from "../../../types";
-import {PopoverProps} from "@mui/material/Popover";
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from "@mui/material/Popover/Popover";
+import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
+import {useModals} from "@mattjennings/react-modal-stack";
+import {ResultContext} from "../Search/ResultContext";
+import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
+import EditAsset from "./EditAsset";
+import EditAssetAttributes from "./EditAssetAttributes";
 
 type Props = {
     open: boolean;
@@ -16,15 +21,57 @@ type Props = {
 };
 
 export default function AssetContextMenu({
-                                             asset: {
-                                                 id,
-                                                 original,
-                                                 capabilities,
-                                             },
+                                             asset,
                                              anchorPosition,
                                              open,
                                              onClose,
                                          }: Props) {
+    const {openModal} = useModals();
+    const resultContext = useContext(ResultContext);
+    const {
+        id,
+        original,
+        capabilities,
+    } = asset;
+
+    const onDelete = () => {
+        openModal(DeleteAssetsConfirm, {
+            assetIds: [id],
+            count: 1,
+            onDelete: () => {
+                resultContext.reload();
+            }
+        });
+        onClose();
+    };
+
+    const onDownload = () => {
+        openModal(ExportAssetsDialog, {
+            assets: [asset],
+        });
+        onClose();
+    }
+
+    const onEdit = () => {
+        openModal(EditAsset, {
+            id,
+            onEdit: () => {
+                resultContext.reload();
+            }
+        });
+        onClose();
+    }
+
+    const onEditAttr = () => {
+        openModal(EditAssetAttributes, {
+            asset,
+            onEdit: () => {
+                resultContext.reload();
+            },
+        });
+        onClose();
+    }
+
     return <Menu
         id={`item-menu-${id}`}
         key={`item-menu-${id}`}
@@ -53,7 +100,7 @@ export default function AssetContextMenu({
             </MenuItem>)}
         </>}
         {original?.url && <MenuItem
-            // onClick={this.download}
+            onClick={onDownload}
         >
             <ListItemIcon>
                 <CloudDownloadIcon fontSize="small"/>
@@ -61,7 +108,7 @@ export default function AssetContextMenu({
             <ListItemText primary="Download"/>
         </MenuItem>}
         {capabilities.canEdit && <MenuItem
-            // onClick={this.edit}
+            onClick={onEdit}
         >
             <ListItemIcon>
                 <EditIcon fontSize="small"/>
@@ -69,20 +116,26 @@ export default function AssetContextMenu({
             <ListItemText primary="Edit"/>
         </MenuItem>}
         {capabilities.canEdit && <MenuItem
-            // onClick={this.editAttributes}
+            onClick={onEditAttr}
         >
             <ListItemIcon>
                 <EditIcon fontSize="small"/>
             </ListItemIcon>
             <ListItemText primary="Edit attributes"/>
         </MenuItem>}
-        {capabilities.canDelete && <MenuItem
-            // onClick={this.delete}
+        {capabilities.canDelete && <>
+            <Divider/>
+        <MenuItem
+            onClick={onDelete}
         >
             <ListItemIcon>
-                <DeleteIcon fontSize="small"/>
+                <DeleteIcon
+                    fontSize="small"
+                    color={'error'}
+                />
             </ListItemIcon>
             <ListItemText primary="Delete"/>
-        </MenuItem>}
+        </MenuItem>
+        </>}
     </Menu>
 }

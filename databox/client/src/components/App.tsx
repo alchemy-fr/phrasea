@@ -74,6 +74,7 @@ export default function App() {
                                     height: `calc(100vh - ${menuHeight}px)`,
                                     overflow: 'auto',
                                     boxShadow: theme.shadows[5],
+                                    zIndex: 2,
                                 })}>
                                     <LeftPanel/>
                                 </Box>

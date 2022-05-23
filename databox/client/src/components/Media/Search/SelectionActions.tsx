@@ -246,7 +246,6 @@ export default function SelectionActions({
             </StyledToggleButtonGroup>
             <Divider flexItem orientation="vertical" sx={{mx: 0.5, my: 1}}/>
             <DisplayOptionsMenu/>
-
         </Paper>
     </Box>
 }

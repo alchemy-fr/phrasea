@@ -15,10 +15,12 @@ export default function AssetThumb({
                                        thumbSize,
                                        thumbnail,
                                        thumbnailActive,
+                                       selected,
                                    }: Props) {
 
 
     return <Thumb
+        selected={selected}
         size={thumbSize}
     >
         {thumbnail && <img src={thumbnail.url} alt={resolvedTitle}/>}

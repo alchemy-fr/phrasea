@@ -5,12 +5,13 @@ import {exportAssets} from "../../../../api/export";
 import {Asset, RenditionDefinition} from "../../../../types";
 import {useForm} from "react-hook-form";
 import FormRow from "../../../Form/FormRow";
-import {Checkbox, FormControlLabel} from "@mui/material";
+import {Checkbox, FormControlLabel, Typography} from "@mui/material";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import {getRenditionDefinitions} from "../../../../api/rendition";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import FullPageLoader from "../../../Ui/FullPageLoader";
 
 type Props = {
     assets: Asset[];
@@ -34,6 +35,8 @@ export default function ExportAssetsDialog({
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
     const {closeModal} = useModals();
+
+    const count = assets.length;
 
     useEffect(() => {
         const workspaceIds = assets.map(a => a.workspace.id).filter((value, index, self) => self.indexOf(value) === index);
@@ -98,19 +101,28 @@ export default function ExportAssetsDialog({
 
     const formId = 'export';
 
+    if (!definitions) {
+        return <FullPageLoader/>;
+    }
+
     return <FormDialog
-        title={t('export.dialog.title', 'Export assets')}
+        title={t('export.dialog.title', 'Export {{count}} assets', {
+            count,
+        })}
         loading={loading}
         formId={formId}
         submitIcon={<FileDownloadIcon/>}
         submitLabel={t('export.dialog.submit', 'Export')}
     >
+        <Typography sx={{mb: 3}}>
+            {t('export.dialog.intro', 'Select the renditions you want to export:')}
+        </Typography>
         <form
             id={formId}
             onSubmit={handleSubmit(onSubmit(setError))}
         >
-            {definitions && Object.keys(definitions).map((wId) => {
-                const workspace = definitions[wId];
+            {Object.keys(definitions).map((wId) => {
+                const workspace = definitions![wId];
 
                 return <FormRow key={wId}>
                     <b>{workspace.name}</b>

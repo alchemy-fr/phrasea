@@ -30,6 +30,7 @@ function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseE
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
     }
     if (e.shiftKey && currentSelection.length > 0) {
+        // e.preventDefault();
         let boundaries: [[number, number] | undefined, [number, number] | undefined] = [undefined, undefined];
 
         for (let i = 0; i < pages.length; ++i) {

@@ -1,16 +1,14 @@
 import React, {useCallback, useState} from "react";
-import {Button} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {
-    assetAttributeBatchUpdate,
-    AttributeBatchAction,
-    getAssetAttributes,
-} from "../../../../api/asset";
-import {Attribute, AttributeDefinition} from "../../../../types";
+import {assetAttributeBatchUpdate, AttributeBatchAction, getAssetAttributes,} from "../../../../api/asset";
+import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import {NO_LOCALE} from "../EditAssetAttributes";
 import {toast} from "react-toastify";
 import AppDialog from "../../../Layout/AppDialog";
+import SaveIcon from "@mui/icons-material/Save";
+import {useTranslation} from 'react-i18next';
 
 export type AttrValue<T = string> = {
     id: T;
@@ -22,10 +20,11 @@ export type LocalizedAttributeIndex<T = string> = { [locale: string]: AttrValue<
 export type AttributeIndex<T = string> = { [definitionId: string]: LocalizedAttributeIndex<T> };
 
 type Props = {
-    assetId: string;
+    asset: Asset;
     definitions: DefinitionIndex;
     attributes: AttributeIndex;
     onClose: () => void;
+    onEdit: () => void;
 }
 
 let idInc = 1;
@@ -75,11 +74,13 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
 export type OnChangeHandler = (defId: string, value: LocalizedAttributeIndex<string | number>) => void;
 
 export default function AttributesEditor({
-                                             assetId,
+                                             asset,
                                              definitions,
                                              attributes: initialAttrs,
                                              onClose,
+                                             onEdit,
                                          }: Props) {
+    const {t} = useTranslation();
     const [error, setError] = useState<string>();
     const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
@@ -196,8 +197,8 @@ export default function AttributesEditor({
                 });
             });
 
-            await assetAttributeBatchUpdate(assetId, actions);
-            const res = await getAssetAttributes(assetId);
+            await assetAttributeBatchUpdate(asset.id, actions);
+            const res = await getAssetAttributes(asset.id);
             const attributeIndex = buildAttributeIndex(definitions, res);
 
             setRemoteAttrs(attributeIndex);
@@ -211,6 +212,8 @@ export default function AttributesEditor({
             if (error) {
                 setError(undefined);
             }
+
+            onEdit();
         } catch (e: any) {
             console.error('e', e);
             setSaving(false);
@@ -225,29 +228,36 @@ export default function AttributesEditor({
 
     return <AppDialog
         onClose={onClose}
-        title={`Attributes`}
+        title={t(`form.attributes.title`, `Edit asset attributes : {{title}}`, {
+            title: asset.resolvedTitle,
+        })}
         actions={({onClose}) => <>
-            {error && <div>{error}</div>}
-            <Button
-                variant="contained"
-                disabled={saving || isSame(attributes, remoteAttrs)}
-                onClick={save}
-                color="primary">
-                Save
-            </Button>
             <Button
                 onClick={onClose}
-                className={'btn-secondary'}
+                color={'warning'}
+                disabled={saving}
             >
-                Close
+                {t('dialog.cancel', 'Cancel')}
+            </Button>
+            <Button
+                startIcon={<SaveIcon/>}
+                type={'submit'}
+                onClick={save}
+                color={'primary'}
+                disabled={saving}
+            >
+                {t('dialog.save', 'Save')}
             </Button>
         </>}
     >
         {Object.keys(definitions).map(defId => {
             const d = definitions[defId];
 
-            return <div
+            return <Box
                 key={defId}
+                sx={{
+                    mb: 5
+                }}
             >
                 <AttributeType
                     attributes={attributes[defId]}
@@ -255,8 +265,7 @@ export default function AttributesEditor({
                     definition={d}
                     onChange={onChange}
                 />
-                <hr/>
-            </div>
+            </Box>
         })}
     </AppDialog>
 }

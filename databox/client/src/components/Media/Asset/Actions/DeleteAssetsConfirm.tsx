@@ -26,7 +26,8 @@ export default function DeleteAssetsConfirm({
         title={t('asset.delete.confirm.title', 'Confirm delete')}
         onConfirm={onDeleteAssets}
     >
-        {t('asset.delete.confirm.message', 'Are you sure you want to delete {{count}} assets?', {
+        {count === 1 && t('asset.delete.confirm.message_one', 'Are you sure you want to delete this asset?')}
+        {count > 1 && t('asset.delete.confirm.message_many', 'Are you sure you want to delete {{count}} assets?', {
             count,
         })}
     </ConfirmDialog>

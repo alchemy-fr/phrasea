@@ -1,39 +1,35 @@
-import React, {PureComponent} from "react";
+import React, {useEffect, useState} from 'react';
 import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api/asset";
-import {Attribute, AttributeDefinition} from "../../../types";
-import AttributesEditor, {
-    AttributeIndex,
-    buildAttributeIndex,
-    DefinitionIndex
-} from "./Attribute/AttributesEditor";
-
-type Props = {
-    id: string;
-    workspaceId: string;
-    onClose: () => void;
-};
-
-type State = {
-    attributeIndex?: AttributeIndex;
-    definitionIndex?: DefinitionIndex;
-}
+import {Asset, Attribute, AttributeDefinition} from "../../../types";
+import AttributesEditor, {AttributeIndex, buildAttributeIndex, DefinitionIndex} from "./Attribute/AttributesEditor";
+import FullPageLoader from "../../Ui/FullPageLoader";
+import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
+import {useModals} from "@mattjennings/react-modal-stack";
 
 export const NO_LOCALE = '_';
 
-export default class EditAssetAttributes extends PureComponent<Props, State> {
-    state: State = {};
+type Props = {
+    asset: Asset;
+    onEdit: () => void;
+} & StackedModalProps;
 
-    componentDidMount() {
-        this.loadItem();
-    }
+export default function EditAssetAttributes({
+                                                asset,
+                                                onEdit,
+                                            }: Props) {
+    const {closeModal} = useModals();
+    const [state, setState] = useState<{
+        attributeIndex: AttributeIndex;
+        definitionIndex: DefinitionIndex;
+    }>();
 
-    async loadItem() {
+    const load = async () => {
         const [
             definitions,
             attributes,
         ]: [AttributeDefinition[], Attribute[]] = await Promise.all([
-            getWorkspaceAttributeDefinitions(this.props.workspaceId),
-            getAssetAttributes(this.props.id),
+            getWorkspaceAttributeDefinitions(asset.workspace.id),
+            getAssetAttributes(asset.id),
         ]);
 
         const definitionIndex: DefinitionIndex = {};
@@ -41,22 +37,25 @@ export default class EditAssetAttributes extends PureComponent<Props, State> {
             definitionIndex[ad.id] = ad;
         }
 
-        this.setState({
+        setState({
             definitionIndex,
             attributeIndex: buildAttributeIndex(definitionIndex, attributes),
         });
     }
 
-    render() {
-        if (!this.state.attributeIndex || !this.state.definitionIndex) {
-            return 'Loading';
-        }
+    useEffect(() => {
+        load();
+    }, [asset.id]);
 
-        return <AttributesEditor
-                attributes={this.state.attributeIndex}
-                definitions={this.state.definitionIndex}
-                assetId={this.props.id}
-                onClose={this.props.onClose}
-            />
+    if (!state) {
+        return <FullPageLoader/>
     }
+
+    return <AttributesEditor
+        attributes={state.attributeIndex}
+        definitions={state.definitionIndex}
+        asset={asset}
+        onClose={closeModal}
+        onEdit={onEdit}
+    />
 }

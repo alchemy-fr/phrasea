@@ -19,7 +19,7 @@ export default function TagSelect<TFieldValues extends FieldValues>({
         })).result;
 
         return data.map((t: Tag) => ({
-            value: t.id,
+            value: `/tags/${t.id}`,
             label: t.name,
         })).filter(i =>
             i.label.toLowerCase().includes((inputValue || '').toLowerCase())

@@ -84,11 +84,13 @@ export default class TagFilterRules extends PureComponent<Props, State> {
                     onCancel={this.onCancel}
                 />
             </div>}
-            {!newRule && <div><Button
-                startIcon={<AddIcon/>}
-                color={'primary'}
-                onClick={this.addRule}
-            >New rule</Button></div>}
+            {!newRule && <div>
+                <Button
+                    startIcon={<AddIcon/>}
+                    color={'primary'}
+                    onClick={this.addRule}
+                >New rule</Button>
+            </div>}
             <div>
                 {rules!.map((r: TagFilterRule) => {
                     if (editRule === r.id) {

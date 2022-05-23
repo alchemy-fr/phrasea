@@ -5,6 +5,7 @@ import {AttrValue, LocalizedAttributeIndex, OnChangeHandler} from "./AttributesE
 import MultiAttributeRow from "./MultiAttributeRow";
 import {NO_LOCALE} from "../EditAssetAttributes";
 import {isRtlLocale} from "../../../../lib/lang";
+import FormRow from "../../../Form/FormRow";
 
 type Props = {
     definition: AttributeDefinition;
@@ -37,7 +38,7 @@ export default function AttributeType({
             {definition.locales!.map(locale => {
                 const label = `${definition.name} ${locale.toUpperCase()}`;
 
-                return <div className={'form-group'}>
+                return <FormRow>
                     {definition.multiple ? <MultiAttributeRow
                         disabled={disabled}
                         type={definition.fieldType}
@@ -56,14 +57,12 @@ export default function AttributeType({
                         onChange={(v) => changeHandler(locale, v)}
                         id={definition.id}
                     />}
-                </div>
+                </FormRow>
             })}
         </>
     }
 
-    return <div
-        className={'form-group'}
-    >
+    return <FormRow>
         {definition.multiple ? <MultiAttributeRow
             isRtl={false}
             disabled={disabled}
@@ -82,5 +81,5 @@ export default function AttributeType({
             onChange={(v) => changeHandler(NO_LOCALE, v)}
             id={definition.id}
         />}
-    </div>
+    </FormRow>
 }

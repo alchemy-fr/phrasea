@@ -5,7 +5,7 @@ import {FieldPath} from "react-hook-form/dist/types";
 import AsyncSelect from 'react-select/async';
 import React, {ReactNode, useEffect, useState} from "react";
 import {AsyncProps} from "react-select/dist/declarations/src/useAsync";
-import {CommonProps} from "react-select/dist/declarations/src/types";
+import {useTheme} from "@mui/material";
 
 interface GroupBase<Option> {
     readonly options: readonly Option[];
@@ -53,18 +53,20 @@ function valueToOption<IsMulti extends boolean>(
     return null as CompositeOption<IsMulti>;
 }
 
-export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti extends boolean = false>({
-                                                                                                             control,
-                                                                                                             name,
-    value: initialValue,
-                                                                                                             clearOnSelect,
-                                                                                                             onChange: onChangeProp,
-                                                                                                             loadOptions,
-                                                                                                             disabledValues,
-                                                                                                             isMulti,
-                                                                                                             ...rest
-                                                                                                         }: Props<TFieldValues, IsMulti>) {
+export default function RSelectWidget<TFieldValues extends FieldValues,
+    IsMulti extends boolean = false>({
+                                         control,
+                                         name,
+                                         value: initialValue,
+                                         clearOnSelect,
+                                         onChange: onChangeProp,
+                                         loadOptions,
+                                         disabledValues,
+                                         isMulti,
+                                         ...rest
+                                     }: Props<TFieldValues, IsMulti>) {
     const [value, setValue] = useState(initialValue);
+    const theme = useTheme();
 
     useEffect(() => {
         setValue(initialValue);
@@ -102,6 +104,10 @@ export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti 
                     defaultOptions
                     loadOptions={loadOptionsWrapper}
                     isMulti={isMulti}
+                    menuPortalTarget={document.body}
+                    styles={{
+                        menuPortal: base => ({...base, zIndex: theme.zIndex.tooltip})
+                    }}
                 />
             }}
         />

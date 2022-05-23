@@ -2,6 +2,8 @@ import React, {useCallback, useEffect, useState} from "react";
 import {Button, InputLabel} from "@mui/material";
 import AttributeWidget from "./AttributeWidget";
 import {AttrValue, createNewValue} from "./AttributesEditor";
+import FormRow from "../../../Form/FormRow";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     id: string;
@@ -24,6 +26,7 @@ export default function MultiAttributeRow({
                                               onChange,
                                               type,
                                           }: Props) {
+    const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(initialValues.length > 0 ? initialValues : [createNewValue(type)]);
 
     useEffect(() => {
@@ -64,21 +67,21 @@ export default function MultiAttributeRow({
         });
     }
 
-    return <div
-        className={'form-group'}
-    >
-        <InputLabel>{name}</InputLabel>
+    return <FormRow>
+        <InputLabel
+            sx={{
+                mb: 2
+            }}
+        >{name}</InputLabel>
 
         {values.map((v: AttrValue<string | number>, i: number) => {
             return <div
                 key={v.id}
             >
-                <div
-                    className={'form-group'}
-                    style={{
+                <FormRow
+                    sx={{
                         display: 'flex',
                     }}>
-
                     <AttributeWidget
                         value={v}
                         isRtl={isRtl}
@@ -96,9 +99,9 @@ export default function MultiAttributeRow({
                         disabled={disabled}
                         onClick={() => remove(i)}
                         color="secondary">
-                        Remove
+                        {t('form.attribute.collection.item_remove', 'Remove')}
                     </Button>
-                </div>
+                </FormRow>
             </div>
         })}
 
@@ -109,5 +112,5 @@ export default function MultiAttributeRow({
             color="secondary">
             Add {name}
         </Button>
-    </div>
+    </FormRow>
 }
