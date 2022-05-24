@@ -4,7 +4,6 @@ import Thumb from "./Thumb";
 
 type Props = {
     selected?: boolean;
-    displayAttributes: boolean;
     onClick?: (id: string, e: MouseEvent) => void;
     thumbSize: number;
 } & Asset;

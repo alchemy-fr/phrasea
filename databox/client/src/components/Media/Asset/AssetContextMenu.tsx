@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Divider, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
+import {ClickAwayListener, Divider, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {Asset} from "../../../types";
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
@@ -72,70 +72,78 @@ export default function AssetContextMenu({
         onClose();
     }
 
-    return <Menu
-        id={`item-menu-${id}`}
-        key={`item-menu-${id}`}
-        keepMounted
-        onClose={onClose}
-        open={open}
-        anchorReference="anchorPosition"
-        anchorPosition={anchorPosition}
-        BackdropProps={{
-            invisible: true,
-            onContextMenu: (e) => {
-                e.preventDefault();
-                onClose();
-            },
-        }}
+    return <ClickAwayListener
+        onClickAway={onClose}
+        mouseEvent={'onMouseDown'}
     >
-        {original?.alternateUrls && <>
-            {original.alternateUrls.map(a => <MenuItem
+        <Menu
+            id={`item-menu-${id}`}
+            key={`item-menu-${id}`}
+            keepMounted
+            onClose={onClose}
+            open={open}
+            anchorReference="anchorPosition"
+            anchorPosition={anchorPosition}
+            style={{
+                pointerEvents: 'none',
+            }}
+            MenuListProps={{
+                style: {
+                    pointerEvents: 'auto',
+                },
+            }}
+            BackdropProps={{
+                invisible: true,
+            }}
+        >
+            {original?.alternateUrls && original.alternateUrls.map(a => <MenuItem
                 key={a.type}
-                // onClick={() => this.openUrl(a.url)}
+                // onClick={() => this.openUrl(a.url)} TODO
             >
                 <ListItemIcon>
                     <LinkIcon fontSize="small"/>
                 </ListItemIcon>
                 <ListItemText primary={a.label || a.type}/>
             </MenuItem>)}
-        </>}
-        {original?.url && <MenuItem
-            onClick={onDownload}
-        >
-            <ListItemIcon>
-                <CloudDownloadIcon fontSize="small"/>
-            </ListItemIcon>
-            <ListItemText primary="Download"/>
-        </MenuItem>}
-        {capabilities.canEdit && <MenuItem
-            onClick={onEdit}
-        >
-            <ListItemIcon>
-                <EditIcon fontSize="small"/>
-            </ListItemIcon>
-            <ListItemText primary="Edit"/>
-        </MenuItem>}
-        {capabilities.canEdit && <MenuItem
-            onClick={onEditAttr}
-        >
-            <ListItemIcon>
-                <EditIcon fontSize="small"/>
-            </ListItemIcon>
-            <ListItemText primary="Edit attributes"/>
-        </MenuItem>}
-        {capabilities.canDelete && <>
-            <Divider/>
-        <MenuItem
-            onClick={onDelete}
-        >
-            <ListItemIcon>
-                <DeleteIcon
-                    fontSize="small"
-                    color={'error'}
-                />
-            </ListItemIcon>
-            <ListItemText primary="Delete"/>
-        </MenuItem>
-        </>}
-    </Menu>
+            {original?.url && <MenuItem
+                onClick={onDownload}
+            >
+                <ListItemIcon>
+                    <CloudDownloadIcon fontSize="small"/>
+                </ListItemIcon>
+                <ListItemText primary="Download"/>
+            </MenuItem>}
+            {capabilities.canEdit && <MenuItem
+                onClick={onEdit}
+            >
+                <ListItemIcon>
+                    <EditIcon fontSize="small"/>
+                </ListItemIcon>
+                <ListItemText primary="Edit"/>
+            </MenuItem>}
+            {capabilities.canEdit && <MenuItem
+                onClick={onEditAttr}
+            >
+                <ListItemIcon>
+                    <EditIcon fontSize="small"/>
+                </ListItemIcon>
+                <ListItemText primary="Edit attributes"/>
+            </MenuItem>}
+            {capabilities.canDelete && [
+                <Divider key={'d'}/>,
+                <MenuItem
+                    key={'delete'}
+                    onClick={onDelete}
+                >
+                    <ListItemIcon>
+                        <DeleteIcon
+                            fontSize="small"
+                            color={'error'}
+                        />
+                    </ListItemIcon>
+                    <ListItemText primary="Delete"/>
+                </MenuItem>
+            ]}
+        </Menu>
+    </ClickAwayListener>
 }

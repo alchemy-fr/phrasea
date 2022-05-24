@@ -2,6 +2,7 @@ import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
 import React, {ReactElement, ReactNode, ReactNodeArray} from "react";
 import {isRtlLocale} from "../../../../lib/lang";
+import assetClasses from "../../Search/Layout/classes";
 
 const nl2br = require('react-nl2br');
 
@@ -80,12 +81,15 @@ type Props = {
 export default function Attributes({
                                        asset,
                                    }: Props) {
-    return <div className={'attributes'}>
+    return <>
         <div
-            className={'attr-title'}>{asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}</div>
+            className={assetClasses.title}
+        >
+            {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}
+        </div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}
         />)}
-    </div>
+    </>
 }

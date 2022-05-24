@@ -8,7 +8,7 @@ export default function AssetSelectionProvider({children}: PropsWithChildren<{}>
 
     useEffect(() => {
         setSelectedAssets([]);
-    }, [resultContext.pages]);
+    }, [resultContext.pages[0]]);
 
     return <AssetSelectionContext.Provider value={{
         selectedAssets,

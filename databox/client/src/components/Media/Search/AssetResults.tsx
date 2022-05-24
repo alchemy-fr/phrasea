@@ -1,4 +1,4 @@
-import React, {CSSProperties, MouseEvent, useCallback, useContext, useState} from "react";
+import React, {CSSProperties, MouseEvent, useCallback, useContext, useEffect, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Box, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
@@ -69,10 +69,30 @@ export default function AssetResults() {
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LAYOUT_GRID);
 
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 'a') {
+                e.preventDefault();
+                assetSelection.selectAssets(resultContext.pages.map(p => p.map(a => a.id)).flat());
+            }
+        }
+        window.addEventListener('keydown', handler);
+
+        return () => {
+            window.removeEventListener('keydown', handler);
+        }
+    }, [resultContext.pages]);
+
     const onSelect = useCallback((id: string, e: MouseEvent): void => {
         e.preventDefault();
         const ids = getAssetListFromEvent(assetSelection.selectedAssets, id, e, resultContext.pages);
         assetSelection.selectAssets(ids);
+        // eslint-disable-next-line
+    }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
+
+    const onUnselect = useCallback((id: string, e: MouseEvent): void => {
+        e.preventDefault();
+        assetSelection.selectAssets(assetSelection.selectedAssets.filter(i => i !== id));
         // eslint-disable-next-line
     }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
 
@@ -88,6 +108,7 @@ export default function AssetResults() {
             },
             ref: e.currentTarget,
         });
+        assetSelection.selectAssets([asset.id]);
     };
     const onMenuClose = () => {
         setAnchorElMenu(null);
@@ -119,13 +140,14 @@ export default function AssetResults() {
                     layout={layout}
                     selectedAssets={assetSelection.selectedAssets}
                     onSelect={onSelect}
+                    onUnselect={onUnselect}
                     onContextMenuOpen={onContextMenuOpen}
                 />
             </>
             {loadMore ? <Box
                 sx={{
                     textAlign: 'center',
-                    mb: 4,
+                    my: 4,
                 }}
             >
                 <LoadingButton
