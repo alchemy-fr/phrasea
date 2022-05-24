@@ -27,7 +27,11 @@ export default function DisplayOptionsMenu({}: Props) {
         setThumbSize,
         displayTitle,
         toggleDisplayTitle,
+        displayCollections,
+        toggleDisplayCollections,
         titleRows,
+        collectionsLimit,
+        setCollectionsLimit,
         setTitleRows,
     } = useContext(DisplayContext)!;
 
@@ -126,6 +130,38 @@ export default function DisplayOptionsMenu({}: Props) {
                             })}
                             endAdornment={<InputAdornment position={'end'}>
                                 {t('layout.options.title_rows.label', 'rows')}
+                            </InputAdornment>}
+                            />
+                    </Grid>}
+                </Grid>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={<Switch
+                                    checked={displayCollections}
+                                    onChange={() => toggleDisplayCollections()}
+                                />}
+                                label={t('layout.options.display_collections.label', 'Display collections')}
+                            />
+                        </FormGroup>
+                    </Grid>
+
+                    {displayCollections && <Grid item>
+                        <Input
+                            onChange={(e) => setCollectionsLimit(parseInt(e.target.value))}
+                            value={collectionsLimit}
+                            type={'number'}
+                            inputProps={{
+                                min: 1
+                            }}
+                            sx={theme => ({
+                                input: {
+                                    width: theme.spacing(5)
+                                }
+                            })}
+                            endAdornment={<InputAdornment position={'end'}>
+                                {t('layout.options.collections_count.label', 'collections')}
                             </InputAdornment>}
                             />
                     </Grid>}

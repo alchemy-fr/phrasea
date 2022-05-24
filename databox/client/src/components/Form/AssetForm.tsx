@@ -9,11 +9,14 @@ import FormRow from "./FormRow";
 import {FormProps} from "./types";
 import TagSelect from "../Media/Tag/TagSelect";
 
-export const AssetForm: FC<FormProps<Asset>> = function ({
+export const AssetForm: FC<{
+    workspaceId: string;
+} & FormProps<Asset>> = function ({
                                                              formId,
                                                              data,
                                                              onSubmit,
                                                              submitting,
+    workspaceId,
                                                          }) {
     const {t} = useTranslation();
 
@@ -26,7 +29,7 @@ export const AssetForm: FC<FormProps<Asset>> = function ({
     } = useForm<any>({
         defaultValues: {
             ...data,
-            tags: data!.tags.map(t => t['@id'])
+            tags: data?.tags.map(t => t['@id']) ?? [],
         },
     });
 
@@ -56,7 +59,7 @@ export const AssetForm: FC<FormProps<Asset>> = function ({
                         {t('form.asset.tags.label', 'Tags')}
                     </InputLabel>
                     <TagSelect
-                        workspaceId={data!.workspace.id}
+                        workspaceId={workspaceId}
                         control={control}
                         name={'tags'}
                     />

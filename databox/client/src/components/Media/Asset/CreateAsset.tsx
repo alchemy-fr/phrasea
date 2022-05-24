@@ -12,7 +12,7 @@ import {postAsset} from "../../../api/asset";
 
 type Props = {
     titlePath?: string[];
-    workspaceId?: string;
+    workspaceId: string;
     collectionId?: string;
     workspaceTitle: string;
 } & StackedModalProps;
@@ -70,6 +70,7 @@ export default function CreateAsset({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            workspaceId={workspaceId}
         />
     </FormDialog>
 }

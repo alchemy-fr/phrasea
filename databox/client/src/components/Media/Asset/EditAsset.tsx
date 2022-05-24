@@ -56,6 +56,7 @@ export default function EditAsset({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            workspaceId={data!.workspace.id}
         />
         {data.capabilities.canEditPermissions ? <div>
             <hr/>

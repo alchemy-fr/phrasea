@@ -149,7 +149,9 @@ App\Entity\Core\Asset:
     ownerId: <{user_bob}>
     workspace: '@w_newspaper'
     __calls:
-      - addToCollection: ['@c_*']
+      - addToCollection: ['@c_sport']
+      - addToCollection: ['@c_entertainment_archives_movies']
+      - addToCollection: ['@c_entertainment_archives_series']
       - addTag (80%?): ['@tag_*']
 
   asset{11..20}:

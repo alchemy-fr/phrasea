@@ -186,6 +186,7 @@ export default function CollectionMenuItem({
                         onClick={() => openModal(CreateAsset, {
                             collectionId: id,
                             workspaceTitle: workspace.name,
+                            workspaceId: workspace.id,
                             titlePath: (titlePath ?? []).concat(title),
                         })}
                         aria-label="create-asset">

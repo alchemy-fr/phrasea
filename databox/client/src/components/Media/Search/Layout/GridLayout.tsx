@@ -9,8 +9,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import assetClasses from "./classes";
 import {stopPropagation} from "../../../../lib/stdFuncs";
+import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 
 const lineHeight = 26;
+const collLineHeight = 32;
 
 function AssetItem({
                        asset,
@@ -60,6 +62,12 @@ function AssetItem({
         <div className={assetClasses.title}>
             {asset.resolvedTitle}
         </div>
+        {asset.collections.length > 0 && <div>
+            <AssetCollectionList
+                collections={asset.collections}
+                selected={isSelected}
+            />
+        </div>}
     </div>
 }
 
@@ -71,9 +79,20 @@ export default function GridLayout({
                                        onContextMenuOpen,
                                    }: LayoutProps) {
     const theme = useTheme();
-    const {thumbSize, displayTitle, titleRows} = useContext(DisplayContext)!;
+    const {
+        thumbSize,
+        displayTitle,
+        titleRows,
+        displayCollections,
+        collectionsLimit,
+    } = useContext(DisplayContext)!;
     const spacing = Number(theme.spacing(1).slice(0, -2));
+
     const titleHeight = displayTitle ? spacing * 1.8 + lineHeight * titleRows : 0;
+    let totalHeight = thumbSize + titleHeight;
+    if (displayCollections) {
+        totalHeight += collLineHeight * collectionsLimit;
+    }
 
     return <Grid
         container
@@ -82,7 +101,7 @@ export default function GridLayout({
             p: 2,
             [`.${assetClasses.item}`]: {
                 width: thumbSize,
-                height: thumbSize + titleHeight,
+                height: totalHeight,
                 transition: createSizeTransition(theme),
                 position: 'relative',
                 [`.${assetClasses.settingBtn}`]: {
