@@ -129,10 +129,13 @@ export default function AssetResults() {
                 <ListSubheader
                     component="div"
                     disableGutters={true}
+                    sx={theme => ({
+                        zIndex: theme.zIndex.drawer - 1,
+                    })}
                 >
                     <SelectionActions
                         layout={layout}
-                        onLayoutChange={(l) => setLayout(l)}
+                        onLayoutChange={setLayout}
                     />
                 </ListSubheader>
                 <Pager

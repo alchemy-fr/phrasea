@@ -5,6 +5,7 @@ import AssetFileIcon from "./AssetFileIcon";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../lib/file";
 import VideoPlayer from "./Players/VideoPlayer";
 import {FileWithUrl} from "./Players";
+import assetClasses from "../Search/Layout/classes";
 
 type Props = {
     selected?: boolean;
@@ -16,10 +17,12 @@ function FileThumb({
                        file,
                        title,
                        thumbSize,
+                       className,
                    }: {
     file: File;
     title: string | undefined;
     thumbSize: number;
+    className: string | undefined;
 }) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
@@ -29,15 +32,29 @@ function FileThumb({
 
     switch (mainType) {
         case FileTypeEnum.Image:
-            return <img src={file.url} alt={title}/>
+            return <img
+                src={file.url}
+                className={className}
+                alt={title}
+            />
         case FileTypeEnum.Audio:
         case FileTypeEnum.Video:
-            return <VideoPlayer
-                file={file as FileWithUrl}
-                thumbSize={thumbSize}
-            />
+            return <div
+                className={className}
+            >
+                <VideoPlayer
+                    file={file as FileWithUrl}
+                    thumbSize={thumbSize}
+                />
+            </div>
         default:
-            return <div>
+            return <div
+                className={className}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                }}
+            >
                 Unknown TODO
             </div>
     }
@@ -59,17 +76,17 @@ export default function AssetThumb({
         size={thumbSize}
     >
         {thumbnail && <FileThumb
+            className={thumbnailActive ? assetClasses.thumbInactive : undefined}
             file={thumbnail}
             title={resolvedTitle}
             thumbSize={thumbSize}
         />}
-        {thumbnailActive && <div className={'ta'}>
-            <FileThumb
-                thumbSize={thumbSize}
-                file={thumbnailActive}
-                title={resolvedTitle}
-            />
-        </div>}
+        {thumbnailActive && <FileThumb
+            thumbSize={thumbSize}
+            file={thumbnailActive}
+            title={resolvedTitle}
+            className={assetClasses.thumbActive}
+        />}
         {!thumbnail && original && <AssetFileIcon file={original}/>}
     </Thumb>
 }

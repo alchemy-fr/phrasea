@@ -13,6 +13,7 @@ export function createSizeTransition(theme: Theme) {
 
 const assetSx = (thumbSize: number) => (theme: Theme) => ({
     display: 'flex',
+    overflow: 'hidden',
     alignItems: 'center',
     position: 'relative',
     justifyContent: 'center',
@@ -41,6 +42,7 @@ export default function Thumb({
                 bottom: 0,
                 right: 0,
                 backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                zIndex: 1,
             })}
         />}
         {children}

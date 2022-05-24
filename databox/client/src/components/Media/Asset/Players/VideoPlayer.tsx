@@ -6,7 +6,6 @@ import {DisplayContext} from "../../DisplayContext";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import {getSizeCase} from "../../../../lib/sizeCase";
-import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../../lib/file";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 

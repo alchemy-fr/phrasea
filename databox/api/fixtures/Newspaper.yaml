@@ -215,7 +215,7 @@ App\Entity\Core\File:
     type: image/jpeg
     storage: s3_main
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
-  f_t{81..95}:
+  f_t{81..85}:
     workspace: '@w_newspaper'
     type: application/pdf
     storage: s3_main
@@ -230,7 +230,7 @@ App\Entity\Core\File:
     type: video/mp4
     storage: s3_main
     path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
-  f_ta{1..100}:
+  f_ta{1..80}:
     workspace: '@w_newspaper'
     type: image/jpeg
     storage: s3_main
@@ -252,7 +252,7 @@ App\Entity\Core\AssetRendition:
     ready: true
     file: '@f_t<current()>'
     asset: '@asset<current()>'
-  ar_ta{1..100}:
+  ar_ta{1..80}:
     definition: '@n_rd_thumbnailActive'
     ready: true
     file: '@f_ta<current()>'

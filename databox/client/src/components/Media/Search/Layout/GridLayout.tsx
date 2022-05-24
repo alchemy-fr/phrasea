@@ -115,6 +115,14 @@ export default function GridLayout({
                     transform: `translateY(-10px)`,
                     transition: theme.transitions.create(['opacity', 'transform'], {duration: 300}),
                 },
+                '&:hover': {
+                    [`.${assetClasses.thumbActive}`]: {
+                        display: 'block',
+                    },
+                    [`.${assetClasses.thumbInactive}`]: {
+                        display: 'none',
+                    },
+                },
                 '&:hover, &.selected': {
                     [`.${assetClasses.settingBtn}`]: {
                         opacity: 1,
@@ -128,6 +136,9 @@ export default function GridLayout({
                         color: theme.palette.primary.contrastText,
                     }
                 }
+            },
+            [`.${assetClasses.thumbActive}`]: {
+                display: 'none',
             },
             [`.${assetClasses.title}`]: {
                 fontSize: 14,
