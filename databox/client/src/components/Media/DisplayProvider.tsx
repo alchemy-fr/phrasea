@@ -6,6 +6,7 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
     const [displayTitle, setDisplayTitle] = useState(true);
     const [titleRows, setTitleRows] = useState(1);
     const [displayCollections, setDisplayCollections] = useState(true);
+    const [playVideos, setPlayVideos] = useState(false);
     const [collectionsLimit, setCollectionsLimit] = useState(2);
 
     return <DisplayContext.Provider value={{
@@ -19,6 +20,8 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
         setCollectionsLimit,
         setTitleRows,
         displayCollections,
+        playVideos,
+        togglePlayVideos: () => setPlayVideos(p => !p),
     }}>
         {children}
     </DisplayContext.Provider>

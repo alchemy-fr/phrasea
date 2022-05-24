@@ -59,15 +59,17 @@ function AssetItem({
             selected={selectedAssets.includes(asset.id)}
             onClick={onSelect}
         />
-        <div className={assetClasses.title}>
-            {asset.resolvedTitle}
+        <div className={assetClasses.legend}>
+            <div className={assetClasses.title}>
+                {asset.resolvedTitle}
+            </div>
+            {asset.collections.length > 0 && <div>
+                <AssetCollectionList
+                    collections={asset.collections}
+                    selected={isSelected}
+                />
+            </div>}
         </div>
-        {asset.collections.length > 0 && <div>
-            <AssetCollectionList
-                collections={asset.collections}
-                selected={isSelected}
-            />
-        </div>}
     </div>
 }
 
@@ -122,7 +124,9 @@ export default function GridLayout({
                 '&.selected': {
                     backgroundColor: theme.palette.primary.main,
                     boxShadow: theme.shadows[2],
-                    color: theme.palette.primary.contrastText,
+                    [`.${assetClasses.legend}`]: {
+                        color: theme.palette.primary.contrastText,
+                    }
                 }
             },
             [`.${assetClasses.title}`]: {

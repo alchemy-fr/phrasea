@@ -11,6 +11,8 @@ export type TDisplayContext = {
     setTitleRows: (rows: number) => void;
     thumbSize: number;
     setThumbSize: (size: number) => void;
+    playVideos: boolean;
+    togglePlayVideos: () => void;
 }
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

@@ -33,6 +33,8 @@ export default function DisplayOptionsMenu({}: Props) {
         collectionsLimit,
         setCollectionsLimit,
         setTitleRows,
+        playVideos,
+        togglePlayVideos,
     } = useContext(DisplayContext)!;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -108,7 +110,7 @@ export default function DisplayOptionsMenu({}: Props) {
                             <FormControlLabel
                                 control={<Switch
                                     checked={displayTitle}
-                                    onChange={() => toggleDisplayTitle()}
+                                    onChange={toggleDisplayTitle}
                                 />}
                                 label={t('layout.options.display_title.label', 'Display title')}
                             />
@@ -140,7 +142,7 @@ export default function DisplayOptionsMenu({}: Props) {
                             <FormControlLabel
                                 control={<Switch
                                     checked={displayCollections}
-                                    onChange={() => toggleDisplayCollections()}
+                                    onChange={toggleDisplayCollections}
                                 />}
                                 label={t('layout.options.display_collections.label', 'Display collections')}
                             />
@@ -166,6 +168,17 @@ export default function DisplayOptionsMenu({}: Props) {
                             />
                     </Grid>}
                 </Grid>
+                <div>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={<Switch
+                                checked={playVideos}
+                                onChange={togglePlayVideos}
+                            />}
+                            label={t('layout.options.play_videos.label', 'Play videos')}
+                        />
+                    </FormGroup>
+                </div>
             </Box>
         </Menu>
     </>

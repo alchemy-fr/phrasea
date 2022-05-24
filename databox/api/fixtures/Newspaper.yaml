@@ -199,7 +199,6 @@ App\Entity\Core\Asset:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
 
-
 App\Entity\Core\File:
   f_o{1..100}:
     workspace: '@w_newspaper'
@@ -211,11 +210,31 @@ App\Entity\Core\File:
     type: image/jpeg
     storage: s3_main
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
-  f_t{1..100}:
+  f_t{1..80}:
     workspace: '@w_newspaper'
     type: image/jpeg
     storage: s3_main
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
+  f_t{81..95}:
+    workspace: '@w_newspaper'
+    type: application/pdf
+    storage: s3_main
+    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
+  f_t{86..90}:
+    workspace: '@w_newspaper'
+    type: audio/mp3
+    storage: s3_main
+    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
+  f_t{91..100}:
+    workspace: '@w_newspaper'
+    type: video/mp4
+    storage: s3_main
+    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+  f_ta{1..100}:
+    workspace: '@w_newspaper'
+    type: image/jpeg
+    storage: s3_main
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
 
 App\Entity\Core\AssetRendition:
   ar_o{1..100}:
@@ -232,6 +251,11 @@ App\Entity\Core\AssetRendition:
     definition: '@n_rd_thumbnail'
     ready: true
     file: '@f_t<current()>'
+    asset: '@asset<current()>'
+  ar_ta{1..100}:
+    definition: '@n_rd_thumbnailActive'
+    ready: true
+    file: '@f_ta<current()>'
     asset: '@asset<current()>'
 
 App\Entity\Core\RenditionRule:

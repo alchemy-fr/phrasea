@@ -9,6 +9,7 @@ type AlternateUrl = {
 export interface File {
     id: string;
     url?: string;
+    type: string;
     alternateUrls: AlternateUrl[];
     size: number;
 }
