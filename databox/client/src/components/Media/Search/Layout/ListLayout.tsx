@@ -1,7 +1,6 @@
 import React, {useContext} from "react";
-import {LayoutProps, OnSelectAsset, SelectedAssets, TOnContextMenuOpen} from "./Layout";
+import {LayoutProps, OnSelectAsset, TOnContextMenuOpen} from "./Layout";
 import {Box, Grid, IconButton} from "@mui/material";
-import {alpha} from "@mui/material/styles";
 import AssetThumb from "../../Asset/AssetThumb";
 import {DisplayContext} from "../../DisplayContext";
 import {Asset} from "../../../../types";
@@ -9,24 +8,22 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Attributes from "../../Asset/Attribute/Attributes";
 import assetClasses from "./classes";
 
-function AssetItem({
-                       asset,
-                       selectedAssets,
-                       onSelect,
-                       onContextMenuOpen,
-                       thumbSize,
-                   }: {
+const AssetItem = React.memo(({
+                                  asset,
+                                  selected,
+                                  onSelect,
+                                  onContextMenuOpen,
+                                  thumbSize,
+                              }: {
     asset: Asset;
     onSelect: OnSelectAsset;
-    selectedAssets: SelectedAssets;
+    selected: boolean;
     onContextMenuOpen: TOnContextMenuOpen;
     thumbSize: number;
-}) {
-    const isSelected = selectedAssets.includes(asset.id);
-
+}) => {
     return <div
         onMouseDown={(e) => onSelect(asset.id, e)}
-        className={`${assetClasses.item} ${isSelected ? 'selected' : ''}`}
+        className={`${assetClasses.item} ${selected ? 'selected' : ''}`}
     >
         <Grid
             container
@@ -43,10 +40,9 @@ function AssetItem({
                     />
                 </IconButton>
                 <AssetThumb
-                    {...asset}
+                    asset={asset}
                     thumbSize={thumbSize}
-                    selected={selectedAssets.includes(asset.id)}
-                    onClick={onSelect}
+                    selected={selected}
                 />
             </Grid>
             <Grid item className={assetClasses.attributes}>
@@ -56,14 +52,14 @@ function AssetItem({
             </Grid>
         </Grid>
     </div>
-}
+});
 
 
 export default function ListLayout({
                                        assets,
                                        onSelect,
-                                       selectedAssets,
                                        onContextMenuOpen,
+                                       selectedAssets,
                                    }: LayoutProps) {
     const {thumbSize} = useContext(DisplayContext)!;
 
@@ -102,7 +98,7 @@ export default function ListLayout({
         >
             <AssetItem
                 asset={a}
-                selectedAssets={selectedAssets}
+                selected={selectedAssets.includes(a.id)}
                 onContextMenuOpen={onContextMenuOpen}
                 onSelect={onSelect}
                 thumbSize={thumbSize}

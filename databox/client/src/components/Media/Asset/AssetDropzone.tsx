@@ -10,7 +10,6 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const {openModal} = useModals();
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
-        console.log('acceptedFiles', acceptedFiles);
         const authenticated = Boolean(userContext.user);
         if (!authenticated) {
             window.alert('You must be authenticated in order to upload new files');

@@ -6,7 +6,7 @@ import AudioFileIcon from '@mui/icons-material/AudioFile';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
 import ArticleIcon from '@mui/icons-material/Article';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import {SvgIcon} from "@mui/material";
+import {SvgIcon, SvgIconProps} from "@mui/material";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../lib/file";
 
 function getIconFromType(type: string | undefined): typeof SvgIcon {
@@ -55,13 +55,14 @@ function getIconFromType(type: string | undefined): typeof SvgIcon {
 
 type Props = {
     file: File;
-};
+} & SvgIconProps;
 
 export default function AssetFileIcon({
-                                          file
+                                          file,
+    ...iconProps
                                       }: Props) {
-
     return React.createElement(getIconFromType(file.type), {
         fontSize: 'large',
+        ...iconProps,
     });
 }

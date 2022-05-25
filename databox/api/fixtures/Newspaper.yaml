@@ -11,54 +11,53 @@ App\Entity\Core\Workspace:
     ownerId: super_user
 
 App\Entity\Core\AttributeDefinition:
-  ad_desc:
-    name: Description
+  attribute_definition (template):
     workspace: '@w_newspaper'
-  ad_keywords:
+
+  ad_desc (extends attribute_definition):
+    name: Description
+  ad_keywords (extends attribute_definition):
     name: Keywords
     multiple: true
     facetEnabled: true
-    workspace: '@w_newspaper'
 
 App\Entity\Core\RenditionClass:
-  n_rc_public:
+  rendition_class (template):
     workspace: '@w_newspaper'
+
+  n_rc_public (extends rendition_class):
     name: Public
-  n_rc_restricted:
-    workspace: '@w_newspaper'
+  n_rc_restricted (extends rendition_class):
     name: Restricted
 
 App\Entity\Core\RenditionDefinition:
-  n_rd_original:
-    name: original
+  rendition_definition (template):
     workspace: '@w_newspaper'
+
+  n_rd_original (extends rendition_definition):
+    name: original
     class: '@n_rc_public'
     useAsOriginal: true
-  n_rd_preview:
+  n_rd_preview (extends rendition_definition):
     name: preview
-    workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsPreview: true
-  n_rd_thumbnail:
+  n_rd_thumbnail (extends rendition_definition):
     name: thumbnail
-    workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsThumbnail: true
-  n_rd_preview_mobile:
+  n_rd_preview_mobile (extends rendition_definition):
     name: preview_mobile
-    workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsPreview: true
     priority: 1
-  n_rd_thumbnail_mobile:
+  n_rd_thumbnail_mobile (extends rendition_definition):
     name: thumbnail_mobile
-    workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsThumbnail: true
     priority: 1
-  n_rd_thumbnailActive:
+  n_rd_thumbnailActive (extends rendition_definition):
     name: thumbnailActive
-    workspace: '@w_newspaper'
     class: '@n_rc_public'
     useAsThumbnailActive: true
 
@@ -101,162 +100,133 @@ App\Entity\Core\RenditionDefinition:
 # others
 
 App\Entity\Core\Collection:
-  c_{sport, entertainment}:
+  collection (template):
     workspace: '@w_newspaper'
     ownerId: <{user_admin}>
+
+  c_{sport, entertainment} (extends collection):
     title: '<ucwords($current)>'
 
-  c_sport_{football, rugby, tennis}:
-    workspace: '@w_newspaper'
-    ownerId: <{user_admin}>
+  c_sport_{football, rugby, tennis} (extends collection):
     parent: '@c_sport'
     title: '<ucwords($current)>'
 
-  c_sport_football_{league, worldcup}:
-    workspace: '@w_newspaper'
-    ownerId: <{user_admin}>
+  c_sport_football_{league, worldcup} (extends collection):
     parent: '@c_sport_football'
     title: '<ucwords($current)>'
 
-  c_entertainment_{archives}:
-    workspace: '@w_newspaper'
-    ownerId: <{user_admin}>
+  c_entertainment_{archives} (extends collection):
     parent: '@c_entertainment'
     title: '<ucwords($current)>'
 
-  c_entertainment_{public_videos}:
-    workspace: '@w_newspaper'
+  c_entertainment_{public_videos} (extends collection):
     ownerId: <{user_alice}>
     privacy: 3
     parent: '@c_entertainment'
     title: '<ucwords($current)>'
 
-  c_entertainment_public_videos_{movies, series, shows}:
-    workspace: '@w_newspaper'
+  c_entertainment_public_videos_{movies, series, shows} (extends collection):
     ownerId: <{user_alice}>
     parent: '@c_entertainment_public_videos'
     title: '<ucwords($current)>'
 
-  c_entertainment_archives_{movies, series, shows}:
-    workspace: '@w_newspaper'
+  c_entertainment_archives_{movies, series, shows} (extends collection):
     ownerId: <{user_alice}>
     parent: '@c_entertainment_archives'
     title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
-  asset{1..10}:
-    title: 'Asset #<ucwords($current)>'
-    ownerId: <{user_bob}>
+  asset (template):
     workspace: '@w_newspaper'
-    __calls:
-      - addToCollection: ['@c_sport']
-      - addToCollection: ['@c_entertainment_archives_movies']
-      - addToCollection: ['@c_entertainment_archives_series']
-      - addTag (80%?): ['@tag_*']
-
-  asset{11..20}:
-    title: 'Asset #<ucwords($current)>'
-    ownerId: <{user_bob}>
-    workspace: '@w_newspaper'
-    privacy: 1
+    privacy: '<numberBetween(1, 5)>'
     __calls:
       - addToCollection: ['@c_*']
       - addTag (80%?): ['@tag_*']
+      - addTag (50%?): ['@tag_*']
+      - addToCollection (80%?): ['@c_sport', true]
+      - addToCollection (80%?): ['@c_entertainment_archives_movies', true]
+      - addToCollection (80%?): ['@c_entertainment_archives_series', true]
 
-  asset{21..30}:
-    title: 'Asset #<ucwords($current)>'
+  a_img{1..50} (extends asset):
+    title: 'Image #<ucwords($current)>'
     ownerId: <{user_bob}>
-    workspace: '@w_newspaper'
-    privacy: 2
-    __calls:
-      - addToCollection: ['@c_*']
-      - addTag (80%?): ['@tag_*']
-
-  asset{31..40}:
-    title: 'Asset #<ucwords($current)>'
+  a_audio{1..10} (extends asset):
+    title: 'Audio #<ucwords($current)>'
     ownerId: <{user_bob}>
-    workspace: '@w_newspaper'
-    privacy: 3
-    __calls:
-      - addToCollection: ['@c_*']
-      - addTag (80%?): ['@tag_*']
-
-  asset{41..70}:
-    title: 'Asset #<ucwords($current)>'
-    ownerId: <{user_bob}>
-    workspace: '@w_newspaper'
-    privacy: 4
-    __calls:
-      - addToCollection: ['@c_*']
-      - addTag (80%?): ['@tag_*']
-
-  asset{71..100}:
-    title: 'Asset #<ucwords($current)>'
+  a_video{1..10} (extends asset):
+    title: 'Video #<ucwords($current)>'
+    ownerId: <{user_alice}>
+  a_pdf{1..10} (extends asset):
+    title: 'PDF #<ucwords($current)>'
     ownerId: <{user_jack}>
-    workspace: '@w_newspaper'
-    privacy: 5
-    __calls:
-      - addToCollection: ['@c_*']
-      - addTag (80%?): ['@tag_*']
 
 App\Entity\Core\File:
-  f_o{1..100}:
+  file (template):
     workspace: '@w_newspaper'
-    type: image/jpeg
     storage: s3_main
+    pathPublic: '95%? true : false'
+
+  f_img_o{1..50} (extends file):
+    type: image/jpeg
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
-  f_p{1..100}:
-    workspace: '@w_newspaper'
+  f_img_p{1..50} (extends file):
     type: image/jpeg
-    storage: s3_main
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
-  f_t{1..80}:
-    workspace: '@w_newspaper'
+  f_img_t{1..50} (extends file):
     type: image/jpeg
-    storage: s3_main
     path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
-  f_t{81..85}:
-    workspace: '@w_newspaper'
-    type: application/pdf
-    storage: s3_main
-    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
-  f_t{86..90}:
-    workspace: '@w_newspaper'
-    type: audio/mp3
-    storage: s3_main
-    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
-  f_t{91..100}:
-    workspace: '@w_newspaper'
-    type: video/mp4
-    storage: s3_main
-    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
-  f_ta{1..80}:
-    workspace: '@w_newspaper'
+  f_img_ta{1..10} (extends file):
     type: image/jpeg
-    storage: s3_main
-    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()> + 1, 200)>'
+  f_audio_o{1..10} (extends file):
+    type: audio/mp3
+    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
+  f_video_o{1..10} (extends file):
+    type: video/mp4
+    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+  f_video_p{1..10} (extends file):
+    type: video/mp4
+    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+  f_pdf_o{1..10} (extends file):
+    type: application/pdf
+    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
 
 App\Entity\Core\AssetRendition:
-  ar_o{1..100}:
+  asset_rendition (template):
+    ready: true
+
+  ar_img_o{1..50} (extends asset_rendition):
     definition: '@n_rd_original'
-    ready: true
-    file: '@f_o<current()>'
-    asset: '@asset<current()>'
-  ar_p{1..100}:
+    file: '@f_img_o<current()>'
+    asset: '@a_img<current()>'
+  ar_img_p{1..50} (extends asset_rendition):
     definition: '@n_rd_preview'
-    ready: true
-    file: '@f_p<current()>'
-    asset: '@asset<current()>'
-  ar_t{1..100}:
+    file: '@f_img_p<current()>'
+    asset: '@a_img<current()>'
+  ar_img_t{1..50} (extends asset_rendition):
     definition: '@n_rd_thumbnail'
-    ready: true
-    file: '@f_t<current()>'
-    asset: '@asset<current()>'
-  ar_ta{1..80}:
+    file: '@f_img_t<current()>'
+    asset: '@a_img<current()>'
+  ar_img_ta{1..10} (extends asset_rendition):
     definition: '@n_rd_thumbnailActive'
-    ready: true
-    file: '@f_ta<current()>'
-    asset: '@asset<current()>'
+    file: '@f_img_ta<current()>'
+    asset: '@a_img<current()>'
+  ar_audio_o{1..10} (extends asset_rendition):
+    definition: '@n_rd_original'
+    file: '@f_audio_o<current()>'
+    asset: '@a_audio<current()>'
+  ar_video_o{1..10} (extends asset_rendition):
+    definition: '@n_rd_original'
+    file: '@f_video_o<current()>'
+    asset: '@a_video<current()>'
+  ar_video_p{1..10} (extends asset_rendition):
+    definition: '@n_rd_preview'
+    file: '@f_video_p<current()>'
+    asset: '@a_video<current()>'
+  ar_pdf_o{1..10} (extends asset_rendition):
+    definition: '@n_rd_original'
+    file: '@f_pdf_o<current()>'
+    asset: '@a_pdf<current()>'
 
 App\Entity\Core\RenditionRule:
   rr:

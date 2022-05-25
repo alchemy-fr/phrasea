@@ -41,7 +41,6 @@ export default function ConfirmDialog({
             await onConfirm();
             closeModal();
         } catch (e: any) {
-            console.log('e', e);
             if (e.isAxiosError) {
                 const err = e as AxiosError<any>;
                 if (err.response && [400, 500, 404].includes(err.response.status)) {

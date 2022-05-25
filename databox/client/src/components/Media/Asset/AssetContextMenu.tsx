@@ -14,8 +14,8 @@ import EditAsset from "./EditAsset";
 import EditAssetAttributes from "./EditAssetAttributes";
 
 type Props = {
-    open: boolean;
     anchorPosition: PopoverPosition;
+    anchorEl: HTMLElement | undefined;
     asset: Asset;
     onClose: () => void;
 };
@@ -23,7 +23,7 @@ type Props = {
 export default function AssetContextMenu({
                                              asset,
                                              anchorPosition,
-                                             open,
+                                             anchorEl,
                                              onClose,
                                          }: Props) {
     const {openModal} = useModals();
@@ -81,8 +81,9 @@ export default function AssetContextMenu({
             key={`item-menu-${id}`}
             keepMounted
             onClose={onClose}
-            open={open}
-            anchorReference="anchorPosition"
+            open={true}
+            anchorReference={anchorEl ? 'anchorEl' : 'anchorPosition'}
+            anchorEl={anchorEl}
             anchorPosition={anchorPosition}
             style={{
                 pointerEvents: 'none',

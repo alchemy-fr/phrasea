@@ -58,7 +58,6 @@ export default function FilterRule({
     });
 
     const saveRule = async (data: FilterRule) => {
-        console.log('data', data);
         await saveTagFilterRule({
             ...data,
             include: data.include?.map(id => `/tags/${id}`),

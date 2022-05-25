@@ -5,6 +5,10 @@ const baseTheme: ThemeOptions = {
         h1: {
             fontSize: 24,
             fontWeight: 600,
+        },
+        h2: {
+            fontSize: 19,
+            fontWeight: 600,
         }
     },
     palette: {

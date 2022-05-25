@@ -1,4 +1,4 @@
-import React, {CSSProperties, MouseEvent, useCallback, useContext, useEffect, useState} from "react";
+import React, {CSSProperties, MouseEvent, useCallback, useContext, useEffect, useRef, useState} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Box, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
@@ -11,6 +11,8 @@ import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from "@mui/lab";
 import AssetContextMenu from "../Asset/AssetContextMenu";
 import {PopoverPosition} from "@mui/material/Popover/Popover";
+import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
+import PreviewPopover from "../Asset/PreviewPopover";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -25,12 +27,11 @@ const linearProgressStyle: CSSProperties = {
     top: '0',
 };
 
-function getAssetListFromEvent(currentSelection: string[], id: string, e: MouseEvent, pages: Asset[][]): string[] {
-    if (e.ctrlKey) {
+function getAssetListFromEvent(currentSelection: string[], id: string, pages: Asset[][], e?: React.MouseEvent): string[] {
+    if (e?.ctrlKey) {
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
     }
-    if (e.shiftKey && currentSelection.length > 0) {
-        // e.preventDefault();
+    if (e?.shiftKey && currentSelection.length > 0) {
         let boundaries: [[number, number] | undefined, [number, number] | undefined] = [undefined, undefined];
 
         for (let i = 0; i < pages.length; ++i) {
@@ -62,12 +63,17 @@ export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
-        ref: HTMLElement;
         asset: Asset;
-        pos: PopoverPosition
+        pos: PopoverPosition,
+        anchorEl: HTMLElement | undefined,
+    }>(null);
+    const [previewAnchorEl, setPreviewAnchorEl] = React.useState<null | {
+        asset: Asset;
+        anchorEl: HTMLElement,
     }>(null);
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LAYOUT_GRID);
+    const timer = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
@@ -83,33 +89,61 @@ export default function AssetResults() {
         }
     }, [resultContext.pages]);
 
-    const onSelect = useCallback((id: string, e: MouseEvent): void => {
-        e.preventDefault();
-        const ids = getAssetListFromEvent(assetSelection.selectedAssets, id, e, resultContext.pages);
-        assetSelection.selectAssets(ids);
+    const onSelect = useCallback<OnSelectAsset>((id, e): void => {
+        e?.preventDefault();
+        assetSelection.selectAssets((prev) => {
+            return getAssetListFromEvent(prev, id, resultContext.pages, e)
+        });
         // eslint-disable-next-line
-    }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
+    }, [assetSelection]);
 
-    const onUnselect = useCallback((id: string, e: MouseEvent): void => {
-        e.preventDefault();
-        assetSelection.selectAssets(assetSelection.selectedAssets.filter(i => i !== id));
+    const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
+        e?.preventDefault();
+        assetSelection.selectAssets(p => p.filter(i => i !== id));
         // eslint-disable-next-line
-    }, [assetSelection.selectAssets, assetSelection.selectedAssets]);
+    }, [assetSelection]);
+
+    const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
+        if (timer.current) {
+            clearTimeout(timer.current);
+        }
+        if (!display) {
+            timer.current = setTimeout(() => {
+                setPreviewAnchorEl(null);
+            }, 1000);
+            return;
+        }
+        if (!asset.preview) {
+            return;
+        }
+        setPreviewAnchorEl({
+            asset,
+            anchorEl,
+        });
+        // eslint-disable-next-line
+    }, [setPreviewAnchorEl]);
 
     const {loading, pages, loadMore} = resultContext;
 
-    const onContextMenuOpen = (e: MouseEvent<HTMLElement>, asset: Asset) => {
+    const onContextMenuOpen = useCallback((e: MouseEvent<HTMLElement>, asset: Asset, anchorEl?: HTMLElement) => {
         e.preventDefault();
-        setAnchorElMenu({
-            asset,
-            pos: {
-                left: e.clientX + 2,
-                top: e.clientY,
-            },
-            ref: e.currentTarget,
+        e.stopPropagation();
+        setAnchorElMenu(p => {
+            if (p && p.anchorEl === anchorEl) {
+                return null;
+            }
+
+            return {
+                asset,
+                pos: {
+                    left: e.clientX + 2,
+                    top: e.clientY,
+                },
+                anchorEl,
+            }
         });
-        assetSelection.selectAssets([asset.id]);
-    };
+    }, [setAnchorElMenu]);
+
     const onMenuClose = () => {
         setAnchorElMenu(null);
     }
@@ -145,6 +179,7 @@ export default function AssetResults() {
                     onSelect={onSelect}
                     onUnselect={onUnselect}
                     onContextMenuOpen={onContextMenuOpen}
+                    onPreviewToggle={onPreviewToggle}
                 />
             </>
             {loadMore ? <Box
@@ -166,9 +201,14 @@ export default function AssetResults() {
             {anchorElMenu && <AssetContextMenu
                 asset={anchorElMenu.asset}
                 anchorPosition={anchorElMenu.pos}
-                open={Boolean(anchorElMenu)}
+                anchorEl={anchorElMenu.anchorEl}
                 onClose={onMenuClose}
             />}
+            <PreviewPopover
+                key={previewAnchorEl?.asset.id ?? 'none'}
+                asset={previewAnchorEl?.asset}
+                anchorEl={previewAnchorEl?.anchorEl}
+            />
         </div>
     </div>
 }

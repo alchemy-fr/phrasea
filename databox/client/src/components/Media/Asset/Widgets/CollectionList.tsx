@@ -7,12 +7,10 @@ import {CollectionChip} from "../../../Ui/Chips";
 
 type Props = {
     collections: Collection[];
-    selected: boolean;
 };
 
 export default function AssetCollectionList({
                                                 collections,
-                                                selected,
                                             }: Props) {
     const {collectionsLimit, displayCollections} = useContext(DisplayContext)!;
 
@@ -24,7 +22,6 @@ export default function AssetCollectionList({
         size={'small'}
         key={c.id}
         label={c.title}
-        inverted={selected}
     />
 
     const rest = collections.length - (collectionsLimit - 1);
@@ -33,10 +30,10 @@ export default function AssetCollectionList({
     const chips = collections.length <= collectionsLimit ? collections.slice(0, collectionsLimit).map(r) : [
         collections.slice(0, collectionsLimit - 1).map(r),
         [<CollectionChip
+            key={'o'}
             size={'small'}
             label={others}
             title={collections.slice(collectionsLimit - 1).map(c => c.title).join("\n")}
-            inverted={selected}
         />]
     ].flat();
 

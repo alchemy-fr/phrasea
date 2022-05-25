@@ -1,99 +1,114 @@
-import React, {useContext} from "react";
-import {Grid, IconButton, useTheme} from "@mui/material";
-import {LayoutProps, OnSelectAsset, OnUnselectAsset, SelectedAssets, TOnContextMenuOpen} from "./Layout";
+import React, {MouseEvent, useContext} from "react";
+import {Checkbox, Grid, IconButton, useTheme} from "@mui/material";
+import {
+    LayoutProps,
+    OnPreviewToggle,
+    OnSelectAsset,
+    OnUnselectAsset,
+    SelectedAssets,
+    TOnContextMenuOpen
+} from "./Layout";
 import AssetThumb from "../../Asset/AssetThumb";
 import {Asset} from "../../../../types";
 import {DisplayContext} from "../../DisplayContext";
 import {createSizeTransition} from "../../Asset/Thumb";
 import SettingsIcon from '@mui/icons-material/Settings';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import assetClasses from "./classes";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 import AssetCollectionList from "../../Asset/Widgets/CollectionList";
+import AssetTagList from "../../Asset/Widgets/AssetTagList";
 
 const lineHeight = 26;
 const collLineHeight = 32;
+const tagLineHeight = 32;
 
-function AssetItem({
+const AssetItem = React.memo(({
                        asset,
-                       selectedAssets,
+                          selected,
                        onSelect,
                        onUnselect,
                        onContextMenuOpen,
                        thumbSize,
+                       onPreviewToggle,
                    }: {
     asset: Asset;
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
-    selectedAssets: SelectedAssets;
+    onPreviewToggle: OnPreviewToggle;
+    selected: boolean;
     onContextMenuOpen: TOnContextMenuOpen;
     thumbSize: number;
-}) {
-    const isSelected = selectedAssets.includes(asset.id);
-
+}) => {
     return <div
         onMouseDown={(e) => onSelect(asset.id, e)}
-        className={`${assetClasses.item} ${isSelected ? 'selected' : ''}`}
+        className={`${assetClasses.item} ${selected ? 'selected' : ''}`}
     >
-        {isSelected ? <IconButton
+        <Checkbox
+            className={assetClasses.checkBtb}
+            checked={selected}
+            color={'success'}
+            onMouseDown={stopPropagation}
+            onChange={e => (e.target.checked ? onSelect : onUnselect)(asset.id, {
+                ctrlKey: true,
+                preventDefault() {
+                }
+            } as MouseEvent)}
+        />
+        <IconButton
             className={assetClasses.settingBtn}
             onMouseDown={stopPropagation}
-            onClick={e => onUnselect(asset.id, e)}
-        >
-            <CheckBoxIcon
-                fontSize={'small'}
-                color={'success'}
-            />
-        </IconButton> : <IconButton
-            className={assetClasses.settingBtn}
-            onMouseDown={stopPropagation}
-            onClick={(e) => onContextMenuOpen(e, asset)}
+            onClick={function (e) {
+                onContextMenuOpen(e, asset, e.currentTarget);
+            }}
         >
             <SettingsIcon
                 fontSize={'small'}
             />
-        </IconButton>}
+        </IconButton>
         <AssetThumb
-            {...asset}
+            asset={asset}
+            onMouseOver={(e) => onPreviewToggle(asset, true, e.currentTarget as HTMLElement)}
+            onMouseLeave={(e) => onPreviewToggle(asset, false, e.currentTarget as HTMLElement)}
             thumbSize={thumbSize}
-            selected={selectedAssets.includes(asset.id)}
-            onClick={onSelect}
+            selected={selected}
         />
         <div className={assetClasses.legend}>
             <div className={assetClasses.title}>
                 {asset.resolvedTitle}
             </div>
+            {asset.tags.length > 0 && <div>
+                <AssetTagList
+                    tags={asset.tags}
+                />
+            </div>}
             {asset.collections.length > 0 && <div>
                 <AssetCollectionList
                     collections={asset.collections}
-                    selected={isSelected}
                 />
             </div>}
         </div>
     </div>
-}
+});
 
 export default function GridLayout({
                                        assets,
                                        selectedAssets,
                                        onSelect,
                                        onUnselect,
+                                       onPreviewToggle,
                                        onContextMenuOpen,
                                    }: LayoutProps) {
     const theme = useTheme();
-    const {
-        thumbSize,
-        displayTitle,
-        titleRows,
-        displayCollections,
-        collectionsLimit,
-    } = useContext(DisplayContext)!;
+    const d = useContext(DisplayContext)!;
     const spacing = Number(theme.spacing(1).slice(0, -2));
 
-    const titleHeight = displayTitle ? spacing * 1.8 + lineHeight * titleRows : 0;
-    let totalHeight = thumbSize + titleHeight;
-    if (displayCollections) {
-        totalHeight += collLineHeight * collectionsLimit;
+    const titleHeight = d.displayTitle ? spacing * 1.8 + lineHeight * d.titleRows : 0;
+    let totalHeight = d.thumbSize + titleHeight;
+    if (d.displayCollections) {
+        totalHeight += collLineHeight * d.collectionsLimit;
+    }
+    if (d.displayTags) {
+        totalHeight += tagLineHeight * d.tagsLimit;
     }
 
     return <Grid
@@ -102,18 +117,24 @@ export default function GridLayout({
         sx={(theme) => ({
             p: 2,
             [`.${assetClasses.item}`]: {
-                width: thumbSize,
+                width: d.thumbSize,
                 height: totalHeight,
                 transition: createSizeTransition(theme),
                 position: 'relative',
-                [`.${assetClasses.settingBtn}`]: {
+                [`.${assetClasses.checkBtb}, .${assetClasses.settingBtn}`]: {
                     position: 'absolute',
-                    right: 1,
-                    top: 1,
-                    zIndex: 1,
+                    zIndex: 2,
                     opacity: 0,
                     transform: `translateY(-10px)`,
                     transition: theme.transitions.create(['opacity', 'transform'], {duration: 300}),
+                },
+                [`.${assetClasses.checkBtb}`]: {
+                    left: 1,
+                    top: 1,
+                },
+                [`.${assetClasses.settingBtn}`]: {
+                    right: 1,
+                    top: 1,
                 },
                 '&:hover': {
                     [`.${assetClasses.thumbActive}`]: {
@@ -124,7 +145,7 @@ export default function GridLayout({
                     },
                 },
                 '&:hover, &.selected': {
-                    [`.${assetClasses.settingBtn}`]: {
+                    [`.${assetClasses.checkBtb}, .${assetClasses.settingBtn}`]: {
                         opacity: 1,
                         transform: `translateY(0)`,
                     },
@@ -147,12 +168,12 @@ export default function GridLayout({
                 lineHeight: `${lineHeight}px`,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                ...(titleRows > 1 ? {
-                    display: displayTitle ? '-webkit-box' : 'none',
-                    '-webkit-line-clamp': `${titleRows}`,
+                ...(d.titleRows > 1 ? {
+                    display: d.displayTitle ? '-webkit-box' : 'none',
+                    '-webkit-line-clamp': `${d.titleRows}`,
                     '-webkit-box-orient': 'vertical',
                 } : {
-                    display: displayTitle ? 'block' : 'none',
+                    display: d.displayTitle ? 'block' : 'none',
                     whiteSpace: 'nowrap'
                 }),
             }
@@ -168,11 +189,12 @@ export default function GridLayout({
             >
                 <AssetItem
                     asset={a}
-                    selectedAssets={selectedAssets}
+                    selected={selectedAssets.includes(a.id)}
                     onContextMenuOpen={onContextMenuOpen}
                     onSelect={onSelect}
+                    onPreviewToggle={onPreviewToggle}
                     onUnselect={onUnselect}
-                    thumbSize={thumbSize}
+                    thumbSize={d.thumbSize}
                 />
             </Grid>
         })}

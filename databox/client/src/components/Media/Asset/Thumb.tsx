@@ -1,11 +1,12 @@
-import React, {PropsWithChildren} from 'react';
+import React, {DOMAttributes, HTMLAttributes, MouseEventHandler, PropsWithChildren} from 'react';
 import {Box} from "@mui/material";
 import {alpha, Theme} from "@mui/material/styles";
 
 type Props = PropsWithChildren<{
     size: number;
     selected?: boolean;
-}>;
+    onMouseOver?: MouseEventHandler | undefined;
+} & DOMAttributes<HTMLElement>>;
 
 export function createSizeTransition(theme: Theme) {
     return theme.transitions.create(['height', 'width'], {duration: 300});
@@ -30,10 +31,16 @@ const assetSx = (thumbSize: number) => (theme: Theme) => ({
 export default function Thumb({
                                   selected,
                                   children,
-                                  size
+                                  size,
+                                  onMouseOver,
+    onMouseLeave
                               }: Props) {
 
-    return <Box sx={assetSx(size)}>
+    return <Box
+        sx={assetSx(size)}
+        onMouseOver={onMouseOver}
+        onMouseLeave={onMouseLeave}
+    >
         {selected && <Box
             sx={theme => ({
                 position: 'absolute',

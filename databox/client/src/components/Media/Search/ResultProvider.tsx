@@ -98,7 +98,7 @@ export default function ResultProvider({children}: Props) {
         }).catch((e) => {
             if (e instanceof axios.Cancel) {
             } else {
-                console.log('e', e);
+                console.error(e);
                 setLoading(false);
             }
         })

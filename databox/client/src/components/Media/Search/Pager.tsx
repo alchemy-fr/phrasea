@@ -3,7 +3,7 @@ import ListLayout from "./Layout/ListLayout";
 import React from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
-import {OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
+import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
 
 export const LAYOUT_GRID = 0;
 export const LAYOUT_LIST = 1;
@@ -14,16 +14,18 @@ type Props = {
     selectedAssets: string[];
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
+    onPreviewToggle: OnPreviewToggle;
     onContextMenuOpen: TOnContextMenuOpen;
 };
 
-export default React.memo(function Pager({
+export default React.memo<Props>(function Pager({
                                              pages,
                                              layout,
                                              selectedAssets,
                                              onSelect,
                                              onUnselect,
                                              onContextMenuOpen,
+                                             onPreviewToggle,
                                          }: Props) {
     return <Box
         sx={{
@@ -59,6 +61,7 @@ export default React.memo(function Pager({
                     onUnselect,
                     selectedAssets,
                     onContextMenuOpen,
+                    onPreviewToggle,
                     page: i + 1,
                 })}
             </Box>

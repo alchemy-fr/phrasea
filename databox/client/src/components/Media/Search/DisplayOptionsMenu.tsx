@@ -1,13 +1,13 @@
 import React, {useContext} from 'react';
 import {
     Box,
-    Checkbox,
     FormControlLabel,
     FormGroup,
     Grid,
-    IconButton, Input, InputAdornment,
+    IconButton,
     Menu,
-    Slider, Switch,
+    Slider,
+    Switch,
     Tooltip,
     Typography
 } from "@mui/material";
@@ -17,6 +17,7 @@ import {DisplayContext} from "../DisplayContext";
 import {debounce} from "../../../lib/debounce";
 import PhotoSizeSelectLargeIcon from '@mui/icons-material/PhotoSizeSelectLarge';
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual';
+import ToggleWithLimit from "./ToggleWithLimit";
 
 type Props = {};
 
@@ -35,6 +36,10 @@ export default function DisplayOptionsMenu({}: Props) {
         setTitleRows,
         playVideos,
         togglePlayVideos,
+        displayTags,
+        tagsLimit,
+        toggleDisplayTags,
+        setTagsLimit,
     } = useContext(DisplayContext)!;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -104,70 +109,31 @@ export default function DisplayOptionsMenu({}: Props) {
                         <PhotoSizeSelectActualIcon/>
                     </Grid>
                 </Grid>
-                <Grid container spacing={2} alignItems="center">
-                    <Grid item>
-                        <FormGroup>
-                            <FormControlLabel
-                                control={<Switch
-                                    checked={displayTitle}
-                                    onChange={toggleDisplayTitle}
-                                />}
-                                label={t('layout.options.display_title.label', 'Display title')}
-                            />
-                        </FormGroup>
-                    </Grid>
 
-                    {displayTitle && <Grid item>
-                        <Input
-                            onChange={(e) => setTitleRows(parseInt(e.target.value))}
-                            value={titleRows}
-                            type={'number'}
-                            inputProps={{
-                                min: 1
-                            }}
-                            sx={theme => ({
-                                input: {
-                                    width: theme.spacing(5)
-                                }
-                            })}
-                            endAdornment={<InputAdornment position={'end'}>
-                                {t('layout.options.title_rows.label', 'rows')}
-                            </InputAdornment>}
-                            />
-                    </Grid>}
-                </Grid>
-                <Grid container spacing={2} alignItems="center">
-                    <Grid item>
-                        <FormGroup>
-                            <FormControlLabel
-                                control={<Switch
-                                    checked={displayCollections}
-                                    onChange={toggleDisplayCollections}
-                                />}
-                                label={t('layout.options.display_collections.label', 'Display collections')}
-                            />
-                        </FormGroup>
-                    </Grid>
-
-                    {displayCollections && <Grid item>
-                        <Input
-                            onChange={(e) => setCollectionsLimit(parseInt(e.target.value))}
-                            value={collectionsLimit}
-                            type={'number'}
-                            inputProps={{
-                                min: 1
-                            }}
-                            sx={theme => ({
-                                input: {
-                                    width: theme.spacing(5)
-                                }
-                            })}
-                            endAdornment={<InputAdornment position={'end'}>
-                                {t('layout.options.collections_count.label', 'collections')}
-                            </InputAdornment>}
-                            />
-                    </Grid>}
-                </Grid>
+                <ToggleWithLimit
+                    label={t('layout.options.display_title.label', 'Display title')}
+                    unit={t('layout.options.title_rows.label', 'rows')}
+                    value={displayTitle}
+                    toggle={toggleDisplayTitle}
+                    setLimit={setTitleRows}
+                    limit={titleRows}
+                />
+                <ToggleWithLimit
+                    label={t('layout.options.display_tags.label', 'Display tags')}
+                    unit={t('layout.options.tags_count.label', 'tags')}
+                    value={displayTags}
+                    toggle={toggleDisplayTags}
+                    setLimit={setTagsLimit}
+                    limit={tagsLimit}
+                />
+                <ToggleWithLimit
+                    label={t('layout.options.display_collections.label', 'Display collections')}
+                    unit={t('layout.options.collections_count.label', 'collections')}
+                    value={displayCollections}
+                    toggle={toggleDisplayCollections}
+                    setLimit={setCollectionsLimit}
+                    limit={collectionsLimit}
+                />
                 <div>
                     <FormGroup>
                         <FormControlLabel
