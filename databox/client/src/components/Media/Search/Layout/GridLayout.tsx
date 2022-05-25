@@ -1,5 +1,5 @@
 import React, {MouseEvent, useContext} from "react";
-import {Checkbox, Grid, IconButton, useTheme} from "@mui/material";
+import {alpha, Checkbox, Grid, IconButton, useTheme} from "@mui/material";
 import {
     LayoutProps,
     OnPreviewToggle,
@@ -8,7 +8,7 @@ import {
     SelectedAssets,
     TOnContextMenuOpen
 } from "./Layout";
-import AssetThumb from "../../Asset/AssetThumb";
+import AssetThumb, {createThumbActiveStyle} from "../../Asset/AssetThumb";
 import {Asset} from "../../../../types";
 import {DisplayContext} from "../../DisplayContext";
 import {createSizeTransition} from "../../Asset/Thumb";
@@ -46,7 +46,7 @@ const AssetItem = React.memo(({
         <Checkbox
             className={assetClasses.checkBtb}
             checked={selected}
-            color={'success'}
+            color={'primary'}
             onMouseDown={stopPropagation}
             onChange={e => (e.target.checked ? onSelect : onUnselect)(asset.id, {
                 ctrlKey: true,
@@ -136,14 +136,7 @@ export default function GridLayout({
                     right: 1,
                     top: 1,
                 },
-                '&:hover': {
-                    [`.${assetClasses.thumbActive}`]: {
-                        display: 'block',
-                    },
-                    [`.${assetClasses.thumbInactive}`]: {
-                        display: 'none',
-                    },
-                },
+                ...createThumbActiveStyle(),
                 '&:hover, &.selected': {
                     [`.${assetClasses.checkBtb}, .${assetClasses.settingBtn}`]: {
                         opacity: 1,
@@ -151,7 +144,7 @@ export default function GridLayout({
                     },
                 },
                 '&.selected': {
-                    backgroundColor: theme.palette.primary.main,
+                    backgroundColor: alpha(theme.palette.primary.main, 0.8),
                     boxShadow: theme.shadows[2],
                     [`.${assetClasses.legend}`]: {
                         color: theme.palette.primary.contrastText,

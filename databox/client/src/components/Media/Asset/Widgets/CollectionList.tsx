@@ -38,7 +38,6 @@ export default function AssetCollectionList({
     ].flat();
 
     return <Box sx={{
-        px: 1,
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
@@ -46,8 +45,6 @@ export default function AssetCollectionList({
             my: 0.5,
         }
     }}>
-        <FolderIcon
-            fontSize={'small'}/>
         {chips}
     </Box>
 }

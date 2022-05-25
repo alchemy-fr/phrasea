@@ -82,11 +82,6 @@ export default function Attributes({
                                        asset,
                                    }: Props) {
     return <>
-        <div
-            className={assetClasses.title}
-        >
-            {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}
-        </div>
         {asset.attributes.map(a => <AttributeRow
             {...a}
             key={a.id}

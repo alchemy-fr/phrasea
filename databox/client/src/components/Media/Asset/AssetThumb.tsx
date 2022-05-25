@@ -4,6 +4,7 @@ import Thumb from "./Thumb";
 import AssetFileIcon from "./AssetFileIcon";
 import assetClasses from "../Search/Layout/classes";
 import FilePlayer from "./FilePlayer";
+import {SxProps} from "@mui/system";
 
 type Props = {
     selected?: boolean;
@@ -41,4 +42,20 @@ export default function AssetThumb({
         />}
         {!thumbnail && original && <AssetFileIcon file={original}/>}
     </Thumb>
+}
+
+export function createThumbActiveStyle(): SxProps {
+    return {
+        [`.${assetClasses.thumbActive}`]: {
+            display: 'none',
+        },
+        '&:hover': {
+            [`.${assetClasses.thumbActive}`]: {
+                display: 'block',
+            },
+            [`.${assetClasses.thumbInactive}`]: {
+                display: 'none',
+            },
+        },
+    }
 }

@@ -104,16 +104,16 @@ export default function AssetResults() {
     }, [assetSelection]);
 
     const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
+        if (!asset.preview) {
+            return;
+        }
         if (timer.current) {
             clearTimeout(timer.current);
         }
         if (!display) {
             timer.current = setTimeout(() => {
                 setPreviewAnchorEl(null);
-            }, 1000);
-            return;
-        }
-        if (!asset.preview) {
+            }, 300);
             return;
         }
         setPreviewAnchorEl({
