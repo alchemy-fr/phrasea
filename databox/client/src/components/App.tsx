@@ -9,7 +9,7 @@ import AssetDropzone from "./Media/Asset/AssetDropzone";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import {Box} from "@mui/material";
-import {AxiosError} from "axios";
+import axios, {AxiosError} from "axios";
 import {UserContext} from "./Security/UserContext";
 import {useTranslation} from "react-i18next";
 import {addErrorListener, removeErrorListener} from "../api/api-client";
@@ -21,7 +21,7 @@ export default function App() {
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
-            if (error.config?.errorHandled) {
+            if (error.config?.errorHandled || axios.isCancel(error)) {
                 return;
             }
 

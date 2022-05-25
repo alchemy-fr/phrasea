@@ -27,6 +27,9 @@ const linearProgressStyle: CSSProperties = {
     top: '0',
 };
 
+const previewEnterDelay = 500;
+const previewLeaveDelay = 400;
+
 function getAssetListFromEvent(currentSelection: string[], id: string, pages: Asset[][], e?: React.MouseEvent): string[] {
     if (e?.ctrlKey) {
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
@@ -113,12 +116,28 @@ export default function AssetResults() {
         if (!display) {
             timer.current = setTimeout(() => {
                 setPreviewAnchorEl(null);
-            }, 300);
+            }, previewLeaveDelay);
             return;
         }
-        setPreviewAnchorEl({
-            asset,
-            anchorEl,
+
+        const apply = (deferred: boolean) => {
+            const d = () => {
+                setPreviewAnchorEl({
+                    asset,
+                    anchorEl,
+                });
+            };
+            if (!deferred) {
+                d();
+            } else {
+                timer.current = setTimeout(d, previewEnterDelay);
+            }
+        }
+
+        setPreviewAnchorEl(p => {
+            apply(!p);
+
+            return p;
         });
         // eslint-disable-next-line
     }, [setPreviewAnchorEl]);
@@ -158,7 +177,11 @@ export default function AssetResults() {
             {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
-            <>
+            <Box
+                sx={theme => ({
+                    zIndex: theme.zIndex.drawer - 1,
+                })}
+            >
                 <SearchBar/>
                 <ListSubheader
                     component="div"
@@ -181,7 +204,7 @@ export default function AssetResults() {
                     onContextMenuOpen={onContextMenuOpen}
                     onPreviewToggle={onPreviewToggle}
                 />
-            </>
+            </Box>
             {loadMore ? <Box
                 sx={{
                     textAlign: 'center',

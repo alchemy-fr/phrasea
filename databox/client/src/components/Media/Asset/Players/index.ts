@@ -6,5 +6,7 @@ export type FileWithUrl = {
 
 export type PlayerProps = {
     file: FileWithUrl;
-    thumbSize: number;
+    thumbSize: number | string;
+    onLoad?: () => void;
+    noInteraction?: boolean;
 };

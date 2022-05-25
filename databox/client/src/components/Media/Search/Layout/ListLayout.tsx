@@ -46,6 +46,7 @@ const AssetItem = React.memo(({
         <Grid
             container
             spacing={2}
+            wrap={'nowrap'}
         >
             <Grid item>
                 <IconButton
@@ -140,6 +141,7 @@ export default function ListLayout({
         })}
     >
         {assets.map(a => <div
+            key={a.id}
             onContextMenu={(e) => {
                 onContextMenuOpen(e, a);
             }}

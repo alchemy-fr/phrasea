@@ -4,13 +4,15 @@ import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../lib/file";
 import AssetFileIcon from "./AssetFileIcon";
 import VideoPlayer from "./Players/VideoPlayer";
 import {FileWithUrl} from "./Players";
+import PDFPlayer from "./Players/PDFPlayer";
 
 type Props = {
     file: File;
     title: string | undefined;
-    size: number;
+    size: number | string;
     className?: string | undefined;
     onLoad?: () => void;
+    noInteraction?: boolean;
 };
 
 export default function FilePlayer({
@@ -19,6 +21,7 @@ export default function FilePlayer({
                                        size,
                                        className,
                                        onLoad,
+                                       noInteraction,
                                    }: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
@@ -45,6 +48,17 @@ export default function FilePlayer({
                 <VideoPlayer
                     file={file as FileWithUrl}
                     thumbSize={size}
+                    onLoad={onLoad}
+                    noInteraction={noInteraction}
+                />
+            </div>
+        case FileTypeEnum.Document:
+            return <div>
+                <PDFPlayer
+                    file={file as FileWithUrl}
+                    thumbSize={size}
+                    onLoad={onLoad}
+                    noInteraction={noInteraction}
                 />
             </div>
         default:

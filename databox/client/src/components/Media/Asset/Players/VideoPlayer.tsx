@@ -20,7 +20,9 @@ const playerActionsClass = 'pa';
 
 export default function VideoPlayer({
                                         file,
-                                        thumbSize
+                                        thumbSize,
+                                        onLoad,
+    noInteraction,
                                     }: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
@@ -40,6 +42,9 @@ export default function VideoPlayer({
         width: thumbSize,
         height: thumbSize,
         position: 'relative',
+        backgroundColor: '#000',
+        display: 'flex',
+        alignItems: 'center',
         [`.${playerActionsClass}`]: {
             pointerEvents: 'none',
             display: 'flex',
@@ -67,15 +72,16 @@ export default function VideoPlayer({
                 opacity: 1,
             }
         }
-    })}>
-        {!playVideos && <div className={playerActionsClass}>
+    })}
+    >
+        {!playVideos && !noInteraction && <div className={playerActionsClass}>
             <IconButton
                 onClick={onPlay}
                 onMouseDown={stopPropagation}
                 color={'primary'}
             >
                 <PlayComponent
-                    fontSize={getSizeCase(thumbSize, {
+                    fontSize={getSizeCase(typeof thumbSize === 'number' ? thumbSize : 9999, {
                         0: 'small',
                         100: 'medium',
                         250: 'large',
@@ -88,6 +94,7 @@ export default function VideoPlayer({
             playing={play || (!isAudio && playVideos)}
             loop={true}
             onReady={(player) => {
+                onLoad && onLoad();
                 setDuration(player.getDuration());
             }}
             onProgress={({played, loaded}) => {

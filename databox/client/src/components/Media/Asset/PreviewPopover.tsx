@@ -8,7 +8,7 @@ type Props = {
     asset: Asset | undefined;
 };
 
-const size = 400;
+const size = '50vh';
 
 export default function PreviewPopover({
                                            asset,
@@ -58,12 +58,13 @@ export default function PreviewPopover({
     >
         {asset && <>
             <FilePlayer
+                key={asset.id}
                 file={asset.preview!}
                 size={size}
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
+                noInteraction={true}
             />
-
         </>}
     </Popper>
 }

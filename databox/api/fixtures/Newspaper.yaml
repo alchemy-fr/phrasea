@@ -181,13 +181,22 @@ App\Entity\Core\File:
   f_audio_o{1..10} (extends file):
     type: audio/mp3
     path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
+  f_audio_t{1..10} (extends file):
+    type: audio/mp3
+    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
   f_video_o{1..10} (extends file):
     type: video/mp4
     path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
   f_video_p{1..10} (extends file):
     type: video/mp4
     path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+  f_video_t{1..10} (extends file):
+    type: video/mp4
+    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
   f_pdf_o{1..10} (extends file):
+    type: application/pdf
+    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
+  f_pdf_p{1..10} (extends file):
     type: application/pdf
     path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
 
@@ -215,6 +224,10 @@ App\Entity\Core\AssetRendition:
     definition: '@n_rd_original'
     file: '@f_audio_o<current()>'
     asset: '@a_audio<current()>'
+  ar_audio_t{1..10} (extends asset_rendition):
+    definition: '@n_rd_thumbnail'
+    file: '@f_audio_t<current()>'
+    asset: '@a_audio<current()>'
   ar_video_o{1..10} (extends asset_rendition):
     definition: '@n_rd_original'
     file: '@f_video_o<current()>'
@@ -223,10 +236,32 @@ App\Entity\Core\AssetRendition:
     definition: '@n_rd_preview'
     file: '@f_video_p<current()>'
     asset: '@a_video<current()>'
+  ar_video_t{1..10} (extends asset_rendition):
+    definition: '@n_rd_thumbnail'
+    file: '@f_video_t<current()>'
+    asset: '@a_video<current()>'
   ar_pdf_o{1..10} (extends asset_rendition):
     definition: '@n_rd_original'
     file: '@f_pdf_o<current()>'
     asset: '@a_pdf<current()>'
+  ar_pdf_p{1..10} (extends asset_rendition):
+    definition: '@n_rd_preview'
+    file: '@f_pdf_p<current()>'
+    asset: '@a_pdf<current()>'
+
+App\Entity\Core\Attribute:
+  attribute (template):
+    origin: 0
+
+  at_desc_{@a_*} (extends attribute):
+    definition: '@ad_desc'
+    asset: '@a_*'
+    value: '<text()>'
+
+  at_kw_{@a_*} (extends attribute):
+    definition: '@ad_keywords'
+    asset: '@a_*'
+    value: '<word()>'
 
 App\Entity\Core\RenditionRule:
   rr:
