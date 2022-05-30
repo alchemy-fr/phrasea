@@ -1,13 +1,16 @@
 import React, {useState} from "react";
 import Facets from "./Asset/Facets";
 import CollectionsPanel from "./CollectionsPanel";
-import {Box, Tab, Tabs} from "@mui/material";
-import {createStyles, makeStyles, styled, Theme, withStyles} from "@mui/material/styles";
+import {Tab, Tabs} from "@mui/material";
+import {styled} from "@mui/material/styles";
 import {TabPanelProps} from "@mui/lab";
 
-type TabValue = "facets" | "tree";
+enum TabEnum {
+    facets = 'facets',
+    tree = 'tree',
+}
 
-function a11yProps(name: TabValue) {
+function a11yProps(name: TabEnum) {
     return {
         value: name,
         index: `tab-${name}`,
@@ -25,7 +28,7 @@ function TabPanel(props: { index: string } & TabPanelProps) {
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
         >
-            {value === index && children}
+            {children}
         </div>
     );
 }
@@ -58,11 +61,13 @@ const AntTab = styled(Tab)({
 })
 
 export default function LeftPanel() {
-    const [t, setTab] = useState<TabValue>('tree');
+    const [t, setTab] = useState<TabEnum>(TabEnum.tree);
 
-    const handleChange = (event: React.ChangeEvent<{}>, newValue: TabValue) => {
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: TabEnum) => {
         setTab(newValue);
     };
+
+    console.log('t', t);
 
     return <>
         <AntTabs
@@ -70,13 +75,13 @@ export default function LeftPanel() {
             onChange={handleChange}
             aria-label="Views"
         >
-            <AntTab label="Tree" {...a11yProps('tree')} />
-            <AntTab label="Facets" {...a11yProps('facets')} />
+            <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
+            <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
         </AntTabs>
-        <TabPanel value={t} index={'tree'}>
+        <TabPanel value={t} index={TabEnum.tree}>
             <CollectionsPanel/>
         </TabPanel>
-        <TabPanel value={t} index={'facets'}>
+        <TabPanel value={t} index={TabEnum.facets}>
             <Facets/>
         </TabPanel>
     </>

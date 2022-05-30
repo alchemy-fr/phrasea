@@ -28,12 +28,12 @@ export default function FileCard({
                 },
             })}
             container spacing={2}>
-            <Grid item>
+            {file.type.startsWith('image/') && <Grid item>
                 <FileBlobThumb
                     file={file}
                     size={size}
                 />
-            </Grid>
+            </Grid>}
             <Grid item xs={12} sm>
                 <Typography
                     sx={{

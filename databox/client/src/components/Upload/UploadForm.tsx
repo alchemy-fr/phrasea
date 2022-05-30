@@ -54,6 +54,7 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
                 control={control}
                 name={'destinations'}
                 label={t('form.upload.destinations.label', 'Destinations')}
+                multiple={true}
             />
             <FormFieldErrors
                 field={'destinations'}

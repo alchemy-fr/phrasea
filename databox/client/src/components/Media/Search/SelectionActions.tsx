@@ -1,12 +1,11 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Badge, BadgeProps, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
+import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import EditIcon from '@mui/icons-material/Edit';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
 import {AssetSelectionContext} from "../AssetSelectionContext";
@@ -19,6 +18,11 @@ import DisplayOptionsMenu from "./DisplayOptionsMenu";
 import {Asset} from "../../../types";
 import {LoadingButton} from "@mui/lab";
 import ExportAssetsDialog from "../Asset/Actions/ExportAssetsDialog";
+import GroupButton from "../../Ui/GroupButton";
+import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
+import EditIcon from '@mui/icons-material/Edit';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -83,8 +87,16 @@ export default function SelectionActions({
     const onDelete = () => {
         openModal(DeleteAssetsConfirm, {
             assetIds: selectionContext.selectedAssets,
-            count: selectionLength,
             onDelete: () => {
+                resultContext.reload();
+            }
+        });
+    };
+
+    const onMove = () => {
+        openModal(MoveAssetsDialog, {
+            assetIds: selectionContext.selectedAssets,
+            onComplete: () => {
                 resultContext.reload();
             }
         });
@@ -129,11 +141,12 @@ export default function SelectionActions({
         sx={(theme) => ({
             display: 'flex',
             justifyContent: 'space-between',
+            alignItems: 'center',
         })}
     >
         <Box
             sx={(theme) => ({
-                '.MuiButtonBase-root': {
+                '> .MuiButtonBase-root, > .MuiButtonGroup-root': {
                     m: 1,
                 }
             })}
@@ -177,13 +190,34 @@ export default function SelectionActions({
             >
                 {t('asset_actions.export', 'Export')}
             </LoadingButton>
-            <Button
-                disabled={!canEdit}
-                variant={'contained'}
+            <GroupButton
+                id={'edit'}
+                onClick={() => {
+
+                }}
                 startIcon={<EditIcon/>}
+                disabled={!canEdit}
+                actions={[
+                    {
+                        id: 'move',
+                        label: t('asset_actions.move', 'Move'),
+                        onClick: onMove,
+                        disabled: !canEdit,
+                        startIcon: <DriveFileMoveIcon/>,
+                    },
+                    {
+                        id: 'copy',
+                        label: t('asset_actions.copy', 'Copy'),
+                        onClick: () => {
+
+                        },
+                        disabled: !canEdit,
+                        startIcon: <FileCopyIcon/>,
+                    }
+                ]}
             >
                 {t('asset_actions.edit', 'Edit')}
-            </Button>
+            </GroupButton>
             <Button
                 disabled={!hasSelection}
                 variant={'contained'}

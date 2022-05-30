@@ -7,9 +7,10 @@ import {getCollection, getWorkspaces} from "../../../api/collection";
 import {TreeView} from "@mui/lab";
 import {CircularProgress} from "@mui/material";
 
-type Props = {
-    onChange?: (selection: string[]) => void;
-    value?: string[];
+type Props<IsMulti extends boolean = false> = {
+    onChange?: (selection: IsMulti extends true ? string[] : string) => void;
+    value?: IsMulti extends true ? string[] : string;
+    multiple?: IsMulti;
 }
 
 type CollectionTreeProps = {
@@ -45,25 +46,25 @@ function CollectionTree({collection, depth = 0}: CollectionTreeProps) {
     </TreeItem>
 }
 
-export function CollectionsTreeView({
+export function CollectionsTreeView<IsMulti extends boolean = false>({
                                         onChange,
                                         value,
-}: Props) {
+                                        multiple,
+}: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
 
     useEffect(() => {
         getWorkspaces().then(setWorkspaces);
     }, []);
 
-
     const [expanded, setExpanded] = React.useState<string[]>([]);
-    const [selected, setSelected] = React.useState<string[]>(value ?? []);
+    const [selected, setSelected] = React.useState<IsMulti extends true ? string[] : string>(value ?? (multiple ? [] : '') as any);
 
     const handleToggle = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
         setExpanded(nodeIds);
     };
 
-    const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
+    const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: IsMulti extends true ? string[] : string) => {
         setSelected(nodeIds);
         onChange && onChange(nodeIds);
     };
@@ -82,13 +83,21 @@ export function CollectionsTreeView({
         defaultCollapseIcon={<ExpandMoreIcon/>}
         defaultExpandIcon={<ChevronRightIcon/>}
         expanded={expanded}
-        selected={selected}
+        selected={selected as any}
         onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
-        multiSelect
+        onNodeSelect={handleSelect as any}
+        multiSelect={multiple || false}
     >
-        {workspaces.map(w => <TreeItem nodeId={w['@id']} label={w.name}>
-            {w.collections.map(c => <CollectionTree collection={c} />)}
+        {workspaces.map(w => <
+            TreeItem
+            nodeId={w['@id']}
+            key={w.id}
+            label={w.name}
+        >
+            {w.collections.map(c => <CollectionTree
+                key={c.id}
+                collection={c}
+            />)}
         </TreeItem>)}
     </TreeView>
 }

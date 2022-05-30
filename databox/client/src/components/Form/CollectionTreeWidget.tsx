@@ -10,12 +10,14 @@ type Props<TFieldValues extends FieldValues> = {
     label?: ReactNode;
     control: Control<TFieldValues>,
     name: FieldPath<TFieldValues>;
+    multiple?: boolean;
 };
 
 export default function CollectionTreeWidget<TFieldValues extends FieldValues>({
                                                                                    name,
                                                                                    control,
                                                                                    label,
+                                                                                   multiple,
                                                                                }: Props<TFieldValues>) {
     return <>
         {label && <InputLabel>
@@ -27,6 +29,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues>({
             render={({field: {onChange, value, ref}}) => {
                 return <CollectionsTreeView
                     value={value}
+                    multiple={multiple}
                     onChange={(collections) => {
                         onChange(collections);
                     }}

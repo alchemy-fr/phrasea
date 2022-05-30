@@ -1,11 +1,8 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Grid} from "@mui/material";
-import {Asset, Workspace} from "../../types";
-import {getWorkspaces} from "../../api/collection";
 import FileCard from "./FileCard";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import {UserContext} from "../Security/UserContext";
 import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
 import UploadIcon from '@mui/icons-material/Upload';
 import useFormSubmit from "../../hooks/useFormSubmit";
@@ -25,8 +22,8 @@ type FileWrapper = {
 
 export default function UploadModal({
                                         files: initFiles,
-    userId,
-}: Props) {
+                                        userId,
+                                    }: Props) {
     const {t} = useTranslation();
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
         file: f,
@@ -91,15 +88,14 @@ export default function UploadModal({
             <Grid
                 spacing={2}
                 container
-                xs
             >
                 {files.map((f) => <Grid
                     item
                     key={f.id}
                 >
                     <FileCard
-                    file={f.file}
-                    onRemove={() => onFileRemove(f.id)}
+                        file={f.file}
+                        onRemove={() => onFileRemove(f.id)}
                     />
                 </Grid>)}
             </Grid>

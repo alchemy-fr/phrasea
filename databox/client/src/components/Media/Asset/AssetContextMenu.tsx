@@ -37,7 +37,6 @@ export default function AssetContextMenu({
     const onDelete = () => {
         openModal(DeleteAssetsConfirm, {
             assetIds: [id],
-            count: 1,
             onDelete: () => {
                 resultContext.reload();
             }

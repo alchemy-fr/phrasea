@@ -5,17 +5,16 @@ import {useTranslation} from "react-i18next";
 import {deleteAsset} from "../../../../api/asset";
 
 type Props = {
-    count: number;
     assetIds: string[];
     onDelete?: () => void;
 } & StackedModalProps;
 
 export default function DeleteAssetsConfirm({
-                                                count,
                                                 assetIds,
                                                 onDelete,
                                             }: Props) {
     const {t} = useTranslation();
+    const count = assetIds.length;
 
     const onDeleteAssets = async () => {
         await Promise.all(assetIds.map(deleteAsset));
