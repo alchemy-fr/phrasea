@@ -8,7 +8,7 @@ import useFormSubmit from "../../../../hooks/useFormSubmit";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
 import {addAssetToCollection} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
-import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 import RemoteErrors from "../../../Form/RemoteErrors";
 
 type Props = {
@@ -20,7 +20,7 @@ type FormData = {
     destination: string;
 }
 
-export default function MoveAssetsDialog({
+export default function CopyAssetsDialog({
                                              assetIds,
                                              onComplete,
                                          }: Props) {
@@ -53,16 +53,16 @@ export default function MoveAssetsDialog({
     const formId = 'move-assets';
 
     return <FormDialog
-        title={t('move_assets.dialog.title', 'Move {{count}} assets', {
+        title={t('copy_assets.dialog.title', 'Copy {{count}} assets', {
             count,
         })}
         loading={submitting}
         formId={formId}
-        submitIcon={<DriveFileMoveIcon/>}
-        submitLabel={t('move_assets.dialog.submit', 'Move')}
+        submitIcon={<FileCopyIcon/>}
+        submitLabel={t('copy_assets.dialog.submit', 'Copy')}
     >
         <Typography sx={{mb: 3}}>
-            {t('move_assets.dialog.intro', 'Where do you want to move the selected assets?')}
+            {t('copy_assets.dialog.intro', 'Where do you want to copy the selected assets?')}
         </Typography>
         <form
             id={formId}
@@ -74,7 +74,7 @@ export default function MoveAssetsDialog({
                 rules={{
                     required: true,
                 }}
-                label={t('form.move_assets.destination.label', 'Destination')}
+                label={t('form.copy_assets.destination.label', 'Destination')}
             />
             <FormFieldErrors field={'destination'} errors={errors}/>
         </form>

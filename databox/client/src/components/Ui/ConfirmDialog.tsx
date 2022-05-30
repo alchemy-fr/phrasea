@@ -1,12 +1,12 @@
 import React, {PropsWithChildren, ReactNode, useState} from 'react';
 import AppDialog from "../Layout/AppDialog";
-import {Alert, Box, Button} from "@mui/material";
+import {Button} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {useModals} from "@mattjennings/react-modal-stack";
 import CheckIcon from '@mui/icons-material/Check';
 import {LoadingButton} from "@mui/lab";
 import {AxiosError} from "axios";
-import {mapApiErrors} from "../../lib/form";
+import RemoteErrors from "../Form/RemoteErrors";
 
 type Props = PropsWithChildren<{
     onCancel?: () => void;
@@ -76,8 +76,6 @@ export default function ConfirmDialog({
         </>}
     >
         {children}
-        {errors && <Box
-            sx={{mt: 2}}
-        >{errors.map((e, i) => <Alert key={i} severity="error">{e}</Alert>)}</Box>}
+        <RemoteErrors errors={errors}/>
     </AppDialog>
 }

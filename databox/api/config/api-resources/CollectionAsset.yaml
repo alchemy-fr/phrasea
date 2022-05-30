@@ -2,6 +2,8 @@ resources:
   App\Entity\Core\CollectionAsset:
     shortName: collection-asset
     itemOperations:
+      get:
+        controller: App\Controller\NotFoundAction
       delete:
         security: 'is_granted("DELETE", object)'
     collectionOperations:

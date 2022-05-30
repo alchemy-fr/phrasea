@@ -23,6 +23,7 @@ import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
+import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -95,6 +96,15 @@ export default function SelectionActions({
 
     const onMove = () => {
         openModal(MoveAssetsDialog, {
+            assetIds: selectionContext.selectedAssets,
+            onComplete: () => {
+                resultContext.reload();
+            }
+        });
+    };
+
+    const onCopy = () => {
+        openModal(CopyAssetsDialog, {
             assetIds: selectionContext.selectedAssets,
             onComplete: () => {
                 resultContext.reload();
@@ -208,9 +218,7 @@ export default function SelectionActions({
                     {
                         id: 'copy',
                         label: t('asset_actions.copy', 'Copy'),
-                        onClick: () => {
-
-                        },
+                        onClick: onCopy,
                         disabled: !canEdit,
                         startIcon: <FileCopyIcon/>,
                     }

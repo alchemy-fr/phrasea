@@ -1,9 +1,10 @@
 import AppDialog from "../Layout/AppDialog";
-import {Alert, Button} from "@mui/material";
+import {Button} from "@mui/material";
 import React, {PropsWithChildren, ReactNode} from "react";
 import {useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import SaveIcon from '@mui/icons-material/Save';
+import RemoteErrors from "../Form/RemoteErrors";
 
 
 type Props<T extends object> = PropsWithChildren<{
@@ -42,7 +43,7 @@ export default function FormDialog<T extends object>({
                 {t('dialog.cancel', 'Cancel')}
             </Button>
             <Button
-                startIcon={submitIcon || <SaveIcon />}
+                startIcon={submitIcon || <SaveIcon/>}
                 type={formId ? 'submit' : 'button'}
                 form={formId}
                 onClick={onSave}
@@ -54,6 +55,6 @@ export default function FormDialog<T extends object>({
         </>}
     >
         {children}
-        {errors && <div>{errors.map((e, i) => <Alert key={i} severity="error">{e}</Alert>)}</div>}
+        <RemoteErrors errors={errors}/>
     </AppDialog>
 }
