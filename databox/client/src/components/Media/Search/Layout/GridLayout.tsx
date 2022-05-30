@@ -5,7 +5,6 @@ import {
     OnPreviewToggle,
     OnSelectAsset,
     OnUnselectAsset,
-    SelectedAssets,
     TOnContextMenuOpen
 } from "./Layout";
 import AssetThumb, {createThumbActiveStyle} from "../../Asset/AssetThumb";

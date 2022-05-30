@@ -6,6 +6,7 @@ import VideoPlayer from "./Players/VideoPlayer";
 import {FileWithUrl} from "./Players";
 import PDFPlayer from "./Players/PDFPlayer";
 
+
 type Props = {
     file: File;
     title: string | undefined;
@@ -13,6 +14,7 @@ type Props = {
     className?: string | undefined;
     onLoad?: () => void;
     noInteraction?: boolean;
+    autoPlayable: boolean;
 };
 
 export default function FilePlayer({
@@ -22,6 +24,7 @@ export default function FilePlayer({
                                        className,
                                        onLoad,
                                        noInteraction,
+                                       autoPlayable,
                                    }: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
@@ -50,10 +53,13 @@ export default function FilePlayer({
                     thumbSize={size}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
+                    autoPlayable={autoPlayable}
                 />
             </div>
         case FileTypeEnum.Document:
-            return <div>
+            return <div
+                className={className}
+            >
                 <PDFPlayer
                     file={file as FileWithUrl}
                     thumbSize={size}

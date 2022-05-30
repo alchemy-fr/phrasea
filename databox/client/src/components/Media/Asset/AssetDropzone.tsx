@@ -24,7 +24,8 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         noClick: true,
-        onDrop
+        onDrop,
+        noKeyboard: true,
     });
 
     return <div {...getRootProps()}>

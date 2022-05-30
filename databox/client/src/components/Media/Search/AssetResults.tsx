@@ -13,6 +13,7 @@ import AssetContextMenu from "../Asset/AssetContextMenu";
 import {PopoverPosition} from "@mui/material/Popover/Popover";
 import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
 import PreviewPopover from "../Asset/PreviewPopover";
+import {DisplayContext} from "../DisplayContext";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -65,6 +66,7 @@ function getAssetListFromEvent(currentSelection: string[], id: string, pages: As
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const {previewLocked} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
         asset: Asset;
         pos: PopoverPosition,
@@ -114,9 +116,11 @@ export default function AssetResults() {
             clearTimeout(timer.current);
         }
         if (!display) {
-            timer.current = setTimeout(() => {
-                setPreviewAnchorEl(null);
-            }, previewLeaveDelay);
+            if (!previewLocked) {
+                timer.current = setTimeout(() => {
+                    setPreviewAnchorEl(null);
+                }, previewLeaveDelay);
+            }
             return;
         }
 
@@ -135,12 +139,12 @@ export default function AssetResults() {
         }
 
         setPreviewAnchorEl(p => {
-            apply(!p);
+            apply(!p || previewLocked);
 
             return p;
         });
         // eslint-disable-next-line
-    }, [setPreviewAnchorEl]);
+    }, [setPreviewAnchorEl, previewLocked]);
 
     const {loading, pages, loadMore} = resultContext;
 

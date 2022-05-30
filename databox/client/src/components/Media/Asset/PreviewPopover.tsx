@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Asset} from "../../../types";
-import {Popper} from "@mui/material";
+import {Paper, Popper} from "@mui/material";
 import FilePlayer from "./FilePlayer";
 
 type Props = {
@@ -30,6 +30,7 @@ export default function PreviewPopover({
             'img': {
                 maxWidth: size,
                 maxHeight: size,
+                display: 'block',
             },
             zIndex: 3,
         }}
@@ -56,7 +57,12 @@ export default function PreviewPopover({
             },
         ]}
     >
-        {asset && <>
+        {asset && <Paper
+            elevation={6}
+            sx={{
+                padding: 1,
+            }}
+        >
             <FilePlayer
                 key={asset.id}
                 file={asset.preview!}
@@ -64,7 +70,8 @@ export default function PreviewPopover({
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
                 noInteraction={true}
+                autoPlayable={true}
             />
-        </>}
+        </Paper>}
     </Popper>
 }

@@ -1,15 +1,45 @@
-import React, {PropsWithChildren, useState} from "react";
-import {DisplayContext} from "./DisplayContext";
+import React, {PropsWithChildren, useEffect, useState} from "react";
+import {DisplayContext, PlayingContext} from "./DisplayContext";
+import {toast} from "react-toastify";
+
+import {useTranslation} from 'react-i18next';
 
 export default function DisplayProvider({children}: PropsWithChildren<{}>) {
     const [thumbSize, setThumbSize] = useState(200);
     const [displayTitle, setDisplayTitle] = useState(true);
     const [displayTags, setDisplayTags] = useState(true);
+    const [displayPreview, setDisplayPreview] = useState(true);
     const [titleRows, setTitleRows] = useState(1);
     const [displayCollections, setDisplayCollections] = useState(true);
     const [playVideos, setPlayVideos] = useState(false);
     const [collectionsLimit, setCollectionsLimit] = useState(2);
     const [tagsLimit, setTagsLimit] = useState(1);
+    const [playingContext, setPlayingContext] = useState<PlayingContext>();
+    const [previewLocked, setPreviewLocked] = useState(false);
+
+    const {t} = useTranslation();
+
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.code === 'KeyP') {
+                toast.info(previewLocked
+                    ? t('layout.previews_unlocked', 'Previews unlocked')
+                    : t('layout.previews_locked', 'Previews locked')
+                , {
+                    toastId: 'preview_lock',
+                        updateId: 'preview_lock',
+                    });
+
+                setPreviewLocked(!previewLocked);
+            }
+        };
+
+        window.addEventListener('keypress', handler);
+
+        return () => {
+            window.removeEventListener('keypress', handler);
+        }
+    }, [previewLocked]);
 
     return <DisplayContext.Provider value={{
         thumbSize,
@@ -24,10 +54,23 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
         displayCollections,
         playVideos,
         togglePlayVideos: () => setPlayVideos(p => !p),
-        displayTags,
         tagsLimit,
         setTagsLimit,
-        toggleDisplayTags: () => setDisplayTags(p => !p)
+        displayTags,
+        toggleDisplayTags: () => setDisplayTags(p => !p),
+        displayPreview,
+        toggleDisplayPreview: () => setDisplayPreview(p => !p),
+        playing: playingContext,
+        setPlaying: (context) => {
+            setPlayingContext(p => {
+                if (p && p !== context) {
+                    p.stop();
+                }
+
+                return context;
+            })
+        },
+        previewLocked,
     }}>
         {children}
     </DisplayContext.Provider>

@@ -33,11 +33,13 @@ export default function AssetThumb({
             file={thumbnail}
             title={resolvedTitle}
             size={thumbSize}
+            autoPlayable={false}
         />}
         {thumbnailActive && <FilePlayer
             size={thumbSize}
             file={thumbnailActive}
             title={resolvedTitle}
+            autoPlayable={false}
             className={assetClasses.thumbActive}
         />}
         {!thumbnail && original && <AssetFileIcon file={original}/>}

@@ -9,7 +9,9 @@ import {getSizeCase} from "../../../../lib/sizeCase";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../../lib/file";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 
-type Props = {} & PlayerProps;
+type Props = {
+    autoPlayable: boolean;
+} & PlayerProps;
 
 type Progress = {
     played: number;
@@ -22,19 +24,28 @@ export default function VideoPlayer({
                                         file,
                                         thumbSize,
                                         onLoad,
-    noInteraction,
+                                        autoPlayable,
+                                        noInteraction,
                                     }: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
-    const {playVideos} = useContext(DisplayContext)!;
+    const {playVideos, setPlaying} = useContext(DisplayContext)!;
     const [play, setPlay] = useState(false);
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
 
+    const autoPlay = autoPlayable && playVideos;
+
     const onPlay = (e: MouseEvent) => {
         e.stopPropagation();
-        setPlay(p => !p);
-    }
+        setPlay(p => {
+            setPlaying({
+                stop: !p ? () => setPlay(false) : () => {},
+            });
+
+            return !p;
+        });
+    };
 
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
@@ -42,7 +53,7 @@ export default function VideoPlayer({
         width: thumbSize,
         height: thumbSize,
         position: 'relative',
-        backgroundColor: '#000',
+        backgroundColor: isAudio ? '#FFF' : '#000',
         display: 'flex',
         alignItems: 'center',
         [`.${playerActionsClass}`]: {
@@ -74,7 +85,7 @@ export default function VideoPlayer({
         }
     })}
     >
-        {!playVideos && !noInteraction && <div className={playerActionsClass}>
+        {!autoPlay && !noInteraction && <div className={playerActionsClass}>
             <IconButton
                 onClick={onPlay}
                 onMouseDown={stopPropagation}
@@ -91,7 +102,7 @@ export default function VideoPlayer({
         </div>}
         <ReactPlayer
             url={file.url}
-            playing={play || (!isAudio && playVideos)}
+            playing={play || (!isAudio && autoPlay)}
             loop={true}
             onReady={(player) => {
                 onLoad && onLoad();
@@ -106,7 +117,7 @@ export default function VideoPlayer({
             progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
             width={thumbSize}
             height={thumbSize}
-            muted={playVideos}
+            muted={autoPlay}
         />
         {progress && <LinearProgress
             variant={progress ? 'buffer' : 'indeterminate'}

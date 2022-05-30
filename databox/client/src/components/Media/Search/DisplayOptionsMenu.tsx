@@ -40,6 +40,8 @@ export default function DisplayOptionsMenu({}: Props) {
         tagsLimit,
         toggleDisplayTags,
         setTagsLimit,
+        displayPreview,
+        toggleDisplayPreview,
     } = useContext(DisplayContext)!;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -134,17 +136,24 @@ export default function DisplayOptionsMenu({}: Props) {
                     setLimit={setCollectionsLimit}
                     limit={collectionsLimit}
                 />
-                <div>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={<Switch
-                                checked={playVideos}
-                                onChange={togglePlayVideos}
-                            />}
-                            label={t('layout.options.play_videos.label', 'Play videos')}
-                        />
-                    </FormGroup>
-                </div>
+                <FormGroup>
+                    <FormControlLabel
+                        control={<Switch
+                            checked={displayPreview}
+                            onChange={toggleDisplayPreview}
+                        />}
+                        label={t('layout.options.display_previews_hover.label', 'Display preview on hover')}
+                    />
+                </FormGroup>
+                {displayPreview && <FormGroup>
+                    <FormControlLabel
+                        control={<Switch
+                            checked={playVideos}
+                            onChange={togglePlayVideos}
+                        />}
+                        label={t('layout.options.play_preview_videos.label', 'Auto play video previews')}
+                    />
+                </FormGroup>}
             </Box>
         </Menu>
     </>

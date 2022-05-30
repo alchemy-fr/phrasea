@@ -1,5 +1,9 @@
 import React from "react";
 
+export type PlayingContext = {
+    stop: () => void;
+}
+
 export type TDisplayContext = {
     displayTitle: boolean;
     displayTags: boolean;
@@ -17,6 +21,11 @@ export type TDisplayContext = {
     setThumbSize: (size: number) => void;
     playVideos: boolean;
     togglePlayVideos: () => void;
+    displayPreview: boolean;
+    toggleDisplayPreview: () => void;
+    playing: PlayingContext | undefined;
+    setPlaying: (context: PlayingContext) => void;
+    previewLocked: boolean;
 }
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);
