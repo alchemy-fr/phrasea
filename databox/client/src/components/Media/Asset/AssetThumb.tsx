@@ -5,6 +5,7 @@ import AssetFileIcon from "./AssetFileIcon";
 import assetClasses from "../Search/Layout/classes";
 import FilePlayer from "./FilePlayer";
 import {SxProps} from "@mui/system";
+import {createDimensions} from "./Players";
 
 type Props = {
     selected?: boolean;
@@ -23,25 +24,33 @@ export default function AssetThumb({
                                        selected,
                                        ...domAttrs
                                    }: Props) {
+    const dimensions = createDimensions(thumbSize);
+
     return <Thumb
         {...domAttrs}
         selected={selected}
         size={thumbSize}
     >
-        {thumbnail && <FilePlayer
+        {thumbnail && <div
             className={thumbnailActive ? assetClasses.thumbInactive : undefined}
-            file={thumbnail}
-            title={resolvedTitle}
-            size={thumbSize}
-            autoPlayable={false}
-        />}
-        {thumbnailActive && <FilePlayer
-            size={thumbSize}
-            file={thumbnailActive}
-            title={resolvedTitle}
-            autoPlayable={false}
-            className={assetClasses.thumbActive}
-        />}
+        >
+            <FilePlayer
+                file={thumbnail}
+                title={resolvedTitle}
+                minDimensions={dimensions}
+                maxDimensions={dimensions}
+                autoPlayable={false}
+            />
+        </div>}
+        {thumbnailActive && <div className={assetClasses.thumbActive}>
+            <FilePlayer
+                minDimensions={dimensions}
+                maxDimensions={dimensions}
+                file={thumbnailActive}
+                title={resolvedTitle}
+                autoPlayable={false}
+            />
+        </div>}
         {!thumbnail && original && <AssetFileIcon file={original}/>}
     </Thumb>
 }

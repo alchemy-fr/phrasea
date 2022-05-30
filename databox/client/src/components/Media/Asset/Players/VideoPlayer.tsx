@@ -1,5 +1,5 @@
 import React, {MouseEvent, useContext, useState} from 'react';
-import {PlayerProps} from "./index";
+import {Dimensions, PlayerProps} from "./index";
 import ReactPlayer from "react-player";
 import {Box, IconButton, LinearProgress} from "@mui/material";
 import {DisplayContext} from "../../DisplayContext";
@@ -20,9 +20,28 @@ type Progress = {
 
 const playerActionsClass = 'pa';
 
+export function getMaxVideoDimensions(maxDimensions: Dimensions, ratio: number | undefined): Dimensions {
+    if (!ratio) {
+        return maxDimensions;
+    }
+
+    if (maxDimensions.width * ratio > maxDimensions.height) {
+        return {
+            width: maxDimensions.height / ratio,
+            height: maxDimensions.height,
+        };
+    }
+
+    return {
+        width: maxDimensions.width,
+        height: maxDimensions.width * ratio,
+    }
+}
+
 export default function VideoPlayer({
                                         file,
-                                        thumbSize,
+                                        minDimensions,
+                                        maxDimensions,
                                         onLoad,
                                         autoPlayable,
                                         noInteraction,
@@ -31,16 +50,18 @@ export default function VideoPlayer({
     const [duration, setDuration] = useState<number>();
     const {playVideos, setPlaying} = useContext(DisplayContext)!;
     const [play, setPlay] = useState(false);
+    const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-
+    const videoDimensions = getMaxVideoDimensions(maxDimensions, ratio);
     const autoPlay = autoPlayable && playVideos;
 
     const onPlay = (e: MouseEvent) => {
         e.stopPropagation();
         setPlay(p => {
             setPlaying({
-                stop: !p ? () => setPlay(false) : () => {},
+                stop: !p ? () => setPlay(false) : () => {
+                },
             });
 
             return !p;
@@ -50,12 +71,13 @@ export default function VideoPlayer({
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
     return <Box sx={theme => ({
-        width: thumbSize,
-        height: thumbSize,
         position: 'relative',
         backgroundColor: isAudio ? '#FFF' : '#000',
         display: 'flex',
+        justifyContent: 'center',
         alignItems: 'center',
+        minWidth: minDimensions?.width,
+        minHeight: minDimensions?.height,
         [`.${playerActionsClass}`]: {
             pointerEvents: 'none',
             display: 'flex',
@@ -92,7 +114,7 @@ export default function VideoPlayer({
                 color={'primary'}
             >
                 <PlayComponent
-                    fontSize={getSizeCase(typeof thumbSize === 'number' ? thumbSize : 9999, {
+                    fontSize={getSizeCase(Math.min(maxDimensions.width, maxDimensions.height), {
                         0: 'small',
                         100: 'medium',
                         250: 'large',
@@ -102,10 +124,13 @@ export default function VideoPlayer({
         </div>}
         <ReactPlayer
             url={file.url}
+            {...videoDimensions}
             playing={play || (!isAudio && autoPlay)}
             loop={true}
             onReady={(player) => {
                 onLoad && onLoad();
+                const internalPlayer = player.getInternalPlayer();
+                setRatio(internalPlayer.videoHeight / internalPlayer.videoWidth);
                 setDuration(player.getDuration());
             }}
             onProgress={({played, loaded}) => {
@@ -115,8 +140,6 @@ export default function VideoPlayer({
                 });
             }}
             progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
-            width={thumbSize}
-            height={thumbSize}
             muted={autoPlay}
         />
         {progress && <LinearProgress

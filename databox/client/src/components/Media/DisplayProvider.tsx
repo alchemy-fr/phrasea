@@ -21,6 +21,9 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
+            if (document.activeElement && document.activeElement?.getAttribute('type') === 'text') {
+                return;
+            }
             if (e.code === 'KeyP') {
                 toast.info(previewLocked
                     ? t('layout.previews_unlocked', 'Previews unlocked')

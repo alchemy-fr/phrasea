@@ -2,19 +2,22 @@ import React, {useCallback, useState} from 'react';
 import {Asset} from "../../../types";
 import {Paper, Popper} from "@mui/material";
 import FilePlayer from "./FilePlayer";
+import {getRelativeViewHeight, getRelativeViewWidth} from "../../../lib/style";
+import {createDimensions} from "./Players";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
 };
 
-const size = '50vh';
+const relativeSize = 50;
 
 export default function PreviewPopover({
                                            asset,
                                            anchorEl,
                                        }: Props) {
     const [anchor, setAnchor] = useState<HTMLElement>();
+    const size = Math.min(getRelativeViewWidth(relativeSize), getRelativeViewHeight(relativeSize));
 
     const onLoad = useCallback(() => {
         setAnchor(anchorEl);
@@ -27,11 +30,6 @@ export default function PreviewPopover({
         anchorEl={anchor || null}
         sx={{
             pointerEvents: 'none',
-            'img': {
-                maxWidth: size,
-                maxHeight: size,
-                display: 'block',
-            },
             zIndex: 3,
         }}
         modifiers={[
@@ -66,7 +64,7 @@ export default function PreviewPopover({
             <FilePlayer
                 key={asset.id}
                 file={asset.preview!}
-                size={size}
+                maxDimensions={createDimensions(size)}
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
                 noInteraction={true}

@@ -150,15 +150,19 @@ App\Entity\Core\Asset:
   a_img{1..50} (extends asset):
     title: 'Image #<ucwords($current)>'
     ownerId: <{user_bob}>
+    file: '@f_img_o<current()>'
   a_audio{1..10} (extends asset):
     title: 'Audio #<ucwords($current)>'
     ownerId: <{user_bob}>
+    file: '@f_audio_o<current()>'
   a_video{1..10} (extends asset):
     title: 'Video #<ucwords($current)>'
     ownerId: <{user_alice}>
+    file: '@f_video_o<current()>'
   a_pdf{1..10} (extends asset):
     title: 'PDF #<ucwords($current)>'
     ownerId: <{user_jack}>
+    file: '@f_pdf_o<current()>'
 
 App\Entity\Core\File:
   file (template):

@@ -3,15 +3,14 @@ import {File} from "../../../types";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../lib/file";
 import AssetFileIcon from "./AssetFileIcon";
 import VideoPlayer from "./Players/VideoPlayer";
-import {FileWithUrl} from "./Players";
+import {Dimensions, FileWithUrl} from "./Players";
 import PDFPlayer from "./Players/PDFPlayer";
-
 
 type Props = {
     file: File;
     title: string | undefined;
-    size: number | string;
-    className?: string | undefined;
+    minDimensions?: Dimensions;
+    maxDimensions: Dimensions;
     onLoad?: () => void;
     noInteraction?: boolean;
     autoPlayable: boolean;
@@ -20,8 +19,8 @@ type Props = {
 export default function FilePlayer({
                                        file,
                                        title,
-                                       size,
-                                       className,
+                                       minDimensions,
+                                       maxDimensions,
                                        onLoad,
                                        noInteraction,
                                        autoPlayable,
@@ -31,45 +30,41 @@ export default function FilePlayer({
     if (!file.url) {
         return <AssetFileIcon
             file={file}
-            className={className}
         />
     }
 
     switch (mainType) {
         case FileTypeEnum.Image:
             return <img
-                src={file.url}
-                className={className}
-                alt={title}
-                onLoad={onLoad}
-            />
+                    style={{
+                        maxWidth: maxDimensions.width,
+                        maxHeight: maxDimensions.height,
+                        display: 'block',
+                    }}
+                    src={file.url}
+                    alt={title}
+                    onLoad={onLoad}
+                />
         case FileTypeEnum.Audio:
         case FileTypeEnum.Video:
-            return <div
-                className={className}
-            >
-                <VideoPlayer
+            return <VideoPlayer
                     file={file as FileWithUrl}
-                    thumbSize={size}
+                    minDimensions={minDimensions}
+                    maxDimensions={maxDimensions}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
                     autoPlayable={autoPlayable}
                 />
-            </div>
         case FileTypeEnum.Document:
-            return <div
-                className={className}
-            >
-                <PDFPlayer
+            return <PDFPlayer
                     file={file as FileWithUrl}
-                    thumbSize={size}
+                    minDimensions={minDimensions}
+                    maxDimensions={maxDimensions}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
                 />
-            </div>
         default:
             return <div
-                className={className}
                 style={{
                     width: '100%',
                     height: '100%',

@@ -1,44 +1,44 @@
 import React, {useCallback, useState} from 'react';
 import {PlayerProps} from "./index";
-import {Box} from "@mui/material";
 import {Document, Page} from 'react-pdf/dist/esm/entry.webpack';
+import {getMaxVideoDimensions} from "./VideoPlayer";
 import {PDFPageProxy} from "react-pdf";
 
 type Props = {} & PlayerProps;
 
 export default function PDFPlayer({
                                       file,
-                                      thumbSize,
+                                      minDimensions,
+                                      maxDimensions,
                                       onLoad,
                                       noInteraction,
                                   }: Props) {
-    let size: number;
-    if (typeof thumbSize === 'string') {
-        const docHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        size = docHeight * (parseInt(thumbSize.substring(0, thumbSize.length - 2)) / 100);
-    } else {
-        size = thumbSize;
-    }
-
+    const [ratio, setRatio] = useState<number>();
+    const pdfDimensions = getMaxVideoDimensions(maxDimensions, ratio);
     const onDocLoad = useCallback((pdf: any) => {
         if (onLoad) {
-            pdf.getPage(1).then(onLoad);
+            pdf.getPage(1).then((page: PDFPageProxy) => {
+                setRatio(page.view[3] / page.view[2]);
+            });
         }
     }, [onLoad]);
 
     return <div style={{
-        maxWidth: thumbSize,
-        maxHeight: thumbSize,
+        maxWidth: maxDimensions.width,
+        maxHeight: maxDimensions.height,
+        minWidth: minDimensions?.width,
+        minHeight: minDimensions?.height,
         position: 'relative',
         backgroundColor: '#FFF',
     }}
     >
         <Document
             file={file.url} onLoadSuccess={onDocLoad}>
-            <Page
-                height={size}
+            {ratio && <Page
+                {...pdfDimensions}
                 pageNumber={1}
-            />
+                onLoadSuccess={onLoad}
+            />}
         </Document>
     </div>
 }
