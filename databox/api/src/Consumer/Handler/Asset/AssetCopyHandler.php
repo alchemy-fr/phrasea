@@ -32,6 +32,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         $id = $payload['id'];
         $dest = $payload['dest'];
         $userId = $payload['userId'];
+        $groupsId = $payload['groupsId'] ?? [];
         $link = $payload['link'] ?? false;
         $options = $payload['options'] ?? [];
 
@@ -60,7 +61,13 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
                 $em->flush();
             }
         } else {
-            $this->assetCopier->copyAsset($userId, $asset, $destWorkspace, $destCollection, $options);
+            $this->assetCopier->copyAsset(
+                $userId,
+                $asset,
+                $destWorkspace,
+                $destCollection,
+                $options
+            );
         }
     }
 
@@ -69,11 +76,12 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         return [self::EVENT];
     }
 
-    public static function createEvent(string $userId, string $id, string $destination, ?bool $link = null, array $options = []): EventMessage
+    public static function createEvent(string $userId, array $groupsId, string $id, string $destination, ?bool $link = null, array $options = []): EventMessage
     {
         return new EventMessage(self::EVENT, [
             'id' => $id,
             'userId' => $userId,
+            'groupsId' => $groupsId,
             'dest' => $destination,
             'link' => $link,
             'options' => $options,

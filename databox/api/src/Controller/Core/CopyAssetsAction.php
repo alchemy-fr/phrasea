@@ -59,6 +59,7 @@ class CopyAssetsAction extends AbstractController
 
             $this->eventProducer->publish(AssetCopyHandler::createEvent(
                 $user->getId(),
+                $user->getGroupIds(),
                 $asset->getId(),
                 $data->destination,
                 $symlink,

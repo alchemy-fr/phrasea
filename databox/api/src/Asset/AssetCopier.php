@@ -12,6 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
+use App\Security\RenditionPermissionManager;
 use App\Storage\RenditionPathGenerator;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,21 +28,25 @@ class AssetCopier
     public const OPT_WITH_TAGS = 'withTags';
 
     private array $fileCopies = [];
+    private RenditionPermissionManager $renditionPermissionManager;
 
     public function __construct(
         EventProducer $eventProducer,
         EntityManagerInterface $em,
         FileStorageManager $storageManager,
-        RenditionPathGenerator $pathGenerator
+        RenditionPathGenerator $pathGenerator,
+        RenditionPermissionManager $renditionPermissionManager
     ) {
         $this->eventProducer = $eventProducer;
         $this->em = $em;
         $this->storageManager = $storageManager;
         $this->pathGenerator = $pathGenerator;
+        $this->renditionPermissionManager = $renditionPermissionManager;
     }
 
     public function copyAsset(
         string $userId,
+        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
@@ -50,18 +55,33 @@ class AssetCopier
     {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         if (!$sameWorkspace) {
-            $file = $this->copyFile($asset->getFile(), $workspace);
-            $this->em->flush();
+            if (!$asset->getFile()) {
+                $options[self::OPT_WITH_TAGS] = false;
+                $options[self::OPT_WITH_ATTRIBUTES] = false;
+                $this->doCopyAsset(
+                    $userId,
+                    $groupsId,
+                    $asset,
+                    $workspace,
+                    $collection,
+                    $options
+                );
+                $this->em->flush();
+            } else {
+                $file = $this->copyFile($asset->getFile(), $workspace);
+                $this->em->flush();
 
-            $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
-                $userId,
-                $file->getId(),
-                $collection ? [$collection->getId()] : [],
-                $asset->getTitle()
-            ));
+                $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
+                    $userId,
+                    $file->getId(),
+                    $collection ? [$collection->getId()] : [],
+                    $asset->getTitle()
+                ));
+            }
         } else {
             $this->doCopyAsset(
                 $userId,
+                $groupsId,
                 $asset,
                 $workspace,
                 $collection,
@@ -74,6 +94,7 @@ class AssetCopier
 
     private function doCopyAsset(
         string $userId,
+        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
@@ -95,7 +116,12 @@ class AssetCopier
         }
 
         foreach ($asset->getRenditions() as $rendition) {
-            $this->copyRendition($rendition, $copy);
+            if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(),
+                $userId,
+                $groupsId
+            )) {
+                $this->copyRendition($rendition, $copy);
+            }
         }
 
         if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
@@ -162,9 +188,8 @@ class AssetCopier
         $copy->setType($file->getType());
         $copy->setWorkspace($workspace);
         $copy->setAlternateUrls($file->getAlternateUrls());
-
-        $copy->setPathPublic($copy->isPathPublic());
-        $copy->setStorage($copy->getStorage());
+        $copy->setPathPublic($file->isPathPublic());
+        $copy->setStorage($file->getStorage());
         $copy->setSize($file->getSize());
 
         if ($file->getStorage() === File::STORAGE_S3_MAIN) {
@@ -172,8 +197,9 @@ class AssetCopier
             $extension = strtolower(pathinfo($file->getPath(), PATHINFO_EXTENSION) ?? '');
             $path = $this->pathGenerator->generatePath($workspace->getId(), $extension);
             $this->storageManager->storeStream($path, $stream);
+            $copy->setPath($path);
         } else {
-            $copy->setPath($copy->getPath());
+            $copy->setPath($file->getPath());
         }
 
         $this->em->persist($copy);
