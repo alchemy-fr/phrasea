@@ -26,11 +26,26 @@ class AssetRepository extends EntityRepository
     /**
      * @return Asset[]
      */
-    public function findByKey(string $key, string $workspaceId): ?Asset
+    public function findByKeys(array $keys, string $workspaceId): array
     {
-        return $this->findOneBy([
-            'key' => $key,
-            'workspace' => $workspaceId,
-        ]);
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->andWhere('t.key IN (:keys)')
+            ->setParameter('keys', $keys)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Asset[]
+     */
+    public function findByIds(array $ids): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
     }
 }

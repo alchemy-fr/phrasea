@@ -36,5 +36,23 @@ resources:
         security_post_denormalize: 'is_granted("CREATE", object)'
       delete_by_key:
         method: DELETE
-        path: /assets-by-key
-        controller: App\Controller\Core\DeleteAssetByKey
+        path: /assets-by-keys
+        controller: App\Controller\Core\DeleteAssetByKeysAction
+      delete_by_ids:
+        method: DELETE
+        path: /assets
+        controller: App\Controller\Core\DeleteAssetByIdsAction
+      post_move:
+        attributes:
+          receive: true
+        input: App\Api\Model\Input\MoveAssetInput
+        method: POST
+        path: /assets/move
+        controller: App\Controller\Core\MoveAssetsAction
+      post_copy:
+        attributes:
+          receive: true
+        input: App\Api\Model\Input\CopyAssetInput
+        method: POST
+        path: /assets/copy
+        controller: App\Controller\Core\CopyAssetsAction

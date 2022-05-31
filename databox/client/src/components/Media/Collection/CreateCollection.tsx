@@ -4,12 +4,11 @@ import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack"
 import {CollectionForm} from "../../Form/CollectionForm";
 import {Collection} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
-import {postCollection} from "../../../api/collection";
+import {clearWorkspaceCache, postCollection} from "../../../api/collection";
 import {toast} from "react-toastify";
 import {useModals} from "@mattjennings/react-modal-stack";
 import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
-import {Chip} from "@mui/material";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
 
 type Props = {
@@ -42,6 +41,7 @@ export default function CreateCollection({
             });
         },
         onSuccess: (coll) => {
+            clearWorkspaceCache();
             toast.success(t('form.collection_create.success', 'Collection created!'))
             closeModal();
             onCreate(coll);

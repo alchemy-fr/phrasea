@@ -13,9 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class DeleteAssetByKey extends AbstractController
+class DeleteAssetByIdsAction extends AbstractController
 {
     private EventProducer $eventProducer;
     private EntityManagerInterface $em;
@@ -28,25 +27,19 @@ class DeleteAssetByKey extends AbstractController
 
     public function __invoke(Request $request)
     {
-        $key = $request->request->get('key');
-        $workspaceId = $request->request->get('workspaceId');
-        if (!$key) {
-            throw new BadRequestHttpException('Missing "key"');
-        }
-        if (!$workspaceId) {
-            throw new BadRequestHttpException('Missing "workspace"');
+        /** @var array $ids */
+        $ids = $request->request->get('ids');
+        if (!$ids) {
+            throw new BadRequestHttpException('Missing "ids"');
         }
 
-        $asset = $this->em->getRepository(Asset::class)
-            ->findByKey($key, $workspaceId);
+        $assets = $this->em->getRepository(Asset::class)
+            ->findByIds($ids);
 
-        if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException('Asset not found');
+        foreach ($assets as $asset) {
+            $this->denyAccessUnlessGranted(AssetVoter::DELETE, $asset);
+            $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
         }
-
-        $this->denyAccessUnlessGranted(AssetVoter::DELETE, $asset);
-
-        $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
 
         return new Response('', 204);
     }

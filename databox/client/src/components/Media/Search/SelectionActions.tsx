@@ -221,7 +221,7 @@ export default function SelectionActions({
                         onClick: onCopy,
                         disabled: !canEdit,
                         startIcon: <FileCopyIcon/>,
-                    }
+                    },
                 ]}
             >
                 {t('asset_actions.edit', 'Edit')}

@@ -6,7 +6,7 @@ import {Typography} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
-import {addAssetToCollection} from "../../../../api/collection";
+import {addAssetToCollection, moveAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
@@ -41,10 +41,8 @@ export default function MoveAssetsDialog({
         errors: remoteErrors,
         submitting,
     } = useFormSubmit({
-        onSubmit: async (data: FormData) => {
-            await Promise.all(assetIds
-                .map(id => addAssetToCollection(data.destination, `/assets/${id}`)));
-        }, onSuccess: () => {
+        onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
+        onSuccess: () => {
             closeModal();
             onComplete();
         },

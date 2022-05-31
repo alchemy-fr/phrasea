@@ -62,6 +62,23 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         ]));
     }
 
+    public static function createEvent(
+        string $userId,
+        string $fileId,
+        array $collections,
+        ?string $title = null,
+        ?string $filename = null
+    ): EventMessage
+    {
+        return new EventMessage(self::EVENT, [
+            'userId' => $userId,
+            'fileId' => $fileId,
+            'collections' => $collections,
+            'title' => $title,
+            'filename' => $filename,
+        ]);
+    }
+
     public static function getHandledEvents(): array
     {
         return [self::EVENT];

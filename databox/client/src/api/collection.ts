@@ -28,6 +28,10 @@ export async function getCollections(options: CollectionOptions): Promise<ApiCol
 
 const cache: Record<string, any> = {};
 
+export function clearWorkspaceCache(): void {
+    delete cache.ws;
+}
+
 export async function getWorkspaces(): Promise<Workspace[]> {
     if (cache.hasOwnProperty('ws')) {
         return cache.ws;
@@ -102,4 +106,25 @@ export async function addAssetToCollection(collectionIri: string, assetIri: stri
     });
 
     return res.data;
+}
+
+type CopyOptions = {
+    withAttributes?: boolean;
+    withTags?: boolean;
+};
+
+export async function copyAssets(assetIds: string[], destIri: string, byReference: boolean, options: CopyOptions = {}): Promise<void> {
+    await apiClient.post(`/assets/copy`, {
+        destination: destIri,
+        ids: assetIds,
+        byReference,
+        ...options,
+    });
+}
+
+export async function moveAssets(assetIds: string[], destIri: string): Promise<void> {
+    await apiClient.post(`/assets/move`, {
+        destination: destIri,
+        ids: assetIds,
+    });
 }

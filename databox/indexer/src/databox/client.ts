@@ -129,10 +129,10 @@ export class DataboxClient {
     async deleteAsset(workspaceId: string, key: string): Promise<void> {
         await this.authenticate();
 
-        await this.client.delete(`/assets-by-key`, {
+        await this.client.delete(`/assets-by-keys`, {
             data: {
                 workspaceId,
-                key,
+                keys: [key],
             }
         });
     }

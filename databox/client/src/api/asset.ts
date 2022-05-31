@@ -112,6 +112,14 @@ export async function deleteAsset(id: string): Promise<void> {
     await apiClient.delete(`/assets/${id}`);
 }
 
+export async function deleteAssets(ids: string[]): Promise<void> {
+    await apiClient.delete(`/assets`, {
+        data: {
+            ids,
+        }
+    });
+}
+
 export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
     const res = await apiClient.get(`/attribute-definitions`, {
         params: {

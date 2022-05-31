@@ -136,4 +136,9 @@ class File extends AbstractUuidEntity
     {
         $this->pathPublic = $pathPublic;
     }
+
+    public function setAlternateUrls(?array $alternateUrls): void
+    {
+        $this->alternateUrls = $alternateUrls;
+    }
 }

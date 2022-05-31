@@ -2,7 +2,7 @@ import React from 'react';
 import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import ConfirmDialog from "../../../Ui/ConfirmDialog";
 import {useTranslation} from "react-i18next";
-import {deleteAsset} from "../../../../api/asset";
+import {deleteAsset, deleteAssets} from "../../../../api/asset";
 
 type Props = {
     assetIds: string[];
@@ -17,7 +17,7 @@ export default function DeleteAssetsConfirm({
     const count = assetIds.length;
 
     const onDeleteAssets = async () => {
-        await Promise.all(assetIds.map(deleteAsset));
+        await deleteAssets(assetIds);
         onDelete && onDelete();
     };
 
