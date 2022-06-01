@@ -7,7 +7,6 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import {getSizeCase} from "../../../../lib/sizeCase";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../../lib/file";
-import {stopPropagation} from "../../../../lib/stdFuncs";
 
 type Props = {
     autoPlayable: boolean;
@@ -38,6 +37,12 @@ export function getMaxVideoDimensions(maxDimensions: Dimensions, ratio: number |
     }
 }
 
+function stopPropagationIfNoCtrl(e: MouseEvent) {
+    if (!e.ctrlKey) {
+        e.stopPropagation();
+    }
+}
+
 export default function VideoPlayer({
                                         file,
                                         minDimensions,
@@ -57,6 +62,9 @@ export default function VideoPlayer({
     const autoPlay = autoPlayable && playVideos;
 
     const onPlay = (e: MouseEvent) => {
+        if (e.ctrlKey) {
+            return;
+        }
         e.stopPropagation();
         setPlay(p => {
             setPlaying({
@@ -110,7 +118,7 @@ export default function VideoPlayer({
         {!autoPlay && !noInteraction && <div className={playerActionsClass}>
             <IconButton
                 onClick={onPlay}
-                onMouseDown={stopPropagation}
+                onMouseDown={stopPropagationIfNoCtrl}
                 color={'primary'}
             >
                 <PlayComponent

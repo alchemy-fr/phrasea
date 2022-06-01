@@ -1,5 +1,6 @@
 const assetClasses = {
     item: 'i',
+    controls: 'actrl',
     checkBtb: 'ac',
     settingBtn: 'as',
     title: 't',
@@ -7,6 +8,7 @@ const assetClasses = {
     attributes: 'aa',
     thumbActive: 'tha',
     thumbInactive: 'thia',
+    thumbWrapper: 'tw',
 }
 
 export default assetClasses;

@@ -30,6 +30,7 @@ export default function AssetThumb({
         {...domAttrs}
         selected={selected}
         size={thumbSize}
+        className={assetClasses.thumbWrapper}
     >
         {thumbnail && <div
             className={thumbnailActive ? assetClasses.thumbInactive : undefined}

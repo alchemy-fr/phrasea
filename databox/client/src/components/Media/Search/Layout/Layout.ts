@@ -13,7 +13,7 @@ export type LayoutProps = {
     assets: Asset[];
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
-    onPreviewToggle: OnPreviewToggle;
+    onPreviewToggle?: OnPreviewToggle;
     selectedAssets: SelectedAssets;
-    onContextMenuOpen: TOnContextMenuOpen;
+    onContextMenuOpen?: TOnContextMenuOpen;
 }

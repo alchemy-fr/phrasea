@@ -5,17 +5,19 @@ import {Asset} from "../../../types";
 import {Box} from "@mui/material";
 import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
 
-export const LAYOUT_GRID = 0;
-export const LAYOUT_LIST = 1;
+export enum LayoutEnum {
+    Grid,
+    List,
+}
 
 type Props = {
     pages: Asset[][];
-    layout: number;
+    layout: LayoutEnum;
     selectedAssets: string[];
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
-    onPreviewToggle: OnPreviewToggle;
-    onContextMenuOpen: TOnContextMenuOpen;
+    onPreviewToggle?: OnPreviewToggle;
+    onContextMenuOpen?: TOnContextMenuOpen;
 };
 
 export default React.memo<Props>(function Pager({
@@ -55,7 +57,7 @@ export default React.memo<Props>(function Pager({
                     padding: `2px 10px`,
                     backgroundColor: theme.palette.common.white,
                 })}># {i + 1}</Box>}
-                {React.createElement(layout === LAYOUT_GRID ? GridLayout : ListLayout, {
+                {React.createElement(layout === LayoutEnum.Grid ? GridLayout : ListLayout, {
                     assets,
                     onSelect,
                     onUnselect,

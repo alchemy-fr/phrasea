@@ -1,31 +1,33 @@
 import React from "react";
 
 export type PlayingContext = {
-    stop: () => void;
+    stop: VoidFunction;
 }
 
 export type TDisplayContext = {
-    displayTitle: boolean;
-    displayTags: boolean;
-    displayCollections: boolean;
-    toggleDisplayTitle: () => void;
-    toggleDisplayTags: () => void;
-    tagsLimit: number;
-    setTagsLimit: (limit: number) => void;
-    toggleDisplayCollections: () => void;
     collectionsLimit: number;
-    setCollectionsLimit: (limit: number) => void;
-    titleRows: number;
-    setTitleRows: (rows: number) => void;
-    thumbSize: number;
-    setThumbSize: (size: number) => void;
-    playVideos: boolean;
-    togglePlayVideos: () => void;
+    displayAttributes: boolean;
+    displayCollections: boolean;
     displayPreview: boolean;
-    toggleDisplayPreview: () => void;
+    displayTags: boolean;
+    displayTitle: boolean;
+    playVideos: boolean;
     playing: PlayingContext | undefined;
-    setPlaying: (context: PlayingContext) => void;
     previewLocked: boolean;
+    setCollectionsLimit: (limit: number) => void;
+    setPlaying: (context: PlayingContext) => void;
+    setTagsLimit: (limit: number) => void;
+    setThumbSize: (size: number) => void;
+    setTitleRows: (rows: number) => void;
+    tagsLimit: number;
+    thumbSize: number;
+    titleRows: number;
+    toggleDisplayAttributes: VoidFunction;
+    toggleDisplayCollections: VoidFunction;
+    toggleDisplayPreview: VoidFunction;
+    toggleDisplayTags: VoidFunction;
+    toggleDisplayTitle: VoidFunction;
+    togglePlayVideos: VoidFunction;
 }
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

@@ -1,4 +1,4 @@
-import React, {DOMAttributes, HTMLAttributes, MouseEventHandler, PropsWithChildren} from 'react';
+import React, {DOMAttributes, MouseEventHandler, PropsWithChildren} from 'react';
 import {Box} from "@mui/material";
 import {alpha, Theme} from "@mui/material/styles";
 
@@ -6,6 +6,7 @@ type Props = PropsWithChildren<{
     size: number;
     selected?: boolean;
     onMouseOver?: MouseEventHandler | undefined;
+    className?: string | undefined;
 } & DOMAttributes<HTMLElement>>;
 
 export function createSizeTransition(theme: Theme) {
@@ -33,13 +34,15 @@ export default function Thumb({
                                   children,
                                   size,
                                   onMouseOver,
-    onMouseLeave
+                                  onMouseLeave,
+                                  className,
                               }: Props) {
 
     return <Box
         sx={assetSx(size)}
         onMouseOver={onMouseOver}
         onMouseLeave={onMouseLeave}
+        className={className}
     >
         {selected && <Box
             sx={theme => ({

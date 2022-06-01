@@ -1,20 +1,22 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
-import {Checkbox, FormControlLabel, Switch, Typography} from "@mui/material";
+import {Alert, Checkbox, FormControlLabel, Typography} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
-import {addAssetToCollection, copyAssets} from "../../../../api/collection";
+import {copyAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import RemoteErrors from "../../../Form/RemoteErrors";
 import FormRow from "../../../Form/FormRow";
 import SwitchWidget from "../../../Form/SwitchWidget";
+import {Asset} from "../../../../types";
+import AssetSelection from "../AssetSelection";
 
 type Props = {
-    assetIds: string[];
+    assets: Asset[];
     onComplete: () => void;
 } & StackedModalProps;
 
@@ -25,14 +27,48 @@ type FormData = {
     withTags: boolean;
 }
 
+function AssetList({
+                       assets,
+                   }: {
+    assets: Asset[]
+}) {
+    const [selection, setSelection] = useState<string[]>([]);
+    const {t} = useTranslation();
+
+    return <div>
+        <Typography variant={'body1'}>
+            {t('form.copy_assets.asset_not_linkable.select_for_hard_copy', `You can select the asset you want to duplicate to the destination (hard copy):`)}
+        </Typography>
+        <FormControlLabel
+            control={<Checkbox
+                checked={selection.length === assets.length}
+                onChange={(e, checked) => {
+                    setSelection(checked ? assets.map(a => a.id) : []);
+                }}
+            />}
+            label={`${t('form.copy_assets.asset_not_linkable.toggle_select_all', 'Select/Unselect all')} (${assets.length})`}
+            labelPlacement="end"
+        />
+        <AssetSelection
+            style={{
+                maxHeight: 300,
+                overflow: 'auto',
+            }}
+            assets={assets}
+            onSelectionChange={setSelection}
+        />
+    </div>
+}
+
 export default function CopyAssetsDialog({
-                                             assetIds,
+                                             assets,
                                              onComplete,
                                          }: Props) {
+    const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
-    const count = assetIds.length;
+    const count = assets.length;
 
     const {
         handleSubmit,
@@ -57,7 +93,7 @@ export default function CopyAssetsDialog({
         submitting,
     } = useFormSubmit({
         onSubmit: (data: FormData) => copyAssets(
-            assetIds,
+            assets.map(a => a.id),
             data.destination,
             data.byReference,
             {
@@ -70,6 +106,11 @@ export default function CopyAssetsDialog({
             onComplete();
         },
     });
+
+    const nonLinkablePerm: Asset[] = byRef ? assets.filter(a => !a.capabilities.canEdit) : [];
+    const nonLinkableToOtherWS: Asset[] = byRef ? assets
+            .filter(a => a.capabilities.canEdit && workspaceDest && a.workspace.id !== workspaceDest)
+        : [];
 
     const formId = 'copy-assets';
 
@@ -96,24 +137,31 @@ export default function CopyAssetsDialog({
                     label={t('copy_assets.form.by_reference.label', 'Copy by reference (shortcut)')}
                 />
             </FormRow>
-            <FormRow>
-                <SwitchWidget
-                    disabled={byRef}
-                    control={control}
-                    name={'withAttributes'}
-                    label={t('copy_assets.form.with_attributes.label', 'Copy attributes')}
-                />
-            </FormRow>
-            <FormRow>
-                <SwitchWidget
-                    disabled={byRef}
-                    control={control}
-                    name={'withTags'}
-                    label={t('copy_assets.form.with_tags.label', 'Copy tags')}
-                />
-            </FormRow>
+            <div style={{
+                display: byRef ? 'none' : 'block',
+            }}>
+                <FormRow>
+                    <SwitchWidget
+                        disabled={byRef}
+                        control={control}
+                        name={'withAttributes'}
+                        label={t('copy_assets.form.with_attributes.label', 'Copy attributes')}
+                    />
+                </FormRow>
+                <FormRow>
+                    <SwitchWidget
+                        disabled={byRef}
+                        control={control}
+                        name={'withTags'}
+                        label={t('copy_assets.form.with_tags.label', 'Copy tags')}
+                    />
+                </FormRow>
+            </div>
             <FormRow>
                 <CollectionTreeWidget
+                    onChange={(nodeId, workspaceId) => {
+                        setWorkspaceDest(workspaceId);
+                    }}
                     control={control}
                     name={'destination'}
                     rules={{
@@ -122,6 +170,34 @@ export default function CopyAssetsDialog({
                     label={t('form.copy_assets.destination.label', 'Destination')}
                 />
             </FormRow>
+
+            {nonLinkablePerm.length > 0 && <Alert
+                severity={'warning'}
+                sx={{
+                    flexGrow: 1,
+                    '.MuiAlert-message': {
+                        flexGrow: 1,
+                    }
+                }}
+            >
+                <Typography variant={'body1'}>
+                    {t('form.copy_assets.asset_not_linkable.permission', `The following assets cannot be copied by reference because you don't have sufficient permission.`)}
+                </Typography>
+                <AssetList
+                    assets={nonLinkablePerm}
+                />
+            </Alert>}
+            {nonLinkableToOtherWS.length > 0 && <Alert
+                severity={'warning'}
+            >
+                <Typography variant={'body1'}>
+                    {t('form.copy_assets.asset_not_linkable.other_ws', `The following assets cannot be copied by reference in another workspace.`)}
+                </Typography>
+                <AssetList
+                    assets={nonLinkableToOtherWS}
+                />
+            </Alert>}
+
             <FormFieldErrors field={'destination'} errors={errors}/>
         </form>
         <RemoteErrors errors={remoteErrors}/>

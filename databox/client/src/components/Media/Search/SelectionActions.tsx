@@ -1,15 +1,15 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import {LAYOUT_GRID, LAYOUT_LIST} from "./Pager";
+import {LayoutEnum} from "./Pager";
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
-import {AssetSelectionContext} from "../AssetSelectionContext";
-import {ResultContext} from "./ResultContext";
+import {AssetSelectionContext, TAssetSelectionContext} from "../AssetSelectionContext";
+import {ResultContext, TResultContext} from "./ResultContext";
 import {useModals} from "@mattjennings/react-modal-stack";
 import DebugEsModal from "./DebugEsModal";
 import {styled} from "@mui/material/styles";
@@ -45,6 +45,10 @@ type Props = {
     layout: number;
     onLayoutChange: (l: number) => void;
 };
+
+function getSelectedAssets(selectionContext: TAssetSelectionContext, resultContext: TResultContext): Asset[] {
+    return selectionContext.selectedAssets.map(id => getAsset(resultContext.pages, id));
+}
 
 function getAsset(pages: Asset[][], id: string): Asset {
     for (let i = 0; i < pages.length; i++) {
@@ -103,24 +107,16 @@ export default function SelectionActions({
         });
     };
 
-    const onCopy = () => {
-        openModal(CopyAssetsDialog, {
-            assetIds: selectionContext.selectedAssets,
-            onComplete: () => {
-                resultContext.reload();
-            }
-        });
-    };
-
     const {
         canDownload,
         canDelete,
         canEdit,
+        onCopy,
     } = useMemo(() => {
         let canDownload = false;
         let canDelete = false;
         let canEdit = false;
-        selectionContext.selectedAssets.map(id => getAsset(resultContext.pages, id)).forEach(a => {
+        getSelectedAssets(selectionContext, resultContext).forEach(a => {
             if (a?.original?.url) {
                 canDownload = true;
             }
@@ -136,6 +132,14 @@ export default function SelectionActions({
             canDownload,
             canDelete,
             canEdit,
+            onCopy: () => {
+                openModal(CopyAssetsDialog, {
+                    assets: getSelectedAssets(selectionContext, resultContext),
+                    onComplete: () => {
+                        resultContext.reload();
+                    }
+                });
+            }
         };
     }, [selectionContext.selectedAssets]);
 
@@ -276,13 +280,13 @@ export default function SelectionActions({
             >
                 <TooltipToggleButton
                     tooltipProps={{title: t('layout.view.grid', 'Grid view')}}
-                    value={LAYOUT_GRID}
+                    value={LayoutEnum.Grid}
                 >
                     <GridViewIcon/>
                 </TooltipToggleButton>
                 <TooltipToggleButton
                     tooltipProps={{title: t('layout.view.list', 'List view')}}
-                    value={LAYOUT_LIST}>
+                    value={LayoutEnum.List}>
                     <ViewListIcon/>
                 </TooltipToggleButton>
             </StyledToggleButtonGroup>

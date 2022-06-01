@@ -2,7 +2,20 @@ App\Entity\Core\Workspace:
   w_marketplace:
     name: Marketplace
     slug: marketplace
-    ownerId: super_user
+    ownerId: <{user_admin}>
+
+App\Entity\Core\Collection:
+  collection_m (template):
+    workspace: '@w_marketplace'
+    ownerId: <{user_admin}>
+    privacy: 5
+
+  c_m_{tv, furniture} (extends collection_m):
+    title: '<ucwords($current)>'
+
+  c_m_furniture_{shelf, table, chest} (extends collection_m):
+    parent: '@c_m_furniture'
+    title: '<ucwords($current)>'
 
 App\Entity\Core\RenditionClass:
   m_rc_public:
@@ -33,30 +46,3 @@ App\Entity\Core\RenditionDefinition:
     workspace: '@w_marketplace'
     class: '@m_rc_public'
     useAsThumbnailActive: true
-
-#
-#App\Entity\User\User:
-#  u_:
-#
-#App\Entity\User\Group:
-#  g_admin:
-#  g_admin_sport:
-#  g_editor_sport:
-#
-#App\Entity\Core\Collection:
-#  __defaults:
-#    workspace: '@w_marketplace'
-#  c_
-#    title: '<current()>'
-#    ownerId: '<username()>'
-#    workspace: '@main_ws'
-#    __calls:
-#      - setPublic (55%?): [true]
-#
-#App\Entity\Core\Asset:
-#  asset{1..100}:
-#    title: '<firstName()>'
-#    ownerId: '<username()>'
-#    workspace: '@main_ws'
-#    __calls:
-#      - setPublic (55%?): [true]

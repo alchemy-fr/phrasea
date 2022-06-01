@@ -10,6 +10,7 @@ import assetClasses from "./classes";
 import AssetTagList from "../../Asset/Widgets/AssetTagList";
 import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 import {stopPropagation} from "../../../../lib/stdFuncs";
+import PrivacyChip from "../../../Ui/PrivacyChip";
 
 const AssetItem = React.memo(({
                                   asset,
@@ -18,15 +19,17 @@ const AssetItem = React.memo(({
                                   onUnselect,
                                   onContextMenuOpen,
                                   thumbSize,
+                                  displayAttributes,
                                   onPreviewToggle,
                               }: {
     asset: Asset;
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
+    displayAttributes: boolean;
     selected: boolean;
-    onContextMenuOpen: TOnContextMenuOpen;
+    onContextMenuOpen?: TOnContextMenuOpen;
     thumbSize: number;
-    onPreviewToggle: OnPreviewToggle;
+    onPreviewToggle?: OnPreviewToggle;
 }) => {
     return <div
         onMouseDown={(e) => onSelect(asset.id, e)}
@@ -49,7 +52,7 @@ const AssetItem = React.memo(({
             wrap={'nowrap'}
         >
             <Grid item>
-                <IconButton
+                {onContextMenuOpen && <IconButton
                     className={assetClasses.settingBtn}
                     onClick={(e) => onContextMenuOpen(e, asset)}
                     color={'inherit'}
@@ -59,10 +62,10 @@ const AssetItem = React.memo(({
                         fontSize={'small'}
                         scale={0.45}
                     />
-                </IconButton>
+                </IconButton>}
                 <AssetThumb
-                    onMouseOver={(e) => onPreviewToggle(asset, true, e.currentTarget as HTMLElement)}
-                    onMouseLeave={(e) => onPreviewToggle(asset, false, e.currentTarget as HTMLElement)}
+                    onMouseOver={onPreviewToggle ? (e) => onPreviewToggle(asset, true, e.currentTarget as HTMLElement) : undefined}
+                    onMouseLeave={onPreviewToggle ? (e) => onPreviewToggle(asset, false, e.currentTarget as HTMLElement) : undefined}
                     asset={asset}
                     thumbSize={thumbSize}
                     selected={selected}
@@ -79,14 +82,18 @@ const AssetItem = React.memo(({
                         tags={asset.tags}
                     />
                 </div>}
+                <PrivacyChip
+                    privacy={asset.privacy}
+                    size={'small'}
+                />
                 {asset.collections.length > 0 && <div>
                     <AssetCollectionList
                         collections={asset.collections}
                     />
                 </div>}
-                <Attributes
+                {displayAttributes && <Attributes
                     asset={asset}
-                />
+                />}
             </Grid>
         </Grid>
     </div>
@@ -101,7 +108,7 @@ export default function ListLayout({
                                        selectedAssets,
                                        onPreviewToggle,
                                    }: LayoutProps) {
-    const {thumbSize} = useContext(DisplayContext)!;
+    const {thumbSize, displayAttributes} = useContext(DisplayContext)!;
 
     return <Box
         sx={(theme) => ({
@@ -136,20 +143,21 @@ export default function ListLayout({
                     boxShadow: theme.shadows[2],
                     color: theme.palette.primary.contrastText,
                 },
-                ...createThumbActiveStyle(),
+                [`.${assetClasses.thumbWrapper}`]: createThumbActiveStyle(),
             },
         })}
     >
         {assets.map(a => <div
             key={a.id}
-            onContextMenu={(e) => {
+            onContextMenu={onContextMenuOpen ? (e) => {
                 onContextMenuOpen(e, a);
-            }}
+            } : undefined}
         >
             <AssetItem
                 asset={a}
                 selected={selectedAssets.includes(a.id)}
                 onContextMenuOpen={onContextMenuOpen}
+                displayAttributes={displayAttributes}
                 onSelect={onSelect}
                 onUnselect={onUnselect}
                 thumbSize={thumbSize}

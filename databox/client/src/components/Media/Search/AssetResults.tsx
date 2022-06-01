@@ -2,7 +2,7 @@ import React, {CSSProperties, MouseEvent, useCallback, useContext, useEffect, us
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {Box, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
-import Pager, {LAYOUT_GRID} from "./Pager";
+import Pager, {LayoutEnum} from "./Pager";
 import SearchBar from "./SearchBar";
 import SelectionActions from "./SelectionActions";
 import {Asset} from "../../../types";
@@ -31,7 +31,7 @@ const linearProgressStyle: CSSProperties = {
 const previewEnterDelay = 500;
 const previewLeaveDelay = 400;
 
-function getAssetListFromEvent(currentSelection: string[], id: string, pages: Asset[][], e?: React.MouseEvent): string[] {
+export function getAssetListFromEvent(currentSelection: string[], id: string, pages: Asset[][], e?: React.MouseEvent): string[] {
     if (e?.ctrlKey) {
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
     }
@@ -77,13 +77,14 @@ export default function AssetResults() {
         anchorEl: HTMLElement,
     }>(null);
     const {t} = useTranslation();
-    const [layout, setLayout] = useState(LAYOUT_GRID);
+    const [layout, setLayout] = useState(LayoutEnum.Grid);
     const timer = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 'a') {
                 e.preventDefault();
+                e.stopPropagation();
                 assetSelection.selectAssets(resultContext.pages.map(p => p.map(a => a.id)).flat());
             }
         }

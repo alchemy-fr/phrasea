@@ -67,8 +67,6 @@ export default function LeftPanel() {
         setTab(newValue);
     };
 
-    console.log('t', t);
-
     return <>
         <AntTabs
             value={t}

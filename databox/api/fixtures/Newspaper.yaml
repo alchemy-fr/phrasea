@@ -100,39 +100,39 @@ App\Entity\Core\RenditionDefinition:
 # others
 
 App\Entity\Core\Collection:
-  collection (template):
+  collection_n (template):
     workspace: '@w_newspaper'
     ownerId: <{user_admin}>
 
-  c_{sport, entertainment} (extends collection):
+  c_n_{sport, entertainment} (extends collection_n):
     title: '<ucwords($current)>'
 
-  c_sport_{football, rugby, tennis} (extends collection):
-    parent: '@c_sport'
+  c_n_sport_{football, rugby, tennis} (extends collection_n):
+    parent: '@c_n_sport'
     title: '<ucwords($current)>'
 
-  c_sport_football_{league, worldcup} (extends collection):
-    parent: '@c_sport_football'
+  c_n_sport_football_{league, worldcup} (extends collection_n):
+    parent: '@c_n_sport_football'
     title: '<ucwords($current)>'
 
-  c_entertainment_{archives} (extends collection):
-    parent: '@c_entertainment'
+  c_n_entertainment_{archives} (extends collection_n):
+    parent: '@c_n_entertainment'
     title: '<ucwords($current)>'
 
-  c_entertainment_{public_videos} (extends collection):
+  c_n_entertainment_{public_videos} (extends collection_n):
     ownerId: <{user_alice}>
     privacy: 3
-    parent: '@c_entertainment'
+    parent: '@c_n_entertainment'
     title: '<ucwords($current)>'
 
-  c_entertainment_public_videos_{movies, series, shows} (extends collection):
+  c_n_entertainment_public_videos_{movies, series, shows} (extends collection_n):
     ownerId: <{user_alice}>
-    parent: '@c_entertainment_public_videos'
+    parent: '@c_n_entertainment_public_videos'
     title: '<ucwords($current)>'
 
-  c_entertainment_archives_{movies, series, shows} (extends collection):
+  c_n_entertainment_archives_{movies, series, shows} (extends collection_n):
     ownerId: <{user_alice}>
-    parent: '@c_entertainment_archives'
+    parent: '@c_n_entertainment_archives'
     title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
@@ -140,12 +140,12 @@ App\Entity\Core\Asset:
     workspace: '@w_newspaper'
     privacy: '<numberBetween(1, 5)>'
     __calls:
-      - addToCollection: ['@c_*']
+      - addToCollection: ['@c_n_*']
       - addTag (80%?): ['@tag_*']
       - addTag (50%?): ['@tag_*']
-      - addToCollection (80%?): ['@c_sport', true]
-      - addToCollection (80%?): ['@c_entertainment_archives_movies', true]
-      - addToCollection (80%?): ['@c_entertainment_archives_series', true]
+      - addToCollection (80%?): ['@c_n_sport', true]
+      - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true]
+      - addToCollection (80%?): ['@c_n_entertainment_archives_series', true]
 
   a_img{1..50} (extends asset):
     title: 'Image #<ucwords($current)>'

@@ -38,7 +38,7 @@ export default function AssetTagList({
     ].flat();
 
     return <Box sx={{
-        px: 1,
+        pr: 1,
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
@@ -46,8 +46,6 @@ export default function AssetTagList({
             my: 0.5,
         }
     }}>
-        <LocalOfferIcon
-            fontSize={'small'}/>
         {chips}
     </Box>
 }

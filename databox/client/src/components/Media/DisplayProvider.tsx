@@ -11,6 +11,7 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
     const [displayPreview, setDisplayPreview] = useState(true);
     const [titleRows, setTitleRows] = useState(1);
     const [displayCollections, setDisplayCollections] = useState(true);
+    const [displayAttributes, setDisplayAttributes] = useState(true);
     const [playVideos, setPlayVideos] = useState(false);
     const [collectionsLimit, setCollectionsLimit] = useState(2);
     const [tagsLimit, setTagsLimit] = useState(1);
@@ -45,25 +46,16 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
     }, [previewLocked]);
 
     return <DisplayContext.Provider value={{
-        thumbSize,
-        setThumbSize,
-        displayTitle,
-        toggleDisplayTitle: () => setDisplayTitle(p => !p),
-        toggleDisplayCollections: () => setDisplayCollections(p => !p),
-        titleRows,
         collectionsLimit,
-        setCollectionsLimit,
-        setTitleRows,
+        displayAttributes,
         displayCollections,
-        playVideos,
-        togglePlayVideos: () => setPlayVideos(p => !p),
-        tagsLimit,
-        setTagsLimit,
-        displayTags,
-        toggleDisplayTags: () => setDisplayTags(p => !p),
         displayPreview,
-        toggleDisplayPreview: () => setDisplayPreview(p => !p),
+        displayTags,
+        displayTitle,
+        playVideos,
         playing: playingContext,
+        previewLocked,
+        setCollectionsLimit,
         setPlaying: (context) => {
             setPlayingContext(p => {
                 if (p && p !== context) {
@@ -73,7 +65,19 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
                 return context;
             })
         },
-        previewLocked,
+        setTagsLimit,
+        setThumbSize,
+        setTitleRows,
+        tagsLimit,
+        thumbSize,
+        titleRows,
+        toggleDisplayAttributes: () => setDisplayAttributes(p => !p),
+        toggleDisplayCollections: () => setDisplayCollections(p => !p),
+        toggleDisplayPreview: () => setDisplayPreview(p => !p),
+        toggleDisplayTags: () => setDisplayTags(p => !p),
+        toggleDisplayTitle: () => setDisplayTitle(p => !p),
+        togglePlayVideos: () => setPlayVideos(p => !p),
+
     }}>
         {children}
     </DisplayContext.Provider>
