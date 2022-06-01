@@ -25,7 +25,7 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
             if (document.activeElement && document.activeElement?.getAttribute('type') === 'text') {
                 return;
             }
-            if (e.code === 'KeyP') {
+            if (e.key === 'p') {
                 toast.info(previewLocked
                     ? t('layout.previews_unlocked', 'Previews unlocked')
                     : t('layout.previews_locked', 'Previews locked')

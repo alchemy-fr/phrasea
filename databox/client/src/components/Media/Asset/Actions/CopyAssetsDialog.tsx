@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
-import {Alert, Checkbox, FormControlLabel, Typography} from "@mui/material";
+import {Alert, Typography} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
@@ -27,33 +27,26 @@ type FormData = {
     withTags: boolean;
 }
 
+const assetListStyle = {
+    maxHeight: 450,
+    overflow: 'auto',
+};
+
 function AssetList({
                        assets,
+                       setSelection,
                    }: {
-    assets: Asset[]
+    assets: Asset[];
+    setSelection: (selection: string[]) => void;
 }) {
-    const [selection, setSelection] = useState<string[]>([]);
     const {t} = useTranslation();
 
     return <div>
         <Typography variant={'body1'}>
             {t('form.copy_assets.asset_not_linkable.select_for_hard_copy', `You can select the asset you want to duplicate to the destination (hard copy):`)}
         </Typography>
-        <FormControlLabel
-            control={<Checkbox
-                checked={selection.length === assets.length}
-                onChange={(e, checked) => {
-                    setSelection(checked ? assets.map(a => a.id) : []);
-                }}
-            />}
-            label={`${t('form.copy_assets.asset_not_linkable.toggle_select_all', 'Select/Unselect all')} (${assets.length})`}
-            labelPlacement="end"
-        />
         <AssetSelection
-            style={{
-                maxHeight: 300,
-                overflow: 'auto',
-            }}
+            style={assetListStyle}
             assets={assets}
             onSelectionChange={setSelection}
         />
@@ -67,6 +60,8 @@ export default function CopyAssetsDialog({
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
     const {closeModal} = useModals();
+    const [selectionOW, setSelectionOW] = useState<string[]>([]);
+    const [selectionP, setSelectionP] = useState<string[]>([]);
 
     const count = assets.length;
 
@@ -92,25 +87,39 @@ export default function CopyAssetsDialog({
         errors: remoteErrors,
         submitting,
     } = useFormSubmit({
-        onSubmit: (data: FormData) => copyAssets(
-            assets.map(a => a.id),
-            data.destination,
-            data.byReference,
-            {
-                withAttributes: data.withAttributes,
-                withTags: data.withTags,
-            }
-        ),
+        onSubmit: (data: FormData) => {
+            const finalSelection: string[] = [
+                ...assets
+                    .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id === workspaceDest)
+                    .map(a => a.id),
+                ...selectionOW,
+                ...selectionP,
+            ];
+
+            return copyAssets(
+                finalSelection,
+                data.destination,
+                data.byReference,
+                {
+                    withAttributes: data.withAttributes,
+                    withTags: data.withTags,
+                }
+            )
+        },
         onSuccess: () => {
             closeModal();
             onComplete();
         },
     });
 
-    const nonLinkablePerm: Asset[] = byRef ? assets.filter(a => !a.capabilities.canEdit) : [];
-    const nonLinkableToOtherWS: Asset[] = byRef ? assets
-            .filter(a => a.capabilities.canEdit && workspaceDest && a.workspace.id !== workspaceDest)
-        : [];
+    const nonLinkablePerm: Asset[] = useMemo(
+        () => byRef ? assets.filter(a => !a.capabilities.canShare) : [],
+        [byRef, assets]
+    );
+    const nonLinkableToOtherWS: Asset[] = useMemo(
+        () => byRef ? assets
+            .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id !== workspaceDest)
+        : [], [workspaceDest, nonLinkablePerm]);
 
     const formId = 'copy-assets';
 
@@ -184,6 +193,7 @@ export default function CopyAssetsDialog({
                     {t('form.copy_assets.asset_not_linkable.permission', `The following assets cannot be copied by reference because you don't have sufficient permission.`)}
                 </Typography>
                 <AssetList
+                    setSelection={setSelectionP}
                     assets={nonLinkablePerm}
                 />
             </Alert>}
@@ -194,6 +204,7 @@ export default function CopyAssetsDialog({
                     {t('form.copy_assets.asset_not_linkable.other_ws', `The following assets cannot be copied by reference in another workspace.`)}
                 </Typography>
                 <AssetList
+                    setSelection={setSelectionOW}
                     assets={nonLinkableToOtherWS}
                 />
             </Alert>}

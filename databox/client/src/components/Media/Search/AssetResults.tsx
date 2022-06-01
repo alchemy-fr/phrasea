@@ -66,6 +66,7 @@ export function getAssetListFromEvent(currentSelection: string[], id: string, pa
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const {loading, pages, loadMore} = resultContext;
     const {previewLocked} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
         asset: Asset;
@@ -101,13 +102,13 @@ export default function AssetResults() {
             return getAssetListFromEvent(prev, id, resultContext.pages, e)
         });
         // eslint-disable-next-line
-    }, [assetSelection]);
+    }, [pages]);
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();
         assetSelection.selectAssets(p => p.filter(i => i !== id));
         // eslint-disable-next-line
-    }, [assetSelection]);
+    }, [pages]);
 
     const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
         if (!asset.preview) {
@@ -146,8 +147,6 @@ export default function AssetResults() {
         });
         // eslint-disable-next-line
     }, [setPreviewAnchorEl, previewLocked]);
-
-    const {loading, pages, loadMore} = resultContext;
 
     const onContextMenuOpen = useCallback((e: MouseEvent<HTMLElement>, asset: Asset, anchorEl?: HTMLElement) => {
         e.preventDefault();

@@ -1,4 +1,4 @@
-import React, {CSSProperties, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {CSSProperties, useCallback, useContext, useMemo} from 'react';
 import {Asset} from "../../../types";
 import AssetSelectionProvider from "../AssetSelectionProvider";
 import {ResultContext} from "../Search/ResultContext";
@@ -8,7 +8,8 @@ import {getAssetListFromEvent} from "../Search/AssetResults";
 import {AssetSelectionContext} from "../AssetSelectionContext";
 import {DisplayContext, TDisplayContext} from "../DisplayContext";
 import {voidFunc} from "../../../lib/utils";
-import {Box} from "@mui/material";
+import {Box, Checkbox, FormControlLabel} from "@mui/material";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     assets: Asset[];
@@ -18,16 +19,12 @@ type Props = {
 };
 
 function SelectionProxy({
-                            assets,
+                            pages,
                         }: {
-    assets: Asset[];
+    pages: Asset[][];
 }) {
+    const {t} = useTranslation();
     const assetSelection = useContext(AssetSelectionContext);
-    const [pages, setPages] = useState([assets]);
-
-    useEffect(() => {
-        setPages([assets]);
-    }, [assets]);
 
     const onSelect = useCallback<OnSelectAsset>((id, e): void => {
         e?.preventDefault();
@@ -35,21 +32,33 @@ function SelectionProxy({
             return getAssetListFromEvent(prev, id, pages, e)
         });
         // eslint-disable-next-line
-    }, [assetSelection]);
+    }, [pages]);
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();
         assetSelection.selectAssets(p => p.filter(i => i !== id));
         // eslint-disable-next-line
-    }, [assetSelection]);
+    }, []);
 
-    return <Pager
-        pages={pages}
-        layout={LayoutEnum.List}
-        selectedAssets={assetSelection.selectedAssets}
-        onSelect={onSelect}
-        onUnselect={onUnselect}
-    />
+    return <div>
+        <FormControlLabel
+            control={<Checkbox
+                checked={assetSelection.selectedAssets.length === pages[0].length}
+                onChange={(e, checked) => {
+                    assetSelection.selectAssets(checked ? pages[0].map(a => a.id) : []);
+                }}
+            />}
+            label={`${t('form.copy_assets.asset_not_linkable.toggle_select_all', 'Select/Unselect all')} (${assetSelection.selectedAssets.length}/${pages[0].length})`}
+            labelPlacement="end"
+        />
+        <Pager
+            pages={pages}
+            layout={LayoutEnum.List}
+            selectedAssets={assetSelection.selectedAssets}
+            onSelect={onSelect}
+            onUnselect={onUnselect}
+        />
+    </div>
 }
 
 export default function AssetSelection({
@@ -57,6 +66,8 @@ export default function AssetSelection({
                                            onSelectionChange,
                                            style,
                                        }: Props) {
+    const pages = useMemo(() => [assets], [assets]);
+
     const displayContext: TDisplayContext = useMemo(() => ({
         collectionsLimit: 1,
         displayAttributes: false,
@@ -73,7 +84,7 @@ export default function AssetSelection({
         setThumbSize: voidFunc,
         setTitleRows: voidFunc,
         tagsLimit: 1,
-        thumbSize: 150,
+        thumbSize: 100,
         titleRows: 1,
         toggleDisplayAttributes: voidFunc,
         toggleDisplayCollections: voidFunc,
@@ -85,15 +96,15 @@ export default function AssetSelection({
 
     return <Box
         sx={theme => ({
-        color: theme.palette.common.black,
+            color: theme.palette.common.black,
             width: '100%',
-    })}
+        })}
         style={style}
     >
         <ResultContext.Provider
             value={{
                 loading: false,
-                pages: [assets],
+                pages,
                 total: assets.length,
                 reload: () => {
                 },
@@ -104,7 +115,7 @@ export default function AssetSelection({
             >
                 <DisplayContext.Provider value={displayContext}>
                     <SelectionProxy
-                        assets={assets}
+                        pages={pages}
                     />
                 </DisplayContext.Provider>
             </AssetSelectionProvider>

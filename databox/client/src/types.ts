@@ -14,7 +14,10 @@ export interface File {
     size: number;
 }
 
-export interface Asset extends IPermissions {
+export interface Asset extends IPermissions<{
+    canEditAttribute: boolean;
+    canShare: boolean;
+}> {
     id: string;
     title?: string | undefined;
     resolvedTitle?: string;
@@ -64,14 +67,14 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     workspace: Workspace;
 }
 
-export type TPermission = {
+export type TPermission<E extends Record<string, boolean> = {}> = {
     canEdit: boolean,
     canDelete: boolean,
     canEditPermissions: boolean,
-}
+} & E;
 
-export interface IPermissions extends ApiHydraObjectResponse {
-    capabilities: TPermission;
+export interface IPermissions<E extends Record<string, boolean> = {}> extends ApiHydraObjectResponse {
+    capabilities: TPermission<E>;
 }
 
 export interface TagFilterRule extends ApiHydraObjectResponse {

@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
+    public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
+    public const SHARE = 'SHARE';
+
     protected function supports(string $attribute, $subject)
     {
         return $subject instanceof Asset;
@@ -48,7 +51,21 @@ class AssetVoter extends AbstractVoter
                     ;
             case self::EDIT:
                 return $isOwner
+                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::OPERATOR, $subject->getReferenceCollection())
+                    );
+            case self::EDIT_ATTRIBUTES:
+                return $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
+                    );
+            case self::SHARE:
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::SHARE, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
                         && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())

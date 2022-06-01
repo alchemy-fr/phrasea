@@ -111,11 +111,13 @@ export default function SelectionActions({
         canDownload,
         canDelete,
         canEdit,
+        canShare,
         onCopy,
     } = useMemo(() => {
         let canDownload = false;
         let canDelete = false;
         let canEdit = false;
+        let canShare = false;
         getSelectedAssets(selectionContext, resultContext).forEach(a => {
             if (a?.original?.url) {
                 canDownload = true;
@@ -126,12 +128,16 @@ export default function SelectionActions({
             if (a?.capabilities.canEdit) {
                 canEdit = true;
             }
+            if (a?.capabilities.canShare) {
+                canShare = true;
+            }
         });
 
         return {
             canDownload,
             canDelete,
             canEdit,
+            canShare,
             onCopy: () => {
                 openModal(CopyAssetsDialog, {
                     assets: getSelectedAssets(selectionContext, resultContext),
@@ -231,7 +237,7 @@ export default function SelectionActions({
                 {t('asset_actions.edit', 'Edit')}
             </GroupButton>
             <Button
-                disabled={!hasSelection}
+                disabled={!canShare}
                 variant={'contained'}
                 startIcon={<ShareIcon/>}
             >

@@ -5,6 +5,7 @@ import {useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from "../Form/RemoteErrors";
+import {LoadingButton} from "@mui/lab";
 
 
 type Props<T extends object> = PropsWithChildren<{
@@ -42,16 +43,17 @@ export default function FormDialog<T extends object>({
             >
                 {t('dialog.cancel', 'Cancel')}
             </Button>
-            <Button
+            <LoadingButton
                 startIcon={submitIcon || <SaveIcon/>}
                 type={formId ? 'submit' : 'button'}
                 form={formId}
+                loading={loading}
                 onClick={onSave}
                 color={'primary'}
                 disabled={loading}
             >
                 {submitLabel || t('dialog.save', 'Save')}
-            </Button>
+            </LoadingButton>
         </>}
     >
         {children}

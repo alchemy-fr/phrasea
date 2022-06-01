@@ -63,6 +63,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         } else {
             $this->assetCopier->copyAsset(
                 $userId,
+                $groupsId,
                 $asset,
                 $destWorkspace,
                 $destCollection,
