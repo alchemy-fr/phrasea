@@ -65,7 +65,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::SHARE:
                 return $isOwner
-                    || $this->security->isGranted(PermissionInterface::SHARE, $subject)
+                    || $this->security->isGranted(self::SHARE, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
                         && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
