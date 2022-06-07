@@ -6,6 +6,8 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
+use App\Api\Model\Input\CopyAssetInput;
+use App\Api\Model\Input\MoveAssetInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
@@ -19,6 +21,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
+use InvalidArgumentException;
 use LogicException;
 
 /**
@@ -95,6 +98,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public ?AssetAttributeBatchUpdateInput $attributeActions = null;
 
+    public ?CopyAssetInput $copyAction = null;
+    public ?MoveAssetInput $moveAction = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -157,14 +163,24 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->title = $title;
     }
 
-    public function addToCollection(Collection $collection): CollectionAsset
+    public function addToCollection(Collection $collection, bool $checkUnique = false): CollectionAsset
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
-            throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
+            throw new InvalidArgumentException('Cannot add to a collection from a different workspace');
         }
 
         if (null === $this->referenceCollection) {
             $this->setReferenceCollection($collection);
+        }
+
+        if ($checkUnique) {
+            $duplicates = $this->collections->filter(function (CollectionAsset $ca) use ($collection): bool {
+                return $ca->getCollection() === $collection;
+            });
+
+            if (!$duplicates->isEmpty()) {
+                return $duplicates->first();
+            }
         }
 
         $assetCollection = new CollectionAsset();
@@ -208,7 +224,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
             throw new LogicException('Cannot add a tag that comes from a different workspace');
         }
 
-        $this->tags->add($tag);
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
     }
 
     public function getTagIds(): array

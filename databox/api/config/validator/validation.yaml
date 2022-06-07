@@ -121,3 +121,22 @@ App\Border\Model\Upload\IncomingUpload:
       - NotNull: ~
       - Count:
           min: 1
+
+App\Entity\Core\Tag:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - workspace
+          - name
+        errorPath: name
+
+App\Model\Export:
+  properties:
+    assets:
+      - NotNull: ~
+      - Count:
+          min: 1
+    renditions:
+      - NotNull: ~
+      - Count:
+          min: 1

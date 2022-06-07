@@ -27,7 +27,7 @@ class WorkspaceOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read", "asset:index", "asset:read", "Webhook"})
+     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read", "asset:index", "asset:read", "Webhook", "renddef:index"})
      */
     private string $name;
 

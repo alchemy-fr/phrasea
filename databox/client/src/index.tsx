@@ -1,15 +1,10 @@
-import './wdyr';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 import './scss/index.scss';
 import Root from "./components/Root";
-
-declare global {
-    interface Window { config: any; }
-}
-
-window.config = window.config || {};
+import './config';
+import './i18n';
 
 ReactDOM.render(
   <React.StrictMode>

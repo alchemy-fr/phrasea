@@ -1,5 +1,5 @@
 import React from 'react';
-import {Chip} from "@mui/material";
+import {Box, Chip} from "@mui/material";
 import {FilterEntry, Filters} from "./Filter";
 import {extractLabelValueFromKey} from "../Asset/Facets";
 
@@ -10,7 +10,8 @@ type FilterProps = {
 
 function truncate(value: string, maxLength: number): string {
     if (value.length > maxLength) {
-        return value.substring(0, maxLength-1)+'…';
+        const pad = maxLength/2;
+        return value.substring(0, pad-1)+'…'+value.substring(value.length - pad);
     }
 
     return value;
@@ -24,6 +25,10 @@ function Filter({
                     onDelete,
                 }: FilterProps) {
     return <Chip
+        sx={{
+            mb: 1,
+            mr: 1,
+    }}
         title={`${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`}
         label={v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ')}
         onDelete={onDelete}
@@ -43,10 +48,12 @@ export default function SearchFilters({
                                           onDelete,
                                           onInvert,
                                       }: Props) {
-    return <div>
+    return <Box sx={{
+        mb: -1,
+        mr: -1,
+    }}>
         {filters.map((f, i) => {
             return <React.Fragment key={i}>
-                {' '}
                 <Filter
                     {...f}
                     onDelete={() => onDelete(i)}
@@ -54,5 +61,5 @@ export default function SearchFilters({
                 />
             </React.Fragment>
         })}
-    </div>
+    </Box>
 }

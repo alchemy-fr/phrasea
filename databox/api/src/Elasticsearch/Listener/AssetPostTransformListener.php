@@ -69,7 +69,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
 
-            [$absolutePath, $cUsers, $cGroups] = $this->cache->get($collection->getId(), function () use ($collection, &$bestPrivacy): array {
+            [$absolutePath, $cUsers, $cGroups] = $this->cache->get($collection->getId().'-'.$bestPrivacy, function () use ($collection, &$bestPrivacy): array {
                 if (($hierarchyBestPrivacy = $collection->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
                     $bestPrivacy = $hierarchyBestPrivacy;
                 }

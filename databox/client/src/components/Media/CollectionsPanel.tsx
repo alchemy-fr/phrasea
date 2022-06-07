@@ -17,17 +17,15 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     }
 
     async load() {
-        const data = await getWorkspaces();
-
-        this.setState({workspaces: data});
+        this.setState({workspaces: await getWorkspaces()});
     }
 
     render() {
-        return <ul className="collections">
+        return <>
             {this.state.workspaces.map(w => <WorkspaceMenuItem
                 {...w}
                 key={w.id}
             />)}
-        </ul>
+        </>
     }
 }

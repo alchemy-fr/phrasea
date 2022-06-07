@@ -9,11 +9,15 @@ type AlternateUrl = {
 export interface File {
     id: string;
     url?: string;
+    type: string;
     alternateUrls: AlternateUrl[];
     size: number;
 }
 
-export interface Asset extends IPermissions {
+export interface Asset extends IPermissions<{
+    canEditAttributes: boolean;
+    canShare: boolean;
+}> {
     id: string;
     title?: string | undefined;
     resolvedTitle?: string;
@@ -57,12 +61,20 @@ export interface AttributeDefinition extends IPermissions {
     searchBoost: number;
 }
 
-export interface IPermissions extends ApiHydraObjectResponse {
-    capabilities: {
-        canEdit: boolean,
-        canDelete: boolean,
-        canEditPermissions: boolean,
-    };
+export interface RenditionDefinition extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    workspace: Workspace;
+}
+
+export type TPermission<E extends Record<string, boolean> = {}> = {
+    canEdit: boolean,
+    canDelete: boolean,
+    canEditPermissions: boolean,
+} & E;
+
+export interface IPermissions<E extends Record<string, boolean> = {}> extends ApiHydraObjectResponse {
+    capabilities: TPermission<E>;
 }
 
 export interface TagFilterRule extends ApiHydraObjectResponse {

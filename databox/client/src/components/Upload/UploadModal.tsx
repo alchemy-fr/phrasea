@@ -1,138 +1,109 @@
-import React, {useEffect, useRef, useState} from 'react';
-import Button from "../ui/Button";
-import Modal from "../Layout/Modal";
-import {UploadFiles} from "../../api/file";
-import {Field, FieldProps, Form, Formik, FormikErrors, FormikProps} from "formik";
-import {TextField} from "formik-material-ui";
-import {FormControl} from "@material-ui/core";
-import {Workspace} from "../../types";
-import {getWorkspaces} from "../../api/collection";
+import React, {useEffect, useState} from 'react';
+import {Box, Grid} from "@mui/material";
 import FileCard from "./FileCard";
-import {makeStyles} from "@material-ui/core/styles";
-import {CollectionsTreeView} from "../Media/Collection/CollectionsTreeView";
+import {toast} from "react-toastify";
+import {useTranslation} from "react-i18next";
+import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import UploadIcon from '@mui/icons-material/Upload';
+import useFormSubmit from "../../hooks/useFormSubmit";
+import FormDialog from "../Dialog/FormDialog";
+import {UploadData, UploadForm} from "./UploadForm";
+import {UploadFiles} from "../../api/file";
 
 type Props = {
-    userId: string;
-    onClose: () => void;
     files: File[];
-}
+    userId: string;
+} & StackedModalProps;
 
-type FormProps = {
-    destinations?: string[];
+type FileWrapper = {
+    id: string;
+    file: File;
 };
 
-function validate(values: FormProps) {
-    const errors: FormikErrors<FormProps> = {};
-
-    if (!values.destinations || values.destinations.length === 0) {
-        errors.destinations = 'You must select one destination at least';
-    }
-
-    return errors;
-}
-
-const useStyles = makeStyles((theme) => ({
-    files: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'start',
-        '& > *': {
-            margin: theme.spacing(1),
-            width: 350
-        },
-        maxHeight: 400,
-        overflow: 'auto',
-    },
-    formControl: {
-        minWidth: 200,
-    }
-}));
-
-
-export default function UploadModal({userId, files, onClose}: Props) {
-    const formRef = useRef<FormikProps<FormProps>>(null);
-    const [workspaces, setWorkspaces] = useState<Workspace[]>();
-
-    const classes = useStyles();
+export default function UploadModal({
+                                        files: initFiles,
+                                        userId,
+                                    }: Props) {
+    const {t} = useTranslation();
+    const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
+        file: f,
+        id: i.toString(),
+    })));
+    const {closeModal} = useModals();
 
     useEffect(() => {
-        getWorkspaces().then(setWorkspaces);
-    }, []);
+        if (files.length === 0) {
+            closeModal();
+        }
+    }, [closeModal, files]);
 
-    function onSubmit(data: FormProps) {
-        UploadFiles(userId, files, {
-            destinations: data.destinations!,
-        });
-        onClose();
-    }
+    const {
+        submitting,
+        handleSubmit,
+        errors
+    } = useFormSubmit({
+        onSubmit: async (data: UploadData) => {
+            return await UploadFiles(userId, files.map(f => f.file), {
+                destinations: data.destinations!,
+            });
+        },
+        onSuccess: (item) => {
+            toast.success(t('form.upload.success', 'Files uploaded!'))
+            closeModal();
+        }
+    });
 
-    const initialValues: FormProps = {
-        destinations: [],
+    const onFileRemove = (id: string) => {
+        setFiles(p => p.filter(f => f.id !== id));
     };
 
-    return <Modal
-        onClose={onClose}
-        header={() => <>
-            Upload
-        </>}
-        footer={() => <>
-            <Button
-                onClick={onClose}
-                className={'btn-secondary'}
-            >
-                Cancel
-            </Button>
-            <Button
-                onClick={() => formRef.current!.submitForm()}
-                className={'btn-primary'}
-            >
-                Upload
-            </Button>
-        </>}
+    const formId = 'upload';
+
+    return <FormDialog
+        title={t('form.upload.title', 'Upload')}
+        formId={formId}
+        loading={submitting}
+        errors={errors}
+        submitIcon={<UploadIcon/>}
+        submitLabel={t('form.upload.submit.title', 'Upload')}
     >
-        <div className={classes.files}>
-            {files.map((f, i) => <FileCard
-                key={i}
-                file={f}
-            />)}
-        </div>
-        {workspaces && <Formik
-            innerRef={formRef}
-            initialValues={initialValues}
-            onSubmit={(values: FormProps, actions) => {
-                onSubmit(values);
-            }}
-            validate={validate}
+        <Box
+            sx={(theme) => ({
+                display: 'flex',
+                flexWrap: 'wrap',
+                bgcolor: theme.palette.grey[100],
+                justifyContent: 'start',
+                '& > *': {
+                    margin: theme.spacing(1),
+                    width: 350
+                },
+                maxHeight: 400,
+                overflow: 'auto',
+                m: theme.spacing(-2),
+                mb: 5,
+                p: 0,
+                pb: 2,
+            })}
         >
-            <Form>
-                <div className="form-group">
-                    <Field
-                        component={TextField}
-                        name="title"
-                        type="text"
-                        label="Asset title"
-                        required={true}
-                    />
-                </div>
-                <Field
-                    name="destinations"
+            <Grid
+                spacing={2}
+                container
+            >
+                {files.map((f) => <Grid
+                    item
+                    key={f.id}
                 >
-                    {({field, form: {errors, setFieldValue}}: FieldProps) => {
-                        return <FormControl
-                            variant="outlined"
-                            className={classes.formControl}
-                        >
-                            <label>
-                                Where?
-                            </label>
-                            <CollectionsTreeView
-                                onChange={(selection) => setFieldValue(field.name, selection)}
-                                workspaces={workspaces}/>
-                            {errors.destinations && <div className="error text-danger">{errors.destinations}</div>}
-                        </FormControl>
-                    }}
-                </Field>
-            </Form>
-        </Formik>}
-    </Modal>
+                    <FileCard
+                        file={f.file}
+                        onRemove={() => onFileRemove(f.id)}
+                    />
+                </Grid>)}
+            </Grid>
+        </Box>
+        <UploadForm
+            formId={formId}
+            onSubmit={handleSubmit}
+            submitting={submitting}
+        />
+    </FormDialog>
 }

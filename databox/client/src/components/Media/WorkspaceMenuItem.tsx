@@ -1,74 +1,55 @@
-import React, {MouseEvent, Component} from "react";
+import React, {MouseEvent, useContext, useState} from "react";
 import {Collection, Workspace} from "../../types";
 import CollectionMenuItem from "./CollectionMenuItem";
-import EditWorkspace from "./Workspace/EditWorkspace";
-import CreateCollection from "./Collection/CreateCollection";
-import {IconButton, ListItem, ListItemSecondaryAction} from "@material-ui/core";
-import CreateNewFolder from "@material-ui/icons/CreateNewFolder";
-import EditIcon from "@material-ui/icons/Edit";
-import {ExpandLess, ExpandMore, MoreHoriz} from "@material-ui/icons";
-import ListSubheader from "@material-ui/core/ListSubheader";
-import {ReactComponent as WorkspaceImg} from "../../images/icons/workspace.svg";
-import Icon from "../ui/Icon";
 import {collectionChildrenLimit, collectionSecondLimit, getCollections} from "../../api/collection";
-import {SearchFiltersContext} from "./Search/SearchFiltersContext";
+import {SearchContext} from "./Search/SearchContext";
+import {Collapse, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import BusinessIcon from '@mui/icons-material/Business';
+import {useModals} from "@mattjennings/react-modal-stack";
+import CreateCollection from "./Collection/CreateCollection";
+import {OnCollectionEdit} from "./Collection/EditCollection";
+import EditWorkspace, {OnWorkspaceEdit} from "./Workspace/EditWorkspace";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
-type State = {
-    expanded: boolean,
-    editing: boolean,
-    addCollection: boolean,
-    loadingMore: boolean,
-    nextCollections?: Collection[];
-    totalCollections?: number;
-}
-
-function propsAreSame(a: Record<string, any>, b: Record<string, any>): boolean {
-    return !Object.keys(a).some(k => a[k] !== b[k]);
-}
-
-export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps, State> {
-    static contextType = SearchFiltersContext;
-    context: React.ContextType<typeof SearchFiltersContext>;
-
-    state: State = {
-        expanded: true,
-        editing: false,
-        addCollection: false,
+export default function WorkspaceMenuItem({
+                                              id,
+                                              name: initialName,
+                                              collections,
+                                              capabilities,
+                                          }: WorkspaceMenuItemProps) {
+    const searchContext = useContext(SearchContext);
+    const {openModal} = useModals();
+    const selected = searchContext.workspaceId === id;
+    const [expanded, setExpanded] = useState(false);
+    const [name, setName] = useState(initialName);
+    const [nextCollections, setNextCollections] = useState<{
+        loadingMore: boolean,
+        items: Collection[],
+        total?: number
+    }>({
         loadingMore: false,
-        nextCollections: undefined,
-    };
+        items: collections,
+    });
 
-    shouldComponentUpdate(nextProps: Readonly<WorkspaceMenuItemProps>, nextState: Readonly<State>, nextContext: React.ContextType<typeof SearchFiltersContext>): boolean {
-        return !nextContext ||
-            (nextContext.selectedWorkspace !== this.context.selectedWorkspace
-                || nextContext.selectedCollection !== this.context.selectedCollection
-            )
-            || propsAreSame(this.state, nextState)
-            || propsAreSame(this.props, nextProps)
-            ;
+    const expand = (force?: boolean) => {
+        setExpanded(p => (!p || true === force));
+    }
+    const expandClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        expand();
     }
 
-    expandWorkspace = async (force = false): Promise<void> => {
-        this.setState((prevState: State) => ({
-            expanded: !prevState.expanded || force,
-        }));
-    }
-
-    onClick = (e: MouseEvent): void => {
-        this.context.selectWorkspace(this.props.id, this.context.selectedWorkspace === this.props.id);
-        this.expandWorkspace(true);
-    }
-
-    getNextPage(): number | undefined {
-        const {collections} = this.props;
-        const {nextCollections, totalCollections} = this.state;
-
+    function getNextPage(): number | undefined {
         if (collections.length >= collectionChildrenLimit) {
-            if (nextCollections && totalCollections) {
-                if (nextCollections.length < totalCollections) {
-                    return Math.floor(nextCollections.length / collectionSecondLimit) + 1;
+            if (nextCollections.total) {
+                if (nextCollections.items.length < nextCollections.total) {
+                    return Math.floor(nextCollections.items.length / collectionSecondLimit) + 1;
                 }
             } else {
                 return 1;
@@ -76,137 +57,150 @@ export default class WorkspaceMenuItem extends Component<WorkspaceMenuItemProps,
         }
     }
 
-    loadMore = async (e: MouseEvent): Promise<void> => {
-        const nextPage = this.getNextPage();
-        this.setState({loadingMore: true});
+    const nextPage = getNextPage();
 
-        const nextCollections = await getCollections({
-            workspaces: [this.props.id],
-            page: nextPage,
+    const onClick = () => {
+        searchContext.selectWorkspace(id, searchContext.workspaceId === id);
+        expand(true);
+    };
+
+    const loadMore = async (e: MouseEvent): Promise<void> => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            loadingMore: true,
+        }));
+        const  page = getNextPage();
+
+        const items = await getCollections({
+            workspaces: [id],
+            page,
             limit: collectionSecondLimit,
             childrenLimit: collectionChildrenLimit,
         });
 
-        this.setState(prevState => ({
+        setNextCollections(prevState => ({
             loadingMore: false,
-            totalCollections: nextCollections.total,
-            nextCollections: (prevState.nextCollections || []).concat(nextCollections.result),
+            total: items.total,
+            items: (page ?? 0) > 1 ? (prevState.items || []).concat(items.result) : items.result,
         }));
     }
 
-    onExpandClick = (e: MouseEvent) => {
-        e.stopPropagation();
-        this.expandWorkspace();
+    const onSubCollEdit: OnCollectionEdit = (item) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            items: prevState.items?.map(i => i.id === item.id ? item : i),
+        }));
+    };
+
+    const onSubCollDelete = (id: string) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            total: (prevState.total ?? 1) - 1,
+            items: prevState.items?.filter(i => i.id !== id),
+        }));
+    };
+
+    const onCollectionCreate: OnCollectionEdit = (item) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            total: (prevState.total ?? 0) + 1,
+            items: (prevState.items || []).concat(item),
+        }));
+        setExpanded(true);
     }
 
-    edit = (e: MouseEvent): void => {
-        e.stopPropagation();
-        this.setState({editing: true});
+    const onWorkspaceEdit: OnWorkspaceEdit = (item) => {
+        setName(item.name);
     }
 
-    closeEdit = () => {
-        this.setState({editing: false});
-    }
-
-    addCollection = (e: MouseEvent): void => {
-        e.stopPropagation();
-        this.setState({addCollection: true});
-    }
-
-    closeCollection = () => {
-        this.setState({addCollection: false});
-    }
-
-    render() {
-        const {
-            id,
-            name,
-            capabilities,
-            collections,
-        } = this.props;
-        const {
-            editing,
-            expanded,
-            addCollection,
-            nextCollections,
-            loadingMore,
-        } = this.state;
-
-        const selected = this.context.selectedWorkspace === id;
-
-        const nextPage = this.getNextPage();
-
-        return <>
-            <ListSubheader
-                disableGutters={true}
-                className={'workspace-item'}
+    return <>
+        <ListSubheader
+            component={'div'}
+            disableGutters={true}
+            className={'workspace-item'}
+        >
+            <ListItem
+                sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'primary.contrastText',
+                    '*': {
+                        color: 'inherit',
+                    },
+                    '.c-action': {
+                        visibility: 'hidden',
+                    },
+                    '&:hover .c-action': {
+                        visibility: 'visible',
+                    },
+                    '.MuiListItemSecondaryAction-root': {
+                        zIndex: 1,
+                    },
+                }}
+                secondaryAction={<>
+                    {capabilities.canEdit && <IconButton
+                        color={'inherit'}
+                        title={'Add collection in this workspace'}
+                        onClick={() => openModal(CreateCollection, {
+                            workspaceId: id,
+                            workspaceTitle: name,
+                            onCreate: onCollectionCreate,
+                        })}
+                        className={'c-action'}
+                        aria-label="add-child">
+                        <CreateNewFolderIcon/>
+                    </IconButton>}
+                    {capabilities.canEdit && <IconButton
+                        color={'inherit'}
+                        onClick={() => openModal(EditWorkspace, {
+                            id,
+                            onEdit: onWorkspaceEdit,
+                        })}
+                        title={'Edit this workspace'}
+                        className={'c-action'}
+                        aria-label="edit">
+                        <EditIcon/>
+                    </IconButton>}
+                    <IconButton
+                        color={'inherit'}
+                        onClick={expandClick}
+                        aria-label="expand-toggle">
+                        {!expanded ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                    </IconButton>
+                </>}
+                disablePadding
             >
-                <ul>
-                    <ListItem
-                        onClick={this.onClick}
-                        selected={selected}
-                        button
-                    >
-                        <Icon
-                            component={WorkspaceImg}
-                        />
-                        {name}
-                        <ListItemSecondaryAction>
-                            {capabilities.canEdit && <IconButton
-                                title={'Add collection in this workspace'}
-                                onClick={this.addCollection}
-                                className={'c-action'}
-                                aria-label="add-child">
-                                <CreateNewFolder/>
-                            </IconButton>}
-                            {capabilities.canEdit && <IconButton
-                                title={'Edit this workspace'}
-                                onClick={this.edit}
-                                className={'c-action'}
-                                aria-label="edit">
-                                <EditIcon/>
-                            </IconButton>}
-                            {collections.length > 0 ? <IconButton
-                                onClick={this.onExpandClick}
-                                aria-label="expand-toggle">
-                                {!expanded ? <ExpandLess
-                                    onClick={this.onExpandClick}
-                                /> : <ExpandMore/>}
-                            </IconButton> : ''}
-                        </ListItemSecondaryAction>
-                    </ListItem>
-                </ul>
-            </ListSubheader>
-            {editing && <EditWorkspace
-                id={this.props.id}
-                onClose={this.closeEdit}
-            />}
-            {addCollection && <CreateCollection
-                workspaceId={this.props['@id']}
-                onClose={this.closeCollection}
-            />}
-            {expanded && !nextCollections && collections.map(c => <CollectionMenuItem
+                <ListItemButton
+                    sx={{
+                        '&.Mui-selected': {
+                            bgcolor: 'secondary.main'
+                        }
+                    }}
+                    onClick={onClick}
+                    selected={selected}
+                >
+                    <ListItemIcon>
+                        <BusinessIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary={name}/>
+                </ListItemButton>
+            </ListItem>
+        </ListSubheader>
+        <Collapse in={expanded && nextCollections.items.length > 0} timeout="auto" unmountOnExit>
+            {nextCollections.items && nextCollections.items.map(c => <CollectionMenuItem
                 {...c}
+                onCollectionEdit={onSubCollEdit}
+                onCollectionDelete={() => onSubCollDelete(c.id)}
                 key={c.id}
                 absolutePath={c.id}
                 level={0}
             />)}
-            {expanded && nextCollections && nextCollections.map(c => <CollectionMenuItem
-                {...c}
-                key={c.id}
-                absolutePath={c.id}
-                level={0}
-            />)}
-            {expanded && Boolean(nextPage) && <ListItem
-                onClick={this.loadMore}
-                disabled={loadingMore}
-                button
+            {expanded && Boolean(nextPage) && <ListItemButton
+                onClick={loadMore}
+                disabled={nextCollections.loadingMore}
             >
-                <Icon
-                    component={MoreHoriz}
-                />
+                <MoreHorizIcon/>
                 Load more collections
-            </ListItem>}
-        </>
-    }
+            </ListItemButton>}
+        </Collapse>
+    </>
 }

@@ -1,41 +1,30 @@
-import React, {PureComponent} from 'react';
-import {BrowserRouter as Router, Route, RouteComponentProps} from "react-router-dom";
-import {oauthClient, OAuthRedirect} from "../oauth";
-import PrivateRoute from "./PrivateRoute";
-import App from "./App";
-import Login from "./Security/Login";
+import React, {PureComponent, Suspense} from 'react';
+import {BrowserRouter, Routes} from "react-router-dom";
+import {oauthClient} from "../oauth";
 import {authenticate} from "../auth";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from "../config";
 import apiClient from "../api/api-client";
-import EditWorkspace from "./Media/Workspace/EditWorkspace";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
-
-type IdRouteProps = RouteComponentProps<{
-    id: string,
-}, {}, {
-    attrs: object,
-}>;
-
-const mapProps = (props: IdRouteProps) => ({
-    ...props,
-    id: props.match.params.id,
-    attrs: props.location.state ? props.location.state.attrs : null,
-});
-
-function createRouteComponent(C: React.ComponentType<RouteComponentProps<any>> | React.ComponentType<any>) {
-    return (props: IdRouteProps) => <C {...mapProps(props)} />
-}
+import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
+import {flattenRoutes, RouteDefinition} from "../routes";
+import createRoute from "./Router/router";
+import {ModalStack} from "@mattjennings/react-modal-stack";
+import FullPageLoader from "./Ui/FullPageLoader";
+import {createCachedTheme, ThemeName} from "../lib/theme";
 
 type State = {
-    user?: User,
-    authenticating: boolean,
+    user?: User;
+    authenticating: boolean;
+    theme: ThemeName;
 };
+
+const scrollbarWidth = 8;
 
 export default class Root extends PureComponent<{}, State> {
     state: State = {
         authenticating: oauthClient.hasAccessToken(),
+        theme: 'default',
     }
 
     componentDidMount() {
@@ -61,7 +50,14 @@ export default class Root extends PureComponent<{}, State> {
         this.authenticate();
     }
 
-    authenticate = (): void => {
+    public logout = () => {
+        oauthClient.logout();
+        if (!config.isDirectLoginForm()) {
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
+        }
+    }
+
+    private authenticate = (): void => {
         if (!oauthClient.hasAccessToken()) {
             return;
         }
@@ -77,20 +73,47 @@ export default class Root extends PureComponent<{}, State> {
     }
 
     render() {
-        const authenticated = oauthClient.isAuthenticated();
-
-        return <UserContext.Provider value={{
-            user: this.state.user,
-        }}>
-            {this.state.authenticating
-                ? <FullPageLoader/>
-                : <Router>
-                    <PrivateRoute path={'/workspaces/:id/edit'} component={createRouteComponent(EditWorkspace)}
-                                  authenticated={authenticated}/>
-                    <Route path={'/'} exact={true} component={App}/>
-                    <Route path={`/auth`} component={OAuthRedirect}/>
-                    <Route path="/login" exact component={Login}/>
-                </Router>}
-        </UserContext.Provider>
+        return <ThemeProvider theme={createCachedTheme(this.state.theme)}>
+            <CssBaseline/>
+            <GlobalStyles
+                styles={(theme) => ({
+                    '*': {
+                        '*::-webkit-scrollbar': {
+                            width: scrollbarWidth
+                        },
+                        '*::-webkit-scrollbar-track': {
+                            borderRadius: 10,
+                        },
+                        '*::-webkit-scrollbar-thumb': {
+                            borderRadius: scrollbarWidth,
+                            backgroundColor: theme.palette.primary.main,
+                        }
+                    },
+                    body: {
+                        backgroundColor: theme.palette.common.white,
+                    }
+                })}
+            />
+            <ModalStack>
+                <UserContext.Provider value={{
+                    user: this.state.user,
+                    logout: this.state.user ? this.logout : undefined,
+                    currentTheme: this.state.theme,
+                    changeTheme: (theme: ThemeName) => {
+                        this.setState({theme});
+                    },
+                }}>
+                    {this.state.authenticating
+                        ? <FullPageLoader/>
+                        : <Suspense fallback={`Loading...`}>
+                            <BrowserRouter>
+                                <Routes>
+                                    {flattenRoutes.map((route: RouteDefinition, index: number) => createRoute(route, index.toString()))}
+                                </Routes>
+                            </BrowserRouter>
+                        </Suspense>}
+                </UserContext.Provider>
+            </ModalStack>
+        </ThemeProvider>
     }
 }

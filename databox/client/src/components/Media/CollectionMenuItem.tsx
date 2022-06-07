@@ -1,292 +1,263 @@
-import React, {MouseEvent, PureComponent} from "react";
+import React, {MouseEvent, useContext, useEffect, useState} from "react";
 import {Collection} from "../../types";
-import {
-    addAssetToCollection,
-    collectionChildrenLimit,
-    collectionSecondLimit,
-    getCollections
-} from "../../api/collection";
+import {collectionChildrenLimit, collectionSecondLimit, deleteCollection, getCollections} from "../../api/collection";
 import apiClient from "../../api/api-client";
-import EditCollection from "./Collection/EditCollection";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import {Collapse, IconButton, ListItemSecondaryAction} from "@material-ui/core";
-import EditIcon from '@material-ui/icons/Edit';
-import CreateNewFolder from '@material-ui/icons/CreateNewFolder';
-import AddPhotoAlternate from '@material-ui/icons/AddPhotoAlternate';
-import DeleteIcon from '@material-ui/icons/Delete';
-import {ExpandLess, ExpandMore, MoreHoriz} from "@material-ui/icons";
+import {SearchContext} from "./Search/SearchContext";
+import {Collapse, IconButton, ListItem, ListItemButton, ListItemText} from "@mui/material";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import EditCollection, {OnCollectionEdit} from "./Collection/EditCollection";
+import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
+import {toast} from "react-toastify";
+import {useTranslation} from "react-i18next";
 import CreateAsset from "./Asset/CreateAsset";
-import {ConnectDropTarget, DropTarget, DropTargetMonitor, DropTargetSpec} from 'react-dnd';
-import {draggableTypes} from "./draggableTypes";
-import classnames from "classnames";
-import {AssetDragProps} from "./Asset/AssetItem";
-import Icon from "../ui/Icon";
-import {SearchFiltersContext} from "./Search/SearchFiltersContext";
-
-type DropTargetProps = {
-    isOver: boolean,
-    connectDropTarget: ConnectDropTarget,
-    canDrop: boolean,
-};
 
 type Props = {
     level: number;
-    absolutePath: string,
+    absolutePath: string;
+    titlePath?: string[];
+    onCollectionEdit: OnCollectionEdit;
+    onCollectionDelete: () => void;
 } & Collection;
 
-type AllProps = Props & DropTargetProps;
-
-type State = {
-    totalChildren?: number;
-    collections?: Collection[],
-    expanded: boolean,
-    editing: boolean,
-    addSubCollection: boolean,
-    addAsset: boolean,
-    loadingMore: boolean,
-}
-
-class CollectionMenuItem extends PureComponent<AllProps, State> {
-    static contextType = SearchFiltersContext;
-    context: React.ContextType<typeof SearchFiltersContext>;
-
-    state: State = {
-        expanded: false,
+export default function CollectionMenuItem({
+                                               id,
+                                               ['@id']: iri,
+                                               children,
+                                               absolutePath,
+                                                titlePath,
+                                               title,
+                                               capabilities,
+                                               onCollectionEdit,
+                                               onCollectionDelete,
+    workspace,
+                                               level,
+                                           }: Props) {
+    const {t} = useTranslation();
+    const {openModal} = useModals();
+    const searchContext = useContext(SearchContext);
+    const [expanded, setExpanded] = useState(false);
+    const [nextCollections, setNextCollections] = useState<{
+        loadingMore: boolean;
+        items?: Collection[];
+        total?: number;
+        page: number;
+    }>({
+        page: 0,
         loadingMore: false,
-        editing: false,
-        addSubCollection: false,
-        addAsset: false,
+        items: children,
+    });
+
+    const childCount = nextCollections.items?.length ?? 0;
+
+    const loadChildren = async () => {
+        if (expanded && childCount > 0) {
+            const data = (await getCollections({
+                parent: id,
+                limit: collectionSecondLimit,
+                childrenLimit: collectionChildrenLimit,
+            }));
+
+            setNextCollections(prevState => ({
+                loadingMore: false,
+                page: 1,
+                total: prevState.page < 1 ? (prevState.total ?? 0) + data.total : data.total,
+                items: prevState.page < 1 ? data.result.filter(c => !(prevState.items || []).some(pc => pc.id === c.id)).concat(
+                    (prevState.items || [])
+                ) : data.result,
+            }));
+        }
     };
 
-    loadMore = async (e: MouseEvent): Promise<void> => {
-        const nextPage = this.getNextPage();
-        this.setState({loadingMore: true});
+    useEffect(() => {
+        if (expanded) {
+            loadChildren();
+        }
+    }, [expanded]);
 
-        const nextCollections = await getCollections({
-            parent: this.props.id,
-            page: nextPage,
+    const expand = (force?: boolean) => {
+        setExpanded(p => (!p || true === force));
+    }
+    const expandClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        expand();
+    }
+
+    const onDelete = (e: MouseEvent): void => {
+        e.stopPropagation();
+        if (window.confirm(t('delete.collection.confirm', 'Delete? Really?'))) {
+            deleteCollection(id).then(() => {
+                toast.success(t('delete.collection.confirmed', 'Collection has been removed!'));
+            });
+            onCollectionDelete();
+        }
+    }
+
+    function getNextPage(): number | undefined {
+        if (childCount >= collectionChildrenLimit) {
+            if (nextCollections.items) {
+                if (childCount < nextCollections.total!) {
+                    return Math.floor(childCount / collectionSecondLimit) + 1;
+                }
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    const nextPage = getNextPage();
+
+    const onClick = () => {
+        searchContext.selectCollection(absolutePath, searchContext.collectionId === absolutePath);
+        expand(true);
+    };
+
+    const loadMore = async (e: MouseEvent): Promise<void> => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            loadingMore: true,
+        }));
+
+        const page = getNextPage();
+        const items = await getCollections({
+            parent: id,
+            page,
             limit: collectionSecondLimit,
             childrenLimit: collectionChildrenLimit,
         });
 
-        this.setState((prevState: State) => ({
+        setNextCollections(prevState => ({
             loadingMore: false,
-            totalChildren: nextCollections.total,
-            collections: (prevState.collections || []).concat(nextCollections.result),
+            page: page ?? 1,
+            total: nextCollections.total,
+            items: (prevState.items || []).concat(items.result),
         }));
     }
 
-    expandCollection = async (force = false): Promise<void> => {
-        const {children} = this.props;
+    const onSubCollEdit: OnCollectionEdit = (item) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            total: nextCollections.total,
+            items: prevState.items?.map(i => i.id === item.id ? item : i),
+        }));
+    };
 
-        this.setState((prevState: State) => {
-            return {
-                expanded: !prevState.expanded || force,
-            };
-        }, async (): Promise<void> => {
-            if (this.state.expanded && children && children.length > 0) {
-                const data = (await getCollections({
-                    parent: this.props.id,
-                    limit: collectionSecondLimit,
-                    childrenLimit: collectionChildrenLimit,
-                }));
-                this.setState({
-                    collections: data.result,
-                    totalChildren: data.total,
-                });
-            }
-        });
-    }
+    const onSubCollDelete = (id: string) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            total: nextCollections.total,
+            items: prevState.items?.filter(i => i.id !== id),
+        }));
+    };
 
-    getNextPage(): number | undefined {
-        const {collections, totalChildren} = this.state;
+    const onCollectionCreate: OnCollectionEdit = (item) => {
+        setNextCollections(prevState => ({
+            ...prevState,
+            total: (prevState.total ?? 0) + 1,
+            items: (prevState.items || []).concat(item),
+        }));
+        setExpanded(true);
+    };
 
-        if (collections && totalChildren && collections.length < totalChildren) {
-            return Math.floor(collections.length / collectionSecondLimit) + 1;
-        }
-    }
+    const selected = searchContext.collectionId === absolutePath;
+    const currentInSelectedHierarchy = searchContext.collectionId && searchContext.collectionId.startsWith(absolutePath);
 
-    onClick = (e: MouseEvent): void => {
-        this.context.selectCollection(this.props.absolutePath, this.context.selectedCollection === this.props.absolutePath);
-        this.expandCollection(true);
-    }
-
-    onExpandClick = (e: MouseEvent) => {
-        e.stopPropagation();
-        this.expandCollection();
-    }
-
-    addSubCollection = (e: MouseEvent): void => {
-        e.stopPropagation();
-        this.setState({addSubCollection: true});
-    }
-
-    closeSubCollection = () => {
-        this.setState({addSubCollection: false});
-    }
-
-    addAsset = (e: MouseEvent): void => {
-        e.stopPropagation();
-        this.setState({addAsset: true});
-    }
-
-    closeAsset = () => {
-        this.setState({addAsset: false});
-    }
-
-    edit = (e: MouseEvent): void => {
-        e.stopPropagation();
-        this.setState({editing: true});
-    }
-
-    closeEdit = () => {
-        this.setState({editing: false});
-    }
-
-    delete = (e: MouseEvent): void => {
-        e.stopPropagation();
-        if (window.confirm(`Delete? Really?`)) {
-            apiClient.delete(`/collections/${this.props.id}`);
-        }
-    }
-
-    render() {
-        const {
-            title,
-            children,
-            absolutePath,
-            capabilities,
-            level,
-        } = this.props;
-        const {isOver, connectDropTarget, canDrop} = this.props
-        const {editing, addSubCollection, expanded, addAsset} = this.state;
-
-        const selected = this.context.selectedCollection === absolutePath;
-        const currentInSelectedHierarchy = this.context.selectedCollection && this.context.selectedCollection.startsWith(absolutePath);
-
-        return <>
-            <li className={classnames(['collection-item'], {
-                'drag-hover': canDrop && isOver,
-            })}>
-                <ul>
-                    {connectDropTarget!(<div>
-                        <ListItem
-                            button
-                            selected={Boolean(selected || currentInSelectedHierarchy)}
-                            onClick={this.onClick}
-                            style={{paddingLeft: `${10 + level * 10}px`}}
-                        >
-                            <ListItemText primary={title}/>
-                            <ListItemSecondaryAction>
-                                {capabilities.canEdit && <IconButton
-                                    onClick={this.addAsset}
-                                    className={'c-action'}
-                                    title={'Add new asset to collection'}
-                                    aria-label="create-asset">
-                                    <AddPhotoAlternate/>
-                                </IconButton>}
-                                {capabilities.canEdit && <IconButton
-                                    onClick={this.addSubCollection}
-                                    className={'c-action'}
-                                    title={'Create new collection in this one'}
-                                    aria-label="add-child">
-                                    <CreateNewFolder/>
-                                </IconButton>}
-                                {capabilities.canEdit && <IconButton
-                                    title={'Edit this collection'}
-                                    onClick={this.edit}
-                                    className={'c-action'}
-                                    aria-label="edit">
-                                    <EditIcon/>
-                                </IconButton>}
-                                {capabilities.canDelete && <IconButton
-                                    onClick={this.delete}
-                                    className={'c-action'}
-                                    aria-label="delete">
-                                    <DeleteIcon/>
-                                </IconButton>}
-                                {children && children.length > 0 ? <IconButton
-                                    onClick={this.onExpandClick}
-                                    aria-label="expand-toggle">
-                                    {!expanded ? <ExpandLess/> : <ExpandMore/>}
-                                </IconButton> : ''}
-                            </ListItemSecondaryAction>
-                        </ListItem>
-                    </div>)}
-                </ul>
-            </li>
-
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                {this.renderChildren()}
-            </Collapse>
-            {editing ? <EditCollection
-                id={this.props.id}
-                onClose={this.closeEdit}
-            /> : ''}
-            {addSubCollection ? <CreateCollection
-                parent={this.props['@id']}
-                parentTitle={this.props.title}
-                onClose={this.closeSubCollection}
-            /> : ''}
-            {addAsset ? <CreateAsset
-                collectionId={this.props['@id']}
-                collectionTitle={this.props.title}
-                onClose={this.closeAsset}
-            /> : ''}
-        </>
-    }
-
-    renderChildren() {
-        const {collections, expanded, loadingMore} = this.state;
-        if (!expanded || !collections) {
-            return '';
-        }
-
-        const nextPage = this.getNextPage();
-
-        return <div className="sub-colls">
-            {collections.map(c => <WrappedCollectionMenuItem
-                {...c}
-                key={c.id}
-                absolutePath={`${this.props.absolutePath}/${c.id}`}
-                level={this.props.level + 1}
-            />)}
-            {Boolean(nextPage) && <ListItem
-                onClick={this.loadMore}
-                disabled={loadingMore}
-                button
+    return <>
+        <ListItem
+            sx={{
+                '.c-action': {
+                    visibility: 'hidden',
+                    bgcolor: 'inherit',
+                },
+                '&:hover .c-action': {
+                    visibility: 'visible',
+                },
+            }}
+            secondaryAction={<>
+                <span className="c-action">
+                    {capabilities.canEdit && <IconButton
+                        title={'Add new asset to collection'}
+                        onClick={() => openModal(CreateAsset, {
+                            collectionId: id,
+                            workspaceTitle: workspace.name,
+                            workspaceId: workspace.id,
+                            titlePath: (titlePath ?? []).concat(title),
+                        })}
+                        aria-label="create-asset">
+                        <AddPhotoAlternateIcon/>
+                    </IconButton>}
+                    {capabilities.canEdit && <IconButton
+                        title={'Create new collection in this one'}
+                        onClick={() => openModal(CreateCollection, {
+                            parent: iri,
+                            workspaceTitle: workspace.name,
+                            titlePath: (titlePath ?? []).concat(title),
+                            onCreate: onCollectionCreate,
+                        })}
+                        aria-label="add-child">
+                        <CreateNewFolderIcon/>
+                    </IconButton>}
+                    {capabilities.canEdit && <IconButton
+                        title={'Edit this collection'}
+                        onClick={() => openModal(EditCollection, {
+                            id,
+                            onEdit: onCollectionEdit,
+                        })}
+                        aria-label="edit">
+                        <EditIcon/>
+                    </IconButton>}
+                    {capabilities.canDelete && <IconButton
+                        onClick={onDelete}
+                        aria-label="delete">
+                        <DeleteIcon/>
+                    </IconButton>}
+                </span>
+                <IconButton
+                    style={{
+                        visibility: childCount > 0 ? 'visible' : 'hidden'
+                    }}
+                    onClick={expandClick}
+                    aria-label="expand-toggle">
+                    {!expanded ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                </IconButton>
+            </>}
+            disablePadding
+        >
+            <ListItemButton
+                selected={Boolean(selected || currentInSelectedHierarchy)}
+                role={undefined}
+                onClick={onClick}
+                style={{paddingLeft: `${10 + level * 10}px`}}
             >
-                <Icon
-                    component={MoreHoriz}
-                />
-                Load more collections
-            </ListItem>}
-        </div>
-    }
+                <ListItemText primary={title}/>
+            </ListItemButton>
+        </ListItem>
+
+        <Collapse in={expanded && childCount > 0} timeout="auto" unmountOnExit>
+            {childCount > 0 && <div className="sub-colls">
+                {nextCollections.items!.map(c => <CollectionMenuItem
+                    {...c}
+                    onCollectionEdit={onSubCollEdit}
+                    onCollectionDelete={() => onSubCollDelete(c.id)}
+                    key={c.id}
+                    absolutePath={`${absolutePath}/${c.id}`}
+                    titlePath={(titlePath ?? []).concat(title)}
+                    level={level + 1}
+                />)}
+                {Boolean(nextPage) && <ListItemButton
+                    onClick={loadMore}
+                    disabled={nextCollections.loadingMore}
+                >
+                    <MoreHorizIcon/>
+                    Load more collections
+                </ListItemButton>}
+            </div>}
+        </Collapse>
+    </>
 }
-
-const itemTarget: DropTargetSpec<Props> = {
-    canDrop(props, monitor: DropTargetMonitor<AssetDragProps>) {
-        return !monitor.getItem().collectionIds.includes(props.id);
-    },
-
-    drop(props, monitor, component) {
-        if (monitor.didDrop()) {
-            return
-        }
-
-        addAssetToCollection(props['@id'], monitor.getItem()['@id']);
-    }
-}
-
-const WrappedCollectionMenuItem = DropTarget<Props>(draggableTypes.ASSET, itemTarget, (connect, monitor): DropTargetProps => {
-    return {
-        connectDropTarget: connect.dropTarget(),
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-    }
-})(CollectionMenuItem);
-
-export default WrappedCollectionMenuItem;

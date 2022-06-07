@@ -1,34 +1,57 @@
 import {ESDebug} from "../../../api/asset";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import {Box, Button, Chip} from "@mui/material";
+import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
+import {useModals} from "@mattjennings/react-modal-stack";
+import AppDialog from "../../Layout/AppDialog";
+import {useTranslation} from "react-i18next";
 
 type Props = {
-    onClose: () => void;
     debug: ESDebug;
+} & StackedModalProps;
+
+function Metric({n}: {
+    n: number
+}) {
+    return <Chip label={<>
+        <Box sx={{
+            display: 'inline-block',
+            fontWeight: 700,
+        }}
+            component={'code'}
+        >{n}</Box>ms
+    </>}/>
 }
 
 export default function DebugEsModal({
                                          debug,
-    onClose,
-}: Props) {
-    return <Dialog onClose={onClose}
-                   aria-labelledby="customized-dialog-title"
-                   open={true}
-                   maxWidth={'lg'}
-    >
-        <DialogTitle id="customized-dialog-title">
-            Search Debug
-            <br/><small>Elasticsearch response time: {Math.round(debug.esQueryTime * 1000)}ms</small>
-            <br/><small>Total response time: {Math.round(debug.totalResponseTime * 1000) / 1000}ms</small>
-        </DialogTitle>
-        <DialogContent dividers>
-            <pre>
-                {JSON.stringify(debug.query, undefined, 2)}
-            </pre>
-        </DialogContent>
-        <DialogActions>
+                                     }: Props) {
+    const {closeModal} = useModals();
+    const {t} = useTranslation();
+
+    return <AppDialog
+        title={<>
+            Search Debug |{' '}
+            <small>
+                Elasticsearch response time:{' '}
+                <Metric n={Math.round(debug.esQueryTime * 1000)} />
+                {' '}| Total response time:{' '}
+                <Metric n={Math.round(debug.totalResponseTime * 1000) / 1000} />
+            </small>
+        </>}
+        onClose={closeModal}
+        actions={({onClose}) => <>
             <Button autoFocus onClick={onClose} color="primary">
-               Close
+                {t('modal.close', 'Close')}
             </Button>
-        </DialogActions>
-    </Dialog>
+        </>}
+    >
+        <Box
+            component={'pre'}
+            sx={{
+                margin: 0,
+                fontSize: 13
+            }}>
+            {JSON.stringify(debug.query, undefined, 2)}
+        </Box>
+    </AppDialog>
 }

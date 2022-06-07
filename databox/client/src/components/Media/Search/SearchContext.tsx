@@ -1,35 +1,32 @@
 import React from "react";
-import {Asset} from "../../../types";
-import {BucketKeyValue, TFacets} from "../Asset/Facets";
+import {BucketKeyValue} from "../Asset/Facets";
 import {Filters} from "./Filter";
-import {ESDebug} from "../../../api/asset";
 
 export type TSearchContext = {
-    query: string;
-    setQuery: (query: string) => void;
-    reload: () => void;
-    loadMore?: () => Promise<void> | undefined;
-    loading: boolean;
+    collectionId?: string;
+    workspaceId?: string;
+    selectCollection: (absolutePath: string | undefined, forceReload?: boolean) => void;
+    selectWorkspace: (id: string | undefined, forceReload?: boolean) => void;
     collections?: string[];
     workspaces?: string[];
-    pages: Asset[][];
-    total?: number;
-    facets?: TFacets;
-    debug?: ESDebug;
-    attrFilters: Filters;
+    query: string;
+    setQuery: (query: string) => void;
     toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
+    attrFilters: Filters;
+    hash?: string;
+    reloadInc: number;
 }
 
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
-    pages: [],
     attrFilters: [],
-    loading: false,
+    selectCollection: () => {},
+    selectWorkspace: () => {},
     setQuery: () => {},
-    reload: () => {},
     toggleAttrFilter: () => {},
     removeAttrFilter: () => {},
     invertAttrFilter: () => {},
+    reloadInc: 0,
 });

@@ -1,8 +1,17 @@
 import {useContext, useState} from "react";
+import {ResultContext} from "../Search/ResultContext";
+import {
+    Checkbox,
+    Collapse,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemSecondaryAction,
+    ListItemText,
+    ListSubheader
+} from "@mui/material";
+import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import {SearchContext} from "../Search/SearchContext";
-import {Checkbox, Collapse, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader} from "@mui/material";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
-import {ExpandLess, ExpandMore} from "@material-ui/icons";
 
 export type BucketKeyValue = string | {
     value: string;
@@ -39,20 +48,6 @@ export function extractLabelValueFromKey(key: BucketKeyValue): {
     return key;
 }
 
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            width: '100%',
-            maxWidth: 360,
-            backgroundColor: theme.palette.background.paper,
-        },
-        nested: {
-            paddingLeft: theme.spacing(4),
-        },
-    }),
-);
-
 function FacetRow({
                       facet,
                       name,
@@ -78,8 +73,7 @@ function FacetRow({
 
                     const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
 
-                    return <ListItem
-                        button
+                    return <ListItemButton
                         key={keyV}
                         onClick={onClick}
                     >
@@ -92,7 +86,7 @@ function FacetRow({
                                 inputProps={{ 'aria-labelledby': keyV }}
                             />
                         </ListItemSecondaryAction>
-                    </ListItem>
+                    </ListItemButton>
                 })}
             </List>
         </Collapse>
@@ -100,8 +94,7 @@ function FacetRow({
 }
 
 export default function Facets() {
-    const search = useContext(SearchContext);
-    const classes = useStyles();
+    const search = useContext(ResultContext);
     const {facets} = search;
 
     if (!facets) {
@@ -116,7 +109,16 @@ export default function Facets() {
                 Facets
             </ListSubheader>
         }
-        className={classes.root}
+        sx={(theme) => ({
+            root: {
+                width: '100%',
+                maxWidth: 360,
+                backgroundColor: theme.palette.background.paper,
+            },
+            nested: {
+                paddingLeft: theme.spacing(4),
+            }
+        })}
     >
         {Object.keys(facets).filter(k => facets[k].buckets.length > 0).map((k) => <FacetRow
             key={k}

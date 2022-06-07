@@ -1,56 +1,62 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import {FileBlobThumb} from "../../lib/upload/fileBlob";
-import {Grid, Paper} from "@material-ui/core";
+import {Grid, Paper} from "@mui/material";
 import byteSize from 'byte-size';
 
-const size = 128;
-
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        padding: theme.spacing(2),
-        margin: 'auto',
-    },
-    image: {
-        width: size,
-        height: size,
-    },
-}));
+const size = 100;
 
 type Props = {
-    file: File,
+    file: File;
+    onRemove: () => void;
 }
 
-export default function FileCard({file}: Props) {
-    const classes = useStyles();
-
-    return <Paper className={classes.paper}>
-        <Grid container spacing={2}>
-            <Grid item>
+export default function FileCard({
+                                     file,
+                                     onRemove,
+                                 }: Props) {
+    return <Paper sx={(theme) => ({
+        padding: theme.spacing(2),
+        margin: 'auto',
+    })}>
+        <Grid
+            sx={(theme) => ({
+                width: {
+                    xs: `calc(${size}px + ${theme.spacing(2)})`,
+                    sm: 395,
+                },
+            })}
+            container spacing={2}>
+            {file.type.startsWith('image/') && <Grid item>
                 <FileBlobThumb
                     file={file}
-                    width={size}
-                    height={size}
+                    size={size}
                 />
-            </Grid>
-            <Grid item xs={12} sm container>
-                <Grid item xs container direction="column" spacing={2}>
-                    <Grid item xs>
-                        <Typography gutterBottom variant="subtitle1">
-                            {file.name}
-                        </Typography>
-                        <Typography variant="body2" gutterBottom>
-                            {byteSize(file.size).toString()} • {file.type}
-                        </Typography>
-                    </Grid>
-                    <Grid item>
-                        <Button size="small" color="secondary">
-                            Remove
-                        </Button>
-                    </Grid>
-                </Grid>
+            </Grid>}
+            <Grid item xs={12} sm>
+                <Typography
+                    sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: '2',
+                        WebkitBoxOrient: 'vertical',
+                        lineHeight: 1.2
+                    }}
+                    gutterBottom variant="subtitle1">
+                    {file.name}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                    {byteSize(file.size).toString()} • {file.type}
+                </Typography>
+                <Button
+                    size="small"
+                    color="error"
+                    onClick={onRemove}
+                >
+                    Remove
+                </Button>
             </Grid>
         </Grid>
     </Paper>

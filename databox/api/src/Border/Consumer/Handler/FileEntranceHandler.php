@@ -56,13 +56,13 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         $file = $this->borderManager->acceptFile($inputFile, $workspace);
 
         if ($file instanceof File) {
-            $this->eventProducer->publish(new EventMessage(NewAssetFromBorderHandler::EVENT, [
-                'fileId' => $file->getId(),
-                'userId' => $payload['userId'],
-                'title' => $payload['title'] ?? null,
-                'filename' => $inputFile->getName(),
-                'collections' => $payload['collections'],
-            ]));
+            $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
+                $payload['userId'],
+                $file->getId(),
+                $payload['collections'],
+                $payload['title'] ?? null,
+                $inputFile->getName()
+            ));
         } else {
             // TODO place into quarantine
         }

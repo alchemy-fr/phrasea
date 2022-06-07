@@ -130,6 +130,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
         $output->setCapabilities([
             'canEdit' => $this->isGranted(AssetVoter::EDIT, $object),
+            'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $object),
+            'canShare' => $this->isGranted(AssetVoter::SHARE, $object),
             'canDelete' => $this->isGranted(AssetVoter::DELETE, $object),
             'canEditPermissions' => $this->isGranted(AssetVoter::EDIT_PERMISSIONS, $object),
         ]);

@@ -108,6 +108,18 @@ export async function deleteAssetAttribute(id: string): Promise<void> {
     await apiClient.delete(`/attributes/${id}`);
 }
 
+export async function deleteAsset(id: string): Promise<void> {
+    await apiClient.delete(`/assets/${id}`);
+}
+
+export async function deleteAssets(ids: string[]): Promise<void> {
+    await apiClient.delete(`/assets`, {
+        data: {
+            ids,
+        }
+    });
+}
+
 export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
     const res = await apiClient.get(`/attribute-definitions`, {
         params: {
@@ -118,8 +130,8 @@ export async function getWorkspaceAttributeDefinitions(workspaceId: string): Pro
     return res.data['hydra:member'];
 }
 
-export async function patchAsset(id: string, data: Partial<any>): Promise<Asset> {
-    const res = await apiClient.patch(`/assets/${id}`, data, {
+export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
+    const res = await apiClient.put(`/assets/${id}`, data, {
         headers: {
             'Content-Type': 'application/merge-patch+json',
         },
@@ -129,7 +141,7 @@ export async function patchAsset(id: string, data: Partial<any>): Promise<Asset>
 }
 
 type AssetPostType = {
-    title: string;
+    title?: string;
     privacy: number;
     collection?: string,
     workspace?: string;

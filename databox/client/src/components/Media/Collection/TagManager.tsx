@@ -1,13 +1,11 @@
 import {FormEvent, PureComponent} from "react";
 import {deleteTag, getTags, postTag} from "../../../api/tag";
 import {Tag} from "../../../types";
-import {TextField} from "@material-ui/core";
-import Button from "../../ui/Button";
-import Icon from "../../ui/Icon";
-import {ReactComponent as TrashImg} from "../../../images/icons/trash.svg";
+import {Button, Grid, IconButton, TextField} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Props = {
-    workspaceId: string;
+    workspaceIri: string;
 }
 
 type State = {
@@ -27,7 +25,7 @@ export default class TagManager extends PureComponent<Props, State> {
 
     async loadTags() {
         const tags = await getTags({
-            workspace: this.props.workspaceId,
+            workspace: this.props.workspaceIri,
         });
 
         this.setState({tags: tags.result});
@@ -39,7 +37,7 @@ export default class TagManager extends PureComponent<Props, State> {
 
         const res = await postTag({
             name: tag,
-            workspaceId: this.props.workspaceId,
+            workspaceId: this.props.workspaceIri,
         });
 
         this.setState((prevState: State) => ({
@@ -64,22 +62,22 @@ export default class TagManager extends PureComponent<Props, State> {
 
         return <div>
             {tags.map(t => {
-                return <div
+                return <Grid container
                     key={t.id}
-                    className={'row'}
                 >
-                    <div className="col-md-8">
+                    <Grid item md={8}>
                         {t.name}
-                    </div>
-                    <div className="col-md-4">
-                        <Button
-                            size={"sm"}
+                    </Grid>
+                    <Grid item md={4}>
+                        <IconButton
+                            color={'error'}
+                            size={"small"}
                             onClick={this.deleteTag.bind(this, t.id)}
-                        ><Icon
-                            component={TrashImg}
-                        /></Button>
-                    </div>
-                </div>
+                        >
+                            <DeleteIcon/>
+                        </IconButton>
+                    </Grid>
+                </Grid>
             })}
             <div>
                 <form onSubmit={this.addTag}>
@@ -91,7 +89,9 @@ export default class TagManager extends PureComponent<Props, State> {
                     />
                     <Button
                         type={'submit'}
-                        className={'btn-primary'}
+                        color={'primary'}
+                        size={'large'}
+                        variant={'contained'}
                         disabled={!Boolean(this.state.tagInput)}
                     >
                         Add

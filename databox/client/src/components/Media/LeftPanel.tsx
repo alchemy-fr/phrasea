@@ -1,33 +1,22 @@
 import React, {useState} from "react";
 import Facets from "./Asset/Facets";
 import CollectionsPanel from "./CollectionsPanel";
-import {TabPanelProps} from "@material-ui/lab";
 import {Tab, Tabs} from "@mui/material";
-import {createStyles, makeStyles, Theme, withStyles} from "@material-ui/core/styles";
+import {styled} from "@mui/material/styles";
+import {TabPanelProps} from "@mui/lab";
 
-type TabValue = "facets" | "tree";
+enum TabEnum {
+    facets = 'facets',
+    tree = 'tree',
+}
 
-function a11yProps(name: TabValue) {
+function a11yProps(name: TabEnum) {
     return {
         value: name,
         index: `tab-${name}`,
         'aria-controls': `tabpanel-${name}`,
     };
 }
-
-interface StyledTabProps {
-    label: string;
-}
-
-const useStyles = makeStyles((theme: Theme) => ({
-    root: {
-        flexGrow: 1,
-        backgroundColor: 'none',
-    },
-    paper: {
-        backgroundColor: '#FFF',
-    }
-}));
 
 function TabPanel(props: { index: string } & TabPanelProps) {
     const {children, value, index} = props;
@@ -39,13 +28,13 @@ function TabPanel(props: { index: string } & TabPanelProps) {
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
         >
-            {value === index && children}
+            {children}
         </div>
     );
 }
 
 
-const AntTabs = withStyles({
+const AntTabs = styled(Tabs)({
     root: {
         backgroundColor: 'none',
         borderBottom: '1px solid #e8e8e8',
@@ -53,49 +42,45 @@ const AntTabs = withStyles({
     indicator: {
         backgroundColor: '#1890ff',
     },
-})(Tabs);
+});
 
-const AntTab = withStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            '&:hover': {
-                color: '#40a9ff',
-                opacity: 1,
-            },
-            '&$selected': {
-                color: '#1890ff',
-            },
-            '&:focus': {
-                color: '#40a9ff',
-            },
+const AntTab = styled(Tab)({
+    root: {
+        '&:hover': {
+            color: '#40a9ff',
+            opacity: 1,
         },
-        selected: {},
-    }),
-)((props: StyledTabProps) => <Tab disableRipple {...props} />);
-
+        '&$selected': {
+            color: '#1890ff',
+        },
+        '&:focus': {
+            color: '#40a9ff',
+        },
+    },
+    selected: {},
+})
 
 export default function LeftPanel() {
-    const classes = useStyles();
-    const [t, setTab] = useState<TabValue>('tree');
+    const [t, setTab] = useState<TabEnum>(TabEnum.tree);
 
-    const handleChange = (event: React.ChangeEvent<{}>, newValue: TabValue) => {
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: TabEnum) => {
         setTab(newValue);
     };
 
-    return <div className={classes.root}>
+    return <>
         <AntTabs
             value={t}
             onChange={handleChange}
             aria-label="Views"
         >
-            <AntTab label="Tree" {...a11yProps('tree')} />
-            <AntTab label="Facets" {...a11yProps('facets')} />
+            <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
+            <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
         </AntTabs>
-        <TabPanel value={t} index={'tree'}>
+        <TabPanel value={t} index={TabEnum.tree}>
             <CollectionsPanel/>
         </TabPanel>
-        <TabPanel value={t} index={'facets'}>
+        <TabPanel value={t} index={TabEnum.facets}>
             <Facets/>
         </TabPanel>
-    </div>
+    </>
 }

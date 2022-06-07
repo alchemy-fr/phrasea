@@ -1,27 +1,23 @@
+import React from "react";
 import {User} from "../../types";
 import {getUsers} from "../../api/user";
-import AbstractSelect, {UserOrGroupOption} from "./AbstractSelect";
+import RSelectWidget, {RSelectProps, SelectOption} from "../Form/RSelect";
+import {FieldValues} from "react-hook-form/dist/types/fields";
 
-export default class UserSelect extends AbstractSelect<User> {
-    optionToData(option: UserOrGroupOption): User {
-        return {
-            id: option.value,
-            username: option.label,
-        };
-    }
+export default function UserSelect<TFieldValues extends FieldValues>(props: RSelectProps<TFieldValues, false>) {
+    const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
+        const data = await getUsers();
 
-    getType(): string {
-        return 'user';
-    }
+        return data.map((t: User) => ({
+            value: t.id,
+            label: t.username,
+        })).filter(i =>
+            i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+        );
+    };
 
-    dataToOption(data: User): UserOrGroupOption {
-        return {
-            value: data.id,
-            label: data.username,
-        };
-    }
-
-    async load() {
-        return await getUsers();
-    }
+    return <RSelectWidget
+        loadOptions={load}
+        {...props}
+    />
 }

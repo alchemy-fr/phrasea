@@ -351,7 +351,7 @@ services:
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
-      - ZIPPY_BASE_URL
+      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
@@ -861,6 +861,9 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=databox-api
+      - ZIPPY_CLIENT_ID
+      - ZIPPY_CLIENT_SECRET
+      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     depends_on:
       - rabbitmq
       - redis
@@ -872,6 +875,7 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     profiles:
@@ -1116,6 +1120,60 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
 
+  zippy-api:
+    image: alchemyfr/zippy-api:latest
+    profiles:
+      - zippy
+    networks:
+      - internal
+    environment:
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+      - TRUSTED_PROXIES
+      - CLIENT_ID=${ZIPPY_CLIENT_ID}
+      - CLIENT_SECRET=${ZIPPY_CLIENT_SECRET}
+      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+    volumes:
+      - zippy_vol:/data
+    depends_on:
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zippy-svc.rule=Host(`zippy-svc.${PHRASEA_DOMAIN}`)"
+    extra_hosts:
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  zippy-worker:
+    image: alchemyfr/zippy-worker:latest
+    networks:
+      - internal
+    profiles:
+      - zippy
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+      - VERIFY_SSL
+    volumes:
+      - zippy_vol:/data
+    extra_hosts:
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  zippy-cron:
+    image: alchemyfr/zippy-worker:latest
+    profiles:
+      - zippy
+    command: ['/srv/app/docker/cron/start-cron.sh']
+    networks:
+      - internal
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_USER
+      - RABBITMQ_PASSWORD
+      - VERIFY_SSL
+
 volumes:
   db_vol:
   redis_vol:
@@ -1127,3 +1185,4 @@ volumes:
   rabbitmq_vol:
   elasticsearch_vol:
   expose_nginx_cache:
+  zippy_vol:

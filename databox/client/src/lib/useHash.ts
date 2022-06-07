@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
 
-const useHash = (): [string, (newHash: string) => void] => {
+const useHash = (): [string, (newHash: string) => boolean] => {
     const [hash, setHash] = useState<string>(() => window.location.hash);
 
     const hashChangeHandler = useCallback(() => {
@@ -17,8 +17,13 @@ const useHash = (): [string, (newHash: string) => void] => {
         // eslint-disable-next-line
     }, []);
 
-    const updateHash = useCallback((newHash: string) => {
-        if (newHash !== hash) window.location.hash = newHash;
+    const updateHash = useCallback((newHash: string): boolean => {
+        if (newHash !== hash?.substring(1)) {
+            window.location.hash = newHash;
+            return true;
+        }
+
+        return false;
     }, [hash]);
 
     return [hash, updateHash];

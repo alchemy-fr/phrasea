@@ -1,0 +1,36 @@
+{
+  "form": {
+    "asset": {
+      "name": "Edit <bold>{{name}}</bold>",
+      "title": {
+        "label": "Title"
+      }
+    },
+    "collection": {
+      "name": "Edit <bold>{{name}}</bold>",
+      "title": {
+        "label": "Title"
+      }
+    },
+    "file_upload": {
+      "uploaded": "Files uploaded!"
+    },
+    "upload_asset": {
+      "title": {
+        "label": "Asset title"
+      }
+    },
+    "has_errors": "Form contains errors",
+    "save": "Save",
+    "cancel_and_close": "Cancel and close",
+    "workspace": {
+      "name": {
+        "label": "Name"
+      }
+    }
+  },
+  "menu": {
+    "sign_in": "Sign in",
+    "logout": "Logout"
+  }
+}

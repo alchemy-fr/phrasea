@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepresentationRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRenditionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_representation",columns={"definition_id", "asset_id"})})
  * @ApiResource()
  */
@@ -48,11 +48,6 @@ class AssetRendition extends AbstractUuidEntity
      * @ORM\Column(type="boolean")
      */
     private bool $ready = false;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    protected ?string $uri = null;
 
     public function getAsset(): Asset
     {
@@ -101,15 +96,5 @@ class AssetRendition extends AbstractUuidEntity
     public function setReady(bool $ready): void
     {
         $this->ready = $ready;
-    }
-
-    public function getUri(): ?string
-    {
-        return $this->uri;
-    }
-
-    public function setUri(?string $uri): void
-    {
-        $this->uri = $uri;
     }
 }
