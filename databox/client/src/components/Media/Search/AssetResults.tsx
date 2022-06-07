@@ -82,6 +82,9 @@ export default function AssetResults() {
     const timer = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
+        // Force preview close on result change
+        setPreviewAnchorEl(null);
+
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 'a') {
                 e.preventDefault();

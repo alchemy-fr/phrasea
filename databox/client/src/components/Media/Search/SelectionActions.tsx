@@ -24,6 +24,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import EditAsset from "../Asset/EditAsset";
+import EditAssetAttributes from "../Asset/EditAssetAttributes";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -98,60 +101,115 @@ export default function SelectionActions({
         });
     };
 
+    const {
+        canDelete,
+        canDownload,
+        canEdit,
+        canEditAttributes,
+        canMove,
+        canShare,
+        onCopy,
+        wsId,
+    } = useMemo(() => {
+        let canDelete = false;
+        let canDownload = false;
+        let canEdit = false;
+        let canEditAttributes = false;
+        let canMove = false;
+        let canShare = false;
+        let wsId: string | undefined = undefined;
+
+        const selectedAssets = getSelectedAssets(selectionContext, resultContext);
+
+        selectedAssets.forEach(a => {
+            wsId = a.workspace.id;
+            if (a.original?.url) {
+                canDownload = true;
+            }
+            if (a.capabilities.canDelete) {
+                canDelete = true;
+            }
+            if (a.capabilities.canEdit) {
+                canEdit = true;
+                canMove = true;
+            }
+            if (a.capabilities.canEditAttributes) {
+                canEditAttributes = true;
+            }
+            if (a.capabilities.canShare) {
+                canShare = true;
+            }
+            if (a.capabilities.canShare) {
+                canShare = true;
+            }
+        });
+
+        for (let a of selectedAssets) {
+            if (a.workspace.id !== wsId!) {
+                canEditAttributes = canMove = false;
+                break;
+            }
+        }
+
+        return {
+            canDelete,
+            canDownload,
+            canEdit,
+            canEditAttributes,
+            canMove,
+            canShare,
+            onCopy: () => {
+                openModal(CopyAssetsDialog, {
+                    assets: selectedAssets,
+                    onComplete: () => {
+                        resultContext.reload();
+                    }
+                });
+            },
+            wsId,
+        };
+    }, [selectionContext.selectedAssets]);
+
     const onMove = () => {
         openModal(MoveAssetsDialog, {
             assetIds: selectionContext.selectedAssets,
+            workspaceId: wsId!,
             onComplete: () => {
                 resultContext.reload();
             }
         });
     };
 
-    const {
-        canDownload,
-        canDelete,
-        canEdit,
-        canShare,
-        onCopy,
-    } = useMemo(() => {
-        let canDownload = false;
-        let canDelete = false;
-        let canEdit = false;
-        let canShare = false;
-        getSelectedAssets(selectionContext, resultContext).forEach(a => {
-            if (a?.original?.url) {
-                canDownload = true;
-            }
-            if (a?.capabilities.canDelete) {
-                canDelete = true;
-            }
-            if (a?.capabilities.canEdit) {
-                canEdit = true;
-            }
-            if (a?.capabilities.canShare) {
-                canShare = true;
-            }
-        });
+    const onEdit = () => {
+        if (selectionContext.selectedAssets.length === 1) {
+            openModal(EditAsset, {
+                id: selectionContext.selectedAssets[0],
+                onEdit: () => {
+                    resultContext.reload();
+                }
+            });
+        } else {
+            alert('Multi edit is comin soon...');
+        }
+    };
 
-        return {
-            canDownload,
-            canDelete,
-            canEdit,
-            canShare,
-            onCopy: () => {
-                openModal(CopyAssetsDialog, {
-                    assets: getSelectedAssets(selectionContext, resultContext),
-                    onComplete: () => {
-                        resultContext.reload();
-                    }
-                });
-            }
-        };
-    }, [selectionContext.selectedAssets]);
+    const onEditAttributes = () => {
+        const assets = getSelectedAssets(selectionContext, resultContext);
+        if (assets.length === 1) {
+            openModal(EditAssetAttributes, {
+                asset: assets[0],
+                onEdit: () => {
+                    resultContext.reload();
+                }
+            });
+        } else {
+            alert('Multi edit attributes is comin soon...');
+        }
+    };
 
     const download = canDownload ? () => {
         openModal(ExportAssetsDialog, {
-            assets: selectionContext.selectedAssets.map(id => getAsset(resultContext.pages, id)),
+            assets: getSelectedAssets(selectionContext, resultContext),
         })
     } : undefined;
 
@@ -212,9 +270,7 @@ export default function SelectionActions({
             </LoadingButton>
             <GroupButton
                 id={'edit'}
-                onClick={() => {
-
-                }}
+                onClick={onEdit}
                 startIcon={<EditIcon/>}
                 disabled={!canEdit}
                 actions={[
@@ -222,14 +278,21 @@ export default function SelectionActions({
                         id: 'move',
                         label: t('asset_actions.move', 'Move'),
                         onClick: onMove,
-                        disabled: !canEdit,
+                        disabled: !canMove,
                         startIcon: <DriveFileMoveIcon/>,
+                    },
+                    {
+                        id: 'edit_attrs',
+                        label: t('asset_actions.edit_attributes', 'Edit attributes'),
+                        onClick: onEditAttributes,
+                        disabled: !canEditAttributes,
+                        startIcon: <TextSnippetIcon/>,
                     },
                     {
                         id: 'copy',
                         label: t('asset_actions.copy', 'Copy'),
                         onClick: onCopy,
-                        disabled: !canEdit,
+                        disabled: !canShare,
                         startIcon: <FileCopyIcon/>,
                     },
                 ]}

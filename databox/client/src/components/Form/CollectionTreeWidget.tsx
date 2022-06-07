@@ -14,16 +14,19 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     multiple?: IsMulti;
     rules?: Omit<RegisterOptions<TFieldValues, FieldPath<TFieldValues>>, 'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'>;
     onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
+    workspaceId?: string;
 };
 
-export default function CollectionTreeWidget<TFieldValues extends FieldValues, IsMulti extends boolean = false>({
-                                                                                   name,
-                                                                                   control,
-                                                                                   rules,
-                                                                                   label,
-                                                                                   multiple,
-    onChange: extOnChange,
-                                                                               }: Props<TFieldValues, IsMulti>) {
+export default function CollectionTreeWidget<TFieldValues extends FieldValues,
+    IsMulti extends boolean = false>({
+                                         name,
+                                         control,
+                                         rules,
+                                         label,
+                                         multiple,
+                                         onChange: extOnChange,
+                                                                                     workspaceId,
+                                     }: Props<TFieldValues, IsMulti>) {
     return <>
         {label && <InputLabel>
             {label}
@@ -34,6 +37,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues, I
             rules={rules}
             render={({field: {onChange, value, ref}}) => {
                 return <CollectionsTreeView
+                    workspaceId={workspaceId}
                     value={value}
                     multiple={multiple}
                     onChange={(collections, ws) => {

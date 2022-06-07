@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
@@ -10,9 +10,11 @@ import {addAssetToCollection, moveAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
+import {Asset} from "../../../../types";
 
 type Props = {
     assetIds: string[];
+    workspaceId: string;
     onComplete: () => void;
 } & StackedModalProps;
 
@@ -22,6 +24,7 @@ type FormData = {
 
 export default function MoveAssetsDialog({
                                              assetIds,
+    workspaceId,
                                              onComplete,
                                          }: Props) {
     const {t} = useTranslation();
@@ -33,8 +36,11 @@ export default function MoveAssetsDialog({
         handleSubmit,
         setError,
         control,
+        watch,
         formState: {errors}
     } = useForm<FormData>();
+
+    const destination = watch('destination');
 
     const {
         handleSubmit: onSubmit,
@@ -67,6 +73,7 @@ export default function MoveAssetsDialog({
             onSubmit={handleSubmit(onSubmit(setError))}
         >
             <CollectionTreeWidget
+                workspaceId={workspaceId}
                 control={control}
                 name={'destination'}
                 rules={{

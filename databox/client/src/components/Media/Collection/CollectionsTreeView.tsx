@@ -11,6 +11,7 @@ type Props<IsMulti extends boolean = false> = {
     onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
     value?: IsMulti extends true ? string[] : string;
     multiple?: IsMulti;
+    workspaceId?: string;
 }
 
 type CollectionTreeProps = {
@@ -25,7 +26,7 @@ function CollectionTree({
                             collection,
                             workspaceId,
                             depth = 0
-}: CollectionTreeProps) {
+                        }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
     const [tree, setTree] = React.useState<Collection[] | undefined>(collection.children);
 
@@ -43,13 +44,13 @@ function CollectionTree({
 
     return <TreeItem
         onClick={load}
-        nodeId={workspaceId+nodeSeparator+collection['@id']}
+        nodeId={workspaceId + nodeSeparator + collection['@id']}
         label={collection.title}
     >
         {tree && tree.map(c => <CollectionTree
             key={c.id}
             workspaceId={workspaceId}
-            collection={c} depth={depth + 1} />)}
+            collection={c} depth={depth + 1}/>)}
     </TreeItem>
 }
 
@@ -59,15 +60,23 @@ function stripWs(nodeId: string): string {
 }
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
-                                        onChange,
-                                        value,
-                                        multiple,
-}: Props<IsMulti>) {
+                                                                         onChange,
+                                                                         value,
+                                                                         multiple,
+                                                                         workspaceId,
+                                                                     }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
+    console.log('workspaceId', workspaceId);
 
     useEffect(() => {
-        getWorkspaces().then(setWorkspaces);
-    }, []);
+        getWorkspaces().then(w => {
+            if (workspaceId) {
+                setWorkspaces(w.filter(i => i.id === workspaceId));
+            } else {
+                setWorkspaces(w);
+            }
+        });
+    }, [workspaceId]);
 
     const [expanded, setExpanded] = React.useState<string[]>([]);
     const [selected, setSelected] = React.useState<IsMulti extends true ? string[] : string>(value ?? (multiple ? [] : '') as any);
@@ -108,7 +117,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         multiSelect={multiple || false}
     >
         {workspaces.map(w => <TreeItem
-            nodeId={w.id+nodeSeparator+w['@id']}
+            nodeId={w.id + nodeSeparator + w['@id']}
             key={w.id}
             label={w.name}
         >

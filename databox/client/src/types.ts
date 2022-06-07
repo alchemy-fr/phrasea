@@ -15,7 +15,7 @@ export interface File {
 }
 
 export interface Asset extends IPermissions<{
-    canEditAttribute: boolean;
+    canEditAttributes: boolean;
     canShare: boolean;
 }> {
     id: string;
