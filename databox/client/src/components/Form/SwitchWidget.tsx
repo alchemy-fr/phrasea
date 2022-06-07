@@ -38,5 +38,4 @@ export default function SwitchWidget<TFieldValues extends FieldValues>({
             />
         }}
     />
-    return <></>
 }
