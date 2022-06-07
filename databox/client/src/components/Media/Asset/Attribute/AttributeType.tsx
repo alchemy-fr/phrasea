@@ -12,6 +12,7 @@ type Props = {
     attributes: LocalizedAttributeIndex<string | number>;
     disabled: boolean;
     onChange: OnChangeHandler;
+    indeterminate?: boolean;
 }
 
 export default function AttributeType({
@@ -19,6 +20,7 @@ export default function AttributeType({
                                           attributes,
                                           disabled,
                                           onChange,
+    indeterminate,
                                       }: Props) {
 
     const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
@@ -40,6 +42,7 @@ export default function AttributeType({
 
                 return <FormRow>
                     {definition.multiple ? <MultiAttributeRow
+                        indeterminate={indeterminate}
                         disabled={disabled}
                         type={definition.fieldType}
                         isRtl={isRtlLocale(locale)}
@@ -48,6 +51,7 @@ export default function AttributeType({
                         onChange={(values) => changeHandler(locale, values)}
                         id={definition.id}
                     /> : <AttributeWidget
+                        indeterminate={indeterminate}
                         value={attributes[locale] as AttrValue<string | number> | undefined}
                         disabled={disabled}
                         type={definition.fieldType}
@@ -64,6 +68,7 @@ export default function AttributeType({
 
     return <FormRow>
         {definition.multiple ? <MultiAttributeRow
+            indeterminate={indeterminate}
             isRtl={false}
             disabled={disabled}
             type={definition.fieldType}

@@ -13,6 +13,7 @@ type Props = {
     onChange: (values: AttrValue<string | number>[]) => void;
     isRtl: boolean;
     disabled: boolean;
+    indeterminate?: boolean;
 }
 
 const deferred = 0;
@@ -25,6 +26,7 @@ export default function MultiAttributeRow({
                                               isRtl,
                                               onChange,
                                               type,
+                                              indeterminate,
                                           }: Props) {
     const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(initialValues.length > 0 ? initialValues : [createNewValue(type)]);
@@ -83,6 +85,7 @@ export default function MultiAttributeRow({
                         display: 'flex',
                     }}>
                     <AttributeWidget
+                        indeterminate={indeterminate}
                         value={v}
                         isRtl={isRtl}
                         disabled={disabled}

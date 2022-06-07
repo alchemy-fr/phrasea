@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
@@ -12,9 +13,11 @@ use App\Entity\Traits\UpdatedAtTrait;
 use DateTimeInterface;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
+ * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
  */
 class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInterface
 {

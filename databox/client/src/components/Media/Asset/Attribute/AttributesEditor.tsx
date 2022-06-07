@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from "react";
 import {Box, Button} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {assetAttributeBatchUpdate, AttributeBatchAction, getAssetAttributes,} from "../../../../api/asset";
+import {attributeBatchUpdate, AttributeBatchAction, getAssetAttributes,} from "../../../../api/asset";
 import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import {NO_LOCALE} from "../EditAssetAttributes";
@@ -20,7 +20,8 @@ export type LocalizedAttributeIndex<T = string> = { [locale: string]: AttrValue<
 export type AttributeIndex<T = string> = { [definitionId: string]: LocalizedAttributeIndex<T> };
 
 type Props = {
-    asset: Asset;
+    assetId: string | string[];
+    multiAssets?: Asset[];
     definitions: DefinitionIndex;
     attributes: AttributeIndex;
     onClose: () => void;
@@ -74,7 +75,7 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
 export type OnChangeHandler = (defId: string, value: LocalizedAttributeIndex<string | number>) => void;
 
 export default function AttributesEditor({
-                                             asset,
+                                             assetId,
                                              definitions,
                                              attributes: initialAttrs,
                                              onClose,
@@ -197,8 +198,8 @@ export default function AttributesEditor({
                 });
             });
 
-            await assetAttributeBatchUpdate(asset.id, actions);
-            const res = await getAssetAttributes(asset.id);
+            await attributeBatchUpdate(assetId, actions);
+            const res = await getAssetAttributes(assetId);
             const attributeIndex = buildAttributeIndex(definitions, res);
 
             setRemoteAttrs(attributeIndex);
@@ -208,7 +209,6 @@ export default function AttributesEditor({
 
             setSaving(false);
 
-            // TODO
             if (error) {
                 setError(undefined);
             }
@@ -228,9 +228,7 @@ export default function AttributesEditor({
 
     return <AppDialog
         onClose={onClose}
-        title={t(`form.attributes.title`, `Edit asset attributes : {{title}}`, {
-            title: asset.resolvedTitle,
-        })}
+        title={t(`form.attributes.title`, `Edit asset attributes`)}
         actions={({onClose}) => <>
             <Button
                 onClick={onClose}

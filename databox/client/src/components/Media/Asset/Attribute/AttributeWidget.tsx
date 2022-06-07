@@ -9,6 +9,7 @@ type Props = {
     value: AttrValue<string | number> | undefined;
     disabled: boolean;
     required: boolean;
+    indeterminate?: boolean;
     isRtl: boolean;
     onChange: (value: AttrValue<string | number>) => void;
 }
@@ -22,6 +23,7 @@ export default function AttributeWidget({
                                             isRtl,
                                             required,
                                             type,
+                                            indeterminate,
                                         }: Props) {
     const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);
 
@@ -57,6 +59,7 @@ export default function AttributeWidget({
                 style={isRtl ? {
                     direction: 'rtl',
                 } : undefined}
+                placeholder={indeterminate ? '[multiple values]' : undefined}
             />
     }
 }

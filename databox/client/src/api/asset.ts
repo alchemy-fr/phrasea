@@ -43,10 +43,10 @@ export async function getAsset(id: string): Promise<Asset> {
     return res.data;
 }
 
-export async function getAssetAttributes(assetId: string): Promise<Attribute[]> {
+export async function getAssetAttributes(assetId: string | string[]): Promise<Attribute[]> {
     const res = await apiClient.get(`/attributes`, {
         params: {
-            assetId,
+            asset: assetId,
         }
     });
 
@@ -86,22 +86,31 @@ export type AttributeBatchAction = {
     position?: number | undefined;
 }
 
-export async function assetAttributeBatchUpdate(
-    assetId: string,
+export async function attributeBatchUpdate(
+    assetId: string | string[],
     actions: AttributeBatchAction[]
 ): Promise<Asset> {
-    return (await apiClient.post(`/assets/${assetId}/attributes`, {
-        actions: actions.map(a => {
-            if (a.action === 'delete') {
-                return a;
-            }
+    actions = actions.map(a => {
+        if (a.action === 'delete') {
+            return a;
+        }
 
-            return {
-                ...a,
-                origin: 'human',
-            };
-        })
-    })).data;
+        return {
+            ...a,
+            origin: 'human',
+        };
+    });
+
+    if (typeof assetId === 'string') {
+        return (await apiClient.post(`/assets/${assetId}/attributes`, {
+            actions
+        })).data;
+    } else {
+        return (await apiClient.post(`/attributes/batch-update`, {
+            assets: assetId,
+            actions
+        })).data;
+    }
 }
 
 export async function deleteAssetAttribute(id: string): Promise<void> {

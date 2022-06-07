@@ -54,7 +54,7 @@ export default function EditAssetAttributes({
     return <AttributesEditor
         attributes={state.attributeIndex}
         definitions={state.definitionIndex}
-        asset={asset}
+        assetId={asset.id}
         onClose={closeModal}
         onEdit={onEdit}
     />
