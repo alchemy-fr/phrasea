@@ -14,6 +14,7 @@ interface PermissionInterface
     const OPERATOR = 32;
     const MASTER = 64;
     const OWNER = 128;
+    const SHARE = 256;
 
     const PERMISSIONS = [
         'VIEW' => self::VIEW,
@@ -24,5 +25,6 @@ interface PermissionInterface
         'OPERATOR' => self::OPERATOR,
         'MASTER' => self::MASTER,
         'OWNER' => self::OWNER,
+        'SHARE' => self::SHARE,
     ];
 }
