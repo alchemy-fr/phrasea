@@ -10,6 +10,7 @@ type Props = {
     disabled: boolean;
     required: boolean;
     indeterminate?: boolean;
+    readOnly?: boolean;
     isRtl: boolean;
     onChange: (value: AttrValue<string | number>) => void;
 }
@@ -24,6 +25,7 @@ export default function AttributeWidget({
                                             required,
                                             type,
                                             indeterminate,
+                                            readOnly,
                                         }: Props) {
     const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);
 
@@ -47,6 +49,9 @@ export default function AttributeWidget({
             const isMultiline = 'textarea' === type;
             return <TextField
                 id={id}
+                inputProps={{
+                    readOnly
+                }}
                 fullWidth
                 rows={isMultiline ? 3 : undefined}
                 multiline={isMultiline}

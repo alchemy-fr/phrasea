@@ -33,6 +33,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     use FixturesTrait;
 
     private ?Workspace $defaultWorkspace = null;
+    private ?AttributeClass $defaultAttributeClass = null;
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
@@ -131,7 +132,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $em = self::getEntityManager();
 
         $definition = new AttributeDefinition();
-        $definition->setClass($options['class'] ?? $this->createAttributeClass([
+        $definition->setClass($options['class'] ?? $this->getOrCreateDefaultAttributeClass([
             'no_flush' => $options['no_flush'] ?? null,
         ]));
         $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
@@ -158,7 +159,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $attributeClass->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $attributeClass->setEditable($options['editable'] ?? true);
         $attributeClass->setPublic($options['public'] ?? true);
-        $attributeClass->setName($options['name'] ?? true);
+        $attributeClass->setName($options['name']);
 
         $em->persist($attributeClass);
         if (!($options['no_flush'] ?? false)) {
@@ -277,6 +278,17 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $this->defaultWorkspace = $this->createWorkspace();
+    }
+
+    protected function getOrCreateDefaultAttributeClass(array $options = []): AttributeClass
+    {
+        if (null !== $this->defaultAttributeClass) {
+            return $this->defaultAttributeClass;
+        }
+
+        return $this->defaultAttributeClass = $this->createAttributeClass(array_merge([
+            'name' => 'Default',
+        ], $options));
     }
 
     protected function setUp(): void

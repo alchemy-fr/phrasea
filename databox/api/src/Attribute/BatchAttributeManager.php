@@ -13,7 +13,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AssetVoter;
-use App\Security\Voter\AttributeClassVoter;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -55,7 +54,7 @@ class BatchAttributeManager
 
         $workspaceId = $assetOne->getWorkspaceId();
         $assets = $this->em->createQueryBuilder()
-            ->select('a.id')
+            ->select('a')
             ->from(Asset::class, 'a')
             ->andWhere('a.workspace = :w')
             ->setParameter('w', $workspaceId)
@@ -69,7 +68,7 @@ class BatchAttributeManager
         }
 
         foreach ($assets as $asset) {
-            if (!$this->security->isGranted(AssetVoter::EDIT, $asset)) {
+            if (!$this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset)) {
                 throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset %s', $asset->getId()));
             }
         }
@@ -80,7 +79,7 @@ class BatchAttributeManager
     private function denyUnlessGranted(AttributeDefinition $definition): void
     {
         if (!$definition->getClass()->isEditable()
-            || !$this->security->isGranted(PermissionInterface::EDIT, $definition->getClass())) {
+            && !$this->security->isGranted(PermissionInterface::EDIT, $definition->getClass())) {
             throw new AccessDeniedHttpException(sprintf('Unauthorized to edit attribute definition %s', $definition->getId()));
         }
     }

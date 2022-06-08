@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\Workspace;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ChuckNorrisVoter extends AbstractVoter
@@ -16,9 +15,6 @@ class ChuckNorrisVoter extends AbstractVoter
         return self::ROLE !== $attribute;
     }
 
-    /**
-     * @param Workspace $subject
-     */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
         return $this->security->isGranted(self::ROLE);

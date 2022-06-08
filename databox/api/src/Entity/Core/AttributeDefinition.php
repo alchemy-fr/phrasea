@@ -238,11 +238,6 @@ class AttributeDefinition extends AbstractUuidEntity
         $this->multiple = $multiple;
     }
 
-    public function setPublic(bool $public): void
-    {
-        $this->public = $public;
-    }
-
     public function getSearchBoost(): ?int
     {
         return $this->searchBoost;
@@ -291,18 +286,6 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setFacetEnabled(bool $facetEnabled): void
     {
         $this->facetEnabled = $facetEnabled;
-    }
-
-    /**
-     * @Groups({"attributedef:index"})
-     */
-    public function getLocales(): ?array
-    {
-        if ($this->isTranslatable()) {
-            return $this->getWorkspace()->getEnabledLocales();
-        }
-
-        return null;
     }
 
     public function getSlug(): ?string

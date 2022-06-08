@@ -53,11 +53,11 @@ export interface AttributeDefinition extends IPermissions {
     name: string;
     fieldType: string;
     multiple: boolean;
-    editable: boolean;
     searchable: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
+    canEdit: boolean;
     searchBoost: number;
 }
 

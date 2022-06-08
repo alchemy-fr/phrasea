@@ -13,7 +13,10 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
 {
     private Security $security;
 
-    protected function isGranted(string $attribute, object $object): bool
+    /**
+     * @param string|int       $attribute
+     */
+    protected function isGranted($attribute, object $object): bool
     {
         if (null === $this->security->getToken()) {
             return false;

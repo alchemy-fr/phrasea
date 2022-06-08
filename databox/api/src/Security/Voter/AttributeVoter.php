@@ -22,7 +22,11 @@ class AttributeVoter extends AbstractVoter
     {
         switch ($attribute) {
             case self::READ:
-                return $this->security->isGranted(self::READ, $subject->getAsset());
+                return $this->security->isGranted(self::READ, $subject->getAsset())
+                    && (
+                        $subject->getDefinition()->getClass()->isPublic()
+                        || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
+                    );
             case self::CREATE:
             case self::EDIT:
             case self::DELETE:

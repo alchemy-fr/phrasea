@@ -13,14 +13,16 @@ type Props = {
     disabled: boolean;
     onChange: OnChangeHandler;
     indeterminate?: boolean;
+    readOnly?: boolean;
 }
 
 export default function AttributeType({
                                           definition,
+                                          readOnly,
                                           attributes,
                                           disabled,
                                           onChange,
-    indeterminate,
+                                          indeterminate,
                                       }: Props) {
 
     const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
@@ -43,6 +45,7 @@ export default function AttributeType({
                 return <FormRow>
                     {definition.multiple ? <MultiAttributeRow
                         indeterminate={indeterminate}
+                        readOnly={readOnly}
                         disabled={disabled}
                         type={definition.fieldType}
                         isRtl={isRtlLocale(locale)}
@@ -52,6 +55,7 @@ export default function AttributeType({
                         id={definition.id}
                     /> : <AttributeWidget
                         indeterminate={indeterminate}
+                        readOnly={readOnly}
                         value={attributes[locale] as AttrValue<string | number> | undefined}
                         disabled={disabled}
                         type={definition.fieldType}
@@ -69,6 +73,7 @@ export default function AttributeType({
     return <FormRow>
         {definition.multiple ? <MultiAttributeRow
             indeterminate={indeterminate}
+            readOnly={readOnly}
             isRtl={false}
             disabled={disabled}
             type={definition.fieldType}
@@ -77,6 +82,8 @@ export default function AttributeType({
             onChange={(values) => changeHandler(NO_LOCALE, values)}
             id={definition.id}
         /> : <AttributeWidget
+            indeterminate={indeterminate}
+            readOnly={readOnly}
             isRtl={false}
             value={attributes[NO_LOCALE] as AttrValue<string | number> | undefined}
             required={false}
