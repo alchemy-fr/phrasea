@@ -10,7 +10,6 @@ import {useModals} from "@mattjennings/react-modal-stack";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import AclForm from "../../Acl/AclForm";
-// import TagFilterRules from "../TagFilterRule/TagFilterRules";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 

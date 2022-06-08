@@ -75,6 +75,10 @@ export async function putCollection(id: string, data: Partial<Collection>): Prom
     return res.data;
 }
 
+export async function moveCollection(id: string, parentId: string | undefined): Promise<void> {
+    await apiClient.post(`/collections/${id}/move/${parentId ? parentId : 'root'}`);
+}
+
 type CollectionPostType = {
     parent?: string,
     title: string;

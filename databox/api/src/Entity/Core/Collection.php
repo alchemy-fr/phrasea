@@ -126,7 +126,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
 
     public function setParent(?self $parent): void
     {
-        if ($parent->getWorkspace() !== $this->getWorkspace()) {
+        if (null !== $parent && $parent->getWorkspace() !== $this->getWorkspace()) {
             throw new BadRequestHttpException('Cannot add a sub-collection in a different workspace');
         }
 

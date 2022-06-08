@@ -19,6 +19,11 @@ resources:
         security: 'is_granted("EDIT", object)'
       patch:
         security: 'is_granted("EDIT", object)'
+      post_move:
+        controller: App\Controller\Core\MoveCollectionAction
+        security: 'is_granted("EDIT", object)'
+        method: POST
+        path: /collections/{id}/move/{dest}
     collectionOperations:
       get: ~
       post:
