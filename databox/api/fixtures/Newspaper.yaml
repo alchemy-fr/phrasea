@@ -10,16 +10,30 @@ App\Entity\Core\Workspace:
     slug: newspaper
     ownerId: super_user
 
+App\Entity\Core\AttributeClass:
+  attribute_class (template):
+    workspace: '@w_newspaper'
+
+  n_ac_public (extends attribute_class):
+    name: Public
+  n_ac_business (extends attribute_class):
+    name: Business field
+
 App\Entity\Core\AttributeDefinition:
   attribute_definition (template):
     workspace: '@w_newspaper'
 
   ad_desc (extends attribute_definition):
     name: Description
+    class: '@n_ac_public'
   ad_keywords (extends attribute_definition):
     name: Keywords
     multiple: true
     facetEnabled: true
+    class: '@n_ac_public'
+  ad_admin_note (extends attribute_definition):
+    name: Admin notes
+    class: '@n_ac_business'
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):

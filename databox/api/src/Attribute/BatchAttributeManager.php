@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace App\Attribute;
 
+use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\AssetVoter;
+use App\Security\Voter\AttributeClassVoter;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Security\Core\Security;
 
 class BatchAttributeManager
 {
@@ -24,52 +31,74 @@ class BatchAttributeManager
 
     private EntityManagerInterface $em;
     private AttributeAssigner $attributeAssigner;
+    private Security $security;
 
-    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner)
+    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner, Security $security)
     {
         $this->em = $em;
         $this->attributeAssigner = $attributeAssigner;
+        $this->security = $security;
     }
 
-    public function handleMultiAssetBatch(AttributeBatchUpdateInput $input): void
+    public function validate(array $assetsId, AssetAttributeBatchUpdateInput $input): ?string
     {
-        if (!is_array($input->assets)) {
-            throw new InvalidArgumentException(sprintf('Missing "assets" property'));
+        if (empty($assetsId)) {
+            return null;
         }
-        if (empty($input->assets)) {
-            return;
-        }
-        $firstId = $input->assets[0];
+
+        $firstId = $assetsId[0];
         /** @var Asset $assetOne */
         $assetOne = $this->em->getRepository(Asset::class)->find($firstId);
         if (!$assetOne instanceof Asset) {
             throw new InvalidArgumentException(sprintf('Asset "%s" not found', $firstId));
         }
 
-        $assetIds = array_map(function (array $row): string {
-            return $row['id'];
-        }, $this->em->createQueryBuilder()
+        $workspaceId = $assetOne->getWorkspaceId();
+        $assets = $this->em->createQueryBuilder()
             ->select('a.id')
             ->from(Asset::class, 'a')
             ->andWhere('a.workspace = :w')
-            ->setParameter('w', $assetOne->getWorkspaceId())
+            ->setParameter('w', $workspaceId)
             ->andWhere('a.id IN (:ids)')
-            ->setParameter('ids', $input->assets)
+            ->setParameter('ids', $assetsId)
             ->getQuery()
-            ->getScalarResult()
-        );
+            ->getResult();
 
-        $this->handleBatch($assetOne->getWorkspaceId(), $assetIds, $input);
+        if (count($assets) !== count($assetsId)) {
+            throw new InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
+        }
+
+        foreach ($assets as $asset) {
+            if (!$this->security->isGranted(AssetVoter::EDIT, $asset)) {
+                throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset %s', $asset->getId()));
+            }
+        }
+
+        return $workspaceId;
+    }
+
+    private function denyUnlessGranted(AttributeDefinition $definition): void
+    {
+        if (!$definition->getClass()->isEditable()
+            || !$this->security->isGranted(PermissionInterface::EDIT, $definition->getClass())) {
+            throw new AccessDeniedHttpException(sprintf('Unauthorized to edit attribute definition %s', $definition->getId()));
+        }
     }
 
     public function handleBatch(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input): void
     {
+        if (empty($assetsId)) {
+            return;
+        }
+
         $this->em->wrapInTransaction(function () use ($input, $assetsId, $workspaceId): void {
             foreach ($input->actions as $i => $action) {
                 if ($action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
+                    $this->denyUnlessGranted($definition);
                 } elseif ($action->name) {
                     $definition = $this->getAttributeDefinitionByName($workspaceId, $action->name);
+                    $this->denyUnlessGranted($definition);
                 } else {
                     $definition = null;
                 }
@@ -86,6 +115,9 @@ class BatchAttributeManager
                         $this->upsertAttribute(null, $assetsId, $definition, $action);
                         break;
                     case self::ACTION_DELETE:
+                        if (!$definition) {
+                            throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
+                        }
                         $this->deleteAttributes($assetsId, $definition, [
                             'id' => $action->id,
                         ]);
@@ -97,6 +129,7 @@ class BatchAttributeManager
                                 if (!$attribute instanceof Attribute) {
                                     throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
                                 }
+                                $this->denyUnlessGranted($attribute->getDefinition());
                                 $this->upsertAttribute($attribute, $assetsId, $definition, $action);
                             } catch (ConversionException $e) {
                                 throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
@@ -153,6 +186,23 @@ class BatchAttributeManager
                             $qb
                                 ->andWhere('a.definition = :def')
                                 ->setParameter('def', $definition->getId());
+                        } else {
+                            $sub = $this->em
+                                ->createQueryBuilder()
+                                ->select('ad.id')
+                                ->from(AttributeDefinition::class, 'ad')
+                                ->andWhere('ad.workspace = :ws')
+                                ->setParameter('ws', $workspaceId)
+                                ->innerJoin('ad.class', 'ac')
+                                ->andWhere('ac.public = true OR ace.id IS NOT NULL')
+                            ;
+                            $this->joinUserAcl($sub);
+
+                            foreach ($sub->getParameters() as $param) {
+                                $qb->setParameter($param->getName(), $param->getValue());
+                            }
+
+                            $qb->andWhere($qb->expr()->in('a.definition', $sub->getDQL()));
                         }
                         if ($action->id) {
                             $qb
@@ -221,7 +271,7 @@ class BatchAttributeManager
         return $def;
     }
 
-    public function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
+    private function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
     {
         $qb = $this->em->createQueryBuilder()
             ->delete()
@@ -232,6 +282,13 @@ class BatchAttributeManager
             $qb
                 ->andWhere('a.definition = :def')
                 ->setParameter('def', $definition->getId());
+        } else {
+            $qb
+                ->innerJoin('a.definition', 'ad')
+                ->innerJoin('ad.class', 'ac')
+                ->andWhere('ac.public = true OR ace.id IS NOT NULL')
+            ;
+            $this->joinUserAcl($qb);
         }
         if ($options['id'] ?? null) {
             $qb
@@ -239,5 +296,22 @@ class BatchAttributeManager
                 ->setParameter('id', $options['id']);
         }
         $qb->getQuery()->execute();
+    }
+
+
+    private function joinUserAcl(QueryBuilder $queryBuilder): void
+    {
+        /** @var RemoteUser $user */
+        $user = $this->security->getUser();
+
+        AccessControlEntryRepository::joinAcl(
+            $queryBuilder,
+            $user->getId(),
+            $user->getGroupIds(),
+            'attribute_class',
+            'ac',
+            PermissionInterface::EDIT,
+            false
+        );
     }
 }

@@ -26,6 +26,7 @@ easy_admin:
           - Attribute
           - AssetTitleAttribute
           - AttributeDefinition
+          - AttributeClass
           - Tag
           - TagFilterRule
           - AssetRendition
@@ -320,34 +321,30 @@ easy_admin:
     AttributeDefinition:
       class: App\Entity\Core\AttributeDefinition
       list:
-        actions:
-          - permissions
         max_results: 100
-        filters: ['workspace', 'public', 'searchable', 'multiple', 'fieldType', 'fileType' ]
+        filters: ['workspace', 'searchable', 'multiple', 'fieldType', 'fileType' ]
         sort: [name, ASC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
+          - { property: 'class' }
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType' }
           - { property: 'multiple', type: boolean }
-          - { property: 'editable' }
           - { property: 'facetEnabled', label: 'Facet' }
-          - { property: 'public', type: boolean }
           - { property: 'searchable', type: boolean }
           - createdAt
       form:
         fields:
           - { property: 'workspace' }
+          - { property: 'class' }
           - { property: 'name' }
           - { property: 'fileType' }
           - { property: 'fieldType', type: App\Form\Type\AttributeTypeChoiceType }
           - { property: 'allowInvalid' }
           - { property: 'translatable' }
           - { property: 'multiple' }
-          - { property: 'editable' }
-          - { property: 'public' }
           - { property: 'searchable' }
           - { property: 'searchBoost', type: number }
           -
@@ -368,6 +365,30 @@ easy_admin:
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'ex. Les dimensions sont : {{ file.width }}x{{ file.height }}'
+
+    AttributeClass:
+      class: App\Entity\Core\AttributeClass
+      list:
+        actions:
+          - permissions
+        batch_actions:
+          - delete
+        max_results: 100
+        sort: [workspace, ASC]
+        filters: ['workspace', 'name', 'public', 'editable']
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'public' }
+          - { property: 'editable' }
+          - createdAt
+      form:
+        fields:
+          - { property: 'workspace' }
+          - { property: 'name' }
+          - { property: 'public' }
+          - { property: 'editable' }
 
     AccessToken:
       class: Alchemy\OAuthServerBundle\Entity\AccessToken

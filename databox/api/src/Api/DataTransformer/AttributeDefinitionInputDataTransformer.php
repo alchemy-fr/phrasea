@@ -58,9 +58,6 @@ class AttributeDefinitionInputDataTransformer extends AbstractInputDataTransform
         if ($data->allowInvalid) {
             $object->setAllowInvalid($data->allowInvalid);
         }
-        if ($data->editable) {
-            $object->setEditable($data->editable);
-        }
         if (null !== $data->fallback) {
             $object->setFallback($data->fallback);
         }
@@ -78,9 +75,6 @@ class AttributeDefinitionInputDataTransformer extends AbstractInputDataTransform
         }
         if (null !== $data->translatable) {
             $object->setTranslatable($data->translatable);
-        }
-        if (null !== $data->public) {
-            $object->setPublic($data->public);
         }
 
         return $object;

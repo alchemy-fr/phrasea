@@ -33,11 +33,6 @@ class AttributeDefinitionInput
     /**
      * @var bool
      */
-    public $editable;
-
-    /**
-     * @var bool
-     */
     public $searchable;
 
     /**
@@ -54,11 +49,6 @@ class AttributeDefinitionInput
      * @var bool
      */
     public $allowInvalid;
-
-    /**
-     * @var bool
-     */
-    public $public;
 
     /**
      * @var int

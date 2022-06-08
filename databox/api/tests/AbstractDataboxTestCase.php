@@ -13,6 +13,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -130,9 +131,11 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $em = self::getEntityManager();
 
         $definition = new AttributeDefinition();
+        $definition->setClass($options['class'] ?? $this->createAttributeClass([
+            'no_flush' => $options['no_flush'] ?? null,
+        ]));
         $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
-        $definition->setPublic($options['public'] ?? true);
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
@@ -145,6 +148,24 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $definition;
+    }
+
+    protected function createAttributeClass(array $options = []): AttributeClass
+    {
+        $em = self::getEntityManager();
+
+        $attributeClass = new AttributeClass();
+        $attributeClass->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $attributeClass->setEditable($options['editable'] ?? true);
+        $attributeClass->setPublic($options['public'] ?? true);
+        $attributeClass->setName($options['name'] ?? true);
+
+        $em->persist($attributeClass);
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $attributeClass;
     }
 
     protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission, array $options = []): void

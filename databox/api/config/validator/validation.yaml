@@ -54,6 +54,11 @@ App\Entity\Core\Attribute:
       - NotNull: ~
 
 App\Entity\Core\AttributeDefinition:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - workspace
+          - class.workspace
   properties:
     workspace:
       - NotNull: ~
