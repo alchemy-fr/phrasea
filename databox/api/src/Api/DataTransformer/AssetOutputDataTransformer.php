@@ -73,7 +73,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $highlights = $object->getElasticHighlights();
 
         if (isset($context['groups']) && in_array('asset:index', $context['groups'], true)) {
-            $attributes = $this->attributesResolver->resolveAttributes($object);
+            $attributes = $this->attributesResolver->resolveAttributes($object, true);
+
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
@@ -137,10 +138,6 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         ]);
 
         return $output;
-    }
-
-    private function resolveAttributesAndHighlights(Asset $asset, AssetOutput $output, ?array $highlights = []): void
-    {
     }
 
     /**

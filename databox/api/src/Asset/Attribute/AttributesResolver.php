@@ -9,32 +9,39 @@ use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\AttributeVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Security;
 
 class AttributesResolver
 {
     private EntityManagerInterface $em;
     private FieldNameResolver $fieldNameResolver;
     private FallbackResolver $fallbackResolver;
+    private Security $security;
 
     public function __construct(
         EntityManagerInterface $em,
         FieldNameResolver $fieldNameResolver,
-        FallbackResolver $fallbackResolver
+        FallbackResolver $fallbackResolver,
+        Security $security
     ) {
         $this->em = $em;
         $this->fieldNameResolver = $fieldNameResolver;
         $this->fallbackResolver = $fallbackResolver;
+        $this->security = $security;
     }
 
     /**
      * @return array<string, array<string, Attribute>>
      */
-    public function resolveAttributes(Asset $asset): array
+    public function resolveAttributes(Asset $asset, bool $applyPermissions = false): array
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
             ->getAssetAttributes($asset);
+
+        $disallowedDefinitions = [];
 
         /** @var array<string, array<string, Attribute>> $groupedByDef */
         $groupedByDef = [];
@@ -50,6 +57,10 @@ class AttributesResolver
 
                 $groupedByDef[$k][$locale] = clone $attribute;
                 $attribute->setValues(null); // Reset values aggregation
+
+                if ($applyPermissions && !$this->security->isGranted(AttributeVoter::READ, $attribute)) {
+                    $disallowedDefinitions[$k] = true;
+                }
             }
 
             $groupAttr = $groupedByDef[$k][$locale];
@@ -62,7 +73,13 @@ class AttributesResolver
         }
         unset($attributes);
 
-        return $this->resolveFallbacks($asset, $groupedByDef);
+        $result = $this->resolveFallbacks($asset, $groupedByDef);
+
+        if ($applyPermissions) {
+            $result = array_diff_key($result, $disallowedDefinitions);
+        }
+
+        return $result;
     }
 
     /**

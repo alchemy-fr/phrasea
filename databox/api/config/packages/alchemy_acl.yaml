@@ -3,4 +3,4 @@ alchemy_acl:
     asset: App\Entity\Core\Asset
     collection: App\Entity\Core\Collection
     workspace: App\Entity\Core\Workspace
-    attribute_definition: App\Entity\Core\AttributeDefinition
+    attribute_class: App\Entity\Core\AttributeClass

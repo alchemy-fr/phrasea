@@ -121,7 +121,7 @@ export default function AssetContextMenu({
                 </ListItemIcon>
                 <ListItemText primary="Edit"/>
             </MenuItem>}
-            {capabilities.canEdit && <MenuItem
+            {capabilities.canEditAttributes && <MenuItem
                 onClick={onEditAttr}
             >
                 <ListItemIcon>

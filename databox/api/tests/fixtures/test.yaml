@@ -35,17 +35,32 @@ App\Entity\Core\Asset:
     workspace: '@w_test'
     privacy: 4
 
+App\Entity\Core\AttributeClass:
+  ac_public:
+    name: Public attrs
+    workspace: '@w_test'
+  ac_private:
+    name: Private attrs
+    workspace: '@w_test'
+
 App\Entity\Core\AttributeDefinition:
   ad_photographer:
     name: Photographer
     workspace: '@w_test'
+    class: '@ac_public'
   ad_desc:
     name: Description
     workspace: '@w_test'
+    class: '@ac_public'
   ad_keywords:
     name: Keywords
     multiple: true
     workspace: '@w_test'
+    class: '@ac_public'
+  ad_business:
+    name: Business field
+    workspace: '@w_test'
+    class: '@ac_private'
 
 App\Entity\Core\Attribute:
   a_foo_desc:

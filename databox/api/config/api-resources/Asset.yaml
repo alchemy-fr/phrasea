@@ -29,7 +29,7 @@ resources:
         path: /assets/{id}/attributes
         input: App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput
         controller: App\Controller\Core\AssetAttributeBatchUpdateAction
-        security: 'is_granted("EDIT", object)'
+        security: 'is_granted("EDIT_ATTRIBUTES", object)'
     collectionOperations:
       get: ~
       post:

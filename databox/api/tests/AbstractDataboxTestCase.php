@@ -13,6 +13,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -32,6 +33,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     use FixturesTrait;
 
     private ?Workspace $defaultWorkspace = null;
+    private ?AttributeClass $defaultAttributeClass = null;
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
@@ -130,9 +132,11 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $em = self::getEntityManager();
 
         $definition = new AttributeDefinition();
+        $definition->setClass($options['class'] ?? $this->getOrCreateDefaultAttributeClass([
+            'no_flush' => $options['no_flush'] ?? null,
+        ]));
         $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
-        $definition->setPublic($options['public'] ?? true);
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
@@ -145,6 +149,24 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $definition;
+    }
+
+    protected function createAttributeClass(array $options = []): AttributeClass
+    {
+        $em = self::getEntityManager();
+
+        $attributeClass = new AttributeClass();
+        $attributeClass->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $attributeClass->setEditable($options['editable'] ?? true);
+        $attributeClass->setPublic($options['public'] ?? true);
+        $attributeClass->setName($options['name']);
+
+        $em->persist($attributeClass);
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $attributeClass;
     }
 
     protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission, array $options = []): void
@@ -256,6 +278,17 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
 
         return $this->defaultWorkspace = $this->createWorkspace();
+    }
+
+    protected function getOrCreateDefaultAttributeClass(array $options = []): AttributeClass
+    {
+        if (null !== $this->defaultAttributeClass) {
+            return $this->defaultAttributeClass;
+        }
+
+        return $this->defaultAttributeClass = $this->createAttributeClass(array_merge([
+            'name' => 'Default',
+        ], $options));
     }
 
     protected function setUp(): void

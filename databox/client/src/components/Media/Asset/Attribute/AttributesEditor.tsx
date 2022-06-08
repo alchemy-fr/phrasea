@@ -9,6 +9,7 @@ import {toast} from "react-toastify";
 import AppDialog from "../../../Layout/AppDialog";
 import SaveIcon from "@mui/icons-material/Save";
 import {useTranslation} from 'react-i18next';
+import {LoadingButton} from "@mui/lab";
 
 export type AttrValue<T = string> = {
     id: T;
@@ -48,6 +49,11 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
     });
 
     for (let a of attributes) {
+        const def = definitionIndex[a.definition.id];
+        if (!def) {
+            continue;
+        }
+
         const l = a.locale || NO_LOCALE;
         const v = {
             id: a.id,
@@ -58,7 +64,7 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
             attributeIndex[a.definition.id] = {};
         }
 
-        if (definitionIndex[a.definition.id].multiple) {
+        if (def.multiple) {
             if (!attributeIndex[a.definition.id][l]) {
                 attributeIndex[a.definition.id][l] = [];
             }
@@ -107,6 +113,10 @@ export default function AttributesEditor({
             const actions: AttributeBatchAction[] = [];
 
             Object.keys(attributes).forEach((defId): void => {
+                if (!definitions[defId].canEdit) {
+                    return;
+                }
+
                 const lv = attributes[defId];
                 Object.keys(lv).forEach((locale): void => {
                     const currValue = lv[locale];
@@ -227,6 +237,7 @@ export default function AttributesEditor({
     }
 
     return <AppDialog
+        loading={saving}
         onClose={onClose}
         title={t(`form.attributes.title`, `Edit asset attributes`)}
         actions={({onClose}) => <>
@@ -237,15 +248,16 @@ export default function AttributesEditor({
             >
                 {t('dialog.cancel', 'Cancel')}
             </Button>
-            <Button
+            <LoadingButton
                 startIcon={<SaveIcon/>}
                 type={'submit'}
                 onClick={save}
                 color={'primary'}
                 disabled={saving}
+                loading={saving}
             >
                 {t('dialog.save', 'Save')}
-            </Button>
+            </LoadingButton>
         </>}
     >
         {Object.keys(definitions).map(defId => {
@@ -258,6 +270,7 @@ export default function AttributesEditor({
                 }}
             >
                 <AttributeType
+                    readOnly={!d.canEdit}
                     attributes={attributes[defId]}
                     disabled={saving}
                     definition={d}

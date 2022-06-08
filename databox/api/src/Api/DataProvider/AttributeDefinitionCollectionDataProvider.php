@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Api\DataProvider;
 
+use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
+use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\Workspace;
-use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
 
 class AttributeDefinitionCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
@@ -28,24 +28,37 @@ class AttributeDefinitionCollectionDataProvider implements ContextAwareCollectio
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {
         $filters = $context['filters'] ?? [];
-        if (!isset($filters['workspaceId'])) {
-            throw new InvalidArgumentException(sprintf('You must provide "workspaceId" to filter out attributes'));
+
+        $queryBuilder = $this->em->getRepository(AttributeDefinition::class)
+            ->createQueryBuilder('t')
+            ->innerJoin('t.class', 'ac')
+        ;
+
+        if ($filters['workspaceId'] ?? false) {
+            $queryBuilder
+                ->andWhere('t.workspace = :ws')
+                ->setParameter('ws', $filters['workspaceId']);
         }
 
-        $workspace = $this->em->find(Workspace::class, $filters['workspaceId']);
-        if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" does not exist', $workspace));
+        $user = $this->security->getUser();
+        if ($user instanceof RemoteUser) {
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $user->getId(),
+                $user->getGroupIds(),
+                'attribute_class',
+                'ac',
+                PermissionInterface::VIEW,
+                false
+            );
+            $queryBuilder->andWhere('ac.public = true OR ace.id IS NOT NULL');
+        } else {
+            $queryBuilder->andWhere('ac.public = true');
         }
 
-        if (!$this->security->isGranted(WorkspaceVoter::READ, $workspace)) {
-            throw new AccessDeniedHttpException();
-        }
-
-        $criteria = [
-            'workspace' => $workspace->getId(),
-        ];
-
-        return $this->em->getRepository(AttributeDefinition::class)->findBy($criteria);
+        return $queryBuilder
+            ->getQuery()
+            ->getResult();
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

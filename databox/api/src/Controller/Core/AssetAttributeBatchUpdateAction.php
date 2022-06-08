@@ -20,6 +20,8 @@ final class AssetAttributeBatchUpdateAction extends AbstractController
 
     public function __invoke(string $id, Asset $data, Request $request)
     {
+        $this->batchAttributeManager->validate([$data->getId()], $data->attributeActions);
+
         $this->batchAttributeManager->handleBatch($data->getWorkspaceId(), [$data->getId()], $data->attributeActions);
 
         return $data;

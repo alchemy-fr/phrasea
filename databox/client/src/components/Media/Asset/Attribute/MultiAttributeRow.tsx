@@ -14,6 +14,7 @@ type Props = {
     isRtl: boolean;
     disabled: boolean;
     indeterminate?: boolean;
+    readOnly?: boolean;
 }
 
 const deferred = 0;
@@ -27,6 +28,7 @@ export default function MultiAttributeRow({
                                               onChange,
                                               type,
                                               indeterminate,
+                                              readOnly,
                                           }: Props) {
     const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(initialValues.length > 0 ? initialValues : [createNewValue(type)]);
@@ -86,6 +88,7 @@ export default function MultiAttributeRow({
                     }}>
                     <AttributeWidget
                         indeterminate={indeterminate}
+                        readOnly={readOnly}
                         value={v}
                         isRtl={isRtl}
                         disabled={disabled}
@@ -99,7 +102,7 @@ export default function MultiAttributeRow({
                     />
                     <Button
                         variant="contained"
-                        disabled={disabled}
+                        disabled={readOnly || disabled}
                         onClick={() => remove(i)}
                         color="secondary">
                         {t('form.attribute.collection.item_remove', 'Remove')}
@@ -110,7 +113,7 @@ export default function MultiAttributeRow({
 
         <Button
             variant="contained"
-            disabled={disabled}
+            disabled={readOnly || disabled}
             onClick={add}
             color="secondary">
             Add {name}

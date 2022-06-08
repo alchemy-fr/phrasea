@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
@@ -25,9 +26,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_slug",columns={"workspace_id", "slug"})
  *     },
  *     indexes={
- *       @ORM\Index(name="public_searchable_idx", columns={"searchable", "public"}),
  *       @ORM\Index(name="searchable_idx", columns={"searchable"}),
- *       @ORM\Index(name="public_idx", columns={"public"}),
  *       @ORM\Index(name="type_idx", columns={"field_type"}),
  *     }
  * )
@@ -46,6 +45,14 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"attributedef:index"})
      */
     protected ?Workspace $workspace = null;
+
+    /**
+     * @Groups({"attributedef:index", "attributedef:read", "attributedef:write"})
+     * @ORM\ManyToOne(targetEntity="AttributeClass", inversedBy="definitions")
+     * @ORM\JoinColumn(nullable=false)
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
+     */
+    protected ?AttributeClass $class = null;
 
     /**
      * @var Attribute[]
@@ -81,14 +88,6 @@ class AttributeDefinition extends AbstractUuidEntity
     private string $fieldType = TextAttributeType::NAME;
 
     /**
-     * Value can be manually set by user.
-     *
-     * @Groups({"attributedef:index"})
-     * @ORM\Column(type="boolean")
-     */
-    private bool $editable = true;
-
-    /**
      * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
@@ -117,11 +116,6 @@ class AttributeDefinition extends AbstractUuidEntity
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $allowInvalid = false;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
-    private bool $public = true;
 
     /**
      * @Groups({"attributedef:index"})
@@ -172,16 +166,6 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setFieldType(string $fieldType): void
     {
         $this->fieldType = $fieldType;
-    }
-
-    public function isEditable(): bool
-    {
-        return $this->editable;
-    }
-
-    public function setEditable(bool $editable): void
-    {
-        $this->editable = $editable;
     }
 
     public function getFallback(): ?array
@@ -254,16 +238,6 @@ class AttributeDefinition extends AbstractUuidEntity
         $this->multiple = $multiple;
     }
 
-    public function isPublic(): bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): void
-    {
-        $this->public = $public;
-    }
-
     public function getSearchBoost(): ?int
     {
         return $this->searchBoost;
@@ -314,18 +288,6 @@ class AttributeDefinition extends AbstractUuidEntity
         $this->facetEnabled = $facetEnabled;
     }
 
-    /**
-     * @Groups({"attributedef:index"})
-     */
-    public function getLocales(): ?array
-    {
-        if ($this->isTranslatable()) {
-            return $this->getWorkspace()->getEnabledLocales();
-        }
-
-        return null;
-    }
-
     public function getSlug(): ?string
     {
         return $this->slug;
@@ -334,5 +296,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getClass(): ?AttributeClass
+    {
+        return $this->class;
+    }
+
+    public function setClass(?AttributeClass $class): void
+    {
+        $this->class = $class;
     }
 }

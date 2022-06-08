@@ -1,14 +1,13 @@
 resources:
-  App\Entity\Core\AttributeDefinition:
-    shortName: attribute-definition
+  App\Entity\Core\AttributeClass:
     attributes:
       normalization_context:
         groups:
-          - attributedef:index
-      input: App\Api\Model\Input\AttributeDefinitionInput
-      output: App\Api\Model\Output\AttributeDefinitionOutput
+          - attributeclass:index
+    shortName: attribute-class
     itemOperations:
-      get: ~
+      get:
+        security: 'is_granted("READ", object)'
       delete:
         security: 'is_granted("DELETE", object)'
       put:

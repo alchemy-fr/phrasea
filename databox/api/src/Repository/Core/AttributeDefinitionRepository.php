@@ -25,6 +25,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
         $queryBuilder = $this
             ->createQueryBuilder('t')
             ->andWhere('t.searchable = true')
+            ->innerJoin('t.class', 'c')
         ;
 
         if (null !== $userId) {
@@ -32,14 +33,14 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                'attribute_definition',
-                't',
+                'attribute_class',
+                'c',
                 PermissionInterface::VIEW,
                 false
             );
-            $queryBuilder->andWhere('t.public = true OR ace.id IS NOT NULL');
+            $queryBuilder->andWhere('c.public = true OR ace.id IS NOT NULL');
         } else {
-            $queryBuilder->andWhere('t.public = true');
+            $queryBuilder->andWhere('c.public = true');
         }
 
         if (null !== $workspaceIds) {
