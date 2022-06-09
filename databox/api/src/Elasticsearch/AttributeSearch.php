@@ -111,10 +111,14 @@ class AttributeSearch
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
-            if ('ws' === $attr) {
+            if (FacetHandler::FACET_WORKSPACE === $attr) {
                 $f = 'workspaceId';
-            } elseif ('c' === $attr) {
+            } elseif (FacetHandler::FACET_COLLECTION === $attr) {
                 $f = 'collectionPaths';
+            } elseif (FacetHandler::FACET_TAG === $attr) {
+                $f = 'tags';
+            } elseif (FacetHandler::FACET_PRIVACY === $attr) {
+                $f = 'privacy';
             } else {
                 $info = $this->fieldNameResolver->extractField($attr);
                 $f = sprintf('attributes._.%s', $info['field']);
