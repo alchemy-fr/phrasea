@@ -68,6 +68,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/metadata-manipulator-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
@@ -78,6 +85,7 @@
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "alchemy/storage-bundle": "*",
