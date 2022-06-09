@@ -153,6 +153,8 @@ class AssetSearch extends AbstractSearch
 
         $this->facetHandler->buildWorkspaceFacet($query);
         $this->facetHandler->buildCollectionFacet($query);
+        $this->facetHandler->buildPrivacyFacet($query);
+        $this->facetHandler->buildTagFacet($query);
         $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
 
         /** @var FantaPaginatorAdapter $adapter */
