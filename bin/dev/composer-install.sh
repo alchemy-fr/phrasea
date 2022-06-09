@@ -22,5 +22,5 @@ apps=(
 
 for a in "${apps[@]}"; do
   echo "Updating $a..."
-  (cd "$a" && composer update $1)
+  (cd "$a" && composer install $1)
 done
