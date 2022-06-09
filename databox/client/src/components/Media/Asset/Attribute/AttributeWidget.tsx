@@ -50,20 +50,24 @@ export default function AttributeWidget({
             return <TextField
                 id={id}
                 inputProps={{
-                    readOnly
+                    readOnly,
+                    style: readOnly ? {
+                        cursor: 'not-allowed',
+                    } : undefined,
                 }}
                 fullWidth
                 rows={isMultiline ? 3 : undefined}
                 multiline={isMultiline}
-                disabled={disabled}
+                disabled={readOnly || disabled}
                 label={name}
                 onChange={changeHandler}
                 value={value ? value.value : ''}
                 required={required}
                 autoFocus={true}
-                style={isRtl ? {
-                    direction: 'rtl',
-                } : undefined}
+                style={{
+                    direction: isRtl ? 'rtl' : undefined,
+                    cursor: 'not-allowed',
+                }}
                 placeholder={indeterminate ? '[multiple values]' : undefined}
             />
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -18,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     uniqueConstraints={@ORM\UniqueConstraint(name="attr_class_uniq",columns={"workspace_id", "name"})}
  * )
  */
-class AttributeClass extends AbstractUuidEntity
+class AttributeClass extends AbstractUuidEntity implements AclObjectInterface
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
@@ -95,5 +96,10 @@ class AttributeClass extends AbstractUuidEntity
     public function setEditable(bool $editable): void
     {
         $this->editable = $editable;
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return '';
     }
 }
