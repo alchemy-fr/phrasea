@@ -42,7 +42,8 @@ class CollectionVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::CREATE:
-                return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+                return $subject->getParent() ? $this->security->isGranted(CollectionVoter::EDIT, $subject->getParent())
+                    : $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
             case self::LIST:
                 return $isOwner
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC

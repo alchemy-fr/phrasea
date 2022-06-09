@@ -14,7 +14,7 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
     private Security $security;
 
     /**
-     * @param string|int       $attribute
+     * @param string|int $attribute
      */
     protected function isGranted($attribute, object $object): bool
     {
@@ -38,7 +38,7 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
         $user = $this->security->getUser();
 
         if (!$user instanceof RemoteUser) {
-            throw new AccessDeniedHttpException();
+            throw new AccessDeniedHttpException('User must be authenticated');
         }
 
         return $user;

@@ -102,10 +102,13 @@ export interface Group {
     name: string;
 }
 
+
+export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<Collection, "workspace">;
+
 export interface Collection extends IPermissions {
     id: string;
     title: string;
-    children?: Collection[];
+    children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     privacy: number;
 }

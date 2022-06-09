@@ -7,7 +7,7 @@ namespace App\Api\Model\Input;
 class CopyAssetInput
 {
     /**
-     * Collection or Workspace IRI
+     * Collection or Workspace IRI.
      */
     public ?string $destination = null;
     public ?array $ids = null;

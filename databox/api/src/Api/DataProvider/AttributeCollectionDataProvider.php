@@ -10,7 +10,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -40,7 +39,7 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
         }
 
         if (!$this->security->isGranted(AssetVoter::READ, $asset)) {
-            throw new AccessDeniedHttpException();
+            throw new AccessDeniedHttpException('Cannot read asset');
         }
 
         $criteria = [

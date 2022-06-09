@@ -20,8 +20,7 @@ abstract class AbstractCachedFaker extends BaseProvider
         FileStorageManager $fileStorageManager,
         RenditionPathGenerator $pathGenerator,
         Generator $generator
-    )
-    {
+    ) {
         parent::__construct($generator);
         $this->cacheDir = $fixturesCacheDir;
         $this->fileStorageManager = $fileStorageManager;

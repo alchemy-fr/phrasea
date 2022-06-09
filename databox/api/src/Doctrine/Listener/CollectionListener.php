@@ -33,6 +33,7 @@ class CollectionListener implements EventSubscriber
         if (!$this->hasChangedField([
             'public',
             'owner',
+            'parent',
         ], $args->getEntityManager(), $entity)) {
             return;
         }

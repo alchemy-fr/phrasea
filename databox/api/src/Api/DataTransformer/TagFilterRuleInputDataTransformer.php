@@ -25,7 +25,7 @@ class TagFilterRuleInputDataTransformer extends AbstractSecurityDataTransformer
         } elseif ($data->workspaceId) {
             $tagFilterRule->setObjectType(TagFilterRule::TYPE_WORKSPACE);
             $tagFilterRule->setObjectId($data->workspaceId);
-        } else if ($isNew) {
+        } elseif ($isNew) {
             throw new InvalidArgumentException('Missing collectionId or workspaceId');
         }
 

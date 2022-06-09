@@ -11,8 +11,7 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $lock,
         int $size = 1000,
         $theme = 'landscape'
-    ): string
-    {
+    ): string {
         $ratios = [
             16 / 9,
             1,
@@ -20,7 +19,7 @@ class ImageUrlFaker extends AbstractCachedFaker
             3 / 4,
             9 / 16,
         ];
-        $ratio = $ratios[(int)$lock % count($ratios)];
+        $ratio = $ratios[(int) $lock % count($ratios)];
 
         if ($ratio >= 1) {
             $width = $size;

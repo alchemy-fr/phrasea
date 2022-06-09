@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 

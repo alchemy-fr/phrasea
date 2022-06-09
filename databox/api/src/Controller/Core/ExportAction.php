@@ -27,8 +27,7 @@ class ExportAction
         ValidatorInterface $validator,
         EntityManagerInterface $em,
         FileUrlResolver $fileUrlResolver
-    )
-    {
+    ) {
         $this->client = $zippyClient;
         $this->validator = $validator;
         $this->em = $em;
@@ -69,7 +68,6 @@ class ExportAction
             ],
         ]);
         $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
-
 
         $data->downloadUrl = $json['downloadUrl'];
 

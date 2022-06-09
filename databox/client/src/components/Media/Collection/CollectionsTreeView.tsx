@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
-import {Collection, Workspace} from "../../../types";
+import {CollectionOptionalWorkspace, Workspace} from "../../../types";
 import {getCollection, getWorkspaces} from "../../../api/collection";
 import {TreeView} from "@mui/lab";
 import {CircularProgress} from "@mui/material";
@@ -12,23 +12,28 @@ type Props<IsMulti extends boolean = false> = {
     value?: IsMulti extends true ? string[] : string;
     multiple?: IsMulti;
     workspaceId?: string;
+    disabledBranches?: string[];
 }
 
 type CollectionTreeProps = {
-    collection: Collection;
+    collection: CollectionOptionalWorkspace;
     workspaceId: string;
     depth?: number,
+    disabledBranches?: string[];
 }
 
 const nodeSeparator = '|';
 
+export {nodeSeparator as treeViewPathSeparator};
+
 function CollectionTree({
                             collection,
                             workspaceId,
+                            disabledBranches,
                             depth = 0
                         }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
-    const [tree, setTree] = React.useState<Collection[] | undefined>(collection.children);
+    const [tree, setTree] = React.useState<CollectionOptionalWorkspace[] | undefined>(collection.children);
 
     async function load() {
         if (!collection.children || collection.children.length === 0) {
@@ -42,15 +47,20 @@ function CollectionTree({
         }
     }
 
+    const nodeId = workspaceId + nodeSeparator + collection['@id'];
     return <TreeItem
+        disabled={disabledBranches && disabledBranches.some(b => nodeId.startsWith(b))}
         onClick={load}
-        nodeId={workspaceId + nodeSeparator + collection['@id']}
+        nodeId={nodeId}
         label={collection.title}
     >
         {tree && tree.map(c => <CollectionTree
             key={c.id}
             workspaceId={workspaceId}
-            collection={c} depth={depth + 1}/>)}
+            collection={c}
+            depth={depth + 1}
+            disabledBranches={disabledBranches}
+        />)}
     </TreeItem>
 }
 
@@ -64,9 +74,9 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                                                                          value,
                                                                          multiple,
                                                                          workspaceId,
+                                                                         disabledBranches,
                                                                      }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
-    console.log('workspaceId', workspaceId);
 
     useEffect(() => {
         getWorkspaces().then(w => {
@@ -116,16 +126,21 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         onNodeSelect={handleSelect as any}
         multiSelect={multiple || false}
     >
-        {workspaces.map(w => <TreeItem
-            nodeId={w.id + nodeSeparator + w['@id']}
-            key={w.id}
-            label={w.name}
-        >
-            {w.collections.map(c => <CollectionTree
-                key={c.id}
-                workspaceId={w.id}
-                collection={c}
-            />)}
-        </TreeItem>)}
+        {workspaces.map(w => {
+            const nodeId = w.id + nodeSeparator + w['@id'];
+            return <TreeItem
+                nodeId={nodeId}
+                key={w.id}
+                label={w.name}
+                disabled={disabledBranches && disabledBranches.some(b => nodeId.startsWith(b))}
+            >
+                {w.collections.map(c => <CollectionTree
+                    key={c.id}
+                    workspaceId={w.id}
+                    collection={c}
+                    disabledBranches={disabledBranches}
+                />)}
+            </TreeItem>;
+        })}
     </TreeView>
 }

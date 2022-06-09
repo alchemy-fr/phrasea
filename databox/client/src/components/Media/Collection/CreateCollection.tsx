@@ -42,7 +42,7 @@ export default function CreateCollection({
         },
         onSuccess: (coll) => {
             clearWorkspaceCache();
-            toast.success(t('form.collection_create.success', 'Collection created!'))
+            toast.success(t('form.collection_create.success', 'Collection created!'));
             closeModal();
             onCreate(coll);
         }

@@ -68,8 +68,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         array $collections,
         ?string $title = null,
         ?string $filename = null
-    ): EventMessage
-    {
+    ): EventMessage {
         return new EventMessage(self::EVENT, [
             'userId' => $userId,
             'fileId' => $fileId,

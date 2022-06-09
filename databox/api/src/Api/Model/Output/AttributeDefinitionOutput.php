@@ -11,9 +11,7 @@ use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
-use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AttributeDefinitionOutput extends AbstractUuidOutput
