@@ -10,6 +10,10 @@ import {useModals} from "@mattjennings/react-modal-stack";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import AclForm from "../../Acl/AclForm";
+import CollectionMoveSection from "./CollectionMoveSection";
+import {Typography} from "@mui/material";
+import TagFilterRules from "../TagFilterRule/TagFilterRules";
+import FormSection from "../../Form/FormSection";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 
@@ -38,7 +42,7 @@ export default function EditCollection({
     const [data, setData] = useState<Collection>();
 
     useEffect(() => {
-       getCollection(id).then(c => setData(c));
+        getCollection(id).then(c => setData(c));
     }, []);
 
     if (!data) {
@@ -59,13 +63,33 @@ export default function EditCollection({
             onSubmit={handleSubmit}
             submitting={submitting}
         />
-        {data.capabilities.canEditPermissions ? <div>
-            <hr/>
-            <h4>Permissions</h4>
+        <FormSection>
+            <Typography variant={'h2'}>
+                {t('form.collection_edit.tag_filter_rules.title', 'Tag filter rules')}
+            </Typography>
+            <TagFilterRules
+                id={data.id}
+                workspaceId={data.workspace.id}
+                type={'collection'}
+            />
+        </FormSection>
+        {data.capabilities.canEditPermissions ? <FormSection>
+            <Typography variant={'h2'}>
+                {t('collection_edit.permissions.title', 'Permissions')}
+            </Typography>
             <AclForm
                 objectId={id}
                 objectType={'collection'}
             />
-        </div> : ''}
+        </FormSection> : ''}
+        <FormSection>
+            <CollectionMoveSection
+                collection={data}
+                onMoved={() => {
+                    closeModal();
+                    onEdit(data);
+                }}
+            />
+        </FormSection>
     </FormDialog>
 }

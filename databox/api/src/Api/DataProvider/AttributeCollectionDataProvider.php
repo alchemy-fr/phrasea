@@ -40,7 +40,7 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
         }
 
         if (!$this->security->isGranted(AssetVoter::READ, $asset)) {
-            throw new AccessDeniedHttpException();
+            throw new AccessDeniedHttpException('Cannot read asset');
         }
 
         $criteria = [

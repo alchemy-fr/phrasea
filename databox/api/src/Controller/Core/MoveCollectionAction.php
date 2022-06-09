@@ -25,14 +25,16 @@ class MoveCollectionAction extends AbstractController
         $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
 
         $isRoot = $dest === 'root';
-        if (!$isRoot) {
-            $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
+        $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
+
+        if ($isRoot) {
             $destination = null;
         } else {
             $destination = $this->em->find(Collection::class, $dest);
             if (!$destination instanceof Collection) {
                 throw new NotFoundHttpException(sprintf('Collection destination "%s" not found', $dest));
             }
+            $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $destination);
         }
 
         $data->setParent($destination);

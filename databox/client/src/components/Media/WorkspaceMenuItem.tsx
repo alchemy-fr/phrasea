@@ -123,9 +123,6 @@ export default function WorkspaceMenuItem({
                 sx={{
                     backgroundColor: 'primary.main',
                     color: 'primary.contrastText',
-                    '*': {
-                        color: 'inherit',
-                    },
                     '.c-action': {
                         visibility: 'hidden',
                     },
@@ -178,7 +175,7 @@ export default function WorkspaceMenuItem({
                     onClick={onClick}
                     selected={selected}
                 >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{color: 'inherit'}}>
                         <BusinessIcon/>
                     </ListItemIcon>
                     <ListItemText primary={name}/>

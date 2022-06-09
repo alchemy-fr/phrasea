@@ -1,9 +1,8 @@
 import React, {MouseEvent, useContext, useEffect, useState} from "react";
-import {Collection} from "../../types";
+import {Collection, CollectionOptionalWorkspace} from "../../types";
 import {collectionChildrenLimit, collectionSecondLimit, deleteCollection, getCollections} from "../../api/collection";
-import apiClient from "../../api/api-client";
 import {SearchContext} from "./Search/SearchContext";
-import {Collapse, IconButton, ListItem, ListItemButton, ListItemText} from "@mui/material";
+import {CircularProgress, Collapse, IconButton, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -31,21 +30,22 @@ export default function CollectionMenuItem({
                                                ['@id']: iri,
                                                children,
                                                absolutePath,
-                                                titlePath,
+                                               titlePath,
                                                title,
                                                capabilities,
                                                onCollectionEdit,
                                                onCollectionDelete,
-    workspace,
+                                               workspace,
                                                level,
                                            }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
+    const [expanding, setExpanding] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
         loadingMore: boolean;
-        items?: Collection[];
+        items?: CollectionOptionalWorkspace[];
         total?: number;
         page: number;
     }>({
@@ -56,28 +56,37 @@ export default function CollectionMenuItem({
 
     const childCount = nextCollections.items?.length ?? 0;
 
-    const loadChildren = async () => {
-        if (expanded && childCount > 0) {
-            const data = (await getCollections({
-                parent: id,
-                limit: collectionSecondLimit,
-                childrenLimit: collectionChildrenLimit,
-            }));
-
-            setNextCollections(prevState => ({
-                loadingMore: false,
-                page: 1,
-                total: prevState.page < 1 ? (prevState.total ?? 0) + data.total : data.total,
-                items: prevState.page < 1 ? data.result.filter(c => !(prevState.items || []).some(pc => pc.id === c.id)).concat(
-                    (prevState.items || [])
-                ) : data.result,
-            }));
-        }
-    };
-
     useEffect(() => {
         if (expanded) {
-            loadChildren();
+            (async () => {
+                if (expanded && childCount > 0) {
+                    const timeout = setTimeout(() => {
+                        setExpanding(true);
+                    }, 800);
+                    try {
+                        const data = (await getCollections({
+                            parent: id,
+                            limit: collectionSecondLimit,
+                            childrenLimit: collectionChildrenLimit,
+                        }));
+                        clearTimeout(timeout);
+                        setNextCollections(prevState => ({
+                            loadingMore: false,
+                            page: 1,
+                            total: prevState.page < 1 ? (prevState.total ?? 0) + data.total : data.total,
+                            items: prevState.page < 1
+                                ? (data.result as CollectionOptionalWorkspace[])
+                                    .concat(
+                                        (prevState.items || []).filter(pc => !data.result.some(c => c.id === pc.id))
+                                    )
+                                : data.result,
+                        }));
+                    } catch (e) {
+                    }
+
+                    setExpanding(false);
+                }
+            })();
         }
     }, [expanded]);
 
@@ -224,7 +233,9 @@ export default function CollectionMenuItem({
                     }}
                     onClick={expandClick}
                     aria-label="expand-toggle">
-                    {!expanded ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                    {expanding ? <CircularProgress
+                        size={24}
+                    /> : (!expanded ? <ExpandLessIcon/> : <ExpandMoreIcon/>)}
                 </IconButton>
             </>}
             disablePadding
@@ -241,15 +252,18 @@ export default function CollectionMenuItem({
 
         <Collapse in={expanded && childCount > 0} timeout="auto" unmountOnExit>
             {childCount > 0 && <div className="sub-colls">
-                {nextCollections.items!.map(c => <CollectionMenuItem
-                    {...c}
-                    onCollectionEdit={onSubCollEdit}
-                    onCollectionDelete={() => onSubCollDelete(c.id)}
-                    key={c.id}
-                    absolutePath={`${absolutePath}/${c.id}`}
-                    titlePath={(titlePath ?? []).concat(title)}
-                    level={level + 1}
-                />)}
+                {nextCollections.items!.map(c => {
+                    return <CollectionMenuItem
+                        {...c}
+                        workspace={c.workspace || workspace}
+                        onCollectionEdit={onSubCollEdit}
+                        onCollectionDelete={() => onSubCollDelete(c.id)}
+                        key={`${c.id}-${c.children ? 'c' : ''}`}
+                        absolutePath={`${absolutePath}/${c.id}`}
+                        titlePath={(titlePath ?? []).concat(title)}
+                        level={level + 1}
+                    />;
+                })}
                 {Boolean(nextPage) && <ListItemButton
                     onClick={loadMore}
                     disabled={nextCollections.loadingMore}

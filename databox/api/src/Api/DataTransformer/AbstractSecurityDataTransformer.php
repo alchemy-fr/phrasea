@@ -38,7 +38,7 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
         $user = $this->security->getUser();
 
         if (!$user instanceof RemoteUser) {
-            throw new AccessDeniedHttpException();
+            throw new AccessDeniedHttpException('User must be authenticated');
         }
 
         return $user;

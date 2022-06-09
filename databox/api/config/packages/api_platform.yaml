@@ -13,3 +13,9 @@ api_platform:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
+    oauth:
+        clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+        clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
+        tokenUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/token'
+        flow: authorizationCode
+        authorizationUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/auth'

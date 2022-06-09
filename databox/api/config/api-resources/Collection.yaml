@@ -19,11 +19,18 @@ resources:
         security: 'is_granted("EDIT", object)'
       patch:
         security: 'is_granted("EDIT", object)'
-      post_move:
+      put_move:
         controller: App\Controller\Core\MoveCollectionAction
         security: 'is_granted("EDIT", object)'
-        method: POST
+        method: PUT
+        deserialize: false
         path: /collections/{id}/move/{dest}
+        openapi_context:
+          parameters:
+            - name: dest
+              in: path
+              required: true
+              description: The destination collection ID
     collectionOperations:
       get: ~
       post:

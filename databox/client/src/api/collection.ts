@@ -1,5 +1,5 @@
 import apiClient from "./api-client";
-import {Collection, Workspace} from "../types";
+import {Collection, CollectionOptionalWorkspace, Workspace} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {clearAssociationIds} from "./clearAssociation";
 
@@ -76,14 +76,14 @@ export async function putCollection(id: string, data: Partial<Collection>): Prom
 }
 
 export async function moveCollection(id: string, parentId: string | undefined): Promise<void> {
-    await apiClient.post(`/collections/${id}/move/${parentId ? parentId : 'root'}`);
+    await apiClient.put(`/collections/${id}/move/${parentId ? parentId : 'root'}`);
 }
 
 type CollectionPostType = {
     parent?: string,
     title: string;
-    children?: Collection[];
-    workspace?: string;
+    children?: CollectionOptionalWorkspace[];
+    workspace?: string | undefined;
     privacy: number;
 }
 
