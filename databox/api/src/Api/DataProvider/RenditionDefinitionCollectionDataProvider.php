@@ -20,7 +20,6 @@ class RenditionDefinitionCollectionDataProvider implements ContextAwareCollectio
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {
-
         $queryBuilder = $this->em->getRepository(RenditionDefinition::class)
             ->createQueryBuilder('t');
 

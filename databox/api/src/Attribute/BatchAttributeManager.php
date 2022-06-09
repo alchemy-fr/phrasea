@@ -297,7 +297,6 @@ class BatchAttributeManager
         $qb->getQuery()->execute();
     }
 
-
     private function joinUserAcl(QueryBuilder $queryBuilder): void
     {
         /** @var RemoteUser $user */

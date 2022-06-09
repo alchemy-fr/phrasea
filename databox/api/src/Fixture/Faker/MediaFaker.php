@@ -10,8 +10,7 @@ class MediaFaker extends AbstractCachedFaker
         string $workspaceId,
         string $type,
         string $n
-    ): string
-    {
+    ): string {
         $urls = [
             'mp4' => [
                 'https://www.learningcontainer.com/download/sample-mp4-video-file-download-for-testing/?wpdmdl=2727&refresh=6282e5734c9491652745587',
@@ -32,7 +31,7 @@ class MediaFaker extends AbstractCachedFaker
                 'https://assets.ctfassets.net/wm1n7oady8a5/6tJdKFW6ukyIE4Y8sSuYo4/86aa1e4178bef579ac8674eefa1f6bc5/A4-booklet-landscape.en.pdf',
                 'https://file-examples.com/storage/feddb42d8762894ad9bbbb0/2017/10/file-sample_150kB.pdf',
                 'https://file-examples.com/storage/feddb42d8762894ad9bbbb0/2017/10/file-example_PDF_500_kB.pdf',
-            ]
+            ],
         ][$type];
 
         $n = (int) $n;

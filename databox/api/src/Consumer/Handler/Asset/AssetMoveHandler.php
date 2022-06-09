@@ -52,11 +52,11 @@ class AssetMoveHandler extends AbstractEntityManagerHandler
                     ->getRepository(CollectionAsset::class)
                     ->deleteCollectionAsset($asset->getId(), $destination->getId());
 
-                 $asset->setReferenceCollection($destination);
-                 $collectionAsset = new CollectionAsset();
-                 $collectionAsset->setAsset($asset);
-                 $collectionAsset->setCollection($destination);
-                 $em->persist($collectionAsset);
+                $asset->setReferenceCollection($destination);
+                $collectionAsset = new CollectionAsset();
+                $collectionAsset->setAsset($asset);
+                $collectionAsset->setCollection($destination);
+                $em->persist($collectionAsset);
             } else {
                 $asset->setReferenceCollection(null);
             }

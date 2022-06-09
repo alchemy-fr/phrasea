@@ -44,7 +44,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
 
         /** @var Collection|Workspace $destination */
         $destination = $this->iriConverter->getItemFromIri($dest);
-        $destCollection =  $destination instanceof Collection ? $destination : null;
+        $destCollection = $destination instanceof Collection ? $destination : null;
         $destWorkspace = $destination instanceof Workspace ? $destination : $destination->getWorkspace();
 
         $link = $link && $destWorkspace->getId() === $asset->getWorkspaceId();

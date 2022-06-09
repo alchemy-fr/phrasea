@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use ApiPlatform\Core\Api\IriConverterInterface;
-use App\Api\Model\Input\MoveAssetInput;
 use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AssetVoter;

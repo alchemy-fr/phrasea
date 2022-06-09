@@ -51,8 +51,7 @@ class AssetCopier
         Workspace $workspace,
         ?Collection $collection,
         array $options = []
-    ): void
-    {
+    ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         if (!$sameWorkspace) {
             if (!$asset->getFile()) {
@@ -99,8 +98,7 @@ class AssetCopier
         Workspace $workspace,
         ?Collection $collection,
         array $options = []
-    ): void
-    {
+    ): void {
         $copy = new Asset();
         $copy->setOwnerId($userId);
         $copy->setTitle($asset->getTitle());
@@ -192,7 +190,7 @@ class AssetCopier
         $copy->setStorage($file->getStorage());
         $copy->setSize($file->getSize());
 
-        if ($file->getStorage() === File::STORAGE_S3_MAIN) {
+        if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $stream = $this->storageManager->getStream($file->getPath());
             $extension = strtolower(pathinfo($file->getPath(), PATHINFO_EXTENSION) ?? '');
             $path = $this->pathGenerator->generatePath($workspace->getId(), $extension);

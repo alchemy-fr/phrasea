@@ -24,7 +24,7 @@ class MoveCollectionAction extends AbstractController
     {
         $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
 
-        $isRoot = $dest === 'root';
+        $isRoot = 'root' === $dest;
         $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
 
         if ($isRoot) {

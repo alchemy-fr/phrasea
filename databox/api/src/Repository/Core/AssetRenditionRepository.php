@@ -32,7 +32,6 @@ class AssetRenditionRepository extends EntityRepository
         }
         if (null !== ($options[self::WITH_FILE] ?? null)) {
             if ($options[self::WITH_FILE]) {
-
                 $queryBuilder->andWhere('t.file IS NOT NULL');
             } else {
                 $queryBuilder->andWhere('t.file IS  NULL');
