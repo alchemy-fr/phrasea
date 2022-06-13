@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import AssetSelectionProvider from "./Media/AssetSelectionProvider";
 import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
 import LeftPanel from "./Media/LeftPanel";
@@ -14,10 +14,20 @@ import {UserContext} from "./Security/UserContext";
 import {useTranslation} from "react-i18next";
 import {addErrorListener, removeErrorListener} from "../api/api-client";
 import DisplayProvider from "./Media/DisplayProvider";
+import {Outlet, useLocation} from "react-router-dom";
+import {appPathPrefix} from "../routes";
 
 export default function App() {
     const userContext = useContext(UserContext);
     const {t} = useTranslation();
+    const location = useLocation();
+    const [render, setRender] = useState(location.pathname === appPathPrefix);
+
+    useEffect(() => {
+        if (!render && location.pathname === appPathPrefix) {
+            setRender(true);
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
@@ -51,14 +61,18 @@ export default function App() {
         return () => {
             removeErrorListener(onError);
         }
-    }, [])
+    }, []);
 
+    if (!render) {
+        return <Outlet />
+    }
 
     return <>
         <ToastContainer/>
         <SearchProvider>
             <ResultProvider>
                 <AssetDropzone>
+                    <Outlet />
                     <MainAppBar/>
                     <AssetSelectionProvider>
                         <DisplayProvider>

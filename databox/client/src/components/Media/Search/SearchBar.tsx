@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {FormEvent, useContext, useEffect, useRef, useState} from 'react';
 import {styled} from "@mui/material/styles";
 import {alpha, Box, Button, InputBase} from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
@@ -56,7 +56,8 @@ export default function SearchBar({}: Props) {
         setQueryValue(search.query);
     }, [search.query]);
 
-    const onSubmit = () => {
+    const onSubmit = (e: FormEvent) => {
+        e.preventDefault();
         search.setQuery(queryValue)
     }
 

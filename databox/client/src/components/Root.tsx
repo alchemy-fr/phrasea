@@ -1,5 +1,4 @@
 import React, {PureComponent, Suspense} from 'react';
-import {BrowserRouter, Routes} from "react-router-dom";
 import {oauthClient} from "../oauth";
 import {authenticate} from "../auth";
 import config from "../config";
@@ -7,11 +6,11 @@ import apiClient from "../api/api-client";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
 import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
-import {flattenRoutes, RouteDefinition} from "../routes";
-import createRoute from "./Router/router";
 import {ModalStack} from "@mattjennings/react-modal-stack";
 import FullPageLoader from "./Ui/FullPageLoader";
 import {createCachedTheme, ThemeName} from "../lib/theme";
+import Routes from "./Routing/Routes";
+import {BrowserRouter} from "react-router-dom";
 
 type State = {
     user?: User;
@@ -94,26 +93,24 @@ export default class Root extends PureComponent<{}, State> {
                     }
                 })}
             />
-            <ModalStack>
-                <UserContext.Provider value={{
-                    user: this.state.user,
-                    logout: this.state.user ? this.logout : undefined,
-                    currentTheme: this.state.theme,
-                    changeTheme: (theme: ThemeName) => {
-                        this.setState({theme});
-                    },
-                }}>
+            <UserContext.Provider value={{
+                user: this.state.user,
+                logout: this.state.user ? this.logout : undefined,
+                currentTheme: this.state.theme,
+                changeTheme: (theme: ThemeName) => {
+                    this.setState({theme});
+                },
+            }}>
+                <ModalStack>
                     {this.state.authenticating
                         ? <FullPageLoader/>
                         : <Suspense fallback={`Loading...`}>
                             <BrowserRouter>
-                                <Routes>
-                                    {flattenRoutes.map((route: RouteDefinition, index: number) => createRoute(route, index.toString()))}
-                                </Routes>
+                                <Routes/>
                             </BrowserRouter>
                         </Suspense>}
-                </UserContext.Provider>
-            </ModalStack>
+                </ModalStack>
+            </UserContext.Provider>
         </ThemeProvider>
     }
 }

@@ -9,11 +9,11 @@ type WrapperProps = {
 
 function RouteProxy({
                         component: Component,
-                        private: isPrivate,
+                        public: isPublic,
                     }: WrapperProps) {
     const {user} = useContext(UserContext);
 
-    if (isPrivate && !user) {
+    if (!isPublic && !user) {
         return <Navigate to={getPath('login')}/>
     }
 
@@ -23,15 +23,39 @@ function RouteProxy({
 export default function createRoute(
     {
         component,
+        routes,
+        path,
         ...route
     }: RouteDefinition,
-    key: string
+    key: string,
+    pathPrefix: string = ''
 ) {
+    const p = pathPrefix + path;
+
+    if (routes && routes.length > 0) {
+        return <Route
+            key={key}
+            path={p}
+            element={<RouteProxy
+                component={component!}
+                path={p}
+                {...route}
+            />}
+        >
+            {routes.map(r => createRoute({
+                    ...r,
+                    path: r.path.substring(1),
+                    component: r.component || component,
+                }, r.name))}
+        </Route>
+    }
+
     return <Route
         key={key}
-        path={route.path}
+        path={p}
         element={<RouteProxy
             component={component!}
+            path={p}
             {...route}
         />}
     />

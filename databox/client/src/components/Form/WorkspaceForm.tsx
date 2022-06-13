@@ -48,31 +48,5 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                 />
             </FormRow>
         </form>
-        {data && <>
-            <hr/>
-            <div>
-                <h4>Manage tags</h4>
-                <TagManager workspaceIri={data['@id']}/>
-            </div>
-            <hr/>
-            <Box sx={{
-                mb: 2
-            }}>
-                <Typography variant={'h2'} >Tag filter rules</Typography>
-                <TagFilterRules
-                    id={data.id}
-                    workspaceId={data.id}
-                    type={'workspace'}
-                />
-            </Box>
-            {data.capabilities.canEditPermissions ? <div>
-                <hr/>
-                <h4>Permissions</h4>
-                <AclForm
-                    objectId={data.id}
-                    objectType={'workspace'}
-                />
-            </div> : ''}
-        </>}
     </>
 }

@@ -14,6 +14,9 @@ import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
 import {OnCollectionEdit} from "./Collection/EditCollection";
 import EditWorkspace, {OnWorkspaceEdit} from "./Workspace/EditWorkspace";
+import {Link} from "react-router-dom";
+import {getPath} from "../../routes";
+import ModalLink from "../Routing/ModalLink";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -148,10 +151,12 @@ export default function WorkspaceMenuItem({
                     </IconButton>}
                     {capabilities.canEdit && <IconButton
                         color={'inherit'}
-                        onClick={() => openModal(EditWorkspace, {
+                        component={ModalLink}
+                        routeName={'workspace_manage'}
+                        params={{
                             id,
-                            onEdit: onWorkspaceEdit,
-                        })}
+                            tab: 'edit',
+                        }}
                         title={'Edit this workspace'}
                         className={'c-action'}
                         aria-label="edit">

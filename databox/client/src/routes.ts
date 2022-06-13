@@ -2,6 +2,7 @@ import {FunctionComponent} from "react";
 import App from "./components/App";
 import Login from "./pages/Security/Login";
 import OAuthRedirect from "./oauth";
+import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 
 export type RouteDefinition = {
     name: string;
@@ -9,34 +10,49 @@ export type RouteDefinition = {
     component?: FunctionComponent;
     layout?: FunctionComponent;
     routes?: RouteDefinition[];
-    private?: boolean;
+    public?: boolean;
 }
 
-const routes: RouteDefinition[] = [
+export const appPathPrefix = '/app';
+
+export const modalRoutes = [
+    {
+        name: 'workspace_manage',
+        path: '/workspaces/:id/manage/:tab',
+        component: WorkspaceDialog,
+        public: false,
+    },
+];
+
+export const routes: RouteDefinition[] = [
     {
         name: 'app',
-        path: '/',
+        path: appPathPrefix,
         component: App,
+        routes: modalRoutes,
+        public: true,
     },
     {
         name: 'login',
         path: '/login',
         component: Login,
+        public: true,
     },
     {
         name: 'oauth',
         path: '/auth',
         component: OAuthRedirect,
+        public: true,
     },
 ];
 
 function compile(parentRoute: RouteDefinition, subRoutes: RouteDefinition[]): RouteDefinition[] {
     return subRoutes.flatMap<RouteDefinition>((subRoute) => {
         const newRoute: RouteDefinition = {
-            name: subRoute.name,
+            name: (parentRoute.name ? (parentRoute.name + '_') : '') + subRoute.name,
             path: parentRoute.path.replace(/\/$/, '') + subRoute.path,
-            component: subRoute.component,
-            private: subRoute.private || parentRoute.private,
+            component: subRoute.component || parentRoute.component,
+            public: subRoute.public ?? parentRoute.public,
             layout: subRoute.layout || parentRoute.layout,
         };
 
@@ -44,19 +60,18 @@ function compile(parentRoute: RouteDefinition, subRoutes: RouteDefinition[]): Ro
     });
 }
 
-export const flattenRoutes = getRoutes();
+export const flattenRoutes = getFlattenRoutes(routes);
 
-function getRoutes(): RouteDefinition[] {
+function getFlattenRoutes(routes: RouteDefinition[], pathPrefix: string = ''): RouteDefinition[] {
     const parentRoute: RouteDefinition = {
         name: '',
-        path: '',
+        path: pathPrefix,
     };
 
     return compile(parentRoute, routes);
 }
 
-// Get path (ex: getPath('user', {id: '1'}))
-export function getPath(name: string, params?: Record<string, any>): string {
+function getRoutePath(flattenRoutes: RouteDefinition[], name: string, params?: RouteParams): string {
     const routeFound = flattenRoutes.find(route => route.name === name);
     if (!routeFound) {
         throw new Error(`Route "${name}" not found`);
@@ -70,4 +85,11 @@ export function getPath(name: string, params?: Record<string, any>): string {
     }
 
     return path;
+}
+
+export type RouteParams = Record<string, any>;
+
+// Get path (ex: getPath('user', {id: '1'}))
+export function getPath(name: string, params?: RouteParams): string {
+    return getRoutePath(flattenRoutes, name, params);
 }

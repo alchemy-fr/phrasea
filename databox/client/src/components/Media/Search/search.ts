@@ -6,13 +6,18 @@ export function queryToHash(
     workspaceId: string | undefined,
     collectionId: string | undefined,
 ): string {
-    let hash = `q=${encodeURI(query)}&f=${encodeURI(JSON.stringify(filters))}`;
-
+    let hash = '';
+    if (query) {
+        hash += `q=${encodeURI(query)}`;
+    }
+    if (filters && filters.length > 0) {
+        hash = `${hash ? '&' : ''}f=${encodeURI(JSON.stringify(filters))}`;
+    }
     if (workspaceId) {
-        hash += `&w=${workspaceId}`;
+        hash += `${hash ? '&' : ''}w=${workspaceId}`;
     }
     if (collectionId) {
-        hash += `&c=${collectionId}`;
+        hash += `${hash ? '&' : ''}c=${collectionId}`;
     }
 
     return hash;
