@@ -3,9 +3,9 @@ import {styled} from "@mui/material/styles";
 import {alpha, Box, Button, InputBase} from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchFilters from "./SearchFilters";
-import {ResultContext} from "./ResultContext";
 import {useTranslation} from "react-i18next";
 import {SearchContext} from "./SearchContext";
+import {ResultContext} from "./ResultContext";
 
 type Props = {};
 
@@ -48,6 +48,7 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
 
 export default function SearchBar({}: Props) {
     const search = useContext(SearchContext);
+    const resultContext = useContext(ResultContext);
     const [queryValue, setQueryValue] = useState('');
     const inputRef = useRef<HTMLInputElement>();
     const {t} = useTranslation();
@@ -58,7 +59,7 @@ export default function SearchBar({}: Props) {
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
-        search.setQuery(queryValue)
+        search.setQuery(queryValue, true);
     }
 
     return <Box
@@ -86,7 +87,7 @@ export default function SearchBar({}: Props) {
                         inputProps={{'aria-label': 'search'}}
                     />
                     <Button
-                        disabled={search.query === queryValue}
+                        disabled={search.query === queryValue && resultContext.loading}
                         type={'submit'}
                         variant={'contained'}
                     >

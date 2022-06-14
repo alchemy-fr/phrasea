@@ -10,7 +10,7 @@ export type TSearchContext = {
     collections?: string[];
     workspaces?: string[];
     query: string;
-    setQuery: (query: string) => void;
+    setQuery: (query: string, force?: boolean) => void;
     toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
