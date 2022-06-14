@@ -1,6 +1,6 @@
-import React, { forwardRef } from 'react';
-import ToggleButton, { ToggleButtonProps } from '@mui/material/ToggleButton';
-import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
+import React, {forwardRef} from 'react';
+import ToggleButton, {ToggleButtonProps} from '@mui/material/ToggleButton';
+import Tooltip, {TooltipProps} from '@mui/material/Tooltip';
 
 type TooltipToggleButtonProps = ToggleButtonProps & {
     tooltipProps: Omit<TooltipProps, 'children'>;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import SelectWidget, {SelectOption, SelectWidgetProps, TSelect} from "./SelectWidget";
 
 export type AsyncSelectProps = Omit<SelectWidgetProps, 'options'>;

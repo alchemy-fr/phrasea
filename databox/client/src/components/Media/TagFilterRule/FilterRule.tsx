@@ -7,7 +7,6 @@ import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import FormRow from "../../Form/FormRow";
 import {deleteTagFilterRule, saveTagFilterRule} from "../../../api/tag-filter-rule";
-import FormError from "../../Form/FormError";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 
 type FilterRule = {

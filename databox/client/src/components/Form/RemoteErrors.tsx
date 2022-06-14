@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, ReactNode} from "react";
+import React, {ReactNode} from "react";
 import {Alert, Box} from "@mui/material";
 import nl2br from "react-nl2br";
 

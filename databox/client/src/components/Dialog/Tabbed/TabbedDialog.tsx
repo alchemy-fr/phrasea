@@ -1,5 +1,5 @@
 import React, {FunctionComponent, ReactNode, useState} from "react";
-import {Box, Tab, Tabs} from "@mui/material";
+import {Tab, Tabs} from "@mui/material";
 import {AppDialogTitle, BootstrapDialog} from "../../Layout/AppDialog";
 import {Breakpoint} from "@mui/system";
 import {useLocation, useNavigate, useParams} from "react-router-dom";

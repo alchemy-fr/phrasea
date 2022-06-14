@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from "react";
 import {Box, Button} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {attributeBatchUpdate, AttributeBatchAction, getAssetAttributes,} from "../../../../api/asset";
+import {AttributeBatchAction, attributeBatchUpdate, getAssetAttributes,} from "../../../../api/asset";
 import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import {NO_LOCALE} from "../EditAssetAttributes";

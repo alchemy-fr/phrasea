@@ -1,6 +1,5 @@
 import React, {PureComponent, ReactNode, RefObject} from "react";
 import {IPermissions} from "../../types";
-import AclForm from "../Acl/AclForm";
 import {FormikHelpers, FormikProps} from "formik";
 import AppDialog from "../Layout/AppDialog";
 import {Button} from "@mui/material";

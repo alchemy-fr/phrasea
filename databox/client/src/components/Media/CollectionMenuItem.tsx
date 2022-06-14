@@ -10,7 +10,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import EditCollection, {OnCollectionEdit} from "./Collection/EditCollection";
+import {OnCollectionEdit} from "./Collection/EditCollection";
 import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
 import {toast} from "react-toastify";

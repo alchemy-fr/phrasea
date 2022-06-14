@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
 import {Collection} from "../../../../types";
-import FolderIcon from '@mui/icons-material/Folder';
 import {Box} from "@mui/material";
 import {DisplayContext} from "../../DisplayContext";
 import {CollectionChip} from "../../../Ui/Chips";

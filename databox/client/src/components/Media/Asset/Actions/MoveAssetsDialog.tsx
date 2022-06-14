@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
@@ -6,11 +6,10 @@ import {Typography} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
-import {addAssetToCollection, moveAssets} from "../../../../api/collection";
+import {moveAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
-import {Asset} from "../../../../types";
 
 type Props = {
     assetIds: string[];

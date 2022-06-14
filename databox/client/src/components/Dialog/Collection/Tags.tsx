@@ -1,12 +1,9 @@
 import React from 'react';
-import {Collection, Workspace} from "../../../types";
+import {Collection} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
-import TagManager from "../../Media/Collection/TagManager";
-import {Box, Typography} from "@mui/material";
 import TagRules from "../../Media/TagFilterRule/TagRules";
 import ContentTab from "../Tabbed/ContentTab";
 import {useTranslation} from 'react-i18next';
-import FormSection from "../../Form/FormSection";
 
 type Props = {
     data: Collection;

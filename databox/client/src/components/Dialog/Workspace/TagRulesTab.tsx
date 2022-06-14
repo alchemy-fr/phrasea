@@ -1,7 +1,6 @@
 import React from 'react';
 import {Workspace} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
-import {Box} from "@mui/material";
 import TagRules from "../../Media/TagFilterRule/TagRules";
 import ContentTab from "../Tabbed/ContentTab";
 

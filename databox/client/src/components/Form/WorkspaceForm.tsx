@@ -1,4 +1,4 @@
-import {Box, TextField, Typography} from "@mui/material";
+import {TextField} from "@mui/material";
 import {useForm} from "react-hook-form";
 import React, {FC} from "react";
 import {useTranslation} from "react-i18next";
@@ -6,9 +6,6 @@ import {Workspace} from "../../types";
 import FormFieldErrors from "./FormFieldErrors";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
-import TagRules from "../Media/TagFilterRule/TagRules";
-import TagManager from "../Media/Collection/TagManager";
-import AclForm from "../Acl/AclForm";
 
 export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                                                      formId,

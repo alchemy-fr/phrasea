@@ -2,7 +2,6 @@ import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
 import React, {ReactElement, ReactNode, ReactNodeArray} from "react";
 import {isRtlLocale} from "../../../../lib/lang";
-import assetClasses from "../../Search/Layout/classes";
 import {styled} from "@mui/material/styles";
 
 const nl2br = require('react-nl2br');
