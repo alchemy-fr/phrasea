@@ -7,12 +7,16 @@ import {useTranslation} from 'react-i18next';
 type Props<T extends object> = PropsWithChildren<{
     loading?: boolean;
     onClose: () => void;
+    minHeight?: number | undefined;
+    disableGutters?: boolean;
 }>;
 
 export default function ContentTab<T extends object>({
                                                          loading,
                                                          children,
                                                          onClose,
+                                                         minHeight,
+                                                         disableGutters,
                                                      }: Props<T>) {
     const {t} = useTranslation();
     const progressHeight = 3;
@@ -20,9 +24,11 @@ export default function ContentTab<T extends object>({
     return <>
         <DialogContent dividers>
             <Container sx={{
-                pt: 2
+                pt: 2,
+                minHeight,
             }}
-                maxWidth={'lg'}
+                       maxWidth={'lg'}
+                       disableGutters={disableGutters}
             >
                 {children}
             </Container>

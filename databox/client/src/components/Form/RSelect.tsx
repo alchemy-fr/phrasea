@@ -106,7 +106,10 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                     isMulti={isMulti}
                     menuPortalTarget={document.body}
                     styles={{
-                        menuPortal: base => ({...base, zIndex: theme.zIndex.tooltip})
+                        menuPortal: base => ({
+                            ...base,
+                            zIndex: theme.zIndex.tooltip + 1,
+                        })
                     }}
                 />
             }}

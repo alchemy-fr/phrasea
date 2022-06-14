@@ -15,6 +15,7 @@ type Props<T extends object> = PropsWithChildren<{
     submitLabel?: ReactNode;
     submitIcon?: ReactNode;
     onClose: () => void;
+    minHeight?: number | undefined;
 }>;
 
 export default function FormTab<T extends object>({
@@ -26,6 +27,7 @@ export default function FormTab<T extends object>({
                                                       loading,
                                                       children,
                                                       onClose,
+                                                      minHeight,
                                                   }: Props<T>) {
     const {t} = useTranslation();
     const progressHeight = 3;
@@ -33,7 +35,8 @@ export default function FormTab<T extends object>({
     return <>
         <DialogContent dividers>
             <Container sx={{
-                pt: 2
+                pt: 2,
+                minHeight,
             }}>
                 {children}
                 <RemoteErrors errors={errors}/>

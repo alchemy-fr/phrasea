@@ -16,6 +16,7 @@ type Props = {
 export default function EditWorkspace({
                                           workspace,
                                           onClose,
+                                          minHeight,
                                       }: Props) {
     const {t} = useTranslation();
 
@@ -40,6 +41,7 @@ export default function EditWorkspace({
         formId={formId}
         loading={submitting}
         errors={errors}
+        minHeight={minHeight}
     >
         <WorkspaceForm
             data={workspace}

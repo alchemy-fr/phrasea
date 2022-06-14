@@ -235,6 +235,7 @@ export default function AssetResults() {
                 onClose={onMenuClose}
             />}
             <PreviewPopover
+                previewLocked={previewLocked}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

@@ -17,6 +17,43 @@ import DisplayProvider from "./Media/DisplayProvider";
 import {Outlet, useLocation} from "react-router-dom";
 import {appPathPrefix} from "../routes";
 
+const AppProxy = React.memo(() => {
+    console.log('render');
+    return <SearchProvider>
+        <ResultProvider>
+            <AssetDropzone>
+                <MainAppBar/>
+                <AssetSelectionProvider>
+                    <DisplayProvider>
+                        <Box style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            height: `calc(100vh - ${menuHeight}px)`,
+                        }}>
+                            <Box sx={(theme) => ({
+                                width: 360,
+                                flexGrow: 0,
+                                flexShrink: 0,
+                                height: `calc(100vh - ${menuHeight}px)`,
+                                overflow: 'auto',
+                                boxShadow: theme.shadows[5],
+                                zIndex: 2,
+                            })}>
+                                <LeftPanel/>
+                            </Box>
+                            <Box sx={{
+                                flexGrow: 1,
+                            }}>
+                                <AssetResults/>
+                            </Box>
+                        </Box>
+                    </DisplayProvider>
+                </AssetSelectionProvider>
+            </AssetDropzone>
+        </ResultProvider>
+    </SearchProvider>
+});
+
 export default function App() {
     const userContext = useContext(UserContext);
     const {t} = useTranslation();
@@ -63,45 +100,9 @@ export default function App() {
         }
     }, []);
 
-    if (!render) {
-        return <Outlet />
-    }
-
     return <>
         <ToastContainer/>
-        <SearchProvider>
-            <ResultProvider>
-                <AssetDropzone>
-                    <Outlet />
-                    <MainAppBar/>
-                    <AssetSelectionProvider>
-                        <DisplayProvider>
-                            <Box style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                height: `calc(100vh - ${menuHeight}px)`,
-                            }}>
-                                <Box sx={(theme) => ({
-                                    width: 360,
-                                    flexGrow: 0,
-                                    flexShrink: 0,
-                                    height: `calc(100vh - ${menuHeight}px)`,
-                                    overflow: 'auto',
-                                    boxShadow: theme.shadows[5],
-                                    zIndex: 2,
-                                })}>
-                                    <LeftPanel/>
-                                </Box>
-                                <Box sx={{
-                                    flexGrow: 1,
-                                }}>
-                                    <AssetResults/>
-                                </Box>
-                            </Box>
-                        </DisplayProvider>
-                    </AssetSelectionProvider>
-                </AssetDropzone>
-            </ResultProvider>
-        </SearchProvider>
+        <Outlet />
+        {render && <AppProxy/>}
     </>
 }

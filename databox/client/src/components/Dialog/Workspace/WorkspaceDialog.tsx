@@ -28,7 +28,8 @@ export default function WorkspaceDialog({}: Props) {
     return <TabbedDialog
         routeName={'app_workspace_manage'}
         routeParams={{id}}
-        maxWidth={'lg'}
+        maxWidth={'md'}
+        minHeight={400}
         title={t('workspace.manage.title', 'Manage workspace')}
         tabs={[
             {

@@ -8,10 +8,10 @@ export function queryToHash(
 ): string {
     let hash = '';
     if (query) {
-        hash += `q=${encodeURI(query)}`;
+        hash += `q=${encodeURIComponent(query)}`;
     }
     if (filters && filters.length > 0) {
-        hash = `${hash ? '&' : ''}f=${encodeURI(JSON.stringify(filters))}`;
+        hash = `${hash ? '&' : ''}f=${encodeURIComponent(JSON.stringify(filters))}`;
     }
     if (workspaceId) {
         hash += `${hash ? '&' : ''}w=${workspaceId}`;
@@ -32,9 +32,9 @@ export function hashToQuery(hash: string): {
     const params = new URLSearchParams(hash.substring(1));
 
     return {
-        query: params.get('q') || '',
-        filters: params.get('f') ? JSON.parse(params.get('f') as string) : [],
-        collectionId: params.get('c') || undefined,
-        workspaceId: params.get('w') || undefined,
+        query: decodeURIComponent(params.get('q') || ''),
+        filters: params.get('f') ? JSON.parse(decodeURIComponent(params.get('f') as string)) : [],
+        collectionId: decodeURIComponent(params.get('c') || '') || undefined,
+        workspaceId: decodeURIComponent(params.get('w') || '') || undefined,
     }
 }

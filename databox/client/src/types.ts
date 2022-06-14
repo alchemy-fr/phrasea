@@ -119,9 +119,14 @@ export interface Workspace extends IPermissions {
     collections: Collection[];
 }
 
+export enum UserType {
+    User = 'user',
+    Group = 'group',
+}
+
 export interface Ace {
     id: string;
-    userType: string;
-    userId: string;
+    userType: UserType;
+    userId: string | null;
     mask: number;
 }

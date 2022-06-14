@@ -19,10 +19,12 @@ type Props<P extends {}> = {
     tabs: TabItem<P>[];
     maxWidth?: Breakpoint | false;
     title?: ReactNode;
+    minHeight?: number | undefined;
 } & P;
 
 export type DialogTabProps = {
     onClose: () => void;
+    minHeight?: number | undefined;
 }
 
 export default function TabbedDialog<P extends {}>({
@@ -30,6 +32,7 @@ export default function TabbedDialog<P extends {}>({
                                                        routeParams,
                                                        tabs: configTabs,
                                                        maxWidth,
+                                                       minHeight,
     title,
                                                        ...rest
                                                    }: Props<P>) {
@@ -82,6 +85,7 @@ export default function TabbedDialog<P extends {}>({
             ...rest,
             ...currentTab.props,
             onClose: handleClose,
+            minHeight,
         })}
     </BootstrapDialog>
 }

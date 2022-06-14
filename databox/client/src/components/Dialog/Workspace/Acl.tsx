@@ -11,9 +11,12 @@ type Props = {
 export default function Acl({
                                 workspace,
                                 onClose,
+                                minHeight,
                             }: Props) {
     return <ContentTab
         onClose={onClose}
+        minHeight={minHeight}
+        disableGutters={true}
     >
         <AclForm
             objectId={workspace.id}

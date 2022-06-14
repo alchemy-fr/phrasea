@@ -3,6 +3,7 @@ import reactStringReplace from 'react-string-replace';
 import React, {ReactElement, ReactNode, ReactNodeArray} from "react";
 import {isRtlLocale} from "../../../../lib/lang";
 import assetClasses from "../../Search/Layout/classes";
+import {styled} from "@mui/material/styles";
 
 const nl2br = require('react-nl2br');
 
@@ -32,16 +33,23 @@ function replaceText(text: FreeNode, func: (text: string) => FreeNode, options: 
     return text;
 }
 
+const Highlight = styled("em")(({ theme }) => ({
+    backgroundColor: theme.palette.warning.main,
+    color: theme.palette.warning.contrastText,
+    padding: '1px 3px',
+    margin: '-1px -3px',
+    borderRadius: 3
+}));
+
 export function replaceHighlight(value?: string): FreeNode {
     if (!value) {
         return [];
     }
 
     const replaced = reactStringReplace(value, /\[hl](.*?)\[\/hl]/g, (m, index) => {
-        return <em
-            className="hl"
+        return <Highlight
             key={index}
-        >{m}</em>;
+        >{m}</Highlight>;
     });
 
     return replaceText(replaced, nl2br);

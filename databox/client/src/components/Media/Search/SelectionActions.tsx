@@ -323,8 +323,8 @@ export default function SelectionActions({
                 border: (theme) => `1px solid ${theme.palette.divider}`,
                 borderTop: 0,
                 borderRight: 0,
-                flexWrap: 'wrap',
                 alignItems: 'center',
+                alignSelf: 'flex-start'
             }}
         >
             <Box sx={{

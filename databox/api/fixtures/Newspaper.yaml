@@ -118,6 +118,9 @@ App\Entity\Core\Collection:
     workspace: '@w_newspaper'
     ownerId: <{user_admin}>
 
+  c_n_special_chars (extends collection_n):
+    title: 'D&D \@][ \<ap>++"='
+
   c_n_{sport, entertainment} (extends collection_n):
     title: '<ucwords($current)>'
 
