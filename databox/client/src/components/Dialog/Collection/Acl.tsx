@@ -1,11 +1,11 @@
 import React from 'react';
-import {Workspace} from "../../../types";
+import {Collection} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import AclForm from "../../Acl/AclForm";
 import ContentTab from "../Tabbed/ContentTab";
 
 type Props = {
-    data: Workspace;
+    data: Collection;
 } & DialogTabProps;
 
 export default function Acl({
@@ -20,7 +20,7 @@ export default function Acl({
     >
         <AclForm
             objectId={data.id}
-            objectType={'workspace'}
+            objectType={'collection'}
         />
     </ContentTab>
 }

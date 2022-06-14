@@ -5,7 +5,7 @@ import RSelectWidget, {RSelectProps, SelectOption} from "../Form/RSelect";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 
 type Props<TFieldValues extends FieldValues> = {
-    data?: User[] | undefined;
+    data?: Promise<User[]> | undefined;
 } & RSelectProps<TFieldValues, false>;
 
 export default function UserSelect<TFieldValues extends FieldValues>({
@@ -13,7 +13,7 @@ export default function UserSelect<TFieldValues extends FieldValues>({
                                                                          ...props
                                                                      }: Props<TFieldValues>) {
     const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
-        const result = !inputValue && data ? data : await getUsers();
+        const result = await (!inputValue && data ? data : getUsers());
 
         return result.map((t: User) => ({
             value: t.id,

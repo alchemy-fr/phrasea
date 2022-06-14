@@ -13,10 +13,9 @@ import BusinessIcon from '@mui/icons-material/Business';
 import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
 import {OnCollectionEdit} from "./Collection/EditCollection";
-import EditWorkspace, {OnWorkspaceEdit} from "./Workspace/EditWorkspace";
-import {Link} from "react-router-dom";
-import {getPath} from "../../routes";
+import {OnWorkspaceEdit} from "./Workspace/EditWorkspace";
 import ModalLink from "../Routing/ModalLink";
+import {useTranslation} from 'react-i18next';
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -26,6 +25,7 @@ export default function WorkspaceMenuItem({
                                               collections,
                                               capabilities,
                                           }: WorkspaceMenuItemProps) {
+    const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
     const {openModal} = useModals();
     const selected = searchContext.workspaceId === id;
@@ -72,7 +72,7 @@ export default function WorkspaceMenuItem({
             ...prevState,
             loadingMore: true,
         }));
-        const  page = getNextPage();
+        const page = getNextPage();
 
         const items = await getCollections({
             workspaces: [id],
@@ -139,7 +139,7 @@ export default function WorkspaceMenuItem({
                 secondaryAction={<>
                     {capabilities.canEdit && <IconButton
                         color={'inherit'}
-                        title={'Add collection in this workspace'}
+                        title={t('workspace.item.create_collection', 'Add collection in this workspace')}
                         onClick={() => openModal(CreateCollection, {
                             workspaceId: id,
                             workspaceTitle: name,
@@ -157,7 +157,7 @@ export default function WorkspaceMenuItem({
                             id,
                             tab: 'edit',
                         }}
-                        title={'Edit this workspace'}
+                        title={t('workspace.item.edit', 'Edit this workspace')}
                         className={'c-action'}
                         aria-label="edit">
                         <EditIcon/>

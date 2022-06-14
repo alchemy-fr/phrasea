@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import AceRow from "./AceRow";
 import {Ace, Group, User, UserType} from "../../types";
 import {deleteAce, getAces, putAce} from "../../api/acl";
@@ -180,17 +180,30 @@ export default function AclForm({
     const [data, setData] = useState<State>();
     const {t} = useTranslation();
 
+    const resolveUsersPromise = useRef<(value: User[]) => void>();
+    const resolveGroupsPromise = useRef<(value: Group[]) => void>();
+    const usersPromise = useRef<Promise<User[]>>(new Promise((resolve) => {
+        resolveUsersPromise.current = resolve;
+    }));
+    const groupsPromise = useRef<Promise<Group[]>>(new Promise((resolve) => {
+        resolveGroupsPromise.current = resolve;
+    }));
+
     useEffect(() => {
         Promise.all([
             getAces(objectType, objectId),
             getUsers(),
             getGroups(),
         ]).then(r => {
+            resolveUsersPromise.current!(r[1]);
+            resolveGroupsPromise.current!(r[2]);
+
+            // Set data must occur AFTER promises resolution
             setData({
                 aces: r[0],
                 users: r[1],
                 groups: r[2],
-            })
+            });
         });
     }, []);
 
@@ -252,7 +265,7 @@ export default function AclForm({
             <Grid item md={6}>
                 <FormRow>
                     <GroupSelect
-                        data={data?.groups ?? []}
+                        data={groupsPromise.current}
                         placeholder={t('acl.form.user_select.placeholder', `Select group`)}
                         clearOnSelect={true}
                         onChange={(option) => {
@@ -265,7 +278,7 @@ export default function AclForm({
             <Grid item md={6}>
                 <FormRow>
                     <UserSelect
-                        data={data?.users ?? []}
+                        data={usersPromise.current}
                         placeholder={t('acl.form.group_select.placeholder', `Select user`)}
                         clearOnSelect={true}
                         onChange={(option) => {

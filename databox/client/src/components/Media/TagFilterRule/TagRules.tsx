@@ -1,8 +1,8 @@
-import {PureComponent} from "react";
+import React, {PureComponent} from "react";
 import {TagFilterRule,} from "../../../types";
 import {getTagFilterRules} from "../../../api/tag-filter-rule";
 import FilterRule, {FilterRuleProps, TagFilterRuleType} from "./FilterRule";
-import {Button, Chip, Grid, IconButton, Paper, Tooltip} from "@mui/material";
+import {Button, Chip, Grid, IconButton, Paper, Tooltip, Typography} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -18,7 +18,7 @@ type State = {
     editRule: string | null;
 };
 
-export default class TagFilterRules extends PureComponent<Props, State> {
+export default class TagRules extends PureComponent<Props, State> {
     state: State = {
         rules: undefined,
         newRule: false,
@@ -70,54 +70,59 @@ export default class TagFilterRules extends PureComponent<Props, State> {
         const disabledUsers = rules.filter(r => !!r.userId).map(r => r.userId!);
         const disabledGroups = rules.filter(r => !!r.groupId).map(r => r.groupId!);
 
-        return <div>
-            {newRule && <div>
-                <FilterRule
-                    type={this.props.type}
-                    disabledUsers={disabledUsers}
-                    disabledGroups={disabledGroups}
-                    onDelete={this.onDelete}
-                    onSubmit={this.onSave}
-                    collectionId={this.props.type === 'collection' ? this.props.id : undefined}
-                    workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}
-                    workspaceIdForTags={this.props.workspaceId}
-                    onCancel={this.onCancel}
-                />
-            </div>}
-            {!newRule && <div>
-                <Button
-                    startIcon={<AddIcon/>}
-                    color={'primary'}
-                    onClick={this.addRule}
-                >New rule</Button>
-            </div>}
+        return <>
+            <Typography variant={'h2'}>
+                {'Tag rules'}
+            </Typography>
             <div>
-                {rules!.map((r: TagFilterRule) => {
-                    if (editRule === r.id) {
-                        return <div
-                            key={r.id}
-                        >
-                            <FilterRule
-                                data={{
-                                    ...r,
-                                    include: r.include.map(i => i.id),
-                                    exclude: r.exclude.map(i => i.id),
-                                }}
-                                type={this.props.type}
-                                workspaceIdForTags={this.props.workspaceId}
-                                onDelete={this.onDelete}
-                                onSubmit={this.onSave}
-                                onCancel={this.onCancel}
-                                disabledUsers={disabledUsers}
-                                disabledGroups={disabledGroups}
-                            />
-                        </div>
-                    } else {
-                        return this.renderRule(r);
-                    }
-                })}
+                {newRule && <div>
+                    <FilterRule
+                        type={this.props.type}
+                        disabledUsers={disabledUsers}
+                        disabledGroups={disabledGroups}
+                        onDelete={this.onDelete}
+                        onSubmit={this.onSave}
+                        collectionId={this.props.type === 'collection' ? this.props.id : undefined}
+                        workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}
+                        workspaceIdForTags={this.props.workspaceId}
+                        onCancel={this.onCancel}
+                    />
+                </div>}
+                {!newRule && <div>
+                    <Button
+                        startIcon={<AddIcon/>}
+                        color={'primary'}
+                        onClick={this.addRule}
+                    >New rule</Button>
+                </div>}
+                <div>
+                    {rules!.map((r: TagFilterRule) => {
+                        if (editRule === r.id) {
+                            return <div
+                                key={r.id}
+                            >
+                                <FilterRule
+                                    data={{
+                                        ...r,
+                                        include: r.include.map(i => i.id),
+                                        exclude: r.exclude.map(i => i.id),
+                                    }}
+                                    type={this.props.type}
+                                    workspaceIdForTags={this.props.workspaceId}
+                                    onDelete={this.onDelete}
+                                    onSubmit={this.onSave}
+                                    onCancel={this.onCancel}
+                                    disabledUsers={disabledUsers}
+                                    disabledGroups={disabledGroups}
+                                />
+                            </div>
+                        } else {
+                            return this.renderRule(r);
+                        }
+                    })}
+                </div>
             </div>
-        </div>
+        </>
     }
 
     renderRule(rule: TagFilterRule) {

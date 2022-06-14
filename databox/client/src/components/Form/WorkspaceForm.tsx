@@ -6,7 +6,7 @@ import {Workspace} from "../../types";
 import FormFieldErrors from "./FormFieldErrors";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
-import TagFilterRules from "../Media/TagFilterRule/TagFilterRules";
+import TagRules from "../Media/TagFilterRule/TagRules";
 import TagManager from "../Media/Collection/TagManager";
 import AclForm from "../Acl/AclForm";
 

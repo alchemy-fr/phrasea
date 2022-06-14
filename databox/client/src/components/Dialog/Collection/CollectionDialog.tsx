@@ -1,25 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import TabbedDialog from "../Tabbed/TabbedDialog";
 import {useTranslation} from 'react-i18next';
-import EditWorkspace from "./EditWorkspace";
+import EditCollection from "./EditCollection";
 import {useParams} from "react-router-dom";
-import {getWorkspace} from "../../../api/workspace";
 import FullPageLoader from "../../Ui/FullPageLoader";
-import {Workspace} from "../../../types";
+import {Collection} from "../../../types";
 import Acl from "./Acl";
-import Tags from "./Tags";
+import {getCollection} from "../../../api/collection";
 import TagRulesTab from "./TagRulesTab";
+import Operations from "./Operations";
 
 type Props = {};
 
-export default function WorkspaceDialog({}: Props) {
+export default function CollectionDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
 
-    const [data, setData] = useState<Workspace>();
+    const [data, setData] = useState<Collection>();
 
     useEffect(() => {
-        getWorkspace(id!).then(c => setData(c));
+        getCollection(id!).then(c => setData(c));
     }, [id]);
 
     if (!data) {
@@ -27,17 +27,17 @@ export default function WorkspaceDialog({}: Props) {
     }
 
     return <TabbedDialog
-        routeName={'app_workspace_manage'}
+        routeName={'app_collection_manage'}
         routeParams={{id}}
         maxWidth={'md'}
         minHeight={400}
-        title={t('workspace.manage.title', 'Manage workspace {{name}}', {
-            name: data.name,
+        title={t('collection.manage.title', 'Manage collection {{name}}', {
+            name: data.title,
         })}
         tabs={[
             {
-                title: t('workspace.manage.edit.title', 'Edit'),
-                component: EditWorkspace,
+                title: t('collection.manage.edit.title', 'Edit'),
+                component: EditCollection,
                 id: 'edit',
                 props: {
                     data,
@@ -45,7 +45,7 @@ export default function WorkspaceDialog({}: Props) {
                 enabled: data.capabilities.canEdit,
             },
             {
-                title: t('workspace.manage.acl.title', 'Permissions'),
+                title: t('collection.manage.acl.title', 'Permissions'),
                 component: Acl,
                 id: 'acl',
                 props: {
@@ -54,18 +54,18 @@ export default function WorkspaceDialog({}: Props) {
                 enabled: data.capabilities.canEditPermissions,
             },
             {
-                title: t('workspace.manage.tags.title', 'Tags'),
-                component: Tags,
-                id: 'tags',
+                title: t('collection.manage.tag_rules.title', 'Tag rules'),
+                component: TagRulesTab,
+                id: 'tag-rules',
                 props: {
                     data,
                 },
                 enabled: data.capabilities.canEdit,
             },
             {
-                title: t('workspace.manage.tag_rules.title', 'Tag rules'),
-                component: TagRulesTab,
-                id: 'tag-rules',
+                title: t('collection.manage.operations.title', 'Operations'),
+                component: Operations,
+                id: 'ops',
                 props: {
                     data,
                 },

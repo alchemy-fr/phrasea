@@ -1,13 +1,15 @@
 import React from 'react';
-import {Workspace} from "../../../types";
+import {Collection, Workspace} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import TagManager from "../../Media/Collection/TagManager";
-import {Typography} from "@mui/material";
+import {Box, Typography} from "@mui/material";
+import TagRules from "../../Media/TagFilterRule/TagRules";
 import ContentTab from "../Tabbed/ContentTab";
 import {useTranslation} from 'react-i18next';
+import FormSection from "../../Form/FormSection";
 
 type Props = {
-    data: Workspace;
+    data: Collection;
 } & DialogTabProps;
 
 
@@ -21,9 +23,10 @@ export default function Tags({
         onClose={onClose}
         minHeight={minHeight}
     >
-        <Typography variant={'h2'}>
-            {t('workspace.manage.tags.title', 'Workspace tags')}
-        </Typography>
-        <TagManager workspaceIri={data['@id']}/>
+            <TagRules
+                id={data.id}
+                workspaceId={data.id}
+                type={'workspace'}
+            />
     </ContentTab>
 }

@@ -12,7 +12,7 @@ import useFormSubmit from "../../../hooks/useFormSubmit";
 import AclForm from "../../Acl/AclForm";
 import CollectionMoveSection from "./CollectionMoveSection";
 import {Typography} from "@mui/material";
-import TagFilterRules from "../TagFilterRule/TagFilterRules";
+import TagRules from "../TagFilterRule/TagRules";
 import FormSection from "../../Form/FormSection";
 
 export type OnCollectionEdit = (coll: Collection) => void;
@@ -64,10 +64,7 @@ export default function EditCollection({
             submitting={submitting}
         />
         <FormSection>
-            <Typography variant={'h2'}>
-                {t('form.collection_edit.tag_filter_rules.title', 'Tag filter rules')}
-            </Typography>
-            <TagFilterRules
+            <TagRules
                 id={data.id}
                 workspaceId={data.workspace.id}
                 type={'collection'}
