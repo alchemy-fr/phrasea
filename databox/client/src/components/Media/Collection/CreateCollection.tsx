@@ -6,7 +6,6 @@ import {Collection} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {clearWorkspaceCache, postCollection} from "../../../api/collection";
 import {toast} from "react-toastify";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";

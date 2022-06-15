@@ -27,10 +27,10 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
             }
             if (e.key === 'p') {
                 toast.info(previewLocked
-                    ? t('layout.previews_unlocked', 'Previews unlocked')
-                    : t('layout.previews_locked', 'Previews locked')
-                , {
-                    toastId: 'preview_lock',
+                        ? t('layout.previews_unlocked', 'Previews unlocked')
+                        : t('layout.previews_locked', 'Previews locked')
+                    , {
+                        toastId: 'preview_lock',
                         updateId: 'preview_lock',
                     });
 

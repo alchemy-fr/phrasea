@@ -3,7 +3,6 @@ import {useDropzone} from "react-dropzone";
 import {UserContext} from "../../Security/UserContext";
 import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {useModalHash} from "../../../hooks/useModalHash";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
@@ -38,7 +37,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
             })}
             open={true}
         >
-            <Typography typography={'h2'} >Drop the files here ...</Typography>
+            <Typography typography={'h2'}>Drop the files here ...</Typography>
         </Backdrop>}
         {children}
     </div>

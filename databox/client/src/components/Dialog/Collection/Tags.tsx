@@ -20,10 +20,10 @@ export default function Tags({
         onClose={onClose}
         minHeight={minHeight}
     >
-            <TagRules
-                id={data.id}
-                workspaceId={data.id}
-                type={'workspace'}
-            />
+        <TagRules
+            id={data.id}
+            workspaceId={data.id}
+            type={'workspace'}
+        />
     </ContentTab>
 }

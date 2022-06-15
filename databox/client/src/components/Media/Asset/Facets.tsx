@@ -83,7 +83,7 @@ function FacetRow({
                                 edge="end"
                                 onChange={onClick}
                                 checked={selected || false}
-                                inputProps={{ 'aria-labelledby': keyV }}
+                                inputProps={{'aria-labelledby': keyV}}
                             />
                         </ListItemSecondaryAction>
                     </ListItemButton>

@@ -4,7 +4,6 @@ import {Asset, Attribute, AttributeDefinition} from "../../../types";
 import AttributesEditor, {AttributeIndex, buildAttributeIndex, DefinitionIndex} from "./Attribute/AttributesEditor";
 import FullPageLoader from "../../Ui/FullPageLoader";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {useModalHash} from "../../../hooks/useModalHash";
 
 export const NO_LOCALE = '_';

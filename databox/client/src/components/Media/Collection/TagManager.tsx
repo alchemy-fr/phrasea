@@ -63,7 +63,7 @@ export default class TagManager extends PureComponent<Props, State> {
         return <div>
             {tags.map(t => {
                 return <Grid container
-                    key={t.id}
+                             key={t.id}
                 >
                     <Grid item md={8}>
                         {t.name}

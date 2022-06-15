@@ -10,7 +10,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
 import {AssetSelectionContext, TAssetSelectionContext} from "../AssetSelectionContext";
 import {ResultContext, TResultContext} from "./ResultContext";
-import {useModals} from "@mattjennings/react-modal-stack";
 import DebugEsModal from "./DebugEsModal";
 import {styled} from "@mui/material/styles";
 import DeleteAssetsConfirm from "../Asset/Actions/DeleteAssetsConfirm";

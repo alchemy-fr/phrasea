@@ -48,6 +48,7 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
     protected abstract handleSave(data: FP): Promise<boolean>;
 
     protected abstract getType(): string;
+
     protected abstract getTitle(): ReactNode | null;
 
     protected getSubTitle(): ReactNode | undefined {

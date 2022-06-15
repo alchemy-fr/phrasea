@@ -103,7 +103,7 @@ export interface Group {
 }
 
 
-export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<Collection, "workspace">;
+export type CollectionOptionalWorkspace = { workspace?: Workspace } & Omit<Collection, "workspace">;
 
 export interface Collection extends IPermissions {
     id: string;

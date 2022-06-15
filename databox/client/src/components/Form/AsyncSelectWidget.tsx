@@ -8,9 +8,9 @@ type Props = {
 } & AsyncSelectProps;
 
 const AsyncSelectWidget = React.forwardRef<TSelect, Props>(({
-                                                           load,
-                                                           ...props
-                                                       }, ref) => {
+                                                                load,
+                                                                ...props
+                                                            }, ref) => {
     const [options, setOptions] = useState<SelectOption[]>([]);
 
     useEffect(() => {

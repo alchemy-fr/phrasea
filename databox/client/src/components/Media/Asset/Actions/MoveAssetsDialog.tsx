@@ -1,5 +1,5 @@
 import React from 'react';
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import {Typography} from "@mui/material";
@@ -24,7 +24,7 @@ type FormData = {
 
 export default function MoveAssetsDialog({
                                              assetIds,
-    workspaceId,
+                                             workspaceId,
                                              onComplete,
                                          }: Props) {
     const {t} = useTranslation();

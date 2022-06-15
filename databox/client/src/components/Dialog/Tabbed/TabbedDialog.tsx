@@ -33,7 +33,7 @@ export default function TabbedDialog<P extends {}>({
                                                        tabs: configTabs,
                                                        maxWidth,
                                                        minHeight,
-    title,
+                                                       title,
                                                        ...rest
                                                    }: Props<P>) {
     const {tab} = useParams();

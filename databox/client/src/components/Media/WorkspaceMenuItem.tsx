@@ -10,7 +10,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import BusinessIcon from '@mui/icons-material/Business';
-import {useModals} from "@mattjennings/react-modal-stack";
 import CreateCollection from "./Collection/CreateCollection";
 import {OnCollectionEdit} from "./Collection/EditCollection";
 import {OnWorkspaceEdit} from "./Workspace/EditWorkspace";

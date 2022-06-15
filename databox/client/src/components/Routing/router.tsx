@@ -43,10 +43,10 @@ export default function createRoute(
             />}
         >
             {routes.map(r => createRoute({
-                    ...r,
-                    path: r.path.substring(1),
-                    component: r.component || component,
-                }, r.name))}
+                ...r,
+                path: r.path.substring(1),
+                component: r.component || component,
+            }, r.name))}
         </Route>
     }
 

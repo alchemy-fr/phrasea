@@ -11,7 +11,7 @@ export const uploadClient = axios.create({
 
 export function makeAuthorizationHeaders(accessToken?: string): AxiosRequestHeaders {
     if (accessToken) {
-        return { Authorization: `Bearer ${accessToken}` };
+        return {Authorization: `Bearer ${accessToken}`};
     }
 
     return {};

@@ -7,7 +7,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from "@mui/material/Popover/Popover";
 import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
 import EditAsset from "./EditAsset";

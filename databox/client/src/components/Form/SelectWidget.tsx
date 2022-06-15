@@ -86,7 +86,7 @@ const SelectWidget = React.forwardRef<TSelect, Props>(({
                                                            name,
                                                            control,
                                                            defaultValue,
-    multiple,
+                                                           multiple,
                                                            options,
                                                            required,
                                                            label,

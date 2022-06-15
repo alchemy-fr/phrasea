@@ -102,7 +102,7 @@ export default function App() {
 
     return <>
         <ToastContainer/>
-        <Outlet />
+        <Outlet/>
         {render && <AppProxy/>}
     </>
 }

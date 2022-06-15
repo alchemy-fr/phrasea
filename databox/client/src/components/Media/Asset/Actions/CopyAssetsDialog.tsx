@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import {Alert, Typography} from "@mui/material";
@@ -119,8 +119,8 @@ export default function CopyAssetsDialog({
     );
     const nonLinkableToOtherWS: Asset[] = useMemo(
         () => byRef ? assets
-            .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id !== workspaceDest)
-        : [], [workspaceDest, nonLinkablePerm]);
+                .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id !== workspaceDest)
+            : [], [workspaceDest, nonLinkablePerm]);
 
     const formId = 'copy-assets';
 

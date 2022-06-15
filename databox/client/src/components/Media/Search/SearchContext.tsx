@@ -22,11 +22,17 @@ export type TSearchContext = {
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
     attrFilters: [],
-    selectCollection: () => {},
-    selectWorkspace: () => {},
-    setQuery: () => {},
-    toggleAttrFilter: () => {},
-    removeAttrFilter: () => {},
-    invertAttrFilter: () => {},
+    selectCollection: () => {
+    },
+    selectWorkspace: () => {
+    },
+    setQuery: () => {
+    },
+    toggleAttrFilter: () => {
+    },
+    removeAttrFilter: () => {
+    },
+    invertAttrFilter: () => {
+    },
     reloadInc: 0,
 });

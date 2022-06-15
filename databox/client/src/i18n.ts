@@ -6,7 +6,7 @@ import * as appLangs from './locales/app';
 
 const resources: { [language: string]: ResourceLanguage; } = {};
 
-function addNS(ns: string, r: {[language: string]: ResourceLanguage}): void {
+function addNS(ns: string, r: { [language: string]: ResourceLanguage }): void {
     locales.forEach(l => {
         if (!resources[l]) {
             resources[l] = {[ns]: r[l]};
@@ -15,6 +15,7 @@ function addNS(ns: string, r: {[language: string]: ResourceLanguage}): void {
         }
     });
 }
+
 addNS('app', appLangs);
 
 i18n

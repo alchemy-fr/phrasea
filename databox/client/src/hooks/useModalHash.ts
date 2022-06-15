@@ -1,5 +1,5 @@
 import {useModals} from "@mattjennings/react-modal-stack";
-import React, {useCallback, useRef} from "react";
+import React, {useCallback} from "react";
 import {OpenModalOptions, StackedModalProps} from "@mattjennings/react-modal-stack/dist/ModalStack";
 import useHash from "../lib/useHash";
 

@@ -3,8 +3,8 @@ import AceRow from "./AceRow";
 import {Ace, Group, User, UserType} from "../../types";
 import {deleteAce, getAces, putAce} from "../../api/acl";
 import {getGroups, getUsers} from "../../api/user";
-import UserSelect from "../User/UserSelect";
-import GroupSelect from "../User/GroupSelect";
+import UserSelect from "../Form/UserSelect";
+import GroupSelect from "../Form/GroupSelect";
 import {Box, Button, Grid, Skeleton} from "@mui/material";
 import FormRow from "../Form/FormRow";
 import {useTranslation} from 'react-i18next';
@@ -85,8 +85,8 @@ function AclTable({
                       aces,
                       onMaskChange,
                       onDelete,
-    users,
-    groups,
+                      users,
+                      groups,
                   }: {
     aces: Ace[] | undefined;
     users: User[] | undefined;

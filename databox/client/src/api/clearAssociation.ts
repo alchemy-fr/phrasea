@@ -1,4 +1,3 @@
-
 type Data = Record<string, any>;
 
 export function clearAssociationIds<T extends Data>(data: T, level = 0): T {

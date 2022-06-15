@@ -1,7 +1,7 @@
 import React from "react";
-import TagSelect from "../Tag/TagSelect";
-import GroupSelect from "../../User/GroupSelect";
-import UserSelect from "../../User/UserSelect";
+import TagSelect from "../../Form/TagSelect";
+import GroupSelect from "../../Form/GroupSelect";
+import UserSelect from "../../Form/UserSelect";
 import {Button, FormGroup, FormHelperText, FormLabel, Grid, Paper} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
@@ -106,7 +106,7 @@ export default function FilterRule({
                                 control={control}
                                 disabledValues={disabledGroups}
                             />
-                            <FormFieldErrors field={'groupId'} errors={errors} />
+                            <FormFieldErrors field={'groupId'} errors={errors}/>
                         </FormRow>
                     </Grid>
                         <Grid item md={2}>
@@ -119,7 +119,7 @@ export default function FilterRule({
                                     control={control}
                                     disabledValues={disabledUsers}
                                 />
-                                <FormFieldErrors field={'userId'} errors={errors} />
+                                <FormFieldErrors field={'userId'} errors={errors}/>
                             </FormRow>
                         </Grid>
                     </>
@@ -136,7 +136,7 @@ export default function FilterRule({
                             <FormHelperText>
                                 Assets in this {type} will only be visible if they contains theses tags.
                             </FormHelperText>
-                            <FormFieldErrors field={'include'} errors={errors} />
+                            <FormFieldErrors field={'include'} errors={errors}/>
                         </FormGroup>
                     </FormRow>
                 </Grid>
@@ -152,7 +152,7 @@ export default function FilterRule({
                             <FormHelperText>
                                 Assets in this {type} will only be visible if they DOES NOT contains theses tags.
                             </FormHelperText>
-                            <FormFieldErrors field={'exclude'} errors={errors} />
+                            <FormFieldErrors field={'exclude'} errors={errors}/>
                         </FormGroup>
                     </FormRow>
                 </Grid>

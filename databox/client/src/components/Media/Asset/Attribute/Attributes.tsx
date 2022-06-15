@@ -32,7 +32,7 @@ function replaceText(text: FreeNode, func: (text: string) => FreeNode, options: 
     return text;
 }
 
-const Highlight = styled("em")(({ theme }) => ({
+const Highlight = styled("em")(({theme}) => ({
     backgroundColor: theme.palette.warning.main,
     color: theme.palette.warning.contrastText,
     padding: '1px 3px',

@@ -1,3 +1,4 @@
 export type VoidFunction = () => void;
 
-export const voidFunc: VoidFunction = () => {};
+export const voidFunc: VoidFunction = () => {
+};

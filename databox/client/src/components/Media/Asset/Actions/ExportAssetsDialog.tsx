@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {exportAssets} from "../../../../api/export";
 import {Asset, RenditionDefinition} from "../../../../types";

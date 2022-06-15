@@ -8,7 +8,7 @@ import {FieldPath} from "react-hook-form/dist/types";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import {useTranslation} from "react-i18next";
 
-const choices: {[key: string]: string} = {
+const choices: { [key: string]: string } = {
     secret: 'Secret',
     private: 'Private',
     public: 'Public',
@@ -51,12 +51,12 @@ type Props<TFieldValues extends FieldValues> = {
 };
 
 export default function PrivacyField<TFieldValues extends FieldValues>({
-    control,
-    name,
-                                     }: Props<TFieldValues>) {
+                                                                           control,
+                                                                           name,
+                                                                       }: Props<TFieldValues>) {
     const {t} = useTranslation();
     const {
-        field: { onChange, onBlur, ref, value},
+        field: {onChange, onBlur, ref, value},
     } = useController<TFieldValues>({
         control,
         name,
@@ -83,7 +83,7 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
         onChange(getValue(privacy, workspaceOnly, e.target.checked));
     }
 
-    const  label = t('form.privacy.label', 'Privacy');
+    const label = t('form.privacy.label', 'Privacy');
     return <FormControl>
         <InputLabel>{label}</InputLabel>
         <Select<string>
@@ -106,7 +106,7 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
             label={`Only visible to workspace`}
             labelPlacement="end"
         />}
-        {privacy === 'public' && !workspaceOnly  && <FormControlLabel
+        {privacy === 'public' && !workspaceOnly && <FormControlLabel
             control={<Checkbox
                 checked={auth}
                 onChange={handleAuthChange}

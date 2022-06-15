@@ -9,9 +9,9 @@ type RequestMeta = {
     responseTime?: number;
 };
 
-export type RequestConfig = {meta?: RequestMeta} & AxiosRequestConfig<RequestMeta>;
+export type RequestConfig = { meta?: RequestMeta } & AxiosRequestConfig<RequestMeta>;
 
-apiClient.interceptors.request.use<RequestConfig>( (config: RequestConfig) => {
+apiClient.interceptors.request.use<RequestConfig>((config: RequestConfig) => {
     // to avoid overwriting if another interceptor
     // already defined the same object (meta)
     config.meta = config.meta || {};

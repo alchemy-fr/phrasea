@@ -10,8 +10,8 @@ type FilterProps = {
 
 function truncate(value: string, maxLength: number): string {
     if (value.length > maxLength) {
-        const pad = maxLength/2;
-        return value.substring(0, pad-1)+'…'+value.substring(value.length - pad);
+        const pad = maxLength / 2;
+        return value.substring(0, pad - 1) + '…' + value.substring(value.length - pad);
     }
 
     return value;
@@ -28,7 +28,7 @@ function Filter({
         sx={{
             mb: 1,
             mr: 1,
-    }}
+        }}
         title={`${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`}
         label={v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ')}
         onDelete={onDelete}

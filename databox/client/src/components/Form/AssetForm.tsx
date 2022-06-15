@@ -7,17 +7,17 @@ import FormFieldErrors from "./FormFieldErrors";
 import PrivacyField from "../Ui/PrivacyField";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
-import TagSelect from "../Media/Tag/TagSelect";
+import TagSelect from "./TagSelect";
 
 export const AssetForm: FC<{
     workspaceId: string;
 } & FormProps<Asset>> = function ({
-                                                             formId,
-                                                             data,
-                                                             onSubmit,
-                                                             submitting,
-    workspaceId,
-                                                         }) {
+                                      formId,
+                                      data,
+                                      onSubmit,
+                                      submitting,
+                                      workspaceId,
+                                  }) {
     const {t} = useTranslation();
 
     const {

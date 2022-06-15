@@ -2,7 +2,6 @@ import React, {PropsWithChildren, ReactNode, useState} from 'react';
 import AppDialog from "../Layout/AppDialog";
 import {Button} from "@mui/material";
 import {useTranslation} from "react-i18next";
-import {useModals} from "@mattjennings/react-modal-stack";
 import CheckIcon from '@mui/icons-material/Check';
 import {LoadingButton} from "@mui/lab";
 import {AxiosError} from "axios";

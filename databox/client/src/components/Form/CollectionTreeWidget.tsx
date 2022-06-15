@@ -25,7 +25,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
                                          label,
                                          multiple,
                                          onChange: extOnChange,
-                                                                                     workspaceId,
+                                         workspaceId,
                                      }: Props<TFieldValues, IsMulti>) {
     return <>
         {label && <InputLabel>

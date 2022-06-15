@@ -1,7 +1,6 @@
 import {ESDebug} from "../../../api/asset";
 import {Box, Button, Chip} from "@mui/material";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
-import {useModals} from "@mattjennings/react-modal-stack";
 import AppDialog from "../../Layout/AppDialog";
 import {useTranslation} from "react-i18next";
 import {useModalHash} from "../../../hooks/useModalHash";
@@ -18,7 +17,7 @@ function Metric({n}: {
             display: 'inline-block',
             fontWeight: 700,
         }}
-            component={'code'}
+             component={'code'}
         >{n}</Box>ms
     </>}/>
 }
@@ -34,9 +33,9 @@ export default function DebugEsModal({
             Search Debug |{' '}
             <small>
                 Elasticsearch response time:{' '}
-                <Metric n={Math.round(debug.esQueryTime * 1000)} />
+                <Metric n={Math.round(debug.esQueryTime * 1000)}/>
                 {' '}| Total response time:{' '}
-                <Metric n={Math.round(debug.totalResponseTime * 1000) / 1000} />
+                <Metric n={Math.round(debug.totalResponseTime * 1000) / 1000}/>
             </small>
         </>}
         onClose={closeModal}

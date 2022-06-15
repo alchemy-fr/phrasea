@@ -3,7 +3,7 @@ import {Box, Grid} from "@mui/material";
 import FileCard from "./FileCard";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import UploadIcon from '@mui/icons-material/Upload';
 import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";

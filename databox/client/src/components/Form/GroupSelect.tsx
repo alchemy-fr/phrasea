@@ -1,8 +1,8 @@
 import React from "react";
-import {SelectOption} from "../Form/SelectWidget";
+import {SelectOption} from "./SelectWidget";
 import {Group} from "../../types";
 import {getGroups} from "../../api/user";
-import RSelectWidget, {RSelectProps} from "../Form/RSelect";
+import RSelectWidget, {RSelectProps} from "./RSelect";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 
 type Props<TFieldValues extends FieldValues> = {
@@ -14,7 +14,7 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
                                                                           ...props
                                                                       }: Props<TFieldValues>) {
     const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
-        const result = await (!inputValue && data ?  data : getGroups());
+        const result = await (!inputValue && data ? data : getGroups());
 
         return result.map((t: Group) => ({
             value: t.id,

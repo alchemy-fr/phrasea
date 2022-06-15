@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link, LinkProps, useLocation, useNavigate} from "react-router-dom";
+import {Link, LinkProps, useLocation} from "react-router-dom";
 import {getPath} from "../../routes";
 
 type Props = {
@@ -8,10 +8,10 @@ type Props = {
 } & Omit<LinkProps, "to">;
 
 export default React.forwardRef<HTMLAnchorElement, Props>(({
-                                     routeName,
-                                     params,
-                                     ...rest
-                                 }, ref) => {
+                                                               routeName,
+                                                               params,
+                                                               ...rest
+                                                           }, ref) => {
     const location = useLocation();
 
     return <Link
