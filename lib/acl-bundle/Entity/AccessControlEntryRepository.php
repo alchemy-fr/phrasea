@@ -83,6 +83,8 @@ class AccessControlEntryRepository extends EntityRepository
             $queryBuilder->andWhere('a.objectId IS NULL');
         }
 
+        $queryBuilder->addOrderBy('a.createdAt', 'ASC');
+
         return $queryBuilder
             ->getQuery()
             ->getResult();
@@ -112,6 +114,8 @@ class AccessControlEntryRepository extends EntityRepository
                 $queryBuilder->andWhere(sprintf('a.%s IS NULL', $col));
             }
         }
+
+        $queryBuilder->addOrderBy('a.createdAt', 'ASC');
 
         return $queryBuilder
             ->getQuery()

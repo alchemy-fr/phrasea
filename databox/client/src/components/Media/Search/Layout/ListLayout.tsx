@@ -11,6 +11,7 @@ import AssetTagList from "../../Asset/Widgets/AssetTagList";
 import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 import PrivacyChip from "../../../Ui/PrivacyChip";
+import {hasContextMenu} from "../../Asset/AssetContextMenu";
 
 const AssetItem = React.memo(({
                                   asset,
@@ -147,22 +148,30 @@ export default function ListLayout({
             },
         })}
     >
-        {assets.map(a => <div
-            key={a.id}
-            onContextMenu={onContextMenuOpen ? (e) => {
-                onContextMenuOpen(e, a);
-            } : undefined}
-        >
-            <AssetItem
-                asset={a}
-                selected={selectedAssets.includes(a.id)}
-                onContextMenuOpen={onContextMenuOpen}
-                displayAttributes={displayAttributes}
-                onSelect={onSelect}
-                onUnselect={onUnselect}
-                thumbSize={thumbSize}
-                onPreviewToggle={onPreviewToggle}
-            />
-        </div>)}
+        {assets.map(a => {
+            const contextMenu = onContextMenuOpen && hasContextMenu(a);
+
+            return <div
+                key={a.id}
+                onContextMenu={onContextMenuOpen ? (e) => {
+                    if (!contextMenu) {
+                        e.preventDefault();
+                        return;
+                    }
+                    onContextMenuOpen!(e, a);
+                } : undefined}
+            >
+                <AssetItem
+                    asset={a}
+                    selected={selectedAssets.includes(a.id)}
+                    onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
+                    displayAttributes={displayAttributes}
+                    onSelect={onSelect}
+                    onUnselect={onUnselect}
+                    thumbSize={thumbSize}
+                    onPreviewToggle={onPreviewToggle}
+                />
+            </div>
+        })}
     </Box>
 }

@@ -10,6 +10,12 @@ type Props = {
     userName: string | undefined;
 } & Ace;
 
+const allMask = Object.keys(aclPermissions).map(k => aclPermissions[k]).reduce((m, p) => p + m, 0);
+
+function isAllChecked(mask: number): boolean | null {
+    return allMask === mask ? true : (mask === 0 ? false : null);
+}
+
 export default function AceRow({
                                    mask: initMask,
                                    userName,
@@ -33,6 +39,17 @@ export default function AceRow({
         });
     }
 
+    const allChecked: boolean | null = isAllChecked(mask);
+
+    const toggleAll = () => {
+        setMask(p => {
+            const newMask = true === isAllChecked(p) ? 0 : allMask;
+            onMaskChange(userType, userId, newMask);
+
+            return newMask;
+        });
+    }
+
     return <tr>
         <td
             className={'ug'}>
@@ -50,6 +67,15 @@ export default function AceRow({
                 />
             </td>
         })}
+        <td
+            className={'p'}
+        >
+            <Checkbox
+                onChange={toggleAll}
+                checked={allChecked || false}
+                indeterminate={null === allChecked}
+            />
+        </td>
         <td className={'a'}>
             <Button
                 color={'error'}

@@ -12,6 +12,7 @@ import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 import AssetTagList from "../../Asset/Widgets/AssetTagList";
 import {PrivacyTooltip} from "../../../Ui/PrivacyChip";
 import {replaceHighlight} from "../../Asset/Attribute/Attributes";
+import {hasContextMenu} from "../../Asset/AssetContextMenu";
 
 const lineHeight = 26;
 const collLineHeight = 32;
@@ -186,17 +187,23 @@ export default function GridLayout({
         })}
     >
         {assets.map(a => {
+            const contextMenu = onContextMenuOpen && hasContextMenu(a);
+
             return <Grid
                 item
                 key={a.id}
                 onContextMenu={onContextMenuOpen ? (e) => {
-                    onContextMenuOpen(e, a);
+                    if (!contextMenu) {
+                        e.preventDefault();
+                        return;
+                    }
+                    onContextMenuOpen!(e, a);
                 } : undefined}
             >
                 <AssetItem
                     asset={a}
                     selected={selectedAssets.includes(a.id)}
-                    onContextMenuOpen={onContextMenuOpen}
+                    onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
                     onSelect={onSelect}
                     onPreviewToggle={onPreviewToggle}
                     onUnselect={onUnselect}

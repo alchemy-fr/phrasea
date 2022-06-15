@@ -35,12 +35,16 @@ type State = {
 type OnMaskChange = (userType: string, userId: string | null, mask: number) => Promise<void>;
 type OnAceDelete = (userType: string, userId: string | null) => Promise<void>;
 
+
+const aclColumns = Object.keys(aclPermissions);
+aclColumns.push('ALL');
+
 function AceRowSkeleton() {
     return <tr>
         <td className={'ug'}>
             <Skeleton/>
         </td>
-        {Object.keys(aclPermissions).map((k: string) => {
+        {aclColumns.map((k) => {
             return <td
                 key={k}
                 className={'p'}
@@ -149,7 +153,7 @@ function AclTable({
             >
                 {t('acl.table.cols.user_group', `User/Group`)}
             </th>
-            {Object.keys(aclPermissions).map(k => {
+            {aclColumns.map(k => {
                 return <th
                     key={k}
                     className={'p'}

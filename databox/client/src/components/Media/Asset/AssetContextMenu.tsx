@@ -20,6 +20,12 @@ type Props = {
     onClose: () => void;
 };
 
+export function hasContextMenu({capabilities}: Asset): boolean {
+    return capabilities.canEdit
+    || capabilities.canEditPermissions
+    || capabilities.canEditAttributes;
+}
+
 export default function AssetContextMenu({
                                              asset,
                                              anchorPosition,
