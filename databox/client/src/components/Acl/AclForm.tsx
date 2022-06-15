@@ -8,18 +8,7 @@ import GroupSelect from "../Form/GroupSelect";
 import {Box, Button, Grid, Skeleton} from "@mui/material";
 import FormRow from "../Form/FormRow";
 import {useTranslation} from 'react-i18next';
-
-export const aclPermissions: { [key: string]: number } = {
-    VIEW: 1,
-    SHARE: 256,
-    CREATE: 2,
-    EDIT: 4,
-    DELETE: 8,
-    UNDELETE: 16,
-    OPERATOR: 32,
-    MASTER: 64,
-    OWNER: 128,
-}
+import {aclPermissions} from "./acl";
 
 type Props = {
     objectType: "collection" | "asset" | "workspace";

@@ -59,6 +59,7 @@ export interface AttributeDefinition extends IPermissions {
     allowInvalid: boolean;
     canEdit: boolean;
     searchBoost: number;
+    fallback: Record<string, string>;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse {

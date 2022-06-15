@@ -9,6 +9,7 @@ import {Workspace} from "../../../types";
 import Acl from "./Acl";
 import Tags from "./Tags";
 import TagRulesTab from "./TagRulesTab";
+import AttributeDefinitionManager from "./AttributeDefinitionManager";
 
 type Props = {};
 
@@ -66,6 +67,15 @@ export default function WorkspaceDialog({}: Props) {
                 title: t('workspace.manage.tag_rules.title', 'Tag rules'),
                 component: TagRulesTab,
                 id: 'tag-rules',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
+            {
+                title: t('workspace.manage.attribute_definitions.title', 'Manage attributes'),
+                component: AttributeDefinitionManager,
+                id: 'attribute-definitions',
                 props: {
                     data,
                 },

@@ -1,8 +1,8 @@
 import React, {ChangeEvent, useState} from 'react';
 import {Ace} from "../../types";
-import {aclPermissions} from "./AclForm";
 import {Button, Checkbox} from "@mui/material";
 import {useTranslation} from 'react-i18next';
+import {aclPermissions} from "./acl";
 
 type Props = {
     onMaskChange: (userType: string, userId: string | null, mask: number) => void;

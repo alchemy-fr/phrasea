@@ -1,4 +1,4 @@
-import {Button, Container, LinearProgress} from "@mui/material";
+import {Box, Button, Container, LinearProgress} from "@mui/material";
 import React, {PropsWithChildren} from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
@@ -9,6 +9,7 @@ type Props<T extends object> = PropsWithChildren<{
     onClose: () => void;
     minHeight?: number | undefined;
     disableGutters?: boolean;
+    disablePadding?: boolean;
 }>;
 
 export default function ContentTab<T extends object>({
@@ -17,6 +18,7 @@ export default function ContentTab<T extends object>({
                                                          onClose,
                                                          minHeight,
                                                          disableGutters,
+                                                         disablePadding,
                                                      }: Props<T>) {
     const {t} = useTranslation();
     const progressHeight = 3;
@@ -24,7 +26,8 @@ export default function ContentTab<T extends object>({
     return <>
         <DialogContent dividers>
             <Container sx={{
-                pt: 2,
+                pt: disablePadding ? 0 : 2,
+                m: disablePadding ? -2 : 0,
                 minHeight,
             }}
                        maxWidth={'lg'}
