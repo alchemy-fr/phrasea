@@ -9,6 +9,7 @@ import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
 import {UploadFiles} from "../../api/file";
+import {useModalHash} from "../../hooks/useModalHash";
 
 type Props = {
     files: File[];
@@ -29,7 +30,7 @@ export default function UploadModal({
         file: f,
         id: i.toString(),
     })));
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
 
     useEffect(() => {
         if (files.length === 0) {

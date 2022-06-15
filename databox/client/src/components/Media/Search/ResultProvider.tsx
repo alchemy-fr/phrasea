@@ -108,7 +108,7 @@ export default function ResultProvider({children}: Props) {
         doSearch();
         // eslint-disable-next-line
     }, [
-        searchContext.hash,
+        searchContext.searchChecksum,
         searchContext.reloadInc,
     ]);
 

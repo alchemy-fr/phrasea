@@ -16,6 +16,7 @@ import {OnCollectionEdit} from "./Collection/EditCollection";
 import {OnWorkspaceEdit} from "./Workspace/EditWorkspace";
 import ModalLink from "../Routing/ModalLink";
 import {useTranslation} from 'react-i18next';
+import {useModalHash} from "../../hooks/useModalHash";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -27,7 +28,7 @@ export default function WorkspaceMenuItem({
                                           }: WorkspaceMenuItemProps) {
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
     const selected = searchContext.workspaceId === id;
     const [expanded, setExpanded] = useState(false);
     const [name, setName] = useState(initialName);

@@ -14,6 +14,7 @@ import FormRow from "../../../Form/FormRow";
 import SwitchWidget from "../../../Form/SwitchWidget";
 import {Asset} from "../../../../types";
 import AssetSelection from "../AssetSelection";
+import {useModalHash} from "../../../../hooks/useModalHash";
 
 type Props = {
     assets: Asset[];
@@ -59,7 +60,7 @@ export default function CopyAssetsDialog({
                                          }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const [selectionOW, setSelectionOW] = useState<string[]>([]);
     const [selectionP, setSelectionP] = useState<string[]>([]);
 

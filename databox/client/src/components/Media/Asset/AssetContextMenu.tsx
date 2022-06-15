@@ -12,6 +12,7 @@ import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
 import EditAsset from "./EditAsset";
 import EditAssetAttributes from "./EditAssetAttributes";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -26,7 +27,7 @@ export default function AssetContextMenu({
                                              anchorEl,
                                              onClose,
                                          }: Props) {
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
     const resultContext = useContext(ResultContext);
     const {
         id,

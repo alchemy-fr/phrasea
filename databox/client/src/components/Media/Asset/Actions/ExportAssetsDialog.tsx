@@ -12,6 +12,7 @@ import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FullPageLoader from "../../../Ui/FullPageLoader";
+import {useModalHash} from "../../../../hooks/useModalHash";
 
 type Props = {
     assets: Asset[];
@@ -34,7 +35,7 @@ export default function ExportAssetsDialog({
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
 
     const count = assets.length;
 

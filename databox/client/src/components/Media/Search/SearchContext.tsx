@@ -15,7 +15,7 @@ export type TSearchContext = {
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
     attrFilters: Filters;
-    hash?: string;
+    searchChecksum?: string;
     reloadInc: number;
 }
 

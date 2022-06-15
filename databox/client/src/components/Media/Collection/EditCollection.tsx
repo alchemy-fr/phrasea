@@ -14,6 +14,7 @@ import CollectionMoveSection from "./CollectionMoveSection";
 import {Typography} from "@mui/material";
 import TagRules from "../TagFilterRule/TagRules";
 import FormSection from "../../Form/FormSection";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 
@@ -26,7 +27,7 @@ export default function EditCollection({
                                            id,
                                            onEdit,
                                        }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     const {submitting, handleSubmit, errors} = useFormSubmit({

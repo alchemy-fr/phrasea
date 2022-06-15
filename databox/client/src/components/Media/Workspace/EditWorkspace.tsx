@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {WorkspaceForm} from "../../Form/WorkspaceForm";
 import {getWorkspace} from "../../../api/workspace";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 export type OnWorkspaceEdit = (item: Workspace) => void;
 
@@ -22,7 +23,7 @@ export default function EditWorkspace({
                                           id,
                                           onEdit,
                                       }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     const {

@@ -9,6 +9,7 @@ import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
 import {AssetForm} from "../../Form/AssetForm";
 import {postAsset} from "../../../api/asset";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 type Props = {
     titlePath?: string[];
@@ -23,7 +24,7 @@ export default function CreateAsset({
                                         collectionId,
                                         workspaceTitle,
                                     }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
     const {
         submitting,

@@ -27,6 +27,7 @@ import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import EditAsset from "../Asset/EditAsset";
 import EditAssetAttributes from "../Asset/EditAssetAttributes";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -70,7 +71,7 @@ export default function SelectionActions({
                                              onLayoutChange,
                                          }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
 

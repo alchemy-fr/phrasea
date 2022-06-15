@@ -10,6 +10,7 @@ import {moveAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
+import {useModalHash} from "../../../../hooks/useModalHash";
 
 type Props = {
     assetIds: string[];
@@ -27,7 +28,7 @@ export default function MoveAssetsDialog({
                                              onComplete,
                                          }: Props) {
     const {t} = useTranslation();
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
 
     const count = assetIds.length;
 

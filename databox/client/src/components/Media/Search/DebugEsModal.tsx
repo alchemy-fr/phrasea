@@ -4,6 +4,7 @@ import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack"
 import {useModals} from "@mattjennings/react-modal-stack";
 import AppDialog from "../../Layout/AppDialog";
 import {useTranslation} from "react-i18next";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 type Props = {
     debug: ESDebug;
@@ -25,7 +26,7 @@ function Metric({n}: {
 export default function DebugEsModal({
                                          debug,
                                      }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     return <AppDialog

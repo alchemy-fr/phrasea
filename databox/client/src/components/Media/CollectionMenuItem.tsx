@@ -17,6 +17,7 @@ import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
 import CreateAsset from "./Asset/CreateAsset";
 import ModalLink from "../Routing/ModalLink";
+import {useModalHash} from "../../hooks/useModalHash";
 
 type Props = {
     level: number;
@@ -34,13 +35,12 @@ export default function CollectionMenuItem({
                                                titlePath,
                                                title,
                                                capabilities,
-                                               onCollectionEdit,
                                                onCollectionDelete,
                                                workspace,
                                                level,
                                            }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
     const searchContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);

@@ -98,7 +98,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         attrFilters: filters,
         query,
         setQuery,
-        hash,
+        searchChecksum: JSON.stringify({query, filters, collectionId, workspaceId}),
         reloadInc,
     }}>
         {children}

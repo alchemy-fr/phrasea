@@ -5,6 +5,7 @@ import AttributesEditor, {AttributeIndex, buildAttributeIndex, DefinitionIndex} 
 import FullPageLoader from "../../Ui/FullPageLoader";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import {useModals} from "@mattjennings/react-modal-stack";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 export const NO_LOCALE = '_';
 
@@ -17,7 +18,7 @@ export default function EditAssetAttributes({
                                                 asset,
                                                 onEdit,
                                             }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const [state, setState] = useState<{
         attributeIndex: AttributeIndex;
         definitionIndex: DefinitionIndex;
