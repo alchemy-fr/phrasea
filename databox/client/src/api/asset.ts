@@ -77,6 +77,19 @@ export async function putAssetAttribute(
     })).data;
 }
 
+export async function putAttributeDefinition(
+    id: string | undefined,
+    data: AttributeDefinition
+): Promise<Attribute> {
+    if (id) {
+        return ((await apiClient.put(`/attribute-definitions/${id}`, {
+            data,
+        })).data);
+    }
+
+    return (await apiClient.post(`/attribute-definitions`, data)).data;
+}
+
 export type AttributeBatchAction = {
     action?: "set" | "replace" | "add" | "delete" | undefined;
     id?: string | undefined;

@@ -84,6 +84,9 @@ export default function App() {
                 case 400:
                     toast.error(error.response?.data['hydra:description']);
                     break;
+                case 404:
+                    toast.error(error.response?.data['hydra:description']);
+                    break;
                 case 422:
                     // Handled by form
                     break;

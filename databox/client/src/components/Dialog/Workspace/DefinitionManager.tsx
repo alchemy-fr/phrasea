@@ -14,6 +14,10 @@ import {ApiHydraObjectResponse} from "../../../api/hydra";
 import DialogActions from "@mui/material/DialogActions";
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import useFormSubmit from "../../../hooks/useFormSubmit";
+import {Collection} from "../../../types";
+import {clearWorkspaceCache, postCollection} from "../../../api/collection";
+import {toast} from "react-toastify";
 
 type DefinitionBase = ApiHydraObjectResponse & { id: string };
 
@@ -29,6 +33,7 @@ type Props<D extends DefinitionBase> = {
     onClose: () => void;
     minHeight?: number | undefined;
     newLabel: string;
+    handleSave: (data: D) => Promise<void>;
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
@@ -39,6 +44,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                                                         createNewItem,
                                                                         minHeight,
                                                                         newLabel,
+    handleSave,
                                                                     }: Props<D>) {
     const [item, setItem] = useState<D | "new">();
     const [list, setList] = useState<D[]>();
@@ -56,6 +62,26 @@ export default function DefinitionManager<D extends DefinitionBase>({
     useEffect(() => {
         load().then(r => setList(r));
     }, []);
+
+    const {
+        submitting,
+        handleSubmit,
+        errors,
+    } = useFormSubmit({
+        onSubmit: async (data: Collection) => {
+            return await postCollection({
+                ...data,
+                parent,
+                workspace: workspaceId ? `/workspaces/${workspaceId}` : undefined,
+            });
+        },
+        onSuccess: (coll) => {
+            clearWorkspaceCache();
+            toast.success(t('form.collection_create.success', 'Collection created!'));
+            closeModal();
+            onCreate(coll);
+        }
+    });
 
     return <>
         <DialogContent
@@ -123,6 +149,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
             >
                 {item && React.createElement(itemComponent, {
                     data: item === "new" ? createNewItem() : item!,
+                    key: item === "new" ? 'new' : item!.id,
                 })}
             </Box>
         </DialogContent>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {AttributeDefinition, Workspace} from "../../../types";
-import {getWorkspaceAttributeDefinitions} from "../../../api/asset";
-import {Checkbox, FormControlLabel, ListItemIcon, ListItemText, TextField} from "@mui/material";
+import {getWorkspaceAttributeDefinitions, putAttributeDefinition} from "../../../api/asset";
+import {ListItemIcon, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
 import DefinitionManager, {DefinitionItemProps} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
@@ -11,6 +11,10 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LooksOneIcon from '@mui/icons-material/LooksOne';
+import {useForm} from "react-hook-form";
+import {mapApiErrors} from "../../../lib/form";
+import FormFieldErrors from "../../Form/FormFieldErrors";
+import CheckboxWidget from "../../Form/CheckboxWidget";
 
 const icons: Record<string, SvgIconComponent> = {
     text: TextFieldsIcon,
@@ -21,58 +25,82 @@ const icons: Record<string, SvgIconComponent> = {
     ip: AlternateEmailIcon,
 }
 
-function Item({data}: DefinitionItemProps<AttributeDefinition>) {
-    return <form>
+function Item({
+                  data,
+              }: DefinitionItemProps<AttributeDefinition>) {
+    const {t} = useTranslation();
+
+    const {
+        register,
+        handleSubmit,
+        setError,
+        control,
+        formState: {errors}
+    } = useForm<any>({
+        defaultValues: data,
+    });
+
+    const onSubmit = async (data: AttributeDefinition) => {
+        try {
+            await putAttributeDefinition(data.id, data);
+        } catch (e: any) {
+            mapApiErrors(e, setError);
+        }
+    }
+
+    return <form onSubmit={handleSubmit(onSubmit)}>
         <FormRow>
             <TextField
-                name={'name'}
                 label={'Name'}
-                value={data.name}
+                {...register('name')}
+            />
+            <FormFieldErrors
+                field={'name'}
+                errors={errors}
             />
         </FormRow>
         <FormRow>
-            <FormControlLabel
-                control={<Checkbox
-                    checked={data.searchable}
-                />}
-                label={`Searchable`}
-                labelPlacement="end"
+            <CheckboxWidget
+                label={t('form.attribute_definition.searchable.label', 'Searchable')}
+                control={control}
+                name={'searchable'}
+            />
+            <FormFieldErrors
+                field={'searchable'}
+                errors={errors}
             />
         </FormRow>
         <FormRow>
-            <FormControlLabel
-                control={<Checkbox
-                    checked={data.translatable}
-                />}
-                label={`Translatable`}
-                labelPlacement="end"
+            <CheckboxWidget
+                label={t('form.attribute_definition.translatable.label', 'Translatable')}
+                control={control}
+                name={'translatable'}
+            />
+            <FormFieldErrors
+                field={'translatable'}
+                errors={errors}
             />
         </FormRow>
         <FormRow>
-            <FormControlLabel
-                control={<Checkbox
-                    checked={data.multiple}
-                />}
-                label={`Multiple values`}
-                labelPlacement="end"
+            <CheckboxWidget
+                label={t('form.attribute_definition.multiple.label', 'Multiple values')}
+                control={control}
+                name={'multiple'}
+            />
+            <FormFieldErrors
+                field={'multiple'}
+                errors={errors}
             />
         </FormRow>
         <FormRow>
-            <FormControlLabel
-                control={<Checkbox
-                    checked={data.allowInvalid}
-                />}
-                label={`Allow invalid values`}
-                labelPlacement="end"
+            <CheckboxWidget
+                label={t('form.attribute_definition.allowInvalid.label', 'Allow invalid values')}
+                control={control}
+                name={'allowInvalid'}
             />
-        </FormRow>
-        <FormRow>
-            <TextField
-                fullWidth={true}
-                multiline={true}
-                name={'fallback'}
-                label={'Fallback'}
-                value={data.fallback?.['en'] ?? ''}
+            <FormFieldErrors
+                field={'allowInvalid'}
+                errors={errors}
             />
         </FormRow>
     </form>
@@ -84,10 +112,10 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
             {React.createElement(icons[data.fieldType || 'text'] ?? icons.text)}
         </ListItemIcon>
         <ListItemText
-        primary={data.name}
-        secondary={data.fieldType}
-    />
-        </>
+            primary={data.name}
+            secondary={data.fieldType}
+        />
+    </>
 }
 
 type Props = {
@@ -113,6 +141,7 @@ export default function AttributeDefinitionManager({
                                                        onClose,
                                                    }: Props) {
     const {t} = useTranslation();
+
     return <DefinitionManager
         itemComponent={Item}
         listComponent={ListItem}
