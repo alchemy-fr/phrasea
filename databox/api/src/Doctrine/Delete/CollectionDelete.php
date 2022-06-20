@@ -9,6 +9,7 @@ use App\Elasticsearch\IndexCleaner;
 use App\Elasticsearch\Listener\DeferredIndexListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Throwable;
@@ -93,6 +94,14 @@ class CollectionDelete
             $this->em->flush();
             $this->em->clear();
         }
+
+        $this->em->getRepository(CollectionAsset::class)
+            ->createQueryBuilder('t')
+            ->delete()
+            ->andWhere('t.collection = :c')
+            ->setParameter('c', $collectionId)
+            ->getQuery()
+            ->execute();
 
         $collection = $this->em->find(Collection::class, $collectionId);
         if ($collection instanceof Collection) {

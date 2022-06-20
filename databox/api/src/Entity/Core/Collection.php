@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
@@ -33,7 +34,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
  */
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -285,5 +286,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         }
 
         return [];
+    }
+
+    public function isObjectIndexable(): bool
+    {
+        return null === $this->workspace->getDeletedAt();
     }
 }

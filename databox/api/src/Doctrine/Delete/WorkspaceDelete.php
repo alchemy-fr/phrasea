@@ -7,6 +7,7 @@ namespace App\Doctrine\Delete;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
 use App\Elasticsearch\Listener\DeferredIndexListener;
+use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -75,6 +76,7 @@ class WorkspaceDelete
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
             $this->deleteDependencies(RenditionClass::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->deleteDependencies(AttributeClass::class, $workspaceId);
 
             $files = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')

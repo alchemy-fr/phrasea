@@ -9,6 +9,7 @@ use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -28,7 +29,7 @@ use LogicException;
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -299,5 +300,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function getElasticHighlights()
     {
         return $this->highlights;
+    }
+
+    public function isObjectIndexable(): bool
+    {
+        return null === $this->workspace->getDeletedAt();
     }
 }

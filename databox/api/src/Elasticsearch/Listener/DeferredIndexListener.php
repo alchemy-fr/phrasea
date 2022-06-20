@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use App\Elasticsearch\ESSearchIndexer;
+use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
@@ -165,6 +166,10 @@ class DeferredIndexListener implements EventSubscriber
 
     private function isIndexable(object $object): bool
     {
+        if ($object instanceof ESIndexableInterface) {
+            return $object->isObjectIndexable();
+        }
+
         return true;
     }
 
