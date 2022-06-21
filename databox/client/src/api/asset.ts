@@ -78,60 +78,6 @@ export async function putAssetAttribute(
     })).data;
 }
 
-export async function putAttributeDefinition(
-    id: string | undefined,
-    data: AttributeDefinition
-): Promise<AttributeDefinition> {
-    return ((await apiClient.put(`/attribute-definitions/${id}`, data)).data);
-}
-
-export async function postAttributeDefinition(
-    data: AttributeDefinition
-): Promise<AttributeDefinition> {
-    return (await apiClient.post(`/attribute-definitions`, data)).data;
-}
-
-export async function getAttributeClasses(
-    workspaceId: string
-): Promise<ApiCollectionResponse<AttributeClass>> {
-    const res = await apiClient.get(`/attribute-classes`, {
-        params: {
-            workspaceId,
-        }
-    });
-
-    return getHydraCollection<AttributeClass>(res.data)
-}
-
-export async function getAttributeFieldTypes(): Promise<SelectOption[]> {
-    return [
-        {
-            label: 'Text',
-            value: 'text',
-        },
-        {
-            label: 'Textarea',
-            value: 'textarea',
-        },
-        {
-            label: 'Number',
-            value: 'number',
-        },
-        {
-            label: 'Ip',
-            value: 'ip',
-        },
-        {
-            label: 'Date',
-            value: 'date',
-        },
-        {
-            label: 'Boolean',
-            value: 'boolean',
-        },
-    ];
-}
-
 export type AttributeBatchAction = {
     action?: "set" | "replace" | "add" | "delete" | undefined;
     id?: string | undefined;
@@ -182,16 +128,6 @@ export async function deleteAssets(ids: string[]): Promise<void> {
             ids,
         }
     });
-}
-
-export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
-    const res = await apiClient.get(`/attribute-definitions`, {
-        params: {
-            workspaceId,
-        }
-    });
-
-    return res.data['hydra:member'];
 }
 
 export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {

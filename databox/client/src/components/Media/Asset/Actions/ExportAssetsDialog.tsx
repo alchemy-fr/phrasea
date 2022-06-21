@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {exportAssets} from "../../../../api/export";
-import {Asset, RenditionDefinition} from "../../../../types";
+import {Asset, RenditionDefinition, Workspace} from "../../../../types";
 import {useForm} from "react-hook-form";
 import FormRow from "../../../Form/FormRow";
 import {Checkbox, FormControlLabel, Typography} from "@mui/material";
@@ -48,14 +48,15 @@ export default function ExportAssetsDialog({
             const index: IndexedDefinition = {};
 
             defs.result.forEach(rd => {
-                if (!index.hasOwnProperty(rd.workspace.id)) {
-                    index[rd.workspace.id] = {
-                        name: rd.workspace.name,
+                const ws = rd.workspace as Workspace;
+                if (!index.hasOwnProperty(ws.id)) {
+                    index[ws.id] = {
+                        name: ws.name,
                         defs: [],
                     }
                 }
 
-                index[rd.workspace.id].defs.push(rd);
+                index[ws.id].defs.push(rd);
             });
             setDefinitions(index);
         });

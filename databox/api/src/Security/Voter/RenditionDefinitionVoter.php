@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionDefinitionVoter extends AbstractVoter
 {
+    public const READ_ADMIN = 'READ_ADMIN';
     const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
 
     protected function supports(string $attribute, $subject)
@@ -22,11 +23,6 @@ class RenditionDefinitionVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
-        $workspace = $subject->getWorkspace();
-        if ($this->security->isGranted(PermissionInterface::OWNER, $workspace)) {
-            return true;
-        }
-
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
 
         switch ($attribute) {
@@ -36,6 +32,9 @@ class RenditionDefinitionVoter extends AbstractVoter
                 return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT');
             case self::DELETE:
                 return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE');
+            case self::READ_ADMIN:
+                return $workspaceEditor
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'READ');
             case self::READ:
                 return true;
         }

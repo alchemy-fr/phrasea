@@ -47,7 +47,7 @@ export default function CollectionDialog({}: Props) {
             {
                 title: t('collection.manage.acl.title', 'Permissions'),
                 component: Acl,
-                id: 'acl',
+                id: 'permissions',
                 props: {
                     data,
                 },

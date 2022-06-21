@@ -12,6 +12,8 @@ import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
 import EditAsset from "./EditAsset";
 import EditAssetAttributes from "./EditAssetAttributes";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {getPath} from "../../../routes";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -33,6 +35,7 @@ export default function AssetContextMenu({
                                              onClose,
                                          }: Props) {
     const {openModal} = useModalHash();
+    const navigate = useNavigate();
     const resultContext = useContext(ResultContext);
     const {
         id,
@@ -58,12 +61,10 @@ export default function AssetContextMenu({
     }
 
     const onEdit = () => {
-        openModal(EditAsset, {
-            id,
-            onEdit: () => {
-                resultContext.reload();
-            }
-        });
+        navigate(getPath('app_asset_manage', {
+            tab: 'edit',
+            id: asset.id,
+        }));
         onClose();
     }
 

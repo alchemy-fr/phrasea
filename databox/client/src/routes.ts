@@ -4,6 +4,7 @@ import Login from "./pages/Security/Login";
 import OAuthRedirect from "./oauth";
 import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 import CollectionDialog from "./components/Dialog/Collection/CollectionDialog";
+import AssetDialog from "./components/Dialog/Asset/AssetDialog";
 
 export type RouteDefinition = {
     name: string;
@@ -27,6 +28,12 @@ export const modalRoutes = [
         name: 'collection_manage',
         path: '/collections/:id/manage/:tab',
         component: CollectionDialog,
+        public: false,
+    },
+    {
+        name: 'asset_manage',
+        path: '/assets/:id/manage/:tab',
+        component: AssetDialog,
         public: false,
     },
 ];

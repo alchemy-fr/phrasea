@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {getAssetAttributes, getWorkspaceAttributeDefinitions} from "../../../api/asset";
+import {getAssetAttributes} from "../../../api/asset";
 import {Asset, Attribute, AttributeDefinition} from "../../../types";
 import AttributesEditor, {AttributeIndex, buildAttributeIndex, DefinitionIndex} from "./Attribute/AttributesEditor";
 import FullPageLoader from "../../Ui/FullPageLoader";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {getWorkspaceAttributeDefinitions} from "../../../api/attributes";
 
 export const NO_LOCALE = '_';
 

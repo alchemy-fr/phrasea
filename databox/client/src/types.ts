@@ -67,12 +67,26 @@ export interface AttributeDefinition extends IPermissions {
 export interface AttributeClass extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    public: boolean;
+    editable: boolean;
+    workspace: Workspace | string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse {
     id: string;
     name: string;
-    workspace: Workspace;
+    class: AttributeClass | string;
+    workspace: Workspace | string;
+    useAsOriginal?: boolean;
+    useAsPreview?: boolean;
+    useAsThumbnail?: boolean;
+    useAsThumbnailActive?: boolean;
+}
+
+export interface RenditionClass extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    workspace: Workspace | string;
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
@@ -98,6 +112,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    workspace: Workspace | string;
 }
 
 export interface User {

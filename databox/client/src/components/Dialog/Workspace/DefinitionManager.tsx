@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useCallback, useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -8,7 +8,8 @@ import {
     ListItem,
     ListItemButton,
     ListItemIcon,
-    ListItemText
+    ListItemText,
+    Skeleton
 } from "@mui/material";
 import {ApiHydraObjectResponse} from "../../../api/hydra";
 import DialogActions from "@mui/material/DialogActions";
@@ -41,6 +42,7 @@ type Props<D extends DefinitionBase> = {
     minHeight?: number | undefined;
     newLabel: string;
     handleSave: (data: D) => Promise<D>;
+    handleDelete?: (id: string) => Promise<void>;
     workspaceId: string;
 };
 
@@ -52,6 +54,7 @@ type State<D extends DefinitionBase> = {
 
 export default function DefinitionManager<D extends DefinitionBase>({
                                                                         load,
+                                                                        handleDelete,
                                                                         itemComponent,
                                                                         listComponent,
                                                                         onClose,
@@ -139,6 +142,19 @@ export default function DefinitionManager<D extends DefinitionBase>({
         }
     });
 
+    const onDelete = useCallback(() => {
+        if (handleDelete && typeof item === 'object') {
+            if (window.confirm(t('definition_manager.confirm_delete', 'Are you sure you want to delete this item?'))) {
+                setState(p => ({
+                    ...p,
+                    item: undefined,
+                    list: (p.list || []).filter(i => i.id !== item.id),
+                }))
+                handleDelete(item.id);
+            }
+        }
+    }, [item, t]);
+
     const formId = 'definitionForm';
 
     return <>
@@ -173,6 +189,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         <ListItemButton
                             selected={item === "new"}
                             onClick={createAttribute}
+                            disabled={!list}
                         >
                             <ListItemIcon>
                                 <AddBoxIcon/>
@@ -197,6 +214,17 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             </ListItemButton>
                         </ListItem>
                     })}
+                    {!list && [0,1,2].map(i => <ListItem
+                            key={i}
+                        >
+                        <ListItemIcon>
+                            <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary={<Skeleton variant="text" />}
+                            secondary={<Skeleton variant="text" width={'40%'} />}
+                        />
+                    </ListItem>)}
                 </List>
             </Box>
             <Box
@@ -214,8 +242,17 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     submitting,
                     workspaceId,
                 })}
+                <RemoteErrors errors={errors}/>
+                {item && item !== "new" && handleDelete && <>
+                    <hr/>
+                    <Button
+                        color={'error'}
+                        onClick={onDelete}
+                    >
+                        {t('common.delete', 'Delete')}
+                    </Button>
+                </>}
             </Box>
-            <RemoteErrors errors={errors}/>
         </DialogContent>
         <DialogActions>
             {item && <>

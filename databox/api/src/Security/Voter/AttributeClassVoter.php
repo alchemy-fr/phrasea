@@ -24,11 +24,6 @@ class AttributeClassVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
-        $workspace = $subject->getWorkspace();
-        if ($this->security->isGranted(PermissionInterface::OWNER, $workspace)) {
-            return true;
-        }
-
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
 
         switch ($attribute) {

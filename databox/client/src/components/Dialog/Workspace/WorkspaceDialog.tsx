@@ -7,9 +7,12 @@ import {getWorkspace} from "../../../api/workspace";
 import FullPageLoader from "../../Ui/FullPageLoader";
 import {Workspace} from "../../../types";
 import Acl from "./Acl";
-import Tags from "./Tags";
 import TagRulesTab from "./TagRulesTab";
 import AttributeDefinitionManager from "./AttributeDefinitionManager";
+import AttributeClassManager from "./AttributeClassManager";
+import TagManager from "./TagManager";
+import RenditionClassManager from "./RenditionClassManager";
+import RenditionDefinitionManager from "./RenditionDefinitionManager";
 
 type Props = {};
 
@@ -48,7 +51,7 @@ export default function WorkspaceDialog({}: Props) {
             {
                 title: t('workspace.manage.acl.title', 'Permissions'),
                 component: Acl,
-                id: 'acl',
+                id: 'permissions',
                 props: {
                     data,
                 },
@@ -56,7 +59,7 @@ export default function WorkspaceDialog({}: Props) {
             },
             {
                 title: t('workspace.manage.tags.title', 'Tags'),
-                component: Tags,
+                component: TagManager,
                 id: 'tags',
                 props: {
                     data,
@@ -73,9 +76,36 @@ export default function WorkspaceDialog({}: Props) {
                 enabled: data.capabilities.canEdit,
             },
             {
-                title: t('workspace.manage.attribute_definitions.title', 'Manage attributes'),
+                title: t('workspace.manage.attribute_class.title', 'Attribute classes'),
+                component: AttributeClassManager,
+                id: 'attribute-classes',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
+            {
+                title: t('workspace.manage.attribute_definitions.title', 'Attributes'),
                 component: AttributeDefinitionManager,
                 id: 'attribute-definitions',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
+            {
+                title: t('workspace.manage.rendition_class.title', 'Rendition classes'),
+                component: RenditionClassManager,
+                id: 'rendition-classes',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
+            {
+                title: t('workspace.manage.rendition_definition.title', 'Renditions'),
+                component: RenditionDefinitionManager,
+                id: 'rendition-definitions',
                 props: {
                     data,
                 },

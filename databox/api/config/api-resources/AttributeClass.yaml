@@ -4,6 +4,7 @@ resources:
       normalization_context:
         groups:
           - attributeclass:index
+      input: App\Api\Model\Input\AttributeClassInput
     shortName: attribute-class
     itemOperations:
       get:

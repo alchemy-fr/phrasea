@@ -1,6 +1,11 @@
 import React from 'react';
 import {AttributeClass, AttributeDefinition, Workspace} from "../../../types";
-import {getWorkspaceAttributeDefinitions, postAttributeDefinition, putAttributeDefinition} from "../../../api/asset";
+import {
+    deleteAttributeDefinition,
+    getWorkspaceAttributeDefinitions,
+    postAttributeDefinition,
+    putAttributeDefinition
+} from "../../../api/attributes";
 import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
 import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
@@ -185,5 +190,6 @@ export default function AttributeDefinitionManager({
         createNewItem={createNewItem}
         newLabel={t('attribute_definitions.new.label', 'New attribute')}
         handleSave={handleSave}
+        handleDelete={deleteAttributeDefinition}
     />
 }

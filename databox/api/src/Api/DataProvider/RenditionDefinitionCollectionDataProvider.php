@@ -28,6 +28,10 @@ class RenditionDefinitionCollectionDataProvider implements ContextAwareCollectio
             $queryBuilder->andWhere('t.workspace IN (:wids)')
                 ->setParameter('wids', $filters['workspaceIds']);
         }
+        if (isset($filters['workspaceId'])) {
+            $queryBuilder->andWhere('t.workspace = :ws')
+                ->setParameter('ws', $filters['workspaceId']);
+        }
 
         return $queryBuilder
             ->getQuery()

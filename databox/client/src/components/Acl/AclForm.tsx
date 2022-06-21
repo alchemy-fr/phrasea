@@ -11,8 +11,9 @@ import {useTranslation} from 'react-i18next';
 import {aclPermissions} from "./acl";
 
 type Props = {
-    objectType: "collection" | "asset" | "workspace";
+    objectType: "collection" | "asset" | "workspace" | "attribute_class";
     objectId: string;
+    displayedPermissions?: string[] | undefined;
 };
 
 type State = {
@@ -25,15 +26,14 @@ type OnMaskChange = (userType: string, userId: string | null, mask: number) => P
 type OnAceDelete = (userType: string, userId: string | null) => Promise<void>;
 
 
-const aclColumns = Object.keys(aclPermissions);
-aclColumns.push('ALL');
-
-function AceRowSkeleton() {
+function AceRowSkeleton({permissions}: {
+    permissions: string[]
+}) {
     return <tr>
         <td className={'ug'}>
             <Skeleton/>
         </td>
-        {aclColumns.map((k) => {
+        {permissions.concat(['ALL']).map((k) => {
             return <td
                 key={k}
                 className={'p'}
@@ -80,14 +80,18 @@ function AclTable({
                       onDelete,
                       users,
                       groups,
+                      displayedPermissions,
                   }: {
     aces: Ace[] | undefined;
     users: User[] | undefined;
     groups: Group[] | undefined;
     onMaskChange: OnMaskChange;
     onDelete: OnAceDelete;
+    displayedPermissions?: string[] | undefined;
 }) {
     const {t} = useTranslation();
+
+    const columns = displayedPermissions ? Object.keys(aclPermissions).filter(c => displayedPermissions.includes(c)) : Object.keys(aclPermissions);
 
     const selectSize = 42;
     const actionsSize = 150;
@@ -142,7 +146,7 @@ function AclTable({
             >
                 {t('acl.table.cols.user_group', `User/Group`)}
             </th>
-            {aclColumns.map(k => {
+            {columns.concat(['ALL']).map(k => {
                 return <th
                     key={k}
                     className={'p'}
@@ -154,11 +158,14 @@ function AclTable({
         </tr>
         </thead>
         <tbody>
-        {!aces && [0, 1, 2].map(k => <AceRowSkeleton key={k}/>)}
+        {!aces && [0, 1, 2].map(k => <AceRowSkeleton
+            permissions={columns}
+            key={k}/>)}
         {aces && aces.map((ace) => <AceRow
+            {...ace}
+            permissions={columns}
             onMaskChange={onMaskChange}
             onDelete={onDelete}
-            {...ace}
             userName={users && groups ? getUserName(ace.userType, ace.userId, users, groups) : undefined}
             key={ace.id || `${ace.userId}::${ace.userType}`}
         />)}
@@ -169,6 +176,7 @@ function AclTable({
 export default function AclForm({
                                     objectType,
                                     objectId,
+                                    displayedPermissions,
                                 }: Props) {
     const [data, setData] = useState<State>();
     const {t} = useTranslation();
@@ -286,6 +294,7 @@ export default function AclForm({
             aces={data?.aces}
             users={data?.users}
             groups={data?.groups}
+            displayedPermissions={displayedPermissions}
             onMaskChange={onMaskChange}
             onDelete={onDelete}
         />

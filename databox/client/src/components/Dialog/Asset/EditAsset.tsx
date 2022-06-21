@@ -1,19 +1,19 @@
 import React from 'react';
-import {Collection} from "../../../types";
-import {putCollection} from "../../../api/collection";
+import {Asset} from "../../../types";
 import {useTranslation} from "react-i18next";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import FormTab from "../Tabbed/FormTab";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
-import {CollectionForm} from "../../Form/CollectionForm";
+import {putAsset} from "../../../api/asset";
+import {AssetForm} from "../../Form/AssetForm";
 
 type Props = {
     id: string;
-    data: Collection;
+    data: Asset;
 } & DialogTabProps;
 
-export default function EditCollection({
+export default function EditAsset({
                                            data,
                                            onClose,
                                            minHeight,
@@ -25,16 +25,16 @@ export default function EditCollection({
         handleSubmit,
         errors,
     } = useFormSubmit({
-        onSubmit: async (data: Collection) => {
-            return await putCollection(data.id, data);
+        onSubmit: async (data: Asset) => {
+            return await putAsset(data.id, data);
         },
         onSuccess: (item) => {
-            toast.success(t('form.collection_edit.success', 'Collection edited!'))
+            toast.success(t('form.asset_edit.success', 'Asset edited!'))
             onClose();
         }
     });
 
-    const formId = 'edit-collection';
+    const formId = 'edit-asset';
 
     return <FormTab
         onClose={onClose}
@@ -43,11 +43,12 @@ export default function EditCollection({
         errors={errors}
         minHeight={minHeight}
     >
-        <CollectionForm
+        <AssetForm
             data={data}
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            workspaceId={data.workspace.id}
         />
     </FormTab>
 }

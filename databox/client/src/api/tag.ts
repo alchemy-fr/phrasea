@@ -17,14 +17,14 @@ export async function getTags(options: TagOptions): Promise<ApiCollectionRespons
     return getHydraCollection<Tag>(res.data);
 }
 
-export async function postTag({name, workspaceId}: {
-    name: string;
-    workspaceId: string;
-}): Promise<Tag> {
-    const res = await apiClient.post('/tags', {
-        name,
-        workspace: workspaceId,
-    });
+export async function postTag(data: Partial<Tag>): Promise<Tag> {
+    const res = await apiClient.post('/tags', data);
+
+    return res.data;
+}
+
+export async function putTag(id: string, data: Tag): Promise<Tag> {
+    const res = await apiClient.post('/tags', data);
 
     return res.data;
 }

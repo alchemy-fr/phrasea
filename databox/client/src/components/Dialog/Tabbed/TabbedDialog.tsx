@@ -71,7 +71,13 @@ export default function TabbedDialog<P extends {}>({
         <AppDialogTitle onClose={handleClose}>
             {title}
         </AppDialogTitle>
-        <Tabs value={tabIndex} onChange={handleChange} aria-label="Dialog menu">
+        <Tabs
+            variant="scrollable"
+            scrollButtons="auto"
+            value={tabIndex}
+            onChange={handleChange}
+            aria-label="Dialog menu"
+        >
             {tabs.map((t) => {
                 return <Tab
                     label={t.title}

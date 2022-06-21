@@ -1,8 +1,8 @@
 import React, {useCallback} from "react";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
-import {getAttributeFieldTypes} from "../../api/asset";
 import {fieldTypesIcons} from "../../lib/icons";
+import {getAttributeFieldTypes} from "../../api/attributes";
 
 type Props<TFieldValues> = {} & RSelectProps<TFieldValues, false>;
 

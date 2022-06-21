@@ -8,13 +8,13 @@ type Props = {
     onMaskChange: (userType: string, userId: string | null, mask: number) => void;
     onDelete: (userType: string, userId: string | null) => void;
     userName: string | undefined;
+    permissions: string[];
 } & Ace;
 
-const allMask = Object.keys(aclPermissions).map(k => aclPermissions[k]).reduce((m, p) => p + m, 0);
-
-function isAllChecked(mask: number): boolean | null {
+function isAllChecked(mask: number, allMask: number): boolean | null {
     return allMask === mask ? true : (mask === 0 ? false : null);
 }
+
 
 export default function AceRow({
                                    mask: initMask,
@@ -22,10 +22,13 @@ export default function AceRow({
                                    userType,
                                    userId,
                                    onMaskChange,
-                                   onDelete
+                                   onDelete,
+                                   permissions,
                                }: Props) {
     const {t} = useTranslation();
     const [mask, setMask] = useState(initMask);
+
+    const allMask = permissions.map(k => aclPermissions[k]).reduce((m, p) => p + m, 0);
 
     const onChangeMask = (e: ChangeEvent<HTMLInputElement>) => {
         const {checked} = e.target;
@@ -39,11 +42,11 @@ export default function AceRow({
         });
     }
 
-    const allChecked: boolean | null = isAllChecked(mask);
+    const allChecked: boolean | null = isAllChecked(mask, allMask);
 
     const toggleAll = () => {
         setMask(p => {
-            const newMask = true === isAllChecked(p) ? 0 : allMask;
+            const newMask = true === isAllChecked(p, allMask) ? 0 : allMask;
             onMaskChange(userType, userId, newMask);
 
             return newMask;
@@ -55,7 +58,7 @@ export default function AceRow({
             className={'ug'}>
             {userName ?? (`${userType} - ${userId}`)}
         </td>
-        {Object.keys(aclPermissions).map((k: string) => {
+        {permissions.map((k: string) => {
             return <td
                 key={k}
                 className={'p'}

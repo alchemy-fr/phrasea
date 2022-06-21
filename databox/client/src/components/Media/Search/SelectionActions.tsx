@@ -27,6 +27,8 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import EditAsset from "../Asset/EditAsset";
 import EditAssetAttributes from "../Asset/EditAssetAttributes";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {getPath} from "../../../routes";
+import {useNavigate} from "react-router-dom";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -70,6 +72,7 @@ export default function SelectionActions({
                                              onLayoutChange,
                                          }: Props) {
     const {t} = useTranslation();
+    const navigate = useNavigate();
     const {openModal} = useModalHash();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
@@ -182,12 +185,10 @@ export default function SelectionActions({
 
     const onEdit = () => {
         if (selectionContext.selectedAssets.length === 1) {
-            openModal(EditAsset, {
+            navigate(getPath('app_asset_manage', {
+                tab: 'edit',
                 id: selectionContext.selectedAssets[0],
-                onEdit: () => {
-                    resultContext.reload();
-                }
-            });
+            }));
         } else {
             alert('Multi edit is comin soon...');
         }
