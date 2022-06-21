@@ -16,8 +16,12 @@ App\Entity\Core\AttributeClass:
 
   n_ac_public (extends attribute_class):
     name: Public
+    public: true
+    editable: true
   n_ac_business (extends attribute_class):
     name: Business field
+    public: false
+    editable: false
 
 App\Entity\Core\AttributeDefinition:
   attribute_definition (template):

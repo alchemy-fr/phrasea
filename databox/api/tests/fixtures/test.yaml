@@ -39,9 +39,13 @@ App\Entity\Core\AttributeClass:
   ac_public:
     name: Public attrs
     workspace: '@w_test'
+    public: true
+    editable: true
   ac_private:
     name: Private attrs
     workspace: '@w_test'
+    public: false
+    editable: false
 
 App\Entity\Core\AttributeDefinition:
   ad_photographer:
