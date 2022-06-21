@@ -60,6 +60,13 @@ export interface AttributeDefinition extends IPermissions {
     canEdit: boolean;
     searchBoost: number;
     fallback: Record<string, string>;
+    workspace: Workspace | string;
+    class: AttributeClass | string;
+}
+
+export interface AttributeClass extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse {

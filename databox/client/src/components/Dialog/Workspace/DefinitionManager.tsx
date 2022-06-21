@@ -14,10 +14,10 @@ import {ApiHydraObjectResponse} from "../../../api/hydra";
 import DialogActions from "@mui/material/DialogActions";
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import useFormSubmit from "../../../hooks/useFormSubmit";
-import {Collection} from "../../../types";
-import {clearWorkspaceCache, postCollection} from "../../../api/collection";
+import useFormSubmit, {UseFormHandleSubmit} from "../../../hooks/useFormSubmit";
+import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
+import RemoteErrors from "../../Form/RemoteErrors";
 
 type DefinitionBase = ApiHydraObjectResponse & { id: string };
 
@@ -25,16 +25,30 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
     data: Partial<D>;
 };
 
+export type DefinitionItemFormProps<D extends DefinitionBase> = {
+    formId: string;
+    handleSubmit: UseFormHandleSubmit<D>;
+    submitting: boolean;
+    workspaceId: string;
+} & DefinitionItemProps<D>;
+
 type Props<D extends DefinitionBase> = {
     load: () => Promise<D[]>;
     listComponent: FunctionComponent<DefinitionItemProps<D>>;
-    itemComponent: FunctionComponent<DefinitionItemProps<D>>;
+    itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
     createNewItem: () => Partial<D>;
     onClose: () => void;
     minHeight?: number | undefined;
     newLabel: string;
-    handleSave: (data: D) => Promise<void>;
+    handleSave: (data: D) => Promise<D>;
+    workspaceId: string;
 };
+
+type State<D extends DefinitionBase> = {
+    item: D | "new" | undefined;
+    list: D[] | undefined;
+    loading: boolean;
+}
 
 export default function DefinitionManager<D extends DefinitionBase>({
                                                                         load,
@@ -44,23 +58,49 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                                                         createNewItem,
                                                                         minHeight,
                                                                         newLabel,
-    handleSave,
+                                                                        handleSave,
+                                                                        workspaceId,
                                                                     }: Props<D>) {
-    const [item, setItem] = useState<D | "new">();
-    const [list, setList] = useState<D[]>();
-    const [loading, setLoading] = useState(false);
+    const [state, setState] = useState<State<D>>({
+        list: undefined,
+        item: undefined,
+        loading: false,
+    });
+    const {
+        loading,
+        list,
+        item,
+    } = state;
     const {t} = useTranslation();
 
     const handleItemClick = (data: D) => () => {
-        setItem(data);
+        setState(p => ({
+            ...p,
+            item: data,
+        }));
     }
 
     const createAttribute = () => {
-        setItem('new');
+        setState(p => ({
+            ...p,
+            item: 'new',
+        }));
     };
 
     useEffect(() => {
-        load().then(r => setList(r));
+        setState({
+            item: undefined,
+            list: undefined,
+            loading: true,
+        });
+
+        load().then(r => {
+            setState({
+                item: undefined,
+                list: r,
+                loading: false,
+            });
+        });
     }, []);
 
     const {
@@ -68,20 +108,38 @@ export default function DefinitionManager<D extends DefinitionBase>({
         handleSubmit,
         errors,
     } = useFormSubmit({
-        onSubmit: async (data: Collection) => {
-            return await postCollection({
-                ...data,
-                parent,
-                workspace: workspaceId ? `/workspaces/${workspaceId}` : undefined,
+        onSubmit: async (data: D) => {
+            const newData = await handleSave(data);
+
+            setState(p => {
+                let newList = p.list!;
+                if (newList.find(i => i.id === newData.id)) {
+                    newList = newList.map(i => {
+                        if (i.id === data.id) {
+                            return newData;
+                        }
+
+                        return i;
+                    });
+                } else {
+                    newList = newList.concat([newData]);
+                }
+
+                return {
+                    ...p,
+                    list: newList,
+                    item: newData,
+                }
             });
+
+            return newData;
         },
-        onSuccess: (coll) => {
-            clearWorkspaceCache();
-            toast.success(t('form.collection_create.success', 'Collection created!'));
-            closeModal();
-            onCreate(coll);
+        onSuccess: () => {
+            toast.success(t('definition_manager.saved', 'Definition saved!'));
         }
     });
+
+    const formId = 'definitionForm';
 
     return <>
         <DialogContent
@@ -124,8 +182,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     </ListItem>
                     <Divider/>
                     {list && list.map(i => {
-                        return <ListItem disablePadding
-                                         key={i.id}
+                        return <ListItem
+                            disablePadding
+                            key={i.id}
                         >
                             <ListItemButton
                                 selected={i === item}
@@ -150,16 +209,36 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 {item && React.createElement(itemComponent, {
                     data: item === "new" ? createNewItem() : item!,
                     key: item === "new" ? 'new' : item!.id,
+                    formId,
+                    handleSubmit,
+                    submitting,
+                    workspaceId,
                 })}
             </Box>
+            <RemoteErrors errors={errors}/>
         </DialogContent>
         <DialogActions>
-            <Button
+            {item && <>
+                <Button
+                    onClick={onClose}
+                    disabled={loading || submitting}
+                >
+                    {t('dialog.cancel', 'Cancel')}
+                </Button>
+                <LoadingButton
+                    disabled={loading || submitting}
+                    loading={submitting}
+                    type={formId ? 'submit' : 'button'}
+                    form={formId}
+                >
+                    {t('dialog.save', 'Save')}
+                </LoadingButton>
+            </>}
+            {!item && <Button
                 onClick={onClose}
-                disabled={loading}
             >
                 {t('dialog.close', 'Close')}
-            </Button>
+            </Button>}
         </DialogActions>
     </>
 }

@@ -3,9 +3,10 @@ import {FieldValues} from "react-hook-form/dist/types/fields";
 import {Control} from "react-hook-form/dist/types/form";
 import {FieldPath} from "react-hook-form/dist/types";
 import AsyncSelect from 'react-select/async';
-import React, {ReactNode, useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {AsyncProps} from "react-select/dist/declarations/src/useAsync";
 import {useTheme} from "@mui/material";
+import {components, OptionProps} from "react-select";
 
 interface GroupBase<Option> {
     readonly options: readonly Option[];
@@ -13,9 +14,9 @@ interface GroupBase<Option> {
 }
 
 type Option = {
-    label: ReactNode;
+    label: string;
     value: string;
-    image?: React.ElementType | React.FC | string;
+    image?: React.ElementType | React.FC;
 };
 export type {Option as SelectOption};
 
@@ -28,30 +29,44 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = ({
 }) & {
     disabledValues?: string[];
     clearOnSelect?: boolean;
+    disabled?: boolean | undefined;
 } & AsyncProps<Option, IsMulti, GroupBase<Option>>;
 
 export type {Props as RSelectProps};
-
-const optionsCache: Record<string, Option> = {};
 
 type CompositeValue<IsMulti extends boolean> = IsMulti extends true ? string[] : string | undefined;
 type CompositeOption<IsMulti extends boolean> = IsMulti extends true ? Option[] : Option | null;
 
 function valueToOption<IsMulti extends boolean>(
     isMulti: IsMulti,
-    value: CompositeValue<IsMulti>
+    value: CompositeValue<IsMulti>,
+    lastOptions: Record<string, Option>
 ): CompositeOption<IsMulti> {
     if (isMulti) {
         if (!value) {
             return [] as any;
         }
-        return (value as string[]).map(v => valueToOption(false, v)) as CompositeOption<IsMulti>;
+        return (value as string[]).map(v => valueToOption(false, v, lastOptions)) as CompositeOption<IsMulti>;
     } else if (value) {
-        return (optionsCache[value as string] ?? null) as CompositeOption<IsMulti>;
+        return (lastOptions[value as string] ?? null) as CompositeOption<IsMulti>;
     }
 
     return null as CompositeOption<IsMulti>;
 }
+
+const ImageOption = (props: OptionProps<Option>) => {
+    return <components.Option {...props}>
+        {props.data.image && <span style={{
+            verticalAlign: 'middle',
+            paddingRight: 10,
+        }}>{React.createElement(props.data.image)}</span>}
+        {props.data.label}
+    </components.Option>
+};
+
+const componentsProp = {
+    Option: ImageOption,
+};
 
 export default function RSelectWidget<TFieldValues extends FieldValues,
     IsMulti extends boolean = false>({
@@ -66,6 +81,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                                          ...rest
                                      }: Props<TFieldValues, IsMulti>) {
     const [value, setValue] = useState(initialValue);
+    const [lastOptions, setLastOptions] = useState<Record<string, Option>>({});
     const theme = useTheme();
 
     useEffect(() => {
@@ -76,9 +92,14 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
         const options = await loadOptions!(inputValue, () => {
         }) as Option[];
 
-        options.forEach(o => {
-            optionsCache[o.value] = o;
-        })
+        setLastOptions(p => {
+            const last = {...p};
+            options.forEach(o => {
+                last[o.value] = o;
+            });
+
+            return last;
+        });
 
         return options;
     } : undefined;
@@ -91,7 +112,8 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                 return <AsyncSelect<Option, any>
                     {...rest}
                     ref={ref}
-                    value={valueToOption(isMulti || false, value as CompositeValue<IsMulti>)}
+                    components={componentsProp}
+                    value={valueToOption(isMulti || false, value as CompositeValue<IsMulti>, lastOptions)}
                     onChange={(newValue, meta) => {
                         const v = isMulti ? (newValue as Option[]).map(v => v.value) : (newValue as Option | null)?.value;
                         onChange(v);
@@ -118,6 +140,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
 
     return <AsyncSelect<Option, IsMulti>
         {...rest}
+        components={componentsProp}
         onChange={(newValue, meta) => {
             onChangeProp && onChangeProp(newValue, meta);
             setValue(!clearOnSelect ? newValue : null);

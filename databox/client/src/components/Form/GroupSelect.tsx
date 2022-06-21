@@ -1,8 +1,7 @@
 import React from "react";
-import {SelectOption} from "./SelectWidget";
 import {Group} from "../../types";
 import {getGroups} from "../../api/user";
-import RSelectWidget, {RSelectProps} from "./RSelect";
+import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 
 type Props<TFieldValues extends FieldValues> = {

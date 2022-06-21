@@ -1,7 +1,8 @@
 import apiClient, {RequestConfig} from "./api-client";
-import {Asset, Attribute, AttributeDefinition} from "../types";
+import {Asset, Attribute, AttributeClass, AttributeDefinition, Tag} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
+import {SelectOption} from "../components/Form/RSelect";
 
 interface AssetOptions {
     url?: string;
@@ -80,14 +81,55 @@ export async function putAssetAttribute(
 export async function putAttributeDefinition(
     id: string | undefined,
     data: AttributeDefinition
-): Promise<Attribute> {
-    if (id) {
-        return ((await apiClient.put(`/attribute-definitions/${id}`, {
-            data,
-        })).data);
-    }
+): Promise<AttributeDefinition> {
+    return ((await apiClient.put(`/attribute-definitions/${id}`, data)).data);
+}
 
+export async function postAttributeDefinition(
+    data: AttributeDefinition
+): Promise<AttributeDefinition> {
     return (await apiClient.post(`/attribute-definitions`, data)).data;
+}
+
+export async function getAttributeClasses(
+    workspaceId: string
+): Promise<ApiCollectionResponse<AttributeClass>> {
+    const res = await apiClient.get(`/attribute-classes`, {
+        params: {
+            workspaceId,
+        }
+    });
+
+    return getHydraCollection<AttributeClass>(res.data)
+}
+
+export async function getAttributeFieldTypes(): Promise<SelectOption[]> {
+    return [
+        {
+            label: 'Text',
+            value: 'text',
+        },
+        {
+            label: 'Textarea',
+            value: 'textarea',
+        },
+        {
+            label: 'Number',
+            value: 'number',
+        },
+        {
+            label: 'Ip',
+            value: 'ip',
+        },
+        {
+            label: 'Date',
+            value: 'date',
+        },
+        {
+            label: 'Boolean',
+            value: 'boolean',
+        },
+    ];
 }
 
 export type AttributeBatchAction = {

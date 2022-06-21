@@ -34,7 +34,7 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface
     protected ?Workspace $workspace = null;
 
     /**
-     * @Groups({"attrclass:index", "attrclass:read"})
+     * @Groups({"attributeclass:index", "attributedef:index", "attributedef:read"})
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;

@@ -10,6 +10,8 @@ type Props<T extends object, R> = {
     onSuccess?: (res: R) => void;
 }
 
+export type UseFormHandleSubmit<T extends object> = (setError: UseFormSetError<T>) => (data: T) => Promise<void>;
+
 export default function useFormSubmit<T extends object, R = any>({
                                                                      onSubmit,
                                                                      onSuccess,
@@ -17,7 +19,7 @@ export default function useFormSubmit<T extends object, R = any>({
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
 
-    const handleSubmit = (setError: UseFormSetError<T>) => async (data: T) => {
+    const handleSubmit: UseFormHandleSubmit<T> = (setError) => async (data) => {
         setSubmitting(true);
 
         try {
@@ -29,7 +31,7 @@ export default function useFormSubmit<T extends object, R = any>({
             if (e.isAxiosError) {
                 const err = e as AxiosError<any>;
                 if (422 === err.response?.status) {
-                    mapApiErrors(e, setError);
+                    mapApiErrors(err, setError);
                 } else if (err.response && [400, 500].includes(err.response.status)) {
                     setErrors(p => p.concat(err.response!.data['hydra:description'] as string));
                 }

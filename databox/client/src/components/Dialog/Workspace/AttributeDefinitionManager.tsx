@@ -1,33 +1,24 @@
 import React from 'react';
-import {AttributeDefinition, Workspace} from "../../../types";
-import {getWorkspaceAttributeDefinitions, putAttributeDefinition} from "../../../api/asset";
-import {ListItemIcon, ListItemText, TextField} from "@mui/material";
+import {AttributeClass, AttributeDefinition, Workspace} from "../../../types";
+import {getWorkspaceAttributeDefinitions, postAttributeDefinition, putAttributeDefinition} from "../../../api/asset";
+import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
-import DefinitionManager, {DefinitionItemProps} from "./DefinitionManager";
+import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-import {SvgIconComponent} from "@mui/icons-material";
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
-import LooksOneIcon from '@mui/icons-material/LooksOne';
 import {useForm} from "react-hook-form";
-import {mapApiErrors} from "../../../lib/form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import CheckboxWidget from "../../Form/CheckboxWidget";
-
-const icons: Record<string, SvgIconComponent> = {
-    text: TextFieldsIcon,
-    boolean: CheckBoxIcon,
-    date: CalendarTodayIcon,
-    datetime: CalendarTodayIcon,
-    number: LooksOneIcon,
-    ip: AlternateEmailIcon,
-}
+import AttributeClassSelect from "../../Form/AttributeClassSelect";
+import FieldTypeSelect from "../../Form/FieldTypeSelect";
+import {fieldTypesIcons} from "../../../lib/icons";
 
 function Item({
                   data,
-              }: DefinitionItemProps<AttributeDefinition>) {
+                  handleSubmit: onSubmit,
+                  formId,
+                  submitting,
+                  workspaceId,
+              }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
     const {
@@ -37,22 +28,20 @@ function Item({
         control,
         formState: {errors}
     } = useForm<any>({
-        defaultValues: data,
+        defaultValues: {
+            ...data,
+            class: data?.class && (data?.class as AttributeClass)['@id'],
+        },
     });
 
-    const onSubmit = async (data: AttributeDefinition) => {
-        try {
-            await putAttributeDefinition(data.id, data);
-        } catch (e: any) {
-            mapApiErrors(e, setError);
-        }
-    }
-
-    return <form onSubmit={handleSubmit(onSubmit)}>
+    return <form
+        id={formId}
+        onSubmit={handleSubmit(onSubmit(setError))}>
         <FormRow>
             <TextField
-                label={'Name'}
+                label={t('form.attribute_definition.name.label', 'Name')}
                 {...register('name')}
+                disabled={submitting}
             />
             <FormFieldErrors
                 field={'name'}
@@ -60,10 +49,40 @@ function Item({
             />
         </FormRow>
         <FormRow>
+            <FormGroup>
+                <FormLabel>{t('form.attribute_definition.field_type.label', 'Field type')}</FormLabel>
+                <FieldTypeSelect
+                    disabled={submitting}
+                    name={'fieldType'}
+                    control={control}
+                />
+                <FormFieldErrors
+                    field={'class'}
+                    errors={errors}
+                />
+            </FormGroup>
+        </FormRow>
+        <FormRow>
+            <FormGroup>
+                <FormLabel>{t('form.attribute_definition.class.label', 'Class')}</FormLabel>
+                <AttributeClassSelect
+                    disabled={submitting}
+                    name={'class'}
+                    control={control}
+                    workspaceId={workspaceId}
+                />
+                <FormFieldErrors
+                    field={'class'}
+                    errors={errors}
+                />
+            </FormGroup>
+        </FormRow>
+        <FormRow>
             <CheckboxWidget
                 label={t('form.attribute_definition.searchable.label', 'Searchable')}
                 control={control}
                 name={'searchable'}
+                disabled={submitting}
             />
             <FormFieldErrors
                 field={'searchable'}
@@ -75,6 +94,7 @@ function Item({
                 label={t('form.attribute_definition.translatable.label', 'Translatable')}
                 control={control}
                 name={'translatable'}
+                disabled={submitting}
             />
             <FormFieldErrors
                 field={'translatable'}
@@ -86,6 +106,7 @@ function Item({
                 label={t('form.attribute_definition.multiple.label', 'Multiple values')}
                 control={control}
                 name={'multiple'}
+                disabled={submitting}
             />
             <FormFieldErrors
                 field={'multiple'}
@@ -97,6 +118,7 @@ function Item({
                 label={t('form.attribute_definition.allowInvalid.label', 'Allow invalid values')}
                 control={control}
                 name={'allowInvalid'}
+                disabled={submitting}
             />
             <FormFieldErrors
                 field={'allowInvalid'}
@@ -109,7 +131,7 @@ function Item({
 function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
     return <>
         <ListItemIcon>
-            {React.createElement(icons[data.fieldType || 'text'] ?? icons.text)}
+            {React.createElement(fieldTypesIcons[data.fieldType || 'text'] ?? fieldTypesIcons.text)}
         </ListItemIcon>
         <ListItemText
             primary={data.name}
@@ -136,19 +158,32 @@ function createNewItem(): Partial<AttributeDefinition> {
 }
 
 export default function AttributeDefinitionManager({
-                                                       data,
+                                                       data: workspace,
                                                        minHeight,
                                                        onClose,
                                                    }: Props) {
     const {t} = useTranslation();
 
+    const handleSave = async (data: AttributeDefinition) => {
+        if (data.id) {
+            return await putAttributeDefinition(data.id, data);
+        } else {
+            return await postAttributeDefinition({
+                ...data,
+                workspace: `/workspaces/${workspace.id}`
+            })
+        }
+    }
+
     return <DefinitionManager
         itemComponent={Item}
         listComponent={ListItem}
-        load={() => getWorkspaceAttributeDefinitions(data.id)}
+        load={() => getWorkspaceAttributeDefinitions(workspace.id)}
+        workspaceId={workspace.id}
         minHeight={minHeight}
         onClose={onClose}
         createNewItem={createNewItem}
         newLabel={t('attribute_definitions.new.label', 'New attribute')}
+        handleSave={handleSave}
     />
 }

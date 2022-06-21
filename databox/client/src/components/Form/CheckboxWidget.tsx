@@ -9,12 +9,14 @@ type Props<TFieldValues extends FieldValues> = {
     label?: ReactNode;
     control: Control<TFieldValues>,
     name: FieldPath<TFieldValues>;
+    disabled?: boolean | undefined;
 };
 
 export default function CheckboxWidget<TFieldValues extends FieldValues>({
                                                                              name,
                                                                              label,
-                                                                             control
+                                                                             control,
+                                                                             disabled,
                                                                          }: Props<TFieldValues>) {
 
     return <FormControlLabel
@@ -24,6 +26,7 @@ export default function CheckboxWidget<TFieldValues extends FieldValues>({
                 control={control}
                 render={({field}) => <Checkbox
                     {...field}
+                    disabled={disabled}
                     checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
                 />}
