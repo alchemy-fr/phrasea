@@ -1,7 +1,7 @@
 import {Asset} from "../../indexers";
 import {PhraseanetRecord, SubDef} from "./types";
 import {escapeSlashes} from "../../lib/pathUtils";
-import {AttributeInput} from "../../databox/types";
+import {AttributeClass, AttributeInput} from "../../databox/types";
 
 const renditionDefinitionMapping = {
     document: 'original',
@@ -14,6 +14,8 @@ export type AttrDefinitionIndex = Record<string, {
     id: string;
     multiple: boolean;
 }>;
+
+export type AttrClassIndex = Record<string, AttributeClass>;
 
 export function createAsset(
     workspaceId: string,

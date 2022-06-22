@@ -22,6 +22,7 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
     }, []);
 
     return <RSelectWidget<TFieldValues>
+        cacheId={'fieldType'}
         {...rest}
         loadOptions={load}
     />

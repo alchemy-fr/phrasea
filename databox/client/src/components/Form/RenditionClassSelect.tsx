@@ -1,7 +1,7 @@
 import React, {useCallback} from "react";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
-import {getRenditionClasses} from "../../api/rendition";
+import {getRenditionClasses, renditionClassNS} from "../../api/rendition";
 import {RenditionClass} from "../../types";
 
 type Props<TFieldValues> = {
@@ -16,7 +16,7 @@ export default function RenditionClassSelect<TFieldValues extends FieldValues>({
         const data = (await getRenditionClasses(workspaceId));
 
         return data.map((t: RenditionClass) => ({
-            value: `/rendition-classes/${t.id}`,
+            value: `${renditionClassNS}/${t.id}`,
             label: t.name,
         })).filter(i =>
             i.label.toLowerCase().includes((inputValue || '').toLowerCase())
@@ -24,6 +24,7 @@ export default function RenditionClassSelect<TFieldValues extends FieldValues>({
     }, []);
 
     return <RSelectWidget<TFieldValues>
+        cacheId={'rend-classes'}
         {...rest}
         loadOptions={load}
     />

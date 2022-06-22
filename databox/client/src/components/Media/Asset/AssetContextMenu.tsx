@@ -9,7 +9,6 @@ import {PopoverPosition} from "@mui/material/Popover/Popover";
 import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
-import EditAsset from "./EditAsset";
 import EditAssetAttributes from "./EditAssetAttributes";
 import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";

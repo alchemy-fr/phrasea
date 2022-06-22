@@ -24,6 +24,7 @@ export default function UserSelect<TFieldValues extends FieldValues>({
     };
 
     return <RSelectWidget
+        cacheId={'users'}
         loadOptions={load}
         {...props}
     />

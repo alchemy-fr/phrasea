@@ -58,7 +58,17 @@ export type AttributeDefinition = {
     key?: string | undefined;
     name: string;
     editable: boolean;
-    public: boolean;
     fieldType: string;
+    workspace: string;
+    class: string;
+}
+
+export type AttributeClass = {
+    ['@id']: string;
+    id: string;
+    key?: string | undefined;
+    name: string;
+    editable: boolean;
+    public: boolean;
     workspace: string;
 }

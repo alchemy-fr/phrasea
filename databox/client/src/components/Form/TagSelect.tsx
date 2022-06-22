@@ -27,6 +27,7 @@ export default function TagSelect<TFieldValues extends FieldValues>({
     };
 
     return <RSelectWidget<TFieldValues, false>
+        cacheId={'tags'}
         {...rest}
         loadOptions={load}
         isMulti={true as any}

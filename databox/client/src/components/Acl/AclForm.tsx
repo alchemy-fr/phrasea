@@ -25,7 +25,6 @@ type State = {
 type OnMaskChange = (userType: string, userId: string | null, mask: number) => Promise<void>;
 type OnAceDelete = (userType: string, userId: string | null) => Promise<void>;
 
-
 function AceRowSkeleton({permissions}: {
     permissions: string[]
 }) {

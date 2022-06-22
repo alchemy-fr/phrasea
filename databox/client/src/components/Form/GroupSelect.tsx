@@ -24,6 +24,7 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
     };
 
     return <RSelectWidget
+        cacheId={'groups'}
         loadOptions={load}
         {...props}
     />

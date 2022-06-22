@@ -24,7 +24,6 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import EditAsset from "../Asset/EditAsset";
 import EditAssetAttributes from "../Asset/EditAssetAttributes";
 import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";

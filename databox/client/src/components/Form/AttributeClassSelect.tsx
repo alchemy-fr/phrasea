@@ -2,7 +2,7 @@ import React, {useCallback} from "react";
 import {AttributeClass} from "../../types";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
-import {getAttributeClasses} from "../../api/attributes";
+import {attributeClassNS, getAttributeClasses} from "../../api/attributes";
 
 type Props<TFieldValues> = {
     workspaceId: string;
@@ -16,7 +16,7 @@ export default function AttributeClassSelect<TFieldValues extends FieldValues>({
         const data = (await getAttributeClasses(workspaceId)).result;
 
         return data.map((t: AttributeClass) => ({
-            value: `/attribute-classes/${t.id}`,
+            value: `${attributeClassNS}/${t.id}`,
             label: t.name,
         })).filter(i =>
             i.label.toLowerCase().includes((inputValue || '').toLowerCase())
@@ -24,6 +24,7 @@ export default function AttributeClassSelect<TFieldValues extends FieldValues>({
     }, []);
 
     return <RSelectWidget<TFieldValues>
+        cacheId={'attr-classes'}
         {...rest}
         loadOptions={load}
     />

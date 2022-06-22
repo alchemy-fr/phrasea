@@ -1,7 +1,7 @@
 import {IndexIterator} from "../../indexers";
 import {ConfigDataboxMapping, PhraseanetConfig} from "./types";
 import PhraseanetClient from "./phraseanetClient";
-import {AttrDefinitionIndex, attributeTypesEquivalence, createAsset} from "./shared";
+import {AttrClassIndex, AttrDefinitionIndex, attributeTypesEquivalence, createAsset} from "./shared";
 import {forceArray} from "../../lib/utils";
 import {getConfig, getStrict} from "../../configLoader";
 
@@ -37,20 +37,33 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> = async function
 
         logger.debug(`Start indexing databox "${dm.databoxId}" to workspace "${dm.workspaceSlug}"`);
 
+        const attrClassIndex: AttrClassIndex = {};
+        const defaultPublicClass = 'public';
         const attrDefinitionIndex: AttrDefinitionIndex = {};
         logger.debug(`Fetching Meta structures`);
         const metaStructure = forceArray(await client.getMetaStruct(dm.databoxId));
         for (let m of metaStructure) {
             logger.debug(`Creating "${m.name}" attribute definition`);
             const id = m.id.toString();
+
+            if (!attrClassIndex[defaultPublicClass]) {
+                attrClassIndex[defaultPublicClass] = await databoxClient.createAttributeClass(defaultPublicClass, {
+                    name: 'Phraseanet Public',
+                    public: true,
+                    editable: true,
+                    workspace: `/workspaces/${workspaceId}`,
+                    key: defaultPublicClass,
+                });
+            }
+
             attrDefinitionIndex[id] = await databoxClient.createAttributeDefinition(m.id.toString(), {
                 key: id,
                 name: m.name,
                 editable: !m.readonly,
                 multiple: m.multivalue,
-                public: true,
                 fieldType: attributeTypesEquivalence[m.type] || m.type,
                 workspace: `/workspaces/${workspaceId}`,
+                class: attrClassIndex[defaultPublicClass]['@id'],
             });
         }
 

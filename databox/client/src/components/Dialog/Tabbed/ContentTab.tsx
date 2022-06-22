@@ -1,4 +1,4 @@
-import {Box, Button, Container, LinearProgress} from "@mui/material";
+import {Button, Container, LinearProgress} from "@mui/material";
 import React, {PropsWithChildren} from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";

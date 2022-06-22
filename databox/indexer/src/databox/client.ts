@@ -1,5 +1,5 @@
 import {AxiosInstance} from 'axios';
-import {AssetInput, AttributeDefinition, CollectionInput, RenditionClass} from "./types";
+import {AssetInput, AttributeClass, AttributeDefinition, CollectionInput, RenditionClass} from "./types";
 import {lockPromise} from "../lib/promise";
 import {getConfig, getStrict} from "../configLoader";
 import {Logger} from "winston";
@@ -182,8 +182,16 @@ export class DataboxClient {
     }
 
     async createAttributeDefinition(key: string, data: Partial<AttributeDefinition>): Promise<AttributeDefinition> {
-        const r = await lockPromise(key, async () => {
+        const r = await lockPromise(`attr-def-${key}`, async () => {
             return (await this.client.post(`/attribute-definitions`, data)).data;
+        });
+
+        return r;
+    }
+
+    async createAttributeClass(key: string, data: Partial<AttributeClass>): Promise<AttributeClass> {
+        const r = await lockPromise(`attr-class-${key}`, async () => {
+            return (await this.client.post(`/attribute-classes`, data)).data;
         });
 
         return r;
