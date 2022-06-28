@@ -4,12 +4,14 @@ import {Checkbox, FormControlLabel} from "@mui/material";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import {Control} from "react-hook-form/dist/types/form";
 import {FieldPath} from "react-hook-form/dist/types";
+import {RegisterOptions} from "react-hook-form/dist/types/validator";
 
-type Props<TFieldValues extends FieldValues> = {
+type Props<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>> = {
     label?: ReactNode;
     control: Control<TFieldValues>,
-    name: FieldPath<TFieldValues>;
+    name: TName;
     disabled?: boolean | undefined;
+    rules?: Omit<RegisterOptions<TFieldValues, TName>, 'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'>;
 };
 
 export default function CheckboxWidget<TFieldValues extends FieldValues>({
@@ -17,6 +19,7 @@ export default function CheckboxWidget<TFieldValues extends FieldValues>({
                                                                              label,
                                                                              control,
                                                                              disabled,
+                                                                             rules,
                                                                          }: Props<TFieldValues>) {
 
     return <FormControlLabel
@@ -24,6 +27,7 @@ export default function CheckboxWidget<TFieldValues extends FieldValues>({
             <Controller
                 name={name}
                 control={control}
+                rules={rules}
                 render={({field}) => <Checkbox
                     {...field}
                     disabled={disabled}
@@ -32,6 +36,7 @@ export default function CheckboxWidget<TFieldValues extends FieldValues>({
                 />}
             />
         }
+        disabled={disabled}
         label={label}
         labelPlacement="end"
     />

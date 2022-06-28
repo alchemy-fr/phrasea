@@ -9,6 +9,7 @@ type Props = {
     onDelete: (userType: string, userId: string | null) => void;
     userName: string | undefined;
     permissions: string[];
+    all?: boolean | undefined;
 } & Ace;
 
 function isAllChecked(mask: number, allMask: number): boolean | null {
@@ -24,6 +25,7 @@ export default function AceRow({
                                    onMaskChange,
                                    onDelete,
                                    permissions,
+                                   all = true,
                                }: Props) {
     const {t} = useTranslation();
     const [mask, setMask] = useState(initMask);
@@ -70,7 +72,7 @@ export default function AceRow({
                 />
             </td>
         })}
-        <td
+        {all && <td
             className={'p'}
         >
             <Checkbox
@@ -78,7 +80,7 @@ export default function AceRow({
                 checked={allChecked || false}
                 indeterminate={null === allChecked}
             />
-        </td>
+        </td>}
         <td className={'a'}>
             <Button
                 color={'error'}

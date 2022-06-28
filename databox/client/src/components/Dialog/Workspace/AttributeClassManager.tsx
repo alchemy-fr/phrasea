@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {AttributeClass, Workspace} from "../../../types";
 import {
     deleteAttributeClass,
@@ -14,6 +14,7 @@ import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import CheckboxWidget from "../../Form/CheckboxWidget";
 import AclForm from "../../Acl/AclForm";
+import {AclPermission} from "../../Acl/acl";
 
 function Item({
                   data,
@@ -28,10 +29,25 @@ function Item({
         handleSubmit,
         setError,
         control,
+        watch,
+        setValue,
         formState: {errors}
     } = useForm<any>({
         defaultValues: data,
     });
+
+    const isPublic = watch('public');
+    const isEditable = watch('editable');
+    const displayedPermissions = !isPublic ?
+        [AclPermission.VIEW, AclPermission.EDIT, AclPermission.ALL]
+        : [AclPermission.EDIT];
+
+
+    useEffect(() => {
+        if (!isPublic) {
+            setValue('editable', false);
+        }
+    }, [isPublic]);
 
     return <form
         id={formId}
@@ -64,19 +80,19 @@ function Item({
                 label={t('form.attribute_class.editable.label', 'Editable')}
                 control={control}
                 name={'editable'}
-                disabled={submitting}
+                disabled={!isPublic || submitting}
             />
             <FormFieldErrors
                 field={'editable'}
                 errors={errors}
             />
         </FormRow>
-        {data.id && <FormRow>
+        {data.id && !isEditable && <FormRow>
             <InputLabel>{t('form.permissions.label', 'Permissions')}</InputLabel>
             <AclForm
                 objectId={data.id}
                 objectType={'attribute_class'}
-                displayedPermissions={['VIEW', 'EDIT', 'ALL']}
+                displayedPermissions={displayedPermissions}
             />
         </FormRow>}
     </form>

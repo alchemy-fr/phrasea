@@ -8,7 +8,7 @@ import GroupSelect from "../Form/GroupSelect";
 import {Box, Button, Grid, Skeleton} from "@mui/material";
 import FormRow from "../Form/FormRow";
 import {useTranslation} from 'react-i18next';
-import {aclPermissions} from "./acl";
+import {AclPermission, aclPermissions} from "./acl";
 
 type Props = {
     objectType: "collection" | "asset" | "workspace" | "attribute_class";
@@ -32,7 +32,7 @@ function AceRowSkeleton({permissions}: {
         <td className={'ug'}>
             <Skeleton/>
         </td>
-        {permissions.concat(['ALL']).map((k) => {
+        {permissions.concat([AclPermission.ALL]).map((k) => {
             return <td
                 key={k}
                 className={'p'}
@@ -91,6 +91,7 @@ function AclTable({
     const {t} = useTranslation();
 
     const columns = displayedPermissions ? Object.keys(aclPermissions).filter(c => displayedPermissions.includes(c)) : Object.keys(aclPermissions);
+    const hasAll = displayedPermissions ? displayedPermissions.includes(AclPermission.ALL) : true;
 
     const selectSize = 42;
     const actionsSize = 150;
@@ -145,7 +146,7 @@ function AclTable({
             >
                 {t('acl.table.cols.user_group', `User/Group`)}
             </th>
-            {columns.concat(['ALL']).map(k => {
+            {(hasAll ? columns.concat([AclPermission.ALL]) : columns).map(k => {
                 return <th
                     key={k}
                     className={'p'}
@@ -162,6 +163,7 @@ function AclTable({
             key={k}/>)}
         {aces && aces.map((ace) => <AceRow
             {...ace}
+            all={hasAll}
             permissions={columns}
             onMaskChange={onMaskChange}
             onDelete={onDelete}

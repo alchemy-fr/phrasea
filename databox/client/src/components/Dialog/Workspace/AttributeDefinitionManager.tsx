@@ -8,7 +8,7 @@ import {
 } from "../../../api/attributes";
 import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
+import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps, OnSort} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
 import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
@@ -180,6 +180,10 @@ export default function AttributeDefinitionManager({
         }
     }
 
+    const onSort: OnSort = (ids) => {
+        console.log('ids', ids);
+    }
+
     return <DefinitionManager
         itemComponent={Item}
         listComponent={ListItem}
@@ -191,5 +195,6 @@ export default function AttributeDefinitionManager({
         newLabel={t('attribute_definitions.new.label', 'New attribute')}
         handleSave={handleSave}
         handleDelete={deleteAttributeDefinition}
+        onSort={onSort}
     />
 }
