@@ -140,6 +140,8 @@ export interface Workspace extends IPermissions {
     id: string;
     name: string;
     collections: Collection[];
+    enabledLocales: string[];
+    localeFallbacks: string[];
 }
 
 export enum UserType {

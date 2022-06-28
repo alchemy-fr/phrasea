@@ -8,7 +8,6 @@ type Props = {
     data: Workspace;
 } & DialogTabProps;
 
-
 export default function TagRulesTab({
                                         data,
                                         onClose,

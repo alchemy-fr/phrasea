@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useCallback, useEffect, useState} from 'react';
+import React, {FunctionComponent, useCallback, useEffect, useMemo, useState} from 'react';
 import {
     Box,
     Button,
@@ -19,11 +19,17 @@ import useFormSubmit, {UseFormHandleSubmit} from "../../../hooks/useFormSubmit";
 import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
 import RemoteErrors from "../../Form/RemoteErrors";
+import SortableList, {
+    getNextPosition,
+    OrderChangeHandler,
+    SortableItem,
+    SortableItemProps
+} from "../../Ui/Sortable/SortableList";
 
 type DefinitionBase = ApiHydraObjectResponse & { id: string };
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
-    data: Partial<D>;
+    data: D;
 };
 
 export type DefinitionItemFormProps<D extends DefinitionBase> = {
@@ -32,6 +38,48 @@ export type DefinitionItemFormProps<D extends DefinitionBase> = {
     submitting: boolean;
     workspaceId: string;
 } & DefinitionItemProps<D>;
+
+type State<D extends DefinitionBase> = {
+    item: D | "new" | undefined;
+    list: D[] | undefined;
+    loading: boolean;
+}
+
+type SortableListItemProps<D extends SortableItem & DefinitionBase> = {
+    selectedItem: D | undefined;
+    listComponent: FunctionComponent<DefinitionItemProps<D>>;
+    onClick: (data: D) => () => void;
+}
+
+const SortableListItem = React.memo(<D extends SortableItem & DefinitionBase>({
+                                                                                  data,
+                                                                                  itemProps,
+                                                                              }: {
+    itemProps: SortableListItemProps<D>;
+} & SortableItemProps<D>) => {
+    const {
+        selectedItem,
+        onClick,
+        listComponent,
+    } = itemProps;
+
+    return <ListItem
+        disablePadding
+        key={data.id}
+    >
+        <ListItemButton
+            selected={data.id === selectedItem?.id}
+            onClick={onClick(data)}
+        >
+            {React.createElement(listComponent, {
+                data,
+                key: data.id,
+            })}
+        </ListItemButton>
+    </ListItem>
+});
+
+export type OnSort = (ids: string[]) => void;
 
 type Props<D extends DefinitionBase> = {
     load: () => Promise<D[]>;
@@ -44,13 +92,8 @@ type Props<D extends DefinitionBase> = {
     handleSave: (data: D) => Promise<D>;
     handleDelete?: (id: string) => Promise<void>;
     workspaceId: string;
+    onSort?: OnSort;
 };
-
-type State<D extends DefinitionBase> = {
-    item: D | "new" | undefined;
-    list: D[] | undefined;
-    loading: boolean;
-}
 
 export default function DefinitionManager<D extends DefinitionBase>({
                                                                         load,
@@ -63,6 +106,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                                                         newLabel,
                                                                         handleSave,
                                                                         workspaceId,
+                                                                        onSort,
                                                                     }: Props<D>) {
     const [state, setState] = useState<State<D>>({
         list: undefined,
@@ -76,12 +120,12 @@ export default function DefinitionManager<D extends DefinitionBase>({
     } = state;
     const {t} = useTranslation();
 
-    const handleItemClick = (data: D) => () => {
+    const handleItemClick = useCallback((data: D) => () => {
         setState(p => ({
             ...p,
             item: data,
         }));
-    }
+    }, [setState]);
 
     const createAttribute = () => {
         setState(p => ({
@@ -157,6 +201,33 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     const formId = 'definitionForm';
 
+    const onOrderChange = useCallback<OrderChangeHandler<D & SortableItem>>((list) => {
+        setState(p => ({
+            ...p,
+            list,
+        }));
+        onSort!(list.map(i => i.id));
+    }, [setState]);
+
+    const itemProps = useMemo(() => {
+        if (!onSort) {
+            return;
+        }
+
+        return {
+            selectedItem: "new" !== item ? item as (D & SortableItem) : undefined,
+            listComponent,
+            onClick: handleItemClick,
+        }
+    }, [onSort, handleItemClick, item, listComponent]);
+
+    const newItemProxy = onSort ? () => {
+        return {
+            ...createNewItem(),
+            position: list ? getNextPosition(list as (D & SortableItem)[]) : 0,
+        }
+    } : createNewItem;
+
     return <>
         <DialogContent
             dividers
@@ -198,7 +269,15 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         </ListItemButton>
                     </ListItem>
                     <Divider/>
-                    {list && list.map(i => {
+
+                    {onSort && list && <SortableList<D & SortableItem, any>
+                        list={list as (D & SortableItem & DefinitionBase)[]}
+                        onOrderChange={onOrderChange}
+                        itemComponent={SortableListItem}
+                        itemProps={itemProps!}
+                    />}
+
+                    {!onSort && list && list.map(i => {
                         return <ListItem
                             disablePadding
                             key={i.id}
@@ -214,15 +293,16 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             </ListItemButton>
                         </ListItem>
                     })}
-                    {!list && [0,1,2].map(i => <ListItem
-                            key={i}
-                        >
+
+                    {!list && [0, 1, 2].map(i => <ListItem
+                        key={i}
+                    >
                         <ListItemIcon>
-                            <Skeleton variant="circular" width={40} height={40} />
+                            <Skeleton variant="circular" width={40} height={40}/>
                         </ListItemIcon>
                         <ListItemText
-                            primary={<Skeleton variant="text" />}
-                            secondary={<Skeleton variant="text" width={'40%'} />}
+                            primary={<Skeleton variant="text"/>}
+                            secondary={<Skeleton variant="text" width={'40%'}/>}
                         />
                     </ListItem>)}
                 </List>
@@ -235,7 +315,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 }}
             >
                 {item && React.createElement(itemComponent, {
-                    data: item === "new" ? createNewItem() : item!,
+                    data: item === "new" ? newItemProxy() as D : item!,
                     key: item === "new" ? 'new' : item!.id,
                     formId,
                     handleSubmit,

@@ -101,6 +101,7 @@ export default function FilterRule({
                     </Grid>
                     : <><Grid item md={5}>
                         <FormRow>
+                            <FormLabel>Group</FormLabel>
                             <GroupSelect
                                 name={'groupId'}
                                 control={control}
@@ -114,6 +115,7 @@ export default function FilterRule({
                         </Grid>
                         <Grid item md={5}>
                             <FormRow>
+                                <FormLabel>User</FormLabel>
                                 <UserSelect
                                     name={'userId'}
                                     control={control}

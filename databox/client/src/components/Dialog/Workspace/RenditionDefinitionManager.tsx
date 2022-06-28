@@ -2,7 +2,7 @@ import React from 'react';
 import {RenditionClass, RenditionDefinition, Workspace} from "../../../types";
 import {FormGroup, FormLabel, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
+import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps, OnSort} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
 import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
@@ -161,6 +161,10 @@ export default function RenditionDefinitionManager({
         }
     }
 
+    const onSort: OnSort = (ids) => {
+        console.log('ids', ids);
+    }
+
     return <DefinitionManager
         itemComponent={Item}
         listComponent={ListItem}
@@ -172,5 +176,6 @@ export default function RenditionDefinitionManager({
         newLabel={t('rendition_definitions.new.label', 'New rendition')}
         handleSave={handleSave}
         handleDelete={deleteRenditionDefinition}
+        onSort={onSort}
     />
 }

@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "@alchemy-fr/phraseanet-react-components": "^1.0.5-alpha1",
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
+    "@dnd-kit/utilities": "^3.2.0",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mattjennings/react-modal-stack": "^1.0.4",
