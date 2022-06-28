@@ -14,7 +14,7 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import {SortableContext, useSortable, verticalListSortingStrategy,} from '@dnd-kit/sortable';
+import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities";
 import {CollectionItem, CollectionItemProps, CollectionWidgetProps} from "./CollectionWidget";
 import {SortableItem} from "../Ui/Sortable/SortableList";
@@ -26,18 +26,21 @@ function SortableCollectionItem<TFieldValues>({id, ...props}: { id: string } & C
         setNodeRef,
         transform,
         transition,
+        isDragging,
     } = useSortable({id});
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
         touchAction: 'manipulation',
+        opacity: isDragging ? 0.5 : 1,
     };
 
     return <div
         ref={setNodeRef}
         style={style}
-        {...attributes}>
+        {...attributes}
+    >
         <CollectionItem
             {...props}
             dragListeners={listeners}
@@ -64,7 +67,7 @@ export default function SortableCollectionWidget<TFieldValues>({
                                                                    removeLabel,
                                                                    addLabel,
                                                                }: CollectionWidgetProps<TFieldValues>) {
-    const {fields: _fields, remove, append, swap, update} = useFieldArray<TFieldValues>({
+    const {fields: _fields, remove, append, move, update} = useFieldArray<TFieldValues>({
         control,
         name: path as unknown as any,
     });
@@ -95,15 +98,15 @@ export default function SortableCollectionWidget<TFieldValues>({
 
             const currentFields = control._getWatch(path);
 
-            update(indexA, {
-                ...(currentFields[indexA] as any),
-                position: currentFields[indexB].position,
+            let pos = 0;
+            arrayMove<FieldArrayWithId<TFieldValues> & SortableItem>(currentFields, indexA, indexB).forEach((i) => {
+                update(fields.findIndex(f => f.id === i.id), {
+                    ...i,
+                    position: pos++,
+                } as any);
             });
-            update(indexB, {
-                ...(currentFields[indexB] as any),
-                position: currentFields[indexA].position,
-            });
-            swap(indexA, indexB);
+
+            move(indexA, indexB);
         }
         setActiveId(null);
     }
