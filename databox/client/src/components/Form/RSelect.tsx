@@ -70,6 +70,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = ({
     disabledValues?: string[];
     clearOnSelect?: boolean;
     disabled?: boolean | undefined;
+    cacheOptions?: any;
 } & AsyncProps<Option, IsMulti, GroupBase<Option>>;
 
 export default function RSelectWidget<TFieldValues extends FieldValues,
@@ -82,6 +83,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                                          onChange: onChangeProp,
                                          loadOptions,
                                          disabledValues,
+                                                                              cacheOptions = true,
                                          isMulti,
                                          ...rest
                                      }: Props<TFieldValues, IsMulti>) {
@@ -133,7 +135,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                     isOptionDisabled={disabledValues ? o => {
                         return disabledValues!.includes(o.value);
                     } : undefined}
-                    cacheOptions
+                    cacheOptions={cacheOptions}
                     defaultOptions
                     loadOptions={loadOptionsWrapper}
                     isMulti={isMulti}

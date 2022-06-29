@@ -34,15 +34,6 @@ type Props<D extends SortableItem, ItemProps extends {}> = {
     }>;
 };
 
-
-export function getNextPosition(fields: SortableItem[]): number {
-    if (fields.length === 0) {
-        return 0;
-    }
-
-    return Math.max(...fields.map(f => f.position)) + 1
-}
-
 export default function SortableList<D extends SortableItem, ItemProps extends {}>({
                                                                                        list,
                                                                                        onOrderChange,
@@ -70,13 +61,7 @@ export default function SortableList<D extends SortableItem, ItemProps extends {
             const a = list.findIndex(f => f.id === active.id);
             const b = list.findIndex(f => f.id === over.id);
 
-            let p = 0;
-            const newList = arrayMove(list, a, b).map(i => ({
-                ...i,
-                position: p++,
-            }));
-
-            onOrderChange(newList);
+            onOrderChange(arrayMove(list, a, b));
         }
     }
 

@@ -16,6 +16,8 @@ import CheckboxWidget from "../../Form/CheckboxWidget";
 import AttributeClassSelect from "../../Form/AttributeClassSelect";
 import FieldTypeSelect from "../../Form/FieldTypeSelect";
 import {fieldTypesIcons} from "../../../lib/icons";
+import apiClient from "../../../api/api-client";
+import {toast} from "react-toastify";
 
 function Item({
                   data,
@@ -180,8 +182,9 @@ export default function AttributeDefinitionManager({
         }
     }
 
-    const onSort: OnSort = (ids) => {
-        console.log('ids', ids);
+    const onSort: OnSort = async (ids) => {
+        await apiClient.put(`/attribute-definitions/sort`, ids);
+        toast.success(t('common.item_sorted', 'Order saved!'));
     }
 
     return <DefinitionManager

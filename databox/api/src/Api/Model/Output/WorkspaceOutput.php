@@ -36,6 +36,16 @@ class WorkspaceOutput extends AbstractUuidOutput
      */
     private string $slug;
 
+    /**
+     * @Groups({"workspace:read"})
+     */
+    private ?array $enabledLocales = null;
+
+    /**
+     * @Groups({"workspace:read"})
+     */
+    private ?array $localeFallbacks = null;
+
     public function getName(): string
     {
         return $this->name;
@@ -54,5 +64,25 @@ class WorkspaceOutput extends AbstractUuidOutput
     public function setSlug(string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getEnabledLocales(): ?array
+    {
+        return $this->enabledLocales;
+    }
+
+    public function setEnabledLocales(?array $enabledLocales): void
+    {
+        $this->enabledLocales = $enabledLocales;
+    }
+
+    public function getLocaleFallbacks(): ?array
+    {
+        return $this->localeFallbacks;
+    }
+
+    public function setLocaleFallbacks(?array $localeFallbacks): void
+    {
+        $this->localeFallbacks = $localeFallbacks;
     }
 }

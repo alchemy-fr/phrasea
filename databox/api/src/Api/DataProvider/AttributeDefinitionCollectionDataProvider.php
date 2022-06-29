@@ -56,6 +56,7 @@ class AttributeDefinitionCollectionDataProvider implements ContextAwareCollectio
         }
 
         return $queryBuilder
+            ->addOrderBy('t.position', 'ASC')
             ->getQuery()
             ->getResult();
     }

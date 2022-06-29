@@ -14,6 +14,8 @@ import {
 } from "../../../api/rendition";
 import RenditionClassSelect from "../../Form/RenditionClassSelect";
 import CheckboxWidget from "../../Form/CheckboxWidget";
+import apiClient from "../../../api/api-client";
+import {toast} from "react-toastify";
 
 function Item({
                   data,
@@ -161,8 +163,10 @@ export default function RenditionDefinitionManager({
         }
     }
 
-    const onSort: OnSort = (ids) => {
-        console.log('ids', ids);
+    const onSort: OnSort = async (ids) => {
+        await apiClient.put(`/rendition-definitions/sort`, ids);
+
+        toast.success(t('common.item_sorted', 'Order saved!'));
     }
 
     return <DefinitionManager

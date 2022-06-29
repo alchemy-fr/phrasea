@@ -8,11 +8,38 @@ import FormRow from "./FormRow";
 import {FormProps} from "./types";
 import FlagIcon from '@mui/icons-material/Flag';
 import IconFormLabel from "./IconFormLabel";
-import SortableCollectionWidget from "./SortableCollectionWidget";
+import SortableCollectionWidget, {
+    extendSortableList,
+    flattenSortableList,
+    SortableValue
+} from "./SortableCollectionWidget";
 
 const emptyLocaleItem = {
     value: '',
 };
+
+export type WorkspaceFormData = {
+    enabledLocales: SortableValue[] | undefined;
+    localeFallbacks: SortableValue[] | undefined;
+} & Omit<Workspace, "enabledLocales" | "localeFallbacks">;
+
+function normalizeFormData(data: Workspace): WorkspaceFormData {
+    return {
+        ...data,
+        enabledLocales: extendSortableList(data.enabledLocales),
+        localeFallbacks: extendSortableList(data.localeFallbacks),
+    };
+}
+
+function denormalizeFormData(handler: (data: Workspace) => Promise<void>): (data: WorkspaceFormData) => Promise<void> {
+    return async (data: WorkspaceFormData) => await handler({
+        ...data,
+        enabledLocales: flattenSortableList(data.enabledLocales),
+        localeFallbacks: flattenSortableList(data.localeFallbacks),
+    });
+}
+
+
 
 export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                                                      formId,
@@ -29,13 +56,13 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
         setError,
         formState: {errors}
     } = useForm<any>({
-        defaultValues: data,
+        defaultValues: data ? normalizeFormData(data) : data,
     });
 
     return <>
         <form
             id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}
+            onSubmit={handleSubmit(denormalizeFormData(onSubmit(setError)))}
         >
             <FormRow>
                 <TextField

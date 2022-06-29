@@ -20,7 +20,6 @@ import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
 import RemoteErrors from "../../Form/RemoteErrors";
 import SortableList, {
-    getNextPosition,
     OrderChangeHandler,
     SortableItem,
     SortableItemProps
@@ -221,13 +220,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
         }
     }, [onSort, handleItemClick, item, listComponent]);
 
-    const newItemProxy = onSort ? () => {
-        return {
-            ...createNewItem(),
-            position: list ? getNextPosition(list as (D & SortableItem)[]) : 0,
-        }
-    } : createNewItem;
-
     return <>
         <DialogContent
             dividers
@@ -315,7 +307,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 }}
             >
                 {item && React.createElement(itemComponent, {
-                    data: item === "new" ? newItemProxy() as D : item!,
+                    data: item === "new" ? createNewItem() as D : item!,
                     key: item === "new" ? 'new' : item!.id,
                     formId,
                     handleSubmit,

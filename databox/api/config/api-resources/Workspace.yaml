@@ -10,8 +10,14 @@ resources:
     itemOperations:
       get:
         security: 'is_granted("READ", object)'
+        normalization_context:
+          groups:
+            - workspace:read
       put:
         security: 'is_granted("EDIT", object)'
+        normalization_context:
+          groups:
+            - workspace:read
       delete:
         security: 'is_granted("DELETE", object)'
       flush:
@@ -28,3 +34,6 @@ resources:
         controller: App\Controller\Core\GetWorkspaceBySlugAction
       post:
         security: 'is_granted("ROLE_ADMIN")'
+        normalization_context:
+          groups:
+            - workspace:read

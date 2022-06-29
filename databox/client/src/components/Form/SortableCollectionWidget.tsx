@@ -17,7 +17,11 @@ import {
 import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities";
 import {CollectionItem, CollectionItemProps, CollectionWidgetProps} from "./CollectionWidget";
-import {SortableItem} from "../Ui/Sortable/SortableList";
+
+export type SortableItem = {
+    id: string;
+    position: number;
+};
 
 function SortableCollectionItem<TFieldValues>({id, ...props}: { id: string } & CollectionItemProps<TFieldValues>) {
     const {
@@ -57,6 +61,35 @@ function getNextPosition<TFieldValues>(fields: (FieldArrayWithId<TFieldValues> &
     return Math.max(...fields.map(f => f.position)) + 1
 }
 
+export type SortableValue<T = string> = {
+    value: T;
+    position: number,
+};
+
+export function flattenSortableList<T extends SortableValue<R>, R = any>(data: T[] | undefined): R[] | undefined {
+    if (undefined === data) {
+        return;
+    }
+
+    const d = [...data];
+    d.sort((a, b) => (a.position > b.position) ? 1 : -1);
+
+    return d.map(i => i.value);
+}
+
+export function extendSortableList<R = any>(list: R[] | undefined): SortableValue<R>[] | undefined {
+    if (undefined === list) {
+        return;
+    }
+
+    let pos = 0;
+
+    return list.map(i => ({
+        value: i,
+        position: pos++,
+    }));
+}
+
 export default function SortableCollectionWidget<TFieldValues>({
                                                                    path,
                                                                    emptyItem,
@@ -67,7 +100,7 @@ export default function SortableCollectionWidget<TFieldValues>({
                                                                    removeLabel,
                                                                    addLabel,
                                                                }: CollectionWidgetProps<TFieldValues>) {
-    const {fields: _fields, remove, append, move, update} = useFieldArray<TFieldValues>({
+    const {fields: _fields, remove, append, move} = useFieldArray<TFieldValues>({
         control,
         name: path as unknown as any,
     });
@@ -96,16 +129,12 @@ export default function SortableCollectionWidget<TFieldValues>({
             const indexA = fields.findIndex(f => f.id === active.id);
             const indexB = fields.findIndex(f => f.id === over.id);
 
-            const currentFields = control._getWatch(path);
+            const current = control._getWatch(path);
 
             let pos = 0;
-            arrayMove<FieldArrayWithId<TFieldValues> & SortableItem>(currentFields, indexA, indexB).forEach((i) => {
-                update(fields.findIndex(f => f.id === i.id), {
-                    ...i,
-                    position: pos++,
-                } as any);
+            (arrayMove(current, indexA, indexB) as SortableItem[]).forEach((item, index) => {
+                item.position = pos++;
             });
-
             move(indexA, indexB);
         }
         setActiveId(null);

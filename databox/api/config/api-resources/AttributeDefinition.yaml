@@ -19,3 +19,20 @@ resources:
       get: ~
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'
+      put_sort:
+        method: put
+        path: /attribute-definitions/sort
+        controller: App\Controller\Core\AttributeDefinitionSortAction
+        output: false
+        input: false
+        openapi_context:
+          summary: Reorder items
+          description: Reorder items
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  description: Ordered list of IDs
+                  type: array
+                  items:
+                    type: string

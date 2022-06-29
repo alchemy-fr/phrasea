@@ -23,7 +23,7 @@ class RenditionDefinitionCollectionDataProvider implements ContextAwareCollectio
         $queryBuilder = $this->em->getRepository(RenditionDefinition::class)
             ->createQueryBuilder('t');
 
-        $filters = $context['filters'] ?? [];
+        $filters = $cokntext['filters'] ?? [];
         if (isset($filters['workspaceIds'])) {
             $queryBuilder->andWhere('t.workspace IN (:wids)')
                 ->setParameter('wids', $filters['workspaceIds']);
@@ -34,6 +34,7 @@ class RenditionDefinitionCollectionDataProvider implements ContextAwareCollectio
         }
 
         return $queryBuilder
+            ->addOrderBy('t.priority', 'DESC')
             ->getQuery()
             ->getResult();
     }

@@ -81,6 +81,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
     useAsThumbnailActive?: boolean;
+    priority: number;
 }
 
 export interface RenditionClass extends ApiHydraObjectResponse {
@@ -140,8 +141,8 @@ export interface Workspace extends IPermissions {
     id: string;
     name: string;
     collections: Collection[];
-    enabledLocales: string[];
-    localeFallbacks: string[];
+    enabledLocales?: string[] | undefined;
+    localeFallbacks?: string[] | undefined;
 }
 
 export enum UserType {
