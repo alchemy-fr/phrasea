@@ -25,7 +25,7 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setLocaleFallbacks($object->getLocaleFallbacks());
         $output->setCreatedAt($object->getCreatedAt());
 
-        $k = $object->getId();
+        $k = $object->getId().$this->getTokenId();
         if (!isset($this->capCache[$k])) {
             $this->capCache[$k] = [
                 'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $object),

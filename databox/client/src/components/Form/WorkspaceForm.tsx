@@ -96,7 +96,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                         return <FormRow>
                             <TextField
                                 label={t('form.workspace.locales.label', 'Locale')}
-                                placeholder={t('form.workspace.locales.placeholder', 'Locale')}
+                                placeholder={t('form.workspace.locales.placeholder', 'i.e. fr or fr-FR')}
                                 {...register(`${path}.${index}.value` as any)}
                                 required={true}
                             />

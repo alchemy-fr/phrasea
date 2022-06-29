@@ -10,20 +10,12 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Entity\Core\AttributeClass;
+use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class AttributeClassCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class AttributeClassCollectionDataProvider extends AbstractSecurityDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private EntityManagerInterface $em;
-    private Security $security;
-
-    public function __construct(EntityManagerInterface $em, Security $security)
-    {
-        $this->em = $em;
-        $this->security = $security;
-    }
-
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {
         $user = $this->security->getUser();
@@ -44,16 +36,18 @@ class AttributeClassCollectionDataProvider implements ContextAwareCollectionData
                 ->setParameter('ws', $filters['workspaceId']);
         }
 
-        AccessControlEntryRepository::joinAcl(
-            $queryBuilder,
-            $user->getId(),
-            $user->getGroupIds(),
-            'workspace',
-            'w',
-            PermissionInterface::EDIT,
-            false
-        );
-        $queryBuilder->andWhere('ace.id IS NOT NULL');
+        if (!$this->isChuckNorris()) {
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $user->getId(),
+                $user->getGroupIds(),
+                'workspace',
+                'w',
+                PermissionInterface::EDIT,
+                false
+            );
+            $queryBuilder->andWhere('ace.id IS NOT NULL OR w.ownerId = :uid');
+        }
 
         return $queryBuilder
             ->getQuery()

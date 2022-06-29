@@ -30,14 +30,17 @@ App\Entity\Core\AttributeDefinition:
   ad_desc (extends attribute_definition):
     name: Description
     class: '@n_ac_public'
+    position: 0
   ad_keywords (extends attribute_definition):
     name: Keywords
     multiple: true
     facetEnabled: true
     class: '@n_ac_public'
+    position: 1
   ad_admin_note (extends attribute_definition):
     name: Admin notes
     class: '@n_ac_business'
+    position: 2
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):
