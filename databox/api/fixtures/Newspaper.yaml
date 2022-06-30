@@ -48,8 +48,10 @@ App\Entity\Core\RenditionClass:
 
   n_rc_public (extends rendition_class):
     name: Public
+    public: true
   n_rc_restricted (extends rendition_class):
     name: Restricted
+    public: false
 
 App\Entity\Core\RenditionDefinition:
   rendition_definition (template):
@@ -290,14 +292,6 @@ App\Entity\Core\Attribute:
     definition: '@ad_keywords'
     asset: '@a_*'
     value: '<word()>'
-
-App\Entity\Core\RenditionRule:
-  rr:
-    userType: 0
-    objectType: 0
-    objectId: '@w_newspaper->id'
-    allowed:
-      - '@n_rc_public'
 
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:

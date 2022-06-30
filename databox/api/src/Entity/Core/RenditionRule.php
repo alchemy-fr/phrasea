@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Api\Model\Input\TagFilterRuleInput;
-use App\Api\Model\Output\TagFilterRuleOutput;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Table(
@@ -24,22 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\Core\RenditionRuleRepository")
- * @ApiResource(
- *  shortName="rendition-rule",
- *  attributes={"security"="is_granted('ROLE_USER')"},
- *  collectionOperations={
- *       "get",
- *       "post" = { "security_post_denormalize" = "is_granted('CREATE', object)" }
- *  },
- *  itemOperations={
- *       "get" = { "security" = "is_granted('READ', object)" },
- *       "put" = { "security" = "is_granted('EDIT', object)" },
- *       "delete" = { "security" = "is_granted('DELETE', object)" }
- *  },
- *  normalizationContext={"groups"={"_", "rendrule:read", "rendclass:read"}},
- *  output=TagFilterRuleOutput::class,
- *  input=TagFilterRuleInput::class,
- * )
+ * @ApiFilter(SearchFilter::class, properties={"allowed"="exact", "userType"="exact", "userId"="exact", "objectType"="exact", "objectId"="exact"})
  */
 class RenditionRule extends AbstractUuidEntity
 {

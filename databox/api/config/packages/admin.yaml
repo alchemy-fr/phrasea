@@ -227,11 +227,13 @@ easy_admin:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'workspace' }
           - { property: 'name' }
+          - { property: 'public' }
           - createdAt
       form:
         fields:
           - { property: 'workspace' }
           - { property: 'name' }
+          - { property: 'public' }
 
     RenditionRule:
       class: App\Entity\Core\RenditionRule

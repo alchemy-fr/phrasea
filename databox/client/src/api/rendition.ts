@@ -19,7 +19,7 @@ export async function getRenditionDefinitions(options: GetOptions = {}): Promise
 
 export async function putRenditionClass(
     id: string | undefined,
-    data: RenditionClass
+    data: Partial<RenditionClass>
 ): Promise<RenditionClass> {
     return ((await apiClient.put(`${renditionClassNS}/${id}`, data)).data);
 }
@@ -34,7 +34,7 @@ export async function putRenditionDefinition(
     id: string | undefined,
     data: RenditionDefinition
 ): Promise<RenditionDefinition> {
-    return ((await apiClient.put(`${renditionDefinitionNS}/${id}`, data)).data);
+    return (await apiClient.put(`${renditionDefinitionNS}/${id}`, data)).data;
 }
 
 export async function postRenditionDefinition(

@@ -88,6 +88,17 @@ export interface RenditionClass extends ApiHydraObjectResponse {
     id: string;
     name: string;
     workspace: Workspace | string;
+    public: boolean;
+}
+
+export interface RenditionRule extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    userId: string | null;
+    groupId: string | null;
+    workspaceId: string | null;
+    collectionId: string | null;
+    allowed: RenditionClass[];
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
@@ -148,6 +159,11 @@ export interface Workspace extends IPermissions {
 export enum UserType {
     User = 'user',
     Group = 'group',
+}
+
+export enum CollectionOrWorkspace {
+    Collection = 'collection',
+    Workspace = 'workspace',
 }
 
 export interface Ace {

@@ -26,6 +26,10 @@ class RenditionPermissionManager
 
     public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool
     {
+        if ($class->isPublic()) {
+            return true;
+        }
+
         $assetKey = sprintf('%s:%s:%s', $asset->getId(), $class->getId(), $userId ?? self::ANONYMOUS);
         if (isset($this->cache[$assetKey])) {
             return $this->cache[$assetKey];

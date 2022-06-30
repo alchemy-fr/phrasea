@@ -1,12 +1,12 @@
 import React, {ChangeEvent, useState} from 'react';
-import {Ace} from "../../types";
+import {Ace, UserType} from "../../types";
 import {Button, Checkbox} from "@mui/material";
 import {useTranslation} from 'react-i18next';
-import {aclPermissions} from "./acl";
+import {aclPermissions} from "../Acl/acl";
 
 type Props = {
-    onMaskChange: (userType: string, userId: string | null, mask: number) => void;
-    onDelete: (userType: string, userId: string | null) => void;
+    onMaskChange: (userType: UserType, userId: string | null, mask: number) => void;
+    onDelete: (userType: UserType, userId: string | null) => void;
     userName: string | undefined;
     permissions: string[];
     all?: boolean | undefined;
@@ -17,7 +17,7 @@ function isAllChecked(mask: number, allMask: number): boolean | null {
 }
 
 
-export default function AceRow({
+export default function PermissionRow({
                                    mask: initMask,
                                    userName,
                                    userType,

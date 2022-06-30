@@ -1,12 +1,15 @@
 import React from 'react';
 import {RenditionClass, Workspace} from "../../../types";
-import {ListItemText, TextField} from "@mui/material";
+import {InputLabel, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
 import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
 import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import {deleteRenditionClass, getRenditionClasses, postRenditionClass, putRenditionClass} from "../../../api/rendition";
+import CheckboxWidget from "../../Form/CheckboxWidget";
+import AclForm from "../../Acl/AclForm";
+import RenditionClassPermissions from "./RenditionClassPermissions";
 
 function Item({
                   data,
@@ -20,27 +23,51 @@ function Item({
         register,
         handleSubmit,
         setError,
+        watch,
         control,
         formState: {errors}
     } = useForm<any>({
         defaultValues: data,
     });
 
-    return <form
-        id={formId}
-        onSubmit={handleSubmit(onSubmit(setError))}>
-        <FormRow>
-            <TextField
-                label={t('form.rendition_class.name.label', 'Name')}
-                {...register('name')}
-                disabled={submitting}
+    const isPublic = watch('public');
+
+    return <>
+        <form
+            id={formId}
+            onSubmit={handleSubmit(onSubmit(setError))}>
+            <FormRow>
+                <TextField
+                    label={t('form.rendition_class.name.label', 'Name')}
+                    {...register('name')}
+                    disabled={submitting}
+                />
+                <FormFieldErrors
+                    field={'name'}
+                    errors={errors}
+                />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t('form.rendition_class.public.label', 'Public')}
+                    control={control}
+                    name={'public'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors
+                    field={'public'}
+                    errors={errors}
+                />
+            </FormRow>
+        </form>
+        {data.id && !isPublic && <FormRow>
+            <InputLabel>{t('form.permissions.label', 'Permissions')}</InputLabel>
+            <RenditionClassPermissions
+                classId={data.id}
+                workspaceId={(data.workspace as Workspace).id}
             />
-            <FormFieldErrors
-                field={'name'}
-                errors={errors}
-            />
-        </FormRow>
-    </form>
+        </FormRow>}
+    </>
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionClass>) {
@@ -58,6 +85,7 @@ type Props = {
 function createNewItem(): Partial<RenditionClass> {
     return {
         name: '',
+        public: true,
     }
 }
 
@@ -70,7 +98,10 @@ export default function RenditionClassManager({
 
     const handleSave = async (data: RenditionClass) => {
         if (data.id) {
-            return await putRenditionClass(data.id, data);
+            const postData = {...data} as Partial<RenditionClass>;
+            delete postData.workspace;
+
+            return await putRenditionClass(data.id, postData);
         } else {
             return await postRenditionClass({
                 ...data,

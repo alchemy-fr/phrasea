@@ -314,4 +314,14 @@ class AttributeDefinition extends AbstractUuidEntity
     {
         $this->class = $class;
     }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
 }

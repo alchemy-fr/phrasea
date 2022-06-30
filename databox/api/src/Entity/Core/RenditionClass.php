@@ -39,6 +39,12 @@ class RenditionClass extends AbstractUuidEntity
     private ?string $name = null;
 
     /**
+     * @Groups({"rendclass:index", "rendclass:read"})
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private ?bool $public = null;
+
+    /**
      * @var RenditionDefinition[]
      * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="class", cascade={"remove"})
      */
@@ -63,5 +69,15 @@ class RenditionClass extends AbstractUuidEntity
     public function __toString(): string
     {
         return sprintf('%s (%s)', $this->getName(), $this->getWorkspace()->getName());
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
     }
 }

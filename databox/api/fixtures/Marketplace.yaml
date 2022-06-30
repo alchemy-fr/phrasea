@@ -21,9 +21,11 @@ App\Entity\Core\RenditionClass:
   m_rc_public:
     workspace: '@w_marketplace'
     name: Public
+    public: true
   m_rc_restricted:
     workspace: '@w_marketplace'
     name: Restricted
+    public: false
 
 App\Entity\Core\RenditionDefinition:
   m_rd_original:
