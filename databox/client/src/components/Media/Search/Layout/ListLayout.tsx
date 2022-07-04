@@ -89,6 +89,7 @@ const AssetItem = React.memo(({
                 />
                 {asset.collections.length > 0 && <div>
                     <AssetCollectionList
+                        workspace={asset.workspace}
                         collections={asset.collections}
                     />
                 </div>}

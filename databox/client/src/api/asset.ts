@@ -1,8 +1,7 @@
 import apiClient, {RequestConfig} from "./api-client";
-import {Asset, Attribute, AttributeClass, AttributeDefinition, Tag} from "../types";
+import {Asset, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
-import {SelectOption} from "../components/Form/RSelect";
 
 interface AssetOptions {
     url?: string;

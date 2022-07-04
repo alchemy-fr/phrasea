@@ -4,12 +4,13 @@ import {FieldValues} from "react-hook-form/dist/types/fields";
 import {Control} from "react-hook-form/dist/types/form";
 import {FieldPath} from "react-hook-form/dist/types";
 import {CollectionsTreeView} from "../Media/Collection/CollectionsTreeView";
-import {InputLabel} from "@mui/material";
+import {FormControl, FormLabel} from "@mui/material";
 import {RegisterOptions} from "react-hook-form/dist/types/validator";
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     label?: ReactNode;
     control: Control<TFieldValues>,
+    required?: boolean | undefined;
     name: FieldPath<TFieldValues>;
     multiple?: IsMulti;
     rules?: Omit<RegisterOptions<TFieldValues, FieldPath<TFieldValues>>, 'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'>;
@@ -26,11 +27,20 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
                                          multiple,
                                          onChange: extOnChange,
                                          workspaceId,
+                                         required,
                                      }: Props<TFieldValues, IsMulti>) {
-    return <>
-        {label && <InputLabel>
+    return <FormControl component="fieldset" variant="standard">
+
+
+        {label && <FormLabel
+            required={required}
+            component="legend"
+            sx={{
+                mb: 1
+            }}
+        >
             {label}
-        </InputLabel>}
+        </FormLabel>}
         <Controller
             control={control}
             name={name}
@@ -47,5 +57,5 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
                 />
             }}
         />
-    </>
+    </FormControl>
 }

@@ -1,14 +1,16 @@
 import React, {useContext} from 'react';
-import {Collection} from "../../../../types";
+import {Collection, Workspace} from "../../../../types";
 import {Box} from "@mui/material";
 import {DisplayContext} from "../../DisplayContext";
-import {CollectionChip} from "../../../Ui/Chips";
+import {CollectionChip, WorkspaceChip} from "../../../Ui/Chips";
 
 type Props = {
+    workspace?: Workspace;
     collections: Collection[];
 };
 
 export default function AssetCollectionList({
+                                                workspace,
                                                 collections,
                                             }: Props) {
     const {collectionsLimit, displayCollections} = useContext(DisplayContext)!;
@@ -44,6 +46,10 @@ export default function AssetCollectionList({
             my: 0.5,
         }
     }}>
+        {workspace && <WorkspaceChip
+            size={'small'}
+            label={workspace.name}
+        />}
         {chips}
     </Box>
 }

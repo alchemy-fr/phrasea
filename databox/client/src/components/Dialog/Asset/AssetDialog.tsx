@@ -7,6 +7,8 @@ import FullPageLoader from "../../Ui/FullPageLoader";
 import {Asset} from "../../../types";
 import Acl from "./Acl";
 import {getAsset} from "../../../api/asset";
+import EditAttributes from "./EditAttributes";
+import Renditions from "./Renditions";
 
 type Props = {};
 
@@ -41,6 +43,24 @@ export default function AssetDialog({}: Props) {
                     data,
                 },
                 enabled: data.capabilities.canEdit,
+            },
+            {
+                title: t('asset.manage.attributes.title', 'Attributes'),
+                component: EditAttributes,
+                id: 'attributes',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEditAttributes,
+            },
+            {
+                title: t('asset.manage.renditions.title', 'Renditions'),
+                component: Renditions,
+                id: 'renditions',
+                props: {
+                    data,
+                },
+                enabled: true,
             },
             {
                 title: t('asset.manage.acl.title', 'Permissions'),

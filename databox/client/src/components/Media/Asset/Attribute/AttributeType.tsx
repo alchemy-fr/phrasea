@@ -1,11 +1,28 @@
 import React from "react";
 import AttributeWidget from "./AttributeWidget";
 import {AttributeDefinition} from "../../../../types";
-import {AttrValue, LocalizedAttributeIndex, OnChangeHandler} from "./AttributesEditor";
+import {AttrValue, LocalizedAttributeIndex, NO_LOCALE, OnChangeHandler} from "./AttributesEditor";
 import MultiAttributeRow from "./MultiAttributeRow";
-import {NO_LOCALE} from "../EditAssetAttributes";
 import {isRtlLocale} from "../../../../lib/lang";
 import FormRow from "../../../Form/FormRow";
+import {Box, FormLabel, Tab, Tabs} from "@mui/material";
+import {TabPanelProps} from "@mui/lab";
+import Flag from "../../../Ui/Flag";
+
+function TabPanel({children, value, currentValue}: {
+    currentValue: string | undefined;
+} & TabPanelProps) {
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== currentValue}
+            id={`locale-tabpanel-${value}`}
+            aria-labelledby={`simple-tab-${value}`}
+        >
+            {value === currentValue && children}
+        </div>
+    );
+}
 
 type Props = {
     definition: AttributeDefinition;
@@ -14,6 +31,8 @@ type Props = {
     onChange: OnChangeHandler;
     indeterminate?: boolean;
     readOnly?: boolean;
+    currentLocale?: string | undefined;
+    onLocaleChange: (locale: string) => void;
 }
 
 export default function AttributeType({
@@ -23,6 +42,8 @@ export default function AttributeType({
                                           disabled,
                                           onChange,
                                           indeterminate,
+                                          currentLocale,
+                                          onLocaleChange,
                                       }: Props) {
 
     const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
@@ -39,34 +60,62 @@ export default function AttributeType({
 
     if (definition.translatable) {
         return <>
-            {definition.locales!.map(locale => {
-                const label = `${definition.name} ${locale.toUpperCase()}`;
+            <FormRow>
+                <FormLabel>
+                    {definition.name}
+                </FormLabel>
+                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                    <Tabs
+                        value={currentLocale}
+                        onChange={(e, value) => onLocaleChange(value)}
+                        aria-label="Locales"
+                    >
+                        {definition.locales!.map(l => <Tab
+                            key={l}
+                            label={<>
+                                <Flag
+                                    locale={l}
+                                    sx={{mb: 1}}
+                                />
+                                {l}
+                            </>}
+                            value={l}
+                        />)}
+                    </Tabs>
+                </Box>
 
-                return <FormRow>
-                    {definition.multiple ? <MultiAttributeRow
-                        indeterminate={indeterminate}
-                        readOnly={readOnly}
-                        disabled={disabled}
-                        type={definition.fieldType}
-                        isRtl={isRtlLocale(locale)}
-                        name={label}
-                        values={(attributes[locale] || []) as AttrValue<string | number>[]}
-                        onChange={(values) => changeHandler(locale, values)}
-                        id={definition.id}
-                    /> : <AttributeWidget
-                        indeterminate={indeterminate}
-                        readOnly={readOnly}
-                        value={attributes[locale] as AttrValue<string | number> | undefined}
-                        disabled={disabled}
-                        type={definition.fieldType}
-                        isRtl={isRtlLocale(locale)}
-                        name={label}
-                        required={false}
-                        onChange={(v) => changeHandler(locale, v)}
-                        id={definition.id}
-                    />}
-                </FormRow>
-            })}
+                {definition.locales!.map((locale) => {
+                    const label = `${definition.name} ${locale}`;
+
+                    return <TabPanel
+                        currentValue={currentLocale}
+                        value={locale}
+                    >
+                        {definition.multiple ? <MultiAttributeRow
+                            indeterminate={indeterminate}
+                            readOnly={readOnly}
+                            disabled={disabled}
+                            name={label}
+                            type={definition.fieldType}
+                            isRtl={isRtlLocale(locale)}
+                            values={(attributes[locale] || []) as AttrValue<string | number>[]}
+                            onChange={(values) => changeHandler(locale, values)}
+                            id={definition.id}
+                        /> : <AttributeWidget
+                            indeterminate={indeterminate}
+                            readOnly={readOnly}
+                            value={attributes[locale] as AttrValue<string | number> | undefined}
+                            disabled={disabled}
+                            type={definition.fieldType}
+                            isRtl={isRtlLocale(locale)}
+                            name={label}
+                            required={false}
+                            onChange={(v) => changeHandler(locale, v)}
+                            id={definition.id}
+                        />}
+                    </TabPanel>
+                })}
+            </FormRow>
         </>
     }
 

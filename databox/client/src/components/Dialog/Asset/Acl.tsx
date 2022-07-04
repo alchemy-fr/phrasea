@@ -1,11 +1,11 @@
 import React from 'react';
-import {Collection} from "../../../types";
+import {Asset, Collection} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import AclForm from "../../Acl/AclForm";
 import ContentTab from "../Tabbed/ContentTab";
 
 type Props = {
-    data: Collection;
+    data: Asset;
 } & DialogTabProps;
 
 export default function Acl({

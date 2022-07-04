@@ -1,4 +1,4 @@
-import {RenditionClass, RenditionDefinition} from "../types";
+import {AssetRendition, RenditionClass, RenditionDefinition} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import apiClient from "./api-client";
 
@@ -8,6 +8,17 @@ type GetOptions = {
 
 export const renditionClassNS = '/rendition-classes';
 export const renditionDefinitionNS = '/rendition-definitions';
+export const renditionNS = '/renditions';
+
+export async function getAssetRenditions(assetId: string): Promise<ApiCollectionResponse<AssetRendition>> {
+    const res = await apiClient.get(renditionNS, {
+        params: {
+            assetId,
+        },
+    });
+
+    return getHydraCollection(res.data);
+}
 
 export async function getRenditionDefinitions(options: GetOptions = {}): Promise<ApiCollectionResponse<RenditionDefinition>> {
     const res = await apiClient.get(renditionDefinitionNS, {

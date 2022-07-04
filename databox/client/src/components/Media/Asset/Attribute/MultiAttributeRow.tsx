@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 type Props = {
     id: string;
     type: string;
-    name: string;
+    name?: string;
     values: AttrValue<string | number>[];
     onChange: (values: AttrValue<string | number>[]) => void;
     isRtl: boolean;
@@ -72,12 +72,6 @@ export default function MultiAttributeRow({
     }
 
     return <FormRow>
-        <InputLabel
-            sx={{
-                mb: 2
-            }}
-        >{name}</InputLabel>
-
         {values.map((v: AttrValue<string | number>, i: number) => {
             return <div
                 key={v.id}

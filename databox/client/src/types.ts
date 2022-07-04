@@ -84,6 +84,13 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     priority: number;
 }
 
+export interface AssetRendition extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    file: File;
+    ready: boolean;
+}
+
 export interface RenditionClass extends ApiHydraObjectResponse {
     id: string;
     name: string;

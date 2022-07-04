@@ -37,12 +37,9 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
         <FormRow>
             <TextField
                 autoFocus
-                required={true}
                 label={t('form.upload.title.label', 'Title')}
                 disabled={submitting}
-                {...register('title', {
-                    required: true,
-                })}
+                {...register('title')}
             />
             <FormFieldErrors
                 field={'title'}
@@ -52,9 +49,13 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
         <FormRow>
             <CollectionTreeWidget
                 control={control}
+                rules={{
+                    required: true,
+                }}
                 name={'destinations'}
                 label={t('form.upload.destinations.label', 'Destinations')}
                 multiple={true}
+                required={true}
             />
             <FormFieldErrors
                 field={'destinations'}

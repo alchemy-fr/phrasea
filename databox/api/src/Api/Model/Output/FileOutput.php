@@ -16,26 +16,26 @@ class FileOutput extends AbstractUuidOutput
     /**
      * The MIME type.
      *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index"})
      */
     private ?string $type = null;
 
     /**
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index"})
      */
     private ?int $size = null;
 
     /**
      * Signed URL.
      *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index"})
      */
     private ?string $url = null;
 
     /**
      * @var AlternateUrlOutput[]
      *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index"})
      */
     private ?array $alternateUrls = [];
 

@@ -13,6 +13,7 @@ import SortableCollectionWidget, {
     flattenSortableList,
     SortableValue
 } from "./SortableCollectionWidget";
+import Flag from "../Ui/Flag";
 
 const emptyLocaleItem = {
     value: '',
@@ -53,11 +54,14 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
         register,
         control,
         handleSubmit,
+        watch,
         setError,
         formState: {errors}
     } = useForm<any>({
         defaultValues: data ? normalizeFormData(data) : data,
     });
+
+    const locales = watch('enabledLocales');
 
     return <>
         <form
@@ -95,6 +99,14 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     renderForm={({index, path}) => {
                         return <FormRow>
                             <TextField
+                                InputProps={{
+                                    startAdornment: <Flag
+                                        sx={{
+                                            mr: 1,
+                                        }}
+                                        locale={locales[index].value}
+                                    />,
+                                }}
                                 label={t('form.workspace.locales.label', 'Locale')}
                                 placeholder={t('form.workspace.locales.placeholder', 'i.e. fr or fr-FR')}
                                 {...register(`${path}.${index}.value` as any)}

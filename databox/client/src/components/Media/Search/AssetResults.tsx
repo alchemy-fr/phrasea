@@ -67,7 +67,7 @@ export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
     const {loading, pages, loadMore} = resultContext;
-    const {previewLocked} = useContext(DisplayContext)!;
+    const {previewLocked, displayPreview} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
         asset: Asset;
         pos: PopoverPosition,
@@ -114,7 +114,7 @@ export default function AssetResults() {
     }, [pages]);
 
     const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
-        if (!asset.preview) {
+        if (!asset.preview || !displayPreview) {
             return;
         }
         if (timer.current) {
@@ -149,7 +149,7 @@ export default function AssetResults() {
             return p;
         });
         // eslint-disable-next-line
-    }, [setPreviewAnchorEl, previewLocked]);
+    }, [setPreviewAnchorEl, previewLocked, displayPreview]);
 
     const onContextMenuOpen = useCallback((e: MouseEvent<HTMLElement>, asset: Asset, anchorEl?: HTMLElement) => {
         e.preventDefault();

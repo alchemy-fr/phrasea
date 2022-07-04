@@ -5,6 +5,7 @@ import OAuthRedirect from "./oauth";
 import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 import CollectionDialog from "./components/Dialog/Collection/CollectionDialog";
 import AssetDialog from "./components/Dialog/Asset/AssetDialog";
+import EditAttributes from "./components/Dialog/Asset/EditAttributes";
 
 export type RouteDefinition = {
     name: string;

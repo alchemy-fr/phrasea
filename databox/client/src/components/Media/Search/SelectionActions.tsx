@@ -24,7 +24,6 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import EditAssetAttributes from "../Asset/EditAssetAttributes";
 import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
@@ -196,12 +195,10 @@ export default function SelectionActions({
     const onEditAttributes = () => {
         const assets = getSelectedAssets(selectionContext, resultContext);
         if (assets.length === 1) {
-            openModal(EditAssetAttributes, {
-                asset: assets[0],
-                onEdit: () => {
-                    resultContext.reload();
-                }
-            });
+            navigate(getPath('app_asset_manage', {
+                tab: 'attributes',
+                id: selectionContext.selectedAssets[0],
+            }));
         } else {
             alert('Multi edit attributes is comin soon...');
         }
