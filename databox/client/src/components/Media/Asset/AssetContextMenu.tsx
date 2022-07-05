@@ -67,8 +67,8 @@ export default function AssetContextMenu({
     }
 
     const onEditAttr = () => {
-        navigate(getPath('app_asset_attributes', {
-            tab: 'edit',
+        navigate(getPath('app_asset_manage', {
+            tab: 'attributes',
             id: asset.id,
         }));
         onClose();
