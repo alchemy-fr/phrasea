@@ -71,6 +71,20 @@ function Item({
         <FormRow>
             <FormGroup>
                 <CheckboxWidget
+                    label={t('form.rendition_definition.pickSourceFile.label', 'Pick source file')}
+                    disabled={submitting}
+                    name={'pickSourceFile'}
+                    control={control}
+                />
+                <FormFieldErrors
+                    field={'pickSourceFile'}
+                    errors={errors}
+                />
+            </FormGroup>
+        </FormRow>
+        <FormRow>
+            <FormGroup>
+                <CheckboxWidget
                     label={t('form.rendition_definition.useAsOriginal.label', 'Use as original')}
                     disabled={submitting}
                     name={'useAsOriginal'}

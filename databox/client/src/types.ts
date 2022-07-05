@@ -77,6 +77,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     name: string;
     class: AttributeClass | string;
     workspace: Workspace | string;
+    pickSourceFile?: boolean;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
