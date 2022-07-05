@@ -1,14 +1,46 @@
-import {Box, TextField, Typography} from "@mui/material";
+import {Hidden, TextField} from "@mui/material";
 import {useForm} from "react-hook-form";
 import React, {FC} from "react";
-import {useTranslation} from "react-i18next";
+import {Trans, useTranslation} from "react-i18next";
 import {Workspace} from "../../types";
 import FormFieldErrors from "./FormFieldErrors";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
-import TagFilterRules from "../Media/TagFilterRule/TagFilterRules";
-import TagManager from "../Media/Collection/TagManager";
-import AclForm from "../Acl/AclForm";
+import FlagIcon from '@mui/icons-material/Flag';
+import IconFormLabel from "./IconFormLabel";
+import SortableCollectionWidget, {
+    extendSortableList,
+    flattenSortableList,
+    SortableValue
+} from "./SortableCollectionWidget";
+import Flag from "../Ui/Flag";
+
+const emptyLocaleItem = {
+    value: '',
+};
+
+export type WorkspaceFormData = {
+    enabledLocales: SortableValue[] | undefined;
+    localeFallbacks: SortableValue[] | undefined;
+} & Omit<Workspace, "enabledLocales" | "localeFallbacks">;
+
+function normalizeFormData(data: Workspace): WorkspaceFormData {
+    return {
+        ...data,
+        enabledLocales: extendSortableList(data.enabledLocales),
+        localeFallbacks: extendSortableList(data.localeFallbacks),
+    };
+}
+
+function denormalizeFormData(handler: (data: Workspace) => Promise<void>): (data: WorkspaceFormData) => Promise<void> {
+    return async (data: WorkspaceFormData) => await handler({
+        ...data,
+        enabledLocales: flattenSortableList(data.enabledLocales),
+        localeFallbacks: flattenSortableList(data.localeFallbacks),
+    });
+}
+
+
 
 export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                                                      formId,
@@ -20,17 +52,21 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
 
     const {
         register,
+        control,
         handleSubmit,
+        watch,
         setError,
         formState: {errors}
     } = useForm<any>({
-        defaultValues: data,
+        defaultValues: data ? normalizeFormData(data) : data,
     });
+
+    const locales = watch('enabledLocales');
 
     return <>
         <form
             id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}
+            onSubmit={handleSubmit(denormalizeFormData(onSubmit(setError)))}
         >
             <FormRow>
                 <TextField
@@ -47,32 +83,63 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     errors={errors}
                 />
             </FormRow>
+            <FormRow>
+                <SortableCollectionWidget
+                    emptyItem={emptyLocaleItem}
+                    control={control}
+                    label={<IconFormLabel startIcon={<FlagIcon/>}>
+                        {t('form.workspace.locales.title', 'Workspace locales')}
+                    </IconFormLabel>}
+                    path={'enabledLocales'}
+                    register={register}
+                    addLabel={t('form.workspace.locales.add', 'Add locale')}
+                    removeLabel={<Trans t={t} i18nKey="form.workspace.locales.remove">
+                        Remove <Hidden smDown>this locale</Hidden>
+                    </Trans>}
+                    renderForm={({index, path}) => {
+                        return <FormRow>
+                            <TextField
+                                InputProps={{
+                                    startAdornment: <Flag
+                                        sx={{
+                                            mr: 1,
+                                        }}
+                                        locale={locales[index].value}
+                                    />,
+                                }}
+                                label={t('form.workspace.locales.label', 'Locale')}
+                                placeholder={t('form.workspace.locales.placeholder', 'i.e. fr or fr-FR')}
+                                {...register(`${path}.${index}.value` as any)}
+                                required={true}
+                            />
+                        </FormRow>
+                    }}
+                />
+            </FormRow>
+            <FormRow>
+                <SortableCollectionWidget
+                    emptyItem={emptyLocaleItem}
+                    control={control}
+                    label={<IconFormLabel startIcon={<FlagIcon/>}>
+                        {t('form.workspace.fallback_locales.title', 'Fallbacks locales')}
+                    </IconFormLabel>}
+                    path={'localeFallbacks'}
+                    register={register}
+                    addLabel={t('form.workspace.fallback_locales.add', 'Add fallback locale')}
+                    removeLabel={<Trans t={t} i18nKey="form.workspace.fallback_locales.remove">
+                        Remove <Hidden smDown>this locale</Hidden>
+                    </Trans>}
+                    renderForm={({index, path}) => {
+                        return <FormRow>
+                            <TextField
+                                label={t('form.workspace.fallback_locales.label', 'Locale')}
+                                {...register(`${path}.${index}.value` as any)}
+                                required={true}
+                            />
+                        </FormRow>
+                    }}
+                />
+            </FormRow>
         </form>
-        {data && <>
-            <hr/>
-            <div>
-                <h4>Manage tags</h4>
-                <TagManager workspaceIri={data['@id']}/>
-            </div>
-            <hr/>
-            <Box sx={{
-                mb: 2
-            }}>
-                <Typography variant={'h2'} >Tag filter rules</Typography>
-                <TagFilterRules
-                    id={data.id}
-                    workspaceId={data.id}
-                    type={'workspace'}
-                />
-            </Box>
-            {data.capabilities.canEditPermissions ? <div>
-                <hr/>
-                <h4>Permissions</h4>
-                <AclForm
-                    objectId={data.id}
-                    objectType={'workspace'}
-                />
-            </div> : ''}
-        </>}
     </>
 }

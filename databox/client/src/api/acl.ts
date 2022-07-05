@@ -14,7 +14,7 @@ export async function getAces(objectType: string, objectId: string): Promise<Ace
 
 export async function putAce(
     userType: string,
-    userId: string | undefined,
+    userId: string | null,
     objectType: string,
     objectId: string | undefined,
     mask: number
@@ -30,7 +30,7 @@ export async function putAce(
 
 export async function deleteAce(
     userType: string,
-    userId: string | undefined,
+    userId: string | null,
     objectType: string,
     objectId: string | undefined
 ): Promise<void> {

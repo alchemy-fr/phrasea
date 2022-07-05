@@ -4,38 +4,47 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Validator\Exception\ValidationException;
 use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
+use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\MimeTypes;
 
-class ExportAction
+class ExportAction extends AbstractController
 {
     private Client $client;
     private ValidatorInterface $validator;
     private EntityManagerInterface $em;
     private FileUrlResolver $fileUrlResolver;
+    private RenditionPermissionManager $renditionPermissionManager;
 
     public function __construct(
         Client $zippyClient,
         ValidatorInterface $validator,
         EntityManagerInterface $em,
-        FileUrlResolver $fileUrlResolver
+        FileUrlResolver $fileUrlResolver,
+        RenditionPermissionManager $renditionPermissionManager
     ) {
         $this->client = $zippyClient;
         $this->validator = $validator;
         $this->em = $em;
         $this->fileUrlResolver = $fileUrlResolver;
+        $this->renditionPermissionManager = $renditionPermissionManager;
     }
 
     public function __invoke(Export $data, Request $request): Export
     {
+        $user = $this->getUser();
+        $userId = $user instanceof RemoteUser ? $user->getId() : null;
+        $groupsIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
         $errors = $this->validator->validate($data);
         if (!empty($errors)) {
             throw new ValidationException($errors);
@@ -51,12 +60,22 @@ class ExportAction
             ]);
 
             foreach ($renditions as $rendition) {
+                $asset = $rendition->getAsset();
+                if (!$this->renditionPermissionManager->isGranted(
+                    $asset,
+                    $rendition->getDefinition()->getClass(),
+                    $userId,
+                    $groupsIds
+                )) {
+                    continue;
+                }
+
                 $file = $rendition->getFile();
                 $extensions = $mimeTypes->getExtensions($file->getType());
                 $ext = isset($extensions[0]) ? '.'.$extensions[0] : '';
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),
-                    'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $rendition->getAsset()->getTitle(), $assetId, $ext),
+                    'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getTitle(), $assetId, $ext),
                 ];
             }
         }

@@ -1,15 +1,6 @@
 import {useContext, useState} from "react";
 import {ResultContext} from "../Search/ResultContext";
-import {
-    Checkbox,
-    Collapse,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemSecondaryAction,
-    ListItemText,
-    ListSubheader
-} from "@mui/material";
+import {Checkbox, Collapse, List, ListItem, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import {SearchContext} from "../Search/SearchContext";
 
@@ -61,9 +52,19 @@ function FacetRow({
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
 
     return <>
-        <ListItem button onClick={() => setOpen(o => !o)}>
-            <ListItemText primary={facet.meta.title}/>
-            {open ? <ExpandLess/> : <ExpandMore/>}
+        <ListItem
+            sx={{
+                backgroundColor: 'primary.main',
+                color: 'primary.contrastText',
+            }}
+            disablePadding
+        >
+            <ListItemButton
+                onClick={() => setOpen(o => !o)}
+            >
+                <ListItemText primary={facet.meta.title}/>
+                {open ? <ExpandLess/> : <ExpandMore/>}
+            </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
@@ -83,7 +84,7 @@ function FacetRow({
                                 edge="end"
                                 onChange={onClick}
                                 checked={selected || false}
-                                inputProps={{ 'aria-labelledby': keyV }}
+                                inputProps={{'aria-labelledby': keyV}}
                             />
                         </ListItemSecondaryAction>
                     </ListItemButton>
@@ -102,13 +103,9 @@ export default function Facets() {
     }
 
     return <List
+        disablePadding
         component="nav"
         aria-labelledby="nested-list-subheader"
-        subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-                Facets
-            </ListSubheader>
-        }
         sx={(theme) => ({
             root: {
                 width: '100%',

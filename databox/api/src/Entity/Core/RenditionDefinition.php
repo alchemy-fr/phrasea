@@ -43,7 +43,6 @@ class RenditionDefinition extends AbstractUuidEntity
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=false)
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     protected ?RenditionClass $class = null;
 

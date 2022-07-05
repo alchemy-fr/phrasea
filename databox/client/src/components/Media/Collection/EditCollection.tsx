@@ -6,14 +6,14 @@ import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import AclForm from "../../Acl/AclForm";
 import CollectionMoveSection from "./CollectionMoveSection";
 import {Typography} from "@mui/material";
-import TagFilterRules from "../TagFilterRule/TagFilterRules";
+import TagRules from "../TagFilterRule/TagRules";
 import FormSection from "../../Form/FormSection";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 
@@ -26,7 +26,7 @@ export default function EditCollection({
                                            id,
                                            onEdit,
                                        }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     const {submitting, handleSubmit, errors} = useFormSubmit({
@@ -64,10 +64,7 @@ export default function EditCollection({
             submitting={submitting}
         />
         <FormSection>
-            <Typography variant={'h2'}>
-                {t('form.collection_edit.tag_filter_rules.title', 'Tag filter rules')}
-            </Typography>
-            <TagFilterRules
+            <TagRules
                 id={data.id}
                 workspaceId={data.workspace.id}
                 type={'collection'}

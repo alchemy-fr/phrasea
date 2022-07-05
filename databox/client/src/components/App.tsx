@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import AssetSelectionProvider from "./Media/AssetSelectionProvider";
 import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
 import LeftPanel from "./Media/LeftPanel";
@@ -14,10 +14,57 @@ import {UserContext} from "./Security/UserContext";
 import {useTranslation} from "react-i18next";
 import {addErrorListener, removeErrorListener} from "../api/api-client";
 import DisplayProvider from "./Media/DisplayProvider";
+import {Outlet, useLocation} from "react-router-dom";
+import {appPathPrefix} from "../routes";
+
+const AppProxy = React.memo(() => {
+    console.log('render');
+    return <SearchProvider>
+        <ResultProvider>
+            <AssetDropzone>
+                <MainAppBar/>
+                <AssetSelectionProvider>
+                    <DisplayProvider>
+                        <Box style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            height: `calc(100vh - ${menuHeight}px)`,
+                        }}>
+                            <Box sx={(theme) => ({
+                                width: 360,
+                                flexGrow: 0,
+                                flexShrink: 0,
+                                height: `calc(100vh - ${menuHeight}px)`,
+                                overflow: 'auto',
+                                boxShadow: theme.shadows[5],
+                                zIndex: 2,
+                            })}>
+                                <LeftPanel/>
+                            </Box>
+                            <Box sx={{
+                                flexGrow: 1,
+                            }}>
+                                <AssetResults/>
+                            </Box>
+                        </Box>
+                    </DisplayProvider>
+                </AssetSelectionProvider>
+            </AssetDropzone>
+        </ResultProvider>
+    </SearchProvider>
+});
 
 export default function App() {
     const userContext = useContext(UserContext);
     const {t} = useTranslation();
+    const location = useLocation();
+    const [render, setRender] = useState(location.pathname === appPathPrefix);
+
+    useEffect(() => {
+        if (!render && location.pathname === appPathPrefix) {
+            setRender(true);
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
@@ -37,6 +84,9 @@ export default function App() {
                 case 400:
                     toast.error(error.response?.data['hydra:description']);
                     break;
+                case 404:
+                    toast.error(error.response?.data['hydra:description']);
+                    break;
                 case 422:
                     // Handled by form
                     break;
@@ -51,43 +101,11 @@ export default function App() {
         return () => {
             removeErrorListener(onError);
         }
-    }, [])
-
+    }, []);
 
     return <>
         <ToastContainer/>
-        <SearchProvider>
-            <ResultProvider>
-                <AssetDropzone>
-                    <MainAppBar/>
-                    <AssetSelectionProvider>
-                        <DisplayProvider>
-                            <Box style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                height: `calc(100vh - ${menuHeight}px)`,
-                            }}>
-                                <Box sx={(theme) => ({
-                                    width: 360,
-                                    flexGrow: 0,
-                                    flexShrink: 0,
-                                    height: `calc(100vh - ${menuHeight}px)`,
-                                    overflow: 'auto',
-                                    boxShadow: theme.shadows[5],
-                                    zIndex: 2,
-                                })}>
-                                    <LeftPanel/>
-                                </Box>
-                                <Box sx={{
-                                    flexGrow: 1,
-                                }}>
-                                    <AssetResults/>
-                                </Box>
-                            </Box>
-                        </DisplayProvider>
-                    </AssetSelectionProvider>
-                </AssetDropzone>
-            </ResultProvider>
-        </SearchProvider>
+        <Outlet/>
+        {render && <AppProxy/>}
     </>
 }

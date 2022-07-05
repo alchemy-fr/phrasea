@@ -1,7 +1,9 @@
 import store from './store';
 
 declare global {
-    interface Window { config: any; }
+    interface Window {
+        config: any;
+    }
 }
 
 window.config = window.config || {};

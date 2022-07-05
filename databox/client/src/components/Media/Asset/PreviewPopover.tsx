@@ -8,11 +8,13 @@ import {createDimensions} from "./Players";
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
+    previewLocked: boolean;
 };
 
 const relativeSize = 50;
 
 export default function PreviewPopover({
+                                           previewLocked,
                                            asset,
                                            anchorEl,
                                        }: Props) {
@@ -67,7 +69,7 @@ export default function PreviewPopover({
                 maxDimensions={createDimensions(size)}
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
-                noInteraction={true}
+                noInteraction={!previewLocked}
                 autoPlayable={true}
             />
         </Paper>}

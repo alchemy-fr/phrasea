@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {PropsWithChildren, ReactNode} from 'react';
 import {styled} from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -6,11 +7,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import {PropsWithChildren, ReactNode} from "react";
 import {LinearProgress} from "@mui/material";
 import {Breakpoint} from "@mui/system";
 
-const BootstrapDialog = styled(Dialog)(({theme}) => ({
+export const BootstrapDialog = styled(Dialog)(({theme}) => ({
     '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
     },
@@ -24,7 +24,7 @@ export interface DialogTitleProps {
     onClose: () => void;
 }
 
-const AppDialogTitle = (props: DialogTitleProps) => {
+export const AppDialogTitle = (props: DialogTitleProps) => {
     const {children, onClose, ...other} = props;
 
     return (
@@ -61,8 +61,6 @@ type Props = PropsWithChildren<{
     maxWidth?: Breakpoint | false;
 }>;
 
-const progressHeight = 3;
-
 export default function AppDialog({
                                       title,
                                       children,
@@ -71,6 +69,7 @@ export default function AppDialog({
                                       onClose,
                                       maxWidth = 'md',
                                   }: Props) {
+    const progressHeight = 3;
     const [open, setOpen] = React.useState(true);
 
     const handleClose = () => {

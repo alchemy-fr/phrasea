@@ -25,6 +25,15 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
         return $this->security->isGranted($attribute, $object);
     }
 
+    protected function getTokenId(): string
+    {
+        if (is_object($this->security->getToken())) {
+            return (string) spl_object_id($this->security->getToken());
+        }
+
+        return 'no_token';
+    }
+
     /**
      * @required
      */

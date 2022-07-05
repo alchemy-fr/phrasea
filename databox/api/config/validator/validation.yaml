@@ -55,16 +55,42 @@ App\Entity\Core\Attribute:
 
 App\Entity\Core\AttributeDefinition:
   constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - workspace
+          - name
+        errorPath: name
     - App\Validator\SameWorkspaceConstraint:
         properties:
           - workspace
           - class.workspace
+
+  properties:
+    class:
+      - NotNull: ~
+    workspace:
+      - NotNull: ~
+    name:
+      - NotNull: ~
+      - NotBlank: ~
+
+App\Entity\Core\AttributeClass:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        fields:
+          - workspace
+          - name
+        errorPath: name
   properties:
     workspace:
       - NotNull: ~
     name:
       - NotNull: ~
       - NotBlank: ~
+    public:
+      - NotNull: ~
+    editable:
+      - NotNull: ~
 
 App\Entity\Core\CollectionAsset:
   constraints:

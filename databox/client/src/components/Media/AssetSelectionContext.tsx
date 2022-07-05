@@ -7,5 +7,6 @@ export type TAssetSelectionContext = {
 
 export const AssetSelectionContext = React.createContext<TAssetSelectionContext>({
     selectedAssets: [],
-    selectAssets: () => {},
+    selectAssets: () => {
+    },
 });

@@ -59,12 +59,53 @@ export interface AttributeDefinition extends IPermissions {
     allowInvalid: boolean;
     canEdit: boolean;
     searchBoost: number;
+    fallback: Record<string, string>;
+    workspace: Workspace | string;
+    class: AttributeClass | string;
+}
+
+export interface AttributeClass extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    public: boolean;
+    editable: boolean;
+    workspace: Workspace | string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse {
     id: string;
     name: string;
-    workspace: Workspace;
+    class: AttributeClass | string;
+    workspace: Workspace | string;
+    useAsOriginal?: boolean;
+    useAsPreview?: boolean;
+    useAsThumbnail?: boolean;
+    useAsThumbnailActive?: boolean;
+    priority: number;
+}
+
+export interface AssetRendition extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    file: File;
+    ready: boolean;
+}
+
+export interface RenditionClass extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    workspace: Workspace | string;
+    public: boolean;
+}
+
+export interface RenditionRule extends ApiHydraObjectResponse {
+    id: string;
+    name: string;
+    userId: string | null;
+    groupId: string | null;
+    workspaceId: string | null;
+    collectionId: string | null;
+    allowed: RenditionClass[];
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
@@ -90,6 +131,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    workspace: Workspace | string;
 }
 
 export interface User {
@@ -103,7 +145,7 @@ export interface Group {
 }
 
 
-export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<Collection, "workspace">;
+export type CollectionOptionalWorkspace = { workspace?: Workspace } & Omit<Collection, "workspace">;
 
 export interface Collection extends IPermissions {
     id: string;
@@ -117,11 +159,23 @@ export interface Workspace extends IPermissions {
     id: string;
     name: string;
     collections: Collection[];
+    enabledLocales?: string[] | undefined;
+    localeFallbacks?: string[] | undefined;
+}
+
+export enum UserType {
+    User = 'user',
+    Group = 'group',
+}
+
+export enum CollectionOrWorkspace {
+    Collection = 'collection',
+    Workspace = 'workspace',
 }
 
 export interface Ace {
     id: string;
-    userType: string;
-    userId: string;
+    userType: UserType;
+    userId: string | null;
     mask: number;
 }

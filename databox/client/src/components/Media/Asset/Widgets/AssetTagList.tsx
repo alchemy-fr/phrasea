@@ -3,7 +3,6 @@ import {Tag} from "../../../../types";
 import {Box} from "@mui/material";
 import {DisplayContext} from "../../DisplayContext";
 import {TagChip} from "../../../Ui/Chips";
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 type Props = {
     tags: Tag[];

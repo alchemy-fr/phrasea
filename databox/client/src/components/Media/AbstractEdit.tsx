@@ -1,6 +1,5 @@
 import React, {PureComponent, ReactNode, RefObject} from "react";
 import {IPermissions} from "../../types";
-import AclForm from "../Acl/AclForm";
 import {FormikHelpers, FormikProps} from "formik";
 import AppDialog from "../Layout/AppDialog";
 import {Button} from "@mui/material";
@@ -49,6 +48,7 @@ export default abstract class AbstractEdit<T extends IPermissions, FP> extends P
     protected abstract handleSave(data: FP): Promise<boolean>;
 
     protected abstract getType(): string;
+
     protected abstract getTitle(): ReactNode | null;
 
     protected getSubTitle(): ReactNode | undefined {

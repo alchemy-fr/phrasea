@@ -59,7 +59,7 @@ type Props = {
 
 export default function AssetFileIcon({
                                           file,
-    ...iconProps
+                                          ...iconProps
                                       }: Props) {
     return React.createElement(getIconFromType(file.type), {
         fontSize: 'large',

@@ -16,5 +16,6 @@ export type TResultContext = {
 export const ResultContext = React.createContext<TResultContext>({
     pages: [],
     loading: false,
-    reload: () => {},
+    reload: () => {
+    },
 });

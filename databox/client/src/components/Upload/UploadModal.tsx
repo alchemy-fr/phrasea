@@ -3,12 +3,13 @@ import {Box, Grid} from "@mui/material";
 import FileCard from "./FileCard";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import UploadIcon from '@mui/icons-material/Upload';
 import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
 import {UploadFiles} from "../../api/file";
+import {useModalHash} from "../../hooks/useModalHash";
 
 type Props = {
     files: File[];
@@ -29,7 +30,7 @@ export default function UploadModal({
         file: f,
         id: i.toString(),
     })));
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
 
     useEffect(() => {
         if (files.length === 0) {

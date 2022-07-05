@@ -4,12 +4,12 @@ import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
 import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {AssetForm} from "../../Form/AssetForm";
 import {getAsset, putAsset} from "../../../api/asset";
 import AclForm from "../../Acl/AclForm";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 type Props = {
     id: string;
@@ -20,7 +20,7 @@ export default function EditAsset({
                                       id,
                                       onEdit,
                                   }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     const {submitting, handleSubmit, errors} = useFormSubmit({

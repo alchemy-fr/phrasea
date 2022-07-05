@@ -138,6 +138,13 @@ class AttributeDefinition extends AbstractUuidEntity
      */
     private ?string $key = null;
 
+    /**
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     * @ORM\Column(type="smallint", nullable=false)
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
+     */
+    private int $position = 0;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -306,5 +313,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setClass(?AttributeClass $class): void
     {
         $this->class = $class;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

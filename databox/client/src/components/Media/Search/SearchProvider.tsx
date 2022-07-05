@@ -26,13 +26,10 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         setHash(queryToHash(query, handler(filters), workspaceId, collectionId));
     }, [setHash, query, filters, workspaceId, collectionId]);
 
-    const setQuery = useCallback((handler: string | ((prev: string) => string)): void => {
-        if (typeof handler === 'string') {
-            setHash(queryToHash(handler, filters, workspaceId, collectionId));
-            return;
+    const setQuery = useCallback((handler: string | ((prev: string) => string), forceReload?: boolean): void => {
+        if (!setHash(queryToHash(typeof handler === 'string' ? handler : handler(query), filters, workspaceId, collectionId))) {
+            setReloadInc(p => p + 1);
         }
-
-        setHash(queryToHash(handler(query), filters, workspaceId, collectionId));
     }, [setHash, query, filters, workspaceId, collectionId]);
 
 
@@ -101,7 +98,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         attrFilters: filters,
         query,
         setQuery,
-        hash,
+        searchChecksum: JSON.stringify({query, filters, collectionId, workspaceId}),
         reloadInc,
     }}>
         {children}

@@ -58,7 +58,7 @@ export default function CollectionMoveSection({
             startIcon={<DriveFileMoveIcon/>}
             variant={'contained'}
             onClick={move}
-            disabled={loading}
+            disabled={loading || !dest}
             loading={loading}
         >
             {t('', 'Move collection')}

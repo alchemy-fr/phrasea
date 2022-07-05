@@ -11,6 +11,6 @@ class NotFoundAction extends AbstractController
 {
     public function __invoke(): void
     {
-        throw new NotFoundHttpException();
+        throw new NotFoundHttpException('API route not defined');
     }
 }

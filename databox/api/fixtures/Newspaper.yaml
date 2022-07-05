@@ -16,8 +16,12 @@ App\Entity\Core\AttributeClass:
 
   n_ac_public (extends attribute_class):
     name: Public
+    public: true
+    editable: true
   n_ac_business (extends attribute_class):
     name: Business field
+    public: false
+    editable: false
 
 App\Entity\Core\AttributeDefinition:
   attribute_definition (template):
@@ -26,14 +30,17 @@ App\Entity\Core\AttributeDefinition:
   ad_desc (extends attribute_definition):
     name: Description
     class: '@n_ac_public'
+    position: 0
   ad_keywords (extends attribute_definition):
     name: Keywords
     multiple: true
     facetEnabled: true
     class: '@n_ac_public'
+    position: 1
   ad_admin_note (extends attribute_definition):
     name: Admin notes
     class: '@n_ac_business'
+    position: 2
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):
@@ -41,8 +48,10 @@ App\Entity\Core\RenditionClass:
 
   n_rc_public (extends rendition_class):
     name: Public
+    public: true
   n_rc_restricted (extends rendition_class):
     name: Restricted
+    public: false
 
 App\Entity\Core\RenditionDefinition:
   rendition_definition (template):
@@ -117,6 +126,9 @@ App\Entity\Core\Collection:
   collection_n (template):
     workspace: '@w_newspaper'
     ownerId: <{user_admin}>
+
+  c_n_special_chars (extends collection_n):
+    title: 'D&D \@][ \<ap>++"='
 
   c_n_{sport, entertainment} (extends collection_n):
     title: '<ucwords($current)>'
@@ -280,14 +292,6 @@ App\Entity\Core\Attribute:
     definition: '@ad_keywords'
     asset: '@a_*'
     value: '<word()>'
-
-App\Entity\Core\RenditionRule:
-  rr:
-    userType: 0
-    objectType: 0
-    objectId: '@w_newspaper->id'
-    allowed:
-      - '@n_rc_public'
 
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:

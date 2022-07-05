@@ -1,5 +1,5 @@
 import apiClient, {RequestConfig} from "./api-client";
-import {Asset, Attribute, AttributeDefinition} from "../types";
+import {Asset, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
 
@@ -127,16 +127,6 @@ export async function deleteAssets(ids: string[]): Promise<void> {
             ids,
         }
     });
-}
-
-export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
-    const res = await apiClient.get(`/attribute-definitions`, {
-        params: {
-            workspaceId,
-        }
-    });
-
-    return res.data['hydra:member'];
 }
 
 export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {

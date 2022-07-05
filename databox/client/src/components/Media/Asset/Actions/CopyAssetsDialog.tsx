@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import {Alert, Typography} from "@mui/material";
@@ -14,6 +14,7 @@ import FormRow from "../../../Form/FormRow";
 import SwitchWidget from "../../../Form/SwitchWidget";
 import {Asset} from "../../../../types";
 import AssetSelection from "../AssetSelection";
+import {useModalHash} from "../../../../hooks/useModalHash";
 
 type Props = {
     assets: Asset[];
@@ -59,7 +60,7 @@ export default function CopyAssetsDialog({
                                          }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const [selectionOW, setSelectionOW] = useState<string[]>([]);
     const [selectionP, setSelectionP] = useState<string[]>([]);
 
@@ -118,8 +119,8 @@ export default function CopyAssetsDialog({
     );
     const nonLinkableToOtherWS: Asset[] = useMemo(
         () => byRef ? assets
-            .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id !== workspaceDest)
-        : [], [workspaceDest, nonLinkablePerm]);
+                .filter(a => a.capabilities.canShare && workspaceDest && a.workspace.id !== workspaceDest)
+            : [], [workspaceDest, nonLinkablePerm]);
 
     const formId = 'copy-assets';
 

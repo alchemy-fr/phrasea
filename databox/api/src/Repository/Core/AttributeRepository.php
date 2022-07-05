@@ -47,6 +47,7 @@ class AttributeRepository extends EntityRepository implements AttributeRepositor
             ->andWhere('a.asset = :asset')
             ->setParameter('asset', $asset->getId())
             ->innerJoin('a.definition', 'd')
+            ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')
             ->addOrderBy('a.position', 'ASC')
             ->getQuery()

@@ -30,4 +30,3 @@ const useHash = (): [string, (newHash: string) => boolean] => {
 };
 
 export default useHash;
-

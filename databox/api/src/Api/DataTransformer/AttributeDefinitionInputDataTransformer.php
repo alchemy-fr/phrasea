@@ -55,6 +55,9 @@ class AttributeDefinitionInputDataTransformer extends AbstractInputDataTransform
             $object->setKey($data->key);
         }
 
+        if ($data->class) {
+            $object->setClass($data->class);
+        }
         if ($data->allowInvalid) {
             $object->setAllowInvalid($data->allowInvalid);
         }

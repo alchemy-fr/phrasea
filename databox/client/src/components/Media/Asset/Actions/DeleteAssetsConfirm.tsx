@@ -2,7 +2,7 @@ import React from 'react';
 import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import ConfirmDialog from "../../../Ui/ConfirmDialog";
 import {useTranslation} from "react-i18next";
-import {deleteAsset, deleteAssets} from "../../../../api/asset";
+import {deleteAssets} from "../../../../api/asset";
 
 type Props = {
     assetIds: string[];

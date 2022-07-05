@@ -36,41 +36,39 @@ export default function FilePlayer({
     switch (mainType) {
         case FileTypeEnum.Image:
             return <img
-                    style={{
-                        maxWidth: maxDimensions.width,
-                        maxHeight: maxDimensions.height,
-                        display: 'block',
-                    }}
-                    src={file.url}
-                    alt={title}
-                    onLoad={onLoad}
-                />
+                style={{
+                    maxWidth: maxDimensions.width,
+                    maxHeight: maxDimensions.height,
+                    display: 'block',
+                }}
+                src={file.url}
+                alt={title}
+                onLoad={onLoad}
+            />
         case FileTypeEnum.Audio:
         case FileTypeEnum.Video:
             return <VideoPlayer
-                    file={file as FileWithUrl}
-                    minDimensions={minDimensions}
-                    maxDimensions={maxDimensions}
-                    onLoad={onLoad}
-                    noInteraction={noInteraction}
-                    autoPlayable={autoPlayable}
-                />
+                file={file as FileWithUrl}
+                minDimensions={minDimensions}
+                maxDimensions={maxDimensions}
+                onLoad={onLoad}
+                noInteraction={noInteraction}
+                autoPlayable={autoPlayable}
+            />
         case FileTypeEnum.Document:
             return <PDFPlayer
-                    file={file as FileWithUrl}
-                    minDimensions={minDimensions}
-                    maxDimensions={maxDimensions}
-                    onLoad={onLoad}
-                    noInteraction={noInteraction}
-                />
+                file={file as FileWithUrl}
+                minDimensions={minDimensions}
+                maxDimensions={maxDimensions}
+                onLoad={onLoad}
+                noInteraction={noInteraction}
+            />
         default:
             return <div
                 style={{
                     width: '100%',
                     height: '100%',
                 }}
-            >
-                Unknown TODO
-            </div>
+            ></div>
     }
 }

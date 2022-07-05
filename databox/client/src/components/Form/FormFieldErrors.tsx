@@ -10,13 +10,14 @@ type Props<T extends FieldValues> = {
 }
 
 export default function FormFieldErrors<T extends FieldValues>({
-                                                               field,
-                                                               errors,
-                                                           }: Props<T>) {
+                                                                   field,
+                                                                   errors,
+                                                               }: Props<T>) {
     const {t} = useTranslation();
 
     return <>
-        {errors[field]?.type === 'required' && <FormError>{t('form.error.required', 'This field is required')}</FormError>}
+        {errors[field]?.type === 'required' &&
+            <FormError>{t('form.error.required', 'This field is required')}</FormError>}
         {errors[field] && <FormError>{errors[field].message}</FormError>}
     </>
 }

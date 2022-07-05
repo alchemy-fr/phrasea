@@ -8,10 +8,11 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Form\PrivacyChoiceType;
+use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Query;
+use Symfony\Component\Security\Core\Security;
 
 class FacetHandler
 {
@@ -20,10 +21,12 @@ class FacetHandler
     public const FACET_WORKSPACE = 'ws';
     public const FACET_COLLECTION = 'c';
     private EntityManagerInterface $em;
+    private Security $security;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, Security $security)
     {
         $this->em = $em;
+        $this->security = $security;
     }
 
     public function buildTagFacet(Query $query): void
@@ -106,33 +109,44 @@ class FacetHandler
         }
 
         if (isset($facets[self::FACET_COLLECTION])) {
-            $facets[self::FACET_COLLECTION]['buckets'] = array_map(function (array $bucket): array {
+            $facets[self::FACET_COLLECTION]['buckets'] = array_values(array_filter(array_map(function (array $bucket): ?array {
+                $label = $this->normalizeCollectionPath($bucket['key']);
+                if (null === $label) {
+                    return null;
+                }
+
                 $bucket['key'] = [
                     'value' => $bucket['key'],
-                    'label' => $this->normalizeCollectionPath($bucket['key']),
+                    'label' => $label,
                 ];
 
                 return $bucket;
-            }, $facets[self::FACET_COLLECTION]['buckets']);
+            }, $facets[self::FACET_COLLECTION]['buckets'])));
         }
 
         return $facets;
     }
 
-    private function normalizeCollectionPath(string $path): string
+    private function normalizeCollectionPath(string $path): ?string
     {
         $ids = explode('/', $path);
         array_shift($ids);
-        $collections = $this->em->getRepository(Collection::class)->findByIds($ids);
 
-        /** @var Collection[] $index */
-        $index = [];
-        foreach ($collections as $c) {
-            $index[$c->getId()] = $c;
+        /** @var Collection[] $collections */
+        $collections = array_filter(array_map(function (string $id): ?Collection {
+            return $this->em->find(Collection::class, $id);
+        }, $ids));
+
+        if (empty($collections) || count($collections) < count($ids)) {
+            return null;
         }
 
-        return implode(' / ', array_map(function (string $id) use ($index): ?string {
-            return $index[$id]->getTitle();
-        }, $ids));
+        if (!$this->security->isGranted(CollectionVoter::READ, $collections[count($collections) - 1])) {
+            return null;
+        }
+
+        return implode(' / ', array_map(function (Collection $c): ?string {
+            return $c->getTitle() ?? $c->getId();
+        }, $collections));
     }
 }

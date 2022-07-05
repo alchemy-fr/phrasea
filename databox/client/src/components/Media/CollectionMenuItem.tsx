@@ -10,12 +10,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import EditCollection, {OnCollectionEdit} from "./Collection/EditCollection";
-import {useModals} from "@mattjennings/react-modal-stack";
+import {OnCollectionEdit} from "./Collection/EditCollection";
 import CreateCollection from "./Collection/CreateCollection";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
 import CreateAsset from "./Asset/CreateAsset";
+import ModalLink from "../Routing/ModalLink";
+import {useModalHash} from "../../hooks/useModalHash";
 
 type Props = {
     level: number;
@@ -33,13 +34,12 @@ export default function CollectionMenuItem({
                                                titlePath,
                                                title,
                                                capabilities,
-                                               onCollectionEdit,
                                                onCollectionDelete,
                                                workspace,
                                                level,
                                            }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
     const searchContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);
@@ -191,7 +191,7 @@ export default function CollectionMenuItem({
             secondaryAction={<>
                 <span className="c-action">
                     {capabilities.canEdit && <IconButton
-                        title={'Add new asset to collection'}
+                        title={t('collection.item.create_asset', 'Add new asset to collection')}
                         onClick={() => openModal(CreateAsset, {
                             collectionId: id,
                             workspaceTitle: workspace.name,
@@ -202,7 +202,7 @@ export default function CollectionMenuItem({
                         <AddPhotoAlternateIcon/>
                     </IconButton>}
                     {capabilities.canEdit && <IconButton
-                        title={'Create new collection in this one'}
+                        title={t('collection.item.create_collection', 'Create new collection in this one')}
                         onClick={() => openModal(CreateCollection, {
                             parent: iri,
                             workspaceTitle: workspace.name,
@@ -213,11 +213,13 @@ export default function CollectionMenuItem({
                         <CreateNewFolderIcon/>
                     </IconButton>}
                     {capabilities.canEdit && <IconButton
-                        title={'Edit this collection'}
-                        onClick={() => openModal(EditCollection, {
+                        component={ModalLink}
+                        routeName={'collection_manage'}
+                        params={{
                             id,
-                            onEdit: onCollectionEdit,
-                        })}
+                            tab: 'edit',
+                        }}
+                        title={t('collection.item.edit', 'Edit this collection')}
                         aria-label="edit">
                         <EditIcon/>
                     </IconButton>}

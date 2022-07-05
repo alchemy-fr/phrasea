@@ -7,11 +7,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from "@mui/material/Popover/Popover";
 import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
-import EditAsset from "./EditAsset";
-import EditAssetAttributes from "./EditAssetAttributes";
+import {useModalHash} from "../../../hooks/useModalHash";
+import {getPath} from "../../../routes";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -20,13 +20,20 @@ type Props = {
     onClose: () => void;
 };
 
+export function hasContextMenu({capabilities}: Asset): boolean {
+    return capabilities.canEdit
+    || capabilities.canEditPermissions
+    || capabilities.canEditAttributes;
+}
+
 export default function AssetContextMenu({
                                              asset,
                                              anchorPosition,
                                              anchorEl,
                                              onClose,
                                          }: Props) {
-    const {openModal} = useModals();
+    const {openModal} = useModalHash();
+    const navigate = useNavigate();
     const resultContext = useContext(ResultContext);
     const {
         id,
@@ -52,22 +59,18 @@ export default function AssetContextMenu({
     }
 
     const onEdit = () => {
-        openModal(EditAsset, {
-            id,
-            onEdit: () => {
-                resultContext.reload();
-            }
-        });
+        navigate(getPath('app_asset_manage', {
+            tab: 'edit',
+            id: asset.id,
+        }));
         onClose();
     }
 
     const onEditAttr = () => {
-        openModal(EditAssetAttributes, {
-            asset,
-            onEdit: () => {
-                resultContext.reload();
-            },
-        });
+        navigate(getPath('app_asset_manage', {
+            tab: 'attributes',
+            id: asset.id,
+        }));
         onClose();
     }
 

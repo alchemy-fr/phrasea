@@ -1,11 +1,11 @@
 import React from "react";
 import AttributeWidget from "./AttributeWidget";
 import {AttributeDefinition} from "../../../../types";
-import {AttrValue, LocalizedAttributeIndex, OnChangeHandler} from "./AttributesEditor";
+import {AttrValue, LocalizedAttributeIndex, NO_LOCALE, OnChangeHandler} from "./AttributesEditor";
 import MultiAttributeRow from "./MultiAttributeRow";
-import {NO_LOCALE} from "../EditAssetAttributes";
-import {isRtlLocale} from "../../../../lib/lang";
 import FormRow from "../../../Form/FormRow";
+import {FormLabel} from "@mui/material";
+import TranslatableAttributeTabs from "./TranslatableAttributeTabs";
 
 type Props = {
     definition: AttributeDefinition;
@@ -14,6 +14,8 @@ type Props = {
     onChange: OnChangeHandler;
     indeterminate?: boolean;
     readOnly?: boolean;
+    currentLocale: string;
+    onLocaleChange: (locale: string) => void;
 }
 
 export default function AttributeType({
@@ -23,6 +25,8 @@ export default function AttributeType({
                                           disabled,
                                           onChange,
                                           indeterminate,
+                                          currentLocale,
+                                          onLocaleChange,
                                       }: Props) {
 
     const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
@@ -39,34 +43,20 @@ export default function AttributeType({
 
     if (definition.translatable) {
         return <>
-            {definition.locales!.map(locale => {
-                const label = `${definition.name} ${locale.toUpperCase()}`;
-
-                return <FormRow>
-                    {definition.multiple ? <MultiAttributeRow
-                        indeterminate={indeterminate}
-                        readOnly={readOnly}
-                        disabled={disabled}
-                        type={definition.fieldType}
-                        isRtl={isRtlLocale(locale)}
-                        name={label}
-                        values={(attributes[locale] || []) as AttrValue<string | number>[]}
-                        onChange={(values) => changeHandler(locale, values)}
-                        id={definition.id}
-                    /> : <AttributeWidget
-                        indeterminate={indeterminate}
-                        readOnly={readOnly}
-                        value={attributes[locale] as AttrValue<string | number> | undefined}
-                        disabled={disabled}
-                        type={definition.fieldType}
-                        isRtl={isRtlLocale(locale)}
-                        name={label}
-                        required={false}
-                        onChange={(v) => changeHandler(locale, v)}
-                        id={definition.id}
-                    />}
-                </FormRow>
-            })}
+            <FormRow>
+                <FormLabel>
+                    {definition.name}
+                </FormLabel>
+                <TranslatableAttributeTabs
+                    currentLocale={currentLocale}
+                    onLocaleChange={onLocaleChange}
+                    definition={definition}
+                    changeHandler={changeHandler}
+                    attributes={attributes}
+                    readOnly={readOnly}
+                    disabled={disabled}
+                />
+            </FormRow>
         </>
     }
 

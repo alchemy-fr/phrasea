@@ -1,3 +1,4 @@
+// noinspection ES6UnusedImports
 import * as axios from 'axios'
 
 declare module 'axios' {

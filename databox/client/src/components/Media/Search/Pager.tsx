@@ -21,14 +21,14 @@ type Props = {
 };
 
 export default React.memo<Props>(function Pager({
-                                             pages,
-                                             layout,
-                                             selectedAssets,
-                                             onSelect,
-                                             onUnselect,
-                                             onContextMenuOpen,
-                                             onPreviewToggle,
-                                         }: Props) {
+                                                    pages,
+                                                    layout,
+                                                    selectedAssets,
+                                                    onSelect,
+                                                    onUnselect,
+                                                    onContextMenuOpen,
+                                                    onPreviewToggle,
+                                                }: Props) {
     return <Box
         sx={{
             bgcolor: 'common.white',

@@ -38,6 +38,10 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
             }
             $wId = $workspace ? $workspace->getId() : null;
 
+            if (null === $wId) {
+                return;
+            }
+
             if (null === $workspaceId) {
                 $workspaceId = $wId;
             } elseif ($workspaceId !== $wId) {

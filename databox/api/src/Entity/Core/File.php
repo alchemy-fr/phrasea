@@ -141,4 +141,14 @@ class File extends AbstractUuidEntity
     {
         $this->alternateUrls = $alternateUrls;
     }
+
+    public function getChecksum(): ?string
+    {
+        return $this->checksum;
+    }
+
+    public function setChecksum(?string $checksum): void
+    {
+        $this->checksum = $checksum;
+    }
 }

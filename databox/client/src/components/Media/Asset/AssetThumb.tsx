@@ -32,17 +32,18 @@ export default function AssetThumb({
         size={thumbSize}
         className={assetClasses.thumbWrapper}
     >
-        {thumbnail && <div
+        <div
             className={thumbnailActive ? assetClasses.thumbInactive : undefined}
         >
-            <FilePlayer
+            {!thumbnail && original && <AssetFileIcon file={original}/>}
+            {thumbnail && <FilePlayer
                 file={thumbnail}
                 title={resolvedTitle}
                 minDimensions={dimensions}
                 maxDimensions={dimensions}
                 autoPlayable={false}
-            />
-        </div>}
+            />}
+        </div>
         {thumbnailActive && <div className={assetClasses.thumbActive}>
             <FilePlayer
                 minDimensions={dimensions}
@@ -52,7 +53,6 @@ export default function AssetThumb({
                 autoPlayable={false}
             />
         </div>}
-        {!thumbnail && original && <AssetFileIcon file={original}/>}
     </Thumb>
 }
 

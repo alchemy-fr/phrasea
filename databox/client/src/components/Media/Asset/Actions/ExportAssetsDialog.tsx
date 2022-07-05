@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {StackedModalProps, useModals} from "@mattjennings/react-modal-stack";
+import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {exportAssets} from "../../../../api/export";
-import {Asset, RenditionDefinition} from "../../../../types";
+import {Asset, RenditionDefinition, Workspace} from "../../../../types";
 import {useForm} from "react-hook-form";
 import FormRow from "../../../Form/FormRow";
 import {Checkbox, FormControlLabel, Typography} from "@mui/material";
@@ -12,6 +12,7 @@ import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FullPageLoader from "../../../Ui/FullPageLoader";
+import {useModalHash} from "../../../../hooks/useModalHash";
 
 type Props = {
     assets: Asset[];
@@ -34,7 +35,7 @@ export default function ExportAssetsDialog({
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
 
     const count = assets.length;
 
@@ -47,14 +48,15 @@ export default function ExportAssetsDialog({
             const index: IndexedDefinition = {};
 
             defs.result.forEach(rd => {
-                if (!index.hasOwnProperty(rd.workspace.id)) {
-                    index[rd.workspace.id] = {
-                        name: rd.workspace.name,
+                const ws = rd.workspace as Workspace;
+                if (!index.hasOwnProperty(ws.id)) {
+                    index[ws.id] = {
+                        name: ws.name,
                         defs: [],
                     }
                 }
 
-                index[rd.workspace.id].defs.push(rd);
+                index[ws.id].defs.push(rd);
             });
             setDefinitions(index);
         });

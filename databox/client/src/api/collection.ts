@@ -42,7 +42,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
         limit: collectionChildrenLimit + 1,
     });
 
-    const workspaces: {[key: string]: Workspace} = {};
+    const workspaces: { [key: string]: Workspace } = {};
 
     collections.result.forEach((c: Collection) => {
         if (!workspaces[c.workspace.id]) {

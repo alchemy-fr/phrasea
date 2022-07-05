@@ -1,13 +1,12 @@
 import React from "react";
-import TagSelect from "../Tag/TagSelect";
-import GroupSelect from "../../User/GroupSelect";
-import UserSelect from "../../User/UserSelect";
+import TagSelect from "../../Form/TagSelect";
+import GroupSelect from "../../Form/GroupSelect";
+import UserSelect from "../../Form/UserSelect";
 import {Button, FormGroup, FormHelperText, FormLabel, Grid, Paper} from "@mui/material";
-import {useTranslation} from "react-i18next";
+import {Trans, useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import FormRow from "../../Form/FormRow";
 import {deleteTagFilterRule, saveTagFilterRule} from "../../../api/tag-filter-rule";
-import FormError from "../../Form/FormError";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 
 type FilterRule = {
@@ -102,12 +101,13 @@ export default function FilterRule({
                     </Grid>
                     : <><Grid item md={5}>
                         <FormRow>
+                            <FormLabel>{t('filter_rule.group', 'Group')}</FormLabel>
                             <GroupSelect
                                 name={'groupId'}
                                 control={control}
                                 disabledValues={disabledGroups}
                             />
-                            <FormFieldErrors field={'groupId'} errors={errors} />
+                            <FormFieldErrors field={'groupId'} errors={errors}/>
                         </FormRow>
                     </Grid>
                         <Grid item md={2}>
@@ -115,12 +115,13 @@ export default function FilterRule({
                         </Grid>
                         <Grid item md={5}>
                             <FormRow>
+                                <FormLabel>{t('filter_rule.user', 'User')}</FormLabel>
                                 <UserSelect
                                     name={'userId'}
                                     control={control}
                                     disabledValues={disabledUsers}
                                 />
-                                <FormFieldErrors field={'userId'} errors={errors} />
+                                <FormFieldErrors field={'userId'} errors={errors}/>
                             </FormRow>
                         </Grid>
                     </>
@@ -128,32 +129,44 @@ export default function FilterRule({
                 <Grid item md={6}>
                     <FormRow>
                         <FormGroup>
-                            <FormLabel>Tags to <b>include</b></FormLabel>
+                            <FormLabel>
+                                <Trans key={'filter_rule.include.label'}>
+                                    Tags to <b>include</b>
+                                </Trans>
+                            </FormLabel>
                             <TagSelect
                                 name={'include'}
                                 control={control}
                                 workspaceId={workspaceIdForTags}
                             />
                             <FormHelperText>
-                                Assets in this {type} will only be visible if they contains theses tags.
+                                {t('filter_rule.include.helper', `Assets in this {{type}} will only be visible if they contains theses tags.`, {
+                                    type,
+                                })}
                             </FormHelperText>
-                            <FormFieldErrors field={'include'} errors={errors} />
+                            <FormFieldErrors field={'include'} errors={errors}/>
                         </FormGroup>
                     </FormRow>
                 </Grid>
                 <Grid item md={6}>
                     <FormRow>
                         <FormGroup>
-                            <FormLabel>Tags to <b>exclude</b></FormLabel>
+                            <FormLabel>
+                                <Trans key={'filter_rule.exclude.label'}>
+                                    Tags to <b>exclude</b>
+                                </Trans>
+                            </FormLabel>
                             <TagSelect
                                 name={'exclude'}
                                 control={control}
                                 workspaceId={workspaceIdForTags}
                             />
                             <FormHelperText>
-                                Assets in this {type} will only be visible if they DOES NOT contains theses tags.
+                                {t('filter_rule.exclude.helper', `Assets in this {{type}} will only be visible if they DOES NOT contains theses tags.`, {
+                                    type,
+                                })}
                             </FormHelperText>
-                            <FormFieldErrors field={'exclude'} errors={errors} />
+                            <FormFieldErrors field={'exclude'} errors={errors}/>
                         </FormGroup>
                     </FormRow>
                 </Grid>

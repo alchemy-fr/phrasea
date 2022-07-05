@@ -1,21 +1,19 @@
 import React, {useCallback, useState} from "react";
-import {Box, Button} from "@mui/material";
+import {Box} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {attributeBatchUpdate, AttributeBatchAction, getAssetAttributes,} from "../../../../api/asset";
+import {AttributeBatchAction, attributeBatchUpdate, getAssetAttributes,} from "../../../../api/asset";
 import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
-import {NO_LOCALE} from "../EditAssetAttributes";
 import {toast} from "react-toastify";
-import AppDialog from "../../../Layout/AppDialog";
-import SaveIcon from "@mui/icons-material/Save";
 import {useTranslation} from 'react-i18next';
-import {LoadingButton} from "@mui/lab";
+import FormTab from "../../../Dialog/Tabbed/FormTab";
 
 export type AttrValue<T = string> = {
     id: T;
     value: any;
 }
 
+export const NO_LOCALE = '_';
 export type DefinitionIndex = Record<string, AttributeDefinition>;
 export type LocalizedAttributeIndex<T = string> = { [locale: string]: AttrValue<T> | AttrValue<T>[] | undefined };
 export type AttributeIndex<T = string> = { [definitionId: string]: LocalizedAttributeIndex<T> };
@@ -27,6 +25,7 @@ type Props = {
     attributes: AttributeIndex;
     onClose: () => void;
     onEdit: () => void;
+    minHeight?: number | undefined;
 }
 
 let idInc = 1;
@@ -86,12 +85,16 @@ export default function AttributesEditor({
                                              attributes: initialAttrs,
                                              onClose,
                                              onEdit,
+                                             minHeight,
                                          }: Props) {
     const {t} = useTranslation();
+    const [currentLocale, setCurrentLocale] = useState<string>('fr_FR');
     const [error, setError] = useState<string>();
     const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
     const [saving, setSaving] = useState<any>(false);
+
+    console.log('currentLocale', currentLocale);
 
     const onChange = useCallback((defId: string, value: LocalizedAttributeIndex<string | number> | undefined) => {
         setAttributes((prev: AttributeIndex<string | number>): AttributeIndex<string | number> => {
@@ -236,47 +239,34 @@ export default function AttributesEditor({
         }
     }
 
-    return <AppDialog
-        loading={saving}
-        onClose={onClose}
-        title={t(`form.attributes.title`, `Edit asset attributes`)}
-        actions={({onClose}) => <>
-            <Button
-                onClick={onClose}
-                color={'warning'}
-                disabled={saving}
-            >
-                {t('dialog.cancel', 'Cancel')}
-            </Button>
-            <LoadingButton
-                startIcon={<SaveIcon/>}
-                type={'submit'}
-                onClick={save}
-                color={'primary'}
-                disabled={saving}
-                loading={saving}
-            >
-                {t('dialog.save', 'Save')}
-            </LoadingButton>
-        </>}
-    >
-        {Object.keys(definitions).map(defId => {
-            const d = definitions[defId];
+    return <>
+        <FormTab
+            formId={'a'}
+            onSave={save}
+            onClose={onClose}
+            minHeight={minHeight}
+            loading={saving}
+        >
+            {Object.keys(definitions).map(defId => {
+                const d = definitions[defId];
 
-            return <Box
-                key={defId}
-                sx={{
-                    mb: 5
-                }}
-            >
-                <AttributeType
-                    readOnly={!d.canEdit}
-                    attributes={attributes[defId]}
-                    disabled={saving}
-                    definition={d}
-                    onChange={onChange}
-                />
-            </Box>
-        })}
-    </AppDialog>
+                return <Box
+                    key={defId}
+                    sx={{
+                        mb: 5
+                    }}
+                >
+                    <AttributeType
+                        readOnly={!d.canEdit}
+                        attributes={attributes[defId]}
+                        disabled={saving}
+                        definition={d}
+                        onChange={onChange}
+                        onLocaleChange={setCurrentLocale}
+                        currentLocale={currentLocale}
+                    />
+                </Box>
+            })}
+        </FormTab>
+    </>
 }

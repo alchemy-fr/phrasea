@@ -9,6 +9,6 @@ export default function FullPageLoader() {
         })}
         open={true}
     >
-        <CircularProgress color="inherit" />
+        <CircularProgress color="inherit"/>
     </Backdrop>
 }

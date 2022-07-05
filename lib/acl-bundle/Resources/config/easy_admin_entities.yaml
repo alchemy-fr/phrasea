@@ -12,7 +12,7 @@ easy_admin:
           - { property: userTypeString, label: Type }
           - { property: userId, label: ID }
           - { property: objectType }
-          - { property: objectId }
+          - { property: objectId, type: string }
           - { property: mask }
       form:
         fields:

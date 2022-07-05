@@ -10,7 +10,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from "../../Ui/TooltipToggleButton";
 import {AssetSelectionContext, TAssetSelectionContext} from "../AssetSelectionContext";
 import {ResultContext, TResultContext} from "./ResultContext";
-import {useModals} from "@mattjennings/react-modal-stack";
 import DebugEsModal from "./DebugEsModal";
 import {styled} from "@mui/material/styles";
 import DeleteAssetsConfirm from "../Asset/Actions/DeleteAssetsConfirm";
@@ -25,8 +24,9 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import EditAsset from "../Asset/EditAsset";
-import EditAssetAttributes from "../Asset/EditAssetAttributes";
+import {useModalHash} from "../../../hooks/useModalHash";
+import {getPath} from "../../../routes";
+import {useNavigate} from "react-router-dom";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -70,7 +70,8 @@ export default function SelectionActions({
                                              onLayoutChange,
                                          }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
+    const navigate = useNavigate();
+    const {openModal} = useModalHash();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
 
@@ -182,12 +183,10 @@ export default function SelectionActions({
 
     const onEdit = () => {
         if (selectionContext.selectedAssets.length === 1) {
-            openModal(EditAsset, {
+            navigate(getPath('app_asset_manage', {
+                tab: 'edit',
                 id: selectionContext.selectedAssets[0],
-                onEdit: () => {
-                    resultContext.reload();
-                }
-            });
+            }));
         } else {
             alert('Multi edit is comin soon...');
         }
@@ -196,12 +195,10 @@ export default function SelectionActions({
     const onEditAttributes = () => {
         const assets = getSelectedAssets(selectionContext, resultContext);
         if (assets.length === 1) {
-            openModal(EditAssetAttributes, {
-                asset: assets[0],
-                onEdit: () => {
-                    resultContext.reload();
-                }
-            });
+            navigate(getPath('app_asset_manage', {
+                tab: 'attributes',
+                id: selectionContext.selectedAssets[0],
+            }));
         } else {
             alert('Multi edit attributes is comin soon...');
         }
@@ -323,8 +320,8 @@ export default function SelectionActions({
                 border: (theme) => `1px solid ${theme.palette.divider}`,
                 borderTop: 0,
                 borderRight: 0,
-                flexWrap: 'wrap',
                 alignItems: 'center',
+                alignSelf: 'flex-start'
             }}
         >
             <Box sx={{

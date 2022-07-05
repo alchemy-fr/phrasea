@@ -6,10 +6,10 @@ import {Collection} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {clearWorkspaceCache, postCollection} from "../../../api/collection";
 import {toast} from "react-toastify";
-import {useModals} from "@mattjennings/react-modal-stack";
 import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
+import {useModalHash} from "../../../hooks/useModalHash";
 
 type Props = {
     parent?: string;
@@ -26,7 +26,7 @@ export default function CreateCollection({
                                              workspaceTitle,
                                              onCreate,
                                          }: Props) {
-    const {closeModal} = useModals();
+    const {closeModal} = useModalHash();
     const {t} = useTranslation();
     const {
         submitting,

@@ -10,23 +10,29 @@ export type TSearchContext = {
     collections?: string[];
     workspaces?: string[];
     query: string;
-    setQuery: (query: string) => void;
+    setQuery: (query: string, force?: boolean) => void;
     toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
     attrFilters: Filters;
-    hash?: string;
+    searchChecksum?: string;
     reloadInc: number;
 }
 
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
     attrFilters: [],
-    selectCollection: () => {},
-    selectWorkspace: () => {},
-    setQuery: () => {},
-    toggleAttrFilter: () => {},
-    removeAttrFilter: () => {},
-    invertAttrFilter: () => {},
+    selectCollection: () => {
+    },
+    selectWorkspace: () => {
+    },
+    setQuery: () => {
+    },
+    toggleAttrFilter: () => {
+    },
+    removeAttrFilter: () => {
+    },
+    invertAttrFilter: () => {
+    },
     reloadInc: 0,
 });
