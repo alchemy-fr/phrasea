@@ -87,12 +87,12 @@ const AssetItem = React.memo(({
                     privacy={asset.privacy}
                     size={'small'}
                 />
-                {asset.collections.length > 0 && <div>
+                <div>
                     <AssetCollectionList
                         workspace={asset.workspace}
                         collections={asset.collections}
                     />
-                </div>}
+                </div>
                 {displayAttributes && <Attributes
                     asset={asset}
                 />}

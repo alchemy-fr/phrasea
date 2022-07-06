@@ -180,6 +180,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class' }
+          - { property: 'pickSourceFile', label: Pick from source }
           - { property: 'useAsOriginal', label: Original }
           - { property: 'useAsPreview', label: Preview }
           - { property: 'useAsThumbnail', label: Thumbnail }
@@ -191,6 +192,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'name' }
           - { property: 'class' }
+          - { property: 'pickSourceFile', label: Pick from source }
           - { property: 'useAsOriginal' }
           - { property: 'useAsPreview' }
           - { property: 'useAsThumbnail' }

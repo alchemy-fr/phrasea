@@ -60,6 +60,7 @@ App\Entity\Core\RenditionDefinition:
   n_rd_original (extends rendition_definition):
     name: original
     class: '@n_rc_public'
+    pickSourceFile: true
     useAsOriginal: true
   n_rd_preview (extends rendition_definition):
     name: preview

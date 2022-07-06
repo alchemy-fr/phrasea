@@ -27,7 +27,7 @@ class OriginalRenditionManager
         $originalRenditionDefinitions = $this->em->getRepository(RenditionDefinition::class)
             ->findBy([
                 'workspace' => $file->getWorkspace()->getId(),
-                'useAsOriginal' => true,
+                'pickSourceFile' => true,
             ]);
 
         $renditions = [];

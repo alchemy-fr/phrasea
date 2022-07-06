@@ -57,6 +57,13 @@ class RenditionDefinition extends AbstractUuidEntity
      * @ORM\Column(type="boolean")
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
+    private bool $pickSourceFile = false;
+
+    /**
+     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     * @ORM\Column(type="boolean")
+     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
+     */
     private bool $useAsOriginal = false;
 
     /**
@@ -200,5 +207,15 @@ class RenditionDefinition extends AbstractUuidEntity
     public function setDownload(bool $download): void
     {
         $this->download = $download;
+    }
+
+    public function isPickSourceFile(): bool
+    {
+        return $this->pickSourceFile;
+    }
+
+    public function setPickSourceFile(bool $pickSourceFile): void
+    {
+        $this->pickSourceFile = $pickSourceFile;
     }
 }
