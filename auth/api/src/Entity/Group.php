@@ -32,7 +32,7 @@ class Group
     protected ?string $name = null;
 
     /**
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
     protected array $roles = [];
 

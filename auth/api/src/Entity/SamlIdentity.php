@@ -39,7 +39,7 @@ class SamlIdentity
 
     /**
      * @var array
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
     protected $attributes = [];
 

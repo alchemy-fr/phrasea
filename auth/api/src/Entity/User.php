@@ -58,7 +58,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
     protected $salt;
 
     /**
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
     protected array $roles = [];
 

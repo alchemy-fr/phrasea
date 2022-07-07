@@ -6,8 +6,8 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\OAuth\OAuthProviderFactory;
-use App\OAuth\ResourceOwner\ResourceOwnerInterface;
 use App\Security\OAuthUserProvider;
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
 use Symfony\Component\HttpFoundation\Request;

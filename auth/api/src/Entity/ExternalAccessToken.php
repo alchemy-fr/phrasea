@@ -45,13 +45,13 @@ class ExternalAccessToken
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=5000)
      */
     protected $accessToken;
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=5000, nullable=true)
      */
     protected $refreshToken;
 

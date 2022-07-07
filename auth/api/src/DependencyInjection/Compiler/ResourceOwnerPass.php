@@ -19,6 +19,10 @@ class ResourceOwnerPass implements CompilerPassInterface
 
         $definition = $container->getDefinition(OAuthProviderFactory::class);
 
+        foreach ($container->getParameter('oauth_resource_owners') as $k => $v) {
+            $definition->addMethodCall('addResourceOwner', [$k, $v]);
+        }
+
         foreach ($container->findTaggedServiceIds('app.resource_owner') as $id => $tag) {
             /* @var ResourceOwnerInterface|string $id */
             $definition->addMethodCall('addResourceOwner', [$id::getTypeName(), $id]);

@@ -30,3 +30,4 @@ Then refer to the Auth API [documentation](./api/README.md)
 
 - [User import](./doc/user-import.md)
 - [Configuring SAML IdP](./doc/saml.md)
+- [Configuring OpenID Connect with Keycloak](./doc/openid-connect.md)
