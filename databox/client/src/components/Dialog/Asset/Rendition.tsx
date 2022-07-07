@@ -45,7 +45,8 @@ export function Rendition({
             autoPlayable={false}
         />}
         info={<div>
-            {byteSize(file.size).toString()} • {file.type}
+            {file.size && <>{byteSize(file.size).toString()} •{' '}</>}
+            {file.type}
         </div>}
         actions={<>
             {file?.url && <Button
