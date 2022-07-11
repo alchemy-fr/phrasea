@@ -36,10 +36,12 @@ class GroupMapperTest extends TestCase
             ->willReturn($repo);
 
         $groupMapper = new GroupMapper($stubEm, [
-            '1A' => 'A',
-            '1B' => 'B',
-            '1C' => 'C',
-            '1D' => 'D',
+                'foo' => [
+                '1A' => 'A',
+                '1B' => 'B',
+                '1C' => 'C',
+                '1D' => 'D',
+            ]
         ]);
 
         $user = new User();
@@ -47,7 +49,7 @@ class GroupMapperTest extends TestCase
         $groupA->setName('A');
         $user->addGroup($groupA);
 
-        $groupMapper->updateGroups($user, [
+        $groupMapper->updateGroups('foo', $user, [
             '1B',
             '1C',
         ]);
