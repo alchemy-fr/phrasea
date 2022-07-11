@@ -41,7 +41,7 @@ class File extends AbstractUuidEntity
     private ?string $type = null;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="bigint", nullable=true)
      */
     private ?int $size = null;
 

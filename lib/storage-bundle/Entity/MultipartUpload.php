@@ -113,7 +113,7 @@ class MultipartUpload
     private ?string $type = null;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Groups("upload_read")
      */
     private ?int $size = null;
