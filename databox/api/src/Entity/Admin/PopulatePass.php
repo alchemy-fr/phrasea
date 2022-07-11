@@ -25,12 +25,12 @@ class PopulatePass extends AbstractUuidEntity
     protected ?DateTimeInterface $endedAt = null;
 
     /**
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="bigint", nullable=false)
      */
     private int $documentCount;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="bigint", nullable=true)
      */
     private ?int $progress = null;
 
