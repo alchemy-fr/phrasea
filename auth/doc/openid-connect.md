@@ -12,6 +12,10 @@ Add identity provider to `configs/config.json`:
         "title": "Keycloak",
         "name": "keycloak",
         "type": "oauth",
+        "group_map": {
+          "groupA": "group1",
+          "groupB": "group2"
+        },
         "options": {
           "type": "keycloak",
           "client_id": "ps-auth",

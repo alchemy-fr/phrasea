@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\ExternalAccessToken;
-use App\Entity\Group;
 use App\Entity\User;
 use App\OAuth\ResponsePathExtractor;
+use App\User\GroupMapper;
 use App\User\UserManager;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
@@ -19,11 +20,13 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
     private EntityManagerInterface $em;
     private UserManager $userManager;
+    private GroupMapper $groupMapper;
 
-    public function __construct(EntityManagerInterface $em, UserManager $userManager)
+    public function __construct(EntityManagerInterface $em, UserManager $userManager, GroupMapper $groupMapper)
     {
         $this->em = $em;
         $this->userManager = $userManager;
+        $this->groupMapper = $groupMapper;
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
@@ -52,7 +55,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
             $accessToken->setRefreshToken($response->getRefreshToken());
         }
         if (null !== $response->getExpiresIn()) {
-            $expiresAt = new \DateTime();
+            $expiresAt = new DateTime();
             $expiresAt->setTimestamp(time() + (int) $response->getExpiresIn());
             $accessToken->setExpiresAt($expiresAt);
         }
@@ -64,6 +67,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
 
     private function assignGroups(User $user, UserResponseInterface $response): void
     {
+        $providerName = $response->getResourceOwner()->getName();
         if (!$response instanceof PathUserResponse) {
             return;
         }
@@ -72,40 +76,10 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
             return;
         }
         $groups = ResponsePathExtractor::getValueForPath($response->getPaths(), $response->getData(), 'groups');
+
         if (null !== $groups) {
-            $groups = array_map(function (string $name): string {
-                return preg_replace('#^/#', '', $name);
-            }, $groups);
-
-            // remove old groups
-            foreach ($user->getGroups() as $group) {
-                if (!in_array($group, $groups, true)) {
-                    $user->removeGroup($group);
-                }
-            }
-
-            foreach ($groups as $groupName) {
-                $user->addGroup($this->getGroupByName($groupName));
-            }
+            $this->groupMapper->updateGroups($providerName, $user, $groups);
         }
-    }
-
-    private function getGroupByName(string $name): Group
-    {
-        $group = $this->em->getRepository(Group::class)
-            ->findOneBy([
-                'name' => $name,
-            ]);
-        if ($group instanceof Group) {
-            return $group;
-        }
-
-        $group = new Group();
-        $group->setName($name);
-
-        $this->em->persist($group);
-
-        return $group;
     }
 
     private function findUserByUsername(string $username): ?User

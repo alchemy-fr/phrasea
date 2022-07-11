@@ -22,6 +22,7 @@ On each provider we can define attribute mapping.
 `username` attribute must result to determine the final username stored in Auth service.
 
 For example, if you want the IdP attribute `email` to be the username, you should set your map as follow:
+
 ```json
 {
   "title": "IDP test",
@@ -44,15 +45,15 @@ Make the groups from IdP correspond to Auth groups:
   "title": "IDP test",
   "name": "idp-test",
   "type": "saml",
+  "group_map": {
+    "group1": "groupA",
+    "group2": "groupB"
+  },
   "options": {
     "attributes_map": {
       "email": "username"
     },
-    "groups_attribute": "user_groups",
-    "group_map": {
-      "groupA": "group1",
-      "groupB": "group2"
-    }
+    "groups_attribute": "eduPersonAffiliation"
   }
 }
 ```
@@ -60,11 +61,30 @@ Make the groups from IdP correspond to Auth groups:
 ### Explanations:
 
 Given the following payload received from IdP:
+
 ```json
-{"email": "user@alchemy.fr", "user_groups":["groupA"]}
+{
+  "email": "user@alchemy.fr",
+  "user_groups": [
+    "group1"
+  ]
+}
 ```
 
 With the configuration above, the following user will be produced in Auth:
+
 ```json
-{"username": "user@alchemy.fr", "groups":["group1"]}
+{
+  "username": "user@alchemy.fr",
+  "groups": [
+    "groupA"
+  ]
+}
 ```
+
+### Example users
+
+|UID | Username | Password | Group | Email |
+|---|---|---|---|---|
+|1 | user1 | user1pass | group1 | user1@example.com |
+|2 | user2 | user2pass | group2 | user2@example.com |
