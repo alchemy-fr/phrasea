@@ -139,7 +139,7 @@ easy_admin:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - filename
           - type
-          - size
+          - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - path
           - uploadId
           - { property: complete, type: boolean }

@@ -6,7 +6,7 @@
     "@alchemy-fr/liform-react": "^0.9.3",
     "@alchemy-fr/phraseanet-react-components": "1.0.4-alpha4",
     "connected-react-router": "^5.0",
-    "filesize": "^4.2.1",
+    "filesize": "^9.0.11",
     "i18next-browser-languagedetector": "^6.1.2",
     "i18next-xhr-backend": "^3.1.2",
     "react": "^16.8.6",

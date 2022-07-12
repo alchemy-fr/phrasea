@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Twig;
 
+use Alchemy\AdminBundle\Utils\SizeUtils;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -16,15 +17,8 @@ class AdminExtension extends AbstractExtension
         ];
     }
 
-    public function formatSize(?int $size): ?string
+    public function formatSize(?int $sizeInBytes, bool $si = true): ?string
     {
-        if (null === $size) {
-            return null;
-        }
-
-        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        $power = $size > 0 ? floor(log($size, 1024)) : 0;
-
-        return number_format($size / pow(1024, $power), 2, '.', ',').' '.$units[$power];
+        return SizeUtils::formatSize($sizeInBytes, $si);
     }
 }
