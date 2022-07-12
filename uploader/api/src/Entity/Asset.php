@@ -69,7 +69,7 @@ class Asset
     private ?string $url = null;
 
     /**
-     * @var string
+     * @var int|string
      * @Groups("asset_read")
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
@@ -149,9 +149,9 @@ class Asset
         return (int) $this->size;
     }
 
-    public function setSize(int $size): void
+    public function setSize($size): void
     {
-        $this->size = $size;
+        $this->size = (string) $size;
     }
 
     public function getOriginalName(): string

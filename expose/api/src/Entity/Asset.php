@@ -86,10 +86,11 @@ class Asset implements MediaInterface
     private ?string $path = null;
 
     /**
+     * @var int|string
      * @Groups({"asset:read", "publication:read"})
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
-    private ?int $size = null;
+    private $size;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -281,12 +282,12 @@ class Asset implements MediaInterface
 
     public function getSize(): int
     {
-        return $this->size;
+        return (int) $this->size;
     }
 
-    public function setSize(int $size): void
+    public function setSize($size): void
     {
-        $this->size = $size;
+        $this->size = (string) $size;
     }
 
     public function getOriginalName(): string

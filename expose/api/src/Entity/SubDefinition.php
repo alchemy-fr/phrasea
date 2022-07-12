@@ -68,7 +68,7 @@ class SubDefinition implements MediaInterface
      * @Groups({"subdef:read", "publication:read"})
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
-    private ?int $size = null;
+    private ?string $size = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -127,12 +127,12 @@ class SubDefinition implements MediaInterface
 
     public function getSize(): int
     {
-        return $this->size;
+        return (int) $this->size;
     }
 
     public function setSize(int $size): void
     {
-        $this->size = $size;
+        $this->size = (string) $size;
     }
 
     public function getMimeType(): string

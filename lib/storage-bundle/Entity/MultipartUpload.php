@@ -7,7 +7,8 @@ namespace Alchemy\StorageBundle\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
-use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -17,7 +18,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     shortName="Upload",
  *     normalizationContext={
- *         "groups"={"upload_read"},
+ *         "groups"={"upload:read"},
+ *     },
+ *     denormalizationContext={
+ *         "groups"={"upload:write"},
  *     },
  *     collectionOperations={
  *         "get"={
@@ -96,27 +100,26 @@ class MultipartUpload
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups("upload_read")
+     * @Groups("upload:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("upload_read")
+     * @Groups({"upload:read", "upload:write"})
      */
     private ?string $filename = null;
 
     /**
      * @ORM\Column(type="string", length=150)
-     * @Groups("upload_read")
+     * @Groups({"upload:read", "upload:write"})
      */
     private ?string $type = null;
 
     /**
-     * @ORM\Column(type="bigint")
-     * @Groups("upload_read")
+     * @ORM\Column(name="size", type="bigint", options={"unsigned"=true})
      */
-    private ?int $size = null;
+    private ?string $sizeAsString = null;
 
     /**
      * @ORM\Column(type="string", length=150)
@@ -133,23 +136,21 @@ class MultipartUpload
     /**
      * @ORM\Column(type="boolean")
      * @ApiProperty(writable=false)
-     * @Groups("upload_read")
+     * @Groups("upload:read")
      */
     private bool $complete = false;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
      * @ApiProperty(writable=false)
-     * @Groups("upload_read")
+     * @Groups("upload:read")
      */
-    private $createdAt;
+    private ?DateTimeInterface $createdAt = null;
 
     public function __construct()
     {
         $this->id = Uuid::uuid4();
-        $this->createdAt = new DateTime();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): string
@@ -187,7 +188,7 @@ class MultipartUpload
         $this->uploadId = $uploadId;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -217,13 +218,21 @@ class MultipartUpload
         $this->complete = $complete;
     }
 
-    public function getSize(): ?int
+    /**
+     * @ApiProperty()
+     * @Groups("upload:read")
+     */
+    public function getSize(): int
     {
-        return $this->size;
+        return (int) $this->sizeAsString;
     }
 
+    /**
+     * @ApiProperty()
+     * @Groups("upload:write")
+     */
     public function setSize(int $size): void
     {
-        $this->size = $size;
+        $this->sizeAsString = (string) $size;
     }
 }
