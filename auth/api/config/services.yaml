@@ -52,9 +52,13 @@ services:
         arguments:
             $validateEmail: '%env(bool:REGISTRATION_VALIDATE_EMAIL)%'
 
+    guzzle.request_factory:
+        class: Http\Message\MessageFactory\GuzzleMessageFactory
+
     Http\Client\Common\HttpMethodsClient:
         arguments:
             $httpClient: "@httplug.client.default"
+            $requestFactory: '@guzzle.request_factory'
 
     HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface:
         alias: App\OAuth\BlackHoleOAuthStorage

@@ -22,6 +22,9 @@
         "title": "IDP test",
         "name": "idp-test",
         "type": "saml",
+        "group_map": {
+          "group1": "groupA"
+        },
         "options": {
           "entity_id": "https://saml-idp.phrasea.local/simplesaml/saml2/idp/metadata.php",
           "sso_url": "https://saml-idp.phrasea.local/simplesaml/saml2/idp/SSOService.php",
@@ -35,9 +38,10 @@
               "email": "support@alchemy.fr"
             }
           },
-          "group_map": {
-            "groupA": "group1"
+          "attributes_map": {
+            "email": "username"
           },
+          "groups_attribute": "eduPersonAffiliation",
           "organization": {
             "en": {
               "name": "Alchemy",

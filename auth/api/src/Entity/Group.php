@@ -32,7 +32,7 @@ class Group
     protected ?string $name = null;
 
     /**
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json")
      */
     protected array $roles = [];
 
@@ -52,6 +52,8 @@ class Group
     {
         $this->createdAt = new DateTime();
         $this->users = new ArrayCollection();
+
+        $this->id = Uuid::uuid4();
     }
 
     public function getId(): string
@@ -77,9 +79,11 @@ class Group
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
     public function getCreatedAt(): DateTime

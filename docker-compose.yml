@@ -275,6 +275,7 @@ services:
       - db
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   auth-api-nginx:
     profiles:
@@ -1173,6 +1174,29 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - VERIFY_SSL
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:18.0.2
+    command:
+      - 'start-dev'
+      - '--hostname=keycloak.${PHRASEA_DOMAIN}'
+      - '--hostname-strict-https=false'
+      - '--proxy=edge'
+    networks:
+      - internal
+    profiles:
+      - openid
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=password
+      - KC_PROXY=edge
+      - KEYCLOAK_IMPORT=/tmp/realm.json
+    volumes:
+      - ./configs/keycloak-realm.json:/tmp/realm.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
 volumes:
   db_vol:

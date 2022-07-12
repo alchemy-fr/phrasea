@@ -8,7 +8,10 @@ httplug:
 
     clients:
         app:
+            factory: 'httplug.factory.guzzle6'
             http_methods_client: true
             plugins:
                 - 'httplug.plugin.content_length'
                 - 'httplug.plugin.redirect'
+            config:
+                verify: '%env(bool:VERIFY_SSL)%'

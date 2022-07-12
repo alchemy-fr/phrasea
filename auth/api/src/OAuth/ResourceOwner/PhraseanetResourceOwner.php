@@ -51,9 +51,7 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
     }
 
     /**
-     * Dropbox API v2 requires a POST request to simply get user info!
-     *
-     * @return UserResponseInterface
+     * {@inheritdoc}
      */
     public function getUserInformation(
         array $accessToken,

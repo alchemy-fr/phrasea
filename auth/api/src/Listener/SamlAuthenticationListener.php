@@ -40,7 +40,7 @@ class SamlAuthenticationListener implements EventSubscriberInterface
             $samlIdentity = $this->getSamlIdentity($user, $token);
             $samlIdentity->setAttributes($token->getAttributes());
 
-            $this->groupManager->updateGroups($user, $token);
+            $this->groupManager->updateGroups($token->getIdpName(), $user, $token);
 
             $this->em->persist($samlIdentity);
             $this->em->flush();

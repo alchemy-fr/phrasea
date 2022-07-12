@@ -6,39 +6,44 @@ namespace App\Security;
 
 use App\Entity\ExternalAccessToken;
 use App\Entity\User;
+use App\OAuth\ResponsePathExtractor;
+use App\User\GroupMapper;
 use App\User\UserManager;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
+use InvalidArgumentException;
 
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var UserManager
-     */
-    private $userManager;
+    private EntityManagerInterface $em;
+    private UserManager $userManager;
+    private GroupMapper $groupMapper;
 
-    public function __construct(EntityManagerInterface $em, UserManager $userManager)
+    public function __construct(EntityManagerInterface $em, UserManager $userManager, GroupMapper $groupMapper)
     {
         $this->em = $em;
         $this->userManager = $userManager;
+        $this->groupMapper = $groupMapper;
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
     {
-        $response->getEmail();
+        if (empty($response->getEmail())) {
+            throw new InvalidArgumentException(sprintf('User must have an email. Please check your "paths" mapping is correct!'));
+        }
 
         $user = $this->findUserByUsername($response->getEmail());
         if (null === $user) {
             $user = $this->userManager->createUser();
             $user->setUsername($response->getEmail());
+            $user->setEnabled(true);
         }
 
-        $user->setEnabled(true);
+        $this->assignGroups($user, $response);
+
         $this->userManager->persistUser($user);
 
         $accessToken = new ExternalAccessToken();
@@ -50,7 +55,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
             $accessToken->setRefreshToken($response->getRefreshToken());
         }
         if (null !== $response->getExpiresIn()) {
-            $expiresAt = new \DateTime();
+            $expiresAt = new DateTime();
             $expiresAt->setTimestamp(time() + (int) $response->getExpiresIn());
             $accessToken->setExpiresAt($expiresAt);
         }
@@ -58,6 +63,23 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         $this->em->flush();
 
         return $user;
+    }
+
+    private function assignGroups(User $user, UserResponseInterface $response): void
+    {
+        $providerName = $response->getResourceOwner()->getName();
+        if (!$response instanceof PathUserResponse) {
+            return;
+        }
+
+        if (!isset($response->getPaths()['groups'])) {
+            return;
+        }
+        $groups = ResponsePathExtractor::getValueForPath($response->getPaths(), $response->getData(), 'groups');
+
+        if (null !== $groups) {
+            $this->groupMapper->updateGroups($providerName, $user, $groups);
+        }
     }
 
     private function findUserByUsername(string $username): ?User

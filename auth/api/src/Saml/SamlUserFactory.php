@@ -27,7 +27,8 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $attributes = $token->getAttributes();
 
         $samlIdentity = new SamlIdentity();
-        $samlIdentity->setProvider($token->getIdpName());
+        $idpName = $token->getIdpName();
+        $samlIdentity->setProvider($idpName);
         $samlIdentity->setAttributes($attributes);
 
         if (null === $user = $this->userManager->findUserByUsername($token->getUsername())) {
@@ -36,10 +37,11 @@ class SamlUserFactory implements SamlUserFactoryInterface
             $user->setEnabled(true);
         }
 
-        $this->groupManager->updateGroups($user, $token);
+        $this->groupManager->updateGroups($idpName, $user, $token);
 
         $samlIdentity->setUser($user);
 
+        $this->em->persist($user);
         $this->em->persist($samlIdentity);
         $this->em->flush();
 

@@ -3,26 +3,28 @@ version: '3.9'
 services:
   saml-idp:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
-    ports:
-      - ${SAML_IDP_PORT}:8080
+    networks:
+      - internal
     environment:
       - SIMPLESAMLPHP_BASE_URL=${SAML_BASE_URL}
-      - SIMPLESAMLPHP_SP_ENTITY_ID=${AUTH_API_BASE_URL}/saml/metadata/idp-test
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=${AUTH_API_BASE_URL}/saml/acs
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=${AUTH_API_BASE_URL}/saml/logout
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`saml-idp.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.saml-idp.rule=Host(`saml-idp.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.saml-idp.loadbalancer.server.port=8080"
 
   saml-idp2:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
-    ports:
-      - ${SAML2_IDP_PORT}:8080
+    networks:
+      - internal
     environment:
       - SIMPLESAMLPHP_BASE_URL=${SAML2_BASE_URL}
-      - SIMPLESAMLPHP_SP_ENTITY_ID=${AUTH_API_BASE_URL}/saml/metadata/idp-test2
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=${AUTH_API_BASE_URL}/saml/acs
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=${AUTH_API_BASE_URL}/saml/logout
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test2
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`saml-idp2.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.saml-idp2.rule=Host(`saml-idp2.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.saml-idp2.loadbalancer.server.port=8080"

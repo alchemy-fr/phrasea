@@ -6,35 +6,31 @@ namespace App\Saml;
 
 use App\Entity\Group;
 use App\Entity\User;
+use App\User\GroupMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 
 class SamlGroupManager
 {
     private EntityManagerInterface $em;
+    private GroupMapper $groupMapper;
     private array $groupAttributesName;
-    private array $groupMap;
 
-    public function __construct(EntityManagerInterface $em, array $groupAttributesName, array $groupMap)
+    public function __construct(EntityManagerInterface $em, GroupMapper $groupMapper, array $groupAttributesName)
     {
         $this->em = $em;
+        $this->groupMapper = $groupMapper;
         $this->groupAttributesName = $groupAttributesName;
-        $this->groupMap = $groupMap;
     }
 
-    public function updateGroups(User $user, SamlTokenInterface $token)
+    public function updateGroups(string $providerName, User $user, SamlTokenInterface $token)
     {
         $attributes = $token->getAttributes();
 
         $groupAttributeName = $this->groupAttributesName[$token->getIdpName()] ?? null;
-        $user->getGroups()->clear();
         if ($groupAttributeName && isset($attributes[$groupAttributeName])) {
-            foreach ($attributes[$groupAttributeName] as $groupName) {
-                $user->addGroup($this->getOrCreateGroup($this->resolveGroupName($groupName)));
-            }
+            $this->groupMapper->updateGroups($providerName, $user, $attributes[$groupAttributeName]);
         }
-
-        $this->em->persist($user);
     }
 
     private function resolveGroupName(string $samlGroup): string
