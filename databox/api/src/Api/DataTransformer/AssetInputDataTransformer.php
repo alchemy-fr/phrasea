@@ -8,16 +8,16 @@ use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Asset\OriginalRenditionManager;
-use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Consumer\Handler\File\ImportRenditionHandler;
+use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Storage\RenditionManager;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -30,17 +30,20 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     private EntityManagerInterface $em;
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
+    private RenditionManager $renditionManager;
 
     public function __construct(
         PostFlushStack $postFlushStackListener,
         EntityManagerInterface $em,
         OriginalRenditionManager $originalRenditionManager,
-        AttributeInputDataTransformer $attributeInputDataTransformer
+        AttributeInputDataTransformer $attributeInputDataTransformer,
+        RenditionManager $renditionManager
     ) {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;
         $this->attributeInputDataTransformer = $attributeInputDataTransformer;
+        $this->renditionManager = $renditionManager;
     }
 
     /**
@@ -101,11 +104,11 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 $origRenditions = $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
 
                 if ($data->generateRenditions) {
-                    $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
+                    $this->postFlushStackListener->addEvent(PhraseanetGenerateAssetRenditionsHandler::createEvent($object->getId()));
                 } elseif ($source->importFile) {
                     foreach ($origRenditions as $origRendition) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId(), ExtensionUtil::getExtension($data->source->url)));
+                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId()));
                         // One import is sufficient as it is the same File
                         break;
                     }
@@ -116,9 +119,9 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 foreach ($data->renditions as $renditionInput) {
                     $rendition = new AssetRendition();
                     $rendition->setAsset($object);
-                    $rendition->setDefinition($this->getRenditionDefinitionByName(
-                        $renditionInput->definition,
-                        $workspace
+                    $rendition->setDefinition($this->renditionManager->getRenditionDefinitionByName(
+                        $workspace,
+                        $renditionInput->definition
                     ));
                     $rendition->setReady(true);
                     $this->handleSource($renditionInput->source, $rendition, $workspace);
@@ -127,7 +130,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
                     if ($renditionInput->source->importFile) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId(), ExtensionUtil::getExtension($renditionInput->source->url)));
+                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId()));
                     }
                 }
             }
@@ -177,21 +180,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         return $this->transformOwnerId($object, $to, $context);
     }
 
-    private function getRenditionDefinitionByName(string $name, Workspace $workspace): RenditionDefinition
-    {
-        $definition = $this->em->getRepository(RenditionDefinition::class)
-            ->findOneBy([
-                'name' => $name,
-                'workspace' => $workspace->getId(),
-            ]);
-
-        if (!$definition instanceof RenditionDefinition) {
-            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
-        }
-
-        return $definition;
-    }
-
     /**
      * @param Asset|AssetRendition $object
      */
@@ -199,6 +187,8 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     {
         $src = new File();
         $src->setPath($source->url);
+        $src->setOriginalName($source->originalName);
+        $src->setExtension(ExtensionUtil::getExtension($source->originalName ?: $source->url));
         $src->setPathPublic(!$source->isPrivate);
         $src->setStorage(File::STORAGE_URL);
         $src->setWorkspace($workspace);

@@ -16,6 +16,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
@@ -26,6 +28,9 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use DeletedAtTrait;
+
+    public const PHRASEANET_RENDITION_METHOD_ENQUEUE = 1;
+    public const PHRASEANET_RENDITION_METHOD_SUBDEF_V3_API = 2;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
@@ -43,9 +48,9 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private ?string $ownerId = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="json", nullable=false)
      */
-    private ?array $config = [];
+    private array $config = [];
 
     /**
      * @ORM\Column(type="json", nullable=false)
@@ -146,22 +151,18 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         return $this->getOwnerId() ?? '';
     }
 
-    public function getConfig(): ?array
+    public function getConfig(): array
     {
         return $this->config;
     }
 
-    public function setConfig(?array $config): void
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }
 
     public function setPhraseanetDataboxId($databoxId): void
     {
-        if (null == $this->config) {
-            $this->config = [];
-        }
-
         if (empty($databoxId)) {
             unset($this->config['phraseanetDataboxId']);
         } else {
@@ -171,7 +172,63 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function getPhraseanetDataboxId(): ?int
     {
-        return ($this->config ?? [])['phraseanetDataboxId'] ?? null;
+        return $this->config['phraseanetDataboxId'] ?? null;
+    }
+
+    public function setPhraseanetCollectionId($collectionId): void
+    {
+        if (empty($collectionId)) {
+            unset($this->config['phraseanetCollectionId']);
+        } else {
+            $this->config['phraseanetCollectionId'] = (int) $collectionId;
+        }
+    }
+
+    public function getPhraseanetCollectionId(): ?int
+    {
+        return $this->config['phraseanetCollectionId'] ?? null;
+    }
+
+    public function setPhraseanetBaseUrl(?string $baseUrl): void
+    {
+        if (empty($baseUrl)) {
+            unset($this->config['phraseanetBaseUrl']);
+        } else {
+            $this->config['phraseanetBaseUrl'] = $baseUrl;
+        }
+    }
+
+    public function getPhraseanetBaseUrl(): ?string
+    {
+        return $this->config['phraseanetBaseUrl'] ?? null;
+    }
+
+    public function setPhraseanetToken(?string $token): void
+    {
+        if (empty($token)) {
+            unset($this->config['phraseanetToken']);
+        } else {
+            $this->config['phraseanetToken'] = $token;
+        }
+    }
+
+    public function getPhraseanetToken(): ?string
+    {
+        return $this->config['phraseanetToken'] ?? null;
+    }
+
+    public function setPhraseanetRenditionMethod($method): void
+    {
+        if (null === $method) {
+            unset($this->config['phraseanetRenditionMethod']);
+        } else {
+            $this->config['phraseanetRenditionMethod'] = (int) $method;
+        }
+    }
+
+    public function getPhraseanetRenditionMethod(): ?int
+    {
+        return $this->config['phraseanetRenditionMethod'] ?? null;
     }
 
     public function getEnabledLocales(): array
@@ -202,5 +259,48 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setLocaleFallbacks(?array $localeFallbacks): void
     {
         $this->localeFallbacks = $localeFallbacks;
+    }
+
+    /**
+     * @Assert\Callback
+     */
+    public function validatePhraseanetConfig(ExecutionContextInterface $context, $payload): void
+    {
+        $renditionMethod = $this->getPhraseanetRenditionMethod();
+        if (!$renditionMethod) {
+            return;
+        }
+
+        switch ($renditionMethod) {
+            case self::PHRASEANET_RENDITION_METHOD_ENQUEUE:
+                if (!$this->getPhraseanetCollectionId()) {
+                    $context->buildViolation(sprintf(
+                        'Required for this rendition method'))
+                        ->atPath('phraseanetCollectionId')
+                        ->addViolation();
+                }
+                break;
+            case self::PHRASEANET_RENDITION_METHOD_SUBDEF_V3_API:
+                if (!$this->getPhraseanetDataboxId()) {
+                    $context->buildViolation(sprintf(
+                        'Required for this rendition method'))
+                        ->atPath('phraseanetDataboxId')
+                        ->addViolation();
+                }
+                break;
+        }
+
+        if (!$this->getPhraseanetBaseUrl()) {
+            $context->buildViolation(sprintf(
+                'Required for rendition method'))
+                ->atPath('phraseanetBaseUrl')
+                ->addViolation();
+        }
+        if (!$this->getPhraseanetToken()) {
+            $context->buildViolation(sprintf(
+                'Required for rendition method'))
+                ->atPath('phraseanetToken')
+                ->addViolation();
+        }
     }
 }

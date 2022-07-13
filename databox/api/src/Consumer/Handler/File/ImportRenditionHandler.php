@@ -13,6 +13,7 @@ use App\Storage\RenditionPathGenerator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use GuzzleHttp\Psr7\Header;
 use Psr\Log\LoggerInterface;
 
 class ImportRenditionHandler extends AbstractEntityManagerHandler
@@ -38,11 +39,10 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
         $this->downloader = $downloader;
     }
 
-    public static function createEvent(string $renditionId, string $extension): EventMessage
+    public static function createEvent(string $renditionId): EventMessage
     {
         $payload = [
             'id' => $renditionId,
-            'extension' => $extension,
         ];
 
         return new EventMessage(self::EVENT, $payload);
@@ -52,7 +52,6 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
     {
         $payload = $message->getPayload();
         $id = $payload['id'];
-        $extension = $payload['extension'] ?? null;
 
         $em = $this->getEntityManager();
         $rendition = $em->find(AssetRendition::class, $id);
@@ -68,9 +67,24 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
             return;
         }
 
-        $src = $this->downloader->download($this->fileUrlResolver->resolveUrl($file));
+        $headers = [];
+        $src = $this->downloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+
+        if (isset($headers['Content-Length'])) {
+            $size = Header::parse($headers['Content-Length']);
+            if (null === $file->getSize() && !empty($size)) {
+                $file->setSize((int) $size[0][0]);
+            }
+        }
+        if (isset($headers['Content-Type'])) {
+            $type = Header::parse($headers['Content-Type']);
+            if (null === $file->getType() && !empty($type)) {
+                $file->setType($type[0][0]);
+            }
+        }
+
         $finalPath = $this->pathGenerator
-            ->generatePath($rendition->getAsset()->getWorkspaceId(), $extension);
+            ->generatePath($rendition->getAsset()->getWorkspaceId(), $file->getExtension());
 
         $fd = fopen($src, 'r');
         $this->storageManager->storeStream($finalPath, $fd);

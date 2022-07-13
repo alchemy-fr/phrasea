@@ -189,6 +189,8 @@ class AssetCopier
         $copy->setPathPublic($file->isPathPublic());
         $copy->setStorage($file->getStorage());
         $copy->setSize($file->getSize());
+        $copy->setOriginalName($file->getOriginalName());
+        $copy->setExtension($file->getExtension());
 
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $stream = $this->storageManager->getStream($file->getPath());

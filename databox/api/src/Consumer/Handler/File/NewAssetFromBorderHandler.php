@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Asset\OriginalRenditionManager;
+use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
+use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -44,7 +47,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setFile($file);
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
-        $asset->setWorkspace($file->getWorkspace());
+        $workspace = $file->getWorkspace();
+        $asset->setWorkspace($workspace);
 
         $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
@@ -57,9 +61,11 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->persist($asset);
         $em->flush();
 
-        $this->eventProducer->publish(new EventMessage(GenerateAssetRenditionsHandler::EVENT, [
-            'id' => $asset->getId(),
-        ]));
+        if (Workspace::PHRASEANET_RENDITION_METHOD_SUBDEF_V3_API === $workspace->getPhraseanetRenditionMethod()) {
+            $this->eventProducer->publish(PhraseanetGenerateAssetRenditionsHandler::createEvent($asset->getId()));
+        } elseif (Workspace::PHRASEANET_RENDITION_METHOD_ENQUEUE === $workspace->getPhraseanetRenditionMethod()) {
+            $this->eventProducer->publish(PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::createEvent($asset->getId()));
+        }
     }
 
     public static function createEvent(

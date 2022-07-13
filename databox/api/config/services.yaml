@@ -17,6 +17,7 @@ services:
             $defaultLocale: '%default_locale%'
             $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
             $zippyClient: '@app.zippy_client'
+            string $databoxBaseUrl: '%env(DATABOX_API_BASE_URL)%'
             string $fixturesCacheDir: '%kernel.cache_dir%/fixtures'
 
     _instanceof:
@@ -101,17 +102,10 @@ services:
         arguments:
             $client: '@app.file_downloader.http_client'
 
-    app.phraseanet.api_client:
-        class: GuzzleHttp\Client
+    App\External\PhraseanetApiClientFactory:
         arguments:
-            -
-                base_uri: '%env(PHRASEANET_BASE_URL)%'
-                verify: '%env(bool:VERIFY_SSL)%'
-
-    App\External\PhraseanetApiClient:
-        arguments:
-            $client: '@app.phraseanet.api_client'
-            $oauthToken: '%env(PHRASEANET_APP_OAUTH_TOKEN)%'
+            $options:
+              verify: '%env(bool:VERIFY_SSL)%'
 
     App\Storage\UrlSigner:
         $client: '@alchemy_storage.s3_client'

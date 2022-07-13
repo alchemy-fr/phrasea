@@ -73,7 +73,8 @@ final class CreateRenditionAction extends AbstractController
                 File::STORAGE_S3_MAIN,
                 $path,
                 $uploadedFile->getMimeType(),
-                $uploadedFile->getSize()
+                $uploadedFile->getSize(),
+                $uploadedFile->getClientOriginalName()
             );
         } else {
             throw new BadRequestHttpException('Missing file or multipart');
@@ -98,7 +99,8 @@ final class CreateRenditionAction extends AbstractController
             File::STORAGE_S3_MAIN,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
-            (int) ($upload['size'] ?? 0)
+            isset($upload['size']) ? (int) $upload['size'] : null,
+            $multipartUpload->getFilename()
         );
     }
 
@@ -123,7 +125,7 @@ final class CreateRenditionAction extends AbstractController
     private function resolveRenditionDefinition(Workspace $workspace, Request $request): RenditionDefinition
     {
         if ($name = $request->request->get('name')) {
-            $definition = $this->renditionManager->getDefinitionFromName($workspace, $name);
+            $definition = $this->renditionManager->getRenditionDefinitionByName($workspace, $name);
         } elseif ($id = $request->request->get('definitionId')) {
             $definition = $this->renditionManager->getDefinitionFromId($workspace, $id);
         } else {
