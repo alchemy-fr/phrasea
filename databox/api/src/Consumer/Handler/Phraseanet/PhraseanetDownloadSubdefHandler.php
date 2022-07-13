@@ -30,7 +30,15 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
         $this->logger = $logger;
     }
 
-    public static function createEvent(string $assetId, string $databoxId, string $recordId, string $subdefName, string $permalink): EventMessage
+    public static function createEvent(
+        string $assetId,
+        string $databoxId,
+        string $recordId,
+        string $subdefName,
+        string $permalink,
+        ?string $type,
+        ?int $size
+    ): EventMessage
     {
         $payload = [
             'id' => $assetId,
@@ -38,6 +46,8 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
             'recordId' => $recordId,
             'permalink' => $permalink,
             'name' => $subdefName,
+            'type' => $type,
+            'size' => $size,
         ];
 
         return new EventMessage(self::EVENT, $payload);
@@ -68,8 +78,8 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
             ),
             File::STORAGE_URL,
             $url,
-            null,
-            null,
+            $payload['type'] ?? null,
+            $payload['size'] ?? null,
             basename($urlPart)
         );
 

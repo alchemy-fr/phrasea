@@ -131,7 +131,9 @@ class PhraseanetController extends AbstractController
                         (string)$data['databox_id'],
                         (string)$data['record_id'],
                         $data['subdef_name'],
-                        $url
+                        $url,
+                        $data['type'],
+                        (int) $data['size']
                     ));
                 }
 
