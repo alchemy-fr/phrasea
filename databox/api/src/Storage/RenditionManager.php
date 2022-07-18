@@ -12,7 +12,6 @@ use App\Entity\Core\Workspace;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
-use Symfony\Component\Mime\MimeTypes;
 
 class RenditionManager
 {
@@ -40,12 +39,11 @@ class RenditionManager
         $file->setOriginalName($originalName);
 
         if ($originalName) {
-            $file->setExtension(ExtensionUtil::getExtension($originalName));
+            $file->setExtension(ExtensionUtil::getExtensionFromPath($originalName));
         } elseif ($file->getType()) {
-            $mimeTypes = new MimeTypes();
-            $extensions = $mimeTypes->getExtensions($file->getType());
-            if (!empty($extensions)) {
-                $file->setExtension($extensions[0]);
+            $extension = ExtensionUtil::getExtensionFromType($file->getType());
+            if (!empty($extension)) {
+                $file->setExtension($extension);
             }
         }
 

@@ -35,11 +35,6 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     private ?Workspace $defaultWorkspace = null;
     private ?AttributeClass $defaultAttributeClass = null;
 
-    protected static function bootKernel(array $options = []): KernelInterface
-    {
-        return static::fixturesBootKernel($options);
-    }
-
     protected function createAsset(array $options = []): Asset
     {
         $em = self::getEntityManager();

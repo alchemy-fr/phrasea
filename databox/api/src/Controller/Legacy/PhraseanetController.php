@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
+use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Security\JWTTokenManager;
@@ -21,8 +22,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -30,7 +33,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PhraseanetController extends AbstractController
 {
-    private const ASSET_NAME_PREFIX = 'gen-sub-def-';
+    public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
     /**
      * @Route(path="/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
@@ -44,16 +47,24 @@ class PhraseanetController extends AbstractController
         JWTTokenManager $JWTTokenManager,
         EntityManagerInterface $em
     ): Response {
+        $token = $request->request->get('token');
+        if (!$token) {
+            throw new UnauthorizedHttpException('Missing token');
+        }
+        try {
+            $JWTTokenManager->validateToken($assetId, $token);
+        } catch (\InvalidArgumentException $e) {
+            throw new AccessDeniedHttpException('Invalid token', $e);
+        }
+
         ini_set('max_execution_time', '600');
         $fileInfo = $request->request->get('file_info');
+        if (empty($fileInfo)) {
+            throw new BadRequestHttpException('Missing "file_info"');
+        }
         $name = $fileInfo['name'] ?? null;
         $uploadedFile = $request->files->get('file');
 
-        $token = $request->request->get('token');
-        if (!$token) {
-            throw new BadRequestHttpException('Missing token');
-        }
-        $JWTTokenManager->validateToken($assetId, $token);
 
         if (empty($name)) {
             throw new BadRequestHttpException('Missing name');
@@ -77,9 +88,9 @@ class PhraseanetController extends AbstractController
         }
 
         try {
-            $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspace(), $fileInfo['name']);
+            $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspace(), $name);
         } catch (InvalidArgumentException $e) {
-            throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $fileInfo['name']), $e);
+            throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 
         $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
@@ -152,13 +163,23 @@ class PhraseanetController extends AbstractController
         string $id,
         FileUrlResolver $fileUrlResolver,
         EntityManagerInterface $em,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Request $request
     ): Response {
         $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $id));
+
+        $auth = $request->headers->get('Authorization', '');
+        if (1 !== preg_match('#^AssetToken (.+)$#', $auth, $matches)) {
+            throw new UnauthorizedHttpException('Missing AssetToken authorization');
+        }
+        $assetToken = $matches[1];
 
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset "%s" not found for Phraseanet enqueue', $id));
+        }
+        if ($assetToken !== PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::generateAssetToken($asset)) {
+            throw new AccessDeniedHttpException('Invalid Asset token');
         }
 
         return new JsonResponse([

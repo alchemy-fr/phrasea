@@ -107,7 +107,10 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
         ];
 
         try {
-            $this->clientFactory->create()->post('/api/v3/subdefs_service/', [
+            $this->clientFactory->create(
+                $workspace->getPhraseanetBaseUrl(),
+                $workspace->getPhraseanetToken()
+            )->post('/api/v3/subdefs_service/', [
                 'json' => $data,
                 'stream' => true,
                 'read_timeout' => 10,

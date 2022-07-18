@@ -60,7 +60,7 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
             'assets' => [$asset->getId()],
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
-            'token' => sprintf('%s::%s', $asset->getId(), $asset->getCreatedAt()->getTimestamp()), // Add app secret
+            'token' => self::generateAssetToken($asset), // TODO Add app secret
             'base_url' => $this->databoxBaseUrl.'/phraseanet/',
             'formData' => [
                 'collection_destination' => $asset->getWorkspace()->getPhraseanetCollectionId(),
@@ -82,6 +82,11 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
 
             throw $e;
         }
+    }
+
+    public static function generateAssetToken(Asset $asset): string
+    {
+        return sprintf('%s::%s', $asset->getId(), $asset->getCreatedAt()->getTimestamp());
     }
 
     public static function getHandledEvents(): array
