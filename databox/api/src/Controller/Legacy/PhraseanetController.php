@@ -117,7 +117,7 @@ class PhraseanetController extends AbstractController
         switch ($json['event']) {
             case 'record.subdef.created':
                 $data = $json['data'];
-                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', $data['original_name'], $groups)) {
+                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', $data['original_name'], $groups)) {
                     $assetId = $groups[1];
 
                     $logger->debug(sprintf('Received webhook "%s" for asset "%s"', $json['event'], $assetId));
