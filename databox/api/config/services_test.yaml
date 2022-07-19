@@ -4,6 +4,3 @@ imports:
 services:
     App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock: ~
     App\External\PhraseanetApiClientFactory: '@App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'
-
-    App\Tests\EventProducerMock: ~
-    Arthem\Bundle\RabbitBundle\Producer\EventProducer: '@App\Tests\EventProducerMock'

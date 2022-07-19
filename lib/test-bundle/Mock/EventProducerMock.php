@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace Alchemy\TestBundle\Mock;
 
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -10,10 +10,13 @@ use InvalidArgumentException;
 
 class EventProducerMock extends EventProducer
 {
+    private bool $intercept = false;
     private array $events = [];
+    private EventProducer $inner;
 
-    public function __construct()
+    public function __construct(EventProducer $inner)
     {
+        $this->inner = $inner;
     }
 
     public function publish(
@@ -23,6 +26,10 @@ class EventProducerMock extends EventProducer
         ?array $deprecatedHeaders = null
     ): void {
         $this->events[] = $message;
+
+        if (!$this->intercept) {
+            $this->inner->publish($message, $deprecatedRoutingKey, $deprecatedProperties, $deprecatedHeaders);
+        }
     }
 
     public function shiftEvent(): EventMessage
@@ -32,5 +39,10 @@ class EventProducerMock extends EventProducer
         }
 
         return array_shift($this->events);
+    }
+
+    public function interceptEvents(): void
+    {
+        $this->intercept = true;
     }
 }

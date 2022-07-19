@@ -91,7 +91,6 @@ App\Entity\Core\Attribute:
     asset: '@asset_bar'
     position: '<current()>'
 
-
 App\Entity\Core\RenditionClass:
   rendition_class (template):
     workspace: '@w_test'

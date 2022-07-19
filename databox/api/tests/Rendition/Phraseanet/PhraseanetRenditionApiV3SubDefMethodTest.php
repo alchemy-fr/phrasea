@@ -5,28 +5,35 @@ declare(strict_types=1);
 namespace App\Tests\Rendition\Phraseanet;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\TestBundle\Helper\FixturesTrait;
+use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\File\ImportRenditionHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
-use App\Controller\Legacy\PhraseanetController;
 use App\Entity\Core\Workspace;
 use App\External\PhraseanetApiClientFactory;
-use App\Tests\EventProducerMock;
 use App\Tests\FileUploadTrait;
-use App\Tests\FixturesTrait;
-use App\Tests\TestServicesTrait;
+use App\Tests\Mock\EventProducerMock;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 {
     use FixturesTrait;
     use FileUploadTrait;
     use TestServicesTrait;
+
+    protected static function bootKernel(array $options = []): KernelInterface
+    {
+        if (static::$kernel) {
+            return static::$kernel;
+        }
+        static::bootKernelWithFixtures($options);
+
+        return static::$kernel;
+    }
 
     public function testApiV3SubDefIsTriggered(): void
     {
@@ -35,6 +42,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         /** @var EventProducerMock $eventProducer */
         $eventProducer = self::getService(EventProducer::class);
+        $eventProducer->interceptEvents();
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);

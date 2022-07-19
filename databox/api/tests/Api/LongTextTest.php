@@ -5,17 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Asset;
-use App\Tests\FixturesTrait;
-use App\Tests\Search\SearchTestTrait;
-use Symfony\Component\HttpKernel\KernelInterface;
+use App\Tests\AbstractSearchTestCase;
 
-class LongTextTest extends ApiTestCase
+class LongTextTest extends AbstractSearchTestCase
 {
-    use FixturesTrait;
-    use SearchTestTrait;
-
     public function testLongTextField(): void
     {
         self::enableFixtures();
@@ -64,16 +58,5 @@ class LongTextTest extends ApiTestCase
         $data = \GuzzleHttp\json_decode($response->getContent(), true);
         $assetResult = $data['hydra:member'][0];
         $this->assertEquals($longText, $assetResult['attributes'][0]['value']);
-    }
-
-    protected static function bootKernel(array $options = []): KernelInterface
-    {
-        if (static::$kernel) {
-            return static::$kernel;
-        }
-        static::fixturesBootKernel($options);
-        self::bootSearch(static::$kernel);
-
-        return static::$kernel;
     }
 }

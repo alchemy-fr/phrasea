@@ -15,6 +15,13 @@
         },
         {
             "type": "path",
+            "url": "./__lib/test-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./__lib/acl-bundle",
             "options": {
                 "symlink": true
@@ -74,6 +81,7 @@
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "alchemy/storage-bundle": "*",
+        "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "api-platform/core": "^2.5",
         "arthem/rabbit-bundle": "dev-master",
@@ -81,8 +89,8 @@
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/annotations": "^1.0",
-        "doctrine/dbal": "<3",
-        "doctrine/doctrine-bundle": "^2.1",
+        "doctrine/dbal": "^3.3.7",
+        "doctrine/doctrine-bundle": "^2.7.0",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "friendsofsymfony/elastica-bundle": "^6@dev",

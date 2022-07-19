@@ -6,29 +6,12 @@ namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
-use App\Tests\FixturesTrait;
-use App\Tests\Search\SearchTestTrait;
-use Symfony\Component\HttpKernel\KernelInterface;
+use App\Tests\AbstractSearchTestCase;
 
-class CreateAssetWithAttributeTest extends ApiTestCase
+class CreateAssetWithAttributeTest extends AbstractSearchTestCase
 {
-    use FixturesTrait;
-    use SearchTestTrait;
-
-    protected static function bootKernel(array $options = []): KernelInterface
-    {
-        if (static::$kernel) {
-            return static::$kernel;
-        }
-        static::fixturesBootKernel($options);
-        self::bootSearch(static::$kernel);
-
-        return static::$kernel;
-    }
-
     /**
      * @dataProvider getCases
      */

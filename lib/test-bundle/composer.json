@@ -1,0 +1,35 @@
+{
+  "name": "alchemy/test-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony test bundle",
+  "keywords": [],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.4",
+    "symfony/framework-bundle": "^4.0||^5"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\TestBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\TestBundle\\Tests\\": "/Tests/"
+    }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpunit/phpunit": "^9.5"
+  }
+}
