@@ -65,7 +65,6 @@ class PhraseanetController extends AbstractController
         $name = $fileInfo['name'] ?? null;
         $uploadedFile = $request->files->get('file');
 
-
         if (empty($name)) {
             throw new BadRequestHttpException('Missing name');
         }
@@ -139,8 +138,8 @@ class PhraseanetController extends AbstractController
                     $logger->debug(sprintf('URL: %s', $url));
                     $eventProducer->publish(PhraseanetDownloadSubdefHandler::createEvent(
                         $assetId,
-                        (string)$data['databox_id'],
-                        (string)$data['record_id'],
+                        (string) $data['databox_id'],
+                        (string) $data['record_id'],
                         $data['subdef_name'],
                         $url,
                         $data['type'],
@@ -183,7 +182,7 @@ class PhraseanetController extends AbstractController
         }
 
         return new JsonResponse([
-            'id '=> $asset->getId(),
+            'id' => $asset->getId(),
             'originalName' => sprintf('%s%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $asset->getFile()->getExtension()),
             'url' => $fileUrlResolver->resolveUrl($asset->getFile()),
             'formData' => [

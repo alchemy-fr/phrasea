@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\HttpFoundation\Request;
 

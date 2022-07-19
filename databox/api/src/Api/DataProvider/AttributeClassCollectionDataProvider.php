@@ -10,9 +10,6 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Entity\Core\AttributeClass;
-use App\Security\Voter\ChuckNorrisVoter;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
 
 class AttributeClassCollectionDataProvider extends AbstractSecurityDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {

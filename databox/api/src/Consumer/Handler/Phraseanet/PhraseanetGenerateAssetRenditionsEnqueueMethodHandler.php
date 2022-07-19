@@ -64,7 +64,7 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
             'base_url' => $this->databoxBaseUrl.'/phraseanet/',
             'formData' => [
                 'collection_destination' => $asset->getWorkspace()->getPhraseanetCollectionId(),
-            ]
+            ],
         ];
 
         $client = $this->clientFactory->create(

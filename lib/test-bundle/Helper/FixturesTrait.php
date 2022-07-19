@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * This trait does not provide bootKernel on purpose because you may need to add custom logic or combine other traits.
- * So you need to add this to your (abstract) test class:
+ * So you need to add this to your (abstract) test class:.
  *
  *  protected static function bootKernel(array $options = []): KernelInterface
  *  {

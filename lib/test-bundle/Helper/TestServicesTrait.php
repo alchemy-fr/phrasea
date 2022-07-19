@@ -17,6 +17,7 @@ trait TestServicesTrait
      * @template T
      *
      * @param class-string<T> $name
+     *
      * @return T
      */
     public static function getService(string $name): object

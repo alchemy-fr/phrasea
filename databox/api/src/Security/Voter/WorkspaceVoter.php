@@ -42,7 +42,6 @@ class WorkspaceVoter extends AbstractVoter
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject);
             case self::EDIT:
-                return false;
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::DELETE:

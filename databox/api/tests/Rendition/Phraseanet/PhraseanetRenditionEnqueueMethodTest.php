@@ -102,7 +102,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $trRequest = $transaction['request'];
         self::assertEquals('POST', $trRequest->getMethod());
         self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
-        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', (string)$trRequest->getUri());
+        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', (string) $trRequest->getUri());
         $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
         self::assertArraySubset([
             'assets' => [$assetId],
@@ -153,8 +153,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                     'subdef_name' => 'thumbnail',
                     'type' => 'image/jpeg',
                     'size' => 42,
-                ]
-            ]
+                ],
+            ],
         ]);
         $this->assertResponseStatusCodeSame(200);
         /** @var EventProducerMock $eventProducer */

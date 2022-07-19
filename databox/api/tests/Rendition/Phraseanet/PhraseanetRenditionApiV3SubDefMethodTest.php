@@ -97,7 +97,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $trRequest = $transaction['request'];
         self::assertEquals('POST', $trRequest->getMethod());
         self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
-        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string)$trRequest->getUri());
+        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string) $trRequest->getUri());
         $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
         self::assertArraySubset([
             'databoxId' => 2,
@@ -114,7 +114,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $apiClient->request('POST', '/phraseanet/renditions/incoming/'.$assetId, [
             'json' => [
                 'token' => 'invalid-token',
-            ]
+            ],
         ]);
         $this->assertResponseStatusCodeSame(403);
         // Call from Phraseanet with valid token
@@ -123,13 +123,13 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 'token' => $jwt,
                 'file_info' => [
                     'name' => 'thumbnail',
-                ]
+                ],
             ],
             'extra' => [
                 'files' => [
                     'file' => $this->createUploadedFile(__DIR__.'/../../fixtures/files/alchemy.png'),
                 ],
-            ]
+            ],
         ]);
         $data = json_decode($response->getContent(), true);
         $this->assertResponseStatusCodeSame(200);

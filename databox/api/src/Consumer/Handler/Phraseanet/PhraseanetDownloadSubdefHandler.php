@@ -38,8 +38,7 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
         string $permalink,
         ?string $type,
         ?int $size
-    ): EventMessage
-    {
+    ): EventMessage {
         $payload = [
             'id' => $assetId,
             'databoxId' => $databoxId,
