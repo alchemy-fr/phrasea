@@ -108,8 +108,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'assets' => [$assetId],
             'publisher' => '4242',
             'commit_id' => $assetId,
-            'base_url' => 'https://api-databox.phrasea.local/phraseanet/',
         ], $phraseanetBodyData);
+        $this->assertMatchesRegularExpression('#https://api-databox\.[^/]+/phraseanet/$#', $phraseanetBodyData['base_url']);
 
         // Call from Phraseanet without token
         $apiClient->request('GET', '/phraseanet/assets/'.$assetId);

@@ -149,6 +149,6 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 'type' => 'image/png',
             ],
         ]);
-        $this->assertMatchesRegularExpression('#https://minio\.phrasea\.local/databox/[^.]+\.png\?#', $data['thumbnail']['url']);
+        $this->assertMatchesRegularExpression('#https://minio\.[^/]+/databox/[^.]+\.png\?#', $data['thumbnail']['url']);
     }
 }
