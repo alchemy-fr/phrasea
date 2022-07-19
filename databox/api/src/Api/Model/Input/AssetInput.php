@@ -45,8 +45,4 @@ class AssetInput extends AbstractOwnerIdInput
      * @var RenditionInput[]
      */
     public ?array $renditions = null;
-
-    // TODO implement
-
-    public ?bool $copySource = null;
 }

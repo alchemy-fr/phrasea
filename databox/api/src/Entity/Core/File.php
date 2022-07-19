@@ -68,6 +68,16 @@ class File extends AbstractUuidEntity
     private ?string $storage = null;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $originalName = null;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $extension = null;
+
+    /**
      * @ORM\Column(type="array", nullable=true)
      */
     private ?array $alternateUrls = null;
@@ -150,5 +160,30 @@ class File extends AbstractUuidEntity
     public function setChecksum(?string $checksum): void
     {
         $this->checksum = $checksum;
+    }
+
+    public function getFilename(): string
+    {
+        return $this->originalName ?? sprintf('%s.%s', $this->getId(), $this->getExtension());
+    }
+
+    public function getOriginalName(): ?string
+    {
+        return $this->originalName;
+    }
+
+    public function setOriginalName(?string $originalName): void
+    {
+        $this->originalName = $originalName;
+    }
+
+    public function getExtension(): ?string
+    {
+        return $this->extension;
+    }
+
+    public function setExtension(?string $extension): void
+    {
+        $this->extension = $extension;
     }
 }

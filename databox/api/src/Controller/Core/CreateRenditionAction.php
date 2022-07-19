@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Http\FileUploadManager;
 use App\Security\Voter\RenditionClassVoter;
 use App\Storage\RenditionManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,21 +20,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateRenditionAction extends AbstractController
 {
-    private FileStorageManager $storageManager;
     private RenditionManager $renditionManager;
     private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
+    private FileUploadManager $fileUploadManager;
 
     public function __construct(
-        FileStorageManager $storageManager,
         RenditionManager $renditionManager,
         UploadManager $uploadManager,
-        PathGenerator $pathGenerator
+        FileUploadManager $fileUploadManager
     ) {
-        $this->storageManager = $storageManager;
         $this->renditionManager = $renditionManager;
         $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
+        $this->fileUploadManager = $fileUploadManager;
     }
 
     public function __invoke(Request $request): AssetRendition
@@ -51,21 +47,7 @@ final class CreateRenditionAction extends AbstractController
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
-            ini_set('max_execution_time', '600');
-
-            if (!$uploadedFile->isValid()) {
-                throw new BadRequestHttpException('Invalid uploaded file');
-            }
-            if (0 === $uploadedFile->getSize()) {
-                throw new BadRequestHttpException('Empty file');
-            }
-
-            $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-            $path = $this->pathGenerator->generatePath($extension);
-
-            $stream = fopen($uploadedFile->getRealPath(), 'r+');
-            $this->storageManager->storeStream($path, $stream);
-            fclose($stream);
+            $path = $this->fileUploadManager->storeFileUploadFromRequest($request);
 
             return $this->renditionManager->createOrReplaceRendition(
                 $asset,
@@ -73,7 +55,8 @@ final class CreateRenditionAction extends AbstractController
                 File::STORAGE_S3_MAIN,
                 $path,
                 $uploadedFile->getMimeType(),
-                $uploadedFile->getSize()
+                $uploadedFile->getSize(),
+                $uploadedFile->getClientOriginalName()
             );
         } else {
             throw new BadRequestHttpException('Missing file or multipart');
@@ -98,7 +81,8 @@ final class CreateRenditionAction extends AbstractController
             File::STORAGE_S3_MAIN,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
-            (int) ($upload['size'] ?? 0)
+            isset($upload['size']) ? (int) $upload['size'] : null,
+            $multipartUpload->getFilename()
         );
     }
 
@@ -123,7 +107,7 @@ final class CreateRenditionAction extends AbstractController
     private function resolveRenditionDefinition(Workspace $workspace, Request $request): RenditionDefinition
     {
         if ($name = $request->request->get('name')) {
-            $definition = $this->renditionManager->getDefinitionFromName($workspace, $name);
+            $definition = $this->renditionManager->getRenditionDefinitionByName($workspace, $name);
         } elseif ($id = $request->request->get('definitionId')) {
             $definition = $this->renditionManager->getDefinitionFromId($workspace, $id);
         } else {

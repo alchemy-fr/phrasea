@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Consumer\Handler\File;
+namespace App\Consumer\Handler\Phraseanet;
 
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use App\External\PhraseanetApiClient;
+use App\External\PhraseanetApiClientFactory;
 use App\Security\JWTTokenManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -16,23 +16,23 @@ use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
+class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'generate_renditions';
+    const EVENT = 'phraseanet_generate_renditions';
 
-    private PhraseanetApiClient $client;
+    private PhraseanetApiClientFactory $clientFactory;
     private UrlGeneratorInterface $urlGenerator;
     private JWTTokenManager $JWTTokenManager;
     private FileUrlResolver $fileUrlResolver;
 
     public function __construct(
-        PhraseanetApiClient $client,
+        PhraseanetApiClientFactory $clientFactory,
         FileUrlResolver $fileUrlResolver,
         UrlGeneratorInterface $urlGenerator,
         JWTTokenManager $JWTTokenManager,
         LoggerInterface $logger
     ) {
-        $this->client = $client;
+        $this->clientFactory = $clientFactory;
         $this->urlGenerator = $urlGenerator;
         $this->JWTTokenManager = $JWTTokenManager;
         $this->logger = $logger;
@@ -56,6 +56,7 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
     {
         $payload = $message->getPayload();
         $id = $payload['id'];
+
         $renditions = $payload['renditions'] ?? null;
 
         $em = $this->getEntityManager();
@@ -106,7 +107,10 @@ class GenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
         ];
 
         try {
-            $this->client->post('/api/v3/subdefs_service/', [
+            $this->clientFactory->create(
+                $workspace->getPhraseanetBaseUrl(),
+                $workspace->getPhraseanetToken()
+            )->post('/api/v3/subdefs_service/', [
                 'json' => $data,
                 'stream' => true,
                 'read_timeout' => 10,

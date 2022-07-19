@@ -166,6 +166,10 @@ easy_admin:
           - { property: 'enabledLocales', type: collection }
           - { property: 'localeFallbacks', type: collection }
           - { property: 'phraseanetDataboxId', type: number }
+          - { property: 'phraseanetCollectionId', type: number }
+          - { property: 'phraseanetBaseUrl', type: url }
+          - { property: 'phraseanetToken', type: text }
+          - { property: 'phraseanetRenditionMethod', type: App\Form\Type\PhraseanetRenditionMethodChoiceType }
 
     RenditionDefinition:
       class: App\Entity\Core\RenditionDefinition

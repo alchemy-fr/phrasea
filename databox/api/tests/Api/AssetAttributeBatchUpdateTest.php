@@ -6,33 +6,16 @@ namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Asset;
-use App\Tests\FixturesTrait;
-use App\Tests\Search\SearchTestTrait;
-use Symfony\Component\HttpKernel\KernelInterface;
+use App\Tests\AbstractSearchTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class AssetAttributeBatchUpdateTest extends ApiTestCase
+class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 {
-    use FixturesTrait;
-    use SearchTestTrait;
-
     private static array $defaultAttributes = [
         'Description' => 'This is a description test.',
         'Keywords' => ['This is KW #1', 'This is KW #2', 'This is KW #3'],
     ];
-
-    protected static function bootKernel(array $options = []): KernelInterface
-    {
-        if (static::$kernel) {
-            return static::$kernel;
-        }
-        static::fixturesBootKernel($options);
-        self::bootSearch(static::$kernel);
-
-        return static::$kernel;
-    }
 
     public function testAssetAttributesBatchUpdateWithInvalidValue(): void
     {

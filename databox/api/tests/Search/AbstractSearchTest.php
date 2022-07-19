@@ -16,7 +16,7 @@ abstract class AbstractSearchTest extends AbstractDataboxTestCase
         if (static::$kernel) {
             return static::$kernel;
         }
-        static::fixturesBootKernel($options);
+        static::bootKernelWithFixtures($options);
         self::bootSearch(static::$kernel);
 
         return static::$kernel;

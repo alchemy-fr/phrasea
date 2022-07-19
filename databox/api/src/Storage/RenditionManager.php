@@ -9,7 +9,9 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 class RenditionManager
 {
@@ -23,8 +25,9 @@ class RenditionManager
     public function createFile(
         string $storage,
         string $path,
-        string $type,
-        int $size,
+        ?string $type,
+        ?int $size,
+        ?string $originalName,
         Workspace $workspace
     ): File {
         $file = new File();
@@ -33,6 +36,16 @@ class RenditionManager
         $file->setSize($size);
         $file->setPath($path);
         $file->setWorkspace($workspace);
+        $file->setOriginalName($originalName);
+
+        if ($originalName) {
+            $file->setExtension(ExtensionUtil::getExtensionFromPath($originalName));
+        } elseif ($file->getType()) {
+            $extension = ExtensionUtil::getExtensionFromType($file->getType());
+            if (!empty($extension)) {
+                $file->setExtension($extension);
+            }
+        }
 
         $this->em->persist($file);
 
@@ -44,14 +57,16 @@ class RenditionManager
         RenditionDefinition $definition,
         string $storage,
         string $path,
-        string $type,
-        int $size
+        ?string $type,
+        ?int $size,
+        ?string $originalName
     ): AssetRendition {
         $file = $this->createFile(
             $storage,
             $path,
             $type,
             $size,
+            $originalName,
             $asset->getWorkspace(),
         );
 
@@ -94,6 +109,21 @@ class RenditionManager
                 'workspace' => $workspace->getId(),
                 'id' => $id,
             ]);
+    }
+
+    public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
+    {
+        $definition = $this->em->getRepository(RenditionDefinition::class)
+            ->findOneBy([
+                'name' => $name,
+                'workspace' => $workspace->getId(),
+            ]);
+
+        if (!$definition instanceof RenditionDefinition) {
+            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+        }
+
+        return $definition;
     }
 
     public function getDefinitionFromName(Workspace $workspace, string $name): ?RenditionDefinition

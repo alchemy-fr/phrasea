@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\DataTransformer;
 
+use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Asset\OriginalRenditionManager;
-use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
 use App\Consumer\Handler\File\ImportRenditionHandler;
 use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
@@ -16,11 +16,16 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
+use App\Http\FileUploadManager;
+use App\Phraseanet\PhraseanetGenerateRenditionsManager;
+use App\Storage\RenditionManager;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -30,17 +35,32 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     private EntityManagerInterface $em;
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
+    private RenditionManager $renditionManager;
+    private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
+    private UploadManager $uploadManager;
+    private RequestStack $requestStack;
+    private FileUploadManager $fileUploadManager;
 
     public function __construct(
         PostFlushStack $postFlushStackListener,
         EntityManagerInterface $em,
         OriginalRenditionManager $originalRenditionManager,
-        AttributeInputDataTransformer $attributeInputDataTransformer
+        AttributeInputDataTransformer $attributeInputDataTransformer,
+        RenditionManager $renditionManager,
+        PhraseanetGenerateRenditionsManager $generateRenditionsManager,
+        UploadManager $uploadManager,
+        FileUploadManager $fileUploadManager,
+        RequestStack $requestStack
     ) {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;
         $this->attributeInputDataTransformer = $attributeInputDataTransformer;
+        $this->renditionManager = $renditionManager;
+        $this->generateRenditionsManager = $generateRenditionsManager;
+        $this->uploadManager = $uploadManager;
+        $this->requestStack = $requestStack;
+        $this->fileUploadManager = $fileUploadManager;
     }
 
     /**
@@ -100,25 +120,34 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 $file = $this->handleSource($source, $object, $object->getWorkspace());
                 $origRenditions = $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
 
-                if ($data->generateRenditions) {
-                    $this->postFlushStackListener->addEvent(GenerateAssetRenditionsHandler::createEvent($object->getId()));
-                } elseif ($source->importFile) {
+                if ($source->importFile) {
                     foreach ($origRenditions as $origRendition) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId(), ExtensionUtil::getExtension($data->source->url)));
+                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId()));
                         // One import is sufficient as it is the same File
                         break;
                     }
                 }
+            } elseif (null !== $request = $this->requestStack->getCurrentRequest()) {
+                $file = $this->handleUpload($object, $request);
+                if (null !== $file) {
+                    $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
+                }
+            }
+
+            if ($data->generateRenditions) {
+                $this->postFlushStackListener->addCallback(function () use ($object): void {
+                    $this->generateRenditionsManager->generateRenditions($object);
+                });
             }
 
             if (!empty($data->renditions)) {
                 foreach ($data->renditions as $renditionInput) {
                     $rendition = new AssetRendition();
                     $rendition->setAsset($object);
-                    $rendition->setDefinition($this->getRenditionDefinitionByName(
-                        $renditionInput->definition,
-                        $workspace
+                    $rendition->setDefinition($this->renditionManager->getRenditionDefinitionByName(
+                        $workspace,
+                        $renditionInput->definition
                     ));
                     $rendition->setReady(true);
                     $this->handleSource($renditionInput->source, $rendition, $workspace);
@@ -127,7 +156,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
                     if ($renditionInput->source->importFile) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId(), ExtensionUtil::getExtension($renditionInput->source->url)));
+                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId()));
                     }
                 }
             }
@@ -177,19 +206,46 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         return $this->transformOwnerId($object, $to, $context);
     }
 
-    private function getRenditionDefinitionByName(string $name, Workspace $workspace): RenditionDefinition
+    private function handleUpload(Asset $asset, Request $request): ?File
     {
-        $definition = $this->em->getRepository(RenditionDefinition::class)
-            ->findOneBy([
-                'name' => $name,
-                'workspace' => $workspace->getId(),
-            ]);
-
-        if (!$definition instanceof RenditionDefinition) {
-            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+        if (!$asset->getWorkspace()) {
+            // Workspace is not set, validation will reject request.
+            return null;
         }
 
-        return $definition;
+        $file = new File();
+        $file->setWorkspace($asset->getWorkspace());
+        $file->setStorage(File::STORAGE_S3_MAIN);
+
+        if (null !== $request->request->get('multipart')) {
+            $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
+
+            $file->setType($multipartUpload->getType());
+            $file->setExtension(ExtensionUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
+            $file->setSize($multipartUpload->getSize());
+            $file->setOriginalName($multipartUpload->getFilename());
+            $file->setPath($multipartUpload->getPath());
+            $asset->setFile($file);
+
+            return $file;
+        }
+
+        /** @var UploadedFile|null $uploadedFile */
+        $uploadedFile = $request->files->get('file');
+        if (null !== $uploadedFile) {
+            $path = $this->fileUploadManager->storeFileUploadFromRequest($request);
+
+            $file->setType($uploadedFile->getType());
+            $file->setExtension(ExtensionUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName()));
+            $file->setSize($uploadedFile->getSize());
+            $file->setOriginalName($uploadedFile->getClientOriginalName());
+            $file->setPath($path);
+            $asset->setFile($file);
+
+            return $file;
+        }
+
+        return null;
     }
 
     /**
@@ -199,6 +255,8 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     {
         $src = new File();
         $src->setPath($source->url);
+        $src->setOriginalName($source->originalName);
+        $src->setExtension(ExtensionUtil::getExtensionFromPath($source->originalName ?: $source->url));
         $src->setPathPublic(!$source->isPrivate);
         $src->setStorage(File::STORAGE_URL);
         $src->setWorkspace($workspace);

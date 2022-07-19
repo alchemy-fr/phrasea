@@ -21,6 +21,7 @@ lib/core-bundle
 lib/notify-bundle
 lib/remote-auth-bundle
 lib/oauth-server-bundle
+lib/test-bundle
 lib/report-bundle
 lib/report-sdk
 "

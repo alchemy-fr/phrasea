@@ -15,12 +15,14 @@ class FileDownloader
         $this->client = $client;
     }
 
-    public function download(string $uri): string
+    public function download(string $uri, array &$headers = []): string
     {
         $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
-        $this->client->get($uri, [
+        $res = $this->client->get($uri, [
             'sink' => $tmpFile,
         ]);
+
+        $headers = $res->getHeaders();
 
         return $tmpFile;
     }

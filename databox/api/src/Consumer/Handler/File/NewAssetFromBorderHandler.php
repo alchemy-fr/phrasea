@@ -8,22 +8,22 @@ use App\Asset\OriginalRenditionManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
+use App\Phraseanet\PhraseanetGenerateRenditionsManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'new_asset_from_border';
 
-    private EventProducer $eventProducer;
     private OriginalRenditionManager $originalRenditionManager;
+    private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
 
-    public function __construct(EventProducer $eventProducer, OriginalRenditionManager $originalRenditionManager)
+    public function __construct(PhraseanetGenerateRenditionsManager $generateRenditionsManager, OriginalRenditionManager $originalRenditionManager)
     {
-        $this->eventProducer = $eventProducer;
         $this->originalRenditionManager = $originalRenditionManager;
+        $this->generateRenditionsManager = $generateRenditionsManager;
     }
 
     public function handle(EventMessage $message): void
@@ -44,7 +44,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setFile($file);
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
-        $asset->setWorkspace($file->getWorkspace());
+        $workspace = $file->getWorkspace();
+        $asset->setWorkspace($workspace);
 
         $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
@@ -57,9 +58,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->persist($asset);
         $em->flush();
 
-        $this->eventProducer->publish(new EventMessage(GenerateAssetRenditionsHandler::EVENT, [
-            'id' => $asset->getId(),
-        ]));
+        $this->generateRenditionsManager->generateRenditions($asset);
     }
 
     public static function createEvent(

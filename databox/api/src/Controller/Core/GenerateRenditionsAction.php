@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Api\Model\Input\AssetGenerateRenditionsInput;
-use App\Consumer\Handler\File\GenerateAssetRenditionsHandler;
+use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AssetVoter;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -39,7 +39,7 @@ final class GenerateRenditionsAction extends AbstractController
 
         $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
 
-        $this->eventProducer->publish(new EventMessage(GenerateAssetRenditionsHandler::EVENT, [
+        $this->eventProducer->publish(new EventMessage(PhraseanetGenerateAssetRenditionsHandler::EVENT, [
             'id' => $asset->getId(),
             'renditions' => $action->renditions,
         ]));

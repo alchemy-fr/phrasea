@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\ApiTest\ApiTestCase;
+use Alchemy\TestBundle\Helper\FixturesTrait;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
@@ -37,7 +38,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        return static::fixturesBootKernel($options);
+        return static::bootKernelWithFixtures($options);
     }
 
     protected function createAsset(array $options = []): Asset

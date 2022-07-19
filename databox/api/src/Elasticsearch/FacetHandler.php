@@ -101,7 +101,7 @@ class FacetHandler
             $facets[self::FACET_TAG]['buckets'] = array_map(function (array $bucket): array {
                 $bucket['key'] = [
                     'value' => $bucket['key'],
-                    'label' =>$this->em->find(Tag::class, $bucket['key'])->getName(),
+                    'label' => $this->em->find(Tag::class, $bucket['key'])->getName(),
                 ];
 
                 return $bucket;

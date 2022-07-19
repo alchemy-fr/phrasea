@@ -12,11 +12,11 @@ use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
+use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mime\MimeTypes;
 
 class ExportAction extends AbstractController
 {
@@ -52,7 +52,6 @@ class ExportAction extends AbstractController
 
         $renditionIds = $data->renditions;
         $files = [];
-        $mimeTypes = new MimeTypes();
         foreach ($data->assets as $assetId) {
             $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
                 AssetRenditionRepository::OPT_DEFINITION_IDS => $renditionIds,
@@ -71,8 +70,8 @@ class ExportAction extends AbstractController
                 }
 
                 $file = $rendition->getFile();
-                $extensions = $mimeTypes->getExtensions($file->getType());
-                $ext = isset($extensions[0]) ? '.'.$extensions[0] : '';
+                $extension = ExtensionUtil::getExtensionFromType($file->getType());
+                $ext = $extension ? '.'.$extension : '';
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),
                     'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getTitle(), $assetId, $ext),
