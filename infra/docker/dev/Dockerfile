@@ -17,6 +17,7 @@ RUN apk add --no-cache \
         make \
         nano \
         openssh-client \
+        perl \
         python \
         vim \
         zsh \
