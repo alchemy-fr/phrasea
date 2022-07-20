@@ -18,6 +18,7 @@ RUN apk add --no-cache \
         python \
         zsh \
         openssh-client \
+        perl \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
     && mkdir -p /bootstrap/entrypoint.d \
     && git clone https://github.com/robbyrussell/oh-my-zsh.git /bootstrap/.oh-my-zsh
