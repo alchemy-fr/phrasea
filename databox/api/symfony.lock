@@ -11,6 +11,9 @@
     "alchemy/core-bundle": {
         "version": "dev-ps-248-databox"
     },
+    "alchemy/metadata-manipulator-bundle": {
+        "version": "dev-PS-440_metadata-manipulator-bootstrap"
+    },
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
     },

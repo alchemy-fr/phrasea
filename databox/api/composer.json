@@ -3,6 +3,22 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "git",
+            "url": "https://github.com/alchemy-fr/PHPExiftool"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "exiftool/exiftool",
+                "version": "12",
+                "source": {
+                    "url": "https://github.com/exiftool/exiftool",
+                    "type": "git",
+                    "reference": "12.42"
+                }
+            }
+        },
+        {
             "type": "vcs",
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
