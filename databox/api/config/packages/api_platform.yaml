@@ -1,4 +1,5 @@
 api_platform:
+    show_webby: false
     formats:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]
