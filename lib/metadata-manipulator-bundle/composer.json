@@ -26,8 +26,8 @@
     "require": {
         "php": "^7.4",
         "symfony/process": "^5",
-        "symfony/framework-bundle": "^4.0 || ^5.0 || ^5",
-        "symfony/templating": "^4.0 || ^5.0",
+        "symfony/framework-bundle": "^4.4 || ^5.0 || ^5",
+        "symfony/templating": "^4.4 || ^5.0",
         "alchemy/phpexiftool": "2.1.x-dev"
     },
     "config": {
@@ -38,7 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Alchemy\\MetadataManipulatorBundle\\": ""
+            "Alchemy\\MetadataManipulatorBundle\\": "src/"
         },
         "exclude-from-classmap": [
             "/Tests/"
