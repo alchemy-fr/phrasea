@@ -27,11 +27,6 @@ class DumpCommand extends Command
         parent::__construct();
         $this->logger = $logger;
         $this->mm = $mm;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        parent::__construct();
-        $this->logger = $logger;
     }
 
     /**
@@ -89,8 +84,8 @@ class DumpCommand extends Command
             }
         } else {
             // no file arg: dump the dictionary
-            foreach (PHPExiftool::getKnownTagGroups() as $tagGroup) {
-                if (preg_match($filter, $tagGroup)) {
+            foreach($this->mm->getKnownTagGroups() as $tagGroup) {
+                if(preg_match($filter, $tagGroup)) {
                     $output->writeln($tagGroup);
                 }
             }

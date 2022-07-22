@@ -13,7 +13,20 @@ class ServiceTest extends ApiTestCase
 
     protected function setup(): void
     {
-        $this->service = static::getContainer()->get('metadata-manipulator');
+        try {
+            $this->service = static::getContainer()->get('metadata-manipulator');
+        }
+        catch(\Exception $e) {
+            // no-op;
+        }
         $this->assertNotNull($this->service);
+    }
+
+    /**
+     * @covers MetadataManipulator::getKnownTagGroups
+     */
+    public function testGetKnownTagGroups(): void
+    {
+        self::assertIsArray($this->service->getKnownTagGroups());
     }
 }
