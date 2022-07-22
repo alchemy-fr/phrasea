@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\MetadataManipulatorBundle\Command;
 
 
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\PHPExiftool;
 use PHPExiftool\Reader;
 use Psr\Log\LoggerInterface;
@@ -19,11 +20,13 @@ use PHPExiftool\Driver\Metadata\Metadata;
 class DumpCommand extends Command
 {
     private LoggerInterface $logger;
+    private MetadataManipulator $mm;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, MetadataManipulator $mm)
     {
         parent::__construct();
         $this->logger = $logger;
+        $this->mm = $mm;
     }
 
     /**
@@ -59,9 +62,9 @@ class DumpCommand extends Command
         if($input->getArgument('file')) {
 
             $logger = new \Symfony\Bridge\Monolog\Logger("PHPExiftool");
-            $reader = Reader::create($logger);
+            $reader = $this->mm->getReader($logger);
             $reader->files($input->getArgument('file'));
-            $metadataBag = $reader->files(__FILE__)->first();
+            $metadataBag = $reader->first();
 
             /**
              * @var Metadata $meta
@@ -83,7 +86,7 @@ class DumpCommand extends Command
         }
         else {
             // no file arg ? dump the dictionnary
-            foreach(PHPExiftool::getKnownTagGroups() as $tagGroup) {
+            foreach($this->mm->getKnownTagGroups() as $tagGroup) {
                 if(preg_match($filter, $tagGroup)) {
                     $output->writeln($tagGroup);
                 }
