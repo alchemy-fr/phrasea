@@ -17,7 +17,6 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && chown -R app: . \
-    && ls -al /srv/app/vendor/exiftool/exiftool \
     && perl -v \
     && /srv/app/vendor/exiftool/exiftool/exiftool -ver
 
