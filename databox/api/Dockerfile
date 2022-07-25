@@ -15,6 +15,7 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache \
     && chown -R app: . \
     && ls -al /srv/app/vendor/exiftool/exiftool \
+    && perl -v \
     && /srv/app/vendor/exiftool/exiftool/exiftool -ver
 
 ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
