@@ -3,13 +3,13 @@ services:
     autowire: true
     autoconfigure: true
 
-  Alchemy\MetadataManipulatorBundle\Command\DumpCommand:
-    tags:
-      - { name: console.command }
-
-  Alchemy\MetadataManipulatorBundle\MetadataManipulator:
-    autowire: true
-
-  metadata_manipulator:
-    alias: Alchemy\MetadataManipulatorBundle\MetadataManipulator
-    public: true
+#  Alchemy\MetadataManipulatorBundle\Command\DumpCommand:
+#    tags:
+#      - { name: console.command }
+#
+#  Alchemy\MetadataManipulatorBundle\MetadataManipulator:
+#    autowire: true
+#
+#  metadata_manipulator:
+#    alias: Alchemy\MetadataManipulatorBundle\MetadataManipulator
+#    public: true
