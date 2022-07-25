@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "4c30dc4aa959a5ca606242d197ee80d76060a0a4"
+                "reference": "1f0f3a7ef248e5ba58d7af9caac1d094b4fa9991"
             },
             "require": {
                 "cache/array-adapter": "^1.2",
@@ -24,6 +24,7 @@
                 "monolog/monolog": "^2.6",
                 "php": "^7.4",
                 "symfony/console": "^5",
+                "symfony/css-selector": "^5",
                 "symfony/dom-crawler": "^5",
                 "symfony/monolog-bridge": "^5.4",
                 "symfony/process": "^5"
@@ -31,7 +32,6 @@
             "require-dev": {
                 "jms/serializer": "~3",
                 "phpunit/phpunit": "^5",
-                "symfony/css-selector": "^5",
                 "symfony/finder": "^5",
                 "symfony/yaml": "^3"
             },
@@ -65,7 +65,7 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2022-07-25T13:58:04+00:00"
+            "time": "2022-07-25T14:19:28+00:00"
         },
         {
             "name": "cache/adapter-common",
@@ -1208,6 +1208,72 @@
                 }
             ],
             "time": "2022-06-26T13:00:04+00:00"
+        },
+        {
+            "name": "symfony/css-selector",
+            "version": "v5.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/css-selector.git",
+                "reference": "b0a190285cd95cb019237851205b8140ef6e368e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/b0a190285cd95cb019237851205b8140ef6e368e",
+                "reference": "b0a190285cd95cb019237851205b8140ef6e368e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/polyfill-php80": "^1.16"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\CssSelector\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Jean-François Simon",
+                    "email": "jeanfrancois.simon@sensiolabs.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Converts CSS selectors to XPath expressions",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/css-selector/tree/v5.4.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-01-02T09:53:40+00:00"
         },
         {
             "name": "symfony/dependency-injection",
