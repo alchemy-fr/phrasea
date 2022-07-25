@@ -12,8 +12,8 @@ class buildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container)
     {
-        if(!PHPExiftool::isClassesGenerated()) {
-            PHPExiftool::generateClasses([InformationDumper::LISTOPTION_MWG], ['en']);
-        }
+//        if(!PHPExiftool::isClassesGenerated()) {
+//            PHPExiftool::generateClasses([InformationDumper::LISTOPTION_MWG], ['en']);
+//        }
     }
 }
