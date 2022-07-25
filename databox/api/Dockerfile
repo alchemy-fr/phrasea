@@ -4,16 +4,17 @@ FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
-RUN composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction --no-scripts \
+RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
     && rm -rf vendor composer.*
 # End warm up
 
 COPY . .
 
 RUN mkdir -p var/cache var/logs var/sessions \
-    && composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction \
+    && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
-    && chown -R app: .
+    && chown -R app: . \
+    && ls -al /srv/app/vendor/exiftool/exiftool
 
 ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
 RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \
