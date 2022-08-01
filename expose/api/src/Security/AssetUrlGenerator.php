@@ -60,7 +60,7 @@ class AssetUrlGenerator
         }
 
         if ($this->cloudFrontUrlGenerator->isEnabled()) {
-            return $this->cloudFrontUrlGenerator->getSignedUrl($path);
+            return $this->cloudFrontUrlGenerator->getSignedUrl($path, $download);
         }
 
         return $this->requestSigner->signUri(

@@ -37,10 +37,16 @@ class CloudFrontUrlGenerator
         return !empty($this->cloudFrontUrl);
     }
 
-    public function getSignedUrl(string $path): string
+    public function getSignedUrl(string $path, bool $download = false): string
     {
+        $url = $this->cloudFrontUrl.'/'.$path;
+
+        if ($download) {
+            $url .= '?response-content-disposition=attachment';
+        }
+
         return $this->cloudFrontClient->getSignedUrl([
-            'url' => $this->cloudFrontUrl.'/'.$path,
+            'url' => $url,
             'expires' => time() + $this->ttl,
             'private_key' => $this->cloudFrontPrivateKey,
             'key_pair_id' => $this->cloudFrontKeyPairId,
