@@ -16,6 +16,16 @@ class ReaderTest extends ApiTestCase
     private ?MetadataManipulator $service = null;
     private ?Reader $reader = null;
 
+    public static function setUpBeforeClass(): void
+    {
+        // _r will be used for read tests
+        copy(__DIR__.'/../fixtures/files/Metadata_test_file.jpg', __DIR__.'/../fixtures/files/Metadata_test_file_r.jpg');
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        unlink(__DIR__.'/../fixtures/files/Metadata_test_file_r.jpg');
+    }
 
     /**
      * @covers MetadataManipulator::getReader
@@ -37,12 +47,12 @@ class ReaderTest extends ApiTestCase
      */
     public function testRead(): void
     {
-        $metas = $this->service->getMetadatas(new \SplFileObject(__DIR__.'/../fixtures/files/Metadata_test_file.jpg'));
+        $metas = $this->service->getMetadatas(new \SplFileObject(__DIR__.'/../fixtures/files/Metadata_test_file_r.jpg'));
         self::assertInstanceOf(MetadataBag::class, $metas);
 
-        $m = $metas->get('IFD0:Artist');
-        $t = $m->getTag();
-        $this->assertInstanceOf(Artist::class, $t);
-        $this->assertSame("Carl Seibert (Exif)", $m->getValue()->asString());
+        $meta = $metas->get('IFD0:Artist');
+        $tagGroup = $meta->getTagGroup();
+        $this->assertInstanceOf(Artist::class, $tagGroup);
+        $this->assertSame("Carl Seibert (Exif)", $meta->getValue()->asString());
     }
 }

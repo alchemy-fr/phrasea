@@ -26,11 +26,11 @@ class RenditionClassCollectionDataProvider implements ContextAwareCollectionData
     {
         $criteria = [];
         $filters = $context['filters'] ?? [];
-        if (isset($filters['workspaceId'])) {
-            $criteria['workspace'] = $filters['workspaceId'];
-        }
+//        if (isset($filters['workspaceId'])) {
+//            $criteria['workspace'] = $filters['workspaceId'];
+//        }
 
-        $classes = $this->em->getRepository(RenditionClass::class)->findBy($criteria);
+        $classes = $this->em->getRepository(RenditionClass::class)->findBy($filters);
 
         return array_filter($classes, function (RenditionClass $renditionClass): bool {
             return $this->security->isGranted(RenditionClassVoter::READ, $renditionClass);
