@@ -32,7 +32,17 @@ class ProxyCachePurger
                 $this->purgeStack = null;
 
                 foreach ($stack as $uri) {
-                    $this->client->get('/purge'.$uri);
+                    foreach ([
+                        'application/json',
+                        'application/ld+json',
+                        'text/html',
+                             ] as $contentType) {
+                        $this->client->get('/purge'.$uri, [
+                            'headers' => [
+                                'Accept' => $contentType,
+                            ],
+                        ]);
+                    }
                 }
             });
         }

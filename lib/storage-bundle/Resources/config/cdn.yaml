@@ -1,0 +1,25 @@
+parameters:
+    env(CLOUD_FRONT_REGION): eu-central-1
+    env(CLOUD_FRONT_URL): ~
+    env(CLOUD_FRONT_PRIVATE_KEY): ~
+    env(CLOUD_FRONT_KEY_PAIR_ID): ~
+    env(CLOUD_FRONT_TTL): 86400
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Aws\CloudFront\CloudFrontClient:
+        arguments:
+            -
+                profile: default
+                version: '2020-05-31'
+                region: '%env(CLOUD_FRONT_REGION)%'
+
+    Alchemy\StorageBundle\Cdn\CloudFrontUrlGenerator:
+        arguments:
+            $cloudFrontUrl: '%env(CLOUD_FRONT_URL)%'
+            $cloudFrontPrivateKey: '%env(CLOUD_FRONT_PRIVATE_KEY)%'
+            $cloudFrontKeyPairId: '%env(CLOUD_FRONT_KEY_PAIR_ID)%'
+            $ttl: '%env(int:CLOUD_FRONT_TTL)%'

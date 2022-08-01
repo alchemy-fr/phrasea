@@ -27,15 +27,14 @@ class EntityHttpCacheListener implements EventSubscriber
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
         } elseif ($entity instanceof Publication) {
-            // TODO fix purge on nginx side first
-//            $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
-//                'id' => $entity->getId(),
-//            ]);
-//            if ($entity->getSlug()) {
-//                $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
-//                    'id' => $entity->getSlug(),
-//                ]);
-//            }
+            $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+                'id' => $entity->getId(),
+            ]);
+            if ($entity->getSlug()) {
+                $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+                    'id' => $entity->getSlug(),
+                ]);
+            }
         }
     }
 
