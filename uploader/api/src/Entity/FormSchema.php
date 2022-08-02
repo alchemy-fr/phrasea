@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -21,6 +22,12 @@ class FormSchema implements AclObjectInterface
      * @ORM\Column(type="uuid", unique=true)
      */
     protected $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private ?Target $target = null;
 
     /**
      * @ORM\Column(type="string", length=5, nullable=true, unique=true)
@@ -107,5 +114,15 @@ class FormSchema implements AclObjectInterface
     public function getAclOwnerId(): string
     {
         return '';
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(Target $target): void
+    {
+        $this->target = $target;
     }
 }

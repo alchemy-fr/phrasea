@@ -23,7 +23,13 @@ class BulkData implements AclObjectInterface
     protected $id;
 
     /**
-     * @ORM\Column(type="json_array")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private ?Target $target = null;
+
+    /**
+     * @ORM\Column(type="json")
      */
     private array $data = [];
 
@@ -87,5 +93,15 @@ class BulkData implements AclObjectInterface
     public function getAclOwnerId(): string
     {
         return '';
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?Target $target): void
+    {
+        $this->target = $target;
     }
 }

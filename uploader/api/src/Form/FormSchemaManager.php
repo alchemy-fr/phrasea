@@ -9,15 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FormSchemaManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var string
-     */
-    private $defaultSchemaFile;
+    private EntityManagerInterface $em;
+    private string $defaultSchemaFile;
 
     public function __construct(EntityManagerInterface $em, string $defaultSchemaFile)
     {

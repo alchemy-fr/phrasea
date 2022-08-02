@@ -1,0 +1,15 @@
+resources:
+  App\Entity\Target:
+    attributes:
+      normalization_context:
+        groups:
+          - target:index
+    order:
+      name: DESC
+    shortName: target
+    collectionOperations:
+      post: ~
+    itemOperations:
+      get: ~
+      delete: ~
+      put: ~

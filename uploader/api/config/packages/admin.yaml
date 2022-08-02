@@ -13,6 +13,7 @@ easy_admin:
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Uploads'
         children:
+          - Target
           - Commit
           - Asset
           - MultipartUpload
@@ -26,6 +27,22 @@ easy_admin:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
   entities:
+    Target:
+      class: App\Entity\Target
+      list:
+        sort: [name, ASC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - name
+          - targetUrl
+          - createdAt
+      form:
+        fields:
+          - name
+          - targetUrl
+          - { property: targetAccessToken }
+          - { property: allowedGroups, type: collection }
+
     Commit:
       disabled_actions:
         - new
@@ -38,6 +55,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
           - assetCount
           - token
@@ -64,6 +82,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
@@ -79,10 +98,12 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - locale
           - createdAt
       form:
         fields:
+          - target
           - { property: locale }
           - { property: jsonData }
 
@@ -94,9 +115,11 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - createdAt
       form:
         fields:
+          - target
           - { property: jsonData }
 
     MultipartUpload:

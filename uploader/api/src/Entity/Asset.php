@@ -94,6 +94,12 @@ class Asset
     private $mimeType;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private ?Target $target = null;
+
+    /**
      * @var Commit|null
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Commit", inversedBy="assets")
@@ -238,5 +244,15 @@ class Asset
     public function setAcknowledged(bool $acknowledged): void
     {
         $this->acknowledged = $acknowledged;
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?Target $target): void
+    {
+        $this->target = $target;
     }
 }

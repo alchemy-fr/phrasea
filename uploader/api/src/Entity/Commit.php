@@ -66,6 +66,12 @@ class Commit
     private ?Collection $assets = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private ?Target $target = null;
+
+    /**
      * @Groups("asset_read")
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      * @ApiProperty(writable=false)
@@ -307,5 +313,15 @@ class Commit
     public function setOptions(array $options): void
     {
         $this->options = $options;
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?Target $target): void
+    {
+        $this->target = $target;
     }
 }
