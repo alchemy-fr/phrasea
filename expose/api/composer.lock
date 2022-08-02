@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,11 +58,11 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "44ae080eadc3602e7734ab172399032043c32154"
+                "reference": "bdbcb8a10e74551e6c733342ad28e9c836234506"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -72,7 +72,8 @@
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -90,7 +91,7 @@
             },
             "scripts": {
                 "test": [
-                    "echo 'This project has no test...'"
+                    "./vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -108,7 +109,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -155,7 +156,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -203,7 +204,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -249,7 +250,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -298,7 +299,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -344,7 +345,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -390,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -10339,7 +10340,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-databox-features",
+            "version": "dev-PS-417-expose-cloudfront-cdn",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",

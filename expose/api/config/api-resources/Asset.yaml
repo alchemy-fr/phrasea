@@ -4,6 +4,8 @@ resources:
     collectionOperations:
       post:
         controller: App\Controller\CreateAssetAction
+        attributes:
+          deserialize: false
         defaults:
           _api_receive: false
         openapi_context:

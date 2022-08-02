@@ -159,6 +159,16 @@ S3_STORAGE_USE_PATH_STYLE_ENDPOINT: {{ ternary "true" "false" (or $ctx.s3Storage
 S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- end }}
 
+{{- define "app.cloudFront.configMap" }}
+{{- $ctx := .ctx -}}
+{{- $glob := .glob -}}
+CLOUD_FRONT_URL: {{ tpl $ctx.cloudFront.url $glob | quote }}
+CLOUD_FRONT_REGION: {{ $ctx.cloudFront.region | default "eu-central-1" | quote }}
+CLOUD_FRONT_PRIVATE_KEY: {{ $ctx.cloudFront.privateKey | quote }}
+CLOUD_FRONT_KEY_PAIR_ID: {{ $ctx.cloudFront.keyPairId | quote }}
+CLOUD_FRONT_TTL: {{ $ctx.cloudFront.ttl | quote }}
+{{- end }}
+
 {{- define "ingress.apiVersion" -}}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" -}}
 networking.k8s.io/v1

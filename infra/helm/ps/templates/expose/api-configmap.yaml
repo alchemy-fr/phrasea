@@ -18,5 +18,6 @@ data:
   EXPOSE_CLIENT_LOGO_URL: {{ .client.logoUrl | quote }}
   EXPOSE_CLIENT_LOGO_ALT: {{ .client.logoAlt | quote }}
 {{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
+{{ include "app.cloudFront.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}
