@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\MetadataManipulator;
 
-use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupName;
+use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupNameException;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Reader;
@@ -66,7 +66,7 @@ class WriterTest extends TestCase
      */
     public function testWriteUnknow(): void
     {
-        $this->expectException(UnknownTagGroupName::class);
+        $this->expectException(UnknownTagGroupNameException::class);
 
         $this->service->createMetadata('unknownTagGroup')->setValue('John Doe');
     }

@@ -2,6 +2,6 @@
 
 namespace Alchemy\MetadataManipulatorBundle\Exception;
 
-class UnknownTagGroupName extends \Exception
+class UnknownTagGroupNameException extends \Exception
 {
 }

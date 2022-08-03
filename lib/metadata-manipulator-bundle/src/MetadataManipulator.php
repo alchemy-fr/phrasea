@@ -2,7 +2,7 @@
 
 namespace Alchemy\MetadataManipulatorBundle;
 
-use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupName;
+use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupNameException;
 use Exception;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
@@ -63,7 +63,7 @@ class MetadataManipulator
         if (class_exists($className)) {
             return new Metadata(new $className());
         } else {
-            throw new UnknownTagGroupName(sprintf('Unknown tagGroupName "%s"', $tagGroupName));
+            throw new UnknownTagGroupNameException(sprintf('Unknown tagGroupName "%s"', $tagGroupName));
         }
     }
 
