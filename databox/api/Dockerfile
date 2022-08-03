@@ -2,6 +2,9 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
+RUN apk add --no-cache \
+        perl
+
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
@@ -35,7 +38,6 @@ ENV PHP_MEMORY_LIMIT=1G
 
 RUN apk add --no-cache \
         supervisor \
-        perl \
     && mkdir -p /var/log/supervisor \
     && chown -R app: /var/log/supervisor
 
