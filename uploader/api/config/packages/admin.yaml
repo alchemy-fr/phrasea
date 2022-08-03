@@ -8,7 +8,7 @@ easy_admin:
     menu:
       - label: 'Permissions'
         children:
-          - { label: 'Bulk data permissions', route: admin_global_permissions, params: { type: bulk_data } }
+          - { label: 'Target params permissions', route: admin_global_permissions, params: { type: target_params } }
           - { label: 'Form schema permissions', route: admin_global_permissions, params: { type: form_schema } }
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Uploads'
@@ -20,7 +20,7 @@ easy_admin:
       - label: 'Data'
         children:
           - FormSchema
-          - BulkData
+          - TargetParams
       - OAuthClient
       - label: 'Dev'
         children:
@@ -107,8 +107,8 @@ easy_admin:
           - { property: locale }
           - { property: jsonData }
 
-    BulkData:
-      class: App\Entity\BulkData
+    TargetParams:
+      class: App\Entity\TargetParams
       list:
         actions:
           - permissions
@@ -116,6 +116,7 @@ easy_admin:
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - target
+          - updatedAt
           - createdAt
       form:
         fields:

@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\Target;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class FormValidator
 {
-    /**
-     * @var LiFormToFormTransformer
-     */
-    private $formGenerator;
-    /**
-     * @var FormSchemaManager
-     */
-    private $schemaLoader;
+    private LiFormToFormTransformer $formGenerator;
+    private FormSchemaManager $schemaLoader;
 
     public function __construct(
         LiFormToFormTransformer $formGenerator,
@@ -26,9 +21,9 @@ class FormValidator
         $this->schemaLoader = $schemaLoader;
     }
 
-    public function validateForm(array $data, Request $request): array
+    public function validateForm(array $data, Target $target, Request $request): array
     {
-        $schema = $this->schemaLoader->loadSchema($request->getLocale());
+        $schema = $this->schemaLoader->loadSchema($target->getId(), $request->getLocale());
         $form = $this->formGenerator->createFormFromSchema($schema);
 
         $data = self::cleanExtraFields($data);

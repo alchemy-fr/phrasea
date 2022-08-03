@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
-use App\Entity\BulkData;
+use App\Entity\TargetParams;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -28,17 +28,19 @@ class CommitHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
-        $commit = Commit::fromArray($message->getPayload());
+        $em = $this->getEntityManager();
+        $commit = Commit::fromArray($message->getPayload(), $em);
         $commit->generateToken();
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);
 
-        $em = $this->getEntityManager();
-
-        $bulkData = $em
-            ->getRepository(BulkData::class)
-            ->getBulkDataArray();
+        $targetParams = $em
+            ->getRepository(TargetParams::class)
+            ->findOneBy([
+                'target' => $commit->getTarget()->getId(),
+            ]);
+        $bulkData = $targetParams ? $targetParams->getData() : [];
 
         $formData = array_merge($commit->getFormData(), $bulkData);
         $commit->setFormData($formData);

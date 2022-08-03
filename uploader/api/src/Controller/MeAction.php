@@ -29,7 +29,7 @@ class MeAction extends AbstractController
             'username' => $user->getUsername(),
             'permissions' => [
                 'form_schema' => $this->isGranted(FormDataEditorVoter::EDIT_FORM_SCHEMA),
-                'bulk_data' => $this->isGranted(FormDataEditorVoter::EDIT_BULK_DATA),
+                'bulk_data' => $this->isGranted(FormDataEditorVoter::EDIT_TARGET_DATA),
             ],
         ]);
     }

@@ -7,12 +7,13 @@ namespace App\Tests\Consumer;
 use App\Consumer\Handler\CommitHandler;
 use App\Entity\Asset;
 use App\Entity\AssetRepository;
-use App\Entity\BulkData;
-use App\Entity\BulkDataRepository;
+use App\Entity\Target;
+use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 
@@ -23,17 +24,20 @@ class CommitHandlerTest extends TestCase
         $assetRepo = $this->createMock(AssetRepository::class);
         $assetRepo->expects($this->once())
             ->method('attachCommit');
-        $bulkRepo = $this->createMock(BulkDataRepository::class);
+        $bulkRepo = $this->createMock(EntityRepository::class);
         $bulkRepo->expects($this->once())
-            ->method('getBulkDataArray')
-            ->willReturn([]);
+            ->method('findOneBy')
+            ->willReturn(new TargetParams());
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getRepository')
             ->will($this->returnValueMap([
                 [Asset::class, $assetRepo],
-                [BulkData::class, $bulkRepo],
+                [TargetParams::class, $bulkRepo],
             ]));
+        $em->method('getReference')
+            ->with(Target::class, '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09')
+            ->willReturn(new Target());
 
         $producerStub = $this->createMock(EventProducer::class);
         $producerStub
@@ -66,6 +70,7 @@ class CommitHandlerTest extends TestCase
             ],
             'form' => ['foo' => 'bar'],
             'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
+            'target_id' => '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09',
         ]);
         $handler->handle($message);
     }

@@ -6,9 +6,13 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\FormSchemaRepository")
@@ -20,42 +24,45 @@ class FormSchema implements AclObjectInterface
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
+     * @Groups({"formschema:index"})
      */
     protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull()
+     * @Groups({"formschema:index", "formschema:write"})
      */
     private ?Target $target = null;
 
     /**
      * @ORM\Column(type="string", length=5, nullable=true, unique=true)
+     * @Groups({"formschema:index", "formschema:write"})
      */
     private ?string $locale = null;
 
     /**
-     * @var string
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="json")
+     * @Groups({"formschema:index", "formschema:write"})
      */
-    private $data;
+    private array $data = [];
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     * @Groups({"targetparams:index"})
      */
-    private DateTime $createdAt;
+    private ?DateTimeInterface $createdAt = null;
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
      */
-    private $updatedAt;
+    private ?DateTimeInterface $updatedAt = null;
 
     public function __construct(?string $id = null)
     {
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
         $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
 
@@ -76,7 +83,7 @@ class FormSchema implements AclObjectInterface
 
     public function getData(): array
     {
-        return json_decode($this->data, true);
+        return $this->data;
     }
 
     public function getJsonData(): ?string
@@ -88,27 +95,22 @@ class FormSchema implements AclObjectInterface
     {
         $jsonData ??= '{}';
 
-        $this->data = $jsonData;
+        $this->data = json_decode($jsonData, true);
     }
 
     public function setData(array $data): void
     {
-        $this->data = json_encode($data);
+        $this->data = $data;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 
     public function getAclOwnerId(): string

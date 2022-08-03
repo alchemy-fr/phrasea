@@ -8,9 +8,20 @@ use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 
 class ValidateTest extends AbstractUploaderTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
+            'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true),
+        ]);
+    }
+
     public function testValidateOK(): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => [
                 'album' => 'Foo',
                 'agreed' => true,
@@ -25,6 +36,7 @@ class ValidateTest extends AbstractUploaderTestCase
     public function testValidateWithAnonymousUser(): void
     {
         $response = $this->request(null, 'POST', '/form/validate', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => [
                 'album' => 'Foo',
                 'agreed' => true,
@@ -39,6 +51,7 @@ class ValidateTest extends AbstractUploaderTestCase
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => $data,
         ]);
         $json = json_decode($response->getContent(), true);

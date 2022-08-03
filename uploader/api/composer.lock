@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb62b5b3ccde57a30198271774b1538a",
+    "content-hash": "ae9f76b43bc0873ef87d26a6c0a831ec",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,11 +58,11 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "44ae080eadc3602e7734ab172399032043c32154"
+                "reference": "bdbcb8a10e74551e6c733342ad28e9c836234506"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -72,7 +72,8 @@
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -90,7 +91,7 @@
             },
             "scripts": {
                 "test": [
-                    "echo 'This project has no test...'"
+                    "./vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -108,7 +109,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -155,7 +156,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -203,7 +204,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -249,7 +250,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -298,7 +299,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -344,7 +345,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -390,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -842,6 +843,55 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.218.1"
             },
             "time": "2022-04-01T18:14:25+00:00"
+        },
+        {
+            "name": "behat/transliterator",
+            "version": "v1.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Behat/Transliterator.git",
+                "reference": "baac5873bac3749887d28ab68e2f74db3a4408af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Behat/Transliterator/zipball/baac5873bac3749887d28ab68e2f74db3a4408af",
+                "reference": "baac5873bac3749887d28ab68e2f74db3a4408af",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "chuyskywalker/rolling-curl": "^3.1",
+                "php-yaoi/php-yaoi": "^1.0",
+                "phpunit/phpunit": "^8.5.25 || ^9.5.19"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Behat\\Transliterator\\": "src/Behat/Transliterator"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Artistic-1.0"
+            ],
+            "description": "String transliterator",
+            "keywords": [
+                "i18n",
+                "slug",
+                "transliterator"
+            ],
+            "support": {
+                "issues": "https://github.com/Behat/Transliterator/issues",
+                "source": "https://github.com/Behat/Transliterator/tree/v1.5.0"
+            },
+            "time": "2022-03-30T09:27:43+00:00"
         },
         {
             "name": "brick/math",
@@ -2874,6 +2924,108 @@
                 "source": "https://github.com/FriendsOfSymfony/oauth2-php/tree/1.3.1"
             },
             "time": "2021-04-06T17:14:49+00:00"
+        },
+        {
+            "name": "gedmo/doctrine-extensions",
+            "version": "v3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
+                "reference": "8c02cee09e3dd43799ec3b84b619b19982c47f43"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/8c02cee09e3dd43799ec3b84b619b19982c47f43",
+                "reference": "8c02cee09e3dd43799ec3b84b619b19982c47f43",
+                "shasum": ""
+            },
+            "require": {
+                "behat/transliterator": "~1.2",
+                "doctrine/annotations": "^1.13",
+                "doctrine/collections": "^1.0",
+                "doctrine/common": "^2.13 || ^3.0",
+                "doctrine/event-manager": "^1.0",
+                "php": "^7.2 || ^8.0"
+            },
+            "conflict": {
+                "doctrine/mongodb": "<1.3",
+                "doctrine/mongodb-odm": "<2.0",
+                "doctrine/orm": ">=2.10",
+                "sebastian/comparator": "<2.0"
+            },
+            "provide": {
+                "ext-mongo": "1.6.12"
+            },
+            "require-dev": {
+                "alcaeus/mongo-php-adapter": "^1.1",
+                "doctrine/cache": "^1.11 || ^2.0",
+                "doctrine/dbal": "^2.13",
+                "doctrine/doctrine-bundle": "^2.3",
+                "doctrine/mongodb-odm": "^2.0",
+                "doctrine/orm": "^2.9.6",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpunit/phpunit": "^8.5",
+                "symfony/cache": "^4.4 || ^5.0",
+                "symfony/yaml": "^4.1"
+            },
+            "suggest": {
+                "doctrine/mongodb-odm": "to use the extensions with the MongoDB ODM",
+                "doctrine/orm": "to use the extensions with the ORM",
+                "symfony/cache": "to cache parsed annotations"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Gedmo\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Gediminas Morkevicius",
+                    "email": "gediminas.morkevicius@gmail.com"
+                },
+                {
+                    "name": "Gustavo Falco",
+                    "email": "comfortablynumb84@gmail.com"
+                },
+                {
+                    "name": "David Buchmann",
+                    "email": "david@liip.ch"
+                }
+            ],
+            "description": "Doctrine2 behavioral extensions",
+            "homepage": "http://gediminasm.org/",
+            "keywords": [
+                "Blameable",
+                "behaviors",
+                "doctrine2",
+                "extensions",
+                "gedmo",
+                "loggable",
+                "nestedset",
+                "sluggable",
+                "sortable",
+                "timestampable",
+                "translatable",
+                "tree",
+                "uploadable"
+            ],
+            "support": {
+                "email": "gediminas.morkevicius@gmail.com",
+                "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.2.0",
+                "wiki": "https://github.com/Atlantic18/DoctrineExtensions/tree/main/doc"
+            },
+            "time": "2021-10-05T15:25:14+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -5385,6 +5537,80 @@
                 "source": "https://github.com/snc/SncRedisBundle/tree/3.6.0"
             },
             "time": "2021-11-20T23:12:12+00:00"
+        },
+        {
+            "name": "stof/doctrine-extensions-bundle",
+            "version": "v1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stof/StofDoctrineExtensionsBundle.git",
+                "reference": "a2bffca41974d1c968557b343e269a60a8d5ffa4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stof/StofDoctrineExtensionsBundle/zipball/a2bffca41974d1c968557b343e269a60a8d5ffa4",
+                "reference": "a2bffca41974d1c968557b343e269a60a8d5ffa4",
+                "shasum": ""
+            },
+            "require": {
+                "gedmo/doctrine-extensions": "^2.3.4 || ^3.0.0",
+                "php": "^7.1.3 || ^8.0",
+                "symfony/config": "^4.4 || ^5.2 || ^6.0",
+                "symfony/dependency-injection": "^4.4 || ^5.2 || ^6.0",
+                "symfony/event-dispatcher": "^4.4 || ^5.2 || ^6.0",
+                "symfony/http-kernel": "^4.4 || ^5.2 || ^6.0"
+            },
+            "require-dev": {
+                "symfony/mime": "^4.4 || ^5.2 || ^6.0",
+                "symfony/phpunit-bridge": "^v5.2.4 || ^6.0",
+                "symfony/security-core": "^4.4 || ^5.2 || ^6.0"
+            },
+            "suggest": {
+                "doctrine/doctrine-bundle": "to use the ORM extensions",
+                "doctrine/mongodb-odm-bundle": "to use the MongoDB ODM extensions",
+                "symfony/mime": "To use the Mime component integration for Uploadable"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stof\\DoctrineExtensionsBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christophe Coevoet",
+                    "email": "stof@notk.org"
+                }
+            ],
+            "description": "Integration of the gedmo/doctrine-extensions with Symfony",
+            "homepage": "https://github.com/stof/StofDoctrineExtensionsBundle",
+            "keywords": [
+                "behaviors",
+                "doctrine2",
+                "extensions",
+                "gedmo",
+                "loggable",
+                "nestedset",
+                "sluggable",
+                "sortable",
+                "timestampable",
+                "translatable",
+                "tree"
+            ],
+            "support": {
+                "issues": "https://github.com/stof/StofDoctrineExtensionsBundle/issues",
+                "source": "https://github.com/stof/StofDoctrineExtensionsBundle/tree/v1.7.0"
+            },
+            "time": "2021-11-22T15:17:44+00:00"
         },
         {
             "name": "symfony/asset",
@@ -10439,7 +10665,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-databox-features",
+            "version": "dev-PS-461-uploader-multi-destination",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",

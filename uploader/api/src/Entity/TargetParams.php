@@ -5,48 +5,56 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\BulkDataRepository")
+ * @ORM\Entity()
  */
-class BulkData implements AclObjectInterface
+class TargetParams implements AclObjectInterface
 {
     /**
      * @var Uuid
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
+     * @Groups({"targetparams:index"})
      */
     protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"targetparams:index", "targetparams:write"})
+     * @Assert\NotNull()
      */
     private ?Target $target = null;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"targetparams:index", "targetparams:write"})
      */
     private array $data = [];
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     * @Groups({"targetparams:index"})
      */
-    private DateTime $createdAt;
+    private ?DateTimeInterface $createdAt = null;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
      */
-    private DateTime $updatedAt;
+    private ?DateTimeInterface $updatedAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -75,21 +83,6 @@ class BulkData implements AclObjectInterface
         $this->data = \GuzzleHttp\json_decode($jsonData);
     }
 
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getAclOwnerId(): string
     {
         return '';
@@ -100,8 +93,18 @@ class BulkData implements AclObjectInterface
         return $this->target;
     }
 
-    public function setTarget(?Target $target): void
+    public function setTarget(Target $target): void
     {
         $this->target = $target;
+    }
+
+    public function getCreatedAt(): ?DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?DateTimeInterface
+    {
+        return $this->updatedAt;
     }
 }

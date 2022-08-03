@@ -1,2 +1,0 @@
-parameters:
-    app.liform.default_schema.src: "%kernel.project_dir%/tests/fixtures/liform-schema.json"

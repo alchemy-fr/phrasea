@@ -6,6 +6,8 @@ namespace App\Model;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\ValidateFormAction;
+use App\Entity\Target;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -24,15 +26,15 @@ final class FormData
 {
     /**
      * @var array
+     * @Assert\NotNull()
      */
     private $data;
 
-    public function __construct(array $data = null)
-    {
-        if (null !== $data) {
-            $this->setData($data);
-        }
-    }
+    /**
+     * @var Target
+     * @Assert\NotNull()
+     */
+    private $target;
 
     public function getData(): array
     {
@@ -42,5 +44,15 @@ final class FormData
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getTarget(): Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(Target $target): void
+    {
+        $this->target = $target;
     }
 }

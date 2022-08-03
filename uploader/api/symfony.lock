@@ -55,6 +55,9 @@
     "aws/aws-sdk-php": {
         "version": "3.147.8"
     },
+    "behat/transliterator": {
+        "version": "v1.5.0"
+    },
     "brick/math": {
         "version": "0.9.3"
     },
@@ -206,6 +209,9 @@
     },
     "friendsofsymfony/oauth2-php": {
         "version": "1.3.0"
+    },
+    "gedmo/doctrine-extensions": {
+        "version": "v3.2.0"
     },
     "guzzlehttp/guzzle": {
         "version": "6.3.3"
@@ -496,6 +502,18 @@
         },
         "files": [
             "config/packages/snc_redis.yaml"
+        ]
+    },
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.2",
+            "ref": "e805aba9eff5372e2d149a9ff56566769e22819d"
+        },
+        "files": [
+            "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
     "symfony/asset": {
