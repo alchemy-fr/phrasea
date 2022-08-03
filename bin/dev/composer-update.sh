@@ -12,6 +12,7 @@ apps=(
   lib/report-bundle
   lib/report-sdk
   lib/storage-bundle
+  lib/metadata-manipulator-bundle
   auth/api
   expose/api
   notify/api

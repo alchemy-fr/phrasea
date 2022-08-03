@@ -28,5 +28,6 @@ return [
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
     Alchemy\WebhookBundle\AlchemyWebhookBundle::class => ['all' => true],
+    Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
     Alchemy\TestBundle\AlchemyTestBundle::class => ['test' => true],
 ];
