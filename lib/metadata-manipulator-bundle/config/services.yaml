@@ -7,6 +7,4 @@ services:
     tags:
       - { name: console.command }
 
-  metadata-manipulator:
-    alias: Alchemy\MetadataManipulatorBundle\MetadataManipulator
-    public: true
+  Alchemy\MetadataManipulatorBundle\MetadataManipulator: ~
