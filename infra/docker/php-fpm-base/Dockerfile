@@ -6,8 +6,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
 		postgresql-dev \
 		icu-libs \
 		zlib \
-		libzip \
-        perl
+		libzip
 
 ENV APCU_VERSION=5.1.18 \
     XDEBUG_VERSION=2.9.4 \

@@ -1,7 +1,7 @@
 {
     "name": "alchemy/metadata-manipulator-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony MetadataManipulatos bundle",
+    "description": "Symfony Metadata Manipulatos bundle",
     "keywords": [],
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
@@ -46,10 +46,11 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Alchemy\\MetadataManipulatorBundle\\Tests\\": "/Tests/"
+            "Alchemy\\MetadataManipulatorBundle\\tests\\": "tests/"
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phpunit/phpunit": "^8.4"
     }
 }

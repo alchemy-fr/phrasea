@@ -18,6 +18,6 @@ class AlchemyMetadataManipulatorBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new buildPhpExiftoolClassesCompilerPass());
+        $container->addCompilerPass(new BuildPhpExiftoolClassesCompilerPass());
     }
 }

@@ -38,6 +38,7 @@ ENV PHP_MEMORY_LIMIT=1G
 
 RUN apk add --no-cache \
         supervisor \
+        perl \
     && mkdir -p /var/log/supervisor \
     && chown -R app: /var/log/supervisor \
     && docker-php-ext-install pcntl
