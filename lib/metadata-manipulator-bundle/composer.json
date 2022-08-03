@@ -1,7 +1,7 @@
 {
     "name": "alchemy/metadata-manipulator-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony Metadata Manipulatos bundle",
+    "description": "Symfony Metadata Manipulator bundle",
     "keywords": [],
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
@@ -52,5 +52,6 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpunit/phpunit": "^8.4"
+        }
     }
 }
