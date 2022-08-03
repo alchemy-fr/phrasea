@@ -1,1 +1,1 @@
-# Nothig here
+# Metadata manipulator bundle

@@ -160,7 +160,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
-                "reference": "7d5c4c742825599091bb80df62bc7e0f93d1e807"
+                "reference": "2c5e11fbd523c493825a65de665b8234a1e9b18f"
             },
             "require": {
                 "alchemy/phpexiftool": "2.1.x-dev",
@@ -170,7 +170,8 @@
                 "symfony/templating": "^4.4 || ^5.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8.4"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -183,7 +184,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\MetadataManipulatorBundle\\Tests\\": "/Tests/"
+                    "Alchemy\\MetadataManipulatorBundle\\tests\\": "tests/"
                 }
             },
             "scripts": {
@@ -194,7 +195,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "Symfony MetadataManipulatos bundle",
+            "description": "Symfony Metadata Manipulatos bundle",
             "homepage": "https://www.alchemy.fr/",
             "transport-options": {
                 "symlink": true,
@@ -253,7 +254,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "8901d82fd87d6e9817618297efa3efbafee69d70"
+                "reference": "3b3e5b60871b3c9249bb2b7f019b47ee60917634"
             },
             "require": {
                 "cache/array-adapter": "^1.2",
@@ -306,7 +307,7 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2022-08-01T09:40:13+00:00"
+            "time": "2022-08-02T17:32:18+00:00"
         },
         {
             "name": "alchemy/remote-auth-bundle",
@@ -766,16 +767,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.231.17",
+            "version": "3.231.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d377e1b62b40a4d9e5d9c9387db7c539f28cb6df"
+                "reference": "76db7b327e023c7bbce77a0bfc9fb4d559e765b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d377e1b62b40a4d9e5d9c9387db7c539f28cb6df",
-                "reference": "d377e1b62b40a4d9e5d9c9387db7c539f28cb6df",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/76db7b327e023c7bbce77a0bfc9fb4d559e765b3",
+                "reference": "76db7b327e023c7bbce77a0bfc9fb4d559e765b3",
                 "shasum": ""
             },
             "require": {
@@ -852,9 +853,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.231.17"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.231.18"
             },
-            "time": "2022-07-29T18:17:57+00:00"
+            "time": "2022-08-01T18:18:21+00:00"
         },
         {
             "name": "beberlei/doctrineextensions",
@@ -6447,16 +6448,16 @@
         },
         {
             "name": "ruflin/elastica",
-            "version": "7.1.5",
+            "version": "7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ruflin/Elastica.git",
-                "reference": "72a4598544e3f99b5dd8cacb05d009ee75c2a701"
+                "reference": "8fe61767b604a10e40b0b59c9511c4317cae3cb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/72a4598544e3f99b5dd8cacb05d009ee75c2a701",
-                "reference": "72a4598544e3f99b5dd8cacb05d009ee75c2a701",
+                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/8fe61767b604a10e40b0b59c9511c4317cae3cb8",
+                "reference": "8fe61767b604a10e40b0b59c9511c4317cae3cb8",
                 "shasum": ""
             },
             "require": {
@@ -6471,12 +6472,13 @@
             "require-dev": {
                 "aws/aws-sdk-php": "^3.155",
                 "guzzlehttp/guzzle": "^6.3 || ^7.2",
+                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan-phpunit": "^1.1",
                 "phpunit/phpunit": "^8.5.8 || ^9.4",
-                "symfony/phpunit-bridge": "^5.1.1"
+                "symfony/phpunit-bridge": "^6.0"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow using IAM authentication with Amazon ElasticSearch Service",
-                "egeloen/http-adapter": "Allow using httpadapter as transport",
                 "guzzlehttp/guzzle": "Allow using guzzle as transport",
                 "monolog/monolog": "Logging request"
             },
@@ -6509,9 +6511,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ruflin/Elastica/issues",
-                "source": "https://github.com/ruflin/Elastica/tree/7.1.5"
+                "source": "https://github.com/ruflin/Elastica/tree/7.2.0"
             },
-            "time": "2022-03-29T15:37:28+00:00"
+            "time": "2022-08-02T13:28:12+00:00"
         },
         {
             "name": "sebastian/comparator",

@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace Alchemy\MetadataManipulatorBundle\Command;
 
-
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
-use PHPExiftool\PHPExiftool;
-use PHPExiftool\Reader;
+use PHPExiftool\Driver\Metadata\Metadata;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use PHPExiftool\Driver\Metadata\Metadata;
 
 class DumpCommand extends Command
 {
@@ -52,16 +48,15 @@ class DumpCommand extends Command
         $this->input = $input;
         $this->output = $output;
 
-        if(is_null($filter = $input->getOption('filter'))) {
+        if (is_null($filter = $input->getOption('filter'))) {
             $filter = '';
         }
-        $filter = '/' . $filter . '/';
-        /**
+        $filter = '/'.$filter.'/';
+        /*
          * dump the meta from a file
          */
-        if($input->getArgument('file')) {
-
-            $logger = new \Symfony\Bridge\Monolog\Logger("PHPExiftool");
+        if ($input->getArgument('file')) {
+            $logger = new \Symfony\Bridge\Monolog\Logger('PHPExiftool');
             $reader = $this->mm->getReader($logger);
             $reader->files($input->getArgument('file'));
             $metadataBag = $reader->first();
@@ -72,29 +67,29 @@ class DumpCommand extends Command
             foreach ($metadataBag as $meta) {
                 $tagGroup = $meta->getTagGroup();
                 $id = $tagGroup->getId();
-                if(preg_match($filter, $id)) {
-                    $output->writeln(sprintf("<info>%s</info> (name=\"%s\", phpType=\"%s\") ; %s", $id, $tagGroup->getName(), $tagGroup->getPhpType(), $tagGroup->getDescription('en')));
+                if (preg_match($filter, $id)) {
+                    $output->writeln(sprintf('<info>%s</info> (name="%s", phpType="%s") ; %s', $id, $tagGroup->getName(), $tagGroup->getPhpType(), $tagGroup->getDescription('en')));
                     $attr = [
-                        sprintf("isMulti(): %s", $tagGroup->isMulti() ? "true" : "false"),
-                        sprintf("isBinary(): %s", $tagGroup->isBinary() ? "true" : "false"),
-                        sprintf("isWritable(): %s", $tagGroup->isWritable() ? "true" : "false"),
-                        sprintf("getMaxLength(): %s", $tagGroup->getMaxLength()),
+                        sprintf('isMulti(): %s', $tagGroup->isMulti() ? 'true' : 'false'),
+                        sprintf('isBinary(): %s', $tagGroup->isBinary() ? 'true' : 'false'),
+                        sprintf('isWritable(): %s', $tagGroup->isWritable() ? 'true' : 'false'),
+                        sprintf('getMaxLength(): %s', $tagGroup->getMaxLength()),
                     ];
-                    $output->writeln(sprintf(" attributes: [%s]", join(' ; ', $attr)));
+                    $output->writeln(sprintf(' attributes: [%s]', join(' ; ', $attr)));
 
                     $v = $meta->getValue();
-                    $output->writeln(sprintf(" value: \"%s\"", $v->asString()));
+                    $output->writeln(sprintf(' value: "%s"', $v->asString()));
                 }
             }
-        }
-        else {
+        } else {
             // no file arg ? dump the dictionnary
-            foreach($this->mm->getKnownTagGroups() as $tagGroup) {
-                if(preg_match($filter, $tagGroup)) {
+            foreach ($this->mm->getKnownTagGroups() as $tagGroup) {
+                if (preg_match($filter, $tagGroup)) {
                     $output->writeln($tagGroup);
                 }
             }
         }
+
         return 0;
     }
 }

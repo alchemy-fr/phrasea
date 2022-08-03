@@ -16,7 +16,6 @@ COPY --from=client-build /usr/src/app/build /var/app
 COPY docker/nginx/conf.d /etc/nginx/conf.d
 
 RUN apk add --no-cache libstdc++ \
-    && apk --no-cache add perl \
     && apk add --virtual .build \
         wget \
     && mkdir -p /var/docker \

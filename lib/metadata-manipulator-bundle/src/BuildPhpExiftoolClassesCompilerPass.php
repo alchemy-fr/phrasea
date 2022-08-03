@@ -7,12 +7,11 @@ use PHPExiftool\PHPExiftool;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class buildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
+class BuildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
 {
-
     public function process(ContainerBuilder $container)
     {
-        if(!PHPExiftool::isClassesGenerated()) {
+        if (!PHPExiftool::isClassesGenerated()) {
             PHPExiftool::generateClasses([InformationDumper::LISTOPTION_MWG], ['en']);
         }
     }
