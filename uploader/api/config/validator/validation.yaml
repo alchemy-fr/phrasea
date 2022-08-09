@@ -1,8 +1,10 @@
 App\Entity\FormSchema:
   constraints:
     - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
-        fields: locale
-        message: Form schema for this locale already exists
+        fields:
+          - target
+          - locale
+        message: Form schema for this target and locale already exists
         ignoreNull: false
   properties:
     data:

@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\FormSchemaRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_target_locale", columns={"locale", "target_id"})})
  */
 class FormSchema implements AclObjectInterface
 {
@@ -37,7 +38,7 @@ class FormSchema implements AclObjectInterface
     private ?Target $target = null;
 
     /**
-     * @ORM\Column(type="string", length=5, nullable=true, unique=true)
+     * @ORM\Column(type="string", length=5, nullable=true)
      * @Groups({"formschema:index", "formschema:write"})
      */
     private ?string $locale = null;

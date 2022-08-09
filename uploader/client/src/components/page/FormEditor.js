@@ -14,6 +14,7 @@ export default class FormEditor extends Component {
         schema: undefined,
         selected: undefined,
         value: undefined,
+        error: undefined,
         saved: false,
     };
 
@@ -32,6 +33,7 @@ export default class FormEditor extends Component {
         this.setState({
             selected,
             schema: undefined,
+            error: undefined,
         });
 
         this.loadSchema(selected);
@@ -50,18 +52,19 @@ export default class FormEditor extends Component {
         this.setState({
             value: event.target.value,
             saved: false,
+            error: undefined,
         });
     };
 
     handleSubmit = event => {
         event.preventDefault();
 
-        const {params, value, selected} = this.state;
+        const {schema, value, selected} = this.state;
         const accessToken = oauthClient.getAccessToken();
 
         let r, data = {data: JSON.parse(value)};
-        if (params) {
-            r = request.put(`${config.getUploadBaseURL()}/form-schemas/${params.id}`);
+        if (schema) {
+            r = request.put(`${config.getUploadBaseURL()}/form-schemas/${schema.id}`);
         } else {
             r = request.post(`${config.getUploadBaseURL()}/form-schemas`);
             data = {
@@ -74,20 +77,25 @@ export default class FormEditor extends Component {
             .set('Authorization', `Bearer ${accessToken}`)
             .send(data)
             .end((err, res) => {
-                oauthClient.isResponseValid(err, res);
+                if (oauthClient.isResponseValid(err, res)) {
+                    this.setState({
+                        saved: true,
+                    }, () => {
+                        setTimeout(() => {
+                            this.setState({saved: false});
+                        }, 3000);
+                    });
+                } else {
+                    const d = res.body;
+                    this.setState({
+                        error: d.title+"\n"+d.detail,
+                    });
+                }
             })
-
-        this.setState({
-            saved: true,
-        }, () => {
-            setTimeout(() => {
-                this.setState({saved: false});
-            }, 3000);
-        });
     };
 
     render() {
-        const {saved, schema, targets, value, selected} = this.state;
+        const {saved, schema, error, targets, value, selected} = this.state;
 
         const loading = undefined === schema;
 
@@ -116,12 +124,15 @@ export default class FormEditor extends Component {
                                     <Form.Label>JSON Schema</Form.Label>
                                     <Form.Control
                                         as="textarea"
-                                        rows="30"
+                                        rows="20"
                                         value={loading ? 'Loading...' : value}
                                         disabled={loading}
                                         onChange={this.handleChange}
                                     />
                                 </Form.Group>
+                                {error && <div className="alert alert-danger">
+                                    {error}
+                                </div>}
                                 <Button
                                     block
                                     type="submit"
