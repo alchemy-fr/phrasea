@@ -1,26 +1,38 @@
 FROM php:7.4.4-fpm-alpine3.11
 
 RUN apk add --no-cache \
-		git \
-        gettext \
-		postgresql-dev \
-		mysql-dev \
-		icu-libs \
-		zlib \
-		libzip \
-		grep \
+		autoconf \
 		curl \
+		git \
+		grep \
+		icu-libs \
+		libzip \
+		mysql-dev \
+		postgresql-dev \
+		zlib \
         bash \
-        nano \
-        make \
         g++ \
-        vim \
-        python \
-        zsh \
+        gettext \
+        jq-dev \
+        make \
+        nano \
         openssh-client \
+        python \
+        vim \
+        zsh \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
     && mkdir -p /bootstrap/entrypoint.d \
-    && git clone https://github.com/robbyrussell/oh-my-zsh.git /bootstrap/.oh-my-zsh
+    && git clone https://github.com/robbyrussell/oh-my-zsh.git /bootstrap/.oh-my-zsh \
+    && mkdir /opt/jq-php \
+    && (cd /opt/jq-php \
+    && git clone --depth=1 https://github.com/kjdev/php-ext-jq.git \
+    && cd php-ext-jq \
+    && phpize \
+    && ./configure \
+    && make \
+    && make test \
+    && make install) \
+    && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini
 
 ENV APCU_VERSION=5.1.18 \
     XDEBUG_VERSION=2.9.4 \
