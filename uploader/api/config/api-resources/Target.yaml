@@ -4,6 +4,9 @@ resources:
       normalization_context:
         groups:
           - target:index
+      denormalization_context:
+        groups:
+          - target:write
     order:
       name: DESC
     shortName: target

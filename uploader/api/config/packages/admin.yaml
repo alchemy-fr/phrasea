@@ -42,6 +42,7 @@ easy_admin:
           - name
           - description
           - targetUrl
+          - { property: targetTokenType, type_options: { attr: {placeholder: 'Defaults to "Bearer"'} } }
           - { property: targetAccessToken }
           - { property: defaultDestination }
           - { property: allowedGroups, type: collection }

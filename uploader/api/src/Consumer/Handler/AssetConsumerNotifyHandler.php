@@ -19,28 +19,18 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
     const EVENT = 'asset_consumer_notify';
 
     private Client $client;
-    private string $targetUri;
-    private string $targetAccessToken;
     private string $uploadBaseUrl;
 
     public function __construct(
         Client $client,
-        string $targetUri,
-        string $targetAccessToken,
         string $uploadBaseUrl
     ) {
         $this->client = $client;
-        $this->targetUri = $targetUri;
-        $this->targetAccessToken = $targetAccessToken;
         $this->uploadBaseUrl = $uploadBaseUrl;
     }
 
     public function handle(EventMessage $message): void
     {
-        if ('avoid' === $this->targetAccessToken) {
-            return;
-        }
-
         $id = $message->getPayload()['id'];
         $em = $this->getEntityManager();
         $commit = $em->find(Commit::class, $id);
@@ -48,9 +38,15 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
         }
 
-        $this->client->post($this->targetUri, [
+        $target = $commit->getTarget();
+        $accessToken = $target->getTargetAccessToken();
+        if ('avoid' === $accessToken) {
+            return;
+        }
+
+        $this->client->post($target->getTargetUrl(), [
             'headers' => [
-                'Authorization' => 'OAuth '.$this->targetAccessToken,
+                'Authorization' => ($target->getTargetTokenType() ?? 'Bearer').' '.$accessToken,
             ],
             'json' => [
                 'assets' => array_map(function (Asset $asset): string {

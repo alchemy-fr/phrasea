@@ -25,8 +25,6 @@ DEV_MODE=false
 CLIENT_ID=<THE_CLIENT_ID> # NOT the client ID from Phraseanet
 CLIENT_RANDOM_ID=<A_RANDOM_HASH>
 CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
-ASSET_CONSUMER_COMMIT_URI=https://alpha.preprod.alchemyasp.com/api/v1/upload/enqueue/
-ASSET_CONSUMER_ACCESS_TOKEN=<THE_TOKEN_GOT_FROM_PHRASEANET_APPLICATION>
 ```
 
 ## Development

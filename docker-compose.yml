@@ -137,8 +137,6 @@ services:
     environment:
       - APP_ENV
       - APP_ID=uploader
-      - ASSET_CONSUMER_COMMIT_URI
-      - ASSET_CONSUMER_ACCESS_TOKEN
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -761,8 +759,6 @@ services:
       - internal
     environment:
       - APP_ENV
-      - ASSET_CONSUMER_ACCESS_TOKEN
-      - ASSET_CONSUMER_COMMIT_URI
       - AUTH_PORT
       - AUTH_REGISTRATION_VALIDATE_EMAIL
       - COMPOSE_PROJECT_NAME

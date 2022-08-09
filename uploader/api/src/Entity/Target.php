@@ -7,7 +7,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -49,29 +48,36 @@ class Target
      * @Assert\Length(max=255)
      * @Assert\Url()
      * @Assert\NotBlank
-     * @Groups({"target:index"})
+     * @Groups({"target:write"})
      */
     private ?string $targetUrl = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\Length(max=255)
-     * @Groups({"target:index"})
+     * @Groups({"target:write"})
      */
     private ?string $defaultDestination = null;
 
     /**
      * @ORM\Column(type="string", length=2000, nullable=true)
      * @Assert\Length(max=2000)
-     * @Groups({"target:index"})
+     * @Groups({"target:write"})
      */
     private ?string $targetAccessToken = null;
+
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Assert\Length(max=100)
+     * @Groups({"target:write"})
+     */
+    private ?string $targetTokenType = null;
 
     /**
      * Null value allows everyone.
      *
      * @ORM\Column(type="json", nullable=true)
-     * @Groups({"target:index"})
+     * @Groups({"target:write"})
      */
     private ?array $allowedGroups = null;
 
@@ -105,11 +111,6 @@ class Target
     public function getCreatedAt()
     {
         return $this->createdAt;
-    }
-
-    public function getFormSchemas(): Collection
-    {
-        return $this->formSchemas;
     }
 
     public function getTargetAccessToken(): ?string
@@ -180,5 +181,15 @@ class Target
     public function __toString()
     {
         return $this->getName() ?? $this->getId();
+    }
+
+    public function getTargetTokenType(): ?string
+    {
+        return $this->targetTokenType;
+    }
+
+    public function setTargetTokenType(?string $targetTokenType): void
+    {
+        $this->targetTokenType = $targetTokenType;
     }
 }
