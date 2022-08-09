@@ -19,31 +19,6 @@
         }
       },
       {
-        "title": "Keycloak",
-        "name": "keycloak",
-        "type": "oauth",
-        "options": {
-          "type": "keycloak",
-          "client_id": "ps-auth",
-          "client_secret": "QhWauTSaL1hGUdR7cqzLaRr6cOCyeMTY",
-          "base_url": "https://keycloak.phrasea.local",
-          "realm": "master",
-          "paths": {
-            "identifier": "preferred_username",
-            "nickname": "preferred_username",
-            "email": "preferred_username",
-            "firstname": "first_name",
-            "lastname": "last_name",
-            "groups": "user_groups"
-          }
-        },
-        "group_jq_normalizer": ".user_authorization[] | select(.resource == \"phrasea\") | {groups: [.permissions[].name]}",
-        "group_map": {
-          "Group1": "group1",
-          "Editor": "edit_guy"
-        }
-      },
-      {
         "title": "IDP test",
         "name": "idp-test",
         "type": "saml",
