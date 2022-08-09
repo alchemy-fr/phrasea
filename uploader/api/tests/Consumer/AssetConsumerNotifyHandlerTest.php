@@ -7,6 +7,7 @@ namespace App\Tests\Consumer;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Asset;
 use App\Entity\Commit;
+use App\Entity\Target;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
@@ -41,6 +42,11 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         $commit->getAssets()->add(new Asset());
         $commit->getAssets()->add(new Asset());
         $commit->setToken('a_token');
+        $target = new Target();
+        $target->setTargetAccessToken($accessToken);
+        $target->setTargetUrl('http://localhost/api/v1/upload/enqueue/');
+        $target->setTargetTokenType('OAuth');
+        $commit->setTarget($target);
 
         $em->expects($this->once())
             ->method('find')
@@ -48,8 +54,6 @@ class AssetConsumerNotifyHandlerTest extends TestCase
 
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
-            'http://localhost/api/v1/upload/enqueue/',
-            $accessToken,
             $uploadBaseUrl
         );
         $handler->setEntityManager($em);
