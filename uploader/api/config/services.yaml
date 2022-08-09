@@ -79,4 +79,7 @@ services:
         tags:
             - { name: serializer.normalizer, priority: -989 }
 
+    App\DataProvider\TargetDataProvider:
+        arguments: [ '@api_platform.doctrine.orm.default.collection_data_provider' ]
+
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"

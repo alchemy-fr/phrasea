@@ -3,7 +3,7 @@ import config from "./config";
 import {oauthClient} from "./oauth";
 import {uploadMultipartFile} from "./multiPartUpload";
 
-class UploadBatch {
+export default class UploadBatch {
     files = [];
     uploading;
     batchSize = 2;
@@ -11,6 +11,7 @@ class UploadBatch {
     totalSize;
     progresses;
     formData;
+    targetId;
     progressListeners;
     errorListeners;
     resumeListeners;
@@ -19,7 +20,8 @@ class UploadBatch {
     completeEvent;
     failedUploads;
 
-    constructor() {
+    constructor(targetId) {
+        this.targetId = targetId;
         this.reset();
     }
 
@@ -123,6 +125,7 @@ class UploadBatch {
         const formData = {
             files: idCollection,
             formData: this.formData,
+            target: `/targets/${this.targetId}`,
         };
         const accessToken = oauthClient.getAccessToken();
 
@@ -147,7 +150,7 @@ class UploadBatch {
         const username = oauthClient.getUsername();
 
         try {
-            const res = await uploadMultipartFile(username, accessToken, file, (e) => {
+            const res = await uploadMultipartFile(this.targetId, username, accessToken, file, (e) => {
                 this.onUploadProgress(e, index);
             });
             this.onFileComplete(res, index);
@@ -293,7 +296,3 @@ class UploadBatch {
         }
     }
 }
-
-const uploadBatch = new UploadBatch();
-
-export default uploadBatch;

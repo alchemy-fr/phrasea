@@ -39,6 +39,12 @@ class Target
     private ?string $name = null;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Groups({"target:index"})
+     */
+    private ?string $description = null;
+
+    /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(max=255)
      * @Assert\Url()
@@ -46,6 +52,13 @@ class Target
      * @Groups({"target:index"})
      */
     private ?string $targetUrl = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Length(max=255)
+     * @Groups({"target:index"})
+     */
+    private ?string $defaultDestination = null;
 
     /**
      * @ORM\Column(type="string", length=2000, nullable=true)
@@ -67,6 +80,16 @@ class Target
      * @Groups({"target:index"})
      */
     private DateTimeInterface $createdAt;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\TargetParams", mappedBy="target")
+     */
+    private ?TargetParams $targetParams = null;
+
+    /**
+     * Used for sub resource mapping.
+     */
+    private ?FormSchema $formSchema = null;
 
     public function __construct()
     {
@@ -127,6 +150,31 @@ class Target
     public function setAllowedGroups(?array $allowedGroups): void
     {
         $this->allowedGroups = $allowedGroups;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getDefaultDestination(): ?string
+    {
+        return $this->defaultDestination;
+    }
+
+    public function getPullModeUrl(): string
+    {
+        return sprintf('%s/commits?target=%s', getenv('UPLOADER_API_BASE_URL'), $this->getId());
+    }
+
+    public function setDefaultDestination(?string $defaultDestination): void
+    {
+        $this->defaultDestination = $defaultDestination;
     }
 
     public function __toString()

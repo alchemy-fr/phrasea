@@ -46,7 +46,7 @@ final class DownloadUrlAction extends AbstractController
 
     public function __invoke(DownloadUrl $data, Request $request, ValidateFormAction $validateFormAction): Response
     {
-        $errors = $this->formValidator->validateForm($data->getData(), $request);
+        $errors = $this->formValidator->validateForm($data->getData(), $data->getTarget(), $request);
         if (!empty($errors)) {
             return new JsonResponse(['errors' => $errors]);
         }
@@ -58,6 +58,7 @@ final class DownloadUrlAction extends AbstractController
             'url' => $data->getUrl(),
             'form_data' => $data->getData(),
             'user_id' => $user->getId(),
+            'target_id' => $data->getTarget()->getId(),
             'locale' => $request->getLocale() ?? $request->getDefaultLocale(),
         ]));
 

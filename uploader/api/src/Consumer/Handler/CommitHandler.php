@@ -31,6 +31,7 @@ class CommitHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $commit = Commit::fromArray($message->getPayload(), $em);
         $commit->generateToken();
+        $target = $commit->getTarget();
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);
@@ -40,9 +41,12 @@ class CommitHandler extends AbstractEntityManagerHandler
             ->findOneBy([
                 'target' => $commit->getTarget()->getId(),
             ]);
-        $bulkData = $targetParams ? $targetParams->getData() : [];
+        $targetData = $targetParams ? $targetParams->getData() : [];
 
-        $formData = array_merge($commit->getFormData(), $bulkData);
+        $formData = array_merge($commit->getFormData(), $targetData);
+        if (!isset($formData['collection_destination']) && null !== $target->getDefaultDestination()) {
+            $formData['collection_destination'] = $target->getDefaultDestination();
+        }
         $commit->setFormData($formData);
 
         $em->beginTransaction();

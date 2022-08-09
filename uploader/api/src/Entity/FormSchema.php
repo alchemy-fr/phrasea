@@ -86,16 +86,16 @@ class FormSchema implements AclObjectInterface
         return $this->data;
     }
 
-    public function getJsonData(): ?string
+    public function getJsonData(): string
     {
-        return $this->data;
+        return json_encode($this->data, JSON_PRETTY_PRINT);
     }
 
     public function setJsonData(?string $jsonData): void
     {
         $jsonData ??= '{}';
 
-        $this->data = json_decode($jsonData, true);
+        $this->data = \GuzzleHttp\json_decode($jsonData, true);
     }
 
     public function setData(array $data): void

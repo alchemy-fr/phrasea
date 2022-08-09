@@ -14,12 +14,13 @@ import UserInfo from "./components/UserInfo";
 import FormEditor from "./components/page/FormEditor";
 import ResetPassword from "./components/page/ResetPassword";
 import Download from "./components/page/Download";
-import BulkDataEditor from "./components/page/BulkDataEditor";
+import TargetDataEditor from "./components/page/TargetDataEditor";
 import Languages from "./components/Languages";
 import {withTranslation} from 'react-i18next';
 import {oauthClient, OAuthRedirect} from "./oauth";
 import {FullPageLoader, ServicesMenu} from "@alchemy-fr/phraseanet-react-components";
 import AuthError from "./components/page/AuthError";
+import SelectTarget from "./components/page/SelectTarget";
 
 class App extends Component {
     state = {
@@ -101,8 +102,8 @@ class App extends Component {
                 <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
                 {perms && perms.form_schema ?
                     <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
-                {perms && perms.bulk_data ?
-                    <Link onClick={() => this.closeMenu()} to="/bulk-data-editor">Bulk data editor</Link> : ''}
+                {perms && perms.target_data ?
+                    <Link onClick={() => this.closeMenu()} to="/target-data-editor">Target data editor</Link> : ''}
                 {config.devModeEnabled() ?
                     <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
                     : ''}
@@ -112,16 +113,17 @@ class App extends Component {
                 <Languages/>
             </Menu>
             <div id="page-wrap">
-                <PrivateRoute path="/" exact component={Upload}/>
-                <PrivateRoute path="/download" exact component={Download}/>
+                <PrivateRoute path="/" exact component={SelectTarget}/>
+                <PrivateRoute path="/upload/:id" exact component={Upload}/>
+                <PrivateRoute path="/download/:id" exact component={Download}/>
                 <Route path="/login" exact component={Login}/>
                 <Route path="/forgot-password" exact component={ResetPassword}/>
                 <Route path="/about" exact component={About}/>
                 <Route path="/auth-error" exact component={AuthError}/>
                 <PrivateRoute path="/settings" exact component={Settings}/>
                 {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
-                {perms && perms.bulk_data ?
-                    <PrivateRoute path="/bulk-data-editor" exact component={BulkDataEditor}/> : ''}
+                {perms && perms.target_data ?
+                    <PrivateRoute path="/target-data-editor" exact component={TargetDataEditor}/> : ''}
                 {config.devModeEnabled() ?
                     <Route path="/dev-settings" exact component={DevSettings}/>
                     : ''}

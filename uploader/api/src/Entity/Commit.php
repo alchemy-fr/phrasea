@@ -17,12 +17,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
  * @ORM\Table(name="asset_commit")
  * @ApiResource(
- *     order={"acknowledged": "ASC", "createdAt": "DESC"},
+ *     order={"acknowledged": "ASC", "createdAt": "ASC"},
  *     shortName="commit",
  *     collectionOperations={
  *         "post"={
@@ -69,6 +70,8 @@ class Commit
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
+     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
+     * @Groups("asset_read")
      */
     private ?Target $target = null;
 

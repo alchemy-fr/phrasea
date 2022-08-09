@@ -43,7 +43,7 @@ final class CommitAction extends AbstractController
 
     public function __invoke(Commit $data, Request $request)
     {
-        $errors = $this->formValidator->validateForm($data->getFormData(), $request);
+        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors)));
         }

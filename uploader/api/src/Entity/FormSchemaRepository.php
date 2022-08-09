@@ -10,10 +10,10 @@ class FormSchemaRepository extends EntityRepository
 {
     public function getSchemaForLocale(string $targetId, ?string $locale): ?FormSchema
     {
-        return $this->createQueryBuilder('fs')
-            ->select('fs')
-            ->andWhere('fs.target = :t')
-            ->andWhere('fs.locale = :locale OR fs.locale IS NULL')
+        return $this->createQueryBuilder('t')
+            ->select('t')
+            ->andWhere('t.target = :t')
+            ->andWhere('t.locale = :locale OR t.locale IS NULL')
             ->setParameters([
                 'locale' => $locale,
                 't' => $targetId,

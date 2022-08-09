@@ -24,8 +24,8 @@ class CommitHandlerTest extends TestCase
         $assetRepo = $this->createMock(AssetRepository::class);
         $assetRepo->expects($this->once())
             ->method('attachCommit');
-        $bulkRepo = $this->createMock(EntityRepository::class);
-        $bulkRepo->expects($this->once())
+        $targetParamsRepo = $this->createMock(EntityRepository::class);
+        $targetParamsRepo->expects($this->once())
             ->method('findOneBy')
             ->willReturn(new TargetParams());
 
@@ -33,7 +33,7 @@ class CommitHandlerTest extends TestCase
         $em->method('getRepository')
             ->will($this->returnValueMap([
                 [Asset::class, $assetRepo],
-                [TargetParams::class, $bulkRepo],
+                [TargetParams::class, $targetParamsRepo],
             ]));
         $em->method('getReference')
             ->with(Target::class, '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09')

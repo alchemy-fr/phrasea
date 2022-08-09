@@ -15,6 +15,7 @@ export default class AssetForm extends Component {
         onCancel: PropTypes.func,
         baseSchema: PropTypes.object,
         submitPath: PropTypes.string.isRequired,
+        targetId: PropTypes.string.isRequired,
     };
 
     state = {
@@ -26,21 +27,28 @@ export default class AssetForm extends Component {
     }
 
     async init() {
-        const schema = await getFormSchema();
-        const {baseSchema} = this.props;
+        const {baseSchema, targetId} = this.props;
+        let schema = await getFormSchema(targetId);
+        if (null === schema) {
+            if (!baseSchema) {
+                this.props.onComplete({});
+                return;
+            }
+            schema = {};
+        }
 
         if (baseSchema) {
             if (baseSchema.required) {
                 schema.required = [
                     ...baseSchema.required,
-                    ...schema.required,
+                    ...(schema.required || []),
                 ];
             }
 
             if (baseSchema.properties) {
                 schema.properties = {
                     ...baseSchema.properties,
-                    ...schema.properties,
+                    ...(schema.properties || {}),
                 };
             }
         }
@@ -54,7 +62,9 @@ export default class AssetForm extends Component {
         const {baseSchema, submitPath, onComplete} = this.props;
 
         // Extract base fields out from form data
-        let data = {};
+        let data = {
+            target: `/targets/${this.props.targetId}`,
+        };
         if (baseSchema && baseSchema.properties) {
             Object.keys(baseSchema.properties).forEach(key => {
                 if (formData.hasOwnProperty(key)) {

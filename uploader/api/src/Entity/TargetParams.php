@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity()
@@ -27,10 +29,11 @@ class TargetParams implements AclObjectInterface
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\OneToOne(targetEntity="App\Entity\Target", inversedBy="targetParams")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"targetparams:index", "targetparams:write"})
      * @Assert\NotNull()
+     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
      */
     private ?Target $target = null;
 
@@ -75,12 +78,14 @@ class TargetParams implements AclObjectInterface
 
     public function getJsonData(): ?string
     {
-        return \GuzzleHttp\json_encode($this->data);
+        return \GuzzleHttp\json_encode($this->data, JSON_PRETTY_PRINT);
     }
 
     public function setJsonData(string $jsonData): void
     {
-        $this->data = \GuzzleHttp\json_decode($jsonData);
+        $jsonData ??= '{}';
+
+        $this->data = \GuzzleHttp\json_decode($jsonData, true);
     }
 
     public function getAclOwnerId(): string

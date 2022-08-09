@@ -34,13 +34,16 @@ easy_admin:
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - name
+          - { property: pullModeUrl, label: 'Pull mode URL', template: '@AlchemyAdmin/list/code.html.twig' }
           - targetUrl
           - createdAt
       form:
         fields:
           - name
+          - description
           - targetUrl
           - { property: targetAccessToken }
+          - { property: defaultDestination }
           - { property: allowedGroups, type: collection }
 
     Commit:
