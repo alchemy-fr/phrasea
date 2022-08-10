@@ -22,7 +22,6 @@ class AssetSearch extends AbstractSearch
     private TagFilterManager $tagFilterManager;
     private EntityManagerInterface $em;
     private AttributeSearch $attributeSearch;
-    private Security $security;
     private QueryStringParser $queryStringParser;
     private FacetHandler $facetHandler;
 

@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
@@ -71,6 +72,7 @@ class Commit
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
+     * @Assert\NotNull()
      * @Groups("asset_read")
      */
     private ?Target $target = null;

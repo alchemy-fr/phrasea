@@ -118,6 +118,7 @@ services:
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-worker:
     profiles:

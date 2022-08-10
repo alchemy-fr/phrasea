@@ -83,6 +83,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
+      - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"

@@ -41,10 +41,16 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
-        if (empty($targetId = $request->request->get('targetId'))) {
-            throw new BadRequestHttpException('"targetId" is required');
+        if (!empty($targetSlug = $request->request->get('targetSlug'))) {
+            $target = $this->em->getRepository(Target::class)->findOneBy([
+                'slug' => $targetSlug
+            ]);
+        } elseif (!empty($targetId = $request->request->get('targetId'))) {
+            $target = $this->em->find(Target::class, $targetId);
+        } else {
+            throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
         }
-        $target = $this->em->find(Target::class, $targetId);
+
         if (!$target instanceof Target) {
             throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
         }

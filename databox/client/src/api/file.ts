@@ -22,13 +22,14 @@ export type UploadOptions = {
 };
 
 export async function UploadFiles(userId: string, files: File[], options: UploadOptions): Promise<void> {
-    const assets = await Promise.all(files.map(f => UploadFile(userId, f)));
+    const targetSlug = config.get('uploaderTargetSlug');
+    const assets = await Promise.all(files.map(f => UploadFile(targetSlug, userId, f)));
 
-    await CommitUpload(assets, options);
+    await CommitUpload(targetSlug, assets, options);
 }
 
-export async function UploadFile(userId: string, file: File): Promise<string> {
-    return await uploadMultipartFile(userId, oauthClient.getAccessToken(), {
+export async function UploadFile(targetSlug: string, userId: string, file: File): Promise<string> {
+    return await uploadMultipartFile(targetSlug, userId, oauthClient.getAccessToken(), {
         file,
         id: (uploadId++).toString()
     }, (e) => {
@@ -36,8 +37,9 @@ export async function UploadFile(userId: string, file: File): Promise<string> {
     });
 }
 
-export async function CommitUpload(files: string[], options: UploadOptions): Promise<void> {
+export async function CommitUpload(targetSlug: string, files: string[], options: UploadOptions): Promise<void> {
     await uploadClient.post(`/commit`, {
+        targetSlug,
         files,
         options,
     }, {

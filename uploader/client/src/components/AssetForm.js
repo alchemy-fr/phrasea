@@ -19,7 +19,7 @@ export default class AssetForm extends Component {
     };
 
     state = {
-        schema: null,
+        schema: undefined,
     };
 
     componentDidMount() {
@@ -35,6 +35,8 @@ export default class AssetForm extends Component {
                 return;
             }
             schema = {};
+        } else {
+            schema = schema.data;
         }
 
         if (baseSchema) {
@@ -113,7 +115,7 @@ export default class AssetForm extends Component {
     render() {
         const {schema} = this.state;
 
-        if (!schema) {
+        if (undefined === schema) {
             return <Translation>
                 {t => t('layout.loading_form')}
             </Translation>;
@@ -125,6 +127,6 @@ export default class AssetForm extends Component {
                 onSubmit={this.onSubmit}
                 onCancel={this.props.onCancel || null}
             />
-        </div>;
+        </div>
     }
 }

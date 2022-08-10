@@ -33,19 +33,30 @@ easy_admin:
         sort: [name, ASC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - slug
           - name
           - { property: pullModeUrl, label: 'Pull mode URL', template: '@AlchemyAdmin/list/code.html.twig' }
           - targetUrl
           - createdAt
       form:
         fields:
+          - slug
           - name
           - description
-          - targetUrl
-          - { property: targetTokenType, type_options: { attr: {placeholder: 'Defaults to "Bearer"'} } }
-          - { property: targetAccessToken }
-          - { property: defaultDestination }
-          - { property: allowedGroups, type: collection }
+          - property: targetUrl
+            help: 'i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://databox-api/incoming-uploads" for Databox upload'
+          - property: targetTokenType
+            type_options:
+              help: Use "OAuth" for Phraseanet
+              attr:
+                placeholder: 'Defaults to "Bearer"'
+          - property: targetAccessToken
+            help: use "avoid" to do not notify target (for pull mode)
+          - property: defaultDestination
+            help: 'i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)'
+          - property: allowedGroups
+            type: collection
+            help: If no group is defined, the target will be allowed to any user.
 
     Commit:
       disabled_actions:

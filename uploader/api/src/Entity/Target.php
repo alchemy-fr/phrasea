@@ -30,6 +30,15 @@ class Target
     private $id;
 
     /**
+     * @ApiProperty()
+     * @Groups({"target:index"})
+     * @Assert\Regex("/^[a-z][a-z0-9_-]+/")
+     *
+     * @ORM\Column(type="string", length=100, nullable=true, unique=true)
+     */
+    protected ?string $slug = null;
+
+    /**
      * @ORM\Column(type="string", length=1000)
      * @Assert\Length(max=1000)
      * @Assert\NotBlank
@@ -191,5 +200,15 @@ class Target
     public function setTargetTokenType(?string $targetTokenType): void
     {
         $this->targetTokenType = $targetTokenType;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

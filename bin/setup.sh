@@ -141,6 +141,8 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/\$DATABOX_STORAGE_BUCKET_NAME \
 "
+## Create Uploader target for client upload
+exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADER_TARGET_SLUG} 'Databox Uploader' http://databox-api/incoming-uploads"
 
 # Setup Report
 ## Create DB

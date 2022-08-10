@@ -6,5 +6,6 @@ metadata:
   name: databox-client-config
 data:
   DEV_MODE: "0"
+  UPLOADER_TARGET_SLUG: {{ .upload.uploaderTargetSlug | quote }}
 {{- end }}
 {{- end }}

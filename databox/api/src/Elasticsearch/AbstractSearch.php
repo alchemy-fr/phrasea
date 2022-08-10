@@ -6,18 +6,25 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
+use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractSearch
 {
     private EntityManagerInterface $em;
+    protected Security $security;
 
     public function createACLBoolQuery(?string $userId, array $groupIds): Query\BoolQuery
     {
         $aclBoolQuery = new Query\BoolQuery();
 
         $shoulds = [];
+
+        if ($this->security->isGranted(ChuckNorrisVoter::ROLE)) {
+            return $aclBoolQuery;
+        }
 
         if (null !== $userId) {
             $shoulds[] = new Query\Range('privacy', [
@@ -65,5 +72,13 @@ abstract class AbstractSearch
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
+    }
+
+    /**
+     * @required
+     */
+    public function setSecurity(Security $security): void
+    {
+        $this->security = $security;
     }
 }
