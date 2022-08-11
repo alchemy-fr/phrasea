@@ -34,4 +34,5 @@ return [
     Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
+    Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
 ];

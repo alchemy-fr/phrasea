@@ -9,41 +9,24 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FormSchemaManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /**
-     * @var string
-     */
-    private $defaultSchemaFile;
-
-    public function __construct(EntityManagerInterface $em, string $defaultSchemaFile)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->defaultSchemaFile = $defaultSchemaFile;
     }
 
-    public function loadSchema(?string $locale): array
+    public function loadSchema(string $targetId, ?string $locale): array
     {
         $formSchema = $this
             ->em
             ->getRepository(FormSchema::class)
-            ->getSchemaForLocale($locale);
+            ->getSchemaForLocale($targetId, $locale);
 
         if (null === $formSchema) {
-            return json_decode(file_get_contents($this->defaultSchemaFile), true);
+            return [];
         }
 
         return $formSchema->getData();
-    }
-
-    public function persistSchema(?string $locale, array $schema): void
-    {
-        $this
-            ->em
-            ->getRepository(FormSchema::class)
-            ->persistSchema($locale, $schema);
     }
 }

@@ -8,12 +8,14 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
+use App\Entity\Target;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,24 +28,37 @@ final class CommitAction extends AbstractController
     private FormValidator $formValidator;
     private CommitValidator $commitValidator;
     private ReportUserService $reportClient;
+    private EntityManagerInterface $em;
 
     public function __construct(
         AssetManager $assetManager,
         EventProducer $eventProducer,
         FormValidator $formValidator,
         CommitValidator $commitValidator,
-        ReportUserService $reportClient
+        ReportUserService $reportClient,
+        EntityManagerInterface $em
     ) {
         $this->assetManager = $assetManager;
         $this->eventProducer = $eventProducer;
         $this->formValidator = $formValidator;
         $this->commitValidator = $commitValidator;
         $this->reportClient = $reportClient;
+        $this->em = $em;
     }
 
     public function __invoke(Commit $data, Request $request)
     {
-        $errors = $this->formValidator->validateForm($data->getFormData(), $request);
+        if (!empty($targetSlug = $request->request->get('targetSlug'))) {
+            $target = $this->em->getRepository(Target::class)->findOneBy([
+                'slug' => $targetSlug
+            ]);
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
+            }
+            $data->setTarget($target);
+        }
+
+        $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
         if (!empty($errors)) {
             throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors)));
         }

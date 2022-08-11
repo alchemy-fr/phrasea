@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Storage;
 
 use App\Entity\Asset;
+use App\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -22,6 +23,7 @@ class AssetManager
     }
 
     public function createAsset(
+        Target $target,
         string $path,
         string $mimeType,
         string $originalName,
@@ -29,6 +31,7 @@ class AssetManager
         string $userId
     ): Asset {
         $asset = new Asset();
+        $asset->setTarget($target);
         $asset->setUserId($userId);
         $asset->setPath($path);
         $asset->setMimeType($mimeType);

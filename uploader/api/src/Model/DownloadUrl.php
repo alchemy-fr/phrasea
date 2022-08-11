@@ -6,6 +6,8 @@ namespace App\Model;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Controller\DownloadUrlAction;
+use App\Entity\Target;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -30,6 +32,11 @@ class DownloadUrl
      */
     private $data = [];
 
+    /**
+     * @Assert\NotNull()
+     */
+    private ?Target $target = null;
+
     public function getUrl(): string
     {
         return $this->url;
@@ -48,5 +55,15 @@ class DownloadUrl
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?Target $target): void
+    {
+        $this->target = $target;
     }
 }

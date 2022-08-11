@@ -8,6 +8,7 @@ export default class UploadForm extends Component {
         files: PropTypes.array.isRequired,
         onNext: PropTypes.func.isRequired,
         onCancel: PropTypes.func,
+        targetId: PropTypes.string.isRequired,
     };
 
     onComplete = (data) => {
@@ -15,7 +16,7 @@ export default class UploadForm extends Component {
     };
 
     render() {
-        const {files} = this.props;
+        const {files, targetId} = this.props;
 
         return <>
             <p>
@@ -23,6 +24,7 @@ export default class UploadForm extends Component {
             </p>
 
             <AssetForm
+                targetId={targetId}
                 submitPath={'/form/validate'}
                 onComplete={this.onComplete}
                 onCancel={this.props.onCancel}

@@ -7,6 +7,7 @@ namespace App\Tests\Consumer;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Asset;
 use App\Entity\Commit;
+use App\Entity\Target;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
@@ -29,17 +30,23 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         $clientHandler = new MockHandler([
             $consumerResponse,
         ]);
-        $clientStub = $client = new Client(['handler' => $clientHandler]);
+        $clientStub = new Client(['handler' => $clientHandler]);
 
         $em = $this->createMock(EntityManagerInterface::class);
 
         $commit = Commit::fromArray([
             'form' => ['foo' => 'bar'],
             'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
-        ]);
+            'target_id' => 'c705d014-5e18-4711-bad6-5e9e27e10099',
+        ], $em);
         $commit->getAssets()->add(new Asset());
         $commit->getAssets()->add(new Asset());
         $commit->setToken('a_token');
+        $target = new Target();
+        $target->setTargetAccessToken($accessToken);
+        $target->setTargetUrl('http://localhost/api/v1/upload/enqueue/');
+        $target->setTargetTokenType('OAuth');
+        $commit->setTarget($target);
 
         $em->expects($this->once())
             ->method('find')
@@ -47,8 +54,6 @@ class AssetConsumerNotifyHandlerTest extends TestCase
 
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
-            'http://localhost/api/v1/upload/enqueue/',
-            $accessToken,
             $uploadBaseUrl
         );
         $handler->setEntityManager($em);
@@ -68,7 +73,7 @@ class AssetConsumerNotifyHandlerTest extends TestCase
         $this->assertArrayHasKey('commit_id', $postBody);
         $this->assertCount(2, $postBody['assets']);
         $this->assertEquals('a_token', $postBody['token']);
-        $this->assertRegExp('/^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$/', $postBody['commit_id']);
+        $this->assertMatchesRegularExpression('/^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$/', $postBody['commit_id']);
         $this->assertEquals('http://localhost:8080', $postBody['base_url']);
 
         $this->assertEquals(0, $clientHandler->count());

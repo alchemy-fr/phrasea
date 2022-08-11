@@ -1,0 +1,36 @@
+resources:
+  App\Entity\Target:
+    attributes:
+      normalization_context:
+        groups:
+          - target:index
+      denormalization_context:
+        groups:
+          - target:write
+    order:
+      name: DESC
+    shortName: target
+    collectionOperations:
+      post:
+        security: 'is_granted("ROLE_ADMIN")'
+      get:
+        security: 'is_granted("ROLE_USER")'
+    itemOperations:
+      get:
+        security: 'is_granted("READ", object)'
+      delete:
+        security: 'is_granted("ROLE_ADMIN")'
+      put:
+        security: 'is_granted("ROLE_ADMIN")'
+    subresourceOperations:
+      form_schema_get_subresource:
+        method: GET
+        defaults:
+          _api_receive: false
+        path: /targets/{id}/form-schema
+        controller: App\Controller\GetTargetFormSchemaAction
+    properties:
+      formSchema:
+        subresource:
+          resourceClass: 'App\Entity\FormSchema'
+          collection: false

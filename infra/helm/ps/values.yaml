@@ -90,6 +90,8 @@ databox:
       - authorization_code
   rabbitmq:
     vhost: databox
+  upload:
+    uploaderTargetSlug: databox-uploader
 
 expose:
   enabled: true

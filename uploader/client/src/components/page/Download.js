@@ -22,6 +22,10 @@ export default class Download extends Component {
         }
     };
 
+    getTargetId() {
+        return this.props.match.params.id;
+    }
+
     onComplete = () => {
         this.setState({
             done: true,
@@ -43,6 +47,7 @@ export default class Download extends Component {
 
                 {done ? <h3>Your file will be downloaded!</h3> :
                     <AssetForm
+                        targetId={this.getTargetId()}
                         submitPath={'/downloads'}
                         baseSchema={this.baseSchema}
                         onComplete={this.onComplete}

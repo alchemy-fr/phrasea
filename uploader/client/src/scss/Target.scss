@@ -1,0 +1,40 @@
+.targets {
+  a:link {
+    text-decoration: none !important;
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
+.target {
+  display: block;
+  margin-bottom: 30px;
+}
+
+.target-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #DDD;
+  border-radius: 10px;
+  flex-direction: column;
+  height: 150px;
+
+  a:hover & {
+    border-color: $primary;
+  }
+}
+
+.target-title {
+  font-size: 20px;
+  color: $primary;
+  display: block;
+}
+
+.target-desc {
+  margin-top: 15px;
+  max-height: 100px;
+  overflow: auto;
+  color: inherit !important;
+}

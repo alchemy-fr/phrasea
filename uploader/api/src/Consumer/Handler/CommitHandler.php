@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
-use App\Entity\BulkData;
+use App\Entity\TargetParams;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -28,19 +28,25 @@ class CommitHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
-        $commit = Commit::fromArray($message->getPayload());
+        $em = $this->getEntityManager();
+        $commit = Commit::fromArray($message->getPayload(), $em);
         $commit->generateToken();
+        $target = $commit->getTarget();
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);
 
-        $em = $this->getEntityManager();
+        $targetParams = $em
+            ->getRepository(TargetParams::class)
+            ->findOneBy([
+                'target' => $commit->getTarget()->getId(),
+            ]);
+        $targetData = $targetParams ? $targetParams->getData() : [];
 
-        $bulkData = $em
-            ->getRepository(BulkData::class)
-            ->getBulkDataArray();
-
-        $formData = array_merge($commit->getFormData(), $bulkData);
+        $formData = array_merge($commit->getFormData(), $targetData);
+        if (!isset($formData['collection_destination']) && null !== $target->getDefaultDestination()) {
+            $formData['collection_destination'] = $target->getDefaultDestination();
+        }
         $commit->setFormData($formData);
 
         $em->beginTransaction();

@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import Dropzone from "react-dropzone";
-import uploadBatch from "../../upload";
 import UploadForm from "./UploadForm";
 import UploadProgress from "./UploadProgress";
 import AssetUpload from "../AssetUpload";
@@ -11,6 +10,10 @@ import Container from "../Container";
 import {Link} from "react-router-dom";
 import filesize from 'filesize';
 import config from '../../config';
+import {getTarget} from "../../requests";
+import { withRouter } from "react-router-dom"
+import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
+import UploadBatch from "../../uploadBatch";
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -40,21 +43,45 @@ function stopPreventQuit() {
     window.onbeforeunload = null;
 }
 
-export default class Upload extends Component {
+class Upload extends Component {
+    uploadBatch;
     state = {
         step: SELECT_FILES,
         files: [],
         errors: [],
+        target: undefined,
+        error: undefined,
     };
 
+    getTargetId() {
+        return this.props.match.params.id;
+    }
+
     componentDidMount() {
-        uploadBatch.addErrorListener(this.onError);
-        uploadBatch.addResumeListener(this.onResumeUpload);
+        this.uploadBatch = new UploadBatch(this.getTargetId());
+        this.uploadBatch.addErrorListener(this.onError);
+        this.uploadBatch.addResumeListener(this.onResumeUpload);
+        this.loadTarget();
+    }
+
+    async loadTarget() {
+        try {
+            const target = await getTarget(this.getTargetId());
+            this.setState({target});
+        } catch (e) {
+            if (403 === e.res.statusCode) {
+                this.setState({
+                    error: `Unauthorized`
+                });
+            } else {
+                throw e;
+            }
+        }
     }
 
     componentWillUnmount() {
-        uploadBatch.removeErrorListener(this.onError);
-        uploadBatch.removeResumeListener(this.onResumeUpload);
+        this.uploadBatch.removeErrorListener(this.onError);
+        this.uploadBatch.removeResumeListener(this.onResumeUpload);
     }
 
     onError = (err) => {
@@ -93,7 +120,7 @@ export default class Upload extends Component {
 
     reset = () => {
         stopPreventQuit();
-        uploadBatch.reset();
+        this.uploadBatch.reset();
         this.setState({
             step: SELECT_FILES,
             files: [],
@@ -128,9 +155,9 @@ export default class Upload extends Component {
         if (!this.canSubmit()) {
             return;
         }
-        uploadBatch.addFiles(this.state.files);
+        this.uploadBatch.addFiles(this.state.files);
         preventQuit();
-        uploadBatch.startUpload();
+        this.uploadBatch.startUpload();
         this.onNext();
     };
 
@@ -143,7 +170,7 @@ export default class Upload extends Component {
     };
 
     onFormData = (formData) => {
-        uploadBatch.formData = formData;
+        this.uploadBatch.formData = formData;
 
         this.setState((state) => {
             return {
@@ -153,6 +180,17 @@ export default class Upload extends Component {
     };
 
     render() {
+        if (this.state.error) {
+            return <Container>
+                <div>
+                    {this.state.error}
+                </div>
+            </Container>
+        }
+        if (!this.state.target) {
+            return <FullPageLoader />
+        }
+
         return <Container>
             {this.renderUploadErrors()}
             {this.renderContent()}
@@ -166,11 +204,13 @@ export default class Upload extends Component {
             case FILL_FORM:
                 return <UploadForm
                     files={files}
+                    targetId={this.getTargetId()}
                     onNext={this.onFormData}
                     onCancel={this.onCancel}
                 />;
             case UPLOAD:
                 return <UploadProgress
+                    uploadBatch={this.uploadBatch}
                     files={files}
                     onNext={this.onNext}
                     onCancel={this.onCancel}
@@ -228,7 +268,7 @@ export default class Upload extends Component {
                     <hr/>
                     <p>
                         or just{' '}
-                        <Link to="/download">download</Link> URLs.
+                        <Link to={`/download/${this.getTargetId()}`}>download</Link> URLs.
                     </p>
                 </div>
         }
@@ -295,3 +335,5 @@ export default class Upload extends Component {
         return true;
     }
 }
+
+export default withRouter(Upload);

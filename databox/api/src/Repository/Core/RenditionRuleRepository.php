@@ -25,7 +25,7 @@ class RenditionRuleRepository extends EntityRepository
         ];
 
         if (!empty($groupIds)) {
-            $userWhere[] = 'a.userType = :gt AND a.userId = (:gids)';
+            $userWhere[] = 'a.userType = :gt AND a.userId IN (:gids)';
             $queryBuilder
                 ->setParameter('gt', RenditionRule::TYPE_GROUP)
                 ->setParameter('gids', $groupIds)

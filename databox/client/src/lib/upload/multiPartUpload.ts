@@ -11,6 +11,7 @@ type Upload = {
 }
 
 export async function uploadMultipartFile(
+    targetSlug: string,
     userId: string,
     accessToken: string,
     upload: Upload,
@@ -85,6 +86,7 @@ export async function uploadMultipartFile(
         }
 
         const res = await uploadClient.post(`/assets`, {
+            targetSlug,
             multipart: {
                 uploadId,
                 parts: uploadParts,

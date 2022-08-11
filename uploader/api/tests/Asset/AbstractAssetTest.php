@@ -7,17 +7,22 @@ namespace App\Tests\Asset;
 use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Asset;
 use App\Entity\Commit;
+use App\Entity\Target;
 use App\Storage\AssetManager;
+use App\Tests\AbstractUploaderTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
-abstract class AbstractAssetTest extends ApiTestCase
+abstract class AbstractAssetTest extends AbstractUploaderTestCase
 {
     const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
     protected $assetId;
 
     protected function commitAsset(string $token = 'secret_token')
     {
+        $target = $this->getOrCreateDefaultTarget();
+
         $commit = new Commit();
+        $commit->setTarget($target);
         $commit->setToken($token);
         $commit->setUserId('a_user_id');
         $commit->setFormData(['foo' => 'bar']);
@@ -41,7 +46,14 @@ abstract class AbstractAssetTest extends ApiTestCase
         $assetManager = self::$container->get(AssetManager::class);
         $path = 'test/foo.jpg';
 
-        return $assetManager->createAsset($path, 'image/jpeg', 'foo.jpg', 846, 'user_id');
+        return $assetManager->createAsset(
+            $this->getOrCreateDefaultTarget(),
+            $path,
+            'image/jpeg',
+            'foo.jpg',
+            846,
+            'user_id'
+        );
     }
 
     protected function setUp(): void

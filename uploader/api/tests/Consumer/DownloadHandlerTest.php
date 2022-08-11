@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Target;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -52,6 +53,7 @@ class DownloadHandlerTest extends TestCase
             ->expects($this->once())
             ->method('createAsset')
             ->with(
+                $this->isInstanceOf(Target::class),
                 $this->stringEndsWith('.'.$expectedExtension),
                 $expectedMimeType,
                 'baz'.($expectedExtension ? '.'.$expectedExtension : ''),
@@ -76,6 +78,9 @@ class DownloadHandlerTest extends TestCase
 
         /** @var EntityManagerInterface|MockObject $em */
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('find')
+            ->with(Target::class, 'c705d014-5e18-4711-bad6-5e9e27e10099')
+            ->willReturn(new Target());
 
         $consumer = new DownloadHandler(
             $storageStub,
@@ -94,6 +99,7 @@ class DownloadHandlerTest extends TestCase
             'user_id' => 'USER_ID',
             'form_data' => ['foo' => 'bar'],
             'locale' => 'en',
+            'target_id' => 'c705d014-5e18-4711-bad6-5e9e27e10099',
         ]);
         $consumer->handle($message);
     }

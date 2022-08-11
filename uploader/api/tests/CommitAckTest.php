@@ -95,6 +95,7 @@ class CommitAckTest extends AbstractUploaderTestCase
     private function createCommit(): Commit
     {
         $commit = new Commit();
+        $commit->setTarget($this->getOrCreateDefaultTarget());
         $commit->setTotalSize(42);
         $commit->setUserId('user_id');
         $commit->setToken('secret_token');
@@ -108,6 +109,7 @@ class CommitAckTest extends AbstractUploaderTestCase
     private function createAsset(Commit $commit): Asset
     {
         $asset = new Asset();
+        $asset->setTarget($this->getOrCreateDefaultTarget());
         $asset->setMimeType('image/jpeg');
         $asset->setCommit($commit);
         $asset->setPath('a/b/c.jpeg');

@@ -12,6 +12,7 @@ use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use InvalidArgumentException;
 
 class NewUploaderCommitHandler extends AbstractEntityManagerHandler
 {
@@ -37,7 +38,17 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
 
         $commitData = $this->uploaderClient->getCommit($upload->base_url, $upload->commit_id, $upload->token);
 
-        $destinations = $commitData['options']['destinations'];
+        $destinations = [];
+        if (isset($commitData['options']['destinations'])) {
+            $destinations = $commitData['options']['destinations'];
+        } elseif (isset($commitData['formData']['collection_destination'])) {
+            $destinations = ['/collections/'.$commitData['formData']['collection_destination']];
+        }
+
+        if (empty($destinations)) {
+            throw new InvalidArgumentException('No destination provided');
+        }
+        // TODO validate user has permission to write to destinations
 
         $workspaces = [];
         foreach ($destinations as $destination) {

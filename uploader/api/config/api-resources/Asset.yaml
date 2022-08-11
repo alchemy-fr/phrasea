@@ -15,6 +15,7 @@ resources:
                 examples:
                   Multipart upload:
                     value:
+                      targetId: 8ad69673-e1cc-4081-8201-20677e9f9e9c
                       multipart:
                         uploadId: 123-456
                         parts:
@@ -27,6 +28,8 @@ resources:
                     -
                       type: object
                       properties:
+                        targetId:
+                          type: string
                         multipart:
                           type: object
                           properties:
@@ -44,6 +47,8 @@ resources:
                     -
                       type: object
                       properties:
+                        targetId:
+                          type: string
                         upload:
                           type: object
                           properties:
@@ -57,6 +62,8 @@ resources:
                 schema:
                   type: object
                   properties:
+                    targetId:
+                      type: string
                     file:
                       type: string
                       format: binary

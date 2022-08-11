@@ -8,24 +8,56 @@ easy_admin:
     menu:
       - label: 'Permissions'
         children:
-          - { label: 'Bulk data permissions', route: admin_global_permissions, params: { type: bulk_data } }
+          - { label: 'Target params permissions', route: admin_global_permissions, params: { type: target_params } }
           - { label: 'Form schema permissions', route: admin_global_permissions, params: { type: form_schema } }
           - { label: 'All permissions (advanced)', entity: AccessControlEntry }
       - label: 'Uploads'
         children:
+          - Target
           - Commit
           - Asset
           - MultipartUpload
       - label: 'Data'
         children:
           - FormSchema
-          - BulkData
+          - TargetParams
       - OAuthClient
       - label: 'Dev'
         children:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
   entities:
+    Target:
+      class: App\Entity\Target
+      list:
+        sort: [name, ASC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - slug
+          - name
+          - { property: pullModeUrl, label: 'Pull mode URL', template: '@AlchemyAdmin/list/code.html.twig' }
+          - targetUrl
+          - createdAt
+      form:
+        fields:
+          - slug
+          - name
+          - description
+          - property: targetUrl
+            help: 'i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://databox-api/incoming-uploads" for Databox upload'
+          - property: targetTokenType
+            type_options:
+              help: Use "OAuth" for Phraseanet
+              attr:
+                placeholder: 'Defaults to "Bearer"'
+          - property: targetAccessToken
+            help: use "avoid" to do not notify target (for pull mode)
+          - property: defaultDestination
+            help: 'i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)'
+          - property: allowedGroups
+            type: collection
+            help: If no group is defined, the target will be allowed to any user.
+
     Commit:
       disabled_actions:
         - new
@@ -38,6 +70,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
           - assetCount
           - token
@@ -64,6 +97,7 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - originalName
           - { property: size, template: '@AlchemyAdmin/list/file_size.html.twig' }
           - { property: userId, template: '@AlchemyAdmin/list/id.html.twig' }
@@ -79,24 +113,29 @@ easy_admin:
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
           - locale
           - createdAt
       form:
         fields:
+          - target
           - { property: locale }
           - { property: jsonData }
 
-    BulkData:
-      class: App\Entity\BulkData
+    TargetParams:
+      class: App\Entity\TargetParams
       list:
         actions:
           - permissions
         sort: [createdAt, DESC]
         fields:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - target
+          - updatedAt
           - createdAt
       form:
         fields:
+          - target
           - { property: jsonData }
 
     MultipartUpload:

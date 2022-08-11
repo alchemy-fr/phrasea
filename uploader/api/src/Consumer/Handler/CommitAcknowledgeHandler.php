@@ -47,9 +47,10 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
         $em->transactional(function () use ($em, $commit): void {
             $em->createQueryBuilder()
                 ->update(Asset::class, 'a')
-                ->set('a.acknowledged', true)
+                ->set('a.acknowledged', ':true')
                 ->andWhere('a.commit = :commit')
                 ->setParameter('commit', $commit->getId())
+                ->setParameter('true', true)
                 ->getQuery()
                 ->execute();
 

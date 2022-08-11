@@ -9,7 +9,9 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use App\Entity\Target;
 use App\Storage\AssetManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,23 +23,40 @@ final class CreateAssetAction extends AbstractController
     private AssetManager $assetManager;
     private UploadManager $uploadManager;
     private PathGenerator $pathGenerator;
+    private EntityManagerInterface $em;
 
     public function __construct(
         FileStorageManager $storageManager,
         AssetManager $assetManager,
         UploadManager $uploadManager,
-        PathGenerator $pathGenerator
+        PathGenerator $pathGenerator,
+        EntityManagerInterface $em
     ) {
         $this->storageManager = $storageManager;
         $this->assetManager = $assetManager;
         $this->uploadManager = $uploadManager;
         $this->pathGenerator = $pathGenerator;
+        $this->em = $em;
     }
 
     public function __invoke(Request $request): Asset
     {
+        if (!empty($targetSlug = $request->request->get('targetSlug'))) {
+            $target = $this->em->getRepository(Target::class)->findOneBy([
+                'slug' => $targetSlug
+            ]);
+        } elseif (!empty($targetId = $request->request->get('targetId'))) {
+            $target = $this->em->find(Target::class, $targetId);
+        } else {
+            throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
+        }
+
+        if (!$target instanceof Target) {
+            throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
+        }
+
         if ($request->request->get('multipart')) {
-            return $this->handleMultipartUpload($request);
+            return $this->handleMultipartUpload($request, $target);
         }
 
         ini_set('max_execution_time', '600');
@@ -66,6 +85,7 @@ final class CreateAssetAction extends AbstractController
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
+            $target,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
@@ -74,7 +94,7 @@ final class CreateAssetAction extends AbstractController
         );
     }
 
-    private function handleMultipartUpload(Request $request): Asset
+    private function handleMultipartUpload(Request $request, Target $target): Asset
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
@@ -82,6 +102,7 @@ final class CreateAssetAction extends AbstractController
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
+            $target,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
             $multipartUpload->getFilename(),

@@ -7,11 +7,13 @@ namespace App\Consumer\Handler;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Target;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
+use InvalidArgumentException;
 use Mimey\MimeTypes;
 
 class DownloadHandler extends AbstractEntityManagerHandler
@@ -43,6 +45,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $payload = $message->getPayload();
         $url = $payload['url'];
         $userId = $payload['user_id'];
+        $targetId = $payload['target_id'];
         $formData = $payload['form_data'];
         $locale = $payload['locale'];
         $response = $this->client->request('GET', $url);
@@ -69,8 +72,15 @@ class DownloadHandler extends AbstractEntityManagerHandler
 
         $this->storageManager->store($path, $response->getBody()->getContents());
 
+        $em = $this->getEntityManager();
+        $target = $em->find(Target::class, $targetId);
+        if (!$target instanceof Target) {
+            throw new InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
+        }
+
         $size = $response->getBody()->getSize();
         $asset = $this->assetManager->createAsset(
+            $target,
             $path,
             $contentType,
             $originalName,
@@ -79,6 +89,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         );
 
         $commit = new Commit();
+        $commit->setTarget($target);
         $commit->setTotalSize($size);
         $commit->setLocale($locale);
         $commit->setFormData($formData);
@@ -86,7 +97,6 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $commit->setFiles([$asset->getId()]);
         $commit->generateToken();
 
-        $em = $this->getEntityManager();
         $em->persist($commit);
         $em->flush();
 

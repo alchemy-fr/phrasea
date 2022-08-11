@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import AssetUpload from "../AssetUpload";
 import PropTypes from "prop-types";
-import uploadBatch from "../../upload";
 
 export default class UploadProgress extends Component {
     fileRefs = {};
@@ -11,6 +10,7 @@ export default class UploadProgress extends Component {
         files: PropTypes.array.isRequired,
         onNext: PropTypes.func.isRequired,
         onCancel: PropTypes.func,
+        uploadBatch: PropTypes.object.isRequired,
     };
 
     state = {
@@ -48,6 +48,8 @@ export default class UploadProgress extends Component {
     }
 
     componentDidMount() {
+        const {uploadBatch} = this.props;
+
         uploadBatch.registerProgressHandler((e) => {
             this.setState({
                 progress: e.totalPercent,
@@ -72,7 +74,7 @@ export default class UploadProgress extends Component {
     }
 
     componentWillUnmount() {
-        uploadBatch.resetListeners();
+        this.props.uploadBatch.resetListeners();
     }
 
     render() {

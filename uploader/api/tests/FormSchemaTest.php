@@ -10,38 +10,44 @@ class FormSchemaTest extends AbstractUploaderTestCase
 {
     public function testFormSchemaEditOK(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(json_encode(json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'))), $response->getContent());
+        $this->assertEquals('[]', $response->getContent());
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schema/edit', [
-            'schema' => [
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
+            'data' => [
                 'foo' => 'bar',
             ],
         ]);
+        $this->assertEquals(201, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey('id', $json);
+        $this->assertArrayHasKey('data', $json);
+
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
-        $this->assertEquals(true, $json);
-
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schema');
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('{"foo":"bar"}', $response->getContent());
+        $this->assertCount(1, $json);
+        $this->assertEquals([
+            'foo' => 'bar',
+        ], $json[0]['data']);
     }
 
-    public function testFormSchemaEditWithANonAdminUser(): void
+    public function testFormSchemaPostWithANonAdminUser(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/form-schema/edit', [
-            'schema' => [
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/form-schemas', [
+            'data' => [
                 'foo' => 'bar',
             ],
         ]);
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    public function testFormSchemaEditWithAnonymousUser(): void
+    public function testFormSchemaPostWithAnonymousUser(): void
     {
-        $response = $this->request(null, 'POST', '/form-schema/edit', [
-            'schema' => [
+        $response = $this->request(null, 'POST', '/form-schemas', [
+            'data' => [
                 'foo' => 'bar',
             ],
         ]);
@@ -50,7 +56,7 @@ class FormSchemaTest extends AbstractUploaderTestCase
 
     public function testFormSchemaGetWithAnonymousUser(): void
     {
-        $response = $this->request(null, 'GET', '/form-schema');
+        $response = $this->request(null, 'GET', '/form-schemas');
         $this->assertEquals(401, $response->getStatusCode());
     }
 }

@@ -48,7 +48,7 @@ async function asyncRequest(file, method, uri, accessToken, postData, onProgress
     });
 }
 
-export async function uploadMultipartFile(userId, accessToken, file, onProgress) {
+export async function uploadMultipartFile(targetId, userId, accessToken, file, onProgress) {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
 
     try {
@@ -120,6 +120,7 @@ export async function uploadMultipartFile(userId, accessToken, file, onProgress)
         }
 
         const {res: finalRes} = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/assets`, accessToken, {
+            targetId,
             multipart: {
                 uploadId,
                 parts: uploadParts,

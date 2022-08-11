@@ -13,15 +13,18 @@ use App\Controller\CommitAction;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
  * @ORM\Table(name="asset_commit")
  * @ApiResource(
- *     order={"acknowledged": "ASC", "createdAt": "DESC"},
+ *     order={"acknowledged": "ASC", "createdAt": "ASC"},
  *     shortName="commit",
  *     collectionOperations={
  *         "post"={
@@ -64,6 +67,15 @@ class Commit
      * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
      */
     private ?Collection $assets = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
+     * @ORM\JoinColumn(nullable=false)
+     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
+     * @Assert\NotNull()
+     * @Groups("asset_read")
+     */
+    private ?Target $target = null;
 
     /**
      * @Groups("asset_read")
@@ -224,6 +236,7 @@ class Commit
             'files' => $this->files,
             'form' => $this->formData,
             'user_id' => $this->userId,
+            'target_id' => $this->target->getId(),
             'notify_email' => $this->notifyEmail,
             'locale' => $this->locale,
             'options' => $this->options,
@@ -236,12 +249,15 @@ class Commit
         return $data;
     }
 
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data, EntityManagerInterface $em): self
     {
         $instance = new self();
         if (isset($data['files'])) {
             $instance->setFiles($data['files']);
         }
+        /** @var Target $target */
+        $target = $em->getReference(Target::class, $data['target_id']);
+        $instance->setTarget($target);
         $instance->setFormData($data['form'] ?? []);
         $instance->setUserId($data['user_id']);
         $instance->setNotifyEmail($data['notify_email'] ?? null);
@@ -307,5 +323,15 @@ class Commit
     public function setOptions(array $options): void
     {
         $this->options = $options;
+    }
+
+    public function getTarget(): ?Target
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?Target $target): void
+    {
+        $this->target = $target;
     }
 }

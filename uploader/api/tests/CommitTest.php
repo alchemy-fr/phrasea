@@ -55,8 +55,11 @@ class CommitTest extends AbstractUploaderTestCase
 
     private function createCommit(): array
     {
+        $target = $this->getOrCreateDefaultTarget();
         $commit = new Commit();
+        $commit->setTarget($target);
         $asset = new Asset();
+        $asset->setTarget($target);
         $asset->setMimeType('image/jpeg');
 
         $asset->setCommit($commit);

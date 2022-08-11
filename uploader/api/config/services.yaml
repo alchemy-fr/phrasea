@@ -7,7 +7,6 @@ parameters:
     locale: 'en'
     env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
     env(ASSET_DAYS_RETENTION): 31
-    app.liform.default_schema.src: "%kernel.project_dir%/config/liform-schema.json"
 
 services:
     # default configuration for services in *this* file
@@ -49,12 +48,7 @@ services:
     App\Consumer\Handler\AssetConsumerNotifyHandler:
         arguments:
             $client: "@eight_points_guzzle.client.consumer_notify"
-            $targetUri: '%env(ASSET_CONSUMER_COMMIT_URI)%'
-            $targetAccessToken: '%env(ASSET_CONSUMER_ACCESS_TOKEN)%'
             $uploadBaseUrl: '%env(UPLOADER_API_BASE_URL)%'
-
-    App\Form\FormSchemaManager:
-        $defaultSchemaFile: "%app.liform.default_schema.src%"
 
     App\Storage\AssetManager:
         arguments:
@@ -82,5 +76,8 @@ services:
         arguments: [ '@app.serializer.decorated_object.inner' ]
         tags:
             - { name: serializer.normalizer, priority: -989 }
+
+    App\DataProvider\TargetDataProvider:
+        arguments: [ '@api_platform.doctrine.orm.default.collection_data_provider' ]
 
     Arthem\RequestSignerBundle\RequestSigner: "@arthem_request_signer.request_signer"
