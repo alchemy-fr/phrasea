@@ -1,6 +1,6 @@
 import React from "react";
 import {Tag} from "../../types";
-import {getTags} from "../../api/tag";
+import {getTags, tagNS} from "../../api/tag";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
 
@@ -14,12 +14,11 @@ export default function TagSelect<TFieldValues extends FieldValues>({
                                                                     }: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getTags({
-            //query: inputValue,
             workspace: workspaceId,
         })).result;
 
         return data.map((t: Tag) => ({
-            value: `/tags/${t.id}`,
+            value: `${tagNS}/${t.id}`,
             label: t.name,
         })).filter(i =>
             i.label.toLowerCase().includes((inputValue || '').toLowerCase())

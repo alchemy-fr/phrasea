@@ -8,6 +8,7 @@ import {useForm} from "react-hook-form";
 import FormRow from "../../Form/FormRow";
 import {deleteTagFilterRule, saveTagFilterRule} from "../../../api/tag-filter-rule";
 import FormFieldErrors from "../../Form/FormFieldErrors";
+import {Group, User} from "../../../types";
 
 type FilterRule = {
     id?: string | undefined;
@@ -32,6 +33,8 @@ type Props = {
     workspaceId?: string;
     collectionId?: string;
     workspaceIdForTags: string;
+    users?: User[];
+    groups?: Group[];
 };
 
 export default function FilterRule({
@@ -42,6 +45,8 @@ export default function FilterRule({
                                        type,
                                        onDelete,
                                        onCancel,
+                                       users,
+                                       groups,
                                        workspaceId,
                                        collectionId,
                                        workspaceIdForTags,
@@ -59,8 +64,6 @@ export default function FilterRule({
     const saveRule = async (data: FilterRule) => {
         await saveTagFilterRule({
             ...data,
-            include: data.include?.map(id => `/tags/${id}`),
-            exclude: data.exclude?.map(id => `/tags/${id}`),
             workspaceId,
             collectionId,
         });
@@ -94,8 +97,8 @@ export default function FilterRule({
                 {data?.id ? <Grid item md={12}>
                         <FormRow>
                             <b>
-                                {data?.userId && `User ${data.userId}`}
-                                {data?.groupId && `Group ${data.groupId}`}
+                                {data.userId && `User ${users!.find(i => i.id === data.userId)?.username}`}
+                                {data.groupId && `Group ${groups!.find(i => i.id === data.groupId)?.name}`}
                             </b>
                         </FormRow>
                     </Grid>

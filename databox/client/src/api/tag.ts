@@ -2,13 +2,15 @@ import apiClient from "./api-client";
 import {Tag} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 
+export const tagNS = '/tags';
+
 type TagOptions = {
     query?: string;
     workspace: string;
 }
 
 export async function getTags(options: TagOptions): Promise<ApiCollectionResponse<Tag>> {
-    const res = await apiClient.get('/tags', {
+    const res = await apiClient.get(tagNS, {
         params: {
             ...options,
         },
@@ -18,17 +20,17 @@ export async function getTags(options: TagOptions): Promise<ApiCollectionRespons
 }
 
 export async function postTag(data: Partial<Tag>): Promise<Tag> {
-    const res = await apiClient.post('/tags', data);
+    const res = await apiClient.post(tagNS, data);
 
     return res.data;
 }
 
 export async function putTag(id: string, data: Tag): Promise<Tag> {
-    const res = await apiClient.post('/tags', data);
+    const res = await apiClient.post(tagNS, data);
 
     return res.data;
 }
 
 export async function deleteTag(id: string): Promise<void> {
-    await apiClient.delete(`/tags/${id}`);
+    await apiClient.delete(`${tagNS}/${id}`);
 }
