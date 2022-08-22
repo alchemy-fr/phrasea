@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Asset\OriginalRenditionManager;
+use App\Attribute\AttributeDataExporter;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -19,11 +20,17 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 
     private OriginalRenditionManager $originalRenditionManager;
     private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
+    private AttributeDataExporter $attributeDataExporter;
 
-    public function __construct(PhraseanetGenerateRenditionsManager $generateRenditionsManager, OriginalRenditionManager $originalRenditionManager)
+    public function __construct(
+        PhraseanetGenerateRenditionsManager $generateRenditionsManager,
+        OriginalRenditionManager $originalRenditionManager,
+        AttributeDataExporter $attributeDataExporter
+    )
     {
         $this->originalRenditionManager = $originalRenditionManager;
         $this->generateRenditionsManager = $generateRenditionsManager;
+        $this->attributeDataExporter = $attributeDataExporter;
     }
 
     public function handle(EventMessage $message): void
@@ -31,6 +38,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $payload = $message->getPayload();
         $id = $payload['fileId'];
         $collectionIds = $payload['collections'];
+        $formData = $payload['formData'] ?? [];
+        $locale = $payload['locale'] ?? null;
 
         $em = $this->getEntityManager();
         $file = $em->find(File::class, $id);
@@ -46,6 +55,10 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $workspace = $file->getWorkspace();
         $asset->setWorkspace($workspace);
+
+        if (!empty($formData)) {
+            $this->attributeDataExporter->importAttributes($asset, $formData, $locale);
+        }
 
         $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
@@ -66,7 +79,9 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         string $fileId,
         array $collections,
         ?string $title = null,
-        ?string $filename = null
+        ?string $filename = null,
+        ?array $formData = null,
+        ?string $locale = null
     ): EventMessage {
         return new EventMessage(self::EVENT, [
             'userId' => $userId,
@@ -74,6 +89,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
             'collections' => $collections,
             'title' => $title,
             'filename' => $filename,
+            'formData' => $formData,
+            'locale' => $locale,
         ]);
     }
 

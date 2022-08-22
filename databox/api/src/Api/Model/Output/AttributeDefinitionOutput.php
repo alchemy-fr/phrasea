@@ -36,6 +36,11 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?string $name = null;
 
     /**
+     * @Groups({"asset:index", "asset:read", "attributedef:index", "attribute:index"})
+     */
+    public ?string $slug = null;
+
+    /**
      * @Groups({"attributedef:index"})
      */
     public ?string $fileType = null;

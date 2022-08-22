@@ -22,6 +22,7 @@ class AttributeDefinitionOutputDataTransformer extends AbstractSecurityDataTrans
         $output->workspace = $object->getWorkspace();
         $output->class = $object->getClass();
         $output->name = $object->getName();
+        $output->slug = $object->getSlug();
         $output->fileType = $object->getFileType();
         $output->fieldType = $object->getFieldType();
         $output->searchable = $object->isSearchable();
