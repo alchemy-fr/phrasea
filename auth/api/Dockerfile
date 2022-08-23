@@ -2,6 +2,24 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
+RUN apk add --no-cache jq \
+    && apk add --no-cache --virtual .build-deps \
+      jq-dev \
+      g++ \
+      make \
+      autoconf \
+    && mkdir /opt/jq-php \
+    && (cd /opt/jq-php \
+    && git clone --depth=1 https://github.com/kjdev/php-ext-jq.git \
+    && cd php-ext-jq \
+    && phpize \
+    && ./configure \
+    && make \
+    && make test \
+    && make install) \
+    && apk del .build-deps \
+    && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini
+
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \

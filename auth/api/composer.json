@@ -69,6 +69,8 @@
         "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-jq": "*",
+        "ext-json": "*",
         "alchemy/admin-bundle": "@dev",
         "alchemy/api-test": "@dev",
         "alchemy/core-bundle": "@dev",
@@ -128,6 +130,7 @@
     },
     "autoload": {
         "psr-4": {
+            "Jq\\": "src/stub/jq.stub.php",
             "App\\": "src/"
         }
     },
