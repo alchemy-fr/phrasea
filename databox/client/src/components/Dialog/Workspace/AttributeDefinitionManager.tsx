@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {AttributeClass, AttributeDefinition, Workspace} from "../../../types";
 import {
     deleteAttributeDefinition,
@@ -28,18 +28,27 @@ function Item({
               }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
+    function createData(data: AttributeDefinition) {
+        return {
+            ...data,
+            class: data?.class && (data?.class as AttributeClass)['@id'],
+        };
+    }
+
     const {
         register,
         handleSubmit,
         setError,
         control,
+        reset,
         formState: {errors}
     } = useForm<any>({
-        defaultValues: {
-            ...data,
-            class: data?.class && (data?.class as AttributeClass)['@id'],
-        },
+        defaultValues: createData(data),
     });
+
+    useEffect(() => {
+        reset(createData(data));
+    }, [data]);
 
     return <form
         id={formId}
@@ -52,6 +61,20 @@ function Item({
             />
             <FormFieldErrors
                 field={'name'}
+                errors={errors}
+            />
+        </FormRow>
+        <FormRow>
+            <TextField
+                label={t('form.attribute_definition.slug.label', 'Slug')}
+                {...register('slug')}
+                disabled={submitting}
+                inputProps={{
+                    readOnly: true,
+                }}
+            />
+            <FormFieldErrors
+                field={'slug'}
                 errors={errors}
             />
         </FormRow>

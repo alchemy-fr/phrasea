@@ -39,6 +39,7 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
         $em = $this->getEntityManager();
         $workspaceId = $payload['workspaceId'];
+        $formData = $payload['formData'] ?? null;
         $workspace = $em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
             throw new ObjectNotFoundForHandlerException(Workspace::class, $workspaceId, __CLASS__);
@@ -61,7 +62,9 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
                 $file->getId(),
                 $payload['collections'],
                 $payload['title'] ?? null,
-                $inputFile->getName()
+                $inputFile->getName(),
+                $formData,
+                $payload['locale'] ?? null
             ));
         } else {
             // TODO place into quarantine

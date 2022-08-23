@@ -1,10 +1,12 @@
 import React, {PureComponent} from "react";
-import {TagFilterRule,} from "../../../types";
+import {Group, TagFilterRule, User} from "../../../types";
 import {getTagFilterRules} from "../../../api/tag-filter-rule";
 import FilterRule, {FilterRuleProps, TagFilterRuleType} from "./FilterRule";
 import {Button, Chip, Grid, IconButton, Paper, Tooltip, Typography} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import {tagNS} from "../../../api/tag";
+import {getGroups, getUsers} from "../../../api/user";
 
 type Props = {
     id: string;
@@ -14,6 +16,8 @@ type Props = {
 
 type State = {
     rules?: TagFilterRule[];
+    users?: User[];
+    groups?: Group[];
     newRule: boolean;
     editRule: string | null;
 };
@@ -31,12 +35,20 @@ export default class TagRules extends PureComponent<Props, State> {
 
     loadRules = async () => {
         const {type} = this.props;
-        const rules = await getTagFilterRules({
-            collectionId: type === 'collection' ? this.props.id : undefined,
-            workspaceId: type === 'workspace' ? this.props.id : undefined,
-        });
+        const [rules, users, groups] = await Promise.all([
+            getTagFilterRules({
+                collectionId: type === 'collection' ? this.props.id : undefined,
+                workspaceId: type === 'workspace' ? this.props.id : undefined,
+            }),
+            getUsers(),
+            getGroups(),
+        ]);
 
-        this.setState({rules: rules.result});
+        this.setState({
+            rules: rules.result,
+            users,
+            groups,
+        });
     }
 
     addRule = () => {
@@ -62,7 +74,7 @@ export default class TagRules extends PureComponent<Props, State> {
     }
 
     render() {
-        const {rules, newRule, editRule} = this.state;
+        const {rules, newRule, editRule, users, groups} = this.state;
         if (rules === undefined) {
             return 'Loading rules...';
         }
@@ -86,6 +98,8 @@ export default class TagRules extends PureComponent<Props, State> {
                         workspaceId={this.props.type === 'workspace' ? this.props.id : undefined}
                         workspaceIdForTags={this.props.workspaceId}
                         onCancel={this.onCancel}
+                        users={users}
+                        groups={groups}
                     />
                 </div>}
                 {!newRule && <div>
@@ -104,8 +118,8 @@ export default class TagRules extends PureComponent<Props, State> {
                                 <FilterRule
                                     data={{
                                         ...r,
-                                        include: r.include.map(i => i.id),
-                                        exclude: r.exclude.map(i => i.id),
+                                        include: r.include.map(i => `${tagNS}/${i.id}`),
+                                        exclude: r.exclude.map(i => `${tagNS}/${i.id}`),
                                     }}
                                     type={this.props.type}
                                     workspaceIdForTags={this.props.workspaceId}
@@ -114,6 +128,8 @@ export default class TagRules extends PureComponent<Props, State> {
                                     onCancel={this.onCancel}
                                     disabledUsers={disabledUsers}
                                     disabledGroups={disabledGroups}
+                                    users={users}
+                                    groups={groups}
                                 />
                             </div>
                         } else {
@@ -126,13 +142,15 @@ export default class TagRules extends PureComponent<Props, State> {
     }
 
     renderRule(rule: TagFilterRule) {
+        const {users, groups} = this.state;
+
         return <Paper elevation={2} sx={{p: 2, mt: 2}}>
             <Grid container spacing={2}
                   key={rule.id}
             >
                 <Grid item md={4}>
-                    {rule.userId && `User ${rule.userId}`}
-                    {rule.groupId && `Group ${rule.groupId}`}
+                    {rule.userId && `User ${users!.find(i => i.id === rule.userId)?.username}`}
+                    {rule.groupId && `Group ${groups!.find(i => i.id === rule.groupId)?.name}`}
                 </Grid>
                 <Grid item md={7}
                       sx={{

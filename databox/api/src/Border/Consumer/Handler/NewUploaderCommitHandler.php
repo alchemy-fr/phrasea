@@ -39,10 +39,12 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
         $commitData = $this->uploaderClient->getCommit($upload->base_url, $upload->commit_id, $upload->token);
 
         $destinations = [];
+        $formData = $commitData['formData'] ?? [];
         if (isset($commitData['options']['destinations'])) {
             $destinations = $commitData['options']['destinations'];
-        } elseif (isset($commitData['formData']['collection_destination'])) {
-            $destinations = ['/collections/'.$commitData['formData']['collection_destination']];
+        } elseif (isset($formData['collection_destination'])) {
+            $destinations = ['/collections/'.$formData['collection_destination']];
+            unset($formData['collection_destination']);
         }
 
         if (empty($destinations)) {
@@ -77,6 +79,8 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
                     'token' => $upload->token,
                     'workspaceId' => $wId,
                     'collections' => $collections,
+                    'formData' => $formData,
+                    'locale' => $commitData['locale'] ?? null,
                 ]));
             }
         }
