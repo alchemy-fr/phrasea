@@ -24,6 +24,7 @@
     "@types/react-select": "^5.0.1",
     "axios": "^0.27.2",
     "byte-size": "^8.1.0",
+    "clipboard-copy": "^4.0.1",
     "country-locale-map": "^1.8.0",
     "flag-icons": "^6.6.3",
     "formik": "^2.2.9",

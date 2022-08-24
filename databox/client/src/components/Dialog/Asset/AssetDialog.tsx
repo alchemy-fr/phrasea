@@ -9,6 +9,7 @@ import Acl from "./Acl";
 import {getAsset} from "../../../api/asset";
 import EditAttributes from "./EditAttributes";
 import Renditions from "./Renditions";
+import InfoAsset from "./InfoAsset";
 
 type Props = {};
 
@@ -35,6 +36,15 @@ export default function AssetDialog({}: Props) {
             name: data.title,
         })}
         tabs={[
+            {
+                title: t('asset.manage.info.title', 'Info'),
+                component: InfoAsset,
+                id: 'info',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
             {
                 title: t('asset.manage.edit.title', 'Edit'),
                 component: EditAsset,

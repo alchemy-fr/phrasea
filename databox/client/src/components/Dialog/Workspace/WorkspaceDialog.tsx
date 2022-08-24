@@ -13,6 +13,7 @@ import AttributeClassManager from "./AttributeClassManager";
 import TagManager from "./TagManager";
 import RenditionClassManager from "./RenditionClassManager";
 import RenditionDefinitionManager from "./RenditionDefinitionManager";
+import InfoWorkspace from "./InfoWorkspace";
 
 type Props = {};
 
@@ -39,6 +40,15 @@ export default function WorkspaceDialog({}: Props) {
             name: data.name,
         })}
         tabs={[
+            {
+                title: t('workspace.manage.info.title', 'Info'),
+                component: InfoWorkspace,
+                id: 'info',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
             {
                 title: t('workspace.manage.edit.title', 'Edit'),
                 component: EditWorkspace,
