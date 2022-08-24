@@ -3,6 +3,22 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "git",
+            "url": "https://github.com/alchemy-fr/PHPExiftool"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "exiftool/exiftool",
+                "version": "12",
+                "source": {
+                    "url": "https://github.com/exiftool/exiftool",
+                    "type": "git",
+                    "reference": "12.42"
+                }
+            }
+        },
+        {
             "type": "vcs",
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
@@ -68,6 +84,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/metadata-manipulator-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
@@ -78,6 +101,7 @@
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "alchemy/storage-bundle": "*",

@@ -24,4 +24,5 @@ lib/oauth-server-bundle
 lib/test-bundle
 lib/report-bundle
 lib/report-sdk
+lib/metadata-manipulator-bundle
 "
