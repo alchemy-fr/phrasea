@@ -13,6 +13,7 @@ import config from '../../config';
 import {getTarget} from "../../requests";
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import UploadBatch from "../../uploadBatch";
+import {retrieveImageFromClipboardAsBlob} from "../ImagePaste";
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -61,7 +62,20 @@ class Upload extends Component {
         this.uploadBatch.addErrorListener(this.onError);
         this.uploadBatch.addResumeListener(this.onResumeUpload);
         this.loadTarget();
+        window.addEventListener('paste', this.onPaste);
     }
+
+    componentWillUnmount() {
+        this.uploadBatch.removeErrorListener(this.onError);
+        this.uploadBatch.removeResumeListener(this.onResumeUpload);
+        window.removeEventListener('paste', this.onPaste);
+    }
+
+    onPaste = (e) => {
+        retrieveImageFromClipboardAsBlob(e, (imageBlob) => {
+            this.onDrop([imageBlob]);
+        });
+    };
 
     async loadTarget() {
         try {
@@ -76,11 +90,6 @@ class Upload extends Component {
                 throw e;
             }
         }
-    }
-
-    componentWillUnmount() {
-        this.uploadBatch.removeErrorListener(this.onError);
-        this.uploadBatch.removeResumeListener(this.onResumeUpload);
     }
 
     onError = (err) => {
