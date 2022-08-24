@@ -53,7 +53,7 @@ export default function UploadModal({
         },
         onSuccess: (item) => {
             toast.success(t('form.upload.success', 'Files uploaded!'))
-            closeModal();
+            closeModal(true);
         }
     });
 
