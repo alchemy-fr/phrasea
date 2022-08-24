@@ -32,6 +32,8 @@ export interface Asset extends IPermissions<{
     preview: File | null;
     thumbnail: File | null;
     thumbnailActive: File | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 type AttrValue = any;
@@ -155,6 +157,8 @@ export interface Collection extends IPermissions {
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     privacy: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Workspace extends IPermissions {
@@ -163,6 +167,7 @@ export interface Workspace extends IPermissions {
     collections: Collection[];
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
+    createdAt: string;
 }
 
 export enum UserType {

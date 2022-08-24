@@ -9,6 +9,7 @@ import Acl from "./Acl";
 import {getCollection} from "../../../api/collection";
 import TagRulesTab from "./TagRulesTab";
 import Operations from "./Operations";
+import InfoCollection from "./InfoCollection";
 
 type Props = {};
 
@@ -35,6 +36,15 @@ export default function CollectionDialog({}: Props) {
             name: data.title,
         })}
         tabs={[
+            {
+                title: t('collection.manage.info.title', 'Info'),
+                component: InfoCollection,
+                id: 'info',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
+            },
             {
                 title: t('collection.manage.edit.title', 'Edit'),
                 component: EditCollection,
