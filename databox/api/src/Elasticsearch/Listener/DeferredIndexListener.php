@@ -12,7 +12,9 @@ use App\Entity\SearchDependencyInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\PersistentCollection;
 
 class DeferredIndexListener implements EventSubscriber
 {
@@ -106,6 +108,21 @@ class DeferredIndexListener implements EventSubscriber
         }
     }
 
+    public function onFlush(OnFlushEventArgs $args): void
+    {
+        $uow = $args->getEntityManager()->getUnitOfWork();
+
+        foreach ($uow->getScheduledCollectionDeletions() as $collection) {
+            if ($collection instanceof PersistentCollection) {
+                $entity = $collection->getOwner();
+
+                if ($this->handlesEntity($entity)) {
+                    $this->scheduledForUpdate[] = $entity;
+                }
+            }
+        }
+    }
+
     /**
      * Persist scheduled objects to ElasticSearch
      * After persisting, clear the scheduled queue to prevent multiple data updates when using multiple flush calls.
@@ -179,6 +196,7 @@ class DeferredIndexListener implements EventSubscriber
             Events::preRemove,
             Events::postUpdate,
             Events::postPersist,
+            Events::onFlush,
         ];
     }
 
