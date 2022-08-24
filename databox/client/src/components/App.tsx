@@ -12,13 +12,13 @@ import {Box} from "@mui/material";
 import axios, {AxiosError} from "axios";
 import {UserContext} from "./Security/UserContext";
 import {useTranslation} from "react-i18next";
-import {addErrorListener, removeErrorListener} from "../api/api-client";
+import apiClient from "../api/api-client";
 import DisplayProvider from "./Media/DisplayProvider";
 import {Outlet, useLocation} from "react-router-dom";
 import {appPathPrefix} from "../routes";
+import uploaderClient from "../api/uploader-client";
 
 const AppProxy = React.memo(() => {
-    console.log('render');
     return <SearchProvider>
         <ResultProvider>
             <AssetDropzone>
@@ -96,10 +96,12 @@ export default function App() {
 
             }
         }
-        addErrorListener(onError);
+        apiClient.addErrorListener(onError);
+        uploaderClient.addErrorListener(onError);
 
         return () => {
-            removeErrorListener(onError);
+            apiClient.removeErrorListener(onError);
+            uploaderClient.removeErrorListener(onError);
         }
     }, []);
 

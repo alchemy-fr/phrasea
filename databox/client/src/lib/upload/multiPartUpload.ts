@@ -1,5 +1,6 @@
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
-import {makeAuthorizationHeaders, uploadClient} from "../../api/file";
+import {makeAuthorizationHeaders} from "../../api/file";
+import uploaderClient from "../../api/uploader-client";
 
 const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
@@ -37,7 +38,7 @@ export async function uploadMultipartFile(
                 });
             }
         } else {
-            const {data: res} = await uploadClient.post(`/uploads`, {
+            const {data: res} = await uploaderClient.post(`/uploads`, {
                 filename: file.name,
                 type: file.type,
                 size: file.size,
@@ -57,7 +58,7 @@ export async function uploadMultipartFile(
             const start = (index - 1) * fileChunkSize;
             const end = (index) * fileChunkSize;
 
-            const {data: getUploadUrlResp} = await uploadClient.post(`/uploads/${uploadId}/part`, {
+            const {data: getUploadUrlResp} = await uploaderClient.post(`/uploads/${uploadId}/part`, {
                 part: index,
             }, {
                 headers: makeAuthorizationHeaders(accessToken),
@@ -65,7 +66,7 @@ export async function uploadMultipartFile(
 
             const blob = (index < numChunks) ? file.slice(start, end) : file.slice(start);
 
-            const uploadResp = await uploadClient.put(getUploadUrlResp.url, blob, {
+            const uploadResp = await uploaderClient.put(getUploadUrlResp.url, blob, {
                 onUploadProgress: (e: ProgressEvent) => {
                     const multiPartEvent = {
                         ...e,
@@ -85,7 +86,7 @@ export async function uploadMultipartFile(
             uploadStateStorage.updateUpload(userId, fileUID, eTag);
         }
 
-        const res = await uploadClient.post(`/assets`, {
+        const res = await uploaderClient.post(`/assets`, {
             targetSlug,
             multipart: {
                 uploadId,

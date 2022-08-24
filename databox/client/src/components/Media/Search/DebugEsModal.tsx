@@ -1,9 +1,9 @@
 import {ESDebug} from "../../../api/asset";
 import {Box, Button, Chip} from "@mui/material";
-import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import AppDialog from "../../Layout/AppDialog";
 import {useTranslation} from "react-i18next";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../hooks/useModalStack";
 
 type Props = {
     debug: ESDebug;

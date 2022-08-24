@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {exportAssets} from "../../../../api/export";
 import {Asset, RenditionDefinition, Workspace} from "../../../../types";
@@ -13,6 +12,7 @@ import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FullPageLoader from "../../../Ui/FullPageLoader";
 import {useModalHash} from "../../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../../hooks/useModalStack";
 
 type Props = {
     assets: Asset[];

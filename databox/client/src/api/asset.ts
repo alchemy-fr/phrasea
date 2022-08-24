@@ -1,4 +1,5 @@
-import apiClient, {RequestConfig} from "./api-client";
+import apiClient from "./api-client";
+import {RequestConfig} from "./http-client";
 import {Asset, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";

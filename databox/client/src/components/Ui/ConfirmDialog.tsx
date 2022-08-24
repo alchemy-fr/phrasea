@@ -7,6 +7,7 @@ import {LoadingButton} from "@mui/lab";
 import {AxiosError} from "axios";
 import RemoteErrors from "../Form/RemoteErrors";
 import {useModalHash} from "../../hooks/useModalHash";
+import {StackedModalProps} from "../../hooks/useModalStack";
 
 type Props = PropsWithChildren<{
     onCancel?: () => void;
@@ -14,7 +15,7 @@ type Props = PropsWithChildren<{
     title: ReactNode;
     confirmLabel?: ReactNode;
     disabled?: boolean;
-}>;
+} & StackedModalProps>;
 
 export default function ConfirmDialog({
                                           onCancel,
@@ -22,6 +23,7 @@ export default function ConfirmDialog({
                                           title,
                                           confirmLabel,
                                           disabled,
+                                          open,
                                           children,
                                       }: Props) {
     const {closeModal} = useModalHash();
@@ -56,6 +58,7 @@ export default function ConfirmDialog({
         onClose={onClose}
         loading={loading}
         title={title}
+        open={open}
         actions={({onClose}) => <>
             <Button
                 onClick={onClose}

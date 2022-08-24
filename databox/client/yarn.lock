@@ -1650,11 +1650,6 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@mattjennings/react-modal-stack@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@mattjennings/react-modal-stack/-/react-modal-stack-1.0.4.tgz#4b3db47fb2c292516ecc99c4d6c250ca3e349eb5"
-  integrity sha512-9QAanK1kHBxQMgW0wEozBC95CV65NIeNEX/G2fCeNWvOD1V4g9F0XsySFd325snvte+NIb5M0+QRwKjY9BxB0g==
-
 "@mui/base@5.0.0-alpha.84":
   version "5.0.0-alpha.84"
   resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-alpha.84.tgz#83c580c9b04b4e4efe3fb39572720470b0d7cc29"

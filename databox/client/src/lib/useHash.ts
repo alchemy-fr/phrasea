@@ -20,6 +20,7 @@ const useHash = (): [string, (newHash: string) => boolean] => {
     const updateHash = useCallback((newHash: string): boolean => {
         if (newHash !== hash?.substring(1)) {
             window.location.hash = newHash;
+
             return true;
         }
 
