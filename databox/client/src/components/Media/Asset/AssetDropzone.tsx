@@ -1,9 +1,10 @@
-import React, {PropsWithChildren, useCallback, useContext} from "react";
+import React, {PropsWithChildren, useCallback, useContext, useEffect} from "react";
 import {useDropzone} from "react-dropzone";
 import {UserContext} from "../../Security/UserContext";
 import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
@@ -21,6 +22,23 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
             userId: userContext.user!.id,
         });
     }, [userContext]);
+
+    const onPaste = (e: any) => {
+        retrieveImageFromClipboardAsBlob(e, (imageBlob) => {
+            openModal(UploadModal, {
+                files: [imageBlob],
+                userId: userContext.user!.id,
+            });
+        });
+    };
+
+    useEffect(() => {
+        window.addEventListener('paste', onPaste);
+
+        return () => {
+            window.removeEventListener('paste', onPaste);
+        }
+    }, []);
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         noClick: true,
