@@ -6,11 +6,11 @@ import apiClient from "../api/api-client";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
 import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
-import {ModalStack} from "@mattjennings/react-modal-stack";
 import FullPageLoader from "./Ui/FullPageLoader";
 import {createCachedTheme, ThemeName} from "../lib/theme";
 import Routes from "./Routing/Routes";
 import {BrowserRouter} from "react-router-dom";
+import ModalStack from "../hooks/useModalStack";
 
 type State = {
     user?: User;

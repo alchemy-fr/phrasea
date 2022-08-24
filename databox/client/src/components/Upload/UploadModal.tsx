@@ -3,13 +3,13 @@ import {Box, Grid} from "@mui/material";
 import FileCard from "./FileCard";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import UploadIcon from '@mui/icons-material/Upload';
 import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
 import {UploadFiles} from "../../api/file";
 import {useModalHash} from "../../hooks/useModalHash";
+import {StackedModalProps} from "../../hooks/useModalStack";
 
 type Props = {
     files: File[];
@@ -24,16 +24,19 @@ type FileWrapper = {
 export default function UploadModal({
                                         files: initFiles,
                                         userId,
+    open,
                                     }: Props) {
     const {t} = useTranslation();
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
         file: f,
         id: i.toString(),
     })));
-    const {closeModal} = useModalHash();
+    const {closeModal, setCloseConstraint} = useModalHash();
 
     useEffect(() => {
+        setCloseConstraint(() => window.confirm('Are you sure you want to dismiss upload?'));
         if (files.length === 0) {
+            setCloseConstraint(() => true);
             closeModal();
         }
     }, [closeModal, files]);
@@ -63,6 +66,7 @@ export default function UploadModal({
     return <FormDialog
         title={t('form.upload.title', 'Upload')}
         formId={formId}
+        open={open}
         loading={submitting}
         errors={errors}
         submitIcon={<UploadIcon/>}

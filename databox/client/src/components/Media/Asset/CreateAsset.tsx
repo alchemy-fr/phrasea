@@ -1,6 +1,5 @@
 import React from 'react';
 import FormDialog from "../../Dialog/FormDialog";
-import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import {Asset} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {toast} from "react-toastify";
@@ -9,6 +8,7 @@ import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
 import {AssetForm} from "../../Form/AssetForm";
 import {postAsset} from "../../../api/asset";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../hooks/useModalStack";
 
 type Props = {
     titlePath?: string[];

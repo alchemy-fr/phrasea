@@ -7,9 +7,7 @@ type Props = {
 };
 
 function getLocaleCountryFlag(locale: string): FunctionComponent | undefined {
-    console.log('locale', locale);
     const matches = locale.match(/^([a-z]{2})[-_]?([a-z]{2})?([-_][a-z0-9]+)?$/i);
-        console.log('matches', matches);
     if (matches) {
         if (matches[2]) {
             const c = matches[2].toLocaleLowerCase();

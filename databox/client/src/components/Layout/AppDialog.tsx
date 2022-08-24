@@ -7,8 +7,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import {LinearProgress} from "@mui/material";
+import {LinearProgress, Slide} from "@mui/material";
 import {Breakpoint} from "@mui/system";
+import {StackedModalProps} from "../../hooks/useModalStack";
+import {TransitionProps} from "@mui/material/transitions";
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({
     '& .MuiDialogContent-root': {
@@ -18,6 +20,16 @@ export const BootstrapDialog = styled(Dialog)(({theme}) => ({
         padding: theme.spacing(1),
     },
 }));
+
+
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement<any, any>;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export interface DialogTitleProps {
     children?: React.ReactNode;
@@ -59,7 +71,7 @@ type Props = PropsWithChildren<{
     onClose: () => void;
     loading?: boolean;
     maxWidth?: Breakpoint | false;
-}>;
+} & StackedModalProps>;
 
 export default function AppDialog({
                                       title,
@@ -67,19 +79,19 @@ export default function AppDialog({
                                       actions,
                                       loading,
                                       onClose,
+                                      open = true,
                                       maxWidth = 'md',
                                   }: Props) {
     const progressHeight = 3;
-    const [open, setOpen] = React.useState(true);
 
     const handleClose = () => {
-        setOpen(false);
         onClose();
     };
 
     return <BootstrapDialog
+        TransitionComponent={Transition}
         onClose={handleClose}
-        open={open}
+        open={open ?? false}
         fullWidth={true}
         maxWidth={maxWidth}
     >

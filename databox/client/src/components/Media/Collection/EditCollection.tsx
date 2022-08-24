@@ -4,7 +4,6 @@ import {getCollection, putCollection} from "../../../api/collection";
 import {CollectionForm} from "../../Form/CollectionForm";
 import FormDialog from "../../Dialog/FormDialog";
 import {useTranslation} from "react-i18next";
-import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import FullPageLoader from "../../Ui/FullPageLoader";
 import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
@@ -14,6 +13,7 @@ import {Typography} from "@mui/material";
 import TagRules from "../TagFilterRule/TagRules";
 import FormSection from "../../Form/FormSection";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../hooks/useModalStack";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 

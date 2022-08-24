@@ -1,5 +1,4 @@
 import React from 'react';
-import {StackedModalProps} from "@mattjennings/react-modal-stack";
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import {Typography} from "@mui/material";
@@ -11,6 +10,7 @@ import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
 import {useModalHash} from "../../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../../hooks/useModalStack";
 
 type Props = {
     assetIds: string[];

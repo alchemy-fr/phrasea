@@ -1,13 +1,10 @@
 import {uploadMultipartFile} from "../lib/upload/multiPartUpload";
 import {oauthClient} from "../oauth";
-import axios, {AxiosRequestHeaders} from "axios";
+import {AxiosRequestHeaders} from "axios";
 import config from "../config";
+import uploaderClient from "./uploader-client";
 
 let uploadId = 0; // TODO use UUID
-
-export const uploadClient = axios.create({
-    baseURL: config.get('uploaderApiBaseUrl'),
-});
 
 export function makeAuthorizationHeaders(accessToken?: string): AxiosRequestHeaders {
     if (accessToken) {
@@ -38,7 +35,7 @@ export async function UploadFile(targetSlug: string, userId: string, file: File)
 }
 
 export async function CommitUpload(targetSlug: string, files: string[], options: UploadOptions): Promise<void> {
-    await uploadClient.post(`/commit`, {
+    await uploaderClient.post(`/commit`, {
         targetSlug,
         files,
         options,

@@ -1,6 +1,5 @@
 import React from 'react';
 import FormDialog from "../../Dialog/FormDialog";
-import {StackedModalProps} from "@mattjennings/react-modal-stack/src/ModalStack";
 import {CollectionForm} from "../../Form/CollectionForm";
 import {Collection} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
@@ -10,6 +9,7 @@ import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
 import {useModalHash} from "../../../hooks/useModalHash";
+import {StackedModalProps} from "../../../hooks/useModalStack";
 
 type Props = {
     parent?: string;

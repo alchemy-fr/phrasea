@@ -94,8 +94,6 @@ export default function AttributesEditor({
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
     const [saving, setSaving] = useState<any>(false);
 
-    console.log('currentLocale', currentLocale);
-
     const onChange = useCallback((defId: string, value: LocalizedAttributeIndex<string | number> | undefined) => {
         setAttributes((prev: AttributeIndex<string | number>): AttributeIndex<string | number> => {
             const newValues = {...prev};

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Asset, Collection} from "../../../types";
+import {Asset} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import AclForm from "../../Acl/AclForm";
 import ContentTab from "../Tabbed/ContentTab";

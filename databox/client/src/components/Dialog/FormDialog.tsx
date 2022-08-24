@@ -6,6 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from "../Form/RemoteErrors";
 import {LoadingButton} from "@mui/lab";
 import {useModalHash} from "../../hooks/useModalHash";
+import {StackedModalProps} from "../../hooks/useModalStack";
 
 
 type Props<T extends object> = PropsWithChildren<{
@@ -16,7 +17,7 @@ type Props<T extends object> = PropsWithChildren<{
     errors?: ReactNode[];
     submitLabel?: ReactNode;
     submitIcon?: ReactNode;
-}>;
+} & StackedModalProps>;
 
 export default function FormDialog<T extends object>({
                                                          title,
@@ -26,12 +27,14 @@ export default function FormDialog<T extends object>({
                                                          submitLabel,
                                                          submitIcon,
                                                          loading,
+                                                         open,
                                                          children,
                                                      }: Props<T>) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     return <AppDialog
+        open={open}
         loading={loading}
         onClose={closeModal}
         title={title}
