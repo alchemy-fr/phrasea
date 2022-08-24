@@ -7,11 +7,10 @@ import AssetUpload from "../AssetUpload";
 import {Button} from "react-bootstrap";
 import UploadDone from "./UploadDone";
 import Container from "../Container";
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
 import filesize from 'filesize';
 import config from '../../config';
 import {getTarget} from "../../requests";
-import { withRouter } from "react-router-dom"
 import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import UploadBatch from "../../uploadBatch";
 
@@ -180,18 +179,25 @@ class Upload extends Component {
     };
 
     render() {
-        if (this.state.error) {
+        const {target, error} = this.state;
+
+        if (error) {
             return <Container>
                 <div>
-                    {this.state.error}
+                    {error}
                 </div>
             </Container>
         }
-        if (!this.state.target) {
+        if (!target) {
             return <FullPageLoader />
         }
 
         return <Container>
+            <h2 style={{
+                textAlign: 'center',
+                fontSize: 20,
+                marginBottom: 20,
+            }}>{target.name}</h2>
             {this.renderUploadErrors()}
             {this.renderContent()}
         </Container>
