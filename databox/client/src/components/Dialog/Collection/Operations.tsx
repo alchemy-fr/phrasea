@@ -7,6 +7,8 @@ import FormSection from "../../Form/FormSection";
 import {Alert, Button, Typography} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import {deleteCollection} from "../../../api/collection";
+import {useModalHash} from "../../../hooks/useModalHash";
+import ConfirmDialog from "../../Ui/ConfirmDialog";
 
 type Props = {
     data: Collection;
@@ -18,6 +20,17 @@ export default function Operations({
                                        minHeight,
                                    }: Props) {
     const {t} = useTranslation();
+    const {openModal} = useModalHash();
+    const deleteConfirmCollection = async () => {
+        openModal(ConfirmDialog, {
+            textToType: data.title,
+            title: t('collection_delete.title.confirm', 'Are you sure you want to delete this collection?'),
+            onConfirm: async () => {
+                await deleteCollection(data.id);
+                onClose();
+            },
+        });
+    };
     return <ContentTab
         onClose={onClose}
         minHeight={minHeight}
@@ -41,10 +54,7 @@ export default function Operations({
                 {t('collection_delete.title', 'Delete collection')}
             </Typography>
             <Button
-                onClick={async () => {
-                    await deleteCollection(data.id);
-                    onClose();
-                }}
+                onClick={deleteConfirmCollection}
                 color={'error'}
             >
                 {t('collection_delete.title', 'Delete collection')}
