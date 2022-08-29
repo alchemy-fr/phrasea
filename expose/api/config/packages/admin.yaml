@@ -55,7 +55,7 @@ easy_admin:
           - { property: 'profile' }
           - { property: 'date', type: Alchemy\AdminBundle\Form\DateTimePickerType }
           - { property: 'config', type: App\Form\PublicationConfigType }
-          - { property: 'ownerId' }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'clientAnnotations' }
           - { property: 'zippyId' }
 
@@ -81,7 +81,7 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'config', type: App\Form\PublicationConfigType }
-          - { property: 'ownerId', label: 'Owner ID' }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'clientAnnotations' }
 
     Asset:

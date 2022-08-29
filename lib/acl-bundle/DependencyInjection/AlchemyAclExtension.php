@@ -3,8 +3,6 @@
 namespace Alchemy\AclBundle\DependencyInjection;
 
 use Alchemy\AclBundle\Mapping\ObjectMapping;
-use Alchemy\AclBundle\Repository\RemoteAuthGroupRepository;
-use Alchemy\AclBundle\Repository\RemoteAuthUserRepository;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;

@@ -52,3 +52,4 @@ services:
     class: Alchemy\AdminBundle\Security\LogoutSuccessHandler
 
   Alchemy\AdminBundle\Form\UserChoiceType: ~
+  Alchemy\AdminBundle\Form\GroupChoiceType: ~

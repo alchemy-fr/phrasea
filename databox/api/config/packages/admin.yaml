@@ -74,7 +74,7 @@ easy_admin:
           - { property: 'tags' }
           - { property: 'startingCollections', label: Collections, type: App\Form\CollectionAssetType, type_options: { expanded: false, disabled: true } }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
-          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
       new:
         fields:
@@ -83,7 +83,7 @@ easy_admin:
           - { property: 'startingCollections', label: Add to collections, type: App\Form\CollectionAssetType }
           - { property: 'tags' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
-          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - workspace
 
     AssetTitleAttribute:
@@ -141,7 +141,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'parent' }
           - { property: 'privacy', type: App\Form\PrivacyChoiceType }
-          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
 
     Workspace:
       class: App\Entity\Core\Workspace
@@ -162,7 +162,7 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'slug' }
-          - { property: 'ownerId', type: Alchemy\AdminBundle\Form\UserChoiceType }
+          - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'localeFallbacks', type: collection }
           - { property: 'phraseanetDataboxId', type: number }

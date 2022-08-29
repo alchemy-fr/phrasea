@@ -55,8 +55,11 @@ easy_admin:
           - property: defaultDestination
             help: 'i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)'
           - property: allowedGroups
-            type: collection
-            help: If no group is defined, the target will be allowed to any user.
+            type: Alchemy\AdminBundle\Form\GroupChoiceType
+            type_options:
+              multiple: true
+              expanded: true
+            help: If no group is selected, the target will be allowed to any user.
 
     Commit:
       disabled_actions:
@@ -80,7 +83,7 @@ easy_admin:
           - createdAt
       form:
         fields:
-          - userId
+          - { property: userId, type: Alchemy\AdminBundle\Form\UserChoiceType }
           - token
           - acknowledged
           - { property: formDataJson, label: Form data, type: textarea }

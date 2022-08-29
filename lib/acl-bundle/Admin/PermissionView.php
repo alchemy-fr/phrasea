@@ -6,9 +6,9 @@ namespace Alchemy\AclBundle\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
-use Alchemy\AclBundle\Repository\GroupRepositoryInterface;
+use Alchemy\RemoteAuthBundle\Repository\GroupRepositoryInterface;
+use Alchemy\RemoteAuthBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Repository\PermissionRepositoryInterface;
-use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 

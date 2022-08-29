@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\AclBundle\Repository;
+namespace Alchemy\RemoteAuthBundle\Repository;
 
 class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements UserRepositoryInterface
 {

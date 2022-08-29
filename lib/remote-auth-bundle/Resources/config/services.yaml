@@ -39,3 +39,9 @@ services:
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator: ~
   Alchemy\RemoteAuthBundle\Client\AdminClient: ~
+
+  Alchemy\RemoteAuthBundle\Repository\AbstractRemoteAuthRepository: ~
+  Alchemy\RemoteAuthBundle\Repository\RemoteAuthUserRepository: ~
+  Alchemy\RemoteAuthBundle\Repository\RemoteAuthGroupRepository: ~
+  Alchemy\RemoteAuthBundle\Repository\UserRepositoryInterface: "@Alchemy\\RemoteAuthBundle\\Repository\\RemoteAuthUserRepository"
+  Alchemy\RemoteAuthBundle\Repository\GroupRepositoryInterface: "@Alchemy\\RemoteAuthBundle\\Repository\\RemoteAuthGroupRepository"
