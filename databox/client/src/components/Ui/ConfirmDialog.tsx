@@ -1,6 +1,6 @@
 import React, {PropsWithChildren, ReactNode, useState} from 'react';
 import AppDialog from "../Layout/AppDialog";
-import {Button} from "@mui/material";
+import {Button, TextField} from "@mui/material";
 import {useTranslation} from "react-i18next";
 import CheckIcon from '@mui/icons-material/Check';
 import {LoadingButton} from "@mui/lab";
@@ -15,6 +15,7 @@ type Props = PropsWithChildren<{
     title: ReactNode;
     confirmLabel?: ReactNode;
     disabled?: boolean;
+    textToType?: string | undefined;
 } & StackedModalProps>;
 
 export default function ConfirmDialog({
@@ -24,12 +25,14 @@ export default function ConfirmDialog({
                                           confirmLabel,
                                           disabled,
                                           open,
+                                          textToType,
                                           children,
                                       }: Props) {
     const {closeModal} = useModalHash();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const {t} = useTranslation();
+    const [confirmValue, setConfirmValue] = useState('');
 
     const onClose = () => {
         closeModal();
@@ -72,12 +75,27 @@ export default function ConfirmDialog({
                 startIcon={<CheckIcon/>}
                 onClick={confirm}
                 color={'success'}
-                disabled={disabled}
+                disabled={disabled || (!textToType || textToType != confirmValue)}
             >
                 {confirmLabel || t('dialog.confirm', 'Confirm')}
             </LoadingButton>
         </>}
     >
+        {textToType && <div>
+            {t('dialog.confirm_text_type.intro', 'Please type "{{ text }}" to confirm:', {
+                text: textToType,
+            })}
+            <div>
+                <TextField
+                    disabled={loading}
+                    value={confirmValue}
+                    onChange={e => setConfirmValue(e.target.value)}
+                    placeholder={t('dialog.confirm_text_type.placeholder', 'Type "{{ text }}"', {
+                        text: textToType,
+                    })}
+                />
+            </div>
+        </div>}
         {children}
         <RemoteErrors errors={errors}/>
     </AppDialog>

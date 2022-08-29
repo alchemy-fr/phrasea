@@ -17,6 +17,7 @@ import {useTranslation} from "react-i18next";
 import CreateAsset from "./Asset/CreateAsset";
 import ModalLink from "../Routing/ModalLink";
 import {useModalHash} from "../../hooks/useModalHash";
+import ConfirmDialog from "../Ui/ConfirmDialog";
 
 type Props = {
     level: number;
@@ -100,12 +101,16 @@ export default function CollectionMenuItem({
 
     const onDelete = (e: MouseEvent): void => {
         e.stopPropagation();
-        if (window.confirm(t('delete.collection.confirm', 'Delete? Really?'))) {
-            deleteCollection(id).then(() => {
+
+        openModal(ConfirmDialog, {
+            textToType: title,
+            title: t('collection_delete.title.confirm', 'Are you sure you want to delete this collection?'),
+            onConfirm: async () => {
+                await deleteCollection(id);
+                onCollectionDelete();
                 toast.success(t('delete.collection.confirmed', 'Collection has been removed!'));
-            });
-            onCollectionDelete();
-        }
+            },
+        });
     }
 
     function getNextPage(): number | undefined {

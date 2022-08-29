@@ -1,5 +1,4 @@
-import React, {useContext, useMemo, useRef, useState} from 'react'
-import useHash from "../lib/useHash";
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react'
 
 type ClosableFunc = () => boolean;
 
@@ -28,6 +27,8 @@ export interface ModalStackValue {
     stack: Stack;
 
     setCloseConstraint: (constraint: ClosableFunc) => void;
+
+    onPopState: (e: PopStateEvent) => void;
 }
 
 export type OpenModalOptions = {
@@ -46,7 +47,6 @@ export type StackedModal = {
     component: React.ComponentType;
     props: any;
     closeConstraint?: ClosableFunc | undefined;
-    opening: boolean;
     forceClose: boolean;
 }
 
@@ -63,20 +63,10 @@ export interface ModalStackProps {
     children?: React.ReactNode
 }
 
-function getModalLevel(hash: string): number | null {
-    const params = new URLSearchParams(hash.substring(1));
-    const level = parseInt(params.get('modal') || '');
-    if (!isNaN(level) && level >= 0) {
-        return level;
-    }
-
-    return null;
-}
-
-function changeHash(updateHash: (newHash: string) => boolean, hash: string, level: number): void {
-    const params = new URLSearchParams(hash.substring(1));
-    params.set('modal', level.toString());
-    updateHash(params.toString());
+function decreaseState(l: number, step = 1) {
+    window.history.replaceState(l >= 1 ? {
+        modal: l - step,
+    } : {}, '');
 }
 
 export default function ModalStack({
@@ -88,23 +78,9 @@ export default function ModalStack({
         modals: [],
         current: -1,
     });
-    const [hash, updateHash] = useHash();
-    const lastHash = useRef<string>();
     const idInc = useRef<number>(0);
-    const hashChanged = lastHash.current !== hash;
-    lastHash.current = hash;
 
     const value = useMemo<ModalStackValue>(() => {
-        // TODO close previous modals after 1s
-        function pop(amount = 1) {
-            return setStack((prev) => {
-                return {
-                    modals: prev.modals.slice(0, prev.modals.length - amount),
-                    current: Math.min(prev.modals.length - 1 - amount, prev.current),
-                };
-            });
-        }
-
         function dismissAll() {
             setStack({
                 modals: [],
@@ -126,9 +102,13 @@ export default function ModalStack({
         function closeCurrent(force = false): void {
             if (currentModal && (force || isCloseable())) {
                 currentModal.forceClose = true;
-                const modalLevel = getModalLevel(hash);
-                if (null !== modalLevel) {
-                    window.history.go(-1);
+                const l = window.history.state?.modal;
+                if (undefined !== l) {
+                    decreaseState(l);
+                    setStack(prev => ({
+                        modals: l < prev.modals.length - 1 ? prev.modals.slice(0, l + 2) : prev.modals,
+                        current: prev.current - 1,
+                    }));
                 } else if (force) {
                     setStack(prev => ({
                         ...prev,
@@ -146,33 +126,28 @@ export default function ModalStack({
             currentModal.closeConstraint = constraint;
         }
 
-        if (hashChanged) {
-            const l = getModalLevel(hash);
+        const onPopState = (e: PopStateEvent) => {
+            const l = window.history.state?.modal;
 
-            if (currentModal
-                && (null === l || stack.current >= (l + 1))
-            ) {
-                if (!currentModal.opening) {
-                    if (!currentModal.forceClose && !isCloseable()) {
-                        setTimeout(() => {
-                            changeHash(updateHash, hash, stack.current);
-                        }, 0);
-                    } else {
-                        setStack(prev => ({
-                            modals: l !== null && l < prev.modals.length - 1 ? prev.modals.slice(0, l + 2) : prev.modals,
-                            current: prev.current - 1,
-                        }));
-                    }
-                }
+            if (l >= stack.modals.length) {
+                decreaseState(l, 2);
+
+                return;
             }
 
-            if (currentModal && stack.current === l) {
-                // Mark opened lower modals that were not updated because of to fast hash changes:
-                stack.modals.forEach((m, index) => {
-                    if (index <= stack.current) {
-                        m.opening = false;
-                    }
-                });
+            if (currentModal
+                && (undefined === l || stack.current >= (l + 1))
+            ) {
+                if (!currentModal.forceClose && !isCloseable()) {
+                    window.history.pushState({
+                        modal: l !== undefined ? l + 1 : 0,
+                    }, '');
+                } else {
+                    setStack(prev => ({
+                        modals: l !== undefined && l < prev.modals.length - 1 ? prev.modals.slice(0, l + 2) : prev.modals,
+                        current: prev.current - 1,
+                    }));
+                }
             }
         }
 
@@ -188,14 +163,15 @@ export default function ModalStack({
                         newModals = prev.modals.slice(0, prev.modals.length - 1);
                         newCurrent--;
                     } else {
-                        changeHash(updateHash, hash, newCurrent);
+                        window.history.pushState({
+                            modal: newCurrent,
+                        }, '');
                     }
 
                     newModals.push({
                         id: (idInc.current++).toString(),
                         component,
                         props,
-                        opening: true,
                         forceClose: false,
                     } as StackedModal);
 
@@ -207,8 +183,18 @@ export default function ModalStack({
             },
             closeModal: closeCurrent,
             closeAllModals: dismissAll,
+            onPopState,
         }
-    }, [stack, hash]);
+    }, [stack]);
+
+
+    useEffect(() => {
+        window.addEventListener('popstate', value.onPopState);
+
+        return () => {
+            window.removeEventListener('popstate', value.onPopState);
+        };
+    }, [value]);
 
     return <ModalStackContext.Provider value={value}>
         {children}
