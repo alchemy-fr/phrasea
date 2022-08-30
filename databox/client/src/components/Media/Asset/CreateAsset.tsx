@@ -22,6 +22,7 @@ export default function CreateAsset({
                                         workspaceId,
                                         collectionId,
                                         workspaceTitle,
+    open,
                                     }: Props) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
@@ -61,6 +62,7 @@ export default function CreateAsset({
         </>;
 
     return <FormDialog
+        open={open}
         title={title}
         formId={formId}
         loading={submitting}

@@ -24,11 +24,13 @@ function Metric({n}: {
 
 export default function DebugEsModal({
                                          debug,
+                                         open,
                                      }: Props) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
 
     return <AppDialog
+        open={open}
         title={<>
             Search Debug |{' '}
             <small>

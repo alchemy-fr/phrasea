@@ -40,8 +40,9 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
 
         $destinations = [];
         $formData = $commitData['formData'] ?? [];
-        if (isset($commitData['options']['destinations'])) {
-            $destinations = $commitData['options']['destinations'];
+        $options = $commitData['options'] ?? [];
+        if (isset($options['destinations'])) {
+            $destinations = $options['destinations'];
         } elseif (isset($formData['collection_destination'])) {
             $destinations = ['/collections/'.$formData['collection_destination']];
             unset($formData['collection_destination']);
@@ -81,6 +82,7 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
                     'collections' => $collections,
                     'formData' => $formData,
                     'locale' => $commitData['locale'] ?? null,
+                    'title' => $options['title'] ?? null,
                 ]));
             }
         }

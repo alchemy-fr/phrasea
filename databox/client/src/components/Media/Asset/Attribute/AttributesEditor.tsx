@@ -5,7 +5,6 @@ import {AttributeBatchAction, attributeBatchUpdate, getAssetAttributes,} from ".
 import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import {toast} from "react-toastify";
-import {useTranslation} from 'react-i18next';
 import FormTab from "../../../Dialog/Tabbed/FormTab";
 
 export type AttrValue<T = string> = {
@@ -87,7 +86,6 @@ export default function AttributesEditor({
                                              onEdit,
                                              minHeight,
                                          }: Props) {
-    const {t} = useTranslation();
     const [currentLocale, setCurrentLocale] = useState<string>('fr_FR');
     const [error, setError] = useState<string>();
     const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);

@@ -5,6 +5,13 @@ import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
 import {useModalHash} from "../../../hooks/useModalHash";
 import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
+import moment from "moment/moment";
+
+function createPastedImageTitle(): string {
+    const m = moment();
+
+    return `Pasted-image-${m.format('YYYY-MM-DD_HH-mm-ss')}`;
+}
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
@@ -27,6 +34,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         retrieveImageFromClipboardAsBlob(e, (imageBlob) => {
             openModal(UploadModal, {
                 files: [imageBlob],
+                title: imageBlob.name === 'image.png' ? createPastedImageTitle() : undefined,
                 userId: userContext.user!.id,
             });
         });

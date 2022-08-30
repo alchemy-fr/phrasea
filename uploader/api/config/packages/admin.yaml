@@ -87,6 +87,7 @@ easy_admin:
           - token
           - acknowledged
           - { property: formDataJson, label: Form data, type: textarea }
+          - { property: optionsJson, label: Options, type: textarea }
           - notifyEmail
 
     Asset:

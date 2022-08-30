@@ -39,6 +39,7 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
                 autoFocus
                 label={t('form.upload.title.label', 'Title')}
                 disabled={submitting}
+                fullWidth={true}
                 {...register('title')}
             />
             <FormFieldErrors

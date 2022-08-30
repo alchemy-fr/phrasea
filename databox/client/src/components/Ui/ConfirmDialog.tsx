@@ -75,7 +75,7 @@ export default function ConfirmDialog({
                 startIcon={<CheckIcon/>}
                 onClick={confirm}
                 color={'success'}
-                disabled={disabled || (!textToType || textToType != confirmValue)}
+                disabled={disabled || (textToType ? textToType !== confirmValue : false)}
             >
                 {confirmLabel || t('dialog.confirm', 'Confirm')}
             </LoadingButton>

@@ -25,6 +25,7 @@ type Props = {
 export default function EditCollection({
                                            id,
                                            onEdit,
+    open,
                                        }: Props) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
@@ -52,6 +53,7 @@ export default function EditCollection({
     const formId = 'edit-collection';
 
     return <FormDialog
+        open={open}
         title={t('form.collection_edit.title', 'Edit collection')}
         formId={formId}
         loading={submitting}

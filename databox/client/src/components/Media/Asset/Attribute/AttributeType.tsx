@@ -18,6 +18,17 @@ type Props = {
     onLocaleChange: (locale: string) => void;
 }
 
+function extractNoLocaleOrDefinedLocaleValue<T>(attributes: LocalizedAttributeIndex<T>): AttrValue<T> | AttrValue<T>[] | undefined {
+    if (attributes.hasOwnProperty(NO_LOCALE)) {
+        return attributes[NO_LOCALE];
+    }
+
+    const locales = Object.keys(attributes);
+    if (locales.length >= 1) {
+        return attributes[locales[0]];
+    }
+}
+
 export default function AttributeType({
                                           definition,
                                           readOnly,
@@ -68,14 +79,14 @@ export default function AttributeType({
             disabled={disabled}
             type={definition.fieldType}
             name={definition.name}
-            values={(attributes[NO_LOCALE] || []) as AttrValue<string | number>[]}
+            values={(extractNoLocaleOrDefinedLocaleValue(attributes) || []) as AttrValue<string | number>[]}
             onChange={(values) => changeHandler(NO_LOCALE, values)}
             id={definition.id}
         /> : <AttributeWidget
             indeterminate={indeterminate}
             readOnly={readOnly}
             isRtl={false}
-            value={attributes[NO_LOCALE] as AttrValue<string | number> | undefined}
+            value={extractNoLocaleOrDefinedLocaleValue(attributes) as AttrValue<string | number> | undefined}
             required={false}
             disabled={disabled}
             name={definition.name}

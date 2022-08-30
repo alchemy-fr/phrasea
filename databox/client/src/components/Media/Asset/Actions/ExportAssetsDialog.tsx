@@ -31,6 +31,7 @@ type IndexedDefinition = {
 
 export default function ExportAssetsDialog({
                                                assets,
+    open,
                                            }: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
@@ -108,6 +109,7 @@ export default function ExportAssetsDialog({
     }
 
     return <FormDialog
+        open={open}
         title={t('export.dialog.title', 'Export {{count}} assets', {
             count,
         })}
