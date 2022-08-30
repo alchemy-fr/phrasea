@@ -26,8 +26,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         PhraseanetGenerateRenditionsManager $generateRenditionsManager,
         OriginalRenditionManager $originalRenditionManager,
         AttributeDataExporter $attributeDataExporter
-    )
-    {
+    ) {
         $this->originalRenditionManager = $originalRenditionManager;
         $this->generateRenditionsManager = $generateRenditionsManager;
         $this->attributeDataExporter = $attributeDataExporter;
