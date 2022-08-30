@@ -19,6 +19,7 @@ type Props = {
 export default function EditAsset({
                                       id,
                                       onEdit,
+                                      open,
                                   }: Props) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
@@ -46,6 +47,7 @@ export default function EditAsset({
     const formId = 'edit-asset';
 
     return <FormDialog
+        open={open}
         title={t('form.asset_edit.title', 'Edit asset')}
         formId={formId}
         loading={submitting}

@@ -39,7 +39,7 @@ export type OpenModalOptions = {
 }
 
 export interface StackedModalProps {
-    open?: boolean;
+    open: boolean;
 }
 
 export type StackedModal = {

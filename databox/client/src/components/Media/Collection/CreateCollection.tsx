@@ -25,6 +25,7 @@ export default function CreateCollection({
                                              workspaceId,
                                              workspaceTitle,
                                              onCreate,
+                                             open,
                                          }: Props) {
     const {closeModal} = useModalHash();
     const {t} = useTranslation();
@@ -70,6 +71,7 @@ export default function CreateCollection({
         formId={formId}
         loading={submitting}
         errors={errors}
+        open={open}
     >
         <CollectionForm
             formId={formId}

@@ -26,6 +26,7 @@ export default function MoveAssetsDialog({
                                              assetIds,
                                              workspaceId,
                                              onComplete,
+    open,
                                          }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModalHash();
@@ -57,6 +58,7 @@ export default function MoveAssetsDialog({
     const formId = 'move-assets';
 
     return <FormDialog
+        open={open}
         title={t('move_assets.dialog.title', 'Move {{count}} assets', {
             count,
         })}

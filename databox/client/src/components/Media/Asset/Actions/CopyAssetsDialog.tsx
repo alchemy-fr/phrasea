@@ -57,6 +57,7 @@ function AssetList({
 export default function CopyAssetsDialog({
                                              assets,
                                              onComplete,
+    open,
                                          }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
@@ -128,6 +129,7 @@ export default function CopyAssetsDialog({
         title={t('copy_assets.dialog.title', 'Copy {{count}} assets', {
             count,
         })}
+        open={open}
         loading={submitting}
         formId={formId}
         submitIcon={<FileCopyIcon/>}

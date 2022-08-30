@@ -187,6 +187,19 @@ class Commit
         $this->formData = \GuzzleHttp\json_decode($data);
     }
 
+    /**
+     * @Groups({"__NONE__"})
+     */
+    public function getOptionsJson(): string
+    {
+        return \GuzzleHttp\json_encode($this->options);
+    }
+
+    public function setOptionsJson(string $options): void
+    {
+        $this->options = \GuzzleHttp\json_decode($options);
+    }
+
     public function setFormData(array $formData): void
     {
         $this->formData = $formData;

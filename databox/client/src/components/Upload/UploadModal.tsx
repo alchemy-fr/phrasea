@@ -13,6 +13,7 @@ import {StackedModalProps} from "../../hooks/useModalStack";
 
 type Props = {
     files: File[];
+    title?: string | undefined;
     userId: string;
 } & StackedModalProps;
 
@@ -24,7 +25,8 @@ type FileWrapper = {
 export default function UploadModal({
                                         files: initFiles,
                                         userId,
-    open,
+                                        open,
+                                        title,
                                     }: Props) {
     const {t} = useTranslation();
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
@@ -49,6 +51,7 @@ export default function UploadModal({
         onSubmit: async (data: UploadData) => {
             return await UploadFiles(userId, files.map(f => f.file), {
                 destinations: data.destinations!,
+                title: data.title,
             });
         },
         onSuccess: (item) => {
@@ -107,6 +110,10 @@ export default function UploadModal({
         </Box>
         <UploadForm
             formId={formId}
+            data={title ? {
+                title,
+                destinations: [],
+            } : undefined}
             onSubmit={handleSubmit}
             submitting={submitting}
         />
