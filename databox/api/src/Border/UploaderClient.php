@@ -25,6 +25,16 @@ class UploaderClient
         return $this->doRequest(sprintf('%s/assets/%s', $baseUrl, $id), $token);
     }
 
+    public function ackAsset(string $baseUrl, string $id, string $token): void
+    {
+        $this->client
+            ->post(sprintf('%s/assets/%s/ack', $baseUrl, $id), [
+                'headers' => [
+                    'Authorization' => 'AssetToken '.$token,
+                ],
+            ]);
+    }
+
     public function doRequest(string $path, string $token): array
     {
         $response = $this->client

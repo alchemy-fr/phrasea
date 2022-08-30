@@ -56,6 +56,10 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
         $file = $this->borderManager->acceptFile($inputFile, $workspace);
 
+        $this->eventProducer->publish(UploaderAckAssetHandler::createEvent(
+            $payload['baseUrl'], $payload['assetId'], $payload['token']
+        ));
+
         if ($file instanceof File) {
             $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
                 $payload['userId'],
