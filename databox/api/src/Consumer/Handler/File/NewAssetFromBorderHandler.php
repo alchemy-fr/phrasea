@@ -9,6 +9,8 @@ use App\Attribute\AttributeDataExporter;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
+use App\Integration\Clarifai\ClarifaiIntegration;
+use App\Integration\IntegrationManager;
 use App\Phraseanet\PhraseanetGenerateRenditionsManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -21,15 +23,18 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     private OriginalRenditionManager $originalRenditionManager;
     private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
     private AttributeDataExporter $attributeDataExporter;
+    private IntegrationManager $integrationManager;
 
     public function __construct(
         PhraseanetGenerateRenditionsManager $generateRenditionsManager,
         OriginalRenditionManager $originalRenditionManager,
-        AttributeDataExporter $attributeDataExporter
+        AttributeDataExporter $attributeDataExporter,
+        IntegrationManager $integrationManager
     ) {
         $this->originalRenditionManager = $originalRenditionManager;
         $this->generateRenditionsManager = $generateRenditionsManager;
         $this->attributeDataExporter = $attributeDataExporter;
+        $this->integrationManager = $integrationManager;
     }
 
     public function handle(EventMessage $message): void
@@ -69,6 +74,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $em->persist($asset);
         $em->flush();
+
+        $this->integrationManager->handleAsset($asset);
 
         $this->generateRenditionsManager->generateRenditions($asset);
     }

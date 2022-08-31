@@ -39,6 +39,9 @@ easy_admin:
           - PopulatePass
           - ESIndexState
       - OAuthClient
+      - label: Integrations
+        children:
+          - Integration
       - label: 'Dev'
         children:
           - FailedEvent
@@ -484,3 +487,23 @@ easy_admin:
           - { property: 'mapping' }
           - { property: 'createdAt' }
           - { property: 'updatedAt' }
+
+    Integration:
+      class: App\Entity\Integration\WorkspaceIntegration
+      list:
+        batch_actions:
+          - delete
+        sort: [createdAt, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'workspace' }
+          - { property: 'integration' }
+          - { property: 'title' }
+          - { property: 'createdAt' }
+          - { property: 'updatedAt' }
+      form:
+        fields:
+          - { property: 'title' }
+          - { property: 'workspace' }
+          - { property: 'integration', type: App\Form\Type\IntegrationChoiceType }
+          - { property: 'optionsJson' }

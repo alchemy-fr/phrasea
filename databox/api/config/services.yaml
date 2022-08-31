@@ -29,6 +29,8 @@ services:
             tags: ['kernel.event_subscriber']
         App\Attribute\Type\AttributeTypeInterface:
             tags: ['app.attribute_type']
+        App\Integration\IntegrationInterface:
+            tags: ['app.integration']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -171,3 +173,11 @@ services:
                     http_errors: false
                     headers:
                         Accept: "application/json"
+
+#    App\Integration\Clarifai\ClarifaiClient:
+#        arguments:
+#            $apiKey: '%env(CLARIFAI_API_KEY)%'
+
+    App\Integration\IntegrationRegistry:
+        arguments:
+            - !tagged_iterator { tag: 'app.integration', default_index_method: 'getName' }
