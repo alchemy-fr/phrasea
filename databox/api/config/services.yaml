@@ -181,3 +181,7 @@ services:
     App\Integration\IntegrationRegistry:
         arguments:
             - !tagged_iterator { tag: 'app.integration', default_index_method: 'getName' }
+
+    App\Integration\RemoveBg\RemoveBgIntegration:
+        arguments:
+            $cacheDir: '%kernel.cache_dir%/integrations/remove.bg'

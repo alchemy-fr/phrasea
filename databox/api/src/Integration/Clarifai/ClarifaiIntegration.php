@@ -8,8 +8,8 @@ use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 // TODO remove abstract
 abstract class ClarifaiIntegration implements AssetOperationIntegrationInterface
@@ -23,7 +23,11 @@ abstract class ClarifaiIntegration implements AssetOperationIntegrationInterface
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function handleAsset(WorkspaceIntegration $workspaceIntegration, Asset $asset): void
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+    }
+
+    public function handleAsset(Asset $asset, array $options): void
     {
         $concepts = $this->client->getImageConcepts($asset->getFile());
 

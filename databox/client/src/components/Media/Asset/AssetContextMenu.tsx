@@ -12,6 +12,8 @@ import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
 import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import AssetView from "./AssetView";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -58,6 +60,13 @@ export default function AssetContextMenu({
         onClose();
     }
 
+    const onOpen = () => {
+        openModal(AssetView, {
+            asset: asset,
+        });
+        onClose();
+    }
+
     const onEdit = () => {
         navigate(getPath('app_asset_manage', {
             tab: 'edit',
@@ -72,6 +81,10 @@ export default function AssetContextMenu({
             id: asset.id,
         }));
         onClose();
+    }
+
+    const openUrl = (url: string) => {
+        document.location.href = url;
     }
 
     return <ClickAwayListener
@@ -99,9 +112,17 @@ export default function AssetContextMenu({
                 invisible: true,
             }}
         >
+            {original && <MenuItem
+                onClick={onOpen}
+            >
+                <ListItemIcon>
+                    <FileOpenIcon fontSize="small"/>
+                </ListItemIcon>
+                <ListItemText primary="Open"/>
+            </MenuItem>}
             {original?.alternateUrls && original.alternateUrls.map(a => <MenuItem
                 key={a.type}
-                // onClick={() => this.openUrl(a.url)} TODO
+                onClick={() => openUrl(a.url)}
             >
                 <ListItemIcon>
                     <LinkIcon fontSize="small"/>

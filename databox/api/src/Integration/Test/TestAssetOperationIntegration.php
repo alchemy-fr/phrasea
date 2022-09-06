@@ -9,8 +9,8 @@ use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TestAssetOperationIntegration implements AssetOperationIntegrationInterface
 {
@@ -22,7 +22,11 @@ class TestAssetOperationIntegration implements AssetOperationIntegrationInterfac
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function handleAsset(WorkspaceIntegration $workspaceIntegration, Asset $asset): void
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+    }
+
+    public function handleAsset(Asset $asset, array $options): void
     {
         $input = new AssetAttributeBatchUpdateInput();
 

@@ -8,12 +8,15 @@ use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Consumer\Handler\File\ImportRenditionHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
-use App\Controller\Legacy\PhraseanetController;
+use App\Controller\Integration\PhraseanetIntegrationController;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;
+use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
 use App\Tests\Mock\EventProducerMock;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -57,12 +60,19 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $workspace = $em->getRepository(Workspace::class)->findOneBy([
             'slug' => 'test-workspace',
         ]);
-        $workspace->setPhraseanetDataboxId(2);
-        $workspace->setPhraseanetCollectionId(42);
-        $workspace->setPhraseanetBaseUrl('https://foo.bar');
-        $workspace->setPhraseanetToken('baz');
-        $workspace->setPhraseanetRenditionMethod(Workspace::PHRASEANET_RENDITION_METHOD_ENQUEUE);
-        $em->persist($workspace);
+
+        $integration = new WorkspaceIntegration();
+        $integration->setWorkspace($workspace);
+        $integration->setTitle('Renditions');
+        $integration->setIntegration(PhraseanetRenditionIntegration::getName());
+        $integration->setOptions([
+            'baseUrl' => 'https://foo.bar',
+            'token' => 'baz',
+            'collectionId' => 42,
+            'method' => PhraseanetRenditionIntegration::METHOD_ENQUEUE,
+        ]);
+        $em->persist($integration);
+
         $em->flush();
 
         $workspaceIri = $this->findIriBy(Workspace::class, [
@@ -76,7 +86,6 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'json' => [
                 'title' => 'Dummy asset',
                 'workspace' => $workspaceIri,
-                'generateRenditions' => true,
             ],
             'extra' => [
                 'files' => [
@@ -94,6 +103,10 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
+        self::assertEquals(NewAssetIntegrationsHandler::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+
+        $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
@@ -109,27 +122,29 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'publisher' => '4242',
             'commit_id' => $assetId,
         ], $phraseanetBodyData);
-        $this->assertMatchesRegularExpression('#https://api-databox\.[^/]+/phraseanet/$#', $phraseanetBodyData['base_url']);
+        $this->assertMatchesRegularExpression(
+            sprintf('#https://api-databox\.[^/]+/integrations/phraseanet/%s$#', preg_quote($integration->getId(), '#')), $phraseanetBodyData['base_url']);
 
+        $endpoint = sprintf('/integrations/phraseanet/%s/assets/%s', $integration->getId(), $assetId);
         // Call from Phraseanet without token
-        $apiClient->request('GET', '/phraseanet/assets/'.$assetId);
+        $apiClient->request('GET', $endpoint);
         $this->assertResponseStatusCodeSame(401);
 
         // Call from Phraseanet with invalid token
-        $apiClient->request('GET', '/phraseanet/assets/'.$assetId, [
+        $apiClient->request('GET', $endpoint, [
             'headers' => [
                 'Authorization' => 'AssetToken invalidtoken',
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);
         // Call from Phraseanet with valid token
-        $response = $apiClient->request('GET', '/phraseanet/assets/'.$assetId, [
+        $response = $apiClient->request('GET', $endpoint, [
             'headers' => [
                 'Authorization' => 'AssetToken '.$phraseanetBodyData['token'],
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $originalName = PhraseanetController::ASSET_NAME_PREFIX.$assetId.'.png';
+        $originalName = PhraseanetIntegrationController::ASSET_NAME_PREFIX.$assetId.'.png';
         $this->assertJsonContains([
             'originalName' => $originalName,
             'formData' => [
@@ -141,7 +156,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         // Then we receive webhook for each generated sub def:
         // Call from Phraseanet with valid token
         $thumbnailRemoteUrl = 'https://foo.bar/permalink/123456/thumb.jpg';
-        $response = $apiClient->request('POST', '/phraseanet/events', [
+        $response = $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
             'json' => [
                 'event' => 'record.subdef.created',
                 'url' => 'foo.bar',

@@ -22,36 +22,6 @@ class RenditionManager
         $this->em = $em;
     }
 
-    public function createFile(
-        string $storage,
-        string $path,
-        ?string $type,
-        ?int $size,
-        ?string $originalName,
-        Workspace $workspace
-    ): File {
-        $file = new File();
-        $file->setStorage($storage);
-        $file->setType($type);
-        $file->setSize($size);
-        $file->setPath($path);
-        $file->setWorkspace($workspace);
-        $file->setOriginalName($originalName);
-
-        if ($originalName) {
-            $file->setExtension(ExtensionUtil::getExtensionFromPath($originalName));
-        } elseif ($file->getType()) {
-            $extension = ExtensionUtil::getExtensionFromType($file->getType());
-            if (!empty($extension)) {
-                $file->setExtension($extension);
-            }
-        }
-
-        $this->em->persist($file);
-
-        return $file;
-    }
-
     public function createOrReplaceRendition(
         Asset $asset,
         RenditionDefinition $definition,
@@ -95,6 +65,36 @@ class RenditionManager
         $this->em->persist($rendition);
 
         return $rendition;
+    }
+
+    private function createFile(
+        string $storage,
+        string $path,
+        ?string $type,
+        ?int $size,
+        ?string $originalName,
+        Workspace $workspace
+    ): File {
+        $file = new File();
+        $file->setStorage($storage);
+        $file->setType($type);
+        $file->setSize($size);
+        $file->setPath($path);
+        $file->setWorkspace($workspace);
+        $file->setOriginalName($originalName);
+
+        if ($originalName) {
+            $file->setExtension(ExtensionUtil::getExtensionFromPath($originalName));
+        } elseif ($file->getType()) {
+            $extension = ExtensionUtil::getExtensionFromType($file->getType());
+            if (!empty($extension)) {
+                $file->setExtension($extension);
+            }
+        }
+
+        $this->em->persist($file);
+
+        return $file;
     }
 
     public function getAssetFromId(string $id): ?Asset

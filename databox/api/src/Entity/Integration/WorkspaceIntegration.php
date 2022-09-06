@@ -31,6 +31,11 @@ class WorkspaceIntegration extends AbstractUuidEntity
     private ?string $integration = null;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $enabled = true;
+
+    /**
      * @ORM\Column(type="json", nullable=false)
      */
     private array $options = [];
@@ -67,11 +72,21 @@ class WorkspaceIntegration extends AbstractUuidEntity
 
     public function getOptionsJson(): string
     {
-        return \GuzzleHttp\json_encode($this->options);
+        return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
     }
 
     public function setOptionsJson(string $options): void
     {
         $this->options = \GuzzleHttp\json_decode($options, true);
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }

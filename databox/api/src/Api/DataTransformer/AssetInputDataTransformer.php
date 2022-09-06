@@ -9,6 +9,7 @@ use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Asset\OriginalRenditionManager;
+use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Consumer\Handler\File\ImportRenditionHandler;
 use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
@@ -18,7 +19,6 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
-use App\Phraseanet\PhraseanetGenerateRenditionsManager;
 use App\Storage\RenditionManager;
 use App\Util\ExtensionUtil;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,7 +36,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
     private RenditionManager $renditionManager;
-    private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
     private UploadManager $uploadManager;
     private RequestStack $requestStack;
     private FileUploadManager $fileUploadManager;
@@ -47,7 +46,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         OriginalRenditionManager $originalRenditionManager,
         AttributeInputDataTransformer $attributeInputDataTransformer,
         RenditionManager $renditionManager,
-        PhraseanetGenerateRenditionsManager $generateRenditionsManager,
         UploadManager $uploadManager,
         FileUploadManager $fileUploadManager,
         RequestStack $requestStack
@@ -57,7 +55,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $this->originalRenditionManager = $originalRenditionManager;
         $this->attributeInputDataTransformer = $attributeInputDataTransformer;
         $this->renditionManager = $renditionManager;
-        $this->generateRenditionsManager = $generateRenditionsManager;
         $this->uploadManager = $uploadManager;
         $this->requestStack = $requestStack;
         $this->fileUploadManager = $fileUploadManager;
@@ -135,11 +132,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 }
             }
 
-            if ($data->generateRenditions) {
-                $this->postFlushStackListener->addCallback(function () use ($object): void {
-                    $this->generateRenditionsManager->generateRenditions($object);
-                });
-            }
+            $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
 
             if (!empty($data->renditions)) {
                 foreach ($data->renditions as $renditionInput) {

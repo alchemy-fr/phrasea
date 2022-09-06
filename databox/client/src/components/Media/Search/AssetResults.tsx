@@ -11,9 +11,11 @@ import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from "@mui/lab";
 import AssetContextMenu from "../Asset/AssetContextMenu";
 import {PopoverPosition} from "@mui/material/Popover/Popover";
-import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
+import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
 import PreviewPopover from "../Asset/PreviewPopover";
 import {DisplayContext} from "../DisplayContext";
+import {useModalHash} from "../../../hooks/useModalHash";
+import AssetView from "../Asset/AssetView";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -80,6 +82,7 @@ export default function AssetResults() {
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LayoutEnum.Grid);
     const timer = useRef<ReturnType<typeof setTimeout>>();
+    const {openModal} = useModalHash();
 
     useEffect(() => {
         // Force preview close on result change
@@ -106,6 +109,13 @@ export default function AssetResults() {
         });
         // eslint-disable-next-line
     }, [pages]);
+
+    const onOpen = useCallback<OnOpen>((asset: Asset): void => {
+        openModal(AssetView, {
+            asset,
+        });
+        // eslint-disable-next-line
+    }, []);
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();
@@ -207,6 +217,7 @@ export default function AssetResults() {
                     layout={layout}
                     selectedAssets={assetSelection.selectedAssets}
                     onSelect={onSelect}
+                    onOpen={onOpen}
                     onUnselect={onUnselect}
                     onContextMenuOpen={onContextMenuOpen}
                     onPreviewToggle={onPreviewToggle}

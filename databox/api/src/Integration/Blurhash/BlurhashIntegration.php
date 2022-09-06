@@ -11,9 +11,9 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use kornrunner\Blurhash\Blurhash;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BlurhashIntegration implements AssetOperationIntegrationInterface
 {
@@ -27,7 +27,11 @@ class BlurhashIntegration implements AssetOperationIntegrationInterface
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function handleAsset(WorkspaceIntegration $workspaceIntegration, Asset $asset): void
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+    }
+
+    public function handleAsset(Asset $asset, array $options): void
     {
         $input = new AssetAttributeBatchUpdateInput();
         $i = new AttributeActionInput();

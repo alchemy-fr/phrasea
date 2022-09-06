@@ -38,7 +38,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @Groups({"rendition:index", "rendition:read"})
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"remove"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;

@@ -7,7 +7,8 @@ namespace App\Integration;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPExiftool\Driver\TagGroup\ItemList\Work;
+use InvalidArgumentException;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntegrationManager
 {
@@ -26,9 +27,39 @@ class IntegrationManager
         $integrations = $this->getIntegrationsOfType($asset->getWorkspaceId(), AssetOperationIntegrationInterface::class);
 
         foreach ($integrations as $integration) {
+            /** @var IntegrationInterface $integration */
+            /** @var WorkspaceIntegration $workspaceIntegration */
             [$integration, $workspaceIntegration] = $integration;
-            $integration->handleAsset($workspaceIntegration, $asset);
+
+            $integration->handleAsset($asset, $this->resolveOptions($workspaceIntegration, $integration));
         }
+    }
+
+    public function loadIntegration(string $id): WorkspaceIntegration
+    {
+        $integration = $this->em->find(WorkspaceIntegration::class, $id);
+        if (!$integration instanceof WorkspaceIntegration) {
+            throw new InvalidArgumentException(sprintf('Workspace integration "%s" not found', $id));
+        }
+
+        return $integration;
+    }
+
+    public function getIntegrationOptions(WorkspaceIntegration $workspaceIntegration): array
+    {
+        return $this->resolveOptions(
+            $workspaceIntegration,
+            $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration())
+        );
+    }
+
+    private function resolveOptions(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefault('integrationId', $workspaceIntegration->getId());
+        $integration->configureOptions($resolver);
+
+        return $resolver->resolve($workspaceIntegration->getOptions());
     }
 
     /**
@@ -40,6 +71,7 @@ class IntegrationManager
         $workspaceIntegrations = $this->em->getRepository(WorkspaceIntegration::class)
             ->findBy([
                 'workspace' => $workspaceId,
+                'enabled' => true,
             ]);
 
         $result = [];

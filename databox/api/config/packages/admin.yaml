@@ -168,11 +168,6 @@ easy_admin:
           - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'localeFallbacks', type: collection }
-          - { property: 'phraseanetDataboxId', type: number }
-          - { property: 'phraseanetCollectionId', type: number }
-          - { property: 'phraseanetBaseUrl', type: url }
-          - { property: 'phraseanetToken', type: text }
-          - { property: 'phraseanetRenditionMethod', type: App\Form\Type\PhraseanetRenditionMethodChoiceType }
 
     RenditionDefinition:
       class: App\Entity\Core\RenditionDefinition
@@ -491,14 +486,12 @@ easy_admin:
     Integration:
       class: App\Entity\Integration\WorkspaceIntegration
       list:
-        batch_actions:
-          - delete
         sort: [createdAt, DESC]
         fields:
-          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
-          - { property: 'workspace' }
-          - { property: 'integration' }
+          - { property: 'enabled' }
           - { property: 'title' }
+          - { property: 'integration' }
+          - { property: 'workspace' }
           - { property: 'createdAt' }
           - { property: 'updatedAt' }
       form:
@@ -506,4 +499,5 @@ easy_admin:
           - { property: 'title' }
           - { property: 'workspace' }
           - { property: 'integration', type: App\Form\Type\IntegrationChoiceType }
-          - { property: 'optionsJson' }
+          - { property: 'optionsJson', label: Options }
+          - { property: 'enabled' }

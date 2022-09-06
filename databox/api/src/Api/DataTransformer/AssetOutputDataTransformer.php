@@ -102,6 +102,12 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             }
         }
 
+        if (empty($output->getResolvedTitle())) {
+            if (null !== $object->getFile()) {
+                $output->setResolvedTitle($object->getFile()->getOriginalName());
+            }
+        }
+
         $output->setPrivacy($object->getPrivacy());
         $output->setTags($object->getTags()->getValues());
         $output->setWorkspace($object->getWorkspace());
