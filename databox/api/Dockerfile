@@ -2,19 +2,8 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-ENV GRPC_VERSION=1.47.0
-
 RUN apk add --no-cache \
-        perl \
-    && apk add --virtual .deps --no-cache \
-      ${PHPIZE_DEPS} \
-      zlib-dev \
-      linux-headers
-
-RUN pecl channel-update pecl.php.net
-RUN CPPFLAGS="-Wno-maybe-uninitialized" pecl install grpc-${GRPC_VERSION}
-RUN docker-php-ext-enable grpc
-RUN apk del .build-deps
+        perl
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
