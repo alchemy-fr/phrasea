@@ -11,11 +11,12 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
+use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use kornrunner\Blurhash\Blurhash;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BlurhashIntegration implements AssetOperationIntegrationInterface
+class BlurhashIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     private const VERSION = '1.0';
     private FileFetcher $fileFetcher;
@@ -71,6 +72,11 @@ class BlurhashIntegration implements AssetOperationIntegrationInterface
     }
 
     public static function getName(): string
+    {
+        return 'blurhash';
+    }
+
+    public static function getTitle(): string
     {
         return 'Blurhash';
     }

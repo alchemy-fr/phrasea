@@ -7,6 +7,7 @@ namespace App\Integration\RemoveBg;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Storage\RenditionManager;
 use App\Storage\RenditionPathGenerator;
@@ -14,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class RemoveBgIntegration implements AssetOperationIntegrationInterface
+class RemoveBgIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     private RemoveBgClient $client;
     private string $cacheDir;
@@ -89,6 +90,11 @@ class RemoveBgIntegration implements AssetOperationIntegrationInterface
 
     public static function getName(): string
     {
-        return 'Remove.bg';
+        return 'remove.bg';
+    }
+
+    public static function getTitle(): string
+    {
+        return 'Remove BG';
     }
 }

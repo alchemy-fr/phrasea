@@ -164,6 +164,10 @@ App\Entity\Core\Tag:
 App\Entity\Integration\WorkspaceIntegration:
   constraints:
     - App\Validator\ValidIntegrationOptionsConstraint: ~
+  properties:
+    optionsJson:
+      - Json:
+          message: You've entered an invalid Json.
 
 App\Model\Export:
   properties:

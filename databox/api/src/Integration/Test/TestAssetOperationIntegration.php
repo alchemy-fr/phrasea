@@ -9,10 +9,11 @@ use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TestAssetOperationIntegration implements AssetOperationIntegrationInterface
+class TestAssetOperationIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     private const VERSION = '1.0';
     private BatchAttributeManager $batchAttributeManager;
@@ -44,6 +45,12 @@ class TestAssetOperationIntegration implements AssetOperationIntegrationInterfac
 
     public static function getName(): string
     {
+        return 'test.asset_operation';
+    }
+
+    public static function getTitle(): string
+    {
         return 'Test asset operation';
     }
+
 }

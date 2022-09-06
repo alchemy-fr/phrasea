@@ -7,24 +7,28 @@ namespace App\Integration\Phraseanet;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Asset;
+use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validation;
 
-class PhraseanetRenditionIntegration implements AssetOperationIntegrationInterface
+class PhraseanetRenditionIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     public const METHOD_ENQUEUE = 'enqueue';
     public const METHOD_API = 'api';
 
     private EventProducer $eventProducer;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(EventProducer $eventProducer, UrlGeneratorInterface $urlGenerator)
     {
         $this->eventProducer = $eventProducer;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -62,6 +66,19 @@ class PhraseanetRenditionIntegration implements AssetOperationIntegrationInterfa
         ));
     }
 
+    public function getConfigurationInfo(array $options): array
+    {
+        $info = [];
+
+        if ($options['method'] === self::METHOD_ENQUEUE) {
+            $info['Webhook URL'] = $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
+                'integrationId' => $options['integrationId']
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        return $info;
+    }
+
     public function handleAsset(Asset $asset, array $options): void
     {
         $integrationId = $options['integrationId'];
@@ -72,8 +89,13 @@ class PhraseanetRenditionIntegration implements AssetOperationIntegrationInterfa
         }
     }
 
-    public static function getName(): string
+    public static function getTitle(): string
     {
         return 'Phraseanet renditions';
+    }
+
+    public static function getName(): string
+    {
+        return 'phraseanet.renditions';
     }
 }

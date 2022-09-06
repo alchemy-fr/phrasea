@@ -6,7 +6,7 @@ namespace App\Http;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
-use App\Util\ExtensionUtil;
+use App\Util\FileUtil;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -39,7 +39,7 @@ class FileUploadManager
                 throw new BadRequestHttpException('Empty file');
             }
 
-            $extension = ExtensionUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName());
+            $extension = FileUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName());
             $path = $this->pathGenerator->generatePath($extension);
 
             $stream = fopen($uploadedFile->getRealPath(), 'r+');

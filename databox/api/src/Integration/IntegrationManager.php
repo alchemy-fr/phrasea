@@ -53,6 +53,17 @@ class IntegrationManager
         );
     }
 
+    public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
+    {
+        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        $options = $this->resolveOptions(
+            $workspaceIntegration,
+            $integration
+        );
+
+        return $integration->getConfigurationInfo($options);
+    }
+
     private function resolveOptions(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
     {
         $resolver = new OptionsResolver();

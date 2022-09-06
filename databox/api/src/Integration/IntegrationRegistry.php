@@ -23,7 +23,7 @@ class IntegrationRegistry
         return $this->integrations[$type] ?? null;
     }
 
-    public function getStrictIntegration(string $integration): ?IntegrationInterface
+    public function getStrictIntegration(string $integration): IntegrationInterface
     {
         if (!isset($this->integrations[$integration])) {
             throw new InvalidArgumentException(sprintf('Integration "%s" not found', $integration));

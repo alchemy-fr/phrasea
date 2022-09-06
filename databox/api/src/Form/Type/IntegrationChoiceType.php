@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
-use App\Attribute\AttributeTypeRegistry;
 use App\Integration\IntegrationRegistry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -22,8 +21,8 @@ class IntegrationChoiceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $choices = [];
-        foreach ($this->integrationRegistry->getIntegrations() as $name => $type) {
-            $choices[$name] = $name;
+        foreach ($this->integrationRegistry->getIntegrations() as $type) {
+            $choices[$type::getTitle()] = $type::getName();
         }
 
         $resolver->setDefaults([

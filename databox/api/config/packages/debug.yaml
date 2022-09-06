@@ -1,0 +1,3 @@
+when@dev:
+    debug:
+        dump_destination: "%kernel.cache_dir%/dump.log"

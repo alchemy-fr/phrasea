@@ -20,7 +20,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
 use App\Storage\RenditionManager;
-use App\Util\ExtensionUtil;
+use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -214,7 +214,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
             $file->setType($multipartUpload->getType());
-            $file->setExtension(ExtensionUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
+            $file->setExtension(FileUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
             $file->setSize($multipartUpload->getSize());
             $file->setOriginalName($multipartUpload->getFilename());
             $file->setPath($multipartUpload->getPath());
@@ -229,7 +229,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $path = $this->fileUploadManager->storeFileUploadFromRequest($request);
 
             $file->setType($uploadedFile->getType());
-            $file->setExtension(ExtensionUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName()));
+            $file->setExtension(FileUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName()));
             $file->setSize($uploadedFile->getSize());
             $file->setOriginalName($uploadedFile->getClientOriginalName());
             $file->setPath($path);
@@ -249,7 +249,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $src = new File();
         $src->setPath($source->url);
         $src->setOriginalName($source->originalName);
-        $src->setExtension(ExtensionUtil::getExtensionFromPath($source->originalName ?: $source->url));
+        $src->setExtension(FileUtil::getExtensionFromPath($source->originalName ?: $source->url));
         $src->setPathPublic(!$source->isPrivate);
         $src->setStorage(File::STORAGE_URL);
         $src->setWorkspace($workspace);

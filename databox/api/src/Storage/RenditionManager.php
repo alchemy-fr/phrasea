@@ -9,7 +9,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
-use App\Util\ExtensionUtil;
+use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
@@ -84,9 +84,9 @@ class RenditionManager
         $file->setOriginalName($originalName);
 
         if ($originalName) {
-            $file->setExtension(ExtensionUtil::getExtensionFromPath($originalName));
+            $file->setExtension(FileUtil::getExtensionFromPath($originalName));
         } elseif ($file->getType()) {
-            $extension = ExtensionUtil::getExtensionFromType($file->getType());
+            $extension = FileUtil::getExtensionFromType($file->getType());
             if (!empty($extension)) {
                 $file->setExtension($extension);
             }

@@ -9,6 +9,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
+use GuzzleHttp\Exception\InvalidArgumentException;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
@@ -39,6 +40,8 @@ class WorkspaceIntegration extends AbstractUuidEntity
      * @ORM\Column(type="json", nullable=false)
      */
     private array $options = [];
+
+    private ?string $optionsJson = null;
 
     public function getTitle(): ?string
     {
@@ -72,12 +75,20 @@ class WorkspaceIntegration extends AbstractUuidEntity
 
     public function getOptionsJson(): string
     {
+        if (null !== $this->optionsJson) {
+            return $this->optionsJson;
+        }
+
         return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
     }
 
     public function setOptionsJson(string $options): void
     {
-        $this->options = \GuzzleHttp\json_decode($options, true);
+        $this->optionsJson = $options;
+        try {
+            $this->options = \GuzzleHttp\json_decode($options, true);
+        } catch (InvalidArgumentException $e) {
+        }
     }
 
     public function isEnabled(): bool
@@ -88,5 +99,10 @@ class WorkspaceIntegration extends AbstractUuidEntity
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function getThis(): self
+    {
+        return $this;
     }
 }

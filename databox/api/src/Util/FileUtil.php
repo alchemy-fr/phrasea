@@ -6,8 +6,13 @@ namespace App\Util;
 
 use Symfony\Component\Mime\MimeTypes;
 
-class ExtensionUtil
+class FileUtil
 {
+    public static function isImageType(?string $mimeType): bool
+    {
+        return 1 === preg_match('#^image/#', $mimeType ?? '');
+    }
+
     public static function guessExtension(?string $type, ?string $path): ?string
     {
         $ext = static::getExtensionFromType($type);

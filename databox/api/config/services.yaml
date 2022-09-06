@@ -174,10 +174,6 @@ services:
                     headers:
                         Accept: "application/json"
 
-#    App\Integration\Clarifai\ClarifaiClient:
-#        arguments:
-#            $apiKey: '%env(CLARIFAI_API_KEY)%'
-
     App\Integration\IntegrationRegistry:
         arguments:
             - !tagged_iterator { tag: 'app.integration', default_index_method: 'getName' }

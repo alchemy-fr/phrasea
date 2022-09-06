@@ -493,6 +493,7 @@ easy_admin:
           - { property: 'integration' }
           - { property: 'workspace' }
           - { property: 'createdAt' }
+          - { property: 'this', label: Config info, template: 'admin/integration_config_info.html.twig' }
           - { property: 'updatedAt' }
       form:
         fields:
