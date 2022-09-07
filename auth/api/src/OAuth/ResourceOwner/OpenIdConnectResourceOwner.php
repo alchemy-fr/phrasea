@@ -30,13 +30,12 @@ class OpenIdConnectResourceOwner extends GenericOAuth2ResourceOwner implements R
         ]);
 
         $resolver->setRequired([
-            'realm',
             'base_url',
         ]);
 
         $normalizer = function (Options $options, $value) {
             return str_replace(
-                '{keycloak_url}',
+                '{base_url}',
                 $options['base_url'],
                 $value
             );
