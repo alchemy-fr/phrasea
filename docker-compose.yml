@@ -833,6 +833,8 @@ services:
       internal:
         aliases:
           - databox-php
+    volumes:
+      - ./configs:/configs
     environment:
       - APP_ENV
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
@@ -901,6 +903,8 @@ services:
       - rabbitmq
       - db
       - elasticsearch
+    volumes:
+      - ./configs:/configs
     environment:
       - APP_ENV
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}

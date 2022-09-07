@@ -37,7 +37,7 @@
             "groups": "user_groups"
           }
         },
-        "group_jq_normalizer": ".user_authorization[] | select(.resource == \"phrasea\") | {groups: [.permissions[].name]}",
+        "group_jq_normalizer": "{ \"groups\": [ .user_authorization[] | select(.resource == \"api.phrasea-play\").permissions[] | .name + \"_\" + .constraints[].values[] ]}",
         "group_map": {
           "Group1": "group1",
           "Editor": "edit_guy"
