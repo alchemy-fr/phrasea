@@ -45,33 +45,34 @@ class OAuthController extends AbstractIdentityProviderController
 
         return $this->redirect(
             $resourceOwner->getAuthorizationUrl(
-                $this->generateOAuthRedirectUri($provider, $redirectUri)
+                $this->generateOAuthRedirectUri($provider),
+                [
+                    'state' => $redirectUri,
+                ]
             )
         );
     }
 
-    private function generateOAuthRedirectUri(string $provider, string $redirectUri): string
+    private function generateOAuthRedirectUri(string $provider): string
     {
         return $this->generateUrl('oauth_internal_check', [
-            'r' => $redirectUri,
-            'p' => $provider,
+            'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 
     /**
-     * @Route(path="/check", name="internal_check")
+     * @Route(path="/check/{provider}", name="internal_check")
      */
     public function internalCheck(
+        string $provider,
         Request $request,
         OAuthProviderFactory $OAuthFactory,
         TokenStorageInterface $tokenStorage
     ) {
-        $provider = $request->get('p');
-        $finalRedirectUri = $request->get('r');
-
+        $finalRedirectUri = $request->get('state');
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
 
-        $redirectUri = $this->generateOAuthRedirectUri($provider, $finalRedirectUri);
+        $redirectUri = $this->generateOAuthRedirectUri($provider);
 
         $user = $this->handleAuthorizationCodeRequestAndReturnUser(
             $resourceOwner,
