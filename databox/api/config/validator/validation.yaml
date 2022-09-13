@@ -169,6 +169,15 @@ App\Entity\Integration\WorkspaceIntegration:
       - Json:
           message: You've entered an invalid Json.
 
+App\Entity\Integration\IntegrationData:
+  properties:
+    value:
+      - NotNull: ~
+    integration:
+      - NotNull: ~
+    name:
+      - NotBlank: ~
+
 App\Model\Export:
   properties:
     assets:

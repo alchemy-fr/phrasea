@@ -8,6 +8,8 @@ use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntegrationManager
@@ -33,6 +35,16 @@ class IntegrationManager
 
             $integration->handleAsset($asset, $this->resolveOptions($workspaceIntegration, $integration));
         }
+    }
+
+    public function handleAssetAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, Asset $asset): Response
+    {
+        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        if (!$integration instanceof AssetActionIntegrationInterface) {
+            throw new InvalidArgumentException(sprintf('Integration "%s" does not support asset actions', $workspaceIntegration->getIntegration()));
+        }
+
+        return $integration->handleAssetAction($action, $request, $asset, $this->resolveOptions($workspaceIntegration, $integration));
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration
@@ -68,6 +80,7 @@ class IntegrationManager
     {
         $resolver = new OptionsResolver();
         $resolver->setDefault('integrationId', $workspaceIntegration->getId());
+        $resolver->setDefault('workspaceIntegration', $workspaceIntegration);
         $integration->configureOptions($resolver);
 
         return $resolver->resolve($workspaceIntegration->getOptions());

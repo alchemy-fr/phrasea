@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {FC, useCallback, useMemo, useState} from 'react';
 import {Asset} from "../../../types";
 import AppDialog from "../../Layout/AppDialog";
 import {StackedModalProps} from "../../../hooks/useModalStack";
@@ -7,12 +7,27 @@ import FilePlayer from "./FilePlayer";
 import useWindowSize from "../../../hooks/useWindowSize";
 import {Dimensions} from "./Players";
 import {Box} from "@mui/material";
+import AssetIntegrationActions from "./AssetIntegrationActions";
 
 type Props = {
     asset: Asset;
 } & StackedModalProps;
 
+export type IntegrationOverlayCommonProps = {
+    maxDimensions: Dimensions;
+}
+
+type IntegrationOverlay<P extends {} = any> = {
+    component: FC<P>;
+    props: P;
+    replace: boolean;
+}
+
+export type SetIntegrationOverlayFunction<P extends {} = any> = (component: FC<P & IntegrationOverlayCommonProps>, props?: P, replace?: boolean) => void;
+
 const menuWidth = 300;
+const headerHeight = 60;
+const scrollBarDelta = 8;
 
 export default function AssetView({
                                       asset,
@@ -21,11 +36,20 @@ export default function AssetView({
     const {closeModal} = useModalHash();
 
     const winSize = useWindowSize();
+    const [integrationOverlay, setIntegrationOverlay] = useState<IntegrationOverlay>();
+
+    const setProxy: SetIntegrationOverlayFunction = useCallback((component, props, replace = false) => {
+        setIntegrationOverlay({
+            component,
+            props,
+            replace,
+        });
+    }, [setIntegrationOverlay]);
 
     const maxDimensions = useMemo<Dimensions>(() => {
         return {
-            width: winSize.width - menuWidth,
-            height: winSize.height - 200,
+            width: winSize.width - menuWidth - scrollBarDelta,
+            height: winSize.height - headerHeight - 2,
         };
     }, [winSize]);
 
@@ -33,7 +57,14 @@ export default function AssetView({
 
     return <AppDialog
         open={open}
-        maxWidth={false}
+        disablePadding={true}
+        sx={{
+            '.MuiDialogTitle-root': {
+                height: headerHeight,
+                maxHeight: headerHeight,
+            }
+        }}
+        fullScreen={true}
         title={<>
             Edit asset{' '}
             <b>
@@ -42,28 +73,48 @@ export default function AssetView({
         </>}
         onClose={closeModal}
     >
-        <div style={{
-            width: '100%',
+        <Box sx={{
+            height: maxDimensions.height,
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between'
         }}>
-            <div>
-                {file && <FilePlayer
-                    file={file}
-                    title={asset.title}
-                    maxDimensions={maxDimensions}
-                    autoPlayable={false}
-                />}
-            </div>
+            <Box sx={{
+                overflowY: 'auto',
+                height: maxDimensions.height,
+                width: maxDimensions.width + scrollBarDelta,
+                maxWidth: maxDimensions.width + scrollBarDelta,
+            }}>
+                <div style={{
+                    position: 'relative',
+                    width: 'fit-content'
+                }}>
+                    {file && (!integrationOverlay || !integrationOverlay.replace) && <FilePlayer
+                        file={file}
+                        title={asset.title}
+                        maxDimensions={maxDimensions}
+                        autoPlayable={false}
+                    />}
+                    {integrationOverlay && React.createElement(integrationOverlay.component, {
+                        maxDimensions,
+                        ...(integrationOverlay.props || {})
+                    })}
+                </div>
+            </Box>
             <Box
                 sx={theme => ({
                     width: menuWidth,
-                    borderLeft: `1px solid ${theme.palette.divider}`
+                    maxWidth: menuWidth,
+                    borderLeft: `1px solid ${theme.palette.divider}`,
+                    overflowY: 'auto',
+                    height: maxDimensions.height,
                 })}
             >
-
+                <AssetIntegrationActions
+                    asset={asset}
+                    setIntegrationOverlay={setProxy}
+                />
             </Box>
-        </div>
+        </Box>
     </AppDialog>
 }

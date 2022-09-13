@@ -8,7 +8,6 @@ use App\Asset\FileFetcher;
 use App\Entity\Core\File;
 use GuzzleHttp\Client;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RemoveBgClient
 {
@@ -17,13 +16,6 @@ class RemoveBgClient
     public function __construct(FileFetcher $fileFetcher)
     {
         $this->fileFetcher = $fileFetcher;
-    }
-
-    public function configureOptions(OptionsResolver $optionsResolver): void
-    {
-        $optionsResolver->setRequired([
-            'apiKey',
-        ]);
     }
 
     private function createClient(string $apiKey): Client

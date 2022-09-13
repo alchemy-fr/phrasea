@@ -8,14 +8,11 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {LinearProgress, Slide} from "@mui/material";
-import {Breakpoint} from "@mui/system";
+import {Breakpoint, SxProps} from "@mui/system";
 import {StackedModalProps} from "../../hooks/useModalStack";
 import {TransitionProps} from "@mui/material/transitions";
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({
-    '& .MuiDialogContent-root': {
-        padding: theme.spacing(2),
-    },
     '& .MuiDialogActions-root': {
         padding: theme.spacing(1),
     },
@@ -23,7 +20,7 @@ export const BootstrapDialog = styled(Dialog)(({theme}) => ({
 
 
 const Transition = React.forwardRef(function Transition(
-    props: TransitionProps & {
+    props: PropsWithChildren<TransitionProps> & {
         children: React.ReactElement<any, any>;
     },
     ref: React.Ref<unknown>,
@@ -71,6 +68,9 @@ type Props = PropsWithChildren<{
     onClose: () => void;
     loading?: boolean;
     maxWidth?: Breakpoint | false;
+    fullScreen?: boolean;
+    disablePadding?: boolean | undefined;
+    sx?: SxProps;
 } & StackedModalProps>;
 
 export default function AppDialog({
@@ -79,8 +79,11 @@ export default function AppDialog({
                                       actions,
                                       loading,
                                       onClose,
+                                      disablePadding,
+                                      fullScreen,
                                       open = true,
                                       maxWidth = 'md',
+                                      sx,
                                   }: Props) {
     const progressHeight = 3;
 
@@ -94,11 +97,20 @@ export default function AppDialog({
         open={open ?? false}
         fullWidth={true}
         maxWidth={maxWidth}
+        fullScreen={fullScreen}
+        sx={sx}
     >
-        {title && <AppDialogTitle onClose={handleClose}>
+        {title && <AppDialogTitle
+            onClose={handleClose}
+        >
             {title}
         </AppDialogTitle>}
-        <DialogContent dividers>
+        <DialogContent
+            dividers
+            sx={{
+                p: disablePadding ? 0 : 2,
+            }}
+        >
             {children}
         </DialogContent>
         {loading && <LinearProgress

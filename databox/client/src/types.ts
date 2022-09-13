@@ -170,6 +170,18 @@ export interface Workspace extends IPermissions {
     createdAt: string;
 }
 
+export type IntegrationData = {
+    name: string;
+    value: string;
+}
+
+export interface WorkspaceIntegration {
+    id: string;
+    title: string;
+    integration: string;
+    data: IntegrationData[];
+}
+
 export enum UserType {
     User = 'user',
     Group = 'group',

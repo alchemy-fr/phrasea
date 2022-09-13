@@ -35,6 +35,7 @@
     "moment": "^2.29.4",
     "node-sass": "^4.0.0",
     "react": "^18.1.0",
+    "react-compare-image": "^3.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.1.0",
