@@ -29,8 +29,8 @@ class MediaFaker extends AbstractCachedFaker
                 'http://www.africau.edu/images/default/sample.pdf',
                 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
                 'https://assets.ctfassets.net/wm1n7oady8a5/6tJdKFW6ukyIE4Y8sSuYo4/86aa1e4178bef579ac8674eefa1f6bc5/A4-booklet-landscape.en.pdf',
-                'https://file-examples.com/storage/feddb42d8762894ad9bbbb0/2017/10/file-sample_150kB.pdf',
-                'https://file-examples.com/storage/feddb42d8762894ad9bbbb0/2017/10/file-example_PDF_500_kB.pdf',
+                'https://www.adobe.com/content/dam/cc/en/trust-center/ungated/whitepapers/corporate/adobe-vendor-security-review-program-overview.pdf',
+                'https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf',
             ],
         ][$type];
 
