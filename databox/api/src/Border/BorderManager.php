@@ -10,7 +10,7 @@ use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Storage\RenditionPathGenerator;
+use App\Storage\FilePathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BorderManager
@@ -18,13 +18,13 @@ class BorderManager
     private EntityManagerInterface $em;
     private FileDownloader $fileDownloader;
     private FileStorageManager $storageManager;
-    private RenditionPathGenerator $pathGenerator;
+    private FilePathGenerator $pathGenerator;
 
     public function __construct(
         EntityManagerInterface $em,
         FileDownloader $fileDownloader,
         FileStorageManager $storageManager,
-        RenditionPathGenerator $pathGenerator
+        FilePathGenerator $pathGenerator
     ) {
         $this->em = $em;
         $this->fileDownloader = $fileDownloader;

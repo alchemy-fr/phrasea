@@ -18,7 +18,7 @@ class IntegrationDataManager
         $this->em = $em;
     }
 
-    public function storeValue(WorkspaceIntegration $workspaceIntegration, ?Asset $asset, string $name, string $value): void
+    public function storeData(WorkspaceIntegration $workspaceIntegration, ?Asset $asset, string $name, string $value): void
     {
         $data = new IntegrationData();
         $data->setIntegration($workspaceIntegration);
@@ -30,7 +30,7 @@ class IntegrationDataManager
         $this->em->flush($data);
     }
 
-    public function hasValue(WorkspaceIntegration $workspaceIntegration, ?Asset $asset, string $name): bool
+    public function hasData(WorkspaceIntegration $workspaceIntegration, ?Asset $asset, string $name): bool
     {
         $data = $this->em->getRepository(IntegrationData::class)
             ->findOneBy([
@@ -40,5 +40,15 @@ class IntegrationDataManager
             ]);
 
         return $data instanceof IntegrationData;
+    }
+
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?Asset $asset, string $name): ?IntegrationData
+    {
+        return $this->em->getRepository(IntegrationData::class)
+            ->findOneBy([
+                'integration' => $workspaceIntegration->getId(),
+                'asset' => $asset,
+                'name' => $name,
+            ]);
     }
 }

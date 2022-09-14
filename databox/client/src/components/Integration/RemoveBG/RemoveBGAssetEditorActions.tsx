@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrationActions";
+import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrations";
 import {Box, Button} from "@mui/material";
 import {runIntegrationAssetAction} from "../../../api/integrations";
 import ReactCompareImage from "react-compare-image";
@@ -39,21 +39,27 @@ export default function RemoveBGAssetEditorActions({
                                                        enableInc,
                                                    }: Props) {
     const [running, setRunning] = useState(false);
-    const [result, setResult] = useState<{url: string}>();
+    const [url, setUrl] = useState<string | undefined>(integration.data.find(d => d.name === 'file_url')?.value);
 
     const process = async () => {
         setRunning(true);
-        setResult(await runIntegrationAssetAction('process', integration.id, asset.id));
+        setUrl((await runIntegrationAssetAction('process', integration.id, asset.id)).url);
     };
 
     useEffect(() => {
-        if (enableInc && result) {
+        if (enableInc && url) {
             setIntegrationOverlay(RemoveBgComparison, {
                 left: asset.original?.url,
-                right: result.url,
+                right: url,
             }, true);
         }
-    }, [enableInc, result]);
+    }, [enableInc, url]);
+
+    if (url) {
+        return <IntegrationPanelContent>
+            Use slider to compare
+        </IntegrationPanelContent>
+    }
 
     return <IntegrationPanelContent>
         <Button

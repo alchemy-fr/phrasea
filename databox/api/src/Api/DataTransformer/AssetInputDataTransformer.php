@@ -226,13 +226,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
-            $path = $this->fileUploadManager->storeFileUploadFromRequest($request);
-
-            $file->setType($uploadedFile->getType());
-            $file->setExtension(FileUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName()));
-            $file->setSize($uploadedFile->getSize());
-            $file->setOriginalName($uploadedFile->getClientOriginalName());
-            $file->setPath($path);
+            $file = $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $uploadedFile);
             $asset->setFile($file);
 
             return $file;

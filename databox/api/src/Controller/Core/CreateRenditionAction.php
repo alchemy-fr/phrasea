@@ -47,16 +47,12 @@ final class CreateRenditionAction extends AbstractController
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
-            $path = $this->fileUploadManager->storeFileUploadFromRequest($request);
+            $file = $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $uploadedFile);
 
-            return $this->renditionManager->createOrReplaceRendition(
+            return $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $definition,
-                File::STORAGE_S3_MAIN,
-                $path,
-                $uploadedFile->getMimeType(),
-                $uploadedFile->getSize(),
-                $uploadedFile->getClientOriginalName()
+                $file
             );
         } else {
             throw new BadRequestHttpException('Missing file or multipart');
@@ -81,7 +77,7 @@ final class CreateRenditionAction extends AbstractController
             File::STORAGE_S3_MAIN,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
-            isset($upload['size']) ? (int) $upload['size'] : null,
+            $multipartUpload->getSize(),
             $multipartUpload->getFilename()
         );
     }

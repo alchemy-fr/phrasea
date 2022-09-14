@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileUrlResolver;
 use App\Border\FileDownloader;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
-use App\Storage\RenditionPathGenerator;
+use App\Storage\FileManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -21,22 +20,19 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
     const EVENT = 'import_rendition';
 
     private FileUrlResolver $fileUrlResolver;
-    private RenditionPathGenerator $pathGenerator;
-    private FileStorageManager $storageManager;
     private FileDownloader $downloader;
+    private FileManager $fileManager;
 
     public function __construct(
         FileUrlResolver $fileUrlResolver,
-        RenditionPathGenerator $pathGenerator,
-        FileStorageManager $storageManager,
+        FileManager $fileManager,
         FileDownloader $downloader,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->fileUrlResolver = $fileUrlResolver;
-        $this->pathGenerator = $pathGenerator;
-        $this->storageManager = $storageManager;
         $this->downloader = $downloader;
+        $this->fileManager = $fileManager;
     }
 
     public static function createEvent(string $renditionId): EventMessage
@@ -76,19 +72,21 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
                 $file->setSize((int) $size[0][0]);
             }
         }
+        $mimeType = null;
         if (isset($headers['Content-Type'])) {
             $type = Header::parse($headers['Content-Type']);
             if (null === $file->getType() && !empty($type)) {
-                $file->setType($type[0][0]);
+                $mimeType = $type[0][0];
             }
         }
 
-        $finalPath = $this->pathGenerator
-            ->generatePath($rendition->getAsset()->getWorkspaceId(), $file->getExtension());
-
-        $fd = fopen($src, 'r');
-        $this->storageManager->storeStream($finalPath, $fd);
-        fclose($fd);
+        $finalPath = $this->fileManager->storeFile(
+            $rendition->getAsset()->getWorkspace(),
+            $src,
+            $mimeType,
+            $file->getExtension(),
+           null
+        );
 
         $file->setPath($finalPath);
         $file->setStorage(File::STORAGE_S3_MAIN);

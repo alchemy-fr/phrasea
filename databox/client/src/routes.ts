@@ -6,6 +6,7 @@ import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 import CollectionDialog from "./components/Dialog/Collection/CollectionDialog";
 import AssetDialog from "./components/Dialog/Asset/AssetDialog";
 import EditAttributes from "./components/Dialog/Asset/EditAttributes";
+import AssetView from "./components/Media/Asset/AssetView";
 
 export type RouteDefinition = {
     name: string;
@@ -35,6 +36,12 @@ export const modalRoutes = [
         name: 'asset_manage',
         path: '/assets/:id/manage/:tab',
         component: AssetDialog,
+        public: false,
+    },
+    {
+        name: 'asset_view',
+        path: '/assets/:id',
+        component: AssetView,
         public: false,
     },
 ];

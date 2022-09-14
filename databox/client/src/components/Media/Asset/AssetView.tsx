@@ -1,17 +1,15 @@
-import React, {FC, useCallback, useMemo, useState} from 'react';
+import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Asset} from "../../../types";
 import AppDialog from "../../Layout/AppDialog";
-import {StackedModalProps} from "../../../hooks/useModalStack";
-import {useModalHash} from "../../../hooks/useModalHash";
 import FilePlayer from "./FilePlayer";
 import useWindowSize from "../../../hooks/useWindowSize";
 import {Dimensions} from "./Players";
 import {Box} from "@mui/material";
-import AssetIntegrationActions from "./AssetIntegrationActions";
-
-type Props = {
-    asset: Asset;
-} & StackedModalProps;
+import AssetIntegrations from "./AssetIntegrations";
+import {useParams} from "react-router-dom";
+import {getAsset} from "../../../api/asset";
+import FullPageLoader from "../../Ui/FullPageLoader";
+import RouteDialog from "../../Dialog/RouteDialog";
 
 export type IntegrationOverlayCommonProps = {
     maxDimensions: Dimensions;
@@ -26,14 +24,21 @@ type IntegrationOverlay<P extends {} = any> = {
 export type SetIntegrationOverlayFunction<P extends {} = any> = (component: FC<P & IntegrationOverlayCommonProps>, props?: P, replace?: boolean) => void;
 
 const menuWidth = 300;
+
 const headerHeight = 60;
 const scrollBarDelta = 8;
 
-export default function AssetView({
-                                      asset,
-                                      open,
-                                  }: Props) {
-    const {closeModal} = useModalHash();
+type Props = {};
+
+export default function AssetView({}: Props) {
+    const {id} = useParams();
+
+    const [data, setData] = useState<Asset>();
+
+    useEffect(() => {
+        getAsset(id!).then(c => setData(c));
+    }, [id]);
+
 
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] = useState<IntegrationOverlay>();
@@ -53,68 +58,74 @@ export default function AssetView({
         };
     }, [winSize]);
 
-    const file = asset.original;
+    if (!data) {
+        return <FullPageLoader/>
+    }
 
-    return <AppDialog
-        open={open}
-        disablePadding={true}
-        sx={{
-            '.MuiDialogTitle-root': {
-                height: headerHeight,
-                maxHeight: headerHeight,
-            }
-        }}
-        fullScreen={true}
-        title={<>
-            Edit asset{' '}
-            <b>
-                {asset.resolvedTitle}
-            </b>
-        </>}
-        onClose={closeModal}
-    >
-        <Box sx={{
-            height: maxDimensions.height,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-        }}>
+    const file = data.original;
+
+    return <RouteDialog>
+        {({open, onClose}) => <AppDialog
+            open={open}
+            disablePadding={true}
+            sx={{
+                '.MuiDialogTitle-root': {
+                    height: headerHeight,
+                    maxHeight: headerHeight,
+                }
+            }}
+            fullScreen={true}
+            title={<>
+                Edit asset{' '}
+                <b>
+                    {data.resolvedTitle}
+                </b>
+            </>}
+            onClose={onClose}
+        >
             <Box sx={{
-                overflowY: 'auto',
                 height: maxDimensions.height,
-                width: maxDimensions.width + scrollBarDelta,
-                maxWidth: maxDimensions.width + scrollBarDelta,
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between'
             }}>
-                <div style={{
-                    position: 'relative',
-                    width: 'fit-content'
-                }}>
-                    {file && (!integrationOverlay || !integrationOverlay.replace) && <FilePlayer
-                        file={file}
-                        title={asset.title}
-                        maxDimensions={maxDimensions}
-                        autoPlayable={false}
-                    />}
-                    {integrationOverlay && React.createElement(integrationOverlay.component, {
-                        maxDimensions,
-                        ...(integrationOverlay.props || {})
-                    })}
-                </div>
-            </Box>
-            <Box
-                sx={theme => ({
-                    width: menuWidth,
-                    maxWidth: menuWidth,
-                    borderLeft: `1px solid ${theme.palette.divider}`,
+                <Box sx={{
                     overflowY: 'auto',
                     height: maxDimensions.height,
-                })}
-            >
-                <AssetIntegrationActions
-                    asset={asset}
-                    setIntegrationOverlay={setProxy}
-                />
+                    width: maxDimensions.width + scrollBarDelta,
+                    maxWidth: maxDimensions.width + scrollBarDelta,
+                }}>
+                    <div style={{
+                        position: 'relative',
+                        width: 'fit-content'
+                    }}>
+                        {file && (!integrationOverlay || !integrationOverlay.replace) && <FilePlayer
+                            file={file}
+                            title={data.title}
+                            maxDimensions={maxDimensions}
+                            autoPlayable={false}
+                        />}
+                        {integrationOverlay && React.createElement(integrationOverlay.component, {
+                            maxDimensions,
+                            ...(integrationOverlay.props || {})
+                        })}
+                    </div>
+                </Box>
+                <Box
+                    sx={theme => ({
+                        width: menuWidth,
+                        maxWidth: menuWidth,
+                        borderLeft: `1px solid ${theme.palette.divider}`,
+                        overflowY: 'auto',
+                        height: maxDimensions.height,
+                    })}
+                >
+                    <AssetIntegrations
+                        asset={data}
+                        setIntegrationOverlay={setProxy}
+                    />
+                </Box>
             </Box>
-        </Box>
-    </AppDialog>
+        </AppDialog>}
+    </RouteDialog>
 }

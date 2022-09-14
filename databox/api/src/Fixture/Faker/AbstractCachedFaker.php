@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace App\Fixture\Faker;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use App\Storage\RenditionPathGenerator;
+use App\Storage\FilePathGenerator;
 use Faker\Generator;
 use Faker\Provider\Base as BaseProvider;
 
 abstract class AbstractCachedFaker extends BaseProvider
 {
     private FileStorageManager $fileStorageManager;
-    private RenditionPathGenerator $pathGenerator;
+    private FilePathGenerator $pathGenerator;
     private ?string $cacheDir = null;
 
     public function __construct(
         string $fixturesCacheDir,
         FileStorageManager $fileStorageManager,
-        RenditionPathGenerator $pathGenerator,
+        FilePathGenerator $pathGenerator,
         Generator $generator
     ) {
         parent::__construct($generator);

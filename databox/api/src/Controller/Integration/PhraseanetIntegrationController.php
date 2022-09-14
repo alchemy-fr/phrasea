@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Integration;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
@@ -13,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Integration\IntegrationManager;
 use App\Security\JWTTokenManager;
+use App\Storage\FileManager;
 use App\Storage\RenditionManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,7 +44,7 @@ class PhraseanetIntegrationController extends AbstractController
         string $assetId,
         Request $request,
         RenditionManager $renditionManager,
-        PathGenerator $pathGenerator,
+        FileManager $fileManager,
         FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
         EntityManagerInterface $em
@@ -94,12 +94,13 @@ class PhraseanetIntegrationController extends AbstractController
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 
-        $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $path = sprintf('%s/%s', $asset->getWorkspace()->getId(), $pathGenerator->generatePath($extension));
-
-        $stream = fopen($uploadedFile->getRealPath(), 'r+');
-        $storageManager->storeStream($path, $stream);
-        fclose($stream);
+        $path = $fileManager->storeFile(
+            $asset->getWorkspace(),
+            $uploadedFile->getRealPath(),
+            $uploadedFile->getType(),
+            null,
+            $uploadedFile->getClientOriginalName()
+        );
 
         $renditionManager->createOrReplaceRendition(
             $asset,

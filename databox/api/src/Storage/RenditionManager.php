@@ -9,17 +9,18 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
-use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
 class RenditionManager
 {
     private EntityManagerInterface $em;
+    private FileManager $fileManager;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, FileManager $fileManager)
     {
         $this->em = $em;
+        $this->fileManager = $fileManager;
     }
 
     public function createOrReplaceRendition(
@@ -31,7 +32,7 @@ class RenditionManager
         ?int $size,
         ?string $originalName
     ): AssetRendition {
-        $file = $this->createFile(
+        $file = $this->fileManager->createFile(
             $storage,
             $path,
             $type,
@@ -40,6 +41,19 @@ class RenditionManager
             $asset->getWorkspace(),
         );
 
+        return $this->createOrReplaceRenditionFile(
+            $asset,
+            $definition,
+            $file
+        );
+    }
+
+    public function createOrReplaceRenditionFile(
+        Asset $asset,
+        RenditionDefinition $definition,
+        File $file
+    ): AssetRendition
+    {
         if (null === $asset->getFile() && $definition->isUseAsOriginal()) {
             $asset->setFile($file);
             $this->em->persist($asset);
@@ -67,34 +81,23 @@ class RenditionManager
         return $rendition;
     }
 
-    private function createFile(
-        string $storage,
-        string $path,
+    public function createOrReplaceRenditionFromSource(
+        Asset $asset,
+        RenditionDefinition $definition,
+        string $src,
         ?string $type,
-        ?int $size,
-        ?string $originalName,
-        Workspace $workspace
-    ): File {
-        $file = new File();
-        $file->setStorage($storage);
-        $file->setType($type);
-        $file->setSize($size);
-        $file->setPath($path);
-        $file->setWorkspace($workspace);
-        $file->setOriginalName($originalName);
+        ?string $extension,
+        ?string $originalName
+    ): AssetRendition {
+        $file = $this->fileManager->createFileFromPath(
+            $asset->getWorkspace(),
+            $src,
+            $type,
+            $extension,
+            $originalName
+        );
 
-        if ($originalName) {
-            $file->setExtension(FileUtil::getExtensionFromPath($originalName));
-        } elseif ($file->getType()) {
-            $extension = FileUtil::getExtensionFromType($file->getType());
-            if (!empty($extension)) {
-                $file->setExtension($extension);
-            }
-        }
-
-        $this->em->persist($file);
-
-        return $file;
+        return $this->createOrReplaceRenditionFile($asset, $definition, $file);
     }
 
     public function getAssetFromId(string $id): ?Asset

@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrationActions";
+import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrations";
 import {Button, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
 import {runIntegrationAssetAction} from "../../../api/integrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
+import {WorkspaceIntegration} from "../../../types";
+import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 
 type Props = {} & AssetIntegrationActionsProps;
 
@@ -19,6 +21,8 @@ type Instance = {
     BoundingBox: BoundingBox;
     Confidence: number;
 };
+
+type Data = ImageLabel[];
 
 type ImageLabel = {
     Name: string;
@@ -55,6 +59,16 @@ function LabelOverlay({
     </div>
 }
 
+function parseData(integration: WorkspaceIntegration): Data | undefined {
+    const value = integration.data.find(d => d.name === 'image_labels');
+
+    if (!value) {
+        return;
+    }
+
+    return JSON.parse(value.value) as Data;
+}
+
 export default function AwsRekognitionAssetEditorActions({
                                                              asset,
                                                              integration,
@@ -62,15 +76,13 @@ export default function AwsRekognitionAssetEditorActions({
                                                              enableInc,
                                                          }: Props) {
     const [running, setRunning] = useState(false);
+    const [data, setData] = useState<Data | undefined>();
     const [instances, setInstances] = useState<Instance[]>([]);
-
-    const data = integration.data;
-    const imageLabels = data.find(d => d.name === 'image_labels');
 
     const process = async () => {
         setRunning(true);
         try {
-            const res = await runIntegrationAssetAction('analyze', integration.id, asset.id);
+            setData(await runIntegrationAssetAction('analyze', integration.id, asset.id));
         } catch (e) {
             setRunning(false);
             throw e;
@@ -78,46 +90,50 @@ export default function AwsRekognitionAssetEditorActions({
     };
 
     useEffect(() => {
-        if (imageLabels) {
-            const labels = JSON.parse(imageLabels.value) as ImageLabel[];
-            setInstances(labels
+        const d = parseData(integration);
+        if (d) {
+            setData(d);
+        }
+    }, [integration.data]);
+
+    useEffect(() => {
+        if (data) {
+            setInstances(data
                 .filter(d => d.Instances.length > 0)
                 .map(d => d.Instances).reduce((d, pr) => pr.concat(d), []));
         }
-    }, [imageLabels]);
+    }, [data]);
 
     useEffect(() => {
-        if (imageLabels) {
+        if (instances) {
             setIntegrationOverlay(LabelOverlay, {
                 instances,
             });
         }
     }, [enableInc, instances]);
 
-    if (imageLabels) {
-        const labels = JSON.parse(imageLabels.value) as ImageLabel[];
-
+    if (data) {
         return <List
             component="div"
             disablePadding
         >
-            {labels.map(l => {
+            {data.map(l => {
                 return <ListItemButton
                     key={l.Name}
                 >
-                    <ListItemIcon
-                    >
-                        <VisibilityIcon/>
-                    </ListItemIcon>
                     <ListItemText>
                         {l.Name} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
                     </ListItemText>
+                    {l.Instances.length > 0 && <ListItemIcon
+                    >
+                        <VisibilityIcon/>
+                    </ListItemIcon>}
                 </ListItemButton>
             })}
         </List>
     }
 
-    return <>
+    return <IntegrationPanelContent>
         <Button
             onClick={process}
             disabled={running}
@@ -126,5 +142,5 @@ export default function AwsRekognitionAssetEditorActions({
         >
             Analyze Image
         </Button>
-    </>
+    </IntegrationPanelContent>
 }

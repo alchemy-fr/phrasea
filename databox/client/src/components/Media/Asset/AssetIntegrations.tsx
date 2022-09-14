@@ -69,7 +69,7 @@ type Props = {
     setIntegrationOverlay: SetIntegrationOverlayFunction;
 };
 
-export default function AssetIntegrationActions({
+export default function AssetIntegrations({
                                                     asset,
                                                     setIntegrationOverlay,
                                                 }: Props) {
@@ -80,6 +80,12 @@ export default function AssetIntegrationActions({
     useEffect(() => {
         getWorkspaceIntegrations(asset.workspace.id, asset.id).then(r => setIntegrations(r.result));
     }, []);
+
+    useEffect(() => {
+        if (!expanded) {
+            setIntegrationOverlay(() => <></>, {}, false);
+        }
+    }, [expanded]);
 
     return <>
         {!integrations && <CircularProgress color="inherit"/>}

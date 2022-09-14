@@ -6,7 +6,7 @@ namespace App\Storage;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
 
-class RenditionPathGenerator
+class FilePathGenerator
 {
     private PathGenerator $pathGenerator;
 

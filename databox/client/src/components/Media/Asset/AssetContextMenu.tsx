@@ -61,9 +61,9 @@ export default function AssetContextMenu({
     }
 
     const onOpen = () => {
-        openModal(AssetView, {
-            asset: asset,
-        });
+        navigate(getPath('app_asset_view', {
+            id: asset.id,
+        }));
         onClose();
     }
 

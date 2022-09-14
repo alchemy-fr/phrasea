@@ -16,6 +16,8 @@ import PreviewPopover from "../Asset/PreviewPopover";
 import {DisplayContext} from "../DisplayContext";
 import {useModalHash} from "../../../hooks/useModalHash";
 import AssetView from "../Asset/AssetView";
+import {useNavigate} from "react-router-dom";
+import {getPath} from "../../../routes";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -68,6 +70,7 @@ export function getAssetListFromEvent(currentSelection: string[], id: string, pa
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const navigate = useNavigate();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
@@ -111,11 +114,11 @@ export default function AssetResults() {
     }, [pages]);
 
     const onOpen = useCallback<OnOpen>((asset: Asset): void => {
-        openModal(AssetView, {
-            asset,
-        });
+        navigate(getPath('app_asset_view', {
+            id: asset.id,
+        }));
         // eslint-disable-next-line
-    }, []);
+    }, [navigate]);
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();

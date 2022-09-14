@@ -73,26 +73,28 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
-                $this->analyze($asset, $options);
+                $payload = $this->analyze($asset, $options);
 
-                return new JsonResponse();
+                return new JsonResponse($payload);
             default:
                 throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
     }
 
-    private function analyze(Asset $asset, array $options): void
+    private function analyze(Asset $asset, array $options): array
     {
         /** @var WorkspaceIntegration $wsIntegration */
         $wsIntegration = $options['workspaceIntegration'];
 
-        if ($this->dataManager->hasValue($wsIntegration, $asset, self::DATA_LABEL)) {
-            return;
+        if (null !== $data = $this->dataManager->getData($wsIntegration, $asset, self::DATA_LABEL)) {
+            return \GuzzleHttp\json_decode($data->getValue(), true);
         }
 
         $payload = $this->client->getImageLabels($asset->getFile(), $options);
 
-        $this->dataManager->storeValue($wsIntegration, $asset, self::DATA_LABEL, \GuzzleHttp\json_encode($payload));
+        $this->dataManager->storeData($wsIntegration, $asset, self::DATA_LABEL, \GuzzleHttp\json_encode($payload));
+
+        return $payload;
     }
 
     public static function getName(): string
