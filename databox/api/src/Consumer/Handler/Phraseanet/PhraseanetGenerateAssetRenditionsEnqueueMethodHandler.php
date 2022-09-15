@@ -69,7 +69,7 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
             'token' => self::generateAssetToken($asset), // TODO Add app secret
-            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$integration->getId(),
+            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$integration->getId().'/',
             'formData' => [
                 'collection_destination' => $options['collectionId'],
             ],
