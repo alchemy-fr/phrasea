@@ -55,6 +55,11 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?string $locale = null;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $locked = false;
+
+    /**
      * @ORM\Column(type="integer", nullable=false)
      */
     private int $position = 0;
@@ -362,5 +367,15 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
     }
 }

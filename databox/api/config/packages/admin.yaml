@@ -320,6 +320,7 @@ easy_admin:
           - { property: 'definition' }
           - { property: 'value' }
           - { property: 'locale' }
+          - { property: 'locked' }
           - { property: 'origin' }
           - { property: 'originVendor' }
           - { property: 'originVendorContext' }
