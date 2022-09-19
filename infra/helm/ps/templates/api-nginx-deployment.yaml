@@ -25,9 +25,13 @@ spec:
         imagePullPolicy: Always
         {{- end }}
         terminationMessagePolicy: FallbackToLogsOnError
+        env:
+      {{- if .api.subnet }}
+          - name: PS_SUBNET
+            value: {{ .api.subnet | quote }}
+      {{- end }}
       {{- if .api.ingress }}
       {{- if .api.ingress.maxBodySize }}
-        env:
           - name: UPLOAD_MAX_FILE_SIZE
             value: {{ .api.ingress.maxBodySize | quote }}
       {{- end }}

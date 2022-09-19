@@ -63,9 +63,6 @@ gateway-tls
 {{- end }}
 
 {{- define "configMapRef.phpApp" -}}
-{{- $appName := .app }}
-{{- $ctx := .ctx }}
-{{- $glob := .glob }}
 - configMapRef:
     name: php-config
 - configMapRef:
@@ -162,11 +159,13 @@ S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- define "app.cloudFront.configMap" }}
 {{- $ctx := .ctx -}}
 {{- $glob := .glob -}}
+{{- if $ctx.cloudFront.url }}
 CLOUD_FRONT_URL: {{ tpl $ctx.cloudFront.url $glob | quote }}
 CLOUD_FRONT_REGION: {{ $ctx.cloudFront.region | default "eu-central-1" | quote }}
 CLOUD_FRONT_PRIVATE_KEY: {{ $ctx.cloudFront.privateKey | quote }}
 CLOUD_FRONT_KEY_PAIR_ID: {{ $ctx.cloudFront.keyPairId | quote }}
 CLOUD_FRONT_TTL: {{ $ctx.cloudFront.ttl | quote }}
+{{- end }}
 {{- end }}
 
 {{- define "ingress.apiVersion" -}}
