@@ -36,6 +36,15 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
      */
     private array $data = [];
 
+    /**
+     * Client options.
+     *
+     * @var array
+     *
+     * @Groups({"integration:index"})
+     */
+    private array $options = [];
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -74,5 +83,15 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(array $options): void
+    {
+        $this->options = $options;
     }
 }

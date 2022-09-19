@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Integration;
 
 use App\Entity\AbstractUuidEntity;
-use App\Entity\Core\Asset;
+use App\Entity\Core\File;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(indexes={@ORM\Index(name="name", columns={"integration_id", "asset_id", "name"})})
+ * @ORM\Table(indexes={@ORM\Index(name="name", columns={"integration_id", "file_id", "name"})})
  */
 class IntegrationData extends AbstractUuidEntity
 {
@@ -27,10 +27,10 @@ class IntegrationData extends AbstractUuidEntity
     private ?WorkspaceIntegration $integration = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Asset::class)
+     * @ORM\ManyToOne(targetEntity=File::class)
      * @ORM\JoinColumn(nullable=true)
      */
-    private ?Asset $asset = null;
+    private ?File $file = null;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
@@ -54,14 +54,14 @@ class IntegrationData extends AbstractUuidEntity
         $this->integration = $integration;
     }
 
-    public function getAsset(): ?Asset
+    public function getFile(): ?File
     {
-        return $this->asset;
+        return $this->file;
     }
 
-    public function setAsset(?Asset $asset): void
+    public function setFile(?File $file): void
     {
-        $this->asset = $asset;
+        $this->file = $file;
     }
 
     public function getName(): ?string

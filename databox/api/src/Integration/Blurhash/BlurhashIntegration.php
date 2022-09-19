@@ -13,6 +13,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
+use App\Util\FileUtil;
 use kornrunner\Blurhash\Blurhash;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -74,6 +75,11 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
     public static function getName(): string
     {
         return 'blurhash';
+    }
+
+    public function supportsAsset(Asset $asset, array $options): bool
+    {
+        return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
     }
 
     public static function getTitle(): string

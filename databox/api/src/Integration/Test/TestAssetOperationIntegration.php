@@ -43,6 +43,11 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
         $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
     }
 
+    public function supportsAsset(Asset $asset, array $options): bool
+    {
+        return null !== $asset->getFile();
+    }
+
     public static function getName(): string
     {
         return 'test.asset_operation';

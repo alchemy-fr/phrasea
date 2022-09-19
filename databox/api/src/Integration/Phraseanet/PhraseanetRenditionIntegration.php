@@ -89,6 +89,11 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Asse
         }
     }
 
+    public function supportsAsset(Asset $asset, array $options): bool
+    {
+        return null !== $asset->getFile();
+    }
+
     public static function getTitle(): string
     {
         return 'Phraseanet renditions';

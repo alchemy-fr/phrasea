@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration;
 
 use App\Entity\Core\Asset;
+use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -25,26 +26,33 @@ class IntegrationManager
 
     public function handleAsset(Asset $asset): void
     {
+        if (null === $asset->getFile()) {
+            throw new InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
+        }
+
         /** @var AssetOperationIntegrationInterface[] $integrations */
         $integrations = $this->getIntegrationsOfType($asset->getWorkspaceId(), AssetOperationIntegrationInterface::class);
 
         foreach ($integrations as $integration) {
-            /** @var IntegrationInterface $integration */
+            /** @var AssetOperationIntegrationInterface $integration */
             /** @var WorkspaceIntegration $workspaceIntegration */
             [$integration, $workspaceIntegration] = $integration;
 
-            $integration->handleAsset($asset, $this->resolveOptions($workspaceIntegration, $integration));
+            $options = $this->resolveOptions($workspaceIntegration, $integration);
+            if ($integration->supportsAsset($asset, $options)) {
+                $integration->handleAsset($asset, $options);
+            }
         }
     }
 
-    public function handleAssetAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, Asset $asset): Response
+    public function handleFileAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, File $file): Response
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        if (!$integration instanceof AssetActionIntegrationInterface) {
-            throw new InvalidArgumentException(sprintf('Integration "%s" does not support asset actions', $workspaceIntegration->getIntegration()));
+        if (!$integration instanceof FileActionsIntegrationInterface) {
+            throw new InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
-        return $integration->handleAssetAction($action, $request, $asset, $this->resolveOptions($workspaceIntegration, $integration));
+        return $integration->handleFileAction($action, $request, $file, $this->resolveOptions($workspaceIntegration, $integration));
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration
@@ -81,6 +89,7 @@ class IntegrationManager
         $resolver = new OptionsResolver();
         $resolver->setDefault('integrationId', $workspaceIntegration->getId());
         $resolver->setDefault('workspaceIntegration', $workspaceIntegration);
+        $resolver->setDefault('integration', $integration);
         $integration->configureOptions($resolver);
 
         return $resolver->resolve($workspaceIntegration->getOptions());

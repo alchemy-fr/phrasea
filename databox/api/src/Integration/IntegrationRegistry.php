@@ -35,6 +35,21 @@ class IntegrationRegistry
     /**
      * @return IntegrationInterface[]
      */
+    public function getIntegrationsOfType(string $interface): array
+    {
+        $result = [];
+        foreach ($this->integrations as $integration) {
+            if (is_subclass_of($integration, $interface)) {
+                $result[] = $integration;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return IntegrationInterface[]
+     */
     public function getIntegrations(): array
     {
         return $this->integrations;

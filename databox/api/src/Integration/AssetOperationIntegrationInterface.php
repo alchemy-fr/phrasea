@@ -9,4 +9,6 @@ use App\Entity\Core\Asset;
 interface AssetOperationIntegrationInterface extends IntegrationInterface
 {
     public function handleAsset(Asset $asset, array $options): void;
+
+    public function supportsAsset(Asset $asset, array $options): bool;
 }

@@ -10,11 +10,12 @@ use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
-use App\Integration\AssetActionIntegrationInterface;
+use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Storage\FileManager;
+use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class RemoveBgIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface, AssetActionIntegrationInterface, IntegrationDataTransformerInterface
+class RemoveBgIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface, FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     private const ACTION_PROCESS = 'process';
 
@@ -60,18 +61,14 @@ class RemoveBgIntegration extends AbstractIntegration implements AssetOperationI
 
     public function handleAsset(Asset $asset, array $options): void
     {
-        if (!$options['processIncoming']) {
-            return;
-        }
-
-        $this->process($asset, $options);
+        $this->process($asset->getFile(), $options);
     }
 
-    public function handleAssetAction(string $action, Request $request, Asset $asset, array $options): Response
+    public function handleFileAction(string $action, Request $request, File $file, array $options): Response
     {
         switch ($action) {
             case self::ACTION_PROCESS:
-                $file = $this->process($asset, $options);
+                $file = $this->process($file, $options);
 
                 return new JsonResponse([
                     'url' => $this->fileUrlResolver->resolveUrl($file),
@@ -81,22 +78,21 @@ class RemoveBgIntegration extends AbstractIntegration implements AssetOperationI
         }
     }
 
-    private function process(Asset $asset, array $options): File
+    private function process(File $file, array $options): File
     {
-        $sourceFile = $asset->getFile();
-        $src = $this->client->getBgRemoved($sourceFile, $options['apiKey']);
+        $src = $this->client->getBgRemoved($file, $options['apiKey']);
 
         $bgRemFile = $this->fileManager->createFileFromPath(
-            $asset->getWorkspace(),
+            $file->getWorkspace(),
             $src,
             'image/png',
             'png',
-            sprintf('%s-bg-removed.png', $sourceFile->getOriginalName() ?? $sourceFile->getId())
+            sprintf('%s-bg-removed.png', $file->getOriginalName() ?? $file->getId())
         );
 
         /** @var WorkspaceIntegration $wsIntegration */
         $wsIntegration = $options['workspaceIntegration'];
-        $this->dataManager->storeData($wsIntegration, $asset, self::DATA_FILE_ID, $bgRemFile->getId());
+        $this->dataManager->storeData($wsIntegration, $file, self::DATA_FILE_ID, $bgRemFile->getId());
 
         $this->em->flush();
 
@@ -113,6 +109,21 @@ class RemoveBgIntegration extends AbstractIntegration implements AssetOperationI
     public function supportData(string $integrationName, string $dataKey): bool
     {
         return $integrationName === self::getName() && $dataKey === self::DATA_FILE_ID;
+    }
+
+    public function supportsFileActions(File $file, array $options): bool
+    {
+        return $this->supportsFile($file);
+    }
+
+    public function supportsAsset(Asset $asset, array $options): bool
+    {
+        return $options['processIncoming'] && $asset->getFile() && $this->supportsFile($asset->getFile());
+    }
+
+    private function supportsFile(File $file): bool
+    {
+        return FileUtil::isImageType($file->getType());
     }
 
     public static function getName(): string

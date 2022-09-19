@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
-use App\Entity\Core\Asset;
+use App\Entity\Core\File;
 use App\Integration\IntegrationManager;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\FileVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,11 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class AssetActionIntegrationController extends AbstractController
 {
     /**
-     * @Route(path="/integrations/{integrationId}/assets/{assetId}/actions/{action}", name="integration_asset_action", methods={"POST"})
+     * @Route(path="/integrations/{integrationId}/files/{fileId}/actions/{action}", name="integration_asset_action", methods={"POST"})
      */
     public function incomingRenditionAction(
         string $integrationId,
-        string $assetId,
+        string $fileId,
         string $action,
         Request $request,
         IntegrationManager $integrationManager,
@@ -29,13 +29,13 @@ class AssetActionIntegrationController extends AbstractController
     ): Response {
         $wsIntegration = $integrationManager->loadIntegration($integrationId);
 
-        $asset = $em->find(Asset::class, $assetId);
-        if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException(sprintf('Asset "%s" not found', $assetId));
+        $file = $em->find(File::class, $fileId);
+        if (!$file instanceof File) {
+            throw new NotFoundHttpException(sprintf('File "%s" not found', $fileId));
         }
 
-        $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset, sprintf('Not allowed to edit asset "%s"', $assetId));
+        $this->denyAccessUnlessGranted(FileVoter::EDIT, $file, sprintf('Not allowed to edit file "%s"', $fileId));
 
-        return $integrationManager->handleAssetAction($wsIntegration, $action, $request, $asset);
+        return $integrationManager->handleFileAction($wsIntegration, $action, $request, $file);
     }
 }

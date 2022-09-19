@@ -132,7 +132,9 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 }
             }
 
-            $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
+            if (null !== $object->getFile()) {
+                $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
+            }
 
             if (!empty($data->renditions)) {
                 foreach ($data->renditions as $renditionInput) {

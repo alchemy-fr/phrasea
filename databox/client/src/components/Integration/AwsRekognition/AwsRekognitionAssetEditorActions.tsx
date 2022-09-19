@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrations";
-import {Button, List, ListItemButton, ListItemIcon, ListItemText} from "@mui/material";
-import {runIntegrationAssetAction} from "../../../api/integrations";
+import React, {ReactElement, useEffect, useState} from 'react';
+import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
+import {Button, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
+import {runIntegrationFileAction} from "../../../api/integrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
@@ -17,12 +17,41 @@ type BoundingBox = {
     Left: number;
 }
 
+enum DetectType {
+    Labels = 'labels',
+    Texts = 'texts',
+    Faces = 'faces',
+}
+
 type Instance = {
     BoundingBox: BoundingBox;
     Confidence: number;
 };
 
-type Data = ImageLabel[];
+type LabelsData = {
+    Labels: ImageLabel[];
+};
+
+type TextsData = {
+    TextDetections: TextDetection[];
+};
+
+type Polygon = {
+    X: number;
+    Y: number;
+}
+
+type TextDetection = {
+    Id: string;
+    ParentId: string;
+    DetectedText: string;
+    Type: "LINE" | "WORD";
+    Confidence: number;
+    Geometry: {
+        BoundingBox: BoundingBox;
+    };
+    Polygon: Polygon[];
+};
 
 type ImageLabel = {
     Name: string;
@@ -33,13 +62,15 @@ type ImageLabel = {
     }[];
 };
 
-function LabelOverlay({
+function ImageOverlay({
                           instances,
+                          texts,
                       }: {
-    instances: Instance[];
+    instances: Instance[] | undefined;
+    texts: TextDetection[] | undefined;
 } & IntegrationOverlayCommonProps) {
     return <div>
-        {instances.map((i, k) => {
+        {instances && instances.map((i, k) => {
             const box = i.BoundingBox;
 
             const percent = (x: number) => `${x * 100}%`;
@@ -56,91 +87,155 @@ function LabelOverlay({
                 }}
             ></div>
         })}
+        {texts && texts.map((i, k) => {
+            const box = i.Geometry.BoundingBox;
+
+            const percent = (x: number) => `${x * 100}%`;
+
+            return <div
+                key={k}
+                style={{
+                    position: 'absolute',
+                    top: percent(box.Top),
+                    left: percent(box.Left),
+                    width: percent(box.Width),
+                    height: percent(box.Height),
+                    boxShadow: `0 0 3px red, 0 0 3px inset red`,
+                }}
+            ></div>
+        })}
     </div>
 }
 
-function parseData(integration: WorkspaceIntegration): Data | undefined {
-    const value = integration.data.find(d => d.name === 'image_labels');
+function parseData<T>(integration: WorkspaceIntegration, key: string): T | undefined {
+    const value = integration.data.find(d => d.name === key);
 
     if (!value) {
         return;
     }
 
-    return JSON.parse(value.value) as Data;
+    return JSON.parse(value.value) as T;
 }
 
 export default function AwsRekognitionAssetEditorActions({
-                                                             asset,
+                                                             file,
                                                              integration,
                                                              setIntegrationOverlay,
                                                              enableInc,
                                                          }: Props) {
-    const [running, setRunning] = useState(false);
-    const [data, setData] = useState<Data | undefined>();
+    const [running, setRunning] = useState<DetectType | undefined>();
+    const [labels, setLabels] = useState<LabelsData | undefined>();
+    const [texts, setTexts] = useState<TextsData | undefined>();
     const [instances, setInstances] = useState<Instance[]>([]);
 
-    const process = async () => {
-        setRunning(true);
+    const process = async (category: DetectType) => {
+        setRunning(category);
         try {
-            setData(await runIntegrationAssetAction('analyze', integration.id, asset.id));
+            const res = await runIntegrationFileAction('analyze', integration.id, file.id, {
+                category
+            });
+
+            switch (category) {
+                case DetectType.Labels:
+                    setLabels(res[DetectType.Labels]);
+                    break;
+                case DetectType.Texts:
+                    setTexts(res[DetectType.Texts]);
+                    break;
+            }
+
         } catch (e) {
-            setRunning(false);
+            setRunning(undefined);
             throw e;
         }
     };
 
     useEffect(() => {
-        const d = parseData(integration);
-        if (d) {
-            setData(d);
-        }
+        setLabels(parseData(integration, 'labels'));
+        setTexts(parseData(integration, 'texts'));
     }, [integration.data]);
 
     useEffect(() => {
-        if (data) {
-            setInstances(data
+        if (labels) {
+            setInstances(labels.Labels
                 .filter(d => d.Instances.length > 0)
                 .map(d => d.Instances).reduce((d, pr) => pr.concat(d), []));
         }
-    }, [data]);
+    }, [labels]);
 
     useEffect(() => {
-        if (instances) {
-            setIntegrationOverlay(LabelOverlay, {
+        if (instances || texts) {
+            setIntegrationOverlay(ImageOverlay, {
                 instances,
+                texts: texts?.TextDetections,
             });
         }
-    }, [enableInc, instances]);
+    }, [enableInc, instances, texts]);
 
-    if (data) {
-        return <List
-            component="div"
-            disablePadding
-        >
-            {data.map(l => {
-                return <ListItemButton
-                    key={l.Name}
-                >
-                    <ListItemText>
-                        {l.Name} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
-                    </ListItemText>
-                    {l.Instances.length > 0 && <ListItemIcon
+    const options = integration.options as {
+        labels: boolean;
+        texts: boolean;
+        faces: boolean;
+    };
+
+    return <>
+        {options.labels && !labels && <IntegrationPanelContent>
+            <Button
+                onClick={() => process(DetectType.Labels)}
+                disabled={running === DetectType.Labels}
+                variant={'contained'}
+                startIcon={<ImageSearchIcon/>}
+            >
+                Detect image labels
+            </Button>
+        </IntegrationPanelContent>}
+        {options.texts && !texts && <IntegrationPanelContent>
+            <Button
+                onClick={() => process(DetectType.Texts)}
+                disabled={running === DetectType.Texts}
+                variant={'contained'}
+                startIcon={<ImageSearchIcon/>}
+            >
+                Detect texts
+            </Button>
+        </IntegrationPanelContent>}
+        {labels && <div>
+            <List
+                component="div"
+                disablePadding
+            >
+                <ListSubheader>Labels</ListSubheader>
+                {labels.Labels.map(l => {
+                    return <ListItemButton
+                        key={l.Name}
                     >
-                        <VisibilityIcon/>
-                    </ListItemIcon>}
-                </ListItemButton>
-            })}
-        </List>
-    }
-
-    return <IntegrationPanelContent>
-        <Button
-            onClick={process}
-            disabled={running}
-            variant={'contained'}
-            startIcon={<ImageSearchIcon/>}
-        >
-            Analyze Image
-        </Button>
-    </IntegrationPanelContent>
+                        <ListItemText>
+                            {l.Name} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
+                        </ListItemText>
+                        {l.Instances.length > 0 && <ListItemIcon
+                        >
+                            <VisibilityIcon/>
+                        </ListItemIcon>}
+                    </ListItemButton>
+                })}
+            </List>
+        </div>}
+        {texts && <div>
+            <List
+                component="div"
+                disablePadding
+            >
+                <ListSubheader>Text</ListSubheader>
+                {texts.TextDetections.map(l => {
+                    return <ListItemButton
+                        key={l.Id}
+                    >
+                        <ListItemText>
+                            {l.DetectedText} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
+                        </ListItemText>
+                    </ListItemButton>
+                })}
+            </List>
+        </div>}
+    </>
 }

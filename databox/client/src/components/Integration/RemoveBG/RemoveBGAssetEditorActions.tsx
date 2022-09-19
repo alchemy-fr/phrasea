@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from "../../Media/Asset/AssetIntegrations";
+import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
 import {Box, Button} from "@mui/material";
-import {runIntegrationAssetAction} from "../../../api/integrations";
+import {runIntegrationFileAction} from "../../../api/integrations";
 import ReactCompareImage from "react-compare-image";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -33,7 +33,7 @@ function RemoveBgComparison({
 }
 
 export default function RemoveBGAssetEditorActions({
-                                                       asset,
+                                                       file,
                                                        integration,
                                                        setIntegrationOverlay,
                                                        enableInc,
@@ -43,13 +43,13 @@ export default function RemoveBGAssetEditorActions({
 
     const process = async () => {
         setRunning(true);
-        setUrl((await runIntegrationAssetAction('process', integration.id, asset.id)).url);
+        setUrl((await runIntegrationFileAction('process', integration.id, file.id)).url);
     };
 
     useEffect(() => {
         if (enableInc && url) {
             setIntegrationOverlay(RemoveBgComparison, {
-                left: asset.original?.url,
+                left: file.url,
                 right: url,
             }, true);
         }

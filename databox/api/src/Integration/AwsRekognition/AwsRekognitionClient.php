@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Integration\AwsRekognition;
 
-use App\Asset\FileFetcher;
-use App\Entity\Core\File;
 use Aws\Rekognition\RekognitionClient;
 
 class AwsRekognitionClient
 {
-    private FileFetcher $fileFetcher;
-
-    public function __construct(FileFetcher $fileFetcher)
-    {
-        $this->fileFetcher = $fileFetcher;
-    }
-
     private function createClient(array $options): RekognitionClient
     {
         return new RekognitionClient([
@@ -29,11 +20,9 @@ class AwsRekognitionClient
         ]);
     }
 
-    public function getImageLabels(File $file, array $options): array
+    public function getImageLabels(string $path, array $options): array
     {
         $client = $this->createClient($options);
-
-        $path = $this->fileFetcher->getFile($file);
 
         $res = $client->detectLabels([
             'Image' => [
@@ -41,8 +30,32 @@ class AwsRekognitionClient
             ]
         ]);
 
-        dump($res);
+        return $res->toArray();
+    }
 
-        return $res->get('Labels');
+    public function getImageTexts(string $path, array $options): array
+    {
+        $client = $this->createClient($options);
+
+        $res = $client->detectText([
+            'Image' => [
+                'Bytes' => file_get_contents($path),
+            ]
+        ]);
+
+        return $res->toArray();
+    }
+
+    public function getImageFaces(string $path, array $options): array
+    {
+        $client = $this->createClient($options);
+
+        $res = $client->detectFaces([
+            'Image' => [
+                'Bytes' => file_get_contents($path),
+            ]
+        ]);
+
+        return $res->toArray();
     }
 }

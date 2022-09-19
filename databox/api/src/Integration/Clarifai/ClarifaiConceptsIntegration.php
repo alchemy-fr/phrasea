@@ -32,10 +32,6 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
 
     public function handleAsset(Asset $asset, array $options): void
     {
-        if (!$asset->getFile() || !FileUtil::isImageType($asset->getFile()->getType())) {
-            return;
-        }
-
         $concepts = $this->client->getImageConcepts($asset->getFile(), $options['apiKey']);
         if (empty($concepts)) {
             return;
@@ -51,6 +47,11 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
         }
 
         $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
+    }
+
+    public function supportsAsset(Asset $asset, array $options): bool
+    {
+        return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
     }
 
     public static function getName(): string

@@ -5,7 +5,7 @@ import FilePlayer from "./FilePlayer";
 import useWindowSize from "../../../hooks/useWindowSize";
 import {Dimensions} from "./Players";
 import {Box} from "@mui/material";
-import AssetIntegrations from "./AssetIntegrations";
+import FileIntegrations from "./FileIntegrations";
 import {useParams} from "react-router-dom";
 import {getAsset} from "../../../api/asset";
 import FullPageLoader from "../../Ui/FullPageLoader";
@@ -120,10 +120,10 @@ export default function AssetView({}: Props) {
                         height: maxDimensions.height,
                     })}
                 >
-                    <AssetIntegrations
-                        asset={data}
+                    {data?.original && <FileIntegrations
+                        file={data.original}
                         setIntegrationOverlay={setProxy}
-                    />
+                    />}
                 </Box>
             </Box>
         </AppDialog>}

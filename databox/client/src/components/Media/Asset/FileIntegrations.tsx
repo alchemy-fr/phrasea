@@ -1,14 +1,11 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
-import {Asset, WorkspaceIntegration} from "../../../types";
+import {File, WorkspaceIntegration} from "../../../types";
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     CircularProgress,
-    Collapse,
     List,
-    ListItemButton,
-    ListItemText,
     Typography
 } from "@mui/material";
 import {getWorkspaceIntegrations} from "../../../api/integrations";
@@ -18,7 +15,7 @@ import AwsRekognitionAssetEditorActions from "../../Integration/AwsRekognition/A
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export type AssetIntegrationActionsProps = {
-    asset: Asset;
+    file: File;
     integration: WorkspaceIntegration;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     enableInc: number;
@@ -65,12 +62,12 @@ function IntegrationProxy({
 }
 
 type Props = {
-    asset: Asset;
+    file: File;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
 };
 
-export default function AssetIntegrations({
-                                                    asset,
+export default function FileIntegrations({
+                                                    file,
                                                     setIntegrationOverlay,
                                                 }: Props) {
     const [integrations, setIntegrations] = useState<WorkspaceIntegration[]>();
@@ -78,7 +75,7 @@ export default function AssetIntegrations({
     const enableIncs = useRef<Record<string, number>>({});
 
     useEffect(() => {
-        getWorkspaceIntegrations(asset.workspace.id, asset.id).then(r => setIntegrations(r.result));
+        getWorkspaceIntegrations(file.id).then(r => setIntegrations(r.result));
     }, []);
 
     useEffect(() => {
@@ -101,7 +98,7 @@ export default function AssetIntegrations({
                 }}
                 key={i.id}
                 integration={i}
-                asset={asset}
+                file={file}
                 enableInc={enableIncs.current[i.id]}
                 setIntegrationOverlay={setIntegrationOverlay}
             />)}
