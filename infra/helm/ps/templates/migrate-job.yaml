@@ -31,7 +31,7 @@ spec:
         env:
 {{ include "envRef.phpApp" $tplArgs | indent 8 }}
         envFrom:
-{{ include "configMapRef.phpApp" $tplArgs | indent 8 }}
+{{ include "configMapRef.phpApp" $ | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
         - secretRef:

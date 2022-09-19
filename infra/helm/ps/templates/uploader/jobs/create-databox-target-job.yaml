@@ -11,7 +11,7 @@ data:
     #!/bin/sh
     set -ex
 
-    bin/console alchemy:oauth:create-client {{ .upload.uploaderTargetSlug | quote }} "Databox uploader" http://databox-api-nginx/incoming-uploads
+    bin/console app:create-target {{ .upload.uploaderTargetSlug | quote }} "Databox uploader" http://databox-api-nginx/incoming-uploads
 ---
 apiVersion: batch/v1
 kind: Job
@@ -47,7 +47,7 @@ spec:
         envFrom:
         - configMapRef:
             name: uploader-api-config
-{{ include "configMapRef.phpApp" $tplArgs | indent 8 }}
+{{ include "configMapRef.phpApp" $ | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never

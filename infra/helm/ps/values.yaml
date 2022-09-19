@@ -96,6 +96,7 @@ databox:
 expose:
   enabled: true
   api:
+    subnet: 0.0.0.0/0
     ingress:
       enabled: true
       annotations: {}
