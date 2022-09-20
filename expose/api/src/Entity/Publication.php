@@ -222,13 +222,13 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"publication:read"})
      */
     private ?string $packageUrl = null;
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"publication:read"})
      */
     private ?string $archiveDownloadUrl = null;
 

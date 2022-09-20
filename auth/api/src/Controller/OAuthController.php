@@ -136,13 +136,16 @@ class OAuthController extends AbstractIdentityProviderController
             throw new BadRequestHttpException('Missing redirect_uri parameter');
         }
 
-        $redirectUri = $this->generateUrl('oauth_check', $this->getRedirectParams(
-            $provider,
-            $lastRedirectUri,
-            $clientId
-        ), UrlGeneratorInterface::ABSOLUTE_URL);
+        $redirectUri = $this->generateUrl('oauth_check', [
+            'provider' => $provider,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri));
+        return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri, [
+            'state' => urlencode(http_build_query([
+                'c' =>  $clientId,
+                'r' => $lastRedirectUri,
+            ]))
+        ]));
     }
 
     /**
@@ -155,15 +158,13 @@ class OAuthController extends AbstractIdentityProviderController
         OAuthProviderFactory $OAuthFactory
     ) {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
+        parse_str(urldecode($request->get('state', '')), $state);
+        $finalRedirectUri = $state['r'];
+        $clientId = $state['c'] ?? null;
 
-        $finalRedirectUri = $request->get('r');
-        $clientId = $request->get('cid');
-
-        $redirectUri = $this->generateUrl('oauth_check', $this->getRedirectParams(
-            $provider,
-            $finalRedirectUri,
-            $clientId
-        ), UrlGeneratorInterface::ABSOLUTE_URL);
+        $redirectUri = $this->generateUrl('oauth_check', [
+            'provider' => $provider,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $user = $this->handleAuthorizationCodeRequestAndReturnUser(
             $resourceOwner,

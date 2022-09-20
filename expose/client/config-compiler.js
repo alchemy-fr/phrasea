@@ -3,6 +3,8 @@
 
     const identityProviders = config.auth && config.auth.identity_providers ? config.auth.identity_providers.map(idp => {
         delete idp.options;
+        delete idp.group_jq_normalizer;
+        delete idp.group_map;
 
         return idp;
     }) : [];

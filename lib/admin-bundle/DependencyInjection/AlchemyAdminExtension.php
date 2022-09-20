@@ -2,7 +2,6 @@
 
 namespace Alchemy\AdminBundle\DependencyInjection;
 
-use Alchemy\AdminBundle\Auth\IdentityProvidersRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -66,16 +65,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
             $adminSiteTitle = $siteTitle.' Admin';
         }
         $container->setParameter('easy_admin.site_title', $adminSiteTitle);
-
-        if (!empty($rootConfig['auth']['identity_providers'])) {
-            $this->loadOAuthProviders($container, $rootConfig['auth']['identity_providers']);
-        }
-    }
-
-    private function loadOAuthProviders(ContainerBuilder $container, array $identityProviders): void
-    {
-        $def = $container->getDefinition(IdentityProvidersRegistry::class);
-        $def->setArgument('$identityProviders', $identityProviders);
     }
 
     public function prepend(ContainerBuilder $container)
