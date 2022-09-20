@@ -8,8 +8,7 @@ import useFormSubmit from "../../../hooks/useFormSubmit";
 import {AssetForm} from "../../Form/AssetForm";
 import {getAsset, putAsset} from "../../../api/asset";
 import AclForm from "../../Acl/AclForm";
-import {useModalHash} from "../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     id: string;
@@ -21,7 +20,7 @@ export default function EditAsset({
                                       onEdit,
                                       open,
                                   }: Props) {
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const {t} = useTranslation();
 
     const {submitting, handleSubmit, errors} = useFormSubmit({

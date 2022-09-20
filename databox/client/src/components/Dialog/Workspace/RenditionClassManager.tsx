@@ -8,8 +8,8 @@ import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import {deleteRenditionClass, getRenditionClasses, postRenditionClass, putRenditionClass} from "../../../api/rendition";
 import CheckboxWidget from "../../Form/CheckboxWidget";
-import AclForm from "../../Acl/AclForm";
 import RenditionClassPermissions from "./RenditionClassPermissions";
+import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
                   data,
@@ -25,10 +25,11 @@ function Item({
         setError,
         watch,
         control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+    useDirtyFormPrompt(isDirty);
 
     const isPublic = watch('public');
 

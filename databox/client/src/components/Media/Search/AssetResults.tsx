@@ -14,8 +14,6 @@ import {PopoverPosition} from "@mui/material/Popover/Popover";
 import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
 import PreviewPopover from "../Asset/PreviewPopover";
 import {DisplayContext} from "../DisplayContext";
-import {useModalHash} from "../../../hooks/useModalHash";
-import AssetView from "../Asset/AssetView";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "../../../routes";
 
@@ -85,7 +83,6 @@ export default function AssetResults() {
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LayoutEnum.Grid);
     const timer = useRef<ReturnType<typeof setTimeout>>();
-    const {openModal} = useModalHash();
 
     useEffect(() => {
         // Force preview close on result change

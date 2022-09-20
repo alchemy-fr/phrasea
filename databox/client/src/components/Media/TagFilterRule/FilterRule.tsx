@@ -9,6 +9,7 @@ import FormRow from "../../Form/FormRow";
 import {deleteTagFilterRule, saveTagFilterRule} from "../../../api/tag-filter-rule";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import {Group, User} from "../../../types";
+import {useDirtyFormPrompt} from "../../Dialog/Tabbed/FormTab";
 
 type FilterRule = {
     id?: string | undefined;
@@ -56,10 +57,11 @@ export default function FilterRule({
     const {
         handleSubmit,
         control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+    useDirtyFormPrompt(isDirty);
 
     const saveRule = async (data: FilterRule) => {
         await saveTagFilterRule({

@@ -9,11 +9,10 @@ import {PopoverPosition} from "@mui/material/Popover/Popover";
 import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
-import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import AssetView from "./AssetView";
+import {useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -34,7 +33,7 @@ export default function AssetContextMenu({
                                              anchorEl,
                                              onClose,
                                          }: Props) {
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
     const navigate = useNavigate();
     const resultContext = useContext(ResultContext);
     const {

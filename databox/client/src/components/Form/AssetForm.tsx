@@ -8,6 +8,7 @@ import PrivacyField from "../Ui/PrivacyField";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
 import TagSelect from "./TagSelect";
+import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
 
 export const AssetForm: FC<{
     workspaceId: string;
@@ -25,13 +26,14 @@ export const AssetForm: FC<{
         handleSubmit,
         setError,
         control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: {
             ...data,
             tags: data?.tags.map(t => t['@id']) ?? [],
         },
     });
+    useDirtyFormPrompt(isDirty);
 
     return <>
         <form

@@ -14,6 +14,7 @@ import SortableCollectionWidget, {
     SortableValue
 } from "./SortableCollectionWidget";
 import Flag from "../Ui/Flag";
+import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
 
 const emptyLocaleItem = {
     value: '',
@@ -56,10 +57,11 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
         handleSubmit,
         watch,
         setError,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data ? normalizeFormData(data) : data,
     });
+    useDirtyFormPrompt(isDirty);
 
     const locales = watch('enabledLocales');
 

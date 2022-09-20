@@ -5,8 +5,7 @@ import {useTranslation} from "react-i18next";
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from "../Form/RemoteErrors";
 import {LoadingButton} from "@mui/lab";
-import {useModalHash} from "../../hooks/useModalHash";
-import {StackedModalProps} from "../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 
 
 type Props<T extends object> = PropsWithChildren<{
@@ -30,7 +29,7 @@ export default function FormDialog<T extends object>({
                                                          open,
                                                          children,
                                                      }: Props<T>) {
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const {t} = useTranslation();
 
     return <AppDialog

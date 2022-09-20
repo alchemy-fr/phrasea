@@ -9,8 +9,8 @@ import {moveAssets} from "../../../../api/collection";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
-import {useModalHash} from "../../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
+import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
 
 type Props = {
     assetIds: string[];
@@ -29,7 +29,7 @@ export default function MoveAssetsDialog({
     open,
                                          }: Props) {
     const {t} = useTranslation();
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
 
     const count = assetIds.length;
 
@@ -37,11 +37,9 @@ export default function MoveAssetsDialog({
         handleSubmit,
         setError,
         control,
-        watch,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<FormData>();
-
-    const destination = watch('destination');
+    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,

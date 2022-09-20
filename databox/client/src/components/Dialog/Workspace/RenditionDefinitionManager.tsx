@@ -16,6 +16,7 @@ import RenditionClassSelect from "../../Form/RenditionClassSelect";
 import CheckboxWidget from "../../Form/CheckboxWidget";
 import apiClient from "../../../api/api-client";
 import {toast} from "react-toastify";
+import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
                   data,
@@ -31,13 +32,14 @@ function Item({
         handleSubmit,
         setError,
         control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: {
             ...data,
             class: data?.class && (data?.class as RenditionClass)['@id'],
         },
     });
+    useDirtyFormPrompt(isDirty);
 
     return <form
         id={formId}

@@ -13,8 +13,8 @@ import FormRow from "../../../Form/FormRow";
 import SwitchWidget from "../../../Form/SwitchWidget";
 import {Asset} from "../../../../types";
 import AssetSelection from "../AssetSelection";
-import {useModalHash} from "../../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
+import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
 
 type Props = {
     assets: Asset[];
@@ -61,7 +61,7 @@ export default function CopyAssetsDialog({
                                          }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const [selectionOW, setSelectionOW] = useState<string[]>([]);
     const [selectionP, setSelectionP] = useState<string[]>([]);
 
@@ -72,7 +72,7 @@ export default function CopyAssetsDialog({
         setError,
         control,
         watch,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<FormData>({
         defaultValues: {
             destination: '',
@@ -81,6 +81,7 @@ export default function CopyAssetsDialog({
             withTags: true,
         }
     });
+    useDirtyFormPrompt(isDirty);
 
     const byRef = watch('byReference');
 

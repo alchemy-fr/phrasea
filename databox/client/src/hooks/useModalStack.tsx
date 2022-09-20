@@ -187,7 +187,6 @@ export default function ModalStack({
         }
     }, [stack]);
 
-
     useEffect(() => {
         window.addEventListener('popstate', value.onPopState);
 

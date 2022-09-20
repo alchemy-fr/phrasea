@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {getPath} from "../../routes";
 
@@ -17,16 +17,15 @@ export default function RouteDialog({
             background?: string;
         }
     };
-    const [open, setOpen] = useState(true);
+
     const navigate = useNavigate();
 
     const onClose = () => {
-        setOpen(false);
-        navigate(state?.background || getPath('app'));
+        navigate(state?.background || getPath('app'))
     }
 
     return children({
-        open,
+        open: true,
         onClose,
-    });
+    })
 }

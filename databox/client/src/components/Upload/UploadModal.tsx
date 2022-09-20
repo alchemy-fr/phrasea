@@ -8,8 +8,8 @@ import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
 import {UploadFiles} from "../../api/file";
-import {useModalHash} from "../../hooks/useModalHash";
-import {StackedModalProps} from "../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../hooks/useModalStack";
+import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 
 type Props = {
     files: File[];
@@ -33,15 +33,8 @@ export default function UploadModal({
         file: f,
         id: i.toString(),
     })));
-    const {closeModal, setCloseConstraint} = useModalHash();
-
-    useEffect(() => {
-        setCloseConstraint(() => window.confirm('Are you sure you want to dismiss upload?'));
-        if (files.length === 0) {
-            setCloseConstraint(() => true);
-            closeModal();
-        }
-    }, [closeModal, files]);
+    const {closeModal} = useModals();
+    useNavigationPrompt('Are you sure you want to dismiss upload?', files.length > 0);
 
     const {
         submitting,
