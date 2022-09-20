@@ -417,7 +417,7 @@ class Publication implements AclObjectInterface
      */
     public function getLayout(): string
     {
-        return $this->config->getLayout() ?? ($this->profile ? $this->profile->getConfig()->getLayout() : 'gallery');
+        return $this->config->getLayout() ?? ($this->profile && $this->profile->getConfig()->getLayout() ? $this->profile->getConfig()->getLayout() : 'gallery');
     }
 
     /**
