@@ -44,6 +44,10 @@ class BorderManager
 
             $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
 
+            file_put_contents("/configs/trace.txt", sprintf("%s (%d) localFilePath = '%s'\n", __FILE__, __LINE__, $localFilePath), FILE_APPEND);
+            file_put_contents("/configs/trace.txt", sprintf("%s (%d) finalPath = '%s'\n", __FILE__, __LINE__, $finalPath), FILE_APPEND);
+            file_put_contents("/configs/trace.txt", sprintf("%s (%d) content->getPath() = '%s'\n", __FILE__, __LINE__, $content->getPath()), FILE_APPEND);
+
             $fd = fopen($content->getPath(), 'r');
             $this->storageManager->storeStream($finalPath, $fd);
             fclose($fd);

@@ -48,6 +48,7 @@ final class CommitAction extends AbstractController
 
     public function __invoke(Commit $data, Request $request)
     {
+        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug

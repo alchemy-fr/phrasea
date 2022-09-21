@@ -35,6 +35,7 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
+        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         $payload = $message->getPayload();
 
         $em = $this->getEntityManager();
@@ -61,6 +62,7 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         ));
 
         if ($file instanceof File) {
+            file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
             $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
                 $payload['userId'],
                 $file->getId(),

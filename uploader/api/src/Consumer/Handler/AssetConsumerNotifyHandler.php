@@ -31,6 +31,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
+        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         $id = $message->getPayload()['id'];
         $em = $this->getEntityManager();
         $commit = $em->find(Commit::class, $id);
