@@ -124,7 +124,7 @@ export default function SelectionActions({
 
         selectedAssets.forEach(a => {
             wsId = a.workspace.id;
-            if (a.original?.url) {
+            if (a.original?.file?.url) {
                 canDownload = true;
             }
             if (a.capabilities.canDelete) {

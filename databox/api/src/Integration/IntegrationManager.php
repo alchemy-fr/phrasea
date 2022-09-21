@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntegrationManager
@@ -52,7 +53,12 @@ class IntegrationManager
             throw new InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
-        return $integration->handleFileAction($action, $request, $file, $this->resolveOptions($workspaceIntegration, $integration));
+        $options = $this->resolveOptions($workspaceIntegration, $integration);
+        if (!$integration->supportsFileActions($file, $options)) {
+            throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
+        }
+
+        return $integration->handleFileAction($action, $request, $file, $options);
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration

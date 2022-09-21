@@ -193,7 +193,7 @@ export default function GridLayout({
             return <Grid
                 item
                 key={a.id}
-                onDoubleClick={onOpen ? () => onOpen(a) : undefined}
+                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
                 onContextMenu={onContextMenuOpen ? (e) => {
                     if (!contextMenu) {
                         e.preventDefault();

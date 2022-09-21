@@ -155,7 +155,7 @@ export default function ListLayout({
 
             return <div
                 key={a.id}
-                onDoubleClick={onOpen ? () => onOpen(a) : undefined}
+                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
                 onContextMenu={onContextMenuOpen ? (e) => {
                     if (!contextMenu) {
                         e.preventDefault();

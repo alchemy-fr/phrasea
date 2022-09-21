@@ -28,10 +28,10 @@ export interface Asset extends IPermissions<{
     workspace: Workspace;
     attributes: Attribute[];
     collections: Collection[];
-    original: File | null;
-    preview: File | null;
-    thumbnail: File | null;
-    thumbnailActive: File | null;
+    original: AssetRendition | null;
+    preview: AssetRendition | null;
+    thumbnail: AssetRendition | null;
+    thumbnailActive: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -91,7 +91,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
 export interface AssetRendition extends ApiHydraObjectResponse {
     id: string;
     name: string;
-    file: File;
+    file: File | undefined;
     ready: boolean;
 }
 

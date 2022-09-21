@@ -37,14 +37,14 @@ class AssetRendition extends AbstractUuidEntity
     private ?Asset $asset = null;
 
     /**
-     * @Groups({"rendition:index", "rendition:read"})
+     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;
 
     /**
-     * @Groups({"rendition:index", "rendition:read"})
+     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
      * @ORM\Column(type="boolean")
      */
     private bool $ready = false;
@@ -81,7 +81,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @ApiProperty()
-     * @Groups({"rendition:index", "rendition:read"})
+     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
      */
     public function getName(): string
     {

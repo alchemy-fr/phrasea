@@ -1,6 +1,6 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
-import {Button, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
+import {Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -36,6 +36,35 @@ type TextsData = {
     TextDetections: TextDetection[];
 };
 
+type FacesData = {
+    FaceDetails: FaceDetail[];
+};
+
+type ValueConfidence<T> = {
+    Value: T;
+    Confidence: number;
+}
+
+type FaceDetail = {
+    Confidence: number;
+    BoundingBox: BoundingBox;
+    AgeRange: {
+        Low: number;
+        High: number;
+    };
+    Smile: ValueConfidence<boolean>;
+    Eyeglasses: ValueConfidence<boolean>;
+    Gender: ValueConfidence<"Male" | "Female">;
+    Beard: ValueConfidence<boolean>;
+    Mustache: ValueConfidence<boolean>;
+    EyesOpen: ValueConfidence<boolean>;
+    MouthOpen: ValueConfidence<boolean>;
+    Emotions: {
+        Type: string;
+        Confidence: number;
+    }[];
+};
+
 type Polygon = {
     X: number;
     Y: number;
@@ -65,9 +94,11 @@ type ImageLabel = {
 function ImageOverlay({
                           instances,
                           texts,
+                          faces
                       }: {
     instances: Instance[] | undefined;
     texts: TextDetection[] | undefined;
+    faces: FaceDetail[] | undefined;
 } & IntegrationOverlayCommonProps) {
     return <div>
         {instances && instances.map((i, k) => {
@@ -104,6 +135,23 @@ function ImageOverlay({
                 }}
             ></div>
         })}
+        {faces && faces.map((i, k) => {
+            const box = i.BoundingBox;
+
+            const percent = (x: number) => `${x * 100}%`;
+
+            return <div
+                key={k}
+                style={{
+                    position: 'absolute',
+                    top: percent(box.Top),
+                    left: percent(box.Left),
+                    width: percent(box.Width),
+                    height: percent(box.Height),
+                    boxShadow: `0 0 3px yellow, 0 0 3px inset yellow`,
+                }}
+            ></div>
+        })}
     </div>
 }
 
@@ -126,6 +174,7 @@ export default function AwsRekognitionAssetEditorActions({
     const [running, setRunning] = useState<DetectType | undefined>();
     const [labels, setLabels] = useState<LabelsData | undefined>();
     const [texts, setTexts] = useState<TextsData | undefined>();
+    const [faces, setFaces] = useState<FacesData | undefined>();
     const [instances, setInstances] = useState<Instance[]>([]);
 
     const process = async (category: DetectType) => {
@@ -142,6 +191,9 @@ export default function AwsRekognitionAssetEditorActions({
                 case DetectType.Texts:
                     setTexts(res[DetectType.Texts]);
                     break;
+                case DetectType.Faces:
+                    setFaces(res[DetectType.Faces]);
+                    break;
             }
 
         } catch (e) {
@@ -153,6 +205,7 @@ export default function AwsRekognitionAssetEditorActions({
     useEffect(() => {
         setLabels(parseData(integration, 'labels'));
         setTexts(parseData(integration, 'texts'));
+        setFaces(parseData(integration, 'faces'));
     }, [integration.data]);
 
     useEffect(() => {
@@ -164,10 +217,11 @@ export default function AwsRekognitionAssetEditorActions({
     }, [labels]);
 
     useEffect(() => {
-        if (instances || texts) {
+        if (instances || texts || faces) {
             setIntegrationOverlay(ImageOverlay, {
                 instances,
                 texts: texts?.TextDetections,
+                faces: faces?.FaceDetails,
             });
         }
     }, [enableInc, instances, texts]);
@@ -199,6 +253,16 @@ export default function AwsRekognitionAssetEditorActions({
                 Detect texts
             </Button>
         </IntegrationPanelContent>}
+        {options.faces && !faces && <IntegrationPanelContent>
+            <Button
+                onClick={() => process(DetectType.Faces)}
+                disabled={running === DetectType.Faces}
+                variant={'contained'}
+                startIcon={<ImageSearchIcon/>}
+            >
+                Detect faces
+            </Button>
+        </IntegrationPanelContent>}
         {labels && <div>
             <List
                 component="div"
@@ -226,12 +290,35 @@ export default function AwsRekognitionAssetEditorActions({
                 disablePadding
             >
                 <ListSubheader>Text</ListSubheader>
+                {texts.TextDetections.length === 0 && <ListItem>
+                    <ListItemText>No text detected</ListItemText>
+                </ListItem>}
                 {texts.TextDetections.map(l => {
                     return <ListItemButton
                         key={l.Id}
                     >
                         <ListItemText>
                             {l.DetectedText} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
+                        </ListItemText>
+                    </ListItemButton>
+                })}
+            </List>
+        </div>}
+        {faces && <div>
+            <List
+                component="div"
+                disablePadding
+            >
+                <ListSubheader>Faces</ListSubheader>
+                {faces.FaceDetails.length === 0 && <ListItem>
+                    <ListItemText>No face detected</ListItemText>
+                </ListItem>}
+                {faces.FaceDetails.map((l, i) => {
+                    return <ListItemButton
+                        key={i}
+                    >
+                        <ListItemText>
+                            Face #{i + 1} <small>({Math.round(l.Confidence * 100) / 100}%)</small>
                         </ListItemText>
                     </ListItemButton>
                 })}

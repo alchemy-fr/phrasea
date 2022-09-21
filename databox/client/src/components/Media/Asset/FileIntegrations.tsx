@@ -75,14 +75,15 @@ export default function FileIntegrations({
     const enableIncs = useRef<Record<string, number>>({});
 
     useEffect(() => {
+        setExpanded(undefined);
         getWorkspaceIntegrations(file.id).then(r => setIntegrations(r.result));
-    }, []);
+    }, [file.id]);
 
     useEffect(() => {
         if (!expanded) {
             setIntegrationOverlay(() => <></>, {}, false);
         }
-    }, [expanded]);
+    }, [expanded, integrations]);
 
     return <>
         {!integrations && <CircularProgress color="inherit"/>}

@@ -40,7 +40,7 @@ export const modalRoutes = [
     },
     {
         name: 'asset_view',
-        path: '/assets/:id',
+        path: '/assets/:assetId/:renditionId',
         component: AssetView,
         public: false,
     },

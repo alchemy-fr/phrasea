@@ -122,7 +122,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
                      'thumbnail',
                      'thumbnailActive',
                  ] as $type) {
-            if (null !== $file = $this->getRenditionFileOutput($renditions, $object, $type, $userId, $groupIds)) {
+            if (null !== $file = $this->getRenditionUsedAsType($renditions, $object, $type, $userId, $groupIds)) {
                 $output->{'set'.ucfirst($type)}($file);
             }
         }
@@ -149,18 +149,18 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     /**
      * @param AssetRendition[] $assetRenditions
      */
-    private function getRenditionFileOutput(
+    private function getRenditionUsedAsType(
         array $assetRenditions,
         Asset $asset,
         string $type,
         ?string $userId,
         array $groupIds
-    ): ?File {
+    ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
                 if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(), $userId, $groupIds)) {
-                    return $rendition->getFile();
+                    return $rendition;
                 }
             }
         }

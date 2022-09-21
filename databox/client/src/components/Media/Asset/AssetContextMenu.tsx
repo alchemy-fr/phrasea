@@ -59,9 +59,10 @@ export default function AssetContextMenu({
         onClose();
     }
 
-    const onOpen = () => {
+    const onOpen = (renditionId: string) => {
         navigate(getPath('app_asset_view', {
-            id: asset.id,
+            assetId: asset.id,
+            renditionId
         }));
         onClose();
     }
@@ -112,14 +113,14 @@ export default function AssetContextMenu({
             }}
         >
             {original && <MenuItem
-                onClick={onOpen}
+                onClick={() => onOpen(original.id)}
             >
                 <ListItemIcon>
                     <FileOpenIcon fontSize="small"/>
                 </ListItemIcon>
                 <ListItemText primary="Open"/>
             </MenuItem>}
-            {original?.alternateUrls && original.alternateUrls.map(a => <MenuItem
+            {original?.file?.alternateUrls && original.file.alternateUrls.map(a => <MenuItem
                 key={a.type}
                 onClick={() => openUrl(a.url)}
             >
@@ -128,7 +129,7 @@ export default function AssetContextMenu({
                 </ListItemIcon>
                 <ListItemText primary={a.label || a.type}/>
             </MenuItem>)}
-            {original?.url && <MenuItem
+            {original?.file?.url && <MenuItem
                 onClick={onDownload}
             >
                 <ListItemIcon>

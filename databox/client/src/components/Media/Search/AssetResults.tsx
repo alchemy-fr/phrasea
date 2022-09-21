@@ -110,9 +110,10 @@ export default function AssetResults() {
         // eslint-disable-next-line
     }, [pages]);
 
-    const onOpen = useCallback<OnOpen>((asset: Asset): void => {
+    const onOpen = useCallback<OnOpen>((assetId: string, renditionId: string): void => {
         navigate(getPath('app_asset_view', {
-            id: asset.id,
+            assetId,
+            renditionId,
         }));
         // eslint-disable-next-line
     }, [navigate]);
@@ -124,7 +125,7 @@ export default function AssetResults() {
     }, [pages]);
 
     const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
-        if (!asset.preview || !displayPreview) {
+        if (!asset.preview?.file || !displayPreview) {
             return;
         }
         if (timer.current) {
