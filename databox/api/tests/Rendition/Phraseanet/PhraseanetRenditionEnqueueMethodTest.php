@@ -188,15 +188,16 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                 'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
             ],
         ]);
-        $data = json_decode($response->getContent(), true);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'asset',
             'title' => 'Dummy asset',
             'thumbnail' => [
-                'url' => $thumbnailRemoteUrl,
-                'size' => 42,
-                'type' => 'image/jpeg',
+                'file' => [
+                    'url' => $thumbnailRemoteUrl,
+                    'size' => 42,
+                    'type' => 'image/jpeg',
+                ]
             ],
         ]);
     }

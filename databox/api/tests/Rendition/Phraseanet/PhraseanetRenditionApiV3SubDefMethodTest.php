@@ -160,10 +160,12 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             '@type' => 'asset',
             'title' => 'Dummy asset',
             'thumbnail' => [
-                'size' => 4113,
-                'type' => 'image/png',
+                'file' => [
+                    'size' => 4113,
+                    'type' => 'image/png',
+                ],
             ],
         ]);
-        $this->assertMatchesRegularExpression('#https://minio\.[^/]+/databox/[^.]+\.png\?#', $data['thumbnail']['url']);
+        $this->assertMatchesRegularExpression('#https://minio\.[^/]+/databox/[^.]+\.png\?#', $data['thumbnail']['file']['url']);
     }
 }
