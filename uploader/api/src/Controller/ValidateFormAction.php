@@ -24,6 +24,7 @@ final class ValidateFormAction extends AbstractController
 
     public function __invoke(FormData $data, Request $request)
     {
+        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         $this->validator->validate($data);
         $errors = $this->formValidator->validateForm($data->getData(), $data->getTarget(), $request);
 
