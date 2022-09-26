@@ -55,43 +55,9 @@ class OAuthController extends AbstractIdentityProviderController
 
     private function generateOAuthRedirectUri(string $provider): string
     {
-        return $this->generateUrl('oauth_internal_check', [
+        return $this->generateUrl('oauth_direct_check', [
             'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
-    }
-
-    /**
-     * @Route(path="/check/{provider}", name="internal_check")
-     */
-    public function internalCheck(
-        string $provider,
-        Request $request,
-        OAuthProviderFactory $OAuthFactory,
-        TokenStorageInterface $tokenStorage
-    ) {
-        $finalRedirectUri = $request->get('state');
-        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-
-        $redirectUri = $this->generateOAuthRedirectUri($provider);
-
-        $user = $this->handleAuthorizationCodeRequestAndReturnUser(
-            $resourceOwner,
-            $request,
-            $redirectUri
-        );
-
-        // Manually authenticate user in controller
-        $firewallName = 'auth';
-
-        $roles = $user->getRoles();
-        if (!in_array('ROLE_USER', $roles, true)) {
-            $roles[] = 'ROLE_USER';
-        }
-        $token = new PostAuthenticationGuardToken($user, $firewallName, $roles);
-        $tokenStorage->setToken($token);
-        $request->getSession()->set('_security_'.$firewallName, serialize($token));
-
-        return $this->redirect($finalRedirectUri);
     }
 
     private function handleAuthorizationCodeRequestAndReturnUser(
@@ -149,7 +115,41 @@ class OAuthController extends AbstractIdentityProviderController
     }
 
     /**
-     * @Route(path="/{provider}/check", name="check")
+     * @Route(path="/direct-check/{provider}", name="direct_check")
+     */
+    public function internalCheck(
+        string $provider,
+        Request $request,
+        OAuthProviderFactory $OAuthFactory,
+        TokenStorageInterface $tokenStorage
+    ) {
+        $finalRedirectUri = $request->get('state');
+        $resourceOwner = $OAuthFactory->createResourceOwner($provider);
+
+        $redirectUri = $this->generateOAuthRedirectUri($provider);
+
+        $user = $this->handleAuthorizationCodeRequestAndReturnUser(
+            $resourceOwner,
+            $request,
+            $redirectUri
+        );
+
+        // Manually authenticate user in controller
+        $firewallName = 'auth';
+
+        $roles = $user->getRoles();
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+        $token = new PostAuthenticationGuardToken($user, $firewallName, $roles);
+        $tokenStorage->setToken($token);
+        $request->getSession()->set('_security_'.$firewallName, serialize($token));
+
+        return $this->redirect($finalRedirectUri);
+    }
+
+    /**
+     * @Route(path="/check/{provider}", name="check")
      */
     public function check(
         string $provider,
