@@ -1,20 +1,15 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
-import {File, WorkspaceIntegration} from "../../../types";
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    CircularProgress,
-    List,
-    Typography
-} from "@mui/material";
+import {Asset, File, WorkspaceIntegration} from "../../../types";
+import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography} from "@mui/material";
 import {getWorkspaceIntegrations} from "../../../api/integrations";
 import RemoveBGAssetEditorActions from "../../Integration/RemoveBG/RemoveBGAssetEditorActions";
 import {SetIntegrationOverlayFunction} from "./AssetView";
 import AwsRekognitionAssetEditorActions from "../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import TUIPhotoEditor from "../../Integration/TuiPhotoEditor/TUIPhotoEditor";
 
 export type AssetIntegrationActionsProps = {
+    asset: Asset;
     file: File;
     integration: WorkspaceIntegration;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
@@ -24,6 +19,7 @@ export type AssetIntegrationActionsProps = {
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
     'remove.bg': RemoveBGAssetEditorActions,
     'aws.rekognition': AwsRekognitionAssetEditorActions,
+    'tui.photo-editor': TUIPhotoEditor,
 }
 
 function IntegrationProxy({
@@ -62,14 +58,16 @@ function IntegrationProxy({
 }
 
 type Props = {
+    asset: Asset;
     file: File;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
 };
 
 export default function FileIntegrations({
-                                                    file,
-                                                    setIntegrationOverlay,
-                                                }: Props) {
+                                             asset,
+                                             file,
+                                             setIntegrationOverlay,
+                                         }: Props) {
     const [integrations, setIntegrations] = useState<WorkspaceIntegration[]>();
     const [expanded, setExpanded] = useState<string>();
     const enableIncs = useRef<Record<string, number>>({});
@@ -99,6 +97,7 @@ export default function FileIntegrations({
                 }}
                 key={i.id}
                 integration={i}
+                asset={asset}
                 file={file}
                 enableInc={enableIncs.current[i.id]}
                 setIntegrationOverlay={setIntegrationOverlay}

@@ -17,8 +17,10 @@ class RenditionManager
     private EntityManagerInterface $em;
     private FileManager $fileManager;
 
-    public function __construct(EntityManagerInterface $em, FileManager $fileManager)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        FileManager $fileManager
+    ) {
         $this->em = $em;
         $this->fileManager = $fileManager;
     }
@@ -116,7 +118,9 @@ class RenditionManager
 
     public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
     {
-        $definition = $this->em->getRepository(RenditionDefinition::class)
+        $definition = $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
             ->findOneBy([
                 'name' => $name,
                 'workspace' => $workspace->getId(),

@@ -4,7 +4,7 @@ import {FieldValues} from "react-hook-form/dist/types/fields";
 import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
 import {attributeClassNS, getAttributeClasses} from "../../api/attributes";
 
-type Props<TFieldValues> = {
+type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
 } & RSelectProps<TFieldValues, false>;
 

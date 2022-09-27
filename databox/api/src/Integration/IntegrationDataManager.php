@@ -18,37 +18,65 @@ class IntegrationDataManager
         $this->em = $em;
     }
 
-    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value): void
+    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): void
     {
-        $data = new IntegrationData();
-        $data->setIntegration($workspaceIntegration);
-        $data->setFile($file);
-        $data->setName($name);
+        $data = null;
+        if (!$multiple || null !== $keyId) {
+            $data = $this->getData($workspaceIntegration, $file, $name, $keyId);
+        }
+
+        if (null === $data) {
+            $data = new IntegrationData();
+            $data->setIntegration($workspaceIntegration);
+            $data->setFile($file);
+            $data->setName($name);
+        }
         $data->setValue($value);
+        $data->setKeyId($keyId);
 
         $this->em->persist($data);
         $this->em->flush($data);
     }
 
-    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name): bool
+    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null): bool
     {
+        $criteria = [
+            'integration' => $workspaceIntegration->getId(),
+            'file' => $file,
+            'name' => $name,
+        ];
+        if (null !== $keyId) {
+            $criteria['keyId'] = $keyId;
+        }
+
         $data = $this->em->getRepository(IntegrationData::class)
-            ->findOneBy([
-                'integration' => $workspaceIntegration->getId(),
-                'file' => $file,
-                'name' => $name,
-            ]);
+            ->findOneBy($criteria);
 
         return $data instanceof IntegrationData;
     }
 
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name): ?IntegrationData
+    /**
+     * @return IntegrationData|IntegrationData[]|null
+     */
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false)
     {
-        return $this->em->getRepository(IntegrationData::class)
-            ->findOneBy([
-                'integration' => $workspaceIntegration->getId(),
-                'file' => $file,
-                'name' => $name,
-            ]);
+        $repository = $this->em->getRepository(IntegrationData::class);
+
+        $criteria = [
+            'integration' => $workspaceIntegration->getId(),
+            'file' => $file ? $file->getId() : null,
+            'name' => $name,
+        ];
+
+        if (null !== $keyId) {
+            $criteria['keyId'] = $keyId;
+        }
+
+        if ($multiple) {
+            return $repository->findBy($criteria);
+        } else {
+            dump($criteria);
+            return $repository->findOneBy($criteria);
+        }
     }
 }

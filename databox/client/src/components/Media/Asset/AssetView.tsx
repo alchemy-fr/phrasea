@@ -147,6 +147,7 @@ export default function AssetView({}: Props) {
                 >
                     {rendition?.file && <FileIntegrations
                         key={rendition.file.id}
+                        asset={data}
                         file={rendition.file}
                         setIntegrationOverlay={setProxy}
                     />}

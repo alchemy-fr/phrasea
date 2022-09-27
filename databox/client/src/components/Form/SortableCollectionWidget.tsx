@@ -17,13 +17,14 @@ import {
 import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from '@dnd-kit/sortable';
 import {CSS} from "@dnd-kit/utilities";
 import {CollectionItem, CollectionItemProps, CollectionWidgetProps} from "./CollectionWidget";
+import {FieldValues} from "react-hook-form/dist/types/fields";
 
 export type SortableItem = {
     id: string;
     position: number;
 };
 
-function SortableCollectionItem<TFieldValues>({id, ...props}: { id: string } & CollectionItemProps<TFieldValues>) {
+function SortableCollectionItem<TFieldValues extends FieldValues>({id, ...props}: { id: string } & CollectionItemProps<TFieldValues>) {
     const {
         attributes,
         listeners,
@@ -53,7 +54,7 @@ function SortableCollectionItem<TFieldValues>({id, ...props}: { id: string } & C
     </div>
 }
 
-function getNextPosition<TFieldValues>(fields: (FieldArrayWithId<TFieldValues> & SortableItem)[]): number {
+function getNextPosition<TFieldValues extends FieldValues>(fields: (FieldArrayWithId<TFieldValues> & SortableItem)[]): number {
     if (fields.length === 0) {
         return 0;
     }
@@ -90,7 +91,7 @@ export function extendSortableList<R = any>(list: R[] | undefined): SortableValu
     }));
 }
 
-export default function SortableCollectionWidget<TFieldValues>({
+export default function SortableCollectionWidget<TFieldValues extends FieldValues>({
                                                                    path,
                                                                    emptyItem,
                                                                    renderForm,

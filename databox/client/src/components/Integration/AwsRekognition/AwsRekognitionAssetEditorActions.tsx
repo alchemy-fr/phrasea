@@ -8,8 +8,6 @@ import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import {WorkspaceIntegration} from "../../../types";
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 
-type Props = {} & AssetIntegrationActionsProps;
-
 type BoundingBox = {
     Width: number;
     Height: number;
@@ -164,6 +162,8 @@ function parseData<T>(integration: WorkspaceIntegration, key: string): T | undef
 
     return JSON.parse(value.value) as T;
 }
+
+type Props = {} & AssetIntegrationActionsProps;
 
 export default function AwsRekognitionAssetEditorActions({
                                                              file,

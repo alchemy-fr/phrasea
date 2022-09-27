@@ -1,6 +1,7 @@
 import {WorkspaceIntegration} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import apiClient from "./api-client";
+import {AxiosRequestConfig} from "axios";
 
 export const integrationNS = '/integrations';
 
@@ -14,6 +15,24 @@ export async function getWorkspaceIntegrations(fileId: string): Promise<ApiColle
     return getHydraCollection(res.data);
 }
 
-export async function runIntegrationFileAction(action: string, integrationId: string, fileId: string, data?: object): Promise<any> {
-    return (await apiClient.post(`/integrations/${integrationId}/files/${fileId}/actions/${action}`, data)).data;
+export async function runIntegrationFileAction(action: string, integrationId: string, fileId: string, data?: Record<string, string | Blob>, file?: File): Promise<any> {
+    const config: AxiosRequestConfig<any> = {};
+    let formData: FormData = new FormData();
+    if (file) {
+        formData.append('file', file, file.name);
+        if (data) {
+            Object.keys(data).forEach(k => {
+                formData.set(k, data[k]);
+            });
+        }
+        config.headers = {
+            'Content-Type': 'multipart/form-data',
+        };
+    }
+
+    return (await apiClient.post(
+        `/integrations/${integrationId}/files/${fileId}/actions/${action}`,
+        file ? formData : data,
+        config
+    )).data;
 }

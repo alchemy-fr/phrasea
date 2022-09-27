@@ -39,6 +39,12 @@ class IntegrationData extends AbstractUuidEntity
     private ?string $name = null;
 
     /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Groups({"integrationdata:index"})
+     */
+    private ?string $keyId = null;
+
+    /**
      * @ORM\Column(type="text", nullable=false)
      * @Groups({"integrationdata:index"})
      */
@@ -82,5 +88,15 @@ class IntegrationData extends AbstractUuidEntity
     public function setValue(?string $value): void
     {
         $this->value = $value;
+    }
+
+    public function getKeyId(): ?string
+    {
+        return $this->keyId;
+    }
+
+    public function setKeyId(?string $keyId): void
+    {
+        $this->keyId = $keyId;
     }
 }

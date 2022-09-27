@@ -4,7 +4,7 @@ import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
 import {fieldTypesIcons} from "../../lib/icons";
 import {getAttributeFieldTypes} from "../../api/attributes";
 
-type Props<TFieldValues> = {} & RSelectProps<TFieldValues, false>;
+type Props<TFieldValues extends FieldValues> = {} & RSelectProps<TFieldValues, false>;
 
 export default function FieldTypeSelect<TFieldValues extends FieldValues>({
                                                                               ...rest
