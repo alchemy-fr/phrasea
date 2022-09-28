@@ -7,6 +7,8 @@ namespace App\Consumer\Handler\File;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\File;
+use App\Exception\CreateTemporaryFileException;
+use App\Exception\StreamCopyException;
 use App\Metadata\MetadataNormalizer;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -39,16 +41,31 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
         if( ($tmp = tmpfile()) !== false) {
             $tmpFilename = stream_get_meta_data($tmp)['uri'];
             $src = $this->storageManager->getStream($file->getPath());
-            stream_copy_to_stream($src, $tmp);
+            if(stream_copy_to_stream($src, $tmp) !== false) {
 
-            $mm = new MetadataManipulator();
-            $meta = $mm->getAllMetadata(new \SplFileObject($tmpFilename));
-            fclose($tmp);
+                $mm = new MetadataManipulator();
+                $meta = $mm->getAllMetadata(new \SplFileObject($tmpFilename));
+                fclose($tmp);   // will delete the tmp file
 
-            $file->setMetadata(
-                $this->metadataNormalizer->normalizeToArray($meta)
-            );
-            $this->getEntityManager()->flush();
+                $file->setMetadata(
+                    $this->metadataNormalizer->normalizeToArray($meta)
+                );
+                unset($meta, $mm);
+
+                $this->getEntityManager()->flush();
+            }
+            else {
+                throw new StreamCopyException(
+                    sprintf("Failed to copy file id:\"%s\" of workspace:\"%s\" (size=%d)",
+                        $file->getId(),
+                        $file->getWorkspace()->getName(),
+                        $file->getSize()
+                    )
+                );
+            }
+        }
+        else {
+            throw new CreateTemporaryFileException();
         }
     }
 

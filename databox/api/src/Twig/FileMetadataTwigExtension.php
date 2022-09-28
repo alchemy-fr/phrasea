@@ -4,18 +4,10 @@ namespace App\Twig;
 
 use App\Entity\Core\File;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class FileMetadataTwigExtension extends AbstractExtension
 {
-    public function getFilters()
-    {
-        return [
-            new TwigFilter('file_metadata', [$this, 'fileMetadata']),
-        ];
-    }
-
     public function getFunctions()
     {
         return [
