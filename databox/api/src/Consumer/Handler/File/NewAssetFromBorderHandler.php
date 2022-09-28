@@ -37,6 +37,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
+        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         $payload = $message->getPayload();
         $id = $payload['fileId'];
         $collectionIds = $payload['collections'];

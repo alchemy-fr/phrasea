@@ -7,6 +7,7 @@ namespace App\Border\Consumer\Handler;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
+use App\Consumer\Handler\File\ReadMetadataHandler;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
@@ -35,7 +36,6 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
-        file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
         $payload = $message->getPayload();
 
         $em = $this->getEntityManager();
@@ -62,7 +62,10 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         ));
 
         if ($file instanceof File) {
-            file_put_contents("/configs/trace.txt", sprintf("%s (%d) \n", __FILE__, __LINE__), FILE_APPEND);
+            $this->eventProducer->publish(ReadMetadataHandler::createEvent(
+                $file->getId()
+            ));
+
             $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
                 $payload['userId'],
                 $file->getId(),
