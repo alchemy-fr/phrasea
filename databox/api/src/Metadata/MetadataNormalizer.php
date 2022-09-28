@@ -24,22 +24,25 @@ class MetadataNormalizer
         /** @var Metadata $meta */
         foreach ($bag as $meta) {
             $vMeta = $meta->getValue();
-            $vNorm = null;
             if($vMeta instanceof Binary) {
                 continue;
             }
-            if($vMeta instanceof Mono) {
-                $vNorm = $vMeta->asString();
-            }
-            elseif ($vMeta instanceof Multi) {
-                $vNorm = $vMeta->asArray();
-            }
             $a[$meta->getTagGroup()->getId()] = [
-                'name' => $meta->getTagGroup()->getName(),
-                'value' => $vNorm
+                'name'   => $meta->getTagGroup()->getName(),
+                'value'  => $vMeta->asString(),
+                'values' => $vMeta->asArray()
             ];
         }
 
         return $a;
+    }
+
+    public static function getBlankMeta(): array
+    {
+        return [
+            'name'   => null,
+            'value'  => null,
+            'values' => null
+        ];
     }
 }
