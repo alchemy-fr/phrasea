@@ -18,7 +18,7 @@ class IntegrationDataManager
         $this->em = $em;
     }
 
-    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): void
+    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData
     {
         $data = null;
         if (!$multiple || null !== $keyId) {
@@ -36,6 +36,8 @@ class IntegrationDataManager
 
         $this->em->persist($data);
         $this->em->flush($data);
+
+        return $data;
     }
 
     public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null): bool
@@ -75,8 +77,21 @@ class IntegrationDataManager
         if ($multiple) {
             return $repository->findBy($criteria);
         } else {
-            dump($criteria);
             return $repository->findOneBy($criteria);
+        }
+    }
+
+    public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    {
+        $data = $this->em->getRepository(IntegrationData::class)
+            ->findOneBy([
+                'id' => $id,
+                'integration' => $workspaceIntegration->getId(),
+            ]);
+
+        if ($data instanceof IntegrationData) {
+            $this->em->remove($data);
+            $this->em->flush($data);
         }
     }
 }

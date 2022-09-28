@@ -171,6 +171,8 @@ export interface Workspace extends IPermissions {
 }
 
 export type IntegrationData = {
+    id: string;
+    keyId: string | null;
     name: string;
     value: string;
 }
@@ -181,6 +183,7 @@ export interface WorkspaceIntegration {
     integration: string;
     data: IntegrationData[];
     options: object;
+    supported?: boolean;
 }
 
 export enum UserType {

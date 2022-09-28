@@ -28,6 +28,7 @@ class IntegrationDataOutputDataTransformer extends AbstractSecurityDataTransform
         $output->setId($object->getId());
         $output->setName($object->getName());
         $output->setValue($object->getValue());
+        $output->setKeyId($object->getKeyId());
 
         return $output;
     }

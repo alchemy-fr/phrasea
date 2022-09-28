@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\SerializerInterface;
 
 abstract class AbstractFileAction extends AbstractIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
@@ -23,6 +24,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     protected EntityManagerInterface $em;
     protected IntegrationDataManager $integrationDataManager;
     protected FileUrlResolver $fileUrlResolver;
+    private SerializerInterface $serializer;
 
     protected function saveFile(File $parentFile, Request $request): File
     {
@@ -47,10 +49,17 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         return $this->fileManager->createFileFromPath(
             $asset->getWorkspace(),
             $file->getRealPath(),
-            $file->getType(),
-            $file->getClientOriginalExtension(),
+            $file->getMimeType(),
+            null,
             $file->getClientOriginalName()
         );
+    }
+
+    protected function serializeData(IntegrationData $data): string
+    {
+        return $this->serializer->serialize($data, 'json', [
+            'groups' => ['integration:index', '_'],
+        ]);
     }
 
     public function transformData(IntegrationData $data): void
@@ -95,5 +104,13 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     public function setFileUrlResolver(FileUrlResolver $fileUrlResolver): void
     {
         $this->fileUrlResolver = $fileUrlResolver;
+    }
+
+    /**
+     * @required
+     */
+    public function setSerializer(SerializerInterface $serializer): void
+    {
+        $this->serializer = $serializer;
     }
 }

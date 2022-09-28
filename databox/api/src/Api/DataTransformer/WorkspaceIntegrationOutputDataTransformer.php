@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
+use InvalidArgumentException;
 
 class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -40,12 +43,21 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         $qs = parse_url($uri, PHP_URL_QUERY);
         $filters = Query::parse($qs);
 
-        if (isset($filters['fileId'])) {
+        $file = null;
+        $fileId = $filters['fileId'] ?? null;
+        if (null !== $fileId) {
+            $file = $this->em->getRepository(File::class)->find($fileId);
+            if (!$file instanceof File) {
+                throw new InvalidArgumentException(sprintf('File "%s" not found', $fileId));
+            }
+        }
+
+        if (null !== $file) {
             /** @var IntegrationData[] $data */
             $data = $this->em->getRepository(IntegrationData::class)
                 ->findBy([
                     'integration' => $object->getId(),
-                    'file' => $filters['fileId'],
+                    'file' => $file->getId(),
                 ]);
 
             $output->setData($data);
@@ -55,6 +67,12 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         /** @var IntegrationInterface $integration */
         $integration = $options['integration'];
         $output->setOptions($integration->resolveClientOptions($object, $options));
+
+        if (null !== $file) {
+            if ($integration instanceof FileActionsIntegrationInterface) {
+                $output->setSupported($integration->supportsFileActions($file, $options));
+            }
+        }
 
         return $output;
     }

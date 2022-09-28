@@ -1,26 +1,40 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {File} from "../../../types";
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import 'tui-image-editor/dist/tui-image-editor.css';
+import {MouseEvent as ReactMouseEvent} from 'react';
 // @ts-ignore
 import ImageEditor from '@toast-ui/react-image-editor';
-import {TextField, Typography} from "@mui/material";
+import {
+    IconButton,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemSecondaryAction,
+    ListItemText,
+    ListSubheader,
+    TextField,
+    Typography
+} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from "../../../lib/file";
 import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const myTheme = {
     // Theme object to extends default dark theme.
 };
 
 const PhotoEditor = React.forwardRef<any, {
-    file: File
+    url: string;
+    name: string;
 } & IntegrationOverlayCommonProps>(({
-                                        file,
+                                        url,
+                                        name,
                                         maxDimensions,
                                     }, ref) => {
     return <div>
@@ -28,8 +42,8 @@ const PhotoEditor = React.forwardRef<any, {
             ref={ref}
             includeUI={{
                 loadImage: {
-                    path: file.url,
-                    name: file.id,
+                    path: url,
+                    name,
                 },
                 theme: myTheme,
                 initMenu: 'filter',
@@ -57,11 +71,14 @@ export default function TUIPhotoEditor({
                                            file,
                                            integration,
                                            setIntegrationOverlay,
+                                           refreshIntegrations,
                                            enableInc,
                                        }: Props) {
     const editoRef = useRef<any>();
     const [fileName, setFileName] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
+    const [selectedFile, setSelectedFile] = useState(file.url);
+    const [deleting, setDeleting] = useState<string | undefined>();
 
     const saveAs = async () => {
         if (editoRef.current) {
@@ -72,18 +89,41 @@ export default function TUIPhotoEditor({
                     name: fileName,
                 }, dataURLtoFile(editoRef.current.getInstance().toDataURL(), file.id));
                 toast.success('Saved!');
+                await refreshIntegrations();
             } catch (e) {
             }
             setSaving(false);
         }
     };
 
+    const deleteFile = async (e: ReactMouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
+        e.stopPropagation();
+        setDeleting(id);
+        await runIntegrationFileAction('delete', integration.id, file.id, {
+            id,
+        });
+        await refreshIntegrations();
+        setDeleting(undefined);
+    }
+
+    useEffect(() => {
+        setSelectedFile(file.url);
+        setFileName('');
+    }, [enableInc]);
+
     useEffect(() => {
         setIntegrationOverlay(PhotoEditor, {
-            file,
+            url: selectedFile,
+            name: file.id,
             ref: editoRef,
+            key: selectedFile,
         }, true);
-    }, [enableInc, file]);
+    }, [selectedFile]);
+
+    const onOpen = (url: string, name: string | null) => {
+        setSelectedFile(url);
+        setFileName(name || '');
+    }
 
     return <>
         <IntegrationPanelContent>
@@ -99,6 +139,9 @@ export default function TUIPhotoEditor({
                 placeholder={'File name'}
             />
             <LoadingButton
+                sx={{
+                    mt: 1,
+                }}
                 startIcon={<SaveIcon/>}
                 variant={'contained'}
                 onClick={saveAs}
@@ -108,5 +151,38 @@ export default function TUIPhotoEditor({
                 Save
             </LoadingButton>
         </IntegrationPanelContent>
+
+        <List>
+            <ListSubheader>
+                Open recent
+            </ListSubheader>
+            {integration.data.map(d => {
+                return <ListItemButton
+                    disabled={deleting === d.id}
+                    selected={selectedFile === d.value}
+                    key={d.id}
+                    onClick={() => onOpen(d.value, d.keyId)}
+                >
+                    <ListItemIcon>
+                        <FileOpenIcon/>
+                    </ListItemIcon>
+                    <ListItemText>
+                        {d.keyId}
+                    </ListItemText>
+
+                    <ListItemSecondaryAction>
+                        <IconButton
+                            onMouseDown={e => e.stopPropagation()}
+                            onMouseUp={e => e.stopPropagation()}
+                            onClick={(e) => deleteFile(e, d.id)}
+                            disabled={deleting === d.id}
+                            color={'error'}
+                        >
+                            <DeleteIcon/>
+                        </IconButton>
+                    </ListItemSecondaryAction>
+                </ListItemButton>
+            })}
+        </List>
     </>
 }

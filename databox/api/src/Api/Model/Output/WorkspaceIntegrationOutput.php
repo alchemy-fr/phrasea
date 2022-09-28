@@ -30,6 +30,11 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private bool $enabled = true;
 
     /**
+     * @Groups({"integration:index"})
+     */
+    private ?bool $supported = null;
+
+    /**
      * @var IntegrationData[]
      *
      * @Groups({"integration:index"})
@@ -93,5 +98,15 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     public function setOptions(array $options): void
     {
         $this->options = $options;
+    }
+
+    public function getSupported(): ?bool
+    {
+        return $this->supported;
+    }
+
+    public function setSupported(?bool $supported): void
+    {
+        $this->supported = $supported;
     }
 }

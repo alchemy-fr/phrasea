@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from "../../../types";
 import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography} from "@mui/material";
 import {getWorkspaceIntegrations} from "../../../api/integrations";
@@ -14,6 +14,7 @@ export type AssetIntegrationActionsProps = {
     integration: WorkspaceIntegration;
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     enableInc: number;
+    refreshIntegrations: () => Promise<void>;
 }
 
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
@@ -83,13 +84,19 @@ export default function FileIntegrations({
         }
     }, [expanded, integrations]);
 
+    const refreshIntegrations = useCallback(async () => {
+        const r = await getWorkspaceIntegrations(file.id)
+        setIntegrations(r.result);
+    }, [file.id]);
+
     return <>
         {!integrations && <CircularProgress color="inherit"/>}
         {integrations && <List
             component="nav"
             aria-labelledby="nested-list-subheader"
         >
-            {integrations.map(i => <IntegrationProxy
+            {integrations.filter(i => i.supported).map(i => <IntegrationProxy
+                refreshIntegrations={refreshIntegrations}
                 expanded={expanded === i.id}
                 onExpand={() => {
                     enableIncs.current[i.id] = enableIncs.current[i.id] ? enableIncs.current[i.id] + 1 : 1;

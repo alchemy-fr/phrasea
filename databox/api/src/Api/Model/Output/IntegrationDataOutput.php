@@ -16,6 +16,11 @@ class IntegrationDataOutput extends AbstractUuidOutput
     /**
      * @Groups({"integration:index"})
      */
+    private ?string $keyId = null;
+
+    /**
+     * @Groups({"integration:index"})
+     */
     private string $value;
 
     public function getName(): string
@@ -36,5 +41,15 @@ class IntegrationDataOutput extends AbstractUuidOutput
     public function setValue(string $value): void
     {
         $this->value = $value;
+    }
+
+    public function getKeyId(): ?string
+    {
+        return $this->keyId;
+    }
+
+    public function setKeyId(?string $keyId): void
+    {
+        $this->keyId = $keyId;
     }
 }

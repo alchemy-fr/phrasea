@@ -44,7 +44,6 @@ class WorkspaceIntegrationExtension implements ContextAwareQueryCollectionExtens
             throw new BadRequestHttpException('Missing "workspace" or "fileId" parameter');
         }
 
-
         if (isset($filters['fileId'])) {
             $file = $this->em->find(File::class, $filters['fileId']);
             if (!$file instanceof File) {
