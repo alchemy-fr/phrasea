@@ -35,6 +35,7 @@ class PublicationConfigType extends AbstractType
             ->add('layoutOptions', LayoutOptionsType::class)
             ->add('theme', ThemeChoiceType::class)
             ->add('css', TextareaType::class)
+            ->add('downloadEnabled', TrueFalseNullChoiceType::class)
             ->add('downloadViaEmail', TrueFalseNullChoiceType::class)
             ->add('downloadTerms', TermsConfigType::class)
             ->add('terms', TermsConfigType::class)

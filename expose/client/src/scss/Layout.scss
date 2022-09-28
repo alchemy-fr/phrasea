@@ -43,4 +43,10 @@
 
 .authenticated-user {
   font-size: 13px;
+  padding: 10px;
+
+  .btn-logout {
+    margin-top: 5px;
+    background: $danger;
+  }
 }

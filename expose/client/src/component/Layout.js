@@ -75,7 +75,7 @@ class Layout extends PureComponent {
             <br/>
             <button
                 onClick={this.logout}
-                className={'btn btn-sm'}
+                className={'btn btn-sm btn-logout'}
             >
                 Logout
             </button>

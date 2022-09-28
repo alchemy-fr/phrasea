@@ -33,7 +33,7 @@ export default class PublicationHeader extends PureComponent {
             {description && <Description
                 descriptionHtml={description}
             />}
-            {config.get('zippyEnabled') && assets.length > 0 && <div className={'download-archive'}>
+            {data.downloadEnabled && config.get('zippyEnabled') && assets.length > 0 && <div className={'download-archive'}>
                 <ZippyDownloadButton id={data.id} data={data} />
             </div>}
         </div>

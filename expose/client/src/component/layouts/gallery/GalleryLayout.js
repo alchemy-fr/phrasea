@@ -122,6 +122,7 @@ class GalleryLayout extends React.Component {
         const {currentIndex} = this.state;
         const {
             assets,
+            downloadEnabled,
         } = data;
 
         const {
@@ -160,6 +161,7 @@ class GalleryLayout extends React.Component {
                         thumbnail: a.asset.thumbUrl,
                         description: a.asset.description,
                         asset: a.asset,
+                        downloadEnabled,
                         renderItem: this.renderItem,
                     }))}
                 /> : <Trans i18nKey={'gallery.empty'}>
@@ -178,9 +180,9 @@ class GalleryLayout extends React.Component {
         </div>
     }
 
-    renderItem = ({asset}) => {
+    renderItem = ({asset, downloadEnabled}) => {
         return <div className="image-gallery-image layout-asset-container">
-            {asset.downloadUrl ? <div
+            {downloadEnabled && asset.downloadUrl ? <div
                 className="download-btn">
                 <DownloadButton
                     downloadUrl={asset.downloadUrl}

@@ -24,7 +24,7 @@ const CustomView = ({data, carouselProps}) => {
             <Description
                 descriptionHtml={data.description}
             />
-            {data.downloadUrl ? <div
+            {data.downloadEnabled && data.downloadUrl ? <div
                 className="download-btn">
                 <DownloadButton
                     downloadUrl={data.downloadUrl}
@@ -65,11 +65,12 @@ class GridLayout extends React.Component {
         const {data} = this.props;
         const {
             assets,
+            downloadEnabled,
         } = data;
 
         return <div className={`layout-grid`}>
-            {renderDownloadTermsModal.call(this)}
-            {renderDownloadViaEmail.call(this)}
+            {downloadEnabled && renderDownloadTermsModal.call(this)}
+            {downloadEnabled && renderDownloadViaEmail.call(this)}
             <PublicationHeader
                 data={data}
             />
@@ -89,9 +90,13 @@ class GridLayout extends React.Component {
             return <FullPageLoader/>
         }
 
+        const {downloadEnabled} = this.props.data;
         const {currentAsset} = this.state;
 
-        const images = this.props.data.assets.map(a => a.asset);
+        const images = this.props.data.assets.map(a => ({
+            ...a.asset,
+            downloadEnabled,
+        }));
 
         return <>
             <Gallery
@@ -117,7 +122,7 @@ class GridLayout extends React.Component {
                         onClose={this.closeModal}
                     >
                         <Carousel
-                            onDownload={this.onDownload}
+                            onDownload={downloadEnabled ? this.onDownload : undefined}
                             currentIndex={currentAsset}
                             components={{
                                 View: CustomView,

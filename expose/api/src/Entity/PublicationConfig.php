@@ -89,6 +89,12 @@ class PublicationConfig implements MergeableValueObjectInterface
     private ?bool $publiclyListed = null;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"profile:read", "publication:admin:read"})
+     */
+    private ?bool $downloadEnabled = null;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Groups({"profile:read", "publication:admin:read"})
      */
@@ -386,5 +392,15 @@ class PublicationConfig implements MergeableValueObjectInterface
     public function setIncludeDownloadTermsInZippy(?bool $includeDownloadTermsInZippy): void
     {
         $this->includeDownloadTermsInZippy = $includeDownloadTermsInZippy;
+    }
+
+    public function getDownloadEnabled(): ?bool
+    {
+        return $this->downloadEnabled;
+    }
+
+    public function setDownloadEnabled(?bool $downloadEnabled): void
+    {
+        $this->downloadEnabled = $downloadEnabled;
     }
 }

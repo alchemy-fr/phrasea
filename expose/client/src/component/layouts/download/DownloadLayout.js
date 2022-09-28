@@ -18,7 +18,14 @@ class DownloadLayout extends React.Component {
         const {data} = this.props;
         const {
             assets,
+            downloadEnabled,
         } = data;
+
+        if (!downloadEnabled) {
+            return <div>
+                Download is disabled.
+            </div>
+        }
 
         return <div className={`layout-download`}>
             {renderDownloadTermsModal.call(this)}

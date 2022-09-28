@@ -89,23 +89,38 @@ class PublicationVoter extends Voter
                 return $isPublicationVisible
                     || $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
+                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject);
             case self::READ_DETAILS:
                 return $isAdmin
                     || $this->isValidJWTForRequest()
                     || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
+                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject);
             case self::DELETE:
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject);
+                    || $this->isGrantedPublicationOrProfile(PermissionInterface::DELETE, $subject)
+                    ;
             case self::EDIT:
                 return $isAdmin
                     || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
+                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject)
+                    ;
             default:
                 return false;
         }
+    }
+
+    private function isGrantedPublicationOrProfile($attribute, Publication $subject): bool
+    {
+        if ($this->security->isGranted($attribute, $subject)) {
+            return true;
+        }
+
+        if (null !== $profile = $subject->getProfile()) {
+            return $this->security->isGranted($attribute, $profile);
+        }
+
+        return false;
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
@@ -144,6 +159,12 @@ class PublicationVoter extends Voter
                 }
 
                 if (!$this->security->isGranted(PermissionInterface::VIEW, $publication)) {
+                    if (null !== $publication->getProfile()) {
+                        if ($this->security->isGranted(PermissionInterface::VIEW, $publication->getProfile())) {
+                            return true;
+                        }
+                    }
+
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NOT_ALLOWED);
 
                     return false;

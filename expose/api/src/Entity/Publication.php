@@ -730,6 +730,22 @@ class Publication implements AclObjectInterface
     /**
      * @Groups({"publication:read"})
      */
+    public function isDownloadEnabled(): bool
+    {
+        if (null !== $this->config->getDownloadEnabled()) {
+            return $this->config->getDownloadEnabled();
+        }
+
+        if ($this->profile) {
+            return $this->profile->getConfig()->getDownloadEnabled() ?? false;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Groups({"publication:read"})
+     */
     public function isIncludeDownloadTermsInZippy(): bool
     {
         if (null !== $this->config->getIncludeDownloadTermsInZippy()) {
