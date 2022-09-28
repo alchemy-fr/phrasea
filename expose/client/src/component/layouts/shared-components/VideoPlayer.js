@@ -54,7 +54,6 @@ export default class VideoPlayer extends PureComponent {
         this.player = videojs(this.videoRef.current, {
             autoplay: true,
             controls: true,
-            fluid: true,
             sources: [{
                 src: url,
                 type: 'video/mp4'
