@@ -85,10 +85,18 @@ class FallbackResolver
                 $attribute->setDefinition($definition);
                 $attribute->setAsset($asset);
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
-                $attribute->setValue($fallbackValue);
 
                 if ($definition->isMultiple()) {
-                    $attribute->setValues([$fallbackValue]);
+                    // each line becomes a value
+                    $values = array_filter(
+                        explode("\n", $fallbackValue),
+                        function($s) { return (trim($s) != ''); }
+                    );
+
+                    $attribute->setValues($values);
+                }
+                else {
+                    $attribute->setValue($fallbackValue);
                 }
 
                 $attributes[$definition->getId()][$locale] = $attribute;

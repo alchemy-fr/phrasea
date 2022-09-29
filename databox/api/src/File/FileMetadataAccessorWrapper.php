@@ -4,8 +4,8 @@ namespace App\File;
 
 use App\Entity\Core\File;
 use App\Metadata\MetadataNormalizer;
-use Psr\Log\LoggerInterface;
 use Twig\Error\SyntaxError;
+
 
 /**
  * allows calling File methods from AttributeDefinition fallback (twig), even if (asset.)file is null
