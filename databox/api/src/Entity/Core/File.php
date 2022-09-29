@@ -83,12 +83,11 @@ class File extends AbstractUuidEntity
     private ?array $alternateUrls = null;
 
     /**
-     * normalized metadata (array), stored as json
+     * normalized metadata (array), stored as json.
      *
      * @ORM\Column(type="json", nullable=true)
      */
     private ?array $metadata = null;
-
 
     public function getPath(): ?string
     {
@@ -195,20 +194,13 @@ class File extends AbstractUuidEntity
         $this->extension = $extension;
     }
 
-    /**
-     * @return array|null
-     */
     public function getMetadata(): ?array
     {
-        return $this->metadata ;
+        return $this->metadata;
     }
 
-    /**
-     * @param array|null $metadata
-     */
     public function setMetadata(?array $metadata): void
     {
-       $this->metadata = $metadata;
+        $this->metadata = $metadata;
     }
-
 }

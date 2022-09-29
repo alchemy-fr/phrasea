@@ -4,7 +4,6 @@ namespace App\Exception;
 
 use RuntimeException;
 
-class StreamCopyException  extends RuntimeException
+class StreamCopyException extends RuntimeException
 {
-
 }

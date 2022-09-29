@@ -10,6 +10,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\File\FileMetadataAccessorWrapper;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -18,13 +19,15 @@ class FallbackResolver
     private Environment $twig;
     private EntityManagerInterface $em;
     private ?array $indexByName = null;
+    private LoggerInterface $logger;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
     {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
         ]);
         $this->em = $em;
+        $this->logger = $logger;
     }
 
     private function getDefinitionIndexByName(string $workspaceId): array
@@ -57,6 +60,8 @@ class FallbackResolver
 
         if (!empty($fallbacks[$locale])) {
             if (!isset($attributes[$definition->getId()][$locale])) {
+                // todo: remove debug after testing
+                $this->logger->debug(sprintf("resolveAttrFallback for '%s' (locale='%s')", $definition->getName(), $locale));
                 $fallbackValue = $this->resolveFallback(
                     $fallbacks[$locale],
                     [
@@ -66,6 +71,9 @@ class FallbackResolver
                             $attributes,
                             $definitionsIndex,
                             function (AttributeDefinition $depDef) use ($asset, &$attributes, $locale): ?Attribute {
+                                // todo: remove debug after testing
+                                $this->logger->debug(sprintf('resolveAttrFallback recurse)'));
+
                                 return $this->resolveAttrFallback(
                                     $asset,
                                     $locale,
@@ -90,12 +98,15 @@ class FallbackResolver
                     // each line becomes a value
                     $values = array_filter(
                         explode("\n", $fallbackValue),
-                        function($s) { return (trim($s) != ''); }
+                        function ($s) { return '' != trim($s); }
                     );
 
+                    // todo: remove debug after testing
+                    $this->logger->debug(sprintf("fallback result for '%s' (multi) : %s", $definition->getName(), var_export($values, true)));
                     $attribute->setValues($values);
-                }
-                else {
+                } else {
+                    // todo: remove debug after testing
+                    $this->logger->debug(sprintf("fallback result for '%s' (mono) <- %s", $definition->getName(), var_export($fallbackValue, true)));
                     $attribute->setValue($fallbackValue);
                 }
 

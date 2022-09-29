@@ -14,7 +14,6 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 
-
 class ReadMetadataHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'read_file_metadata';
@@ -38,11 +37,10 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
-        if( ($tmp = tmpfile()) !== false) {
+        if (($tmp = tmpfile()) !== false) {
             $tmpFilename = stream_get_meta_data($tmp)['uri'];
             $src = $this->storageManager->getStream($file->getPath());
-            if(stream_copy_to_stream($src, $tmp) !== false) {
-
+            if (false !== stream_copy_to_stream($src, $tmp)) {
                 $mm = new MetadataManipulator();
                 $meta = $mm->getAllMetadata(new \SplFileObject($tmpFilename));
                 fclose($tmp);   // will delete the tmp file
@@ -53,18 +51,10 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
                 unset($meta, $mm);
 
                 $this->getEntityManager()->flush();
+            } else {
+                throw new StreamCopyException(sprintf('Failed to copy file id:"%s" of workspace:"%s" (size=%d)', $file->getId(), $file->getWorkspace()->getName(), $file->getSize()));
             }
-            else {
-                throw new StreamCopyException(
-                    sprintf("Failed to copy file id:\"%s\" of workspace:\"%s\" (size=%d)",
-                        $file->getId(),
-                        $file->getWorkspace()->getName(),
-                        $file->getSize()
-                    )
-                );
-            }
-        }
-        else {
+        } else {
             throw new CreateTemporaryFileException();
         }
     }

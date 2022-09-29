@@ -1,21 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Metadata;
 
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\Value\Binary;
-use PHPExiftool\Driver\Value\Mono;
-use PHPExiftool\Driver\Value\Multi;
-
 
 class MetadataNormalizer
 {
     /**
-     * normalize metadata from metadataManipulator bundle (for File.metadata)
-     *
-     * @param MetadataBag $bag
-     * @return array
+     * normalize metadata from metadataManipulator bundle (for File.metadata).
      */
     public function normalizeToArray(MetadataBag $bag): array
     {
@@ -24,13 +20,22 @@ class MetadataNormalizer
         /** @var Metadata $meta */
         foreach ($bag as $meta) {
             $vMeta = $meta->getValue();
-            if($vMeta instanceof Binary) {
+
+            // skip "declared-binary" and "binary-not-declared-binary" data
+            if ($vMeta instanceof Binary) {
                 continue;
             }
+            try {
+                if (!json_encode($vMeta->asString())) {
+                    continue;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+
             $a[$meta->getTagGroup()->getId()] = [
-                'name'   => $meta->getTagGroup()->getName(),
-                'value'  => $vMeta->asString(),
-                'values' => $vMeta->asArray()
+                'name' => $meta->getTagGroup()->getName(),
+                'values' => $vMeta->asArray(),
             ];
         }
 
@@ -40,9 +45,8 @@ class MetadataNormalizer
     public static function getBlankMeta(): array
     {
         return [
-            'name'   => null,
-            'value'  => null,
-            'values' => null
+            'name' => null,
+            'values' => [],
         ];
     }
 }
