@@ -107,7 +107,7 @@
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
-        "api-platform/core": "^2.5",
+        "api-platform/core": "2.6.8",
         "arthem/rabbit-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
