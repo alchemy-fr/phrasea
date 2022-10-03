@@ -8,6 +8,7 @@ import PDFPlayer from "./Players/PDFPlayer";
 
 type Props = {
     file: File;
+    controls?: boolean | undefined;
     title: string | undefined;
     minDimensions?: Dimensions;
     maxDimensions: Dimensions;
@@ -22,6 +23,7 @@ export default function FilePlayer({
                                        minDimensions,
                                        maxDimensions,
                                        onLoad,
+                                       controls,
                                        noInteraction,
                                        autoPlayable,
                                    }: Props) {
@@ -51,6 +53,7 @@ export default function FilePlayer({
                 file={file as FileWithUrl}
                 minDimensions={minDimensions}
                 maxDimensions={maxDimensions}
+                controls={controls}
                 onLoad={onLoad}
                 noInteraction={noInteraction}
                 autoPlayable={autoPlayable}

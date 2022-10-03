@@ -43,6 +43,7 @@ export function Rendition({
             title={title}
             maxDimensions={maxDimensions}
             autoPlayable={false}
+            controls={true}
         /> : undefined}
         info={file && <div>
             {file.size && <>{byteSize(file.size).toString()} •{' '}</>}

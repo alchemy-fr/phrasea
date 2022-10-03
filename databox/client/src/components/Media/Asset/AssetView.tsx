@@ -129,6 +129,7 @@ export default function AssetView({}: Props) {
                             title={data.title}
                             maxDimensions={maxDimensions}
                             autoPlayable={false}
+                            controls={true}
                         />}
                         {integrationOverlay && React.createElement(integrationOverlay.component, {
                             maxDimensions,

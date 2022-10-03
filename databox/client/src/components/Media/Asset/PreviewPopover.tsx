@@ -70,6 +70,7 @@ export default function PreviewPopover({
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
                 noInteraction={!previewLocked}
+                controls={previewLocked}
                 autoPlayable={true}
             />
         </Paper>}
