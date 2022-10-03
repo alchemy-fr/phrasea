@@ -18,6 +18,7 @@ import FieldTypeSelect from "../../Form/FieldTypeSelect";
 import {fieldTypesIcons} from "../../../lib/icons";
 import apiClient from "../../../api/api-client";
 import {toast} from "react-toastify";
+import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
                   data,
@@ -41,10 +42,11 @@ function Item({
         setError,
         control,
         reset,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: createData(data),
     });
+    useDirtyFormPrompt(isDirty);
 
     useEffect(() => {
         reset(createData(data));

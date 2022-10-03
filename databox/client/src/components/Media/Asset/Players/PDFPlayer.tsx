@@ -16,11 +16,11 @@ export default function PDFPlayer({
     const [ratio, setRatio] = useState<number>();
     const pdfDimensions = getMaxVideoDimensions(maxDimensions, ratio);
     const onDocLoad = useCallback((pdf: any) => {
-        if (onLoad) {
-            pdf.getPage(1).then((page: PDFPageProxy) => {
-                setRatio(page.view[3] / page.view[2]);
-            });
-        }
+        pdf.getPage(1).then((page: PDFPageProxy) => {
+            setRatio(page.view[3] / page.view[2]);
+        });
+
+        onLoad && onLoad();
     }, [onLoad]);
 
     return <div style={{

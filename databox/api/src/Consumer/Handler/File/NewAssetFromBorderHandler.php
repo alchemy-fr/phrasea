@@ -6,30 +6,32 @@ namespace App\Consumer\Handler\File;
 
 use App\Asset\OriginalRenditionManager;
 use App\Attribute\AttributeDataExporter;
+use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use App\Phraseanet\PhraseanetGenerateRenditionsManager;
+use App\Integration\IntegrationManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'new_asset_from_border';
 
     private OriginalRenditionManager $originalRenditionManager;
-    private PhraseanetGenerateRenditionsManager $generateRenditionsManager;
     private AttributeDataExporter $attributeDataExporter;
+    private EventProducer $eventProducer;
 
     public function __construct(
-        PhraseanetGenerateRenditionsManager $generateRenditionsManager,
         OriginalRenditionManager $originalRenditionManager,
-        AttributeDataExporter $attributeDataExporter
+        AttributeDataExporter $attributeDataExporter,
+        EventProducer $eventProducer
     ) {
         $this->originalRenditionManager = $originalRenditionManager;
-        $this->generateRenditionsManager = $generateRenditionsManager;
         $this->attributeDataExporter = $attributeDataExporter;
+        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void
@@ -70,7 +72,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->persist($asset);
         $em->flush();
 
-        $this->generateRenditionsManager->generateRenditions($asset);
+        $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
     }
 
     public static function createEvent(

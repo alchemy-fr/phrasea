@@ -8,10 +8,6 @@ import PauseIcon from '@mui/icons-material/Pause';
 import {getSizeCase} from "../../../../lib/sizeCase";
 import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../../lib/file";
 
-type Props = {
-    autoPlayable: boolean;
-} & PlayerProps;
-
 type Progress = {
     played: number;
     loaded: number;
@@ -43,6 +39,11 @@ function stopPropagationIfNoCtrl(e: MouseEvent) {
     }
 }
 
+type Props = {
+    autoPlayable: boolean;
+    controls?: boolean | undefined;
+} & PlayerProps;
+
 export default function VideoPlayer({
                                         file,
                                         minDimensions,
@@ -50,6 +51,7 @@ export default function VideoPlayer({
                                         onLoad,
                                         autoPlayable,
                                         noInteraction,
+                                        controls,
                                     }: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
@@ -78,6 +80,8 @@ export default function VideoPlayer({
 
     const PlayComponent = play ? PauseIcon : PlayCircleIcon;
 
+    const hasControls = !noInteraction && controls;
+
     return <Box sx={theme => ({
         position: 'relative',
         backgroundColor: isAudio ? '#FFF' : '#000',
@@ -86,6 +90,7 @@ export default function VideoPlayer({
         alignItems: 'center',
         minWidth: minDimensions?.width,
         minHeight: minDimensions?.height,
+        pointerEvents: hasControls ? 'auto' : undefined,
         [`.${playerActionsClass}`]: {
             pointerEvents: 'none',
             display: 'flex',
@@ -115,7 +120,7 @@ export default function VideoPlayer({
         }
     })}
     >
-        {!autoPlay && !noInteraction && <div className={playerActionsClass}>
+        {!controls && !autoPlay && !noInteraction && <div className={playerActionsClass}>
             <IconButton
                 onClick={onPlay}
                 onMouseDown={stopPropagationIfNoCtrl}
@@ -141,6 +146,8 @@ export default function VideoPlayer({
                 setRatio(internalPlayer.videoHeight / internalPlayer.videoWidth);
                 setDuration(player.getDuration());
             }}
+            onPlay={() => setPlay(true)}
+            onPause={() => setPlay(false)}
             onProgress={({played, loaded}) => {
                 setProgress({
                     played,
@@ -149,8 +156,9 @@ export default function VideoPlayer({
             }}
             progressInterval={duration ? (duration < 60 ? 100 : 1000) : 5}
             muted={autoPlay}
+            controls={hasControls}
         />
-        {progress && <LinearProgress
+        {!hasControls && progress && <LinearProgress
             variant={progress ? 'buffer' : 'indeterminate'}
             style={{
                 position: 'absolute',

@@ -4,51 +4,40 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
-use App\Util\ExtensionUtil;
+use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
+use App\Storage\FileManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class FileUploadManager
 {
-    private FileStorageManager $storageManager;
-    private PathGenerator $pathGenerator;
+    private FileManager $fileManager;
 
     public function __construct(
-        FileStorageManager $storageManager,
-        PathGenerator $pathGenerator
+        FileManager $fileManager
     ) {
-        $this->storageManager = $storageManager;
-        $this->pathGenerator = $pathGenerator;
+        $this->fileManager = $fileManager;
     }
 
-    public function storeFileUploadFromRequest(Request $request): ?string
+    public function storeFileUploadFromRequest(Workspace $workspace, UploadedFile $uploadedFile): File
     {
-        /** @var UploadedFile|null $uploadedFile */
-        $uploadedFile = $request->files->get('file');
+        ini_set('max_execution_time', '600');
 
-        if (null !== $uploadedFile) {
-            ini_set('max_execution_time', '600');
-
-            if (!$uploadedFile->isValid()) {
-                throw new BadRequestHttpException('Invalid uploaded file');
-            }
-            if (0 === $uploadedFile->getSize()) {
-                throw new BadRequestHttpException('Empty file');
-            }
-
-            $extension = ExtensionUtil::guessExtension($uploadedFile->getType(), $uploadedFile->getClientOriginalName());
-            $path = $this->pathGenerator->generatePath($extension);
-
-            $stream = fopen($uploadedFile->getRealPath(), 'r+');
-            $this->storageManager->storeStream($path, $stream);
-            fclose($stream);
-
-            return $path;
+        if (!$uploadedFile->isValid()) {
+            throw new BadRequestHttpException('Invalid uploaded file');
+        }
+        if (0 === $uploadedFile->getSize()) {
+            throw new BadRequestHttpException('Empty file');
         }
 
-        return null;
+        return $this->fileManager->createFileFromPath(
+
+            $workspace,
+            $uploadedFile->getRealPath(),
+            $uploadedFile->getType(),
+            null,
+            $uploadedFile->getClientOriginalName()
+        );
     }
 }

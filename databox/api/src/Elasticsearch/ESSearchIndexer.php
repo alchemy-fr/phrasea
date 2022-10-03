@@ -106,7 +106,7 @@ class ESSearchIndexer
             foreach ($entities as $operation => $ids) {
                 $chunks = array_chunk($ids, self::BATCH_SIZE);
                 foreach ($chunks as $chunk) {
-                    $this->indexClass($class, $chunk, $operation, $depth);
+                    $this->indexClass($class, $chunk, $operation, $depth, $objects);
                     if (!$this->direct) {
                         $this->em->clear();
                     }
@@ -115,7 +115,7 @@ class ESSearchIndexer
         }
     }
 
-    private function indexClass(string $class, array $ids, string $operation, int $depth): void
+    private function indexClass(string $class, array $ids, string $operation, int $depth, array $currentBatch): void
     {
         $class = ClassUtils::getRealClass($class);
         $persisters = $this->objectPersisters[$class] ?? [];
@@ -161,7 +161,7 @@ class ESSearchIndexer
 
                 foreach ($objects as $object) {
                     if ($object instanceof SearchDependencyInterface) {
-                        $this->updateDependencies($object, $depth);
+                        $this->updateDependencies($object, $depth, $currentBatch);
                     }
                 }
 
@@ -169,22 +169,23 @@ class ESSearchIndexer
         }
     }
 
-    private function updateDependencies(SearchDependencyInterface $object, int $depth): void
+    private function updateDependencies(SearchDependencyInterface $object, int $depth, array $currentBatch): void
     {
         if ($object instanceof Collection) {
             $this->appendDependencyEntities(
                 Asset::class,
                 $this->em->getRepository(Asset::class)
                     ->getCollectionAssets($object->getId()),
-                $depth
+                $depth,
+                $currentBatch
             );
             if ($object->getParent()) {
-                $this->addDependency(Collection::class, $object->getParent()->getId(), $depth);
+                $this->addDependency(Collection::class, $object->getParent()->getId(), $depth, $currentBatch);
             }
         } elseif ($object instanceof CollectionAsset) {
-            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth);
+            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth, $currentBatch);
         } elseif ($object instanceof Attribute) {
-            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth);
+            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth, $currentBatch);
         }
     }
 
@@ -229,23 +230,38 @@ class ESSearchIndexer
     /**
      * @param AbstractUuidEntity[] $entities
      */
-    private function appendDependencyEntities(string $class, array $entities, int $depth): void
+    private function appendDependencyEntities(string $class, array $entities, int $depth, array $currentBatch): void
     {
         foreach ($entities as $entity) {
-            $this->addDependency($class, $entity->getId(), $depth);
+            $this->addDependency($class, $entity->getId(), $depth, $currentBatch);
         }
     }
 
-    private function appendDependencyIterator(string $class, iterable $iterator, int $depth): void
+    private function appendDependencyIterator(string $class, iterable $iterator, int $depth, array $currentBatch): void
     {
         foreach ($iterator as $row) {
             $item = reset($row);
-            $this->addDependency($class, $item['id'], $depth);
+            $this->addDependency($class, $item['id'], $depth, $currentBatch);
         }
     }
 
-    private function addDependency(string $class, string $id, int $depth): void
+    private function isInBatch(string $class, string $id, array $currentBatch): bool
     {
+        if (!isset($currentBatch[$class])) {
+            return false;
+        }
+
+        $b = $currentBatch[$class];
+
+        return in_array($id, $b[self::ACTION_UPSERT] ?? $b[self::ACTION_INSERT] ?? [], true);
+    }
+
+    private function addDependency(string $class, string $id, int $depth, array $currentBatch): void
+    {
+        if ($this->isInBatch($class, $id, $currentBatch)) {
+            return;
+        }
+
         if (!isset($this->dependenciesStack[$class])) {
             $this->dependenciesStack[$class] = [];
         }

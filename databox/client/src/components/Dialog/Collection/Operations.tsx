@@ -7,8 +7,8 @@ import FormSection from "../../Form/FormSection";
 import {Alert, Button, Typography} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import {deleteCollection} from "../../../api/collection";
-import {useModalHash} from "../../../hooks/useModalHash";
 import ConfirmDialog from "../../Ui/ConfirmDialog";
+import {useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     data: Collection;
@@ -20,7 +20,7 @@ export default function Operations({
                                        minHeight,
                                    }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
     const deleteConfirmCollection = async () => {
         openModal(ConfirmDialog, {
             textToType: data.title,

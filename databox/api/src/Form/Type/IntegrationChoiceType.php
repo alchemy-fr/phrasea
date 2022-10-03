@@ -4,20 +4,26 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
-use App\Entity\Core\Workspace;
+use App\Integration\IntegrationRegistry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PhraseanetRenditionMethodChoiceType extends AbstractType
+class IntegrationChoiceType extends AbstractType
 {
+    private IntegrationRegistry $integrationRegistry;
+
+    public function __construct(IntegrationRegistry $integrationRegistry)
+    {
+        $this->integrationRegistry = $integrationRegistry;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choices = [
-            'None' => null,
-            'Enqueue' => Workspace::PHRASEANET_RENDITION_METHOD_ENQUEUE,
-            'Subdef V3 API' => Workspace::PHRASEANET_RENDITION_METHOD_SUBDEF_V3_API,
-        ];
+        $choices = [];
+        foreach ($this->integrationRegistry->getIntegrations() as $type) {
+            $choices[$type::getTitle()] = $type::getName();
+        }
 
         $resolver->setDefaults([
             'choices' => $choices,

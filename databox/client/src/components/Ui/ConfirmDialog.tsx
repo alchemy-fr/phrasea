@@ -6,8 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import {LoadingButton} from "@mui/lab";
 import {AxiosError} from "axios";
 import RemoteErrors from "../Form/RemoteErrors";
-import {useModalHash} from "../../hooks/useModalHash";
-import {StackedModalProps} from "../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 
 type Props = PropsWithChildren<{
     onCancel?: () => void;
@@ -28,7 +27,7 @@ export default function ConfirmDialog({
                                           textToType,
                                           children,
                                       }: Props) {
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const {t} = useTranslation();

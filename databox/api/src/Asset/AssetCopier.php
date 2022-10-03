@@ -13,7 +13,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Security\RenditionPermissionManager;
-use App\Storage\RenditionPathGenerator;
+use App\Storage\FilePathGenerator;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -22,7 +22,7 @@ class AssetCopier
     private EventProducer $eventProducer;
     private EntityManagerInterface $em;
     private FileStorageManager $storageManager;
-    private RenditionPathGenerator $pathGenerator;
+    private FilePathGenerator $pathGenerator;
 
     public const OPT_WITH_ATTRIBUTES = 'withAttributes';
     public const OPT_WITH_TAGS = 'withTags';
@@ -34,7 +34,7 @@ class AssetCopier
         EventProducer $eventProducer,
         EntityManagerInterface $em,
         FileStorageManager $storageManager,
-        RenditionPathGenerator $pathGenerator,
+        FilePathGenerator $pathGenerator,
         RenditionPermissionManager $renditionPermissionManager
     ) {
         $this->eventProducer = $eventProducer;

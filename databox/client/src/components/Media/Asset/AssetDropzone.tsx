@@ -3,9 +3,9 @@ import {useDropzone} from "react-dropzone";
 import {UserContext} from "../../Security/UserContext";
 import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
-import {useModalHash} from "../../../hooks/useModalHash";
 import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
 import moment from "moment/moment";
+import {useModals} from "../../../hooks/useModalStack";
 
 function createPastedImageTitle(): string {
     const m = moment();
@@ -15,7 +15,7 @@ function createPastedImageTitle(): string {
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const authenticated = Boolean(userContext.user);

@@ -1,0 +1,4 @@
+{% for key, value in get_integration_config_info(value) %}
+    {%- if loop.index > 1 %}<br>{% endif %}
+    <b>{{ key }}</b>: <code>{{ value }}</code>
+{% endfor %}

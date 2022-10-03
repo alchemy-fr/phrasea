@@ -24,9 +24,9 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from "../Asset/Actions/MoveAssetsDialog";
 import CopyAssetsDialog from "../Asset/Actions/CopyAssetsDialog";
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
+import {useModals} from "../../../hooks/useModalStack";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -71,7 +71,7 @@ export default function SelectionActions({
                                          }: Props) {
     const {t} = useTranslation();
     const navigate = useNavigate();
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
 
@@ -124,7 +124,7 @@ export default function SelectionActions({
 
         selectedAssets.forEach(a => {
             wsId = a.workspace.id;
-            if (a.original?.url) {
+            if (a.original?.file?.url) {
                 canDownload = true;
             }
             if (a.capabilities.canDelete) {

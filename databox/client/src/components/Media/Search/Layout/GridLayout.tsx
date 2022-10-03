@@ -108,6 +108,7 @@ export default function GridLayout({
                                        onUnselect,
                                        onPreviewToggle,
                                        onContextMenuOpen,
+    onOpen,
                                    }: LayoutProps) {
     const theme = useTheme();
     const d = useContext(DisplayContext)!;
@@ -192,6 +193,7 @@ export default function GridLayout({
             return <Grid
                 item
                 key={a.id}
+                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
                 onContextMenu={onContextMenuOpen ? (e) => {
                     if (!contextMenu) {
                         e.preventDefault();

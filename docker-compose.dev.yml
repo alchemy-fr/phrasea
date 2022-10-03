@@ -224,6 +224,7 @@ services:
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_BASE_URL
       - VERIFY_SSL
+      - CLARIFAI_API_KEY
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

@@ -8,7 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
-use App\Entity\Core\File;
+use App\Entity\Core\AssetRendition;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -88,65 +88,65 @@ class AssetOutput extends AbstractUuidOutput
     private array $collections;
 
     /**
-     * @var File
+     * @var AssetRendition
      * @Groups({"asset:index", "asset:read"})
      */
     private $original = null;
 
     /**
-     * @var File
+     * @var AssetRendition
      * @Groups({"asset:index", "asset:read"})
      */
     private $preview = null;
 
     /**
-     * @var File
+     * @var AssetRendition
      * @Groups({"asset:index", "asset:read"})
      */
     private $thumbnail = null;
 
     /**
-     * @var File
+     * @var AssetRendition
      * @Groups({"asset:index", "asset:read"})
      */
     private $thumbnailActive = null;
 
-    public function getOriginal()
+    public function getOriginal(): ?AssetRendition
     {
         return $this->original;
     }
 
-    public function setOriginal($original): void
+    public function setOriginal(?AssetRendition $original): void
     {
         $this->original = $original;
     }
 
-    public function getPreview(): ?File
+    public function getPreview(): ?AssetRendition
     {
         return $this->preview;
     }
 
-    public function setPreview(?File $preview): void
+    public function setPreview(?AssetRendition $preview): void
     {
         $this->preview = $preview;
     }
 
-    public function getThumbnail(): ?File
+    public function getThumbnail(): ?AssetRendition
     {
         return $this->thumbnail;
     }
 
-    public function setThumbnail(?File $thumbnail): void
+    public function setThumbnail(?AssetRendition $thumbnail): void
     {
         $this->thumbnail = $thumbnail;
     }
 
-    public function getThumbnailActive(): ?File
+    public function getThumbnailActive(): ?AssetRendition
     {
         return $this->thumbnailActive;
     }
 
-    public function setThumbnailActive(?File $thumbnailActive): void
+    public function setThumbnailActive(?AssetRendition $thumbnailActive): void
     {
         $this->thumbnailActive = $thumbnailActive;
     }

@@ -11,8 +11,8 @@ import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import FullPageLoader from "../../../Ui/FullPageLoader";
-import {useModalHash} from "../../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
+import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
 
 type Props = {
     assets: Asset[];
@@ -36,7 +36,7 @@ export default function ExportAssetsDialog({
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
 
     const count = assets.length;
 
@@ -67,12 +67,13 @@ export default function ExportAssetsDialog({
         register,
         handleSubmit,
         setError,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: {
             renditions: [],
         },
     });
+    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,

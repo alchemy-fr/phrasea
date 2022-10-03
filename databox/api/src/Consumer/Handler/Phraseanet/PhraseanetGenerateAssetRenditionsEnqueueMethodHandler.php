@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Phraseanet;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\External\PhraseanetApiClientFactory;
+use App\Integration\IntegrationManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
@@ -19,8 +20,10 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
 
     private PhraseanetApiClientFactory $clientFactory;
     private string $databoxBaseUrl;
+    private IntegrationManager $integrationManager;
 
     public function __construct(
+        IntegrationManager $integrationManager,
         PhraseanetApiClientFactory $clientFactory,
         LoggerInterface $logger,
         string $databoxBaseUrl
@@ -28,12 +31,14 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
         $this->clientFactory = $clientFactory;
         $this->logger = $logger;
         $this->databoxBaseUrl = $databoxBaseUrl;
+        $this->integrationManager = $integrationManager;
     }
 
-    public static function createEvent(string $id): EventMessage
+    public static function createEvent(string $id, string $integrationId): EventMessage
     {
         $payload = [
             'id' => $id,
+            'integrationId' => $integrationId,
         ];
 
         return new EventMessage(self::EVENT, $payload);
@@ -43,6 +48,9 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
     {
         $payload = $message->getPayload();
         $id = $payload['id'];
+
+        $integration = $this->integrationManager->loadIntegration($payload['integrationId']);
+        $options = $this->integrationManager->getIntegrationOptions($integration);
 
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
@@ -61,15 +69,15 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
             'token' => self::generateAssetToken($asset), // TODO Add app secret
-            'base_url' => $this->databoxBaseUrl.'/phraseanet/',
+            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$integration->getId().'/',
             'formData' => [
-                'collection_destination' => $asset->getWorkspace()->getPhraseanetCollectionId(),
+                'collection_destination' => $options['collectionId'],
             ],
         ];
 
         $client = $this->clientFactory->create(
-            $asset->getWorkspace()->getPhraseanetBaseUrl(),
-            $asset->getWorkspace()->getPhraseanetToken()
+            $options['baseUrl'],
+            $options['token']
         );
 
         try {

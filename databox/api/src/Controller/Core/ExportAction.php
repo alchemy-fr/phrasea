@@ -12,7 +12,7 @@ use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
-use App\Util\ExtensionUtil;
+use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -70,7 +70,7 @@ class ExportAction extends AbstractController
                 }
 
                 $file = $rendition->getFile();
-                $extension = ExtensionUtil::getExtensionFromType($file->getType());
+                $extension = FileUtil::getExtensionFromType($file->getType());
                 $ext = $extension ? '.'.$extension : '';
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),

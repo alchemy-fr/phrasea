@@ -65,11 +65,12 @@ export default function PreviewPopover({
         >
             <FilePlayer
                 key={asset.id}
-                file={asset.preview!}
+                file={asset.preview!.file!}
                 maxDimensions={createDimensions(size)}
                 title={asset.resolvedTitle}
                 onLoad={onLoad}
                 noInteraction={!previewLocked}
+                controls={previewLocked}
                 autoPlayable={true}
             />
         </Paper>}

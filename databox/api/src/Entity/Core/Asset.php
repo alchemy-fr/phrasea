@@ -85,7 +85,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     private ?DoctrineCollection $attributes = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?File $file = null;

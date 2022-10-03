@@ -7,6 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import {deleteTag, getTags, postTag, putTag} from "../../../api/tag";
+import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
                   data,
@@ -20,11 +21,11 @@ function Item({
         register,
         handleSubmit,
         setError,
-        control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+    useDirtyFormPrompt(isDirty);
 
     return <form
         id={formId}

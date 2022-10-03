@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Legacy;
+namespace App\Controller\Integration;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Integration\IntegrationManager;
 use App\Security\JWTTokenManager;
+use App\Storage\FileManager;
 use App\Storage\RenditionManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,20 +30,21 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(path="/phraseanet", name="phraseanet_")
+ * @Route(path="/integrations/phraseanet", name="integration_phraseanet_")
  */
-class PhraseanetController extends AbstractController
+class PhraseanetIntegrationController extends AbstractController
 {
     public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
     /**
-     * @Route(path="/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
+     * @Route(path="/{integrationId}/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
      */
     public function incomingRenditionAction(
+        string $integrationId,
         string $assetId,
         Request $request,
         RenditionManager $renditionManager,
-        PathGenerator $pathGenerator,
+        FileManager $fileManager,
         FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
         EntityManagerInterface $em
@@ -92,12 +94,13 @@ class PhraseanetController extends AbstractController
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 
-        $extension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
-        $path = sprintf('%s/%s', $asset->getWorkspace()->getId(), $pathGenerator->generatePath($extension));
-
-        $stream = fopen($uploadedFile->getRealPath(), 'r+');
-        $storageManager->storeStream($path, $stream);
-        fclose($stream);
+        $path = $fileManager->storeFile(
+            $asset->getWorkspace(),
+            $uploadedFile->getRealPath(),
+            $uploadedFile->getType(),
+            null,
+            $uploadedFile->getClientOriginalName()
+        );
 
         $renditionManager->createOrReplaceRendition(
             $asset,
@@ -115,7 +118,7 @@ class PhraseanetController extends AbstractController
     }
 
     /**
-     * @Route(path="/events", methods={"POST"}, name="webhook_event")
+     * @Route(path="/{integrationId}/events", methods={"POST"}, name="webhook_event")
      */
     public function webhookEventAction(
         Request $request,
@@ -156,13 +159,15 @@ class PhraseanetController extends AbstractController
     }
 
     /**
-     * @Route(path="/assets/{id}", methods={"GET"}, name="asset")
+     * @Route(path="/{integrationId}/assets/{id}", methods={"GET"}, name="asset")
      */
     public function assetAction(
+        $integrationId,
         string $id,
         FileUrlResolver $fileUrlResolver,
         EntityManagerInterface $em,
         LoggerInterface $logger,
+        IntegrationManager $integrationManager,
         Request $request
     ): Response {
         $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $id));
@@ -172,6 +177,9 @@ class PhraseanetController extends AbstractController
             throw new UnauthorizedHttpException('Missing AssetToken authorization');
         }
         $assetToken = $matches[1];
+
+        $integration = $integrationManager->loadIntegration($integrationId);
+        $options = $integrationManager->getIntegrationOptions($integration);
 
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
@@ -186,15 +194,16 @@ class PhraseanetController extends AbstractController
             'originalName' => sprintf('%s%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $asset->getFile()->getExtension()),
             'url' => $fileUrlResolver->resolveUrl($asset->getFile()),
             'formData' => [
-                'collection_destination' => $asset->getWorkspace()->getPhraseanetCollectionId(),
+                'collection_destination' => $options['collectionId'],
             ],
         ]);
     }
 
     /**
-     * @Route(path="/commits/{id}/ack", methods={"POST"}, name="enqueue_ack")
+     * @Route(path="/{integrationId}/commits/{id}/ack", methods={"POST"}, name="enqueue_ack")
      */
     public function enqueueAckAction(
+        string $integrationId,
         string $id,
         LoggerInterface $logger
     ): Response {

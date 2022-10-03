@@ -28,10 +28,10 @@ export interface Asset extends IPermissions<{
     workspace: Workspace;
     attributes: Attribute[];
     collections: Collection[];
-    original: File | null;
-    preview: File | null;
-    thumbnail: File | null;
-    thumbnailActive: File | null;
+    original: AssetRendition | null;
+    preview: AssetRendition | null;
+    thumbnail: AssetRendition | null;
+    thumbnailActive: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -91,7 +91,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
 export interface AssetRendition extends ApiHydraObjectResponse {
     id: string;
     name: string;
-    file: File;
+    file: File | undefined;
     ready: boolean;
 }
 
@@ -168,6 +168,22 @@ export interface Workspace extends IPermissions {
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     createdAt: string;
+}
+
+export type IntegrationData = {
+    id: string;
+    keyId: string | null;
+    name: string;
+    value: string;
+}
+
+export interface WorkspaceIntegration {
+    id: string;
+    title: string;
+    integration: string;
+    data: IntegrationData[];
+    options: object;
+    supported?: boolean;
 }
 
 export enum UserType {

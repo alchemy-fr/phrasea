@@ -6,13 +6,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import SortIcon from "@mui/icons-material/Sort";
+import {FieldValues} from "react-hook-form/dist/types/fields";
 
-type BaseProps<TFieldValues> = {
+type BaseProps<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;
     register: UseFormRegister<TFieldValues>;
 }
 
-type Props<TFieldValues> = {
+type Props<TFieldValues extends FieldValues> = {
     path: string;
     emptyItem: object;
     label: ReactNode;
@@ -23,13 +24,13 @@ type Props<TFieldValues> = {
 
 export type {Props as CollectionWidgetProps};
 
-type RenderForm<TFieldValues> = (props: {
+type RenderForm<TFieldValues extends FieldValues> = (props: {
     register: UseFormRegister<TFieldValues>;
     path: string;
     index: number;
 }) => ReactNode;
 
-type ItemProps<TFieldValues> = {
+type ItemProps<TFieldValues extends FieldValues> = {
     renderForm: RenderForm<TFieldValues>;
     remove: (index: number) => void;
     removeLabel: ReactNode;
@@ -42,7 +43,7 @@ type ItemProps<TFieldValues> = {
 
 export type {ItemProps as CollectionItemProps};
 
-export function CollectionItem<TFieldValues>({
+export function CollectionItem<TFieldValues extends FieldValues>({
                                                  renderForm,
                                                  remove,
                                                  removeLabel,
@@ -92,7 +93,7 @@ export function CollectionItem<TFieldValues>({
     </Box>
 }
 
-export default function CollectionWidget<TFieldValues>({
+export default function CollectionWidget<TFieldValues extends FieldValues>({
                                                            path,
                                                            emptyItem,
                                                            renderForm,

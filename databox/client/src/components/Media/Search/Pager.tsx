@@ -3,7 +3,7 @@ import ListLayout from "./Layout/ListLayout";
 import React from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
-import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
+import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
 
 export enum LayoutEnum {
     Grid,
@@ -14,6 +14,7 @@ type Props = {
     pages: Asset[][];
     layout: LayoutEnum;
     selectedAssets: string[];
+    onOpen?: OnOpen;
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
     onPreviewToggle?: OnPreviewToggle;
@@ -26,6 +27,7 @@ export default React.memo<Props>(function Pager({
                                                     selectedAssets,
                                                     onSelect,
                                                     onUnselect,
+                                                    onOpen,
                                                     onContextMenuOpen,
                                                     onPreviewToggle,
                                                 }: Props) {
@@ -61,6 +63,7 @@ export default React.memo<Props>(function Pager({
                     assets,
                     onSelect,
                     onUnselect,
+                    onOpen,
                     selectedAssets,
                     onContextMenuOpen,
                     onPreviewToggle,

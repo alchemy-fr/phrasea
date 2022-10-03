@@ -2,8 +2,7 @@ import {ESDebug} from "../../../api/asset";
 import {Box, Button, Chip} from "@mui/material";
 import AppDialog from "../../Layout/AppDialog";
 import {useTranslation} from "react-i18next";
-import {useModalHash} from "../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     debug: ESDebug;
@@ -26,7 +25,7 @@ export default function DebugEsModal({
                                          debug,
                                          open,
                                      }: Props) {
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const {t} = useTranslation();
 
     return <AppDialog

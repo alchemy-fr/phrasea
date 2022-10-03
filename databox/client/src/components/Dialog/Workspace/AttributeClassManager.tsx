@@ -15,6 +15,7 @@ import FormFieldErrors from "../../Form/FormFieldErrors";
 import CheckboxWidget from "../../Form/CheckboxWidget";
 import AclForm from "../../Acl/AclForm";
 import {AclPermission} from "../../Acl/acl";
+import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
                   data,
@@ -31,10 +32,11 @@ function Item({
         control,
         watch,
         setValue,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+    useDirtyFormPrompt(isDirty);
 
     const isPublic = watch('public');
     const isEditable = watch('editable');

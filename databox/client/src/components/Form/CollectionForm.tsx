@@ -7,6 +7,7 @@ import FormFieldErrors from "./FormFieldErrors";
 import PrivacyField from "../Ui/PrivacyField";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
+import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
                                                                        formId,
@@ -21,10 +22,11 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
         handleSubmit,
         setError,
         control,
-        formState: {errors}
+        formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+    useDirtyFormPrompt(isDirty);
 
     return <form
         id={formId}

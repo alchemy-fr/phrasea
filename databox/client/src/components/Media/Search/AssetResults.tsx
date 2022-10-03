@@ -11,9 +11,11 @@ import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from "@mui/lab";
 import AssetContextMenu from "../Asset/AssetContextMenu";
 import {PopoverPosition} from "@mui/material/Popover/Popover";
-import {OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
+import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset} from "./Layout/Layout";
 import PreviewPopover from "../Asset/PreviewPopover";
 import {DisplayContext} from "../DisplayContext";
+import {useNavigate} from "react-router-dom";
+import {getPath} from "../../../routes";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -66,6 +68,7 @@ export function getAssetListFromEvent(currentSelection: string[], id: string, pa
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const navigate = useNavigate();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
@@ -107,6 +110,14 @@ export default function AssetResults() {
         // eslint-disable-next-line
     }, [pages]);
 
+    const onOpen = useCallback<OnOpen>((assetId: string, renditionId: string): void => {
+        navigate(getPath('app_asset_view', {
+            assetId,
+            renditionId,
+        }));
+        // eslint-disable-next-line
+    }, [navigate]);
+
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();
         assetSelection.selectAssets(p => p.filter(i => i !== id));
@@ -114,7 +125,7 @@ export default function AssetResults() {
     }, [pages]);
 
     const onPreviewToggle = useCallback<OnPreviewToggle>((asset, display, anchorEl): void => {
-        if (!asset.preview || !displayPreview) {
+        if (!asset.preview?.file || !displayPreview) {
             return;
         }
         if (timer.current) {
@@ -207,6 +218,7 @@ export default function AssetResults() {
                     layout={layout}
                     selectedAssets={assetSelection.selectedAssets}
                     onSelect={onSelect}
+                    onOpen={onOpen}
                     onUnselect={onUnselect}
                     onContextMenuOpen={onContextMenuOpen}
                     onPreviewToggle={onPreviewToggle}

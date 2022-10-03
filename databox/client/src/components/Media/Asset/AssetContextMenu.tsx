@@ -9,9 +9,10 @@ import {PopoverPosition} from "@mui/material/Popover/Popover";
 import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
-import {useModalHash} from "../../../hooks/useModalHash";
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import {useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -32,7 +33,7 @@ export default function AssetContextMenu({
                                              anchorEl,
                                              onClose,
                                          }: Props) {
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
     const navigate = useNavigate();
     const resultContext = useContext(ResultContext);
     const {
@@ -58,6 +59,14 @@ export default function AssetContextMenu({
         onClose();
     }
 
+    const onOpen = (renditionId: string) => {
+        navigate(getPath('app_asset_view', {
+            assetId: asset.id,
+            renditionId
+        }));
+        onClose();
+    }
+
     const onEdit = () => {
         navigate(getPath('app_asset_manage', {
             tab: 'edit',
@@ -72,6 +81,10 @@ export default function AssetContextMenu({
             id: asset.id,
         }));
         onClose();
+    }
+
+    const openUrl = (url: string) => {
+        document.location.href = url;
     }
 
     return <ClickAwayListener
@@ -99,16 +112,24 @@ export default function AssetContextMenu({
                 invisible: true,
             }}
         >
-            {original?.alternateUrls && original.alternateUrls.map(a => <MenuItem
+            {original && <MenuItem
+                onClick={() => onOpen(original.id)}
+            >
+                <ListItemIcon>
+                    <FileOpenIcon fontSize="small"/>
+                </ListItemIcon>
+                <ListItemText primary="Open"/>
+            </MenuItem>}
+            {original?.file?.alternateUrls && original.file.alternateUrls.map(a => <MenuItem
                 key={a.type}
-                // onClick={() => this.openUrl(a.url)} TODO
+                onClick={() => openUrl(a.url)}
             >
                 <ListItemIcon>
                     <LinkIcon fontSize="small"/>
                 </ListItemIcon>
                 <ListItemText primary={a.label || a.type}/>
             </MenuItem>)}
-            {original?.url && <MenuItem
+            {original?.file?.url && <MenuItem
                 onClick={onDownload}
             >
                 <ListItemIcon>

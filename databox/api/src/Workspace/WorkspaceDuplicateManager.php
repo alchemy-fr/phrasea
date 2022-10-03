@@ -10,6 +10,7 @@ use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 
 class WorkspaceDuplicateManager
@@ -27,10 +28,10 @@ class WorkspaceDuplicateManager
         $newWorkspace->setSlug($newSlug);
         $newWorkspace->setName($workspace->getName());
         $newWorkspace->setOwnerId($workspace->getOwnerId());
-        $newWorkspace->setPhraseanetDataboxId($workspace->getPhraseanetDataboxId());
         $newWorkspace->setConfig($workspace->getConfig());
         $newWorkspace->setEnabledLocales($workspace->getEnabledLocales());
 
+        $this->copyIntegrations($workspace, $newWorkspace);
         $this->copyRenditionDefinitions($workspace, $newWorkspace);
         $this->copyTags($workspace, $newWorkspace);
 
@@ -124,6 +125,23 @@ class WorkspaceDuplicateManager
             $i->setObjectType(TagFilterRule::TYPE_WORKSPACE);
             $i->setUserId($item->getUserId());
             $i->setUserType($item->getUserType());
+            $this->em->persist($i);
+        }
+    }
+
+    private function copyIntegrations(Workspace $from, Workspace $to): void
+    {
+        /** @var WorkspaceIntegration[] $items */
+        $items = $this->em->getRepository(WorkspaceIntegration::class)->findBy([
+            'workspace' => $from->getId(),
+        ]);
+        foreach ($items as $item) {
+            $i = new WorkspaceIntegration();
+            $i->setTitle($item->getTitle());
+            $i->setIntegration($item->getIntegration());
+            $i->setEnabled($item->isEnabled());
+            $i->setOptions($item->getOptions());
+            $i->setWorkspace($to);
             $this->em->persist($i);
         }
     }

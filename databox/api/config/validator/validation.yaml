@@ -161,6 +161,23 @@ App\Entity\Core\Tag:
           - name
         errorPath: name
 
+App\Entity\Integration\WorkspaceIntegration:
+  constraints:
+    - App\Validator\ValidIntegrationOptionsConstraint: ~
+  properties:
+    optionsJson:
+      - Json:
+          message: You've entered an invalid Json.
+
+App\Entity\Integration\IntegrationData:
+  properties:
+    value:
+      - NotNull: ~
+    integration:
+      - NotNull: ~
+    name:
+      - NotBlank: ~
+
 App\Model\Export:
   properties:
     assets:

@@ -8,6 +8,7 @@ use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\External\PhraseanetApiClientFactory;
+use App\Integration\IntegrationManager;
 use App\Security\JWTTokenManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -24,8 +25,10 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
     private UrlGeneratorInterface $urlGenerator;
     private JWTTokenManager $JWTTokenManager;
     private FileUrlResolver $fileUrlResolver;
+    private IntegrationManager $integrationManager;
 
     public function __construct(
+        IntegrationManager $integrationManager,
         PhraseanetApiClientFactory $clientFactory,
         FileUrlResolver $fileUrlResolver,
         UrlGeneratorInterface $urlGenerator,
@@ -37,12 +40,14 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
         $this->JWTTokenManager = $JWTTokenManager;
         $this->logger = $logger;
         $this->fileUrlResolver = $fileUrlResolver;
+        $this->integrationManager = $integrationManager;
     }
 
-    public static function createEvent(string $id, ?array $renditions = null): EventMessage
+    public static function createEvent(string $id, string $integrationId, ?array $renditions = null): EventMessage
     {
         $payload = [
             'id' => $id,
+            'integrationId' => $integrationId,
         ];
 
         if (null !== $renditions) {
@@ -56,6 +61,9 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
     {
         $payload = $message->getPayload();
         $id = $payload['id'];
+
+        $integration = $this->integrationManager->loadIntegration($payload['integrationId']);
+        $options = $this->integrationManager->getIntegrationOptions($integration);
 
         $renditions = $payload['renditions'] ?? null;
 
@@ -75,17 +83,10 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
 
         $url = $this->fileUrlResolver->resolveUrl($file);
 
-        $destUrl = $this->urlGenerator->generate('phraseanet_incoming_rendition', [
+        $destUrl = $this->urlGenerator->generate('integration_phraseanet_incoming_rendition', [
+            'integrationId' => $integration->getId(),
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        $workspace = $asset->getWorkspace();
-        $phraseanetDataboxId = $workspace->getPhraseanetDataboxId();
-        if (null === $phraseanetDataboxId) {
-            $this->logger->critical(sprintf('phraseanetDataboxId is not set on workspace "%s"', $workspace->getId()));
-
-            return;
-        }
 
         $destination = [
             'url' => $destUrl,
@@ -99,7 +100,7 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
         }
 
         $data = [
-            'databoxId' => $phraseanetDataboxId,
+            'databoxId' => $options['databoxId'],
             'source' => [
                 'url' => $url,
             ],
@@ -108,8 +109,8 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
 
         try {
             $this->clientFactory->create(
-                $workspace->getPhraseanetBaseUrl(),
-                $workspace->getPhraseanetToken()
+                $options['baseUrl'],
+                $options['token'],
             )->post('/api/v3/subdefs_service/', [
                 'json' => $data,
                 'stream' => true,

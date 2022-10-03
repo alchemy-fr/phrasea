@@ -8,8 +8,7 @@ import {toast} from "react-toastify";
 import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
-import {useModalHash} from "../../../hooks/useModalHash";
-import {StackedModalProps} from "../../../hooks/useModalStack";
+import {StackedModalProps, useModals} from "../../../hooks/useModalStack";
 
 type Props = {
     parent?: string;
@@ -27,7 +26,7 @@ export default function CreateCollection({
                                              onCreate,
                                              open,
                                          }: Props) {
-    const {closeModal} = useModalHash();
+    const {closeModal} = useModals();
     const {t} = useTranslation();
     const {
         submitting,

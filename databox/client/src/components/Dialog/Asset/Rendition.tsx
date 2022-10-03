@@ -38,13 +38,14 @@ export function Rendition({
     return <RenditionStructure
         title={name}
         maxDimensions={maxDimensions}
-        media={<FilePlayer
+        media={file ? <FilePlayer
             file={file}
             title={title}
             maxDimensions={maxDimensions}
             autoPlayable={false}
-        />}
-        info={<div>
+            controls={true}
+        /> : undefined}
+        info={file && <div>
             {file.size && <>{byteSize(file.size).toString()} •{' '}</>}
             {file.type}
         </div>}
@@ -70,7 +71,7 @@ function RenditionStructure({
                             }: {
     title: ReactNode;
     info: ReactNode;
-    media: ReactNode;
+    media: ReactNode | undefined;
     actions: ReactNode;
     maxDimensions: Dimensions;
 }) {
@@ -86,7 +87,7 @@ function RenditionStructure({
                 backgroundColor: theme.palette.grey["100"],
             })}
         >
-            {media}
+            {media || ''}
         </CardMedia>
         <CardContent sx={cardContentSx}>
             <Typography component="div" variant="h5">

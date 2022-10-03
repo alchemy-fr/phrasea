@@ -41,47 +41,48 @@ function updateProject(string $project)
 
     $composerJson = json_decode(file_get_contents($composerSrc), true);
 
-    $repositories = $composerJson['repositories'] ?? [];
-    $keyAreNumerical = true;
-    $requiresToRemove = [];
-    foreach ($repositories as $key => $repo) {
-        if (!is_numeric($key)) {
-            $keyAreNumerical = false;
-        }
-        if ($repo['type'] === 'path') {
-            $requiresToRemove[] = json_decode(file_get_contents($project.'/'.$repo['url'].'/composer.json'), true)['name'];
-            unset($repositories[$key]);
-        }
-    }
-
-    foreach ($requiresToRemove as $projectName) {
-        unset($composerJson['require'][$projectName]);
-        unset($composerJson['require-dev'][$projectName]);
-    }
-
-    if (empty($repositories)) {
-        unset($composerJson['repositories']);
-    } else {
-        if ($keyAreNumerical) {
-            $repositories = array_values($repositories);
-        }
-        $composerJson['repositories'] = $repositories;
-    }
-
     $composerCacheSrc = $project . '/docker/caching/composer.json';
-    file_put_contents($composerCacheSrc, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+    if (is_dir($project.'/__lib')) {
+        runSubCommand(sprintf('cp -r %s/__lib %s/', $project, dirname($composerCacheSrc)));
+    } else {
+        throw new InvalidArgumentException(sprintf('%s does not exist', $project.'/__lib'));
+    }
 
-    echo sprintf("%s updated!\n", $composerCacheSrc);
+    try {
+        file_put_contents($composerCacheSrc, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
 
-    runSubCommand(sprintf(implode(' && ', [
-        'set -x',
-        'export COMPOSER_MEMORY_LIMIT=-1',
-        '(cd %s',
-        'rm -rf composer.lock vendor',
-        'composer update --no-interaction --no-scripts --ansi --no-plugins',
-        'rm -rf vendor)',
-        '(cd %s && composer update --no-interaction --ansi)',
-    ]), dirname($composerCacheSrc), $project));
+        echo sprintf("%s updated!\n", $composerCacheSrc);
+
+        runSubCommand(sprintf(implode(' && ', [
+            'set -x',
+            'export COMPOSER_MEMORY_LIMIT=-1',
+            '(cd %s',
+            'rm -rf composer.lock vendor',
+            'composer update --no-interaction --no-scripts --ansi --no-plugins',
+            'rm -rf vendor)',
+            '(cd %s && composer update --no-interaction --ansi)',
+        ]), dirname($composerCacheSrc), $project));
+
+        clearLocalLibs(dirname($composerCacheSrc));
+    } finally {
+        runSubCommand(sprintf('rm -rf %s/__lib', dirname($composerCacheSrc)));
+    }
+}
+
+function clearLocalLibs(string $dir) {
+    $lockFile = $dir.'/composer.lock';
+    $c = json_decode(file_get_contents($lockFile), true);
+    $packages = $c['packages'];
+    foreach ($packages as $key => $package) {
+        $type = $package['dist']['type'] ?? null;
+        if ($type === 'path') {
+            unset($packages[$key]);
+        }
+    }
+    $packages = array_values($packages);
+    $c['packages'] = $packages;
+
+    file_put_contents($lockFile, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
 }
 
 foreach ($projects as $project) {

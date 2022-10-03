@@ -109,6 +109,7 @@ export default function ListLayout({
                                        onContextMenuOpen,
                                        selectedAssets,
                                        onPreviewToggle,
+                                       onOpen,
                                    }: LayoutProps) {
     const {thumbSize, displayAttributes} = useContext(DisplayContext)!;
 
@@ -154,6 +155,7 @@ export default function ListLayout({
 
             return <div
                 key={a.id}
+                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
                 onContextMenu={onContextMenuOpen ? (e) => {
                     if (!contextMenu) {
                         e.preventDefault();

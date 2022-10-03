@@ -16,8 +16,8 @@ import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
 import CreateAsset from "./Asset/CreateAsset";
 import ModalLink from "../Routing/ModalLink";
-import {useModalHash} from "../../hooks/useModalHash";
 import ConfirmDialog from "../Ui/ConfirmDialog";
+import {useModals} from "../../hooks/useModalStack";
 
 type Props = {
     level: number;
@@ -40,7 +40,7 @@ export default function CollectionMenuItem({
                                                level,
                                            }: Props) {
     const {t} = useTranslation();
-    const {openModal} = useModalHash();
+    const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);

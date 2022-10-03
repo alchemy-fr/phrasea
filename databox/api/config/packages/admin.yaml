@@ -39,6 +39,9 @@ easy_admin:
           - PopulatePass
           - ESIndexState
       - OAuthClient
+      - label: Integrations
+        children:
+          - Integration
       - label: 'Dev'
         children:
           - FailedEvent
@@ -165,11 +168,6 @@ easy_admin:
           - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'localeFallbacks', type: collection }
-          - { property: 'phraseanetDataboxId', type: number }
-          - { property: 'phraseanetCollectionId', type: number }
-          - { property: 'phraseanetBaseUrl', type: url }
-          - { property: 'phraseanetToken', type: text }
-          - { property: 'phraseanetRenditionMethod', type: App\Form\Type\PhraseanetRenditionMethodChoiceType }
 
     RenditionDefinition:
       class: App\Entity\Core\RenditionDefinition
@@ -322,6 +320,7 @@ easy_admin:
           - { property: 'definition' }
           - { property: 'value' }
           - { property: 'locale' }
+          - { property: 'locked' }
           - { property: 'origin' }
           - { property: 'originVendor' }
           - { property: 'originVendorContext' }
@@ -484,3 +483,23 @@ easy_admin:
           - { property: 'mapping' }
           - { property: 'createdAt' }
           - { property: 'updatedAt' }
+
+    Integration:
+      class: App\Entity\Integration\WorkspaceIntegration
+      list:
+        sort: [createdAt, DESC]
+        fields:
+          - { property: 'enabled' }
+          - { property: 'title' }
+          - { property: 'integration' }
+          - { property: 'workspace' }
+          - { property: 'createdAt' }
+          - { property: 'this', label: Config info, template: 'admin/integration_config_info.html.twig' }
+          - { property: 'updatedAt' }
+      form:
+        fields:
+          - { property: 'title' }
+          - { property: 'workspace' }
+          - { property: 'integration', type: App\Form\Type\IntegrationChoiceType }
+          - { property: 'optionsJson', label: Options }
+          - { property: 'enabled' }
