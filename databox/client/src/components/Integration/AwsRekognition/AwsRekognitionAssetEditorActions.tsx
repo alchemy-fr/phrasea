@@ -217,7 +217,7 @@ export default function AwsRekognitionAssetEditorActions({
     }, [labels]);
 
     useEffect(() => {
-        if (instances || texts || faces) {
+        if (enableInc && (instances || texts || faces)) {
             setIntegrationOverlay(ImageOverlay, {
                 instances,
                 texts: texts?.TextDetections,

@@ -1,9 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {MouseEvent as ReactMouseEvent, useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import 'tui-image-editor/dist/tui-image-editor.css';
-import {MouseEvent as ReactMouseEvent} from 'react';
 // @ts-ignore
 import ImageEditor from '@toast-ui/react-image-editor';
 import {
@@ -112,13 +111,15 @@ export default function TUIPhotoEditor({
     }, [enableInc]);
 
     useEffect(() => {
-        setIntegrationOverlay(PhotoEditor, {
-            url: selectedFile,
-            name: file.id,
-            ref: editoRef,
-            key: selectedFile,
-        }, true);
-    }, [selectedFile]);
+        if (enableInc) {
+            setIntegrationOverlay(PhotoEditor, {
+                url: selectedFile,
+                name: file.id,
+                ref: editoRef,
+                key: selectedFile,
+            }, true);
+        }
+    }, [selectedFile, enableInc]);
 
     const onOpen = (url: string, name: string | null) => {
         setSelectedFile(url);
