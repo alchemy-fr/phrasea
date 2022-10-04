@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ ! -f configs/config.json ]; then
     echo "Creating default config"
     echo "{}" > configs/config.json
