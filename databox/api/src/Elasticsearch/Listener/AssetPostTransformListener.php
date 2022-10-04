@@ -120,14 +120,14 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
                 if ($definition->isMultiple()) {
-                    $v = $a->getValues();
+                    $v = $a->getResolvedValues();
                     if (!empty($v)) {
                         $v = array_map(function (string $v) use ($type): string {
                             return $type->normalizeValue($v);
                         }, $v);
                     }
                 } else {
-                    $v = $a->getValue();
+                    $v = $a->getResolvedValue();
                     if (null !== $v) {
                         $v = $type->normalizeValue($v);
                     }

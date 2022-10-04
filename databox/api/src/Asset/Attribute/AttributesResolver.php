@@ -100,16 +100,14 @@ class AttributesResolver
             $fallbacks = $definition->getFallback();
             if (null !== $fallbacks) {
                 foreach ($fallbacks as $locale => $fb) {
-                    if (!isset($attributes[$k][$locale])) {
-                        $attr = $this->fallbackResolver->resolveAttrFallback(
-                            $asset,
-                            $locale,
-                            $definition,
-                            $attributes
-                        );
-                        if (null !== $attr) {
-                            $attributes[$k][$locale] = $attr;
-                        }
+                    $attr = $this->fallbackResolver->resolveAttrFallback(
+                        $asset,
+                        $locale,
+                        $definition,
+                        $attributes
+                    );
+                    if (null !== $attr) {
+                        $attributes[$k][$locale] = $attr;
                     }
                 }
             }

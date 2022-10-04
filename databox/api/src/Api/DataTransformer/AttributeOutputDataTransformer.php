@@ -20,6 +20,7 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setId($object->getId());
         $output->asset = $object->getAsset();
         $output->value = $object->getValues() ?? $object->getValue();
+        $output->fallbackValue = $object->getFallbackValues() ?? $object->getFallbackValue();
         $output->highlight = $object->getHighlights() ?? $object->getHighlight();
         $output->origin = $object->getOriginLabel();
         $output->originUserId = $object->getOriginUserId();

@@ -103,10 +103,14 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
      */
     private ?string $value = null;
 
+    private ?string $fallbackValue = null;
+
     /**
      * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer.
      */
     private ?array $values = null;
+
+    private ?array $fallbackValues = null;
 
     /**
      * Dynamically resolved.
@@ -192,9 +196,49 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         return $this->value;
     }
 
+    public function getFallbackValue(): ?string
+    {
+        return $this->fallbackValue;
+    }
+
+    public function getResolvedValue(): ?string
+    {
+        return $this->value ?? $this->fallbackValue;
+    }
+
     public function setValue(?string $value): void
     {
         $this->value = $value;
+    }
+
+    public function setFallbackValue(?string $FallbackValue): void
+    {
+        $this->fallbackValue = $FallbackValue;
+    }
+
+    public function getValues(): ?array
+    {
+        return $this->values;
+    }
+
+    public function getFallbackValues(): ?array
+    {
+        return $this->fallbackValues;
+    }
+
+    public function getResolvedValues(): ?array
+    {
+        return $this->values ?? $this->fallbackValues;
+    }
+
+    public function setValues(?array $values): void
+    {
+        $this->values = $values;
+    }
+
+    public function setFallbackValues(?array $fallbackValues): void
+    {
+        $this->fallbackValues = $fallbackValues;
     }
 
     public function hasOrigin(): bool
@@ -302,16 +346,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         return [
             $this->getAsset(),
         ];
-    }
-
-    public function getValues(): ?array
-    {
-        return $this->values;
-    }
-
-    public function setValues(?array $values): void
-    {
-        $this->values = $values;
     }
 
     public function getHighlight(): ?string

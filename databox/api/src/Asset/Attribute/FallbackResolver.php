@@ -53,39 +53,55 @@ class FallbackResolver
         Asset $asset,
         string $locale,
         AttributeDefinition $definition,
-        array &$attributes
+        array &$attributes,
+        array $recursionPath = []   // list of resolved attrDef ids, to detect cross-dependency
     ): ?Attribute {
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
+        // todo: remove debug after testing
+        $tabs = str_repeat('    ', count($recursionPath));  // recursion depth
+
         if (!empty($fallbacks[$locale])) {
+            // todo: remove debug after testing
+            $this->logger->debug(sprintf("$tabs-> resolveAttrFallback for '%s' (locale='%s')", $definition->getName(), $locale));
+
+            $recursionPath[] = $definition->getId();
+            $fallbackValue = $this->resolveFallback(
+                $fallbacks[$locale],
+                [
+                    'file' => new FileMetadataAccessorWrapper($asset->getFile(), $this->logger),
+                    'asset' => $asset,
+                    /*
+                     * "attr" allows a fallback (twig) to refrence attr.attributeName, so a -destination- fallback value
+                     *    can contain the "value" of another -source- attribute.
+                     * If the source attribute also has a fallback and is not yet resolved... recursion
+                     */
+                    'attr' => new DynamicAttributeBag(
+                        $attributes,
+                        $definitionsIndex,
+                        function (AttributeDefinition $depDef) use ($asset, &$attributes, $locale, $definition, $recursionPath): ?Attribute {
+                            if (in_array($depDef->getId(), $recursionPath)) {
+                                $this->logger->warning(sprintf("resolveAttrFallback for '%s' (locale='%s'): Cross-dependency detected with '%s'", $definition->getName(), $locale, $depDef->getName()));
+
+                                return null;
+                            }
+
+                            return $this->resolveAttrFallback(
+                                $asset,
+                                $locale,
+                                $depDef,
+                                $attributes,
+                                $recursionPath
+                            );
+                        },
+                        $locale
+                    ),
+                ]
+            );
+
             if (!isset($attributes[$definition->getId()][$locale])) {
-                // todo: remove debug after testing
-                $this->logger->debug(sprintf("resolveAttrFallback for '%s' (locale='%s')", $definition->getName(), $locale));
-                $fallbackValue = $this->resolveFallback(
-                    $fallbacks[$locale],
-                    [
-                        'file' => new FileMetadataAccessorWrapper($asset->getFile()),
-                        'asset' => $asset,
-                        'attr' => new DynamicAttributeBag(
-                            $attributes,
-                            $definitionsIndex,
-                            function (AttributeDefinition $depDef) use ($asset, &$attributes, $locale): ?Attribute {
-                                // todo: remove debug after testing
-                                $this->logger->debug(sprintf('resolveAttrFallback recurse)'));
-
-                                return $this->resolveAttrFallback(
-                                    $asset,
-                                    $locale,
-                                    $depDef,
-                                    $attributes
-                                );
-                            },
-                            $locale
-                        ),
-                    ]
-                );
-
+                // no "real" value for this attrDef.: Create a "fallback only" attribute (value=null)
                 $attribute = new Attribute();
                 $attribute->setCreatedAt(new DateTimeImmutable());
                 $attribute->setUpdatedAt(new DateTimeImmutable());
@@ -94,26 +110,33 @@ class FallbackResolver
                 $attribute->setAsset($asset);
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
 
-                if ($definition->isMultiple()) {
-                    // each line becomes a value
-                    $values = array_filter(
-                        explode("\n", $fallbackValue),
-                        function ($s) { return '' != trim($s); }
-                    );
-
-                    // todo: remove debug after testing
-                    $this->logger->debug(sprintf("fallback result for '%s' (multi) : %s", $definition->getName(), var_export($values, true)));
-                    $attribute->setValues($values);
-                } else {
-                    // todo: remove debug after testing
-                    $this->logger->debug(sprintf("fallback result for '%s' (mono) <- %s", $definition->getName(), var_export($fallbackValue, true)));
-                    $attribute->setValue($fallbackValue);
-                }
-
                 $attributes[$definition->getId()][$locale] = $attribute;
-
-                return $attribute;
+            } else {
+                // existing attribute: will add the fallback value to it
+                $attribute = $attributes[$definition->getId()][$locale];
             }
+
+            if ($definition->isMultiple()) {
+                // each line becomes a value
+                $fallbackValues = array_filter(
+                    explode("\n", $fallbackValue),
+                    function ($s) {
+                        return '' != trim($s);
+                    }
+                );
+
+                // todo: remove debug after testing
+                $this->logger->debug(sprintf("$tabs<- fallback result for '%s' (multi): [%s]", $definition->getName(), join(', ', array_map(function ($v) {return var_export($v, true); }, $fallbackValues))));
+
+                $attribute->setFallbackValues($fallbackValues);
+            } else {
+                // todo: remove debug after testing
+                $this->logger->debug(sprintf("$tabs<- fallback result for '%s' (mono): %s", $definition->getName(), var_export($fallbackValue, true)));
+
+                $attribute->setFallbackValue($fallbackValue);
+            }
+
+            return $attribute;
         }
 
         return null;

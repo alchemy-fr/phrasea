@@ -34,6 +34,13 @@ class DynamicAttributeBag
         $this->locale = $locale;
     }
 
+    /**
+     * called by twig for {{ attr.name }}, with name refering to another attribute.
+     *
+     * @param $args
+     *
+     * @return string|null the (resolved) value of the <name> attribute
+     */
     public function __call(string $name, $args): ?string
     {
         $def = $this->definitions[$name] ?? null;
@@ -43,17 +50,19 @@ class DynamicAttributeBag
 
         $defId = $def->getId();
 
+        // if a "real" or "fallback-computed" attribute already exists, return its value
         foreach ([$this->locale, IndexMappingUpdater::NO_LOCALE] as $l) {
             if (isset($this->attributes[$defId][$l])) {
-                return $this->attributes[$defId][$l]->getValue();
+                return $this->attributes[$defId][$l]->getResolvedValue();
             }
         }
 
+        // no value yet exists: call the resolver (wich recurse call resolveAttrFallback(...) )
         $resolve = $this->resolve;
         $attr = $resolve($def);
 
         if ($attr instanceof Attribute) {
-            return $attr->getValue();
+            return $attr->getResolvedValue();
         }
 
         return null;
