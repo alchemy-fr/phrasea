@@ -556,7 +556,7 @@ services:
   db:
     profiles:
       - db
-    image: postgres:14.4-alpine
+    image: postgres:11.2-alpine
     hostname: postgres
     networks:
       - internal
