@@ -6,7 +6,6 @@ namespace App\Consumer\Handler\File;
 
 use App\Asset\OriginalRenditionManager;
 use App\Attribute\AttributeDataExporter;
-use App\Consumer\Handler\Asset\AssetReadFileMetadataHandler;
 use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -73,8 +72,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->persist($asset);
         $em->flush();
 
-        $this->eventProducer->publish(AssetReadFileMetadataHandler::createEvent(
-            $asset->getId()
+        $this->eventProducer->publish(ReadMetadataHandler::createEvent(
+            $file->getId()
         ));
 
         $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
