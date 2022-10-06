@@ -3,5 +3,6 @@ kind: ConfigMap
 metadata:
   name: rabbitmq-php-config
 data:
-  RABBITMQ_HOST: {{ quote .Values.rabbitmq.host }}
-  RABBITMQ_PORT: {{ quote .Values.rabbitmq.port }}
+  RABBITMQ_HOST: {{ .Values.rabbitmq.host | quote }}
+  RABBITMQ_PORT: {{ .Values.rabbitmq.port | quote }}
+  RABBITMQ_SSL: {{ ternary "true" "false" .Values.rabbitmq.ssl | quote }}

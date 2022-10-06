@@ -22,6 +22,6 @@ appVersion: 1.17.0
 
 dependencies:
   - name: elasticsearch
-    version: "7.17.0"
+    version: "7.10.1"
     repository: "https://helm.elastic.co"
     condition: elasticsearch.enabled

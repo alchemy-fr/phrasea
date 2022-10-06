@@ -1,3 +1,6 @@
+parameters:
+    es_index_prefix: '%env(ELASTICSEARCH_INDEX_PREFIX)%'
+
 # Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
 fos_elastica:
     clients:
@@ -5,7 +8,7 @@ fos_elastica:
     indexes:
         asset:
             use_alias: true
-            index_name: "asset_%kernel.environment%"
+            index_name: "%es_index_prefix%asset_%kernel.environment%"
             settings:
                 index:
                     analysis:
@@ -72,7 +75,7 @@ fos_elastica:
 
         collection:
             use_alias: true
-            index_name: "collection_%kernel.environment%"
+            index_name: "%es_index_prefix%collection_%kernel.environment%"
             settings:
                 index:
                     analysis:

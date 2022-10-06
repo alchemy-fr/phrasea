@@ -87,6 +87,14 @@ gateway-tls
       name: {{ $secretName }}
       key: {{ $mapping.secretKey }}
 {{- end }}
+{{- if $ctx.rabbitmq }}
+- name: RABBITMQ_VHOST
+  value: {{ $ctx.rabbitmq.vhost | quote }}
+{{- end }}
+{{- if $ctx.database }}
+- name: DB_NAME
+  value: {{ $ctx.database.name | quote }}
+{{- end }}
 {{- end }}
 
 {{- define "app.volumes" }}

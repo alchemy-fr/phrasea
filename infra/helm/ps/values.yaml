@@ -27,6 +27,8 @@ auth:
     - authorization_code
   rabbitmq:
     vhost: auth
+  database:
+    name: auth
 
 databox:
   enabled: true
@@ -90,6 +92,8 @@ databox:
       - authorization_code
   rabbitmq:
     vhost: databox
+  database:
+    name: databox
   upload:
     uploaderTargetSlug: databox-uploader
 
@@ -158,6 +162,8 @@ expose:
     sidebarDefaultOpen: false
   rabbitmq:
     vhost: expose
+  database:
+    name: expose
   zippy:
     enabled: false
     baseUrl:
@@ -183,6 +189,8 @@ notify:
     - authorization_code
   rabbitmq:
     vhost: notify
+  database:
+    name: notify
 
 uploader:
   enabled: true
@@ -238,7 +246,9 @@ uploader:
       grantTypes:
       - authorization_code
   rabbitmq:
-    vhost: upload
+    vhost: uploader
+  database:
+    name: uploader
 
 report:
   enabled: true
@@ -284,6 +294,7 @@ rabbitmq:
   host: rabbitmq
   port: 5672
   user: phrasea
+  ssl: false
   password: '__CHANGE_ME_yUZV7fEAnb$u4dqFchQDz'
   persistence:
     enabled: true
@@ -366,6 +377,8 @@ elasticsearch:
   replicas: 1
   clusterName: elasticsearch-databox
   minimumMasterNodes: 1
+  url:
+  indexPrefix: ""
   volumeClaimTemplate:
     resources:
       requests:

@@ -18,6 +18,7 @@ data:
 {{- end }}
 {{- if .Values.databox.enabled }}
   DATABOX_API_BASE_URL: {{ quote .Values.databox.api.baseUrl }}
+  DATABOX_CLIENT_BASE_URL: {{ quote .Values.databox.client.baseUrl }}
 {{- end }}
 {{- if .Values.uploader.enabled }}
   UPLOADER_API_BASE_URL: {{ quote .Values.uploader.api.baseUrl }}
