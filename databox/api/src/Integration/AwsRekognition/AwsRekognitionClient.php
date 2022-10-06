@@ -51,6 +51,7 @@ class AwsRekognitionClient
         $client = $this->createClient($options);
 
         $res = $client->detectFaces([
+            'Attributes' => ['ALL'],
             'Image' => [
                 'Bytes' => file_get_contents($path),
             ]

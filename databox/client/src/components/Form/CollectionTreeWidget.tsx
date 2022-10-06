@@ -30,8 +30,6 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
                                          required,
                                      }: Props<TFieldValues, IsMulti>) {
     return <FormControl component="fieldset" variant="standard">
-
-
         {label && <FormLabel
             required={required}
             component="legend"

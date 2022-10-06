@@ -94,7 +94,9 @@ export default function AssetView({}: Props) {
                 </b>
 
                 <Select<string>
+                    sx={{ml: 2}}
                     label={''}
+                    size={'small'}
                     value={rendition?.id}
                     onChange={(e) => handleRenditionChange(e.target.value)}
                 >

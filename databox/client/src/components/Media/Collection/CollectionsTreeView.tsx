@@ -5,7 +5,7 @@ import TreeItem from '@mui/lab/TreeItem';
 import {CollectionOptionalWorkspace, Workspace} from "../../../types";
 import {getCollection, getWorkspaces} from "../../../api/collection";
 import {TreeView} from "@mui/lab";
-import {CircularProgress} from "@mui/material";
+import {Box, CircularProgress, Typography} from "@mui/material";
 
 type Props<IsMulti extends boolean = false> = {
     onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
@@ -64,10 +64,14 @@ function CollectionTree({
     </TreeItem>
 }
 
-
 function stripWs(nodeId: string): string {
     return nodeId.split(nodeSeparator)[1];
 }
+
+type NewCollectionPath = {
+    rootNode: string;
+    path: string;
+};
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
                                                                          onChange,
@@ -77,6 +81,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                                                                          disabledBranches,
                                                                      }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
+    const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPath>();
 
     useEffect(() => {
         getWorkspaces().then(w => {
@@ -131,7 +136,15 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
             return <TreeItem
                 nodeId={nodeId}
                 key={w.id}
-                label={w.name}
+                label={<>
+                    <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
+                            {w.name}
+                        </Typography>
+                        <Typography variant="caption" color="inherit">
+                        </Typography>
+                    </Box>
+                </>}
                 disabled={disabledBranches && disabledBranches.some(b => nodeId.startsWith(b))}
             >
                 {w.collections.map(c => <CollectionTree
