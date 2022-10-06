@@ -102,6 +102,12 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public ?CopyAssetInput $copyAction = null;
     public ?MoveAssetInput $moveAction = null;
 
+    /**
+     * used by callers to cache custom data, e.g.
+     * - AttributesResolver store ResolvedAttributes to avoid n+1 calls.
+     */
+    private array $cache = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -109,6 +115,23 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+    }
+
+    public function getCacheKey(?string $key)
+    {
+        return self::class.'_'.$this->getId().(is_null($key) ? '' : ('_'.$key));
+    }
+
+    public function setToCache(string $key, $value)
+    {
+        $this->cache[$this->getCacheKey($key)] = $value;
+    }
+
+    public function getFromCache(string $key)
+    {
+        $key = $this->getCacheKey($key);
+
+        return array_key_exists($key, $this->cache) ? $this->cache[$key] : null;
     }
 
     public function getOwnerId(): ?string

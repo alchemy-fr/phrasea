@@ -5,15 +5,31 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use App\Api\Model\Output\AttributeOutput;
+use App\Asset\Attribute\AttributesResolver;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 
 class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
 {
+    private AttributesResolver $attributesResolver;
+
+    public function __construct(AttributesResolver $attributesResolver)
+    {
+        $this->attributesResolver = $attributesResolver;
+    }
+
     /**
      * @param Attribute $object
      */
     public function transform($object, string $to, array $context = [])
     {
+        /** @var Asset $asset */
+        $locale = $object->getLocale() ?? '_';
+        $attributes = $this->attributesResolver->resolveAttributes($object->getAsset(), true);
+        if (isset($attributes[$object->getDefinition()->getId()][$locale])) {
+            $object = $attributes[$object->getDefinition()->getId()][$locale];
+        }
+
         $output = new AttributeOutput();
         $output->setCreatedAt($object->getCreatedAt());
         $output->setUpdatedAt($object->getUpdatedAt());

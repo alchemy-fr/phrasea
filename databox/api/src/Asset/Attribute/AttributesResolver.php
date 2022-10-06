@@ -37,6 +37,12 @@ class AttributesResolver
      */
     public function resolveAttributes(Asset $asset, bool $applyPermissions = false): array
     {
+        // todo: permApplied is a subset of permNotApplied -> cache 1 set with flag (or 2 complementary sets)
+        $cacheKey = 'ResolvedAttributes_'.($applyPermissions ? 'permissionsApplied' : 'permissionsNotApplied');
+        if (!is_null($result = $asset->getFromCache($cacheKey))) {
+            return $result;
+        }
+
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
             ->getAssetAttributes($asset);
@@ -78,6 +84,8 @@ class AttributesResolver
         if ($applyPermissions) {
             $result = array_diff_key($result, $disallowedDefinitions);
         }
+
+        $asset->setToCache($cacheKey, $result);
 
         return $result;
     }

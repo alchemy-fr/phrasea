@@ -100,7 +100,16 @@ class FallbackResolver
                 ]
             );
 
+            // todo: remove debug after testing
+            if (!$fallbackValue) {
+                $this->logger->debug(sprintf("$tabs<- empty fallback result for '%s'", $definition->getName()));
+            }
+
             if (!isset($attributes[$definition->getId()][$locale])) {
+                if (!$fallbackValue) {
+                    return null;
+                }
+
                 // no "real" value for this attrDef.: Create a "fallback only" attribute (value=null)
                 $attribute = new Attribute();
                 $attribute->setCreatedAt(new DateTimeImmutable());
@@ -114,6 +123,10 @@ class FallbackResolver
             } else {
                 // existing attribute: will add the fallback value to it
                 $attribute = $attributes[$definition->getId()][$locale];
+
+                if (!$fallbackValue) {
+                    return $attribute;
+                }
             }
 
             if ($definition->isMultiple()) {
@@ -146,6 +159,6 @@ class FallbackResolver
     {
         $template = $this->twig->createTemplate($fallbackTemplate);
 
-        return $this->twig->render($template, $values);
+        return trim($this->twig->render($template, $values));
     }
 }

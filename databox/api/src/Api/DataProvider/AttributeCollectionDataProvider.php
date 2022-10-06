@@ -6,6 +6,7 @@ namespace App\Api\DataProvider;
 
 use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use App\Asset\Attribute\AttributesResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Security\Voter\AssetVoter;
@@ -19,11 +20,13 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
 {
     private EntityManagerInterface $em;
     private Security $security;
+    private AttributesResolver $attributesResolver;
 
-    public function __construct(EntityManagerInterface $em, Security $security)
+    public function __construct(EntityManagerInterface $em, Security $security, AttributesResolver $attributesResolver)
     {
         $this->em = $em;
         $this->security = $security;
+        $this->attributesResolver = $attributesResolver;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -42,13 +45,16 @@ class AttributeCollectionDataProvider implements ContextAwareCollectionDataProvi
             throw new AccessDeniedHttpException('Cannot read asset');
         }
 
-        $criteria = [
-            'asset' => $asset->getId(),
-        ];
+        $ret = [];
+        $attributesByDefinition = $this->attributesResolver->resolveAttributes($asset, true);
+        foreach ($attributesByDefinition as $attributesByLocale) {
+            foreach ($attributesByLocale as $attribute) {
+                $ret[] = $attribute;
+            }
+        }
+        usort($ret, function (Attribute $a, Attribute $b) {return $a->getPosition() - $b->getPosition(); });
 
-        return $this->em->getRepository(Attribute::class)->findBy($criteria, [
-            'position' => 'ASC',
-        ]);
+        return $ret;
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
