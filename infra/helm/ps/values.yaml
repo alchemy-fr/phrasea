@@ -269,7 +269,7 @@ dashboard:
     tls: []
 
 mailer:
-  dns: 'null://null'
+  dsn: 'null://null'
   from: 'no-reply@acme.com'
 
 postgresql:
