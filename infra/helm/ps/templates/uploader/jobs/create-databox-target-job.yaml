@@ -43,9 +43,9 @@ spec:
           mountPath: /setup/job.sh
           subPath: job.sh
         env:
+        - name: UPLOADER_TARGET_SLUG
+          value: {{ .upload.uploaderTargetSlug | quote }}
 {{- include "envRef.phpApp" $tplArgs | indent 8 }}
-          - name: UPLOADER_TARGET_SLUG
-            value: {{ .upload.uploaderTargetSlug | quote }}
         envFrom:
         - configMapRef:
             name: uploader-api-config

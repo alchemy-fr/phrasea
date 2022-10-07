@@ -11,7 +11,7 @@ data:
   ELASTICSEARCH_INDEX_PREFIX: {{ $.Values.elasticsearch.indexPrefix | quote }}
   PHRASEANET_BASE_URL: {{ .phraseanet.baseUrl | default "" | quote }}
   PHRASEANET_APP_OAUTH_TOKEN: {{ .phraseanet.oauthToken | default "" | quote }}
-{{ include "app.s3Storage.configMap" $tplArgs | indent 2 }}
-{{ include "app.cloudFront.configMap" $tplArgs | indent 2 }}
+{{- include "app.s3Storage.configMap" $tplArgs | indent 2 }}
+{{- include "app.cloudFront.configMap" $tplArgs | indent 2 }}
 {{- end }}
 {{- end }}

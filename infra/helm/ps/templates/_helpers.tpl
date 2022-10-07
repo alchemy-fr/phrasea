@@ -62,14 +62,14 @@ gateway-tls
     name: {{ .Values.postgresql.externalSecretName | default "api-db-secret" }}
 {{- end }}
 
-{{- define "configMapRef.phpApp" -}}
+{{- define "configMapRef.phpApp" }}
 - configMapRef:
     name: php-config
 - configMapRef:
     name: urls-config
 {{- end }}
 
-{{- define "envRef.phpApp" -}}
+{{- define "envRef.phpApp" }}
 {{- $appName := .app }}
 {{- $ctx := .ctx }}
 {{- $glob := .glob }}
@@ -119,9 +119,9 @@ gateway-tls
 {{- end }}
 
 {{- define "app.volumesMounts" }}
-{{- $appName := .app -}}
-{{- $ctx := .ctx -}}
-{{- $glob := .glob -}}
+{{- $appName := .app }}
+{{- $ctx := .ctx }}
+{{- $glob := .glob }}
 {{- if .glob.Values._internal.volumes }}
 {{- if hasKey .glob.Values._internal.volumes $appName }}
 {{- with (index .glob.Values._internal.volumes $appName) }}
@@ -134,30 +134,9 @@ gateway-tls
 {{- end }}
 {{- end }}
 
-{{- define "app.volumesUidInit" }}
-{{- $appName := .app -}}
-{{- $ctx := .ctx -}}
-{{- $glob := .glob -}}
-{{- if hasKey .glob.Values._internal.volumes $appName }}
-{{- with (index .glob.Values._internal.volumes $appName) }}
-{{- range $key, $value := . }}
-{{- if $value.uid }}
-initContainers:
-- name: volume-set-uid-{{ $appName }}-{{ $key }}
-  image: busybox
-  command: ["sh", "-c", "chown -R {{ $value.uid }}:{{ $value.uid }} {{ $value.mountPath }}"]
-  volumeMounts:
-  - name: {{ $key }}
-    mountPath: {{ $value.mountPath }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-
 {{- define "app.s3Storage.configMap" }}
-{{- $ctx := .ctx -}}
-{{- $glob := .glob -}}
+{{- $ctx := .ctx }}
+{{- $glob := .glob }}
 S3_STORAGE_ENDPOINT: {{ tpl $ctx.s3Storage.endpoint $glob | quote }}
 S3_STORAGE_REGION: {{ $ctx.s3Storage.region | default "eu-central-1" | quote }}
 S3_STORAGE_USE_PATH_STYLE_ENDPOINT: {{ ternary "true" "false" (or $ctx.s3Storage.usePathSyleEndpoint $glob.Values.minio.enabled) | quote }}
@@ -165,8 +144,8 @@ S3_STORAGE_BUCKET_NAME: {{ $ctx.s3Storage.bucketName | quote }}
 {{- end }}
 
 {{- define "app.cloudFront.configMap" }}
-{{- $ctx := .ctx -}}
-{{- $glob := .glob -}}
+{{- $ctx := .ctx }}
+{{- $glob := .glob }}
 {{- if $ctx.cloudFront.url }}
 CLOUD_FRONT_URL: {{ tpl $ctx.cloudFront.url $glob | quote }}
 CLOUD_FRONT_REGION: {{ $ctx.cloudFront.region | default "eu-central-1" | quote }}

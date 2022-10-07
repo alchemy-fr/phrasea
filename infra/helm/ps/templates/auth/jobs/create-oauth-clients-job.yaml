@@ -70,7 +70,7 @@ spec:
             name: {{ .externalSecretName | default $jobName }}
         - configMapRef:
             name: auth-api-config
-{{ include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "configMapRef.phpApp" $ | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never
