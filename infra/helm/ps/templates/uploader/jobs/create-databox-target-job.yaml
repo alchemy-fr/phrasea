@@ -2,6 +2,7 @@
 {{- if .Values.databox.enabled }}
 {{- with .Values.databox }}
 {{- $jobName := "create-databox-uploader-target" }}
+{{ $tplArgs := dict "app" "uploader" "ctx" . "glob" $ }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -42,12 +43,13 @@ spec:
           mountPath: /setup/job.sh
           subPath: job.sh
         env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
           - name: UPLOADER_TARGET_SLUG
             value: {{ .upload.uploaderTargetSlug | quote }}
         envFrom:
         - configMapRef:
             name: uploader-api-config
-{{ include "configMapRef.phpApp" $ | indent 8 }}
+{{- include "configMapRef.phpApp" $ | indent 8 }}
 {{- include "envFrom.rabbitmq" $ | indent 8 }}
 {{- include "envFrom.postgresql" $ | indent 8 }}
       restartPolicy: Never
