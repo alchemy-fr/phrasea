@@ -145,7 +145,6 @@ class AssetSearch extends AbstractSearch
                 ],
                 'attributes.*' => [
                     'number_of_fragments' => 20,
-                    'max_analyzed_offset' => 1000000,
                 ],
             ],
         ]);
