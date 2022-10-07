@@ -26,7 +26,7 @@ docker-compose run --rm dockerize
 
 # Setup Auth
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost auth && rabbitmqctl set_permissions -p auth ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost ${AUTH_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${AUTH_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as auth-api-php "bin/setup.sh" app
 ## Create OAuth client for Admin
@@ -39,7 +39,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMI
 
 # Setup Uploader
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost upload && rabbitmqctl set_permissions -p upload ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${UPLOADER_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as uploader-api-php "bin/setup.sh" app
 ## Create OAuth client
@@ -67,7 +67,7 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
 
 # Setup Expose
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost expose && rabbitmqctl set_permissions -p expose ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost ${EXPOSE_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${EXPOSE_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as expose-api-php "bin/setup.sh" app
 ## Create OAuth client
@@ -104,7 +104,7 @@ docker-compose run --rm -T --entrypoint "sh -c" minio-mc "\
 
 # Setup Notify
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost notify && rabbitmqctl set_permissions -p notify ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost ${NOTIFY_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${NOTIFY_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as notify-api-php "bin/setup.sh" app
 ## Create OAuth client for Notify Admin
@@ -116,7 +116,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_AD
 
 # Setup Databox
 ## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost databox && rabbitmqctl set_permissions -p databox ${RABBITMQ_USER} '.*' '.*' '.*'"
+exec_container rabbitmq "rabbitmqctl add_vhost ${DATABOX_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${DATABOX_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as databox-api-php "bin/setup.sh" app
 ## Create OAuth client for Databox Admin
