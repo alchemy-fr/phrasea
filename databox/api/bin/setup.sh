@@ -9,7 +9,7 @@ if [ ! -d "${BASEDIR}/../vendor" ]; then
 fi
 
 is_es_ready() {
-    [ $(curl --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}_cat/health?h=st) = 200 ]
+    [ $(curl --write-out %{http_code} --silent --output /dev/null ${ELASTICSEARCH_URL}/_cat/health?h=st) = 200 ]
 }
 
 wait_for_es() {
