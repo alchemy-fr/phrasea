@@ -2,7 +2,7 @@
 {{ $appName := . }}
 {{- if and (index $.Values $appName).enabled (index $.Values $appName).adminOAuthClient }}
 {{- with (index $.Values $appName)  }}
-{{ $tplArgs := dict "app" $appName "ctx" . "glob" $ }}
+{{ $tplArgs := dict "app" "auth" "ctx" $.Values.auth "glob" $ }}
 {{ $jobName := printf "%s-create-admin-oauth-client" $appName }}
 apiVersion: v1
 kind: ConfigMap
