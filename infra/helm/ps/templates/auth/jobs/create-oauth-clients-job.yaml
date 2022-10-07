@@ -65,6 +65,8 @@ spec:
         - name: scripts
           mountPath: /setup/job.sh
           subPath: job.sh
+        env:
+{{- include "envRef.phpApp" $tplArgs | indent 8 }}
         envFrom:
         - secretRef:
             name: {{ .externalSecretName | default $jobName }}
