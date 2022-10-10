@@ -32,7 +32,7 @@ class SecurityController extends AbstractController
     {
         $session = $request->getSession();
 
-        $redirectUri = $request->get('redirect_uri');
+        $redirectUri = $request->get('r');
         if (null === $redirectUri) {
             $redirectUri = $session->get(self::SESSION_REDIRECT_KEY);
             $redirectUri ??= $this->generateUrl('security_index');

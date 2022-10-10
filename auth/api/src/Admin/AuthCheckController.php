@@ -61,6 +61,13 @@ class AuthCheckController extends AbstractController
         $event = new InteractiveLoginEvent($request, $token);
         $dispatcher->dispatch($event);
 
+        if ($state = $request->query->get('state')) {
+            parse_str($state, $statePayload);
+            if (isset($statePayload['r'])) {
+                return $this->redirect($statePayload['r']);
+            }
+        }
+
         return $this->redirectToRoute('easyadmin');
     }
 }

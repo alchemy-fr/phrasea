@@ -20,6 +20,8 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
 
     public function onLogoutSuccess(Request $request)
     {
-        return new RedirectResponse($this->client->getLogoutUrl());
+        $redirectUri = $request->headers->get('referer', $request->getUriForPath('/'));
+
+        return new RedirectResponse($this->client->getLogoutUrl().'?r='.urlencode($redirectUri));
     }
 }
