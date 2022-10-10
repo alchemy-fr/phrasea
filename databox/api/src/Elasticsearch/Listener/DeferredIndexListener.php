@@ -42,6 +42,11 @@ class DeferredIndexListener implements EventSubscriber
         $this->searchIndexer = $searchIndexer;
     }
 
+    public function scheduleForUpdate(object $entity): void
+    {
+        $this->scheduledForUpdate[] = $entity;
+    }
+
     public function flush(): void
     {
         $this->persistScheduled();

@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Elasticsearch\Listener\DeferredIndexListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -31,12 +32,19 @@ class BatchAttributeManager
     private EntityManagerInterface $em;
     private AttributeAssigner $attributeAssigner;
     private Security $security;
+    private DeferredIndexListener $deferredIndexListener;
 
-    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner, Security $security)
+    public function __construct(
+        EntityManagerInterface $em,
+        AttributeAssigner $attributeAssigner,
+        Security $security,
+        DeferredIndexListener $deferredIndexListener
+    )
     {
         $this->em = $em;
         $this->attributeAssigner = $attributeAssigner;
         $this->security = $security;
+        $this->deferredIndexListener = $deferredIndexListener;
     }
 
     public function validate(array $assetsId, AssetAttributeBatchUpdateInput $input): ?string
@@ -213,6 +221,11 @@ class BatchAttributeManager
                     default:
                         throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action->action));
                 }
+            }
+
+            // Force assets to be reindexed on terminate
+            foreach ($assetsId as $assetId) {
+                $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
             }
 
             $this->em->flush();
