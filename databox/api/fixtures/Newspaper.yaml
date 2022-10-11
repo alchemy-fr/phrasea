@@ -30,17 +30,47 @@ App\Entity\Core\AttributeDefinition:
   ad_desc (extends attribute_definition):
     name: Description
     class: '@n_ac_public'
+    fallbackAll: '{{ file.metadata(''XMP-dc:Description'').value }}'
     position: 0
   ad_keywords (extends attribute_definition):
     name: Keywords
     multiple: true
     facetEnabled: true
     class: '@n_ac_public'
+    fallbackAll: "{% for v in file.metadata('IPTC:Keywords').values %}\n{{v}}\n{% endfor %}"
     position: 1
+  ad_author (extends attribute_definition):
+    name: Author
+    multiple: false
+    facetEnabled: true
+    class: '@n_ac_public'
+    fallbackAll: "{{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}"
+    position: 2
+  ad_country (extends attribute_definition):
+    name: Country
+    multiple: false
+    facetEnabled: true
+    class: '@n_ac_public'
+    fallbackAll: '{{ file.metadata(''IPTC:Country-PrimaryLocationName'').value ?? file.metadata(''XMP-photoshop:Country'').value }}'
+    position: 2
+  ad_city (extends attribute_definition):
+    name: City
+    multiple: false
+    facetEnabled: true
+    class: '@n_ac_public'
+    fallbackAll: '{{ file.metadata(''IPTC:City'').value ?? file.metadata(''XMP-photoshop:City'').value }}'
+    position: 3
+  ad_creation_date (extends attribute_definition):
+    name: CreationDate
+    multiple: false
+    facetEnabled: false
+    class: '@n_ac_public'
+    fallbackAll: '{{ file.metadata(''ExifIFD:CreateDate'').value ?? file.metadata(''IPTC:DateCreated'').value ?? file.metadata(''IPTC:DigitalCreationDate'').value }}'
+    position: 4
   ad_admin_note (extends attribute_definition):
     name: Admin notes
     class: '@n_ac_business'
-    position: 2
+    position: 5
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):
