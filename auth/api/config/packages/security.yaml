@@ -35,6 +35,7 @@ security:
                 target: easyadmin
                 success_handler: alchemy_admin.logout.success_handler
             provider: user_password
+            access_denied_handler: alchemy_admin.access_denied_handler
             guard:
                 authenticators:
                 - App\Security\LoginFormAuthenticator

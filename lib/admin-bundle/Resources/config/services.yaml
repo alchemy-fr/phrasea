@@ -42,6 +42,9 @@ services:
 
   Alchemy\AclBundle\Controller\PermissionController: ~
 
+  alchemy_admin.access_denied_handler:
+    class: Alchemy\AdminBundle\Security\AdminAccessDeniedHandler
+
   alchemy_admin.logout.success_handler:
     class: Alchemy\AdminBundle\Security\LogoutSuccessHandler
 
