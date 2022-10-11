@@ -47,6 +47,7 @@ export interface Attribute extends IPermissions {
     originUserId?: string;
     originVendorContext?: string;
     value: AttrValue;
+    fallbackValue: AttrValue;
     highlight: AttrValue;
 }
 

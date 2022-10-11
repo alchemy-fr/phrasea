@@ -10,6 +10,7 @@ import FormTab from "../../../Dialog/Tabbed/FormTab";
 export type AttrValue<T = string> = {
     id: T;
     value: any;
+    fallbackValue: any;
 }
 
 export const NO_LOCALE = '_';
@@ -36,6 +37,7 @@ export function createNewValue(type: string): AttrValue<number> {
             return {
                 id: idInc++,
                 value: '',
+                fallbackValue: ''
             };
     }
 }
@@ -56,6 +58,7 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
         const v = {
             id: a.id,
             value: a.value,
+            fallbackValue: a.fallbackValue,
         };
 
         if (!attributeIndex[a.definition.id]) {
@@ -97,11 +100,15 @@ export default function AttributesEditor({
             const newValues = {...prev};
 
             if (value === undefined) {
-                delete newValues[defId];
+                newValues[defId] = remoteAttrs[defId];
             } else {
+                for(let locale in remoteAttrs[defId]) {
+                    if(value[locale] === undefined) {
+                        value[locale] = remoteAttrs[defId][locale];
+                    }
+                }
                 newValues[defId] = value;
             }
-
             return newValues;
         });
     }, [setAttributes]);

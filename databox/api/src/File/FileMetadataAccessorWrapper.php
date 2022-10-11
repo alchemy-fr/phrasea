@@ -51,7 +51,6 @@ class FileMetadataAccessorWrapper
             if (is_array($this->meta) && array_key_exists($id, $this->meta) && array_key_exists('values', $this->meta[$id])) {
                 // "value" is not included in persisted normalization (for smaller json)
                 $this->meta[$id]['value'] = join(' ; ', $this->meta[$id]['values']);
-                $this->meta[$id]['exists'] = true;  // usefull attribute for twig - not incuded into normalization
 
                 return $this->meta[$id];
             }
@@ -60,7 +59,6 @@ class FileMetadataAccessorWrapper
         // no file or no metadata ? be nice also
         $r = MetadataNormalizer::getBlankMeta();
         $this->meta[$id]['value'] = null;
-        $r['exists'] = false;
 
         return $r;
     }

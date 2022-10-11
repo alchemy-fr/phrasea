@@ -59,6 +59,7 @@ export default function AttributeWidget({
                 rows={isMultiline ? 3 : undefined}
                 multiline={isMultiline}
                 disabled={readOnly || disabled}
+                InputLabelProps={{ shrink: true }}
                 label={name}
                 onChange={changeHandler}
                 value={value ? value.value : ''}
@@ -68,7 +69,7 @@ export default function AttributeWidget({
                     direction: isRtl ? 'rtl' : undefined,
                     cursor: 'not-allowed',
                 }}
-                placeholder={indeterminate ? '[multiple values]' : undefined}
+                placeholder={indeterminate ? '[multiple values]' : (value ? value.fallbackValue : '')}
             />
     }
 }
