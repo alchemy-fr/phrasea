@@ -22,6 +22,7 @@ security:
             pattern:    ^/admin
             stateless:  false
             anonymous:  ~
+            access_denied_handler: alchemy_admin.access_denied_handler
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin

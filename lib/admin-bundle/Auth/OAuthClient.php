@@ -29,14 +29,14 @@ class OAuthClient
         $this->authBaseUrl = $authBaseUrl;
     }
 
-    public function getAuthorizeUrl(string $redirectUri): string
+    public function getAuthorizeUrl(string $redirectUri, ?string $state = null): string
     {
         return sprintf(
             '%s/oauth/v2/auth?client_id=%s&response_type=code&redirect_uri=%s',
             $this->authBaseUrl,
             urlencode($this->clientId),
             urlencode($redirectUri)
-        );
+        ).(!empty($state) ? '&state='.urlencode($state) : '');
     }
 
     public function getLogoutUrl(): string

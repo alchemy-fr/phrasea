@@ -27,7 +27,7 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->followRedirects();
         $response = $this->client->getResponse();
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/admin/login', $response->getTargetUrl());
+        $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
         $this->client->followRedirects();
         $this->logIn();

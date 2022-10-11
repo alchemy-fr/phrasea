@@ -107,10 +107,10 @@ class OAuthController extends AbstractIdentityProviderController
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri, [
-            'state' => urlencode(http_build_query([
+            'state' => http_build_query([
                 'c' =>  $clientId,
                 'r' => $lastRedirectUri,
-            ]))
+            ])
         ]));
     }
 
@@ -158,7 +158,7 @@ class OAuthController extends AbstractIdentityProviderController
         OAuthProviderFactory $OAuthFactory
     ) {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-        parse_str(urldecode($request->get('state', '')), $state);
+        parse_str($request->get('state', ''), $state);
         $finalRedirectUri = $state['r'];
         $clientId = $state['c'] ?? null;
 
