@@ -1,7 +1,7 @@
 {{- range .Values._internal.services }}
 {{- $appName := . }}
 {{- $appNode := (index $.Values $appName) }}
-{{- $tplArgs := dict "app" $appName "ctx" $appNode "glob" $ }}
+{{- $tplArgs := dict "app" "auth" "ctx" $.Values.auth "glob" $ }}
 {{- if and $appNode.enabled $appNode.client }}
 {{- if $appNode.client.oauthClient }}
 {{- $jobName := printf "%s-create-oauth-client" $appName }}
