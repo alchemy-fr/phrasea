@@ -1,0 +1,12 @@
+{
+  "login": {
+    "form": {
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign In"
+    },
+    "idp": {
+      "connect_with": "Connect with {provider}"
+    }
+  }
+}

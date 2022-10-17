@@ -50,6 +50,7 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
       - EXPOSE_REQUEST_SIGNATURE_TTL
+      - DISABLE_INDEX_PAGE
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client.rule=Host(`expose.${PHRASEA_DOMAIN}`)"

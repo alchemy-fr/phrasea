@@ -6,6 +6,7 @@ import AssetRoute from "./routes/AssetRoute";
 import {getAuthRedirect, oauthClient, unsetAuthRedirect} from "../lib/oauth";
 import {OAuthRedirect, ServicesMenu} from '@alchemy-fr/phraseanet-react-components';
 import config from "../lib/config";
+import ErrorPage from "./ErrorPage";
 
 class App extends PureComponent {
     state = {
@@ -68,13 +69,17 @@ class App extends PureComponent {
                         }}
                     />
                 }}/>
-                <Route path="/" exact component={PublicationIndex} />
+                {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}
                     authenticated={this.state.authenticated}
                 />}/>
                 <Route path="/:publication/:asset" exact component={AssetRoute}/>
                 <Route path="/:publication/:asset/:subdef" exact component={AssetRoute}/>
+                <Route path="/" exact render={() => <ErrorPage
+                    title={'Not found'}
+                    code={404}
+                />}/>
             </Switch>
         </Router>
     }

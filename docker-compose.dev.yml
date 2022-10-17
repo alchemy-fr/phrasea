@@ -52,6 +52,7 @@ services:
       - MATOMO_HOST
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - WDS_SOCKET_PORT=443
+      - DISABLE_INDEX_PAGE
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"

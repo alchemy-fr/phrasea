@@ -40,9 +40,9 @@ class Layout extends PureComponent {
                     {this.renderAuthenticated()}
                     <div className="p-3">
                         <h1>
-                            <Link to={'/'} className="logo">
+                            {!config.get('disableIndexPage') ? <Link to={'/'} className="logo">
                                 <Logo />
-                            </Link>
+                            </Link> : <Logo />}
                         </h1>
                     </div>
 

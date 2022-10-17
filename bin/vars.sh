@@ -8,8 +8,9 @@ uploader/api
 notify/api
 "
 
-NPM_PROJECTS="
-expose/front
+JS_PROJECTS="
+databox/client
+expose/client
 uploader/client
 "
 
