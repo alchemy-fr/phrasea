@@ -1,10 +1,11 @@
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
 import {makeAuthorizationHeaders} from "../../api/file";
 import uploaderClient from "../../api/uploader-client";
+import {AxiosProgressEvent} from "axios";
 
 const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
-type OnProgress = (progressEvent: ProgressEvent) => void;
+type OnProgress = (progressEvent: AxiosProgressEvent) => void;
 
 type Upload = {
     id: string,
@@ -67,7 +68,7 @@ export async function uploadMultipartFile(
             const blob = (index < numChunks) ? file.slice(start, end) : file.slice(start);
 
             const uploadResp = await uploaderClient.put(getUploadUrlResp.url, blob, {
-                onUploadProgress: (e: ProgressEvent) => {
+                onUploadProgress: (e: AxiosProgressEvent) => {
                     const multiPartEvent = {
                         ...e,
                         loaded: e.loaded + start,
@@ -77,7 +78,7 @@ export async function uploadMultipartFile(
                 }
             });
 
-            const eTag = uploadResp.headers.etag;
+            const eTag = uploadResp.headers.etag as string;
             uploadParts.push({
                 ETag: eTag,
                 PartNumber: index,

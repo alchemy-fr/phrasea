@@ -68,11 +68,12 @@ export default function App() {
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
-            if (error.config?.errorHandled || axios.isCancel(error)) {
+            if (error.config?.errorHandled || axios.isCancel(error) as boolean) {
                 return;
             }
 
             const status = error.response?.status;
+
             switch (status) {
                 case 401:
                     toast.error(t('error.session_expired', 'Your session has expired'));

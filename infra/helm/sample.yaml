@@ -3,63 +3,63 @@
 
 auth:
   api:
-    hostname: "api-auth.alchemy.kube"
-    baseUrl: "https://api-auth.alchemy.kube"
+    hostname: "api-auth.phrasea.minikube"
+    baseUrl: "https://api-auth.phrasea.minikube"
 
 databox:
   api:
-    hostname: "api-databox.alchemy.kube"
-    baseUrl: "https://api-databox.alchemy.kube"
+    hostname: "api-databox.phrasea.minikube"
+    baseUrl: "https://api-databox.phrasea.minikube"
   client:
-    hostname: "databox.alchemy.kube"
-    baseUrl: "https://databox.alchemy.kube"
+    hostname: "databox.phrasea.minikube"
+    baseUrl: "https://databox.phrasea.minikube"
 
 expose:
   api:
-    hostname: "api-expose.alchemy.kube"
-    baseUrl: "https://api-expose.alchemy.kube"
+    hostname: "api-expose.phrasea.minikube"
+    baseUrl: "https://api-expose.phrasea.minikube"
   client:
-    hostname: "expose.alchemy.kube"
-    baseUrl: "https://expose.alchemy.kube"
+    hostname: "expose.phrasea.minikube"
+    baseUrl: "https://expose.phrasea.minikube"
     mapbox:
       token: "pk.eyJ1IjoiYXJ0aHVyZGVtb3VsaW5zIiwiYSI6ImNrYXAybGNodTBqdGIycnBvNGs0cWhsanYifQ.AafKAw4dVuEOVvbnwWG9Vw"
   zippy:
     enabled: true
-    baseUrl: "https://zippy-svc.alchemy.kube"
+    baseUrl: "https://zippy-svc.phrasea.minikube"
     clientId: client
     clientSecret: secret
 
 uploader:
   api:
-    hostname: "api-uploader.alchemy.kube"
-    baseUrl: "https://api-uploader.alchemy.kube"
+    hostname: "api-uploader.phrasea.minikube"
+    baseUrl: "https://api-uploader.phrasea.minikube"
   client:
-    hostname: "uploader.alchemy.kube"
-    baseUrl: "https://uploader.alchemy.kube"
+    hostname: "uploader.phrasea.minikube"
+    baseUrl: "https://uploader.phrasea.minikube"
   persistence:
     enabled: false
 
 notify:
   api:
-    hostname: "api-notify.alchemy.kube"
-    baseUrl: "https://api-notify.alchemy.kube"
+    hostname: "api-notify.phrasea.minikube"
+    baseUrl: "https://api-notify.phrasea.minikube"
 
 report:
   api:
-    hostname: "report.alchemy.kube"
-    baseUrl: "https://report.alchemy.kube"
+    hostname: "report.phrasea.minikube"
+    baseUrl: "https://report.phrasea.minikube"
 
 dashboard:
-  hostname: "dashboard.alchemy.kube"
-  baseUrl: "https://dashboard.alchemy.kube"
+  hostname: "dashboard.phrasea.minikube"
+  baseUrl: "https://dashboard.phrasea.minikube"
 
 mailer:
   dsn: "smtp://localhost"
 
 minio:
   enabled: true
-  hostname: "minio.alchemy.kube"
-  baseUrl: "https://minio.alchemy.kube"
+  hostname: "minio.phrasea.minikube"
+  baseUrl: "https://minio.phrasea.minikube"
 
 ingress:
   tls:
