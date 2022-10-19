@@ -4,9 +4,10 @@ import PublicationRoute from "./routes/PublicationRoute";
 import PublicationIndex from "./index/PublicationIndex";
 import AssetRoute from "./routes/AssetRoute";
 import {getAuthRedirect, oauthClient, unsetAuthRedirect} from "../lib/oauth";
-import {OAuthRedirect, ServicesMenu} from '@alchemy-fr/phraseanet-react-components';
 import config from "../lib/config";
 import ErrorPage from "./ErrorPage";
+import OAuthRedirect from "./OAuthRedirect";
+import {DashboardMenu} from "react-ps";
 
 class App extends PureComponent {
     state = {
@@ -44,7 +45,7 @@ class App extends PureComponent {
             return;
         }
 
-        const res = await oauthClient.authenticate(`${config.getApiBaseUrl()}/me`);
+        const res = await oauthClient.authenticate();
         this.setState({authenticated: res});
     }
 
@@ -55,9 +56,9 @@ class App extends PureComponent {
             {css && <style>
                 {css}
             </style>}
-            {config.get('displayServicesMenu') ? <ServicesMenu
-                dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
-            /> : ''}
+            {config.get('displayServicesMenu') && <DashboardMenu
+                dashboardBaseUrl={config.get('dashboardBaseUrl')}
+            />}
             <Switch>
                 <Route path="/auth/:provider" component={props => {
                     return <OAuthRedirect

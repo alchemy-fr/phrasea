@@ -8,12 +8,27 @@ type TokenResponse = {
     expires_in: number;
 };
 
+type UserInfoResponse = {
+    username: string;
+    email: string;
+    groups: Record<string, string>;
+    roles: string[];
+    user_id: string;
+}
+
 type AuthEvent = {
-    type?: string;
-    user?: {
-        username: string;
-    }
-} & object;
+    type: string;
+};
+
+type LoginEvent = {
+    accessToken: string;
+} & AuthEvent;
+
+type AuthenticationEvent = {
+    user: UserInfoResponse;
+} & AuthEvent;
+
+type LogoutEvent = AuthEvent;
 
 type AuthEventHandler = (event: AuthEvent) => Promise<void>;
 
@@ -95,39 +110,39 @@ export default class OAuthClient {
             return;
         }
 
-        const index = this.listeners[event].findIndex(callback);
+        const index = this.listeners[event].findIndex(c => c === callback);
         if (index >= 0) {
             delete this.listeners[event][index];
         }
     }
 
-    async triggerEvent(type: string, event: AuthEvent = {}): Promise<void> {
+    async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
         event.type = type;
 
         if (!this.listeners[type]) {
             return Promise.resolve();
         }
 
-        await Promise.all(this.listeners[type].map(func => func(event)).filter(f => !!f));
+        await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
     }
 
-    async authenticate(url: string): Promise<any> {
+    async authenticate(): Promise<UserInfoResponse> {
         if (!this.hasAccessToken()) {
-            return;
+            throw new Error(`Missing access token`);
         }
 
-        const data = (await axios.get(url, {
+        const data = (await axios.get(`${this.baseUrl}/userinfo`, {
             headers: {
                 authorization: `Bearer ${this.getAccessToken()}`,
 
             } as any
-        })).data as {
-            username: string;
-        };
+        })).data as UserInfoResponse;
 
         this.authenticated = true;
-        await this.triggerEvent(authenticationEventType, {user: data});
+        await this.triggerEvent<AuthenticationEvent>(authenticationEventType, {user: data});
         this.setUsername(data.username);
+
+        return data;
     }
 
     async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<{

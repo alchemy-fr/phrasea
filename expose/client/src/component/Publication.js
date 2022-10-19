@@ -3,7 +3,6 @@ import config from '../lib/config';
 import apiClient from '../lib/apiClient';
 import {PropTypes} from 'prop-types';
 import {layouts} from "./layouts";
-import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
@@ -14,6 +13,7 @@ import Copyright from "./layouts/shared-components/Copyright";
 import TermsModal from "./layouts/shared-components/TermsModal";
 import {oauthClient} from "../lib/oauth";
 import ErrorPage from "./ErrorPage";
+import FullPageLoader from "./FullPageLoader";
 
 export async function loadPublication(id) {
     const options = {};

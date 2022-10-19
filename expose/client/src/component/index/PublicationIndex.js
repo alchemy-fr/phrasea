@@ -2,13 +2,13 @@ import React, {PureComponent} from 'react';
 import apiClient from "../../lib/apiClient";
 import config from "../../lib/config";
 import {Link} from "react-router-dom";
-import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import Description from "../layouts/shared-components/Description";
 import moment from "moment";
 import {ReactComponent as SortImg} from "../../images/sort.svg";
 import {Dropdown, DropdownButton} from "react-bootstrap";
 import {Logo} from "../Logo";
 import {Translation} from "react-i18next";
+import FullPageLoader from "../FullPageLoader";
 
 const SORT_BY_DATE = 'date';
 const SORT_BY_NAME = 'name';

@@ -8,12 +8,31 @@ export default class AssetProxy extends PureComponent {
     static propTypes = {
         asset: PropTypes.object.isRequired,
         magnifier: PropTypes.bool,
+        isCurrent: PropTypes.bool,
+    }
+
+    constructor(props) {
+        super(props);
+
+        this.videoRef = React.createRef();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.isCurrent !== this.props.isCurrent && !this.props.isCurrent) {
+            this.stop();
+        }
     }
 
     render() {
         return <div className="asset-px">
             {this.renderContent()}
         </div>
+    }
+
+    stop() {
+        if (this.videoRef.current) {
+            this.videoRef.current.stop();
+        }
     }
 
     renderContent() {
@@ -25,6 +44,7 @@ export default class AssetProxy extends PureComponent {
                 return <PDFViewer file={asset.url}/>
             case type.startsWith('video/'):
                 return <VideoPlayer
+                    ref={this.videoRef}
                     url={asset.url}
                     previewUrl={asset.previewUrl}
                     title={asset.title}

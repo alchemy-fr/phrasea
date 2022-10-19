@@ -2,10 +2,10 @@ import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import {Link} from "react-router-dom";
 import {oauthClient} from "../lib/oauth";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import config from '../lib/config';
 import {Logo} from "./Logo";
 import {Trans} from "react-i18next";
+import FullPageLoader from "./FullPageLoader";
 
 class Layout extends PureComponent {
     static propTypes = {
@@ -23,12 +23,12 @@ class Layout extends PureComponent {
 
     render() {
         return <div className={'wrapper d-flex align-items-stretch'}>
-            <nav id="sidebar" className={!this.state.displayMenu ? 'hidden': ''}>
+            <nav id="sidebar" className={!this.state.displayMenu ? 'hidden' : ''}>
                 <div className="custom-menu">
                     <button
                         type="button"
                         onClick={() => this.setState({displayMenu: !this.state.displayMenu})}
-                            className="btn btn-primary"
+                        className="btn btn-primary"
                     >
                         <i className="fa fa-bars"/>
                         <span className="sr-only">
@@ -41,8 +41,8 @@ class Layout extends PureComponent {
                     <div className="p-3">
                         <h1>
                             {!config.get('disableIndexPage') ? <Link to={'/'} className="logo">
-                                <Logo />
-                            </Link> : <Logo />}
+                                <Logo/>
+                            </Link> : <Logo/>}
                         </h1>
                     </div>
 
@@ -67,7 +67,7 @@ class Layout extends PureComponent {
         }
 
         if (!authenticated) {
-            return <FullPageLoader />
+            return <FullPageLoader/>
         }
 
         return <div className={'authenticated-user'}>

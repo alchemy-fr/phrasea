@@ -1,19 +1,17 @@
-import React, {FormEvent, useCallback, useMemo, useState} from 'react';
+import React, {FormEvent, useCallback, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import IdentityProviders, {IdentityProvidersProps} from "./IdentityProviders";
 import OAuthClient from "../lib/oauth-client";
 import {AxiosError} from "axios";
 
 type Props = {
-    clientId: string;
-    clientSecret: string;
+    oauthClient: OAuthClient;
     onLogin?: (data: any) => void;
 } & IdentityProvidersProps;
 
 export default function Login({
                                   onLogin,
-                                  clientId,
-                                  clientSecret,
+                                  oauthClient,
                                   ...identityProvidersProps
                               }: Props) {
     const [loading, setLoading] = useState(false);
@@ -21,16 +19,6 @@ export default function Login({
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<string[]>([]);
     const {t} = useTranslation();
-
-    const oauthClient = useMemo(() => new OAuthClient({
-        clientId,
-        clientSecret,
-        baseUrl: identityProvidersProps.authBaseUrl,
-    }), [
-        clientId,
-        clientSecret,
-        identityProvidersProps.authBaseUrl,
-    ]);
 
     const onSubmit = useCallback(async (e: FormEvent) => {
         e.preventDefault();

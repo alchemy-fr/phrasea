@@ -1,7 +1,7 @@
 {
   "name": "react-ps",
   "version": "0.0.0",
-  "description": "",
+  "description": "Phrasea React components",
   "keywords": [],
   "main": "dist/index.js",
   "module": "dist/index.es5.js",
@@ -16,19 +16,21 @@
   },
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "tsc"
+    "build": "yarn svgr && tsc",
+    "svgr": "svgr -d src/icons -- src/**/*.svg"
   },
   "peerDependencies": {
+    "axios": "^1.1.3",
     "i18next": "^21.0.0",
     "i18next-browser-languagedetector": "^6.1.8",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-i18next": "^11.0.0",
-    "axios": "^1.1.3"
+    "react-i18next": "^11.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.1.2",
     "@commitlint/config-conventional": "^7.1.2",
+    "@svgr/cli": "^6.5.0",
     "@types/i18next": "^13.0.0",
     "@types/jest": "^23.3.2",
     "@types/node": "^10.11.0",

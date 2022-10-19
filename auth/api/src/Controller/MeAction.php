@@ -24,6 +24,7 @@ class MeAction extends AbstractController
 
     /**
      * @Route(path="/me")
+     * @Route(path="/userinfo")
      */
     public function __invoke()
     {
