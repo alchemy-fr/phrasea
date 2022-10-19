@@ -12,7 +12,7 @@ data:
     #!/bin/sh
     set -ex
 
-    bin/console app:create-target {{ .upload.uploaderTargetSlug | quote }} "Databox uploader" http://databox-api-nginx/incoming-uploads
+    bin/console app:create-target {{ .upload.uploaderTargetSlug | quote }} "Databox uploader" {{ .api.baseUrl }}/incoming-uploads
 ---
 apiVersion: batch/v1
 kind: Job
