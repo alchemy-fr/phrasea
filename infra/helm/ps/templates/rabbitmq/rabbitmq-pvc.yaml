@@ -1,4 +1,5 @@
 {{- with .Values.rabbitmq }}
+{{- if .enabled }}
 {{- if and .persistence.enabled (not .persistence.existingClaim) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -24,6 +25,7 @@ spec:
   storageClassName: ""
 {{- else }}
   storageClassName: "{{ .persistence.storageClass }}"
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

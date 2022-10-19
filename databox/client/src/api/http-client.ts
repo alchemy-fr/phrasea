@@ -22,7 +22,7 @@ export function createHttpClient(baseURL: string): HttpClient
         baseURL,
     }) as HttpClient;
 
-    client.interceptors.request.use<RequestConfig>((config: RequestConfig) => {
+    client.interceptors.request.use((config: RequestConfig) => {
         // to avoid overwriting if another interceptor
         // already defined the same object (meta)
         config.meta = config.meta || {};
@@ -33,10 +33,7 @@ export function createHttpClient(baseURL: string): HttpClient
 
     client.errorListeners = [];
 
-    client.interceptors.response.use<AxiosResponse<any, {
-        meta?: Record<string, any>;
-        responseTime?: number;
-    }>>((r) => {
+    client.interceptors.response.use((r) => {
         const meta = (r.config as RequestConfig).meta!;
 
         const responseTime = new Date().getTime() - meta.requestStartedAt!;

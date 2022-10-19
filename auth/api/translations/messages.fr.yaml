@@ -18,6 +18,8 @@ registration:
 login:
   title: Connexion
   or: ou
+  or_sign_in_using: ou connectez-vous avec
+  sign_in_using: Connectez-vous avec
   no_account: Pas encore de compte ?
   signup_here: Inscrivez-vous ici !
   forgot_password: Mot de passe oublié ?

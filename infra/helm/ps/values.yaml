@@ -257,6 +257,7 @@ report:
     hostname: report-api
     baseUrl: http://report-api
   databaseName: report
+  createDatabase: true
 
 dashboard:
   enabled: true

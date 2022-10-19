@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +27,11 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="login")
      */
-    public function login(AuthenticationUtils $authenticationUtils, array $identityProviders, Request $request): Response
+    public function login(AuthenticationUtils $authenticationUtils,
+        array $identityProviders,
+        array $loginFormLayout,
+        Request $request
+    ): Response
     {
         $session = $request->getSession();
 
@@ -52,6 +55,8 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'externalIdpOnTop' => $loginFormLayout['externalIdpOnTop'] ?? false,
+            'displayIdPTitle' => $loginFormLayout['displayIdPTitle'] ?? true,
             'providers' => array_map(function (array $idp) use ($redirectUri): array {
                 return array_merge($idp, [
                     'entrypoint' => $this->generateUrl(sprintf('%s_entrypoint', $idp['type']), [

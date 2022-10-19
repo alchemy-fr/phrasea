@@ -1,12 +1,16 @@
 import {uploadMultipartFile} from "../lib/upload/multiPartUpload";
 import {oauthClient} from "../oauth";
-import {AxiosRequestHeaders} from "axios";
+import {AxiosRequestHeaders, HeadersDefaults, RawAxiosRequestHeaders} from "axios";
 import config from "../config";
 import uploaderClient from "./uploader-client";
 
 let uploadId = 0; // TODO use UUID
 
-export function makeAuthorizationHeaders(accessToken?: string): AxiosRequestHeaders {
+interface MyHeaders extends RawAxiosRequestHeaders {
+    Authorization?: string;
+}
+
+export function makeAuthorizationHeaders(accessToken?: string): MyHeaders {
     if (accessToken) {
         return {Authorization: `Bearer ${accessToken}`};
     }

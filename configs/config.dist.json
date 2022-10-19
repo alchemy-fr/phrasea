@@ -6,6 +6,11 @@
     "fr_CA"
   ],
   "auth": {
+    "loginFormLayout": {
+      "defaultHiddenForm": false,
+      "displayIdPTitle": false,
+      "externalIdpOnTop": false
+    },
     "identity_providers": [
       {
         "title": "Phraseanet",

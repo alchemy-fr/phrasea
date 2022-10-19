@@ -32,7 +32,11 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $object);
             $object->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
-                $context['groups'] = [Publication::GROUP_INDEX];
+                if ($object->isPubliclyListed()) {
+                    $context['groups'] = [Publication::GROUP_INDEX];
+                } else {
+                    $context['groups'] = ['_'];
+                }
             }
 
             if ($this->security->isGranted(PublicationVoter::EDIT, $object)) {

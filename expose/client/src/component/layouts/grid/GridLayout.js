@@ -3,7 +3,6 @@ import {PropTypes} from 'prop-types';
 import Description from "../shared-components/Description";
 import {dataShape} from "../../props/dataShape";
 import Gallery from 'react-grid-gallery';
-import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import Carousel, {Modal, ModalGateway} from "react-images";
 import squareImg from '../../../images/square.svg';
 import DownloadButton from "../shared-components/DownloadButton";
@@ -11,11 +10,14 @@ import {onDownload, renderDownloadTermsModal, renderDownloadViaEmail} from "../s
 import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
+import FullPageLoader from "../../FullPageLoader";
 
-const CustomView = ({data, carouselProps}) => {
+const CustomView = ({data, carouselProps, currentView}) => {
+
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
             <AssetProxy
+                isCurrent={currentView === data}
                 magnifier={true}
                 asset={data}
             />

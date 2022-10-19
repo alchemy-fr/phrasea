@@ -29,6 +29,11 @@ class PublicationNavigation extends PureComponent {
 
     render() {
         const {publication} = this.props;
+
+        if (!publication.title) {
+            return null;
+        }
+
         const {loading} = this.state;
         const {parent} = publication;
 

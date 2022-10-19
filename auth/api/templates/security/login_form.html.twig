@@ -1,0 +1,44 @@
+{% if error %}
+    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{% endif %}
+
+<form method="post" name="login"
+      onsubmit="$(this).find(':submit').attr('disabled', true)" novalidate="novalidate">
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}"
+    >
+    <div class="form-group">
+        <label for="email">{{ 'form.login.username'|trans }}</label>
+        <input
+                value="{{ last_username }}"
+                type="text" name="username" class="form-control" id="email"
+                aria-describedby="emailHelp" placeholder="{{ 'form.login.username_ph'|trans }}"
+                required
+        />
+    </div>
+    <div class="form-group">
+        <label for="password">{{ 'form.login.password'|trans }}</label>
+        <input type="password" name="password" id="password" class="form-control"
+               aria-describedby="emailHelp" placeholder="{{ 'form.login.password_ph'|trans }}"
+               required
+        />
+    </div>
+    <div class="form-group text-center">
+        <button type="submit"
+                class=" btn btn-block mybtn btn-primary tx-tfm">{{ 'form.login.submit'|trans }}</button>
+    </div>
+
+    <div class="form-group">
+        <p class="text-center">{{ 'login.no_account'|trans }}
+            <a href="{{ path('registration_register') }}"
+               id="signup">{{ 'login.signup_here'|trans }}</a></p>
+    </div>
+
+    <div class="form-group">
+        <p class="text-center">
+            <a href="{{ path('password_reset_request') }}">
+                {{ 'login.forgot_password'|trans }}
+            </a>
+        </p>
+    </div>
+</form>

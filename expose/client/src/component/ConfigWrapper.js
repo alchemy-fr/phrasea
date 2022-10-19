@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import App from "./App";
-import {FullPageLoader} from '@alchemy-fr/phraseanet-react-components';
 import apiClient from "../lib/apiClient";
 import config from "../lib/config";
+import FullPageLoader from "./FullPageLoader";
 
 export default function ConfigWrapper() {
     const [loaded, setLoaded] = useState(false);
@@ -18,7 +18,7 @@ export default function ConfigWrapper() {
                 setLoaded(true);
             });
 
-        return <FullPageLoader />
+        return <FullPageLoader/>
     }
 
     return <App/>

@@ -137,7 +137,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"publication:index", "publication:index", "publication:read", "asset:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      *
      * @var Uuid
      *
@@ -150,7 +150,7 @@ class Publication implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="string", length=255)
-     * @Groups({"publication:index", "publication:index", "publication:read"})
+     * @Groups({"publication:index", "publication:read"})
      */
     private ?string $title = null;
 
@@ -241,7 +241,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read"})
      */
     private bool $authorized = false;
 
@@ -249,13 +249,13 @@ class Publication implements AclObjectInterface
      * Password identifier for the current publication branch.
      *
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read"})
      */
     private ?string $securityContainerId = null;
 
     /**
      * @ApiProperty()
-     * @Groups({"publication:index"})
+     * @Groups({"_", "publication:index"})
      */
     private ?string $authorizationError = null;
 
@@ -481,7 +481,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read"})
      */
     public function getSecurityMethod(): ?string
     {

@@ -69,6 +69,12 @@ export default class VideoPlayer extends PureComponent {
         });
     }
 
+    stop() {
+        if (this.player) {
+            this.player.pause();
+        }
+    }
+
     render() {
         const {
             previewUrl,
