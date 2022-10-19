@@ -54,6 +54,11 @@ export default function DashboardMenu({
                 title={'services-menu'}
                 src={`${dashboardBaseUrl}/menu.html`}
                 seamless
+                style={{
+                    border: '0',
+                    minWidth: `350px`,
+                    height: `350px`,
+                }}
             />
         </div>}
     </div>

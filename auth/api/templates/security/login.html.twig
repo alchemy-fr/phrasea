@@ -9,67 +9,59 @@
 {% endblock %}
 
 {% block form_content %}
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% if not externalIdpOnTop %}
+        {% include 'security/login_form.html.twig' %}
     {% endif %}
 
-    <form method="post" name="login"
-          onsubmit="$(this).find(':submit').attr('disabled', true)" novalidate="novalidate">
-        <input type="hidden" name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}"
-        >
-        <div class="form-group">
-            <label for="email">{{ 'form.login.username'|trans }}</label>
-            <input
-                    value="{{ last_username }}"
-                    type="text" name="username" class="form-control" id="email"
-                    aria-describedby="emailHelp" placeholder="{{ 'form.login.username_ph'|trans }}"
-                    required
-            />
+    {% if providers|length > 0 %}
+        {% if not externalIdpOnTop %}
+        <div class="col-md-12">
+            <div class="login-or text-center mb-3">
+                <hr class="hr-or">
+                <span class="span-or">{{ 'login.or_sign_in_using'|trans }}</span>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="password">{{ 'form.login.password'|trans }}</label>
-            <input type="password" name="password" id="password" class="form-control"
-                   aria-describedby="emailHelp" placeholder="{{ 'form.login.password_ph'|trans }}"
-                   required
-            />
+        {% else %}
+            <div class="col-md-12">
+                <div class="text-center mb-3">
+                    {{ 'login.sign_in_using'|trans }}
+                </div>
+            </div>
+        {% endif %}
+
+        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap">
+            {% for provider in providers %}
+                <div class="text-center" style="margin:10px;">
+                    <a href="{{ provider.entrypoint }}"
+                       title="{{ provider.title }}"
+                       class="btn btn-light">
+                        {% if provider.logoUrl|default(false) %}
+                        <div class="idp-logo{% if displayIdPTitle %} idp-logo-with-text{% endif %}">
+                            <img src="{{ provider.logoUrl }}" alt="{{ provider.title }}">
+                        </div>
+                        {% endif %}
+
+                        {% if displayIdPTitle or not provider.logoUrl|default(false) %}
+                            <div>
+                                {{ provider.title }}
+                            </div>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
         </div>
-        <div class="col-md-12 text-center">
-            <button type="submit"
-                    class=" btn btn-block mybtn btn-primary tx-tfm">{{ 'form.login.submit'|trans }}</button>
-        </div>
-        {% if providers|length > 0 %}
+
+        {% if externalIdpOnTop %}
             <div class="col-md-12">
                 <div class="login-or text-center">
                     <hr class="hr-or">
                     <span class="span-or">{{ 'login.or'|trans }}</span>
                 </div>
             </div>
-
-            {% for provider in providers %}
-                <div class="col-md-12 mb-3">
-                    <p class="text-center">
-                        <a href="{{ provider.entrypoint }}" class="google btn btn-light"><i
-                                    class="fa fa-google-plus">
-                            </i> Signup using {{ provider.title }}
-                        </a>
-                    </p>
-                </div>
-            {% endfor %}
         {% endif %}
+    {% endif %}
 
-        <div class="form-group">
-            <p class="text-center">{{ 'login.no_account'|trans }}
-                <a href="{{ path('registration_register') }}"
-                   id="signup">{{ 'login.signup_here'|trans }}</a></p>
-        </div>
-
-        <div class="form-group">
-            <p class="text-center">
-                <a href="{{ path('password_reset_request') }}">
-                    {{ 'login.forgot_password'|trans }}
-                </a>
-            </p>
-        </div>
-    </form>
+    {% if externalIdpOnTop %}
+        {% include 'security/login_form.html.twig' %}
+    {% endif %}
 {% endblock %}

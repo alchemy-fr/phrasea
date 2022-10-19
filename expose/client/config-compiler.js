@@ -59,6 +59,7 @@
         },
         locales: config.available_locales,
         identityProviders,
+        loginFormLayout: config.auth.loginFormLayout,
         baseUrl: env.EXPOSE_API_BASE_URL,
         authBaseUrl: env.AUTH_API_BASE_URL,
         clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,

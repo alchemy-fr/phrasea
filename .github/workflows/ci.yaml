@@ -106,6 +106,7 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       images: expose-client
+      withLibs: true
     secrets: inherit
     needs:
       - build_nodejs-base

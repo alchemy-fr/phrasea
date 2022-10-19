@@ -7,6 +7,10 @@
     },
     "idp": {
       "connect_with": "Connect with {provider}"
-    }
+    },
+    "display_login_form": "Sign in with login/password",
+    "or_sign_in_using": "or Sign in with",
+    "sign_in_using": "Sign in using",
+    "or": "or"
   }
 }
