@@ -6,7 +6,7 @@ set -e
 
 load-env
 
-bin/update-config.sh
+bin/create-config.sh
 
 set -ex
 

@@ -6,8 +6,6 @@ set -e
 
 load-env
 
-bin/update-config.sh
-
 set -ex
 
 docker-compose up -d
