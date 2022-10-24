@@ -9,4 +9,8 @@ if [ "${NEWRELIC_ENABLED}" == "1" ]; then
     envsubst < ./docker/app/conf.d/newrelic.ini > "$PHP_INI_DIR/conf.d/newrelic.ini"
 fi
 
+if [ "${APP_ENV}" == "prod" ]; then
+    su app /bin/sh -c "bin/console cache:clear"
+fi
+
 exec "$@"
