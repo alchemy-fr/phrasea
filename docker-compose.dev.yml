@@ -175,7 +175,7 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
+#    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d

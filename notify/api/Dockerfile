@@ -33,7 +33,8 @@ FROM api-php as worker
 RUN apk add --no-cache \
         supervisor \
     && mkdir -p /var/log/supervisor \
-    && chown -R app: /var/log/supervisor
+    && chown -R app: /var/log/supervisor \
+    && docker-php-ext-install pcntl
 
 COPY docker/supervisor/* /etc/supervisor.d/
 

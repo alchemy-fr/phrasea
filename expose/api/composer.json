@@ -4,6 +4,10 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
             "type": "git",
             "url": "https://github.com/4rthem/psr-http-message-bridge.git"
         },
@@ -93,6 +97,7 @@
         "alchemy/storage-bundle": "@dev",
         "api-platform/core": "^2.6",
         "arthem/rabbit-bundle": "dev-master",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "arthem/request-signer-bundle": "^1.0.1",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",

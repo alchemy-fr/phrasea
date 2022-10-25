@@ -23,6 +23,10 @@
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
             "type": "path",
             "url": "./__lib/core-bundle",
             "options": {
@@ -109,6 +113,7 @@
         "alchemy/webhook-bundle": "@dev",
         "api-platform/core": "2.6.8",
         "arthem/rabbit-bundle": "dev-master",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",

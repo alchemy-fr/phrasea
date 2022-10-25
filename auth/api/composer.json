@@ -3,6 +3,10 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
             "type": "path",
             "url": "./__lib/notify-bundle",
             "options": {
@@ -79,6 +83,7 @@
         "alchemy/report-bundle": "@dev",
         "arthem/locale-bundle": "^0.0.4",
         "arthem/rabbit-bundle": "dev-master",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^2",
         "doctrine/doctrine-bundle": "^2",
