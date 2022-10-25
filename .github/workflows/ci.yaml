@@ -79,6 +79,7 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       images: databox-client
+      withLibs: true
     secrets: inherit
     needs:
       - build_nodejs-base
@@ -152,6 +153,7 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       images: uploader-client
+      withLibs: true
     secrets: inherit
     needs:
       - build_nodejs-base

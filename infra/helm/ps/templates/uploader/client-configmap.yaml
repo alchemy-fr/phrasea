@@ -1,11 +1,11 @@
-{{- with .Values.expose }}
+{{- with .Values.uploader }}
 {{- if .enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: expose-client-config
+  name: uploader-client-config
 data:
-  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .api.config.requestSignatureTtl | quote }}
+  __UNUSED: "_"
   {{- include "app.client.configMap" $ | indent 2 }}
 {{- end }}
 {{- end }}

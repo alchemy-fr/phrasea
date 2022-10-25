@@ -1,11 +1,13 @@
 import React, {useEffect} from 'react';
 import config from '../../config';
-import {createAuthorizeUrl} from "@alchemy-fr/phraseanet-react-components/dist/oauth/funcs";
+import {oauthClient} from "../../oauth";
 
 export default function Login() {
     useEffect(() => {
         if (!config.isDirectLoginForm()) {
-            document.location.href = createAuthorizeUrl(config.getAuthBaseUrl(), config.getClientCredential().clientId);
+            document.location.href = oauthClient.createAuthorizeUrl({
+                connectTo: config.get('autoConnectIdP') || undefined,
+            });
         }
     }, []);
 

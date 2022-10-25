@@ -11,9 +11,9 @@ import {Link, withRouter} from "react-router-dom";
 import filesize from 'filesize';
 import config from '../../config';
 import {getTarget} from "../../requests";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import UploadBatch from "../../uploadBatch";
 import {retrieveImageFromClipboardAsBlob} from "../ImagePaste";
+import FullPageLoader from "../FullPageLoader";
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -198,7 +198,7 @@ class Upload extends Component {
             </Container>
         }
         if (!target) {
-            return <FullPageLoader />
+            return <FullPageLoader/>
         }
 
         return <Container>

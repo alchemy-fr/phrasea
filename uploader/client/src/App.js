@@ -8,7 +8,6 @@ import Login from "./components/page/Login";
 import About from "./components/page/About";
 import DevSettings from "./components/page/DevSettings";
 import config from './config';
-import {authenticate} from './auth';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
 import FormEditor from "./components/page/FormEditor";
@@ -18,9 +17,10 @@ import TargetDataEditor from "./components/page/TargetDataEditor";
 import Languages from "./components/Languages";
 import {withTranslation} from 'react-i18next';
 import {oauthClient, OAuthRedirect} from "./oauth";
-import {FullPageLoader, ServicesMenu} from "@alchemy-fr/phraseanet-react-components";
 import AuthError from "./components/page/AuthError";
 import SelectTarget from "./components/page/SelectTarget";
+import {DashboardMenu} from "react-ps";
+import FullPageLoader from "./components/FullPageLoader";
 
 class App extends Component {
     state = {
@@ -37,7 +37,7 @@ class App extends Component {
                 user: evt.user,
             });
         });
-        oauthClient.registerListener('login', authenticate);
+        oauthClient.registerListener('login', this.authenticate);
 
         oauthClient.registerListener('logout', () => {
             if (config.isDirectLoginForm()) {
@@ -49,13 +49,15 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.authenticate();
+        if (oauthClient.hasAccessToken()) {
+            this.authenticate();
+        }
     }
 
     authenticate = () => {
         return new Promise((resolve) => {
             this.setState({authenticating: true}, () => {
-                authenticate().then(() => {
+                oauthClient.authenticate().then(() => {
                     this.setState({authenticating: false}, resolve);
                 });
             });
@@ -73,7 +75,7 @@ class App extends Component {
     logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout`;
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
         } else {
             this.closeMenu();
         }
@@ -84,9 +86,9 @@ class App extends Component {
         const perms = user && user.permissions;
 
         return <Router>
-            {config.get('displayServicesMenu') ? <ServicesMenu
-                dashboardBaseUrl={`${config.get('dashboardBaseUrl')}/menu.html`}
-            /> : ''}
+            {config.get('displayServicesMenu') && <DashboardMenu
+                dashboardBaseUrl={config.get('dashboardBaseUrl')}
+            />}
             {this.state.authenticating ? <FullPageLoader/> : ''}
             <Route path={`/auth`} component={OAuthRedirect}/>
             <Menu

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 
 const accessTokenStorageKey = 'accessToken';
 const usernameStorageKey = 'username';
@@ -93,8 +93,8 @@ export default class OAuthClient {
 
     logout(): void {
         this.authenticated = false;
-        this.setAccessToken('');
-        this.setUsername('');
+        this.storage.removeItem(accessTokenStorageKey);
+        this.storage.removeItem(usernameStorageKey);
         this.triggerEvent(logoutEventType);
     }
 
@@ -131,18 +131,30 @@ export default class OAuthClient {
             throw new Error(`Missing access token`);
         }
 
-        const data = (await axios.get(`${this.baseUrl}/userinfo`, {
-            headers: {
-                authorization: `Bearer ${this.getAccessToken()}`,
+        try {
+            const data = (await axios.get(`${this.baseUrl}/userinfo`, {
+                headers: {
+                    authorization: `Bearer ${this.getAccessToken()}`,
 
-            } as any
-        })).data as UserInfoResponse;
+                } as any
+            })).data as UserInfoResponse;
 
-        this.authenticated = true;
-        await this.triggerEvent<AuthenticationEvent>(authenticationEventType, {user: data});
-        this.setUsername(data.username);
+            this.authenticated = true;
+            await this.triggerEvent<AuthenticationEvent>(authenticationEventType, {user: data});
+            this.setUsername(data.username);
 
-        return data;
+            return data;
+        } catch (e: any) {
+            if (axios.isAxiosError(e)) {
+                const err = e as AxiosError;
+
+                if (err.response?.status === 401) {
+                    this.logout();
+                }
+            }
+
+            throw e;
+        }
     }
 
     async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<{
@@ -187,5 +199,24 @@ export default class OAuthClient {
         this.setAccessToken(data.access_token);
 
         return data
+    }
+
+    public createAuthorizeUrl({
+                                  redirectPath = '/auth',
+                                  connectTo
+                              }: {
+        redirectPath?: string;
+        connectTo?: string | undefined;
+    }): string {
+        const baseUrl = [
+            window.location.protocol,
+            '//',
+            window.location.host,
+        ].join('');
+
+        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
+        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}`;
+
+        return `${this.baseUrl}/oauth/v2/auth?${queryString}`;
     }
 }

@@ -1,9 +1,9 @@
 import React, {useEffect} from "react";
-import {OAuthClient} from "@alchemy-fr/phraseanet-react-components";
 import config from "./config";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "./routes";
 import {toast} from "react-toastify";
+import {OAuthClient} from "react-ps";
 
 const {clientId, clientSecret} = config.getClientCredential();
 

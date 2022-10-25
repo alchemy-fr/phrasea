@@ -52,6 +52,19 @@ class SecurityController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
+        if ($connect = $request->query->get('connect')) {
+            $idp = array_values(array_filter($identityProviders, function (array $idp) use ($connect): bool {
+                return $idp['name'] === $connect;
+            }));
+
+            if (!empty($idp)) {
+                return $this->redirect($this->generateUrl(sprintf('%s_entrypoint', $idp[0]['type']), [
+                    'provider' => $idp[0]['name'],
+                    'redirect_uri' => $redirectUri,
+                ]));
+            }
+        }
+
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,

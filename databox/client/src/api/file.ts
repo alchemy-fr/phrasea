@@ -33,7 +33,7 @@ export async function UploadFiles(userId: string, files: File[], options: Upload
 }
 
 export async function UploadFile(targetSlug: string, userId: string, file: File): Promise<string> {
-    return await uploadMultipartFile(targetSlug, userId, oauthClient.getAccessToken(), {
+    return await uploadMultipartFile(targetSlug, userId, oauthClient.getAccessToken()!, {
         file,
         id: (uploadId++).toString()
     }, (e) => {
@@ -48,6 +48,6 @@ export async function CommitUpload(targetSlug: string, files: string[], options:
         options,
         formData,
     }, {
-        headers: makeAuthorizationHeaders(oauthClient.getAccessToken()),
+        headers: makeAuthorizationHeaders(oauthClient.getAccessToken()!),
     });
 }
