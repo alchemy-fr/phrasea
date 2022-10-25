@@ -6,7 +6,7 @@ import request from "superagent";
 import Container from "../Container";
 import {oauthClient} from "../../oauth";
 import {getFormSchema, getTargets} from "../../requests";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
+import FullPageLoader from "../FullPageLoader";
 
 export default class FormEditor extends Component {
     state = {

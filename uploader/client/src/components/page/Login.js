@@ -1,59 +1,19 @@
 import React, {Component} from 'react';
-import {Button, FormControl, FormGroup, FormLabel} from "react-bootstrap";
 import {Link, Redirect} from "react-router-dom";
 import config from '../../config';
 import Container from "../Container";
 import Logo from "../Logo";
 import {Translation} from "react-i18next";
-import {OAuthProviders} from "@alchemy-fr/phraseanet-react-components";
-import {createAuthorizeUrl} from "@alchemy-fr/phraseanet-react-components/dist/oauth/funcs";
-
 import {oauthClient} from "../../oauth";
+import {FormLayout, Login as LoginComponent} from "react-ps";
 
 export default class Login extends Component {
     state = {
-        username: '',
-        password: '',
         redirectToReferrer: false,
-        error: null,
-    };
-
-    isFormValid() {
-        return this.state.username.length > 0 && this.state.password.length > 0;
-    }
-
-    handleSubmit = event => {
-        event.preventDefault();
-
-        this.setState({submitting: true}, async () => {
-            try {
-                await oauthClient.login(this.state.username, this.state.password);
-                this.setState({
-                    submitting: false,
-                    redirectToReferrer: true,
-                });
-            } catch (e) {
-                this.setState({submitting: false});
-                if (e.res && e.res.body.error_description) {
-                    this.setState({
-                        error: e.res.body.error_description,
-                    });
-                } else {
-                    throw e;
-                }
-            }
-        });
-    };
-
-    handleChange = event => {
-        this.setState({
-            [event.target.id]: event.target.value,
-            error: null,
-        });
     };
 
     render() {
-        const {redirectToReferrer, error, submitting} = this.state;
+        const {redirectToReferrer} = this.state;
         const {from} = this.props.location.state || {from: {pathname: '/'}};
 
         if (oauthClient.isAuthenticated() || redirectToReferrer === true) {
@@ -61,7 +21,9 @@ export default class Login extends Component {
         }
 
         if (!config.isDirectLoginForm()) {
-            document.location.href = createAuthorizeUrl(config.getAuthBaseUrl(), config.getClientCredential().clientId);
+            document.location.href = oauthClient.createAuthorizeUrl({
+                connectTo: config.get('autoConnectIdP') || undefined,
+            });
 
             return '';
         }
@@ -70,55 +32,32 @@ export default class Login extends Component {
             {t => <>
                 <Logo/>
                 <Container title="Please sign in">
-                    <div className="form-container login-form">
-                        <form onSubmit={this.handleSubmit}>
-                            <FormGroup controlId="username">
-                                <FormLabel>
-                                    {t('form.email.label')}
-                                </FormLabel>
-                                <FormControl
-                                    disabled={submitting}
-                                    autoFocus
-                                    type="username"
-                                    value={this.state.username}
-                                    onChange={this.handleChange}
-                                />
-                            </FormGroup>
-                            <FormGroup controlId="password">
-                                <FormLabel>{t('form.password.label')}</FormLabel>
-                                <FormControl
-                                    disabled={submitting}
-                                    value={this.state.password}
-                                    onChange={this.handleChange}
-                                    type="password"
-                                />
-                            </FormGroup>
-                            {error ? <div className="error text-danger">{error}</div> : ''}
-                            <Button
-                                block
-                                disabled={!this.isFormValid() || submitting}
-                                type="submit"
-                            >
-                                {t('form.submit_button')}
-                            </Button>
-                        </form>
+                    <FormLayout>
+                        <LoginComponent
+                            {...config.get('loginFormLayout') || {}}
+                            onLogin={() => {
+                                console.log('onLogin');
+                                this.setState({
+                                    redirectToReferrer: true,
+                                });
+                            }}
+                            oauthClient={oauthClient}
+                            providers={config.get('identityProviders')}
+                            authBaseUrl={config.getAuthBaseUrl()}
+                            authClientId={config.getClientCredential().clientId}
+                        />
 
                         <p>
                             <Link to="/forgot-password">{t('login.forgot_password')}</Link>
                         </p>
+
                         {config.getSignUpURL() ?
                             <p>
                                 {t('login.not_registered_yet')} <a target="_new" href={config.getSignUpURL()}>
                                 {t('login.sign_up_link')}
                             </a>
                             </p> : ''}
-                    </div>
-
-                    <OAuthProviders
-                        authBaseUrl={config.getAuthBaseUrl()}
-                        authClientId={config.getClientCredential().clientId}
-                        providers={config.get('identityProviders')}
-                    />
+                    </FormLayout>
                 </Container>
             </>
             }

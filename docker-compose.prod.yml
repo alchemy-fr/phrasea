@@ -24,6 +24,7 @@ services:
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTO_CONNECT_IDP
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
@@ -51,6 +52,7 @@ services:
       - MATOMO_HOST
       - EXPOSE_REQUEST_SIGNATURE_TTL
       - DISABLE_INDEX_PAGE
+      - AUTO_CONNECT_IDP
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
@@ -82,6 +84,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
+      - AUTO_CONNECT_IDP
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client.rule=Host(`databox.${PHRASEA_DOMAIN}`)"

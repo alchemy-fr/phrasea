@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import '../../scss/Upload.scss';
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
 import {getTargets} from "../../requests";
 import Container from "../Container";
 import {Link} from "react-router-dom";
 import Redirect from "react-router-dom/es/Redirect";
+import FullPageLoader from "../FullPageLoader";
 
 export default function SelectTarget() {
     const [targets, setTargets] = useState();

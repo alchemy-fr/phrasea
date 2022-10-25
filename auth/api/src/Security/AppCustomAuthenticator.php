@@ -115,6 +115,12 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator implements P
     {
         $url = $this->getLoginUrl().'?r='.urlencode($request->getUri());
 
+        if ('fos_oauth_server_authorize' === $request->attributes->get('_route')) {
+            if ($connect = $request->query->get('connect')) {
+                $url .= '&connect='.urlencode($connect);
+            }
+        }
+
         return new RedirectResponse($url);
     }
 }

@@ -30,6 +30,8 @@ spec:
         envFrom:
         - configMapRef:
             name: urls-config
+        - configMapRef:
+            name: uploader-client-config
         - secretRef:
             name: {{ $.Values.uploader.client.oauthClient.externalSecretName | default "uploader-oauth-client-secret" }}
 {{- end }}

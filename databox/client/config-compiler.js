@@ -57,6 +57,7 @@
         },
         locales: config.available_locales,
         identityProviders,
+        autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_BASE_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_BASE_URL,
         uploaderTargetSlug: env.UPLOADER_TARGET_SLUG,

@@ -155,6 +155,12 @@ CLOUD_FRONT_TTL: {{ $ctx.cloudFront.ttl | quote }}
 {{- end }}
 {{- end }}
 
+{{- define "app.client.configMap" }}
+{{- if .Values.auth.autoConnectIdP }}
+AUTO_CONNECT_IDP: {{ .Values.auth.autoConnectIdP | quote }}
+{{- end }}
+{{- end }}
+
 {{- define "ingress.apiVersion" -}}
 {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" -}}
 networking.k8s.io/v1

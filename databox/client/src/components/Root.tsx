@@ -1,6 +1,5 @@
 import React, {PureComponent, Suspense} from 'react';
 import {oauthClient} from "../oauth";
-import {authenticate} from "../auth";
 import config from "../config";
 import apiClient from "../api/api-client";
 import {User} from "../types";
@@ -20,6 +19,10 @@ type State = {
 
 const scrollbarWidth = 8;
 
+function authenticate() {
+    return oauthClient.authenticate();
+}
+
 export default class Root extends PureComponent<{}, State> {
     state: State = {
         authenticating: oauthClient.hasAccessToken(),
@@ -27,16 +30,20 @@ export default class Root extends PureComponent<{}, State> {
     }
 
     componentDidMount() {
-        oauthClient.registerListener('authentication', (evt: { user: User }) => {
-            apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()}`;
+        oauthClient.registerListener('authentication', async (evt) => {
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${oauthClient.getAccessToken()!}`;
             this.setState({
-                user: evt.user,
+                user: (evt as unknown as {
+                    user: User;
+                }).user,
                 authenticating: false,
             });
         });
-        oauthClient.registerListener('login', authenticate);
+        oauthClient.registerListener('login', async () => {
+            await authenticate();
+        });
 
-        oauthClient.registerListener('logout', () => {
+        oauthClient.registerListener('logout', async () => {
             if (config.isDirectLoginForm()) {
                 this.setState({
                     user: undefined,

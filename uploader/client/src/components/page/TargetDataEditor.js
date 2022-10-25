@@ -5,7 +5,7 @@ import request from "superagent";
 import Container from "../Container";
 import {oauthClient} from "../../oauth";
 import {getTargetParams, getTargets} from "../../requests";
-import {FullPageLoader} from "@alchemy-fr/phraseanet-react-components";
+import FullPageLoader from "../FullPageLoader";
 
 export default class TargetDataEditor extends Component {
     state = {

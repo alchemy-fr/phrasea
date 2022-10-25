@@ -1,6 +1,8 @@
 (function (config, env) {
     const identityProviders = config.auth.identity_providers.map(idp => {
         delete idp.options;
+        delete idp.group_jq_normalizer;
+        delete idp.group_map;
 
         return idp;
     });
@@ -10,6 +12,8 @@
         maxFileSize: config.uploader.max_upload_file_size,
         maxCommitSize: config.uploader.max_upload_commit_size,
         maxFileCount: config.uploader.max_upload_file_count,
+        loginFormLayout: config.auth.loginFormLayout,
+        autoConnectIdP: env.AUTO_CONNECT_IDP,
         client: config.uploader.client,
         identityProviders,
         baseUrl: env.UPLOADER_API_BASE_URL,

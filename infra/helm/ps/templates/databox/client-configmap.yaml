@@ -7,5 +7,6 @@ metadata:
 data:
   DEV_MODE: "0"
   UPLOADER_TARGET_SLUG: {{ .upload.uploaderTargetSlug | quote }}
+  {{- include "app.client.configMap" $ | indent 2 }}
 {{- end }}
 {{- end }}

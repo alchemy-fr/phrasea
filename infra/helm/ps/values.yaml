@@ -4,6 +4,7 @@ repository:
 
 auth:
   enabled: true
+  autoConnectIdP:
   defaultUser:
     externalSecretName:
     username: admin@phrasea.local
