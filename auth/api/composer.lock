@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1ca271ef5caed604336ccd14570c042",
+    "content-hash": "1da240eb21abd9fed25968c81495d28f",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "44ae080eadc3602e7734ab172399032043c32154"
+                "reference": "bdbcb8a10e74551e6c733342ad28e9c836234506"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -22,7 +22,8 @@
                 "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -40,7 +41,7 @@
             },
             "scripts": {
                 "test": [
-                    "echo 'This project has no test...'"
+                    "./vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -58,7 +59,7 @@
         },
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
@@ -104,7 +105,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -151,7 +152,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -199,7 +200,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -245,7 +246,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -294,7 +295,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -340,7 +341,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-457-open-id-connect",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -429,12 +430,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "86bf49362bd0a824301350946972167486949b2e"
+                "reference": "42cfca43fcff79b742834a04f81931381f8ce1e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/86bf49362bd0a824301350946972167486949b2e",
-                "reference": "86bf49362bd0a824301350946972167486949b2e",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/42cfca43fcff79b742834a04f81931381f8ce1e4",
+                "reference": "42cfca43fcff79b742834a04f81931381f8ce1e4",
                 "shasum": ""
             },
             "require": {
@@ -474,7 +475,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2022-01-19T21:37:12+00:00"
+            "time": "2022-10-25T19:51:17+00:00"
         },
         {
             "name": "brick/math",
@@ -3939,16 +3940,16 @@
         },
         {
             "name": "php-amqplib/rabbitmq-bundle",
-            "version": "2.11.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-amqplib/RabbitMqBundle.git",
-                "reference": "b2265a87aa35907beb3593c182d340a220b60461"
+                "url": "https://github.com/4rthem/RabbitMqBundle.git",
+                "reference": "cb3ab766256fb4b799f94bac337ebae5150607ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/b2265a87aa35907beb3593c182d340a220b60461",
-                "reference": "b2265a87aa35907beb3593c182d340a220b60461",
+                "url": "https://api.github.com/repos/4rthem/RabbitMqBundle/zipball/cb3ab766256fb4b799f94bac337ebae5150607ab",
+                "reference": "cb3ab766256fb4b799f94bac337ebae5150607ab",
                 "shasum": ""
             },
             "require": {
@@ -3977,6 +3978,7 @@
                 "ext-pcntl": "*",
                 "symfony/framework-bundle": "To use this lib as a full Symfony Bundle and to use the profiler data collector"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -3991,7 +3993,11 @@
                     "/Tests/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "OldSound\\RabbitMqBundle\\Tests\\": "Tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -4002,7 +4008,7 @@
             ],
             "description": "Integrates php-amqplib with Symfony & RabbitMq. Formerly emag-tech-labs/rabbitmq-bundle, oldsound/rabbitmq-bundle.",
             "keywords": [
-                "AMQP",
+                "amqp",
                 "message",
                 "queue",
                 "rabbitmq",
@@ -4011,10 +4017,9 @@
                 "symfony5"
             ],
             "support": {
-                "issues": "https://github.com/php-amqplib/RabbitMqBundle/issues",
-                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.11.0"
+                "source": "https://github.com/4rthem/RabbitMqBundle/tree/master"
             },
-            "time": "2021-12-21T13:13:45+00:00"
+            "time": "2022-10-25T21:19:21+00:00"
         },
         {
             "name": "php-http/client-common",
@@ -12947,7 +12952,14 @@
             "time": "2022-06-03T18:03:27+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "php-amqplib/rabbitmq-bundle",
+            "version": "9999999-dev",
+            "alias": "2.11.0",
+            "alias_normalized": "2.11.0.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "alchemy/admin-bundle": 20,
@@ -12957,6 +12969,7 @@
         "alchemy/oauth-server-bundle": 20,
         "alchemy/report-bundle": 20,
         "arthem/rabbit-bundle": 20,
+        "php-amqplib/rabbitmq-bundle": 20,
         "hslavich/oneloginsaml-bundle": 20
     },
     "prefer-stable": true,
@@ -12964,7 +12977,9 @@
     "platform": {
         "php": "^7.4",
         "ext-ctype": "*",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "ext-jq": "*",
+        "ext-json": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
