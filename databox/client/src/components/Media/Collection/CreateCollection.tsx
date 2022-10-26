@@ -5,10 +5,10 @@ import {Collection} from "../../../types";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import {clearWorkspaceCache, postCollection} from "../../../api/collection";
 import {toast} from "react-toastify";
-import {OnCollectionEdit} from "./EditCollection";
 import {useTranslation} from "react-i18next";
 import {CollectionChip, WorkspaceChip} from "../../Ui/Chips";
 import {StackedModalProps, useModals} from "../../../hooks/useModalStack";
+import {OnCollectionEdit} from "../../Dialog/Collection/EditCollection";
 
 type Props = {
     parent?: string;
@@ -30,6 +30,7 @@ export default function CreateCollection({
     const {t} = useTranslation();
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors,
     } = useFormSubmit({
@@ -76,6 +77,7 @@ export default function CreateCollection({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            submitted={submitted}
         />
     </FormDialog>
 }

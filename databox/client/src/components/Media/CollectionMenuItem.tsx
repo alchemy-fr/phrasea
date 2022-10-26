@@ -10,7 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import {OnCollectionEdit} from "./Collection/EditCollection";
 import CreateCollection from "./Collection/CreateCollection";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
@@ -18,6 +17,7 @@ import CreateAsset from "./Asset/CreateAsset";
 import ModalLink from "../Routing/ModalLink";
 import ConfirmDialog from "../Ui/ConfirmDialog";
 import {useModals} from "../../hooks/useModalStack";
+import {OnCollectionEdit} from "../Dialog/Collection/EditCollection";
 
 type Props = {
     level: number;

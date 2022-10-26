@@ -11,10 +11,10 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import BusinessIcon from '@mui/icons-material/Business';
 import CreateCollection from "./Collection/CreateCollection";
-import {OnCollectionEdit} from "./Collection/EditCollection";
 import ModalLink from "../Routing/ModalLink";
 import {useTranslation} from 'react-i18next';
 import {useModals} from "../../hooks/useModalStack";
+import {OnCollectionEdit} from "../Dialog/Collection/EditCollection";
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 

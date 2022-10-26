@@ -22,6 +22,7 @@ export default function EditAsset({
 
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors,
     } = useFormSubmit({
@@ -48,6 +49,7 @@ export default function EditAsset({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            submitted={submitted}
             workspaceId={data.workspace.id}
         />
     </FormTab>

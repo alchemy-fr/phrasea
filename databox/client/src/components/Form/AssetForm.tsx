@@ -17,6 +17,7 @@ export const AssetForm: FC<{
                                       data,
                                       onSubmit,
                                       submitting,
+                                      submitted,
                                       workspaceId,
                                   }) {
     const {t} = useTranslation();
@@ -33,7 +34,7 @@ export const AssetForm: FC<{
             tags: data?.tags.map(t => t['@id']) ?? [],
         },
     });
-    useDirtyFormPrompt(isDirty);
+    useDirtyFormPrompt(!submitted && isDirty);
 
     return <>
         <form

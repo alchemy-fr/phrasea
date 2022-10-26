@@ -22,6 +22,7 @@ export default function EditWorkspace({
 
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors,
     } = useFormSubmit({
@@ -48,6 +49,7 @@ export default function EditWorkspace({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            submitted={submitted}
         />
     </FormTab>
 }

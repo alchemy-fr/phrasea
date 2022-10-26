@@ -41,13 +41,12 @@ function denormalizeFormData(handler: (data: Workspace) => Promise<void>): (data
     });
 }
 
-
-
 export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                                                      formId,
                                                                      data,
                                                                      onSubmit,
                                                                      submitting,
+                                                                     submitted,
                                                                  }) {
     const {t} = useTranslation();
 
@@ -61,7 +60,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
     } = useForm<any>({
         defaultValues: data ? normalizeFormData(data) : data,
     });
-    useDirtyFormPrompt(isDirty);
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const locales = watch('enabledLocales');
 

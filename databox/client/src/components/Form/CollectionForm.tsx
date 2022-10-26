@@ -14,6 +14,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
                                                                        data,
                                                                        onSubmit,
                                                                        submitting,
+                                                                       submitted,
                                                                    }) {
     const {t} = useTranslation();
 
@@ -26,7 +27,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
     } = useForm<any>({
         defaultValues: data,
     });
-    useDirtyFormPrompt(isDirty);
+    useDirtyFormPrompt(!submitted && isDirty);
 
     return <form
         id={formId}

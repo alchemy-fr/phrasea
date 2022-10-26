@@ -5,4 +5,5 @@ export type FormProps<T extends object> = {
     data?: T | undefined;
     onSubmit: (setError: UseFormSetError<T>) => (data: T) => Promise<void>;
     submitting: boolean;
+    submitted: boolean;
 };

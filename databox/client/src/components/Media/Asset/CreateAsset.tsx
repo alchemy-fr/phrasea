@@ -27,6 +27,7 @@ export default function CreateAsset({
     const {t} = useTranslation();
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors,
     } = useFormSubmit({
@@ -72,6 +73,7 @@ export default function CreateAsset({
             onSubmit={handleSubmit}
             submitting={submitting}
             workspaceId={workspaceId}
+            submitted={submitted}
         />
     </FormDialog>
 }

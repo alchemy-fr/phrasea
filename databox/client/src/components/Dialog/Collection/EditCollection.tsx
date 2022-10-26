@@ -8,6 +8,8 @@ import FormTab from "../Tabbed/FormTab";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import {CollectionForm} from "../../Form/CollectionForm";
 
+export type OnCollectionEdit = (coll: Collection) => void;
+
 type Props = {
     id: string;
     data: Collection;
@@ -22,6 +24,7 @@ export default function EditCollection({
 
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors,
     } = useFormSubmit({
@@ -48,6 +51,7 @@ export default function EditCollection({
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
+            submitted={submitted}
         />
     </FormTab>
 }

@@ -18,6 +18,7 @@ export default function useFormSubmit<T extends object, R = any>({
                                                                      onSuccess,
                                                                  }: Props<T, R>) {
     const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
 
     const handleSubmit: UseFormHandleSubmit<T> = (setError) => async (data) => {
@@ -26,6 +27,7 @@ export default function useFormSubmit<T extends object, R = any>({
         try {
             setErrors([]);
             const res: R = await onSubmit(data);
+            setSubmitted(true);
             setSubmitting(false);
             onSuccess && onSuccess(res);
         } catch (e: any) {
@@ -45,5 +47,6 @@ export default function useFormSubmit<T extends object, R = any>({
         handleSubmit,
         errors,
         submitting,
+        submitted,
     };
 }

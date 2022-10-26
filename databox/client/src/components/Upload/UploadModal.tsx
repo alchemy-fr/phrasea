@@ -38,6 +38,7 @@ export default function UploadModal({
 
     const {
         submitting,
+        submitted,
         handleSubmit,
         errors
     } = useFormSubmit({
@@ -109,6 +110,7 @@ export default function UploadModal({
             } : undefined}
             onSubmit={handleSubmit}
             submitting={submitting}
+            submitted={submitted}
         />
     </FormDialog>
 }
