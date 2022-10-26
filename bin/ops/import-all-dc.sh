@@ -9,7 +9,6 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-
 PACKAGE="${1}"
 
 if [ ! -f "${PACKAGE}" ]; then
@@ -34,12 +33,12 @@ if [ ! -f "${CONFIG_FILE}" ]; then
   exit 2
 fi
 cp "${CONFIG_FILE}" ./configs/config.json
+echo "[✓] config.config copied"
 
 . "bin/ops/db/db.sh"
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
-  echo ${DUMP_FILE}
 
   if [ ! -f "${DUMP_FILE}" ]; then
     echo "File ${DUMP_FILE} does not exist"
@@ -48,4 +47,8 @@ for d in ${DATABASES}; do
   exec_container db "dropdb -U ${POSTGRES_USER} ${d}"
   exec_container db "createdb -U ${POSTGRES_USER} ${d}"
   exec_container db "psql -U ${POSTGRES_USER} -d ${d}" < ${DUMP_FILE}
+
+  echo "[✓] ${d} database imported"
 done
+
+echo "Complete."

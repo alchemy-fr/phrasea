@@ -4,6 +4,8 @@ set -e
 
 . bin/functions.sh
 
+export IP=${PHRASEA_IP:-"127.0.0.1"}
+
 load-env
 
 if [ -z "${PHRASEA_DOMAIN}" ]; then

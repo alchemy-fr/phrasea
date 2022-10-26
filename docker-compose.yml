@@ -734,10 +734,13 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL
       - PGADMIN_DEFAULT_PASSWORD
+      - PGADMIN_SERVER_JSON_FILE=/data/server.json
     depends_on:
       - db
     volumes:
       - pgadmin_vol:/var/lib/pgadmin
+      - ./infra/docker/pgadmin/server.json:/data/server.json
+      - ./infra/docker/pgadmin/passfile:/data/passfile
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"

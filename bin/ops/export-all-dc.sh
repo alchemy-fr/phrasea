@@ -16,18 +16,20 @@ mkdir -p "${DIR}"
 . "bin/ops/db/db.sh"
 
 cp configs/config.json "${DIR}/config.json"
+  echo "[✓] config.json exported"
 EXPORTED="config.json"
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
-  echo $DUMP_FILE
-  exec_container db "pg_dump -U ${POSTGRES_USER} --create ${d}" > ${DUMP_FILE}
+  exec_container db "pg_dump -U ${POSTGRES_USER} --create ${d}" > ${DUMP_FILE} 2> /dev/null
   EXPORTED="${EXPORTED} ${d}.sql"
+  echo "[✓] ${d} database exported"
 done
 
 echo "Packaging export..."
 PACKAGE_NAME="phrasea-${DATE}.tar.gz"
-PACKAGE="${BASE_DIR}/${PACKAGE_NAME}"
+PACKAGE="$(realpath "${BASE_DIR}/${PACKAGE_NAME}")"
 tar -C ${DIR} -czf ${PACKAGE} ${EXPORTED}
 rm -r ${DIR}
-echo "[Done] Export saved to ${PACKAGE}."
+echo "[✓] Export saved to:"
+echo "  ${PACKAGE}"
