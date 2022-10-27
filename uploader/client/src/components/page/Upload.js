@@ -86,7 +86,9 @@ class Upload extends Component {
                 this.setState({
                     error: `Unauthorized`
                 });
-            } else {
+            } else if (404 === e.res.statusCode)  {
+                this.props.history.push('/', {replace: true});
+            } else{
                 throw e;
             }
         }

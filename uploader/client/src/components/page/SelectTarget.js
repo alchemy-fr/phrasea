@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react';
 import '../../scss/Upload.scss';
 import {getTargets} from "../../requests";
 import Container from "../Container";
-import {Link} from "react-router-dom";
-import Redirect from "react-router-dom/es/Redirect";
+import {Link, Redirect} from "react-router-dom";
 import FullPageLoader from "../FullPageLoader";
+import {Translation} from "react-i18next";
 
 export default function SelectTarget() {
     const [targets, setTargets] = useState();
@@ -23,6 +23,11 @@ export default function SelectTarget() {
 
     return <Container>
         <div className={'row targets'}>
+            {targets.length === 0 && <div>
+                <Translation>
+                    {t => t('targets.none_available', `You don't have access to any upload target.`)}
+                </Translation>
+            </div>}
             {targets.map(t => {
                 return <Link
                     key={t.id}

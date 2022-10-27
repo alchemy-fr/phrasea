@@ -37,6 +37,7 @@ easy_admin:
           - name
           - { property: pullModeUrl, label: 'Pull mode URL', template: '@AlchemyAdmin/list/code.html.twig' }
           - targetUrl
+          - enabled
           - createdAt
       form:
         fields:
@@ -60,6 +61,7 @@ easy_admin:
               multiple: true
               expanded: true
             help: If no group is selected, the target will be allowed to any user.
+          - enabled
 
     Commit:
       disabled_actions:

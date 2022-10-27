@@ -47,6 +47,13 @@ class Target
     private ?string $name = null;
 
     /**
+     * @ApiProperty()
+     * @ORM\Column(type="boolean", nullable=false)
+     * @Groups({"target:read"})
+     */
+    private bool $enabled = false;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"target:index"})
      */
@@ -210,5 +217,15 @@ class Target
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }

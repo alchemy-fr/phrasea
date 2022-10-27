@@ -15,5 +15,8 @@
     },
     "layout": {
         "loading_form": "Chargement du formulaire..."
+    },
+    "targets": {
+        "none_available": "Vous n'avez accès à aucune destination d'upload."
     }
 }

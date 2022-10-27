@@ -10,11 +10,15 @@ export default class Languages extends Component {
     render() {
         return (
             <div className="languages">
-                {config.getAvailableLocales().map(l =>
-                    <button
+                {config.getAvailableLocales().map(l => <React.Fragment
                         key={l}
-                        onClick={() => this.changeLanguage(l)}
-                    >{l.toUpperCase()}</button>
+                    >
+                        {' '}
+                        <button
+                            className={'btn btn-secondary'}
+                            onClick={() => this.changeLanguage(l)}
+                        >{l.toUpperCase()}</button>
+                    </React.Fragment>
                 )}
             </div>
         );
