@@ -51,7 +51,7 @@ class Target
      * @ORM\Column(type="boolean", nullable=false)
      * @Groups({"target:read"})
      */
-    private bool $enabled = false;
+    private bool $enabled = true;
 
     /**
      * @ORM\Column(type="text", nullable=true)
