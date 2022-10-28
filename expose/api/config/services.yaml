@@ -17,12 +17,7 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $storageBaseUrl: '%env(S3_STORAGE_ENDPOINT)%'
-            $cloudFrontUrl: '%env(CLOUD_FRONT_URL)%'
-            $cloudFrontPrivateKey: '%env(CLOUD_FRONT_PRIVATE_KEY)%'
-            $cloudFrontKeyPairId: '%env(CLOUD_FRONT_KEY_PAIR_ID)%'
             $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
-            int $requestSignatureTtl: '%env(int:EXPOSE_REQUEST_SIGNATURE_TTL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -113,6 +108,7 @@ services:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
             $baseUri: '%env(EXPOSE_API_BASE_URL)%'
+            $ttl: '%env(JWT_TTL)%'
 
     App\Admin\ClientUrlGenerator:
         arguments:

@@ -6,7 +6,7 @@ kind: ConfigMap
 metadata:
   name: databox-api-config
 data:
-  DATABOX_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
+  S3_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
   ELASTICSEARCH_URL: {{ $.Values.elasticsearch.url | default "http://elasticsearch-databox-master:9200" | trimSuffix "/" | quote }}
   ELASTICSEARCH_INDEX_PREFIX: {{ $.Values.elasticsearch.indexPrefix | quote }}
   PHRASEANET_BASE_URL: {{ .phraseanet.baseUrl | default "" | quote }}

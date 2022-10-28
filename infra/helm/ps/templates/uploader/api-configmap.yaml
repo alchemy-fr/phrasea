@@ -6,7 +6,7 @@ kind: ConfigMap
 metadata:
   name: uploader-api-config
 data:
-  UPLOADER_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
+  S3_REQUEST_SIGNATURE_TTL: {{ .requestSignatureTtl | quote }}
   DELETE_ASSET_GRACEFUL_TIME: {{ .deleteAssetGracefulTime | quote }}
   ASSET_CONSUMER_COMMIT_URI: {{ .assetConsumerCommitUri | default "" | quote }}
   ASSET_CONSUMER_ACCESS_TOKEN: {{ .assetConsumerAccessToken | default "" | quote }}

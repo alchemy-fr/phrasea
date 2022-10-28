@@ -48,6 +48,7 @@ databox:
         endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: databox
+        pathPrefix: ''
         usePathSyleEndpoint: false
         accessKey:
         secretKey:
@@ -116,6 +117,7 @@ expose:
         endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: expose
+        pathPrefix: ''
         usePathSyleEndpoint: false
         accessKey:
         secretKey:
@@ -213,6 +215,7 @@ uploader:
         endpoint: "{{ .Values.minio.baseUrl }}"
         region:
         bucketName: uploader-deposit
+        pathPrefix: ''
         usePathSyleEndpoint: false
         accessKey:
         secretKey:

@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: expose-client-config
 data:
-  EXPOSE_REQUEST_SIGNATURE_TTL: {{ .api.config.requestSignatureTtl | quote }}
+  S3_REQUEST_SIGNATURE_TTL: {{ .api.config.requestSignatureTtl | quote }}
   {{- include "app.client.configMap" $ | indent 2 }}
 {{- end }}
 {{- end }}

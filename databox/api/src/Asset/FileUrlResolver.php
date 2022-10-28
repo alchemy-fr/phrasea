@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
+use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Core\File;
-use App\Storage\UrlSigner;
 use RuntimeException;
 
 class FileUrlResolver

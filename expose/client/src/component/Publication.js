@@ -90,9 +90,14 @@ class Publication extends PureComponent {
 
             this.timeout && clearTimeout(this.timeout);
 
+            const ttl = config.get('requestSignatureTtl');
+
+            if (!ttl) {
+                throw new Error(`Missing requestSignatureTtl`);
+            }
             this.timeout = setTimeout(() => {
                 this.load();
-            }, config.get('requestSignatureTtl') * 1000 - 2000);
+            }, ttl * 1000 - 2000);
         } catch (err) {
             if (err.response && 200 !== err.response.statusCode) {
                 this.setState({error: err.response.statusCode})

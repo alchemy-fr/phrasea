@@ -65,7 +65,7 @@
         authBaseUrl: env.AUTH_API_BASE_URL,
         clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,
-        requestSignatureTtl: env.EXPOSE_REQUEST_SIGNATURE_TTL,
+        requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
         disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),
     };
 });

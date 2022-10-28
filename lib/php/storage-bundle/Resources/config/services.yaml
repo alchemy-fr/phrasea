@@ -3,6 +3,7 @@ parameters:
     env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
     env(S3_STORAGE_ACCESS_KEY): define-me
     env(S3_STORAGE_SECRET_KEY): define-me
+    env(S3_REQUEST_SIGNATURE_TTL): '3600'
     env(VERIFY_SSL): true
 
 services:
@@ -47,3 +48,8 @@ services:
     Alchemy\StorageBundle\Storage\FileStorageManager:
         arguments:
             $filesystem: "@oneup_flysystem.upload_filesystem"
+
+    Alchemy\StorageBundle\Storage\UrlSigner:
+        $client: '@alchemy_storage.s3_client'
+        $bucketName: '%env(S3_STORAGE_BUCKET_NAME)%'
+        $ttl: '%env(int:S3_REQUEST_SIGNATURE_TTL)%'

@@ -45,6 +45,7 @@ export default function IdentityProviders({
             const authorizeUrl = `${authBaseUrl}/${provider.type}/${provider.name}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${authClientId}`;
 
             return <div
+                key={provider.name}
                 className="identity-provider"
                 style={{
                     margin: 10,

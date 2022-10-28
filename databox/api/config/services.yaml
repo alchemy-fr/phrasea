@@ -111,11 +111,6 @@ services:
             $options:
               verify: '%env(bool:VERIFY_SSL)%'
 
-    App\Storage\UrlSigner:
-        $client: '@alchemy_storage.s3_client'
-        $bucketName: '%env(S3_STORAGE_BUCKET_NAME)%'
-        $ttl: '%env(DATABOX_REQUEST_SIGNATURE_TTL)%'
-
     App\Security\JWTTokenManager:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
