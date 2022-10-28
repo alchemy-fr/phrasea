@@ -19,25 +19,28 @@ class UploadManager
     private string $uploadBucket;
     private EntityManagerInterface $em;
     private LoggerInterface $logger;
+    private string $pathPrefix;
 
     public function __construct(
         S3Client $client,
         string $uploadBucket,
         EntityManagerInterface $em,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $pathPrefix
     )
     {
         $this->uploadBucket = $uploadBucket;
         $this->client = $client;
         $this->em = $em;
         $this->logger = $logger;
+        $this->pathPrefix = $pathPrefix;
     }
 
     public function prepareMultipartUpload(string $path, string $contentType)
     {
         return $this->client->createMultipartUpload([
             'Bucket' => $this->uploadBucket,
-            'Key' => $path,
+            'Key' => $this->pathPrefix.$path,
             'ContentType' => $contentType,
         ]);
     }
@@ -46,7 +49,7 @@ class UploadManager
     {
         $this->client->abortMultipartUpload([
             'Bucket' => $this->uploadBucket,
-            'Key' => $path,
+            'Key' => $this->pathPrefix.$path,
             'UploadId' => $uploadId,
         ]);
     }
@@ -55,7 +58,7 @@ class UploadManager
     {
         $params = [
             'Bucket' => $this->uploadBucket,
-            'Key' => $path,
+            'Key' => $this->pathPrefix.$path,
             'PartNumber' => $partNumber,
             'UploadId' => $uploadId,
         ];
@@ -71,7 +74,7 @@ class UploadManager
     {
         $params = [
             'Bucket' => $this->uploadBucket,
-            'Key' => $filename,
+            'Key' => $this->pathPrefix.$filename,
             'MultipartUpload' => [
                 'Parts' => $parts,
             ],
@@ -85,7 +88,7 @@ class UploadManager
     {
         $command = $this->client->getCommand('PutObject', array(
             'Bucket' => $this->uploadBucket,
-            'Key' => $path,
+            'Key' => $this->pathPrefix.$path,
             'ContentType' => $contentType,
         ));
         $request = $this->client->createPresignedRequest($command, '+30 minutes');

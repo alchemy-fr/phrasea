@@ -31,7 +31,6 @@ return [
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
-    Arthem\RequestSignerBundle\ArthemRequestSignerBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],

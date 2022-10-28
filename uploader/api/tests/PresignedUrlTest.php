@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Arthem\RequestSignerBundle\RequestSigner;
-use Arthem\RequestSignerBundle\Signer\AWSS3SignerAdapter;
+use Alchemy\StorageBundle\Cdn\CloudFrontUrlGenerator;
+use Alchemy\StorageBundle\Storage\UrlSigner;
 use Aws\S3\S3Client;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use Symfony\Component\HttpFoundation\Request;
 
 class PresignedUrlTest extends TestCase
 {
@@ -57,20 +53,15 @@ class PresignedUrlTest extends TestCase
             $filePath
         ), (string) $request->getUri());
 
-        $psr17Factory = new Psr17Factory();
-        $psrHttpFactory = new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);
-
-        $httpFoundationFactory = new HttpFoundationFactory();
-
-        $adapter = new AWSS3SignerAdapter($s3Client, $bucketName, 15);
-
-        $requestSigner = new RequestSigner($psrHttpFactory, $httpFoundationFactory, ['default' => $adapter], 'default');
+        /** @var CloudFrontUrlGenerator $cloudFrontUrlGenerator */
+        $cloudFrontUrlGenerator = $this->createMock(CloudFrontUrlGenerator::class);
+        $urlSigner = new UrlSigner($s3Client, $bucketName, 15, $cloudFrontUrlGenerator);
 
         $this->assertStringStartsWith(sprintf(
             $expected,
             $bucketName,
             $filePath
-        ), $requestSigner->signUri(sprintf('%s/%s', $storageBaseUrl, $filePath), Request::create('http://localhost/')));
+        ), $urlSigner->getSignedUrl($filePath));
     }
 
     public function getConfigs(): array

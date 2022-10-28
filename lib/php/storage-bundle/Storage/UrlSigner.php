@@ -13,13 +13,21 @@ class UrlSigner
     private string $bucketName;
     private int $ttl;
     private CloudFrontUrlGenerator $cloudFrontUrlGenerator;
+    private string $pathPrefix;
 
-    public function __construct(S3Client $client, string $bucketName, int $ttl, CloudFrontUrlGenerator $cloudFrontUrlGenerator)
+    public function __construct(
+        S3Client $client,
+        string $bucketName,
+        int $ttl,
+        CloudFrontUrlGenerator $cloudFrontUrlGenerator,
+        string $pathPrefix = ''
+    )
     {
         $this->client = $client;
         $this->bucketName = $bucketName;
         $this->ttl = $ttl;
         $this->cloudFrontUrlGenerator = $cloudFrontUrlGenerator;
+        $this->pathPrefix = $pathPrefix;
     }
 
     public function getSignedUrl(string $path, array $options = []): string
@@ -38,7 +46,7 @@ class UrlSigner
 
         $cmd = $this->client->getCommand('GetObject', array_merge([
             'Bucket' => $this->bucketName,
-            'Key' => ltrim($path, '/'),
+            'Key' => ltrim($this->pathPrefix.$path, '/'),
         ], $cmdOptions));
 
         $request = $this->client->createPresignedRequest($cmd, time() + ($options['ttl'] ?? $this->ttl));

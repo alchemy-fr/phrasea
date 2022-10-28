@@ -19,10 +19,10 @@
           "dsn": "%env(AMQP_DSN)%"
         },
         "s3": {
-          "endpoint": "%env(S3_STORAGE_ENDPOINT)%",
+          "endpoint": "%env(S3_ENDPOINT)%",
           "bucketNames": "%env(BUCKET_NAMES)%",
-          "accessKey": "%env(S3_STORAGE_ACCESS_KEY)%",
-          "secretKey": "%env(S3_STORAGE_SECRET_KEY)%"
+          "accessKey": "%env(S3_ACCESS_KEY)%",
+          "secretKey": "%env(S3_SECRET_KEY)%"
         },
         "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
       }

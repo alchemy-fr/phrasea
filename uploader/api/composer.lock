@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9e3e33ffebec6f3cc3e6ba8a04cebe9d",
+    "content-hash": "dddba04440934c17c2607bca9e6b00dc",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -109,7 +109,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -156,7 +156,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -204,7 +204,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -250,7 +250,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -299,7 +299,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -345,7 +345,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -391,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -650,58 +650,6 @@
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
             "time": "2022-10-25T19:51:17+00:00"
-        },
-        {
-            "name": "arthem/request-signer-bundle",
-            "version": "1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/4rthem/request-signer-bundle.git",
-                "reference": "d3d584771ffef6db6b5faf874d1d1228e5bec61e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/request-signer-bundle/zipball/d3d584771ffef6db6b5faf874d1d1228e5bec61e",
-                "reference": "d3d584771ffef6db6b5faf874d1d1228e5bec61e",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/psr7": "^1.6",
-                "nyholm/psr7": "^1.2",
-                "php": "^7.2",
-                "symfony/framework-bundle": "^4.0 || ^5.0",
-                "symfony/psr-http-message-bridge": "^2.0"
-            },
-            "require-dev": {
-                "arthem/jwt-request-signer": "^1",
-                "aws/aws-sdk-php": "^3",
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^8"
-            },
-            "suggest": {
-                "arthem/jwt-request-signer": "For JWT signed requests",
-                "aws/aws-sdk-php": "For S3 signed requests"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Arthem\\RequestSignerBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony Request signer bundle",
-            "homepage": "https://github.com/4rthem/request-signer-bundle",
-            "support": {
-                "issues": "https://github.com/4rthem/request-signer-bundle/issues",
-                "source": "https://github.com/4rthem/request-signer-bundle/tree/master"
-            },
-            "time": "2020-05-24T13:07:32+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -10669,7 +10617,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-master",
+            "version": "dev-PS-501-s3-path-prefix",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",

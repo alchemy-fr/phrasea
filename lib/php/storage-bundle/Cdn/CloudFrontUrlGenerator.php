@@ -13,13 +13,16 @@ class CloudFrontUrlGenerator
     private CloudFrontClient $cloudFrontClient;
     private ?string $cloudFrontKeyPairId;
     private int $ttl;
+    private string $pathPrefix;
 
     public function __construct(
         CloudFrontClient $cloudFrontClient,
         int $ttl,
         ?string $cloudFrontUrl = null,
         ?string $cloudFrontPrivateKey = null,
-        ?string $cloudFrontKeyPairId = null)
+        ?string $cloudFrontKeyPairId = null,
+        string $pathPrefix = ''
+    )
     {
         $this->cloudFrontClient = $cloudFrontClient;
         $this->cloudFrontUrl = $cloudFrontUrl;
@@ -30,6 +33,7 @@ class CloudFrontUrlGenerator
         $this->cloudFrontPrivateKey = $cloudFrontPrivateKey;
         $this->cloudFrontKeyPairId = $cloudFrontKeyPairId;
         $this->ttl = $ttl;
+        $this->pathPrefix = $pathPrefix;
     }
 
     public function isEnabled(): bool
@@ -39,7 +43,7 @@ class CloudFrontUrlGenerator
 
     public function getSignedUrl(string $path, array $options = []): string
     {
-        $url = $this->cloudFrontUrl.'/'.$path;
+        $url = $this->cloudFrontUrl.'/'.$this->pathPrefix.$path;
 
         if ($options['download'] ?? false) {
             $url .= '?response-content-disposition=attachment';

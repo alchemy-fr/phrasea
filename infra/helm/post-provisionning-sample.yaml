@@ -27,8 +27,8 @@ databox:
         bucketName: databox
         externalSecretKey:
         # Secret must contain:
-        # - S3_STORAGE_ACCESS_KEY
-        # - S3_STORAGE_SECRET_KEY
+        # - S3_ACCESS_KEY
+        # - S3_SECRET_KEY
 
     ingress:
       annotations: {}
@@ -62,8 +62,8 @@ expose:
         bucketName: expose
         externalSecretKey:
         # Secret must contain:
-        # - S3_STORAGE_ACCESS_KEY
-        # - S3_STORAGE_SECRET_KEY
+        # - S3_ACCESS_KEY
+        # - S3_SECRET_KEY
 
     ingress:
       annotations: {}
@@ -117,8 +117,8 @@ uploader:
         bucketName: uploader-deposit
         externalSecretKey:
         # Secret must contain:
-        # - S3_STORAGE_ACCESS_KEY
-        # - S3_STORAGE_SECRET_KEY
+        # - S3_ACCESS_KEY
+        # - S3_SECRET_KEY
 
   adminOAuthClient:
     externalSecretName:

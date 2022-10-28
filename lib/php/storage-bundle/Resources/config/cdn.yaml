@@ -23,3 +23,4 @@ services:
             $cloudFrontPrivateKey: '%env(CLOUD_FRONT_PRIVATE_KEY)%'
             $cloudFrontKeyPairId: '%env(CLOUD_FRONT_KEY_PAIR_ID)%'
             $ttl: '%env(int:CLOUD_FRONT_TTL)%'
+            $pathPrefix: '%env(S3_PATH_PREFIX)%'

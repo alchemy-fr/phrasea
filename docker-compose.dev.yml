@@ -160,7 +160,7 @@ services:
       - ./notify/api/public:/srv/app/public
 
   notify-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
+#    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
@@ -178,7 +178,7 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
-#    command: [ "/bin/sh", "-c", "exit" ]
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
@@ -212,12 +212,12 @@ services:
       - RABBITMQ_PASSWORD
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
-      - S3_STORAGE_ACCESS_KEY
-      - S3_STORAGE_SECRET_KEY
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_STORAGE_PATH_PREFIX
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
-      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - REPORT_API_BASE_URL
