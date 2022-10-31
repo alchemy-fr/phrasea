@@ -47,11 +47,11 @@ services:
     environment:
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
-      - EXPOSE_REQUEST_SIGNATURE_TTL
       - WDS_SOCKET_PORT=443
       - DISABLE_INDEX_PAGE
       - AUTO_CONNECT_IDP
@@ -75,10 +75,10 @@ services:
       - ./configs:/configs
     environment:
       - DEV_MODE
+      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - DATABOX_REQUEST_SIGNATURE_TTL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
@@ -160,7 +160,7 @@ services:
       - ./notify/api/public:/srv/app/public
 
   notify-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
+#    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
@@ -178,7 +178,7 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
-#    command: [ "/bin/sh", "-c", "exit" ]
+    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
@@ -212,15 +212,15 @@ services:
       - RABBITMQ_PASSWORD
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
-      - S3_STORAGE_ACCESS_KEY
-      - S3_STORAGE_SECRET_KEY
-      - S3_STORAGE_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_STORAGE_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_PATH_PREFIX
+      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
+      - S3_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - REPORT_API_BASE_URL
-      - UPLOADER_REQUEST_SIGNATURE_TTL
-      - EXPOSE_REQUEST_SIGNATURE_TTL
       - MAPBOX_TOKEN
       - XDEBUG_ENABLED
       - IDE_KEY

@@ -23,7 +23,7 @@ for f in ${JS_PROJECTS}; do
     mkdir -p "${f}/__lib"
 
     if hash rsync 2>/dev/null; then
-        rsync -a lib/js/ "${f}/__lib/" --exclude=node_modules
+        rsync -a lib/js/ "${f}/__lib/" --exclude=node_modules  --exclude=dist
     else
         cp -r lib/js/* "${f}/__lib/"
     fi

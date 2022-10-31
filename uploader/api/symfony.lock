@@ -46,9 +46,6 @@
     "arthem/rabbit-bundle": {
         "version": "dev-master"
     },
-    "arthem/request-signer-bundle": {
-        "version": "1.0.4"
-    },
     "aws/aws-crt-php": {
         "version": "v1.0.2"
     },

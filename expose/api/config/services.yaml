@@ -4,7 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    env(S3_STORAGE_USE_PATH_STYLE_ENDPOINT): false
+    env(S3_USE_PATH_STYLE_ENDPOINT): false
     env(VERIFY_SSL): true
 
     router.request_context.host: '%env(EXPOSE_API_BASE_URL)%'
@@ -17,12 +17,7 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $storageBaseUrl: '%env(S3_STORAGE_ENDPOINT)%'
-            $cloudFrontUrl: '%env(CLOUD_FRONT_URL)%'
-            $cloudFrontPrivateKey: '%env(CLOUD_FRONT_PRIVATE_KEY)%'
-            $cloudFrontKeyPairId: '%env(CLOUD_FRONT_KEY_PAIR_ID)%'
             $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
-            int $requestSignatureTtl: '%env(int:EXPOSE_REQUEST_SIGNATURE_TTL)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -113,6 +108,7 @@ services:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
             $baseUri: '%env(EXPOSE_API_BASE_URL)%'
+            $ttl: '%env(JWT_TTL)%'
 
     App\Admin\ClientUrlGenerator:
         arguments:

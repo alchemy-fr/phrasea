@@ -4,25 +4,15 @@ declare(strict_types=1);
 
 namespace App\Serializer\Normalizer;
 
+use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Asset;
-use Arthem\RequestSignerBundle\RequestSigner;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssetNormalizer implements EntityNormalizerInterface
 {
-    private RequestSigner $requestSigner;
-    private RequestStack $requestStack;
-    private string $storageBaseUrl;
+    private UrlSigner $urlSigner;
 
-    public function __construct(
-        RequestSigner $requestSigner,
-        RequestStack $requestStack,
-        string $storageBaseUrl
-    ) {
-        $this->requestSigner = $requestSigner;
-        $this->requestStack = $requestStack;
-        $this->storageBaseUrl = $storageBaseUrl;
+    public function __construct(UrlSigner $urlSigner) {
+        $this->urlSigner = $urlSigner;
     }
 
     /**
@@ -30,12 +20,7 @@ class AssetNormalizer implements EntityNormalizerInterface
      */
     public function normalize($object, array &$context = []): void
     {
-        $url = $this->requestSigner->signUri(
-            $this->storageBaseUrl.'/'.$object->getPath(),
-            $this->requestStack->getCurrentRequest() ?? Request::createFromGlobals(),
-            []
-        );
-        $object->setUrl($url);
+        $object->setUrl($this->urlSigner->getSignedUrl($object->getPath()));
     }
 
     public function support($object): bool
