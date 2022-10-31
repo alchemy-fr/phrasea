@@ -15,25 +15,30 @@ use HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
+    const AUTH_ORIGIN = 'authOrigin';
     private EntityManagerInterface $em;
     private UserManager $userManager;
     private GroupMapper $groupMapper;
     private GroupParser $groupParser;
+    private SessionInterface $session;
 
     public function __construct(
         EntityManagerInterface $em,
         UserManager $userManager,
         GroupMapper $groupMapper,
-        GroupParser $groupParser
+        GroupParser $groupParser,
+        SessionInterface $session
     )
     {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->groupMapper = $groupMapper;
         $this->groupParser = $groupParser;
+        $this->session = $session;
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
@@ -54,7 +59,8 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         $this->userManager->persistUser($user);
 
         $accessToken = new ExternalAccessToken();
-        $accessToken->setProvider($response->getResourceOwner()->getName());
+        $providerName = $response->getResourceOwner()->getName();
+        $accessToken->setProvider($providerName);
         $accessToken->setIdentifier((string) $response->getUsername());
         $accessToken->setUser($user);
         $accessToken->setAccessToken($response->getAccessToken());
@@ -68,6 +74,8 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         }
         $this->em->persist($accessToken);
         $this->em->flush();
+
+        $this->session->set(self::AUTH_ORIGIN, $providerName);
 
         return $user;
     }

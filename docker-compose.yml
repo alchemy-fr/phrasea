@@ -1228,9 +1228,8 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=password
       - KC_PROXY=edge
-      - KEYCLOAK_IMPORT=/tmp/realm.json
     volumes:
-      - ./configs/keycloak-realm.json:/tmp/realm.json
+      - keycloak_vol:/opt/keycloak/data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
@@ -1248,3 +1247,4 @@ volumes:
   elasticsearch_vol:
   expose_nginx_cache:
   zippy_vol:
+  keycloak_vol:
