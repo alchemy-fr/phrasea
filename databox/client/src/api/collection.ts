@@ -84,7 +84,7 @@ type CollectionPostType = {
     title: string;
     children?: CollectionOptionalWorkspace[];
     workspace?: string | undefined;
-    privacy: number;
+    privacy?: number;
 }
 
 export async function postCollection(data: CollectionPostType): Promise<Collection> {

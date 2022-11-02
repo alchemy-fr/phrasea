@@ -4,14 +4,17 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import {CollectionOptionalWorkspace, Workspace} from "../../../types";
 import {getCollection, getWorkspaces} from "../../../api/collection";
-import {TreeView, useTreeItem} from "@mui/lab";
+import {TreeView} from "@mui/lab";
 import {Box, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
-import EditableCollectionTree from "./EditableTree";
+import EditableCollectionTree, {defaultNewCollectionName, nodeNewPrefix} from "./EditableTree";
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 
 const nodeSeparator = '|';
+export const newCollectionPathSeparator = '\\|\\';
 
 export {nodeSeparator as treeViewPathSeparator};
+
+export type SetExpanded = (nodeIds: (string[] | ((prevNodeIds: string[]) => string[]))) => void;
 
 type CollectionTreeProps = {
     newCollectionPath: NewCollectionPath | undefined;
@@ -21,9 +24,11 @@ type CollectionTreeProps = {
     disabledBranches?: string[];
     setNewCollectionPath: SetNewCollectionPath;
     updateCollectionPath: UpdateCollectionPath;
+    setExpanded: SetExpanded;
+    allowNew: boolean | undefined;
 }
 
-type UpdateCollectionPath = (index: number, value: string | null) => void;
+export type UpdateCollectionPath = (index: number, id: string | null, value?: string | null, editing?: boolean) => void;
 
 function CollectionTree({
                             updateCollectionPath,
@@ -32,6 +37,8 @@ function CollectionTree({
                             collection,
                             workspaceId,
                             disabledBranches,
+                            setExpanded,
+                            allowNew,
                             depth = 0
                         }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
@@ -49,25 +56,20 @@ function CollectionTree({
         }
     }
 
-    const nodeId = workspaceId + nodeSeparator + collection['@id'];
+    const collectionIRI = collection['@id'];
+    const nodeId = workspaceId + nodeSeparator + collectionIRI;
     const hasTree = tree && tree.length > 0;
-    const hasNewCollectionPath = newCollectionPath && newCollectionPath.rootNode === collection.id;
-
-    const {
-        expanded,
-    } = useTreeItem(nodeId);
+    const hasNewCollectionPath = newCollectionPath && newCollectionPath.rootNode === nodeId;
 
     const onCreateNewCollection = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-        if (expanded) {
-            e.stopPropagation();
-        } else {
-            const target: HTMLButtonElement = e.currentTarget;
-            setTimeout(() => {
-                target.click();
-            }, 50);
-        }
-        setNewCollectionPath(['Collection'], collection.id);
-    }, [setNewCollectionPath, expanded]);
+        e.stopPropagation();
+        setNewCollectionPath([{
+            value: defaultNewCollectionName,
+            id: '0',
+            editing: true,
+        }], nodeId);
+        setExpanded(prev => !prev.includes(nodeId) ? prev.concat(nodeId) : prev);
+    }, [setNewCollectionPath, setExpanded, nodeId]);
 
     return <TreeItem
         disabled={disabledBranches && disabledBranches.some(b => nodeId.startsWith(b))}
@@ -78,7 +80,7 @@ function CollectionTree({
             alignItems={'center'}
         >
             {collection.title}
-            {collection.capabilities.canEdit && <IconButton
+            {allowNew && collection.capabilities.canEdit && <IconButton
                 sx={{ml: 1}}
                 onClick={onCreateNewCollection}
             >
@@ -87,36 +89,53 @@ function CollectionTree({
         </Stack>}
     >
         {/*Wrapping all to avoid collapse in node */}
-        {(hasTree || hasNewCollectionPath) ? <>
-            {newCollectionPath && newCollectionPath.rootNode === collection.id ? <EditableCollectionTree
-                path={newCollectionPath.path}
+        {(hasTree || (allowNew && hasNewCollectionPath)) ? <>
+            {allowNew && hasNewCollectionPath ? <EditableCollectionTree
+                nodes={newCollectionPath!.nodes}
                 offset={0}
                 onEdit={updateCollectionPath}
+                setExpanded={setExpanded}
             /> : null}
             {hasTree && tree!.map(c => <CollectionTree
                 key={c.id}
                 workspaceId={workspaceId}
                 collection={c}
                 depth={depth + 1}
-                newCollectionPath={newCollectionPath && newCollectionPath.rootNode === collection.id ? undefined : newCollectionPath}
+                newCollectionPath={newCollectionPath && newCollectionPath.rootNode === collectionIRI ? undefined : newCollectionPath}
                 setNewCollectionPath={setNewCollectionPath}
                 updateCollectionPath={updateCollectionPath}
                 disabledBranches={disabledBranches}
+                setExpanded={setExpanded}
+                allowNew={allowNew}
             />)}
         </> : null}
     </TreeItem>
 }
 
-function stripWs(nodeId: string): string {
+function normalizeNodeId(nodeId: string, newCollectionPath: NewCollectionPath | undefined): string {
+    if (newCollectionPath && nodeId.startsWith(nodeNewPrefix)) {
+        const offset = parseInt(nodeId.substring(nodeNewPrefix.length));
+
+        return nodeNewPrefix + newCollectionPath.rootNode + newCollectionPathSeparator + (new Array(offset + 1)
+            .fill(true, 0, offset + 1)).map((_, i) => newCollectionPath.nodes[i].value)
+            .join(newCollectionPathSeparator);
+    }
+
     return nodeId.split(nodeSeparator)[1];
+}
+
+export type NewCollectionNode = {
+    id: string;
+    value: string;
+    editing?: boolean | undefined;
 }
 
 type NewCollectionPath = {
     rootNode: string | null;
-    path: string[];
+    nodes: NewCollectionNode[];
 };
 
-type SetNewCollectionPath = (path: string[], rootId?: string) => void;
+type SetNewCollectionPath = (nodes: NewCollectionNode[], rootId?: string) => void;
 
 type Props<IsMulti extends boolean = false> = {
     onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
@@ -124,6 +143,7 @@ type Props<IsMulti extends boolean = false> = {
     multiple?: IsMulti;
     workspaceId?: string;
     disabledBranches?: string[];
+    allowNew?: boolean;
 }
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
@@ -132,35 +152,56 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                                                                          multiple,
                                                                          workspaceId,
                                                                          disabledBranches,
+                                                                         allowNew,
                                                                      }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
     const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPath>();
     const [expanded, setExpanded] = React.useState<string[]>([]);
     const [selected, setSelected] = React.useState<IsMulti extends true ? string[] : (string | undefined)>(value ?? (multiple ? [] : '') as any);
 
-    const setNewCollectionPathProxy = useCallback<SetNewCollectionPath>((path, rootId) => {
+    const setNewCollectionPathProxy = useCallback<SetNewCollectionPath>((nodes, rootId) => {
         setNewCollectionPath(prev => ({
-            path,
+            nodes,
             rootNode: rootId ? rootId : prev!.rootNode,
         }));
     }, [setNewCollectionPath]);
 
-    const updateCollectionPath = useCallback<UpdateCollectionPath>((index: number, value: string | null) => {
+    const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: IsMulti extends true ? string[] : string) => {
+        if (multiple) {
+            const striped = (nodeIds as string[]).map(i => normalizeNodeId(i, newCollectionPath));
+            setSelected(nodeIds as any);
+            onChange && onChange(striped as any);
+        } else {
+            const striped = normalizeNodeId(nodeIds as string, newCollectionPath);
+            setSelected(nodeIds);
+            onChange && onChange(striped as any, (nodeIds as string).split(nodeSeparator)[0] as any);
+        }
+    };
+
+    const updateCollectionPath = useCallback<UpdateCollectionPath>((index, id, value, editing) => {
         setNewCollectionPath((prev) => {
-            if (index === 0 && value === null) {
+            if (index === 0 && id === null) {
                 return undefined;
             }
 
-            if (index >= prev!.path?.length ?? 0) {
+            if (index >= prev!.nodes?.length ?? 0) {
                 return {
                     ...prev!,
-                    path: prev!.path.concat(value!),
+                    nodes: prev!.nodes.concat({
+                        id: id!,
+                        value: value!,
+                        editing: editing!,
+                    }),
                 };
             }
 
             return {
                 ...prev!,
-                path: value === null ? prev!.path.slice(0, index) : prev!.path.map((p, i) => i === index ? (value as string) : p),
+                nodes: id === null ? prev!.nodes.slice(0, index) : prev!.nodes.map((p, i) => i === index ? {
+                    id: id!,
+                    value: value!,
+                    editing: editing!,
+                } : p),
             };
         });
     }, [setNewCollectionPath]);
@@ -179,18 +220,6 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         setExpanded(nodeIds);
     };
 
-    const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: IsMulti extends true ? string[] : string) => {
-        if (multiple) {
-            const striped = (nodeIds as string[]).map(stripWs);
-            setSelected(nodeIds as any);
-            onChange && onChange(striped as any);
-        } else {
-            const striped = stripWs(nodeIds as string);
-            setSelected(nodeIds);
-            onChange && onChange(striped as any, (nodeIds as string).split(nodeSeparator)[0] as any);
-        }
-    };
-
     if (!workspaces) {
         return <CircularProgress
             size={50}
@@ -202,9 +231,10 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
             flexGrow: 1,
             maxWidth: 400,
             '.Mui-selected, .Mui-selected.Mui-focused': {
-                backgroundColor: 'success.main',
+                bgcolor: 'success.main',
                 color: 'success.contrastText',
-            }
+                fontWeight: 700,
+            },
         }}
         defaultCollapseIcon={<ExpandMoreIcon/>}
         defaultExpandIcon={<ChevronRightIcon/>}
@@ -220,8 +250,8 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                 nodeId={nodeId}
                 key={w.id}
                 label={<>
-                    <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', p: 0.5, pr: 0}}>
+                        <Typography variant="body2" sx={{fontWeight: 'inherit', flexGrow: 1}}>
                             {w.name}
                         </Typography>
                         <Typography variant="caption" color="inherit">
@@ -238,6 +268,8 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                     newCollectionPath={newCollectionPath}
                     setNewCollectionPath={setNewCollectionPathProxy}
                     updateCollectionPath={updateCollectionPath}
+                    setExpanded={setExpanded}
+                    allowNew={allowNew}
                 />)}
             </TreeItem>;
         })}

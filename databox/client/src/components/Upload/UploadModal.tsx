@@ -10,6 +10,9 @@ import {UploadData, UploadForm} from "./UploadForm";
 import {UploadFiles} from "../../api/file";
 import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
+import {nodeNewPrefix} from "../Media/Collection/EditableTree";
+import {postCollection} from "../../api/collection";
+import {newCollectionPathSeparator, treeViewPathSeparator} from "../Media/Collection/CollectionsTreeView";
 
 type Props = {
     files: File[];
@@ -43,6 +46,30 @@ export default function UploadModal({
         errors
     } = useFormSubmit({
         onSubmit: async (data: UploadData) => {
+            const newCollectionPaths = data.destinations.filter(d => d.startsWith(nodeNewPrefix));
+            if (newCollectionPaths.length > 0) {
+                const newCollections: string[] = [];
+
+                await Promise.all(newCollectionPaths.map(async (p) => {
+                    const [parentPath, ...rest] = p.substring(nodeNewPrefix.length).split(newCollectionPathSeparator);
+                    const [workspaceId, parentIri] = parentPath.split(treeViewPathSeparator);
+                    let parent = parentIri;
+                    for (p of rest) {
+                        parent = (await postCollection({
+                            title: p,
+                            parent,
+                            workspace: `/workspaces/${workspaceId}`,
+                        }))['@id'];
+                    }
+                    newCollections.push(parent);
+                }));
+
+                data.destinations = [
+                    ...data.destinations.filter(d => !d.startsWith(nodeNewPrefix)),
+                    ...newCollections,
+                ];
+            }
+
             return await UploadFiles(userId, files.map(f => f.file), {
                 destinations: data.destinations!,
                 title: data.title,

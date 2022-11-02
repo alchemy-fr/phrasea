@@ -57,6 +57,7 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
                 label={t('form.upload.destinations.label', 'Destinations')}
                 multiple={true}
                 required={true}
+                allowNew={true}
             />
             <FormFieldErrors
                 field={'destinations'}
