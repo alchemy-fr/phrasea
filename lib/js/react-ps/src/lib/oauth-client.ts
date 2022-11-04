@@ -126,16 +126,15 @@ export default class OAuthClient {
         await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
     }
 
-    async authenticate(): Promise<UserInfoResponse> {
+    async authenticate(authUrl?: string): Promise<UserInfoResponse> {
         if (!this.hasAccessToken()) {
             throw new Error(`Missing access token`);
         }
 
         try {
-            const data = (await axios.get(`${this.baseUrl}/userinfo`, {
+            const data = (await axios.get(authUrl ?? `${this.baseUrl}/userinfo`, {
                 headers: {
                     authorization: `Bearer ${this.getAccessToken()}`,
-
                 } as any
             })).data as UserInfoResponse;
 

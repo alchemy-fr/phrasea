@@ -3,7 +3,6 @@ import './scss/App.scss';
 import Upload from "./components/page/Upload";
 import {slide as Menu} from 'react-burger-menu';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
-import Settings from "./components/page/Settings";
 import Login from "./components/page/Login";
 import DevSettings from "./components/page/DevSettings";
 import config from './config';
@@ -56,7 +55,7 @@ class App extends Component {
     authenticate = () => {
         return new Promise((resolve) => {
             this.setState({authenticating: true}, () => {
-                oauthClient.authenticate().then(() => {
+                oauthClient.authenticate(config.getUploadBaseURL()+'/me').then(() => {
                     this.setState({authenticating: false}, resolve);
                 });
             });
@@ -99,7 +98,6 @@ class App extends Component {
                     email={this.state.user.email}
                 /> : ''}
                 <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
-                <Link onClick={() => this.closeMenu()} to="/settings">Settings</Link>
                 {perms && perms.form_schema ?
                     <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
                 {perms && perms.target_data ?
@@ -119,7 +117,6 @@ class App extends Component {
                 <Route path="/login" exact component={Login}/>
                 <Route path="/forgot-password" exact component={ResetPassword}/>
                 <Route path="/auth-error" exact component={AuthError}/>
-                <PrivateRoute path="/settings" exact component={Settings}/>
                 {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
                 {perms && perms.target_data ?
                     <PrivateRoute path="/target-data-editor" exact component={TargetDataEditor}/> : ''}

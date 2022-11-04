@@ -8,9 +8,15 @@ export default class Languages extends Component {
     };
 
     render() {
+        const locales = config.getAvailableLocales();
+
+        if (locales.length <= 1) {
+            return null;
+        }
+
         return (
             <div className="languages">
-                {config.getAvailableLocales().map(l => <React.Fragment
+                {locales.map(l => <React.Fragment
                         key={l}
                     >
                         {' '}
