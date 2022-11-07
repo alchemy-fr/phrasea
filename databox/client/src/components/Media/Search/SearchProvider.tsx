@@ -1,6 +1,6 @@
 import React, {PropsWithChildren, useCallback, useState} from "react";
 import {SearchContext} from "./SearchContext";
-import {BucketKeyValue, extractLabelValueFromKey} from "../Asset/Facets";
+import {BucketKeyValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
 import {Filters} from "./Filter";
 import {hashToQuery, queryToHash} from "./search";
 import useHash from "../../../lib/useHash";
@@ -87,12 +87,34 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         });
     };
 
+    const setAttrFilter = (attrName: string, values: BucketKeyValue[], attrTitle: string, widget?: FacetType): void => {
+        setAttrFilters(prev => {
+            const f = [...prev];
+
+            const key = f.findIndex(_f => _f.a === attrName);
+
+            if (key >= 0) {
+                f[key].v = values;
+            } else {
+                f.push({
+                    t: attrTitle,
+                    a: attrName,
+                    v: values,
+                    w: widget,
+                });
+            }
+
+            return f;
+        });
+    };
+
     return <SearchContext.Provider value={{
         selectWorkspace,
         selectCollection,
         workspaceId,
         collectionId,
         toggleAttrFilter,
+        setAttrFilter,
         invertAttrFilter,
         removeAttrFilter,
         attrFilters: filters,

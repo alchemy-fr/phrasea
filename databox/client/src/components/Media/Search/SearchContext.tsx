@@ -1,5 +1,5 @@
 import React from "react";
-import {BucketKeyValue} from "../Asset/Facets";
+import {BucketKeyValue, FacetType} from "../Asset/Facets";
 import {Filters} from "./Filter";
 
 export type TSearchContext = {
@@ -11,6 +11,7 @@ export type TSearchContext = {
     workspaces?: string[];
     query: string;
     setQuery: (query: string, force?: boolean) => void;
+    setAttrFilter: (attrName: string, values: BucketKeyValue[], attrTitle: string, type?: FacetType) => void;
     toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
@@ -27,6 +28,8 @@ export const SearchContext = React.createContext<TSearchContext>({
     selectWorkspace: () => {
     },
     setQuery: () => {
+    },
+    setAttrFilter: () => {
     },
     toggleAttrFilter: () => {
     },

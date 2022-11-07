@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Elastica\Query;
 
 class BooleanAttributeType extends AbstractAttributeType
 {
@@ -34,6 +36,11 @@ class BooleanAttributeType extends AbstractAttributeType
         if (!is_bool($value)) {
             $context->addViolation('Invalid boolean');
         }
+    }
+
+    public function createFilterQuery(string $field, $value): AbstractQuery
+    {
+        return new Query\Terms($field, $value);
     }
 
     public function supportsAggregation(): bool

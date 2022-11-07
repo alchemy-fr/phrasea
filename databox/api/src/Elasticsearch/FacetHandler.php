@@ -20,6 +20,8 @@ class FacetHandler
     public const FACET_TAG = 't';
     public const FACET_WORKSPACE = 'ws';
     public const FACET_COLLECTION = 'c';
+    public const FACET_CREATED_AT = 'createdAt';
+
     private EntityManagerInterface $em;
     private Security $security;
 
@@ -47,6 +49,16 @@ class FacetHandler
         $agg->setSize(6);
         $agg->setMeta([
             'title' => 'Privacy',
+        ]);
+        $query->addAggregation($agg);
+    }
+
+    public function buildDateFacet(Query $query, string $field, string $title): void
+    {
+        $agg = new Aggregation\DateHistogram($field, $field, '1d');
+        $agg->setMeta([
+            'title' => $title,
+            'type' => 'date_range',
         ]);
         $query->addAggregation($agg);
     }
@@ -122,6 +134,15 @@ class FacetHandler
 
                 return $bucket;
             }, $facets[self::FACET_COLLECTION]['buckets'])));
+        }
+
+        foreach ($facets as &$facet) {
+            $type = $facet['meta']['type'] ?? FacetInterface::TYPE_STRING;
+            if ($type === FacetInterface::TYPE_DATE_RANGE) {
+                foreach ($facet['buckets'] as &$bucket) {
+                    $bucket['key'] = $bucket['key'] / 1000;
+                }
+            }
         }
 
         return $facets;
