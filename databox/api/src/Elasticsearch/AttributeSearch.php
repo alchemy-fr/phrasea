@@ -220,7 +220,11 @@ class AttributeSearch
                     break;
                 case FacetInterface::TYPE_DATE_RANGE:
                     $subField = $type->getAggregationField();
-                    $agg = new Aggregation\DateHistogram($fieldName, $field.($subField ? '.'.$subField : ''), '1d');
+                    $agg = new Aggregation\AutoDateHistogram(
+                        $fieldName,
+                        $field.($subField ? '.'.$subField : '')
+                    );
+                    $agg->setBuckets(20);
                     break;
                 default:
                     throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));

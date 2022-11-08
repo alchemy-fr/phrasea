@@ -55,7 +55,11 @@ class FacetHandler
 
     public function buildDateFacet(Query $query, string $field, string $title): void
     {
-        $agg = new Aggregation\DateHistogram($field, $field, '1d');
+        $agg = new Aggregation\AutoDateHistogram(
+            $field,
+            $field
+        );
+        $agg->setBuckets(20);
         $agg->setMeta([
             'title' => $title,
             'type' => 'date_range',
