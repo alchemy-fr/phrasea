@@ -26,5 +26,5 @@ data:
 {{- end }}
 {{- if .Values.dashboard.enabled }}
   DASHBOARD_BASE_URL: {{ quote .Values.dashboard.baseUrl }}
-  DISPLAY_SERVICES_MENU: "true"
+  DISPLAY_SERVICES_MENU: {{ ternary "true" "false" .Values.dashboard.menuEnabled | quote }}
 {{- end }}

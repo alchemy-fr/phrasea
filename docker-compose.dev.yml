@@ -53,7 +53,7 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - MATOMO_HOST
       - WDS_SOCKET_PORT=443
-      - DISABLE_INDEX_PAGE
+      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
       - AUTO_CONNECT_IDP
     labels:
       - "traefik.enable=true"
@@ -226,8 +226,6 @@ services:
       - IDE_KEY
       - XDEBUG_REMOTE_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
-      - PHRASEANET_APP_OAUTH_TOKEN
-      - PHRASEANET_BASE_URL
       - VERIFY_SSL
       - CLARIFAI_API_KEY
     working_dir: /var/workspace
