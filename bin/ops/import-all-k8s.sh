@@ -80,7 +80,7 @@ metadata:
 spec:
   containers:
   - name: postgresql-client
-    image: jbergknoff/postgresql-client
+    image: postgres:14.4-alpine3.16
     command: [ "/bin/sh", "-c", "--" ]
     args: [ "while true; do sleep 10; done;" ]
     env:
