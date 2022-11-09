@@ -33,7 +33,7 @@ if [ ! -f "${CONFIG_FILE}" ]; then
   exit 2
 fi
 cp "${CONFIG_FILE}" ./configs/config.json
-echo "[✓] config.config copied"
+echo "[✓] config.json copied"
 
 . "bin/ops/db/db.sh"
 

@@ -62,12 +62,13 @@ fi
 
 . "bin/ops/db/db.sh"
 
-POD=db-psql-import
 
 DB_HOST="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_HOST']}")"
 DB_PORT="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_PORT']}")"
 DB_USER="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_USER']}" | base64 -d)"
 DB_PASSWORD="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_PASSWORD']}" | base64 -d)"
+
+POD=db-psql-import
 
 kubectl -n $NS delete pod ${POD} || true
 
@@ -131,7 +132,7 @@ for d in ${DATABASES}; do
   echo "[✓] ${d} database imported"
 done
 
-kubectl -n $NS delete pod ${POD} --force
+kubectl -n $NS delete pod ${POD} --force 2> /dev/null
 
 echo "[!] config.json cannot be updated automatically, depending on your infra."
 echo "Don't forget to update your ConfigMap with its content:"
