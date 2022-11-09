@@ -4,7 +4,7 @@ set -e
 
 function echo_usage() {
     echo "Usage:"
-    echo "  $0 [-r] <file> <namespace> <database-name-prefix>"
+    echo "  $0 [-r] <file> <namespace>"
     echo ""
     echo "  options:"
     echo "    -r  recreate database"
@@ -37,7 +37,6 @@ fi
 
 PACKAGE="${1}"
 NS="${2}"
-DB_PREFIX="${3}"
 
 if [ ! -f "${PACKAGE}" ]; then
   echo "File ${PACKAGE} does not exist."
@@ -98,7 +97,9 @@ for d in ${DATABASES}; do
     exit 2
   fi
 
-  CONN_ARGS="-U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_PREFIX}${d}"
+  APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}")
+  DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/ash -c 'echo $DB_NAME')
+  CONN_ARGS="-U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME}"
 
   if [ "${RECREATE}" = "1" ]; then
     kubectl -n $NS exec ${POD} -- dropdb ${CONN_ARGS}
