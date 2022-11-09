@@ -28,7 +28,7 @@ spec:
       {{- end }}
       containers:
       - name: postgresql
-        image: postgres:11.2-alpine
+        image: postgres:14.4-alpine
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:
         - name: data
