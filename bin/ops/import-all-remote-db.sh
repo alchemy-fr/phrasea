@@ -70,6 +70,30 @@ fi
 
 . "bin/ops/db/db.sh"
 
+POD=db-psql-import
+
+kubectl -n $NS delete pod ${POD} || true
+
+cat <<EOF | kubectl -n $NS apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ${POD}
+spec:
+  containers:
+  - name: postgresql-client
+    image: jbergknoff/postgresql-client
+    command: [ "/bin/sh", "-c", "--" ]
+    args: [ "while true; do sleep 10; done;" ]
+    env:
+      - name: PGPASSWORD
+        value: "${DB_PASSWORD}"
+EOF
+
+kubectl -n $NS wait --for=condition=Ready pod/${POD}
+
+set -ex
+
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
 
@@ -78,9 +102,11 @@ for d in ${DATABASES}; do
     exit 2
   fi
 
-  kubectl -n $NS exec ${POD} -- psql -u ${DB_USER} -p${DB_PASSWORD} ${DB_PREFIX}${d} < ${DUMP_FILE}
+  kubectl -n $NS exec ${POD} -- psql -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_PREFIX}${d} < ${DUMP_FILE}
   echo "[✓] ${d} database imported"
 done
+
+kubectl -n $NS delete pod ${POD} --force
 
 echo "[!] config.json cannot be updated automatically, depending on your infra."
 echo "Don't forget to update your ConfigMap with its content:"
