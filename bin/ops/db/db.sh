@@ -4,6 +4,6 @@ DATABASES="
 auth
 databox
 expose
-upload
+uploader
 notify
 "
