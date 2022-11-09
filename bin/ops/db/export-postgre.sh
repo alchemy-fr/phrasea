@@ -16,5 +16,5 @@ mkdir -p "${DIR}"
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
   echo $DUMP_FILE
-  exec_container db "pg_dump -U ${POSTGRES_USER} --create ${d}" > ${DUMP_FILE}
+  exec_container db "pg_dump --data-only -U ${POSTGRES_USER} ${d}" > ${DUMP_FILE}
 done

@@ -107,7 +107,8 @@ for d in ${DATABASES}; do
     kubectl -n $NS exec ${POD} -- createdb ${CONN_ARGS}
     echo "[✓] ${d} new database created"
   fi
-  kubectl -n $NS exec ${POD} -- psql ${CONN_ARGS} < ${DUMP_FILE}
+
+  kubectl -n $NS exec -i ${POD} -- psql ${CONN_ARGS} < ${DUMP_FILE}
   echo "[✓] ${d} database imported"
 done
 

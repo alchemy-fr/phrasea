@@ -21,7 +21,7 @@ EXPORTED="config.json"
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
-  exec_container db "pg_dump -U ${POSTGRES_USER} ${d}" > ${DUMP_FILE} 2> /dev/null
+  exec_container db "pg_dump --data-only -U ${POSTGRES_USER} ${d}" > ${DUMP_FILE} 2> /dev/null
   EXPORTED="${EXPORTED} ${d}.sql"
   echo "[✓] ${d} database exported"
 done
