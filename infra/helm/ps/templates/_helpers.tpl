@@ -21,6 +21,10 @@
     name: {{ .Values.globalConfig.externalConfigmapName | default (printf "%s-configs" .Release.Name) }}
 {{- end }}
 
+{{- define "annotation.checksum.configs" }}
+checksum/configs: {{ .Values.globalConfig.content | sha256sum }}
+{{- end }}
+
 {{- define "secretRef.adminOAuthClient" }}
 - secretRef:
     name: {{ .Values.params.adminOAuthClient.externalSecretName | default (printf "%s-admin-oauth-client-secret" .Release.Name) }}
