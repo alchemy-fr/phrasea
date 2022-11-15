@@ -6,6 +6,8 @@ namespace App\Attribute\Type;
 
 use App\Entity\Core\AttributeDefinition;
 use App\Util\LocaleUtils;
+use Elastica\Query;
+use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Throwable;
 
@@ -21,6 +23,11 @@ class TextAttributeType extends AbstractAttributeType
     public function getElasticSearchType(): string
     {
         return 'text';
+    }
+
+    public function createFilterQuery(string $field, $value): AbstractQuery
+    {
+        return new Query\Terms($field, $value);
     }
 
     public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array

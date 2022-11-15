@@ -4,12 +4,12 @@ import {ESDebug, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchContext} from "./SearchContext";
 import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
-import {Filters} from "./Filter";
+import {Filters, SortBy} from "./Filter";
 import axios from "axios";
 
 let lastController: AbortController;
 
-async function search(query: string, url?: string, collectionIds?: string[], workspaceIds?: string[], attrFilters?: Filters): Promise<{
+async function search(query: string, sortBy: SortBy[], url?: string, collectionIds?: string[], workspaceIds?: string[], attrFilters?: Filters): Promise<{
     result: Asset[];
     facets: TFacets;
     total: number;
@@ -23,6 +23,11 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
 
     lastController = new AbortController();
 
+    const order: Record<string, 'asc' | 'desc'> = {};
+    sortBy.forEach(s => {
+        order[s.a] = s.w === 1 ? 'desc' : 'asc';
+    });
+
     const options = {
         query,
         parents: collectionIds,
@@ -33,7 +38,9 @@ async function search(query: string, url?: string, collectionIds?: string[], wor
             v: f.v.map(v => extractLabelValueFromKey(v).value),
             t: undefined,
         })),
+        order,
     };
+
 
     const result = await getAssets(options, {
         signal: lastController.signal,
@@ -84,7 +91,14 @@ export default function ResultProvider({children}: Props) {
         const collectionIds = searchContext.collectionId ? [extractCollectionIdFromPath(searchContext.collectionId)] : undefined;
         const workspaceIds = searchContext.workspaceId ? [searchContext.workspaceId] : undefined;
 
-        search(searchContext.query, nextUrl, collectionIds, workspaceIds, searchContext.attrFilters).then((r) => {
+        search(
+            searchContext.query,
+            searchContext.sortBy,
+            nextUrl,
+            collectionIds,
+            workspaceIds,
+            searchContext.attrFilters
+        ).then((r) => {
             setState((prevState) => {
                 return {
                     pages: nextUrl ? prevState.pages.concat([r.result]) : [r.result],

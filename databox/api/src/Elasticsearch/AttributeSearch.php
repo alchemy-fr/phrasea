@@ -17,6 +17,7 @@ use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Query;
+use InvalidArgumentException;
 
 class AttributeSearch
 {
@@ -111,33 +112,44 @@ class AttributeSearch
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
-            if (FacetHandler::FACET_WORKSPACE === $attr) {
-                $f = 'workspaceId';
-            } elseif (FacetHandler::FACET_COLLECTION === $attr) {
-                $f = 'collectionPaths';
-            } elseif (FacetHandler::FACET_TAG === $attr) {
-                $f = 'tags';
-            } elseif (FacetHandler::FACET_PRIVACY === $attr) {
-                $f = 'privacy';
-            } else {
-                $info = $this->fieldNameResolver->extractField($attr);
-                $f = sprintf('attributes._.%s', $info['field']);
-                if ('text' === $info['type']) {
-                    $f .= '.raw';
-                }
-            }
+            $type = $this->typeRegistry->getStrictType(TextAttributeType::getName());
 
             if (!empty($values)) {
-                $termQuery = new Query\Terms($f, $values);
+                $filterQuery = $type->createFilterQuery($this->getESFieldName($attr), $values);
+
                 if ($inverted) {
-                    $bool->addMustNot($termQuery);
+                    $bool->addMustNot($filterQuery);
                 } else {
-                    $bool->addMust($termQuery);
+                    $bool->addMust($filterQuery);
                 }
             }
         }
 
         return $bool;
+    }
+
+    public function getESFieldName(string $attr): string
+    {
+        if (FacetHandler::FACET_WORKSPACE === $attr) {
+            $f = 'workspaceId';
+        } elseif (FacetHandler::FACET_COLLECTION === $attr) {
+            $f = 'collectionPaths';
+        } elseif (FacetHandler::FACET_TAG === $attr) {
+            $f = 'tags';
+        } elseif (FacetHandler::FACET_PRIVACY === $attr) {
+            $f = 'privacy';
+        } elseif (FacetHandler::FACET_CREATED_AT === $attr) {
+            $f = 'createdAt';
+        } else {
+            $info = $this->fieldNameResolver->extractField($attr);
+            $type = $this->typeRegistry->getStrictType($info['type']);
+            $f = sprintf('attributes._.%s', $info['field']);
+            if (null !== $subField = $type->getAggregationField()) {
+                $f .= '.'.$subField;
+            }
+        }
+
+        return $f;
     }
 
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch
@@ -203,13 +215,36 @@ class AttributeSearch
             }
             $facets[$field] = true;
 
-            $agg = new Aggregation\Terms($fieldName);
-            $subField = $type->getAggregationField();
-            $agg->setField($field.($subField ? '.'.$subField : ''));
-            $agg->setSize(5);
-            $agg->setMeta([
+            switch ($type->getFacetType()) {
+                case FacetInterface::TYPE_STRING:
+                    $agg = new Aggregation\Terms($fieldName);
+                    $subField = $type->getAggregationField();
+                    $agg->setField($field.($subField ? '.'.$subField : ''));
+                    $agg->setSize(5);
+                    break;
+                case FacetInterface::TYPE_DATE_RANGE:
+                    $subField = $type->getAggregationField();
+                    $agg = new Aggregation\AutoDateHistogram(
+                        $fieldName,
+                        $field.($subField ? '.'.$subField : '')
+                    );
+                    $agg->setBuckets(20);
+                    break;
+                default:
+                    throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
+            }
+
+
+            $meta = [
                 'title' => $definition->getName(),
-            ]);
+            ];
+
+            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+            if ($type->getFacetType() !== FacetInterface::TYPE_STRING) {
+                $meta['type'] = $type->getFacetType();
+            }
+
+            $agg->setMeta($meta);
 
             $query->addAggregation($agg);
         }

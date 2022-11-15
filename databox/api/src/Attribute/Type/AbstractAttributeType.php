@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Elasticsearch\FacetInterface;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -12,6 +13,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     public function normalizeValue($value)
     {
         return $value;
+    }
+
+    public function getFacetType(): string
+    {
+        return FacetInterface::TYPE_STRING;
     }
 
     public function denormalizeValue($value)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Entity\Core\AttributeDefinition;
+use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 interface AttributeTypeInterface
@@ -12,6 +13,10 @@ interface AttributeTypeInterface
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
+
+    public function getFacetType(): string;
+
+    public function createFilterQuery(string $field, $value): AbstractQuery;
 
     public function supportsAggregation(): bool;
 

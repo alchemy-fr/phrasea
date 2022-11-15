@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Chip} from "@mui/material";
 import {FilterEntry, Filters} from "./Filter";
-import {extractLabelValueFromKey} from "../Asset/Facets";
+import {BucketKeyValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
 
 type FilterProps = {
     onInvert: () => void;
@@ -17,10 +17,31 @@ function truncate(value: string, maxLength: number): string {
     return value;
 }
 
+function formatFilterTitle(widget: FacetType | undefined, t: string, v: BucketKeyValue[]): string {
+    switch (widget) {
+        default:
+        case FacetType.String:
+            return `${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`;
+        case FacetType.DateRange:
+            return `${t} between ${extractLabelValueFromKey(v[0]).label} and ${extractLabelValueFromKey(v[1]).label}`;
+    }
+}
+
+function formatFilterLabel(widget: FacetType | undefined, t: string, v: BucketKeyValue[]): string {
+    switch (widget) {
+        default:
+        case FacetType.String:
+            return v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ');
+        case FacetType.DateRange:
+            return `${extractLabelValueFromKey(v[0]).label} - ${extractLabelValueFromKey(v[1]).label}`;
+    }
+}
+
 function Filter({
                     t,
                     i,
                     v,
+                    w,
                     onInvert,
                     onDelete,
                 }: FilterProps) {
@@ -29,8 +50,8 @@ function Filter({
             mb: 1,
             mr: 1,
         }}
-        title={`${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`}
-        label={v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ')}
+        title={formatFilterTitle(w, t, v)}
+        label={formatFilterLabel(w, t, v)}
         onDelete={onDelete}
         onClick={onInvert}
         color={i ? 'error' : 'primary'}

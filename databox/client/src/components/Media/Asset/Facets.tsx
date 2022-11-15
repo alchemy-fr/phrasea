@@ -1,10 +1,12 @@
 import {useContext, useState} from "react";
 import {ResultContext} from "../Search/ResultContext";
-import {Checkbox, Collapse, List, ListItem, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
+import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
-import {SearchContext} from "../Search/SearchContext";
+import StringFacet from "./Facets/StringFacet";
+import DateHistogramFacet from "./Facets/DateHistogramFacet";
+import moment from "moment";
 
-export type BucketKeyValue = string | {
+export type BucketKeyValue = string | number | {
     value: string;
     label: string;
 }
@@ -14,9 +16,15 @@ type Bucket = {
     doc_count: number;
 }
 
-type Facet = {
+export enum FacetType {
+    String = 'string',
+    DateRange = 'date_range',
+}
+
+export type Facet = {
     meta: {
         title: string;
+        type?: FacetType;
     };
     buckets: Bucket[];
     doc_count_error_upper_bound: number;
@@ -27,11 +35,16 @@ export type TFacets = Record<string, Facet>;
 
 export function extractLabelValueFromKey(key: BucketKeyValue): {
     label: string;
-    value: string;
+    value: string | number;
 } {
     if (typeof key === 'string') {
         return {
             label: key,
+            value: key,
+        };
+    } else if (typeof key === 'number') {
+        return {
+            label: moment(key * 1000).format('ll'),
             value: key,
         };
     }
@@ -39,17 +52,18 @@ export function extractLabelValueFromKey(key: BucketKeyValue): {
     return key;
 }
 
+export type FacetRowProps = {
+    facet: Facet;
+    name: string;
+}
+
 function FacetRow({
                       facet,
                       name,
-                  }: {
-    facet: Facet;
-    name: string;
-}) {
-    const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
+                  }: FacetRowProps) {
     const [open, setOpen] = useState(true);
 
-    const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
+    const type = facet.meta.type ?? FacetType.String;
 
     return <>
         <ListItem
@@ -67,36 +81,21 @@ function FacetRow({
             </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-                {facet.buckets.map(b => {
-                    const {value: keyV, label} = extractLabelValueFromKey(b.key);
-                    const selected = Boolean(attrFilter && attrFilter.v.find(v => extractLabelValueFromKey(v).value === keyV));
+            {type === FacetType.String && <StringFacet
+                facet={facet}
+                name={name}
+            />}
+            {type === FacetType.DateRange && <DateHistogramFacet
+                facet={facet}
+                name={name}
+            />}
 
-                    const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
-
-                    return <ListItemButton
-                        key={keyV}
-                        onClick={onClick}
-                    >
-                        <ListItemText secondary={`${label} (${b.doc_count})`}/>
-                        <ListItemSecondaryAction>
-                            <Checkbox
-                                edge="end"
-                                onChange={onClick}
-                                checked={selected || false}
-                                inputProps={{'aria-labelledby': keyV}}
-                            />
-                        </ListItemSecondaryAction>
-                    </ListItemButton>
-                })}
-            </List>
         </Collapse>
     </>
 }
 
 export default function Facets() {
-    const search = useContext(ResultContext);
-    const {facets} = search;
+    const {facets} = useContext(ResultContext);
 
     if (!facets) {
         return null;

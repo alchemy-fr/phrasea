@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Elastica\Query;
 
 class NumberAttributeType extends AbstractAttributeType
 {
@@ -44,5 +46,10 @@ class NumberAttributeType extends AbstractAttributeType
     public function supportsAggregation(): bool
     {
         return true;
+    }
+
+    public function createFilterQuery(string $field, $value): AbstractQuery
+    {
+        return new Query\Terms($field, $value);
     }
 }
