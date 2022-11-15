@@ -1,6 +1,6 @@
 import React from "react";
 import {BucketKeyValue, FacetType} from "../Asset/Facets";
-import {Filters, OrderBy} from "./Filter";
+import {Filters, SortBy} from "./Filter";
 
 export type TSearchContext = {
     collectionId?: string;
@@ -16,8 +16,8 @@ export type TSearchContext = {
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
     attrFilters: Filters;
-    orderBy: OrderBy[];
-    setOrderBy: (handler: (prev: OrderBy[]) => OrderBy[]) => void;
+    sortBy: SortBy[];
+    setSortBy: (newSortBy: SortBy[]) => void;
     searchChecksum?: string;
     reloadInc: number;
 }
@@ -25,7 +25,7 @@ export type TSearchContext = {
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
     attrFilters: [],
-    orderBy: [],
+    sortBy: [],
     selectCollection: () => {
     },
     selectWorkspace: () => {
@@ -40,7 +40,7 @@ export const SearchContext = React.createContext<TSearchContext>({
     },
     invertAttrFilter: () => {
     },
-    setOrderBy: () => {
+    setSortBy: () => {
     },
     reloadInc: 0,
 });

@@ -1,9 +1,9 @@
-import {Filters, OrderBy} from "./Filter";
+import {Filters, SortBy} from "./Filter";
 
 export function queryToHash(
     query: string,
     filters: Filters,
-    orderBy: OrderBy[],
+    sortBy: SortBy[],
     workspaceId: string | undefined,
     collectionId: string | undefined,
 ): string {
@@ -14,8 +14,8 @@ export function queryToHash(
     if (filters && filters.length > 0) {
         hash = `${hash ? '&' : ''}f=${encodeURIComponent(JSON.stringify(filters))}`;
     }
-    if (orderBy && orderBy.length > 0) {
-        hash = `${hash ? '&' : ''}o=${encodeURIComponent(JSON.stringify(orderBy))}`;
+    if (sortBy && sortBy.length > 0) {
+        hash = `${hash ? '&' : ''}s=${encodeURIComponent(JSON.stringify(sortBy))}`;
     }
     if (workspaceId) {
         hash += `${hash ? '&' : ''}w=${workspaceId}`;
@@ -30,7 +30,7 @@ export function queryToHash(
 export function hashToQuery(hash: string): {
     query: string;
     filters: Filters;
-    orderBy: OrderBy[];
+    sortBy: SortBy[];
     workspaceId: string | undefined;
     collectionId: string | undefined;
 } {
@@ -41,6 +41,6 @@ export function hashToQuery(hash: string): {
         filters: params.get('f') ? JSON.parse(decodeURIComponent(params.get('f') as string)) : [],
         collectionId: decodeURIComponent(params.get('c') || '') || undefined,
         workspaceId: decodeURIComponent(params.get('w') || '') || undefined,
-        orderBy: params.get('o') ? JSON.parse(decodeURIComponent(params.get('o') as string)) : [],
+        sortBy: params.get('s') ? JSON.parse(decodeURIComponent(params.get('s') as string)) : [],
     }
 }

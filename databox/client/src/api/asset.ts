@@ -17,7 +17,6 @@ export type ESDebug = {
     totalResponseTime: number;
 }
 
-
 export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
     debug: ESDebug;
 }>> {

@@ -114,28 +114,8 @@ class AttributeSearch
 
             $type = $this->typeRegistry->getStrictType(TextAttributeType::getName());
 
-            if (FacetHandler::FACET_WORKSPACE === $attr) {
-                $f = 'workspaceId';
-            } elseif (FacetHandler::FACET_COLLECTION === $attr) {
-                $f = 'collectionPaths';
-            } elseif (FacetHandler::FACET_TAG === $attr) {
-                $f = 'tags';
-            } elseif (FacetHandler::FACET_PRIVACY === $attr) {
-                $f = 'privacy';
-            } elseif (FacetHandler::FACET_CREATED_AT === $attr) {
-                $f = 'createdAt';
-                $type = $this->typeRegistry->getStrictType(DateAttributeType::getName());
-            } else {
-                $info = $this->fieldNameResolver->extractField($attr);
-                $type = $this->typeRegistry->getStrictType($info['type']);
-                $f = sprintf('attributes._.%s', $info['field']);
-                if (null !== $subField = $type->getAggregationField()) {
-                    $f .= '.'.$subField;
-                }
-            }
-
             if (!empty($values)) {
-                $filterQuery = $type->createFilterQuery($f, $values);
+                $filterQuery = $type->createFilterQuery($this->getESFieldName($attr), $values);
 
                 if ($inverted) {
                     $bool->addMustNot($filterQuery);
@@ -146,6 +126,30 @@ class AttributeSearch
         }
 
         return $bool;
+    }
+
+    public function getESFieldName(string $attr): string
+    {
+        if (FacetHandler::FACET_WORKSPACE === $attr) {
+            $f = 'workspaceId';
+        } elseif (FacetHandler::FACET_COLLECTION === $attr) {
+            $f = 'collectionPaths';
+        } elseif (FacetHandler::FACET_TAG === $attr) {
+            $f = 'tags';
+        } elseif (FacetHandler::FACET_PRIVACY === $attr) {
+            $f = 'privacy';
+        } elseif (FacetHandler::FACET_CREATED_AT === $attr) {
+            $f = 'createdAt';
+        } else {
+            $info = $this->fieldNameResolver->extractField($attr);
+            $type = $this->typeRegistry->getStrictType($info['type']);
+            $f = sprintf('attributes._.%s', $info['field']);
+            if (null !== $subField = $type->getAggregationField()) {
+                $f .= '.'.$subField;
+            }
+        }
+
+        return $f;
     }
 
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch

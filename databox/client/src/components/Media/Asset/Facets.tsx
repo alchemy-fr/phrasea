@@ -95,8 +95,7 @@ function FacetRow({
 }
 
 export default function Facets() {
-    const search = useContext(ResultContext);
-    const {facets} = search;
+    const {facets} = useContext(ResultContext);
 
     if (!facets) {
         return null;

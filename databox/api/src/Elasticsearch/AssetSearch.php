@@ -14,6 +14,7 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Security;
 
 class AssetSearch extends AbstractSearch
@@ -131,10 +132,9 @@ class AssetSearch extends AbstractSearch
         $query = new Query();
         $query->setTrackTotalHits(true);
         $query->setQuery($filterQuery);
-        $query->setSort([
-            '_score',
-            ['createdAt' => 'DESC'],
-        ]);
+
+        $this->applySort($query, $options);
+
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
@@ -241,6 +241,29 @@ class AssetSearch extends AbstractSearch
         }
 
         return $query;
+    }
+
+    private function applySort(Query $query, array $options): void
+    {
+        $sort = [
+            '_score',
+        ];
+        if (isset($options['order'])) {
+            foreach ($options['order'] as $field => $way) {
+                $esField = $this->attributeSearch->getESFieldName($field);
+
+                $w = strtoupper($way);
+                if (!in_array($w, ['ASC', 'DESC'], true)) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
+                }
+
+                $sort[] = [$esField => $w];
+            }
+        } else {
+            $sort[] = ['createdAt' => 'DESC'];
+        }
+
+        $query->setSort($sort);
     }
 
     private function findWorkspace(string $id): ?Workspace

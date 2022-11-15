@@ -41,6 +41,11 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         return $response;
     }
 
+    private function applyOrder(): void
+    {
+
+    }
+
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Asset::class === $resourceClass;
