@@ -9,3 +9,9 @@ export type FilterEntry = {
 }
 
 export type Filters = FilterEntry[];
+
+export type OrderBy = {
+    t: string; // Attribute title
+    a: string; // Attribute name
+    w: 0 | 1; // ASC=0, DESC=1
+}

@@ -1,11 +1,14 @@
 import React, {FormEvent, useContext, useEffect, useRef, useState} from 'react';
 import {styled} from "@mui/material/styles";
-import {alpha, Box, Button, InputBase} from "@mui/material";
+import {alpha, Box, Button, Chip, IconButton, InputBase} from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchFilters from "./SearchFilters";
 import {useTranslation} from "react-i18next";
 import {SearchContext} from "./SearchContext";
 import {ResultContext} from "./ResultContext";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import OrderByChip from "./OrderByChip";
 
 type Props = {};
 
@@ -53,6 +56,8 @@ export default function SearchBar({}: Props) {
     const inputRef = useRef<HTMLInputElement>();
     const {t} = useTranslation();
 
+    const hasFilters = search.attrFilters.length > 0 || search.orderBy;
+
     useEffect(() => {
         setQueryValue(search.query);
     }, [search.query]);
@@ -95,6 +100,26 @@ export default function SearchBar({}: Props) {
                     </Button>
                 </Search>
             </form>
+            <div>
+                <IconButton
+                    color={'primary'}
+                >
+                    {hasFilters ? <FilterAltOffIcon/> : <FilterAltIcon/>}
+                </IconButton>
+            </div>
+            <div>
+                Sort by
+                {' '}
+                {queryValue && <OrderByChip
+                    t={'Score'}
+                    a={'_score'}
+                    w={1}
+                />}
+                {search.orderBy.map(o => <OrderByChip
+                    {...o}
+                    key={o.a}
+                />)}
+            </div>
         </Box>
         {search.attrFilters.length > 0 && <Box sx={{p: 1}}>
             <SearchFilters

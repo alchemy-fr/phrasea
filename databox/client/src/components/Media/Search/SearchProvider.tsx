@@ -1,37 +1,48 @@
 import React, {PropsWithChildren, useCallback, useState} from "react";
 import {SearchContext} from "./SearchContext";
 import {BucketKeyValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
-import {Filters} from "./Filter";
+import {Filters, OrderBy} from "./Filter";
 import {hashToQuery, queryToHash} from "./search";
 import useHash from "../../../lib/useHash";
 
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
-    const {query, filters, collectionId, workspaceId} = hashToQuery(hash);
+    const {query, filters, collectionId, workspaceId, orderBy} = hashToQuery(hash);
+
+    const resolvedOrderBy: OrderBy[] = orderBy.length === 0 ? [
+        {
+            a: 'createdAt',
+            t: 'Creation date',
+            w: 1,
+        }
+    ] : orderBy;
 
     const selectWorkspace = useCallback((workspaceId: string | undefined, forceReload?: boolean): void => {
-        if (!setHash(queryToHash(query, filters, workspaceId, undefined)) && forceReload) {
+        if (!setHash(queryToHash(query, filters, orderBy, workspaceId, undefined)) && forceReload) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, workspaceId, collectionId]);
+    }, [setHash, query, filters, orderBy, collectionId]);
 
     const selectCollection = useCallback((collectionId: string | undefined, forceReload?: boolean): void => {
-        if (!setHash(queryToHash(query, filters, undefined, collectionId)) && forceReload) {
+        if (!setHash(queryToHash(query, filters, orderBy, undefined, collectionId)) && forceReload) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, workspaceId, collectionId]);
+    }, [setHash, query, filters, orderBy, workspaceId]);
 
     const setAttrFilters = useCallback((handler: (prev: Filters) => Filters): void => {
-        setHash(queryToHash(query, handler(filters), workspaceId, collectionId));
-    }, [setHash, query, filters, workspaceId, collectionId]);
+        setHash(queryToHash(query,  handler(filters), orderBy, workspaceId, collectionId));
+    }, [setHash, query, filters, orderBy, workspaceId, collectionId]);
+
+    const setOrderBy = useCallback((handler: (prev: OrderBy[]) => OrderBy[]): void => {
+        setHash(queryToHash(query, filters, handler(resolvedOrderBy), workspaceId, collectionId));
+    }, [setHash, query, filters, orderBy, workspaceId, collectionId]);
 
     const setQuery = useCallback((handler: string | ((prev: string) => string), forceReload?: boolean): void => {
-        if (!setHash(queryToHash(typeof handler === 'string' ? handler : handler(query), filters, workspaceId, collectionId))) {
+        if (!setHash(queryToHash(typeof handler === 'string' ? handler : handler(query), filters, orderBy, workspaceId, collectionId))) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, workspaceId, collectionId]);
-
+    }, [setHash, query, filters, orderBy, workspaceId, collectionId]);
 
     const removeAttrFilter = (key: number): void => {
         setAttrFilters(prev => {
@@ -122,6 +133,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         setQuery,
         searchChecksum: JSON.stringify({query, filters, collectionId, workspaceId}),
         reloadInc,
+        orderBy: resolvedOrderBy,
+        setOrderBy,
     }}>
         {children}
     </SearchContext.Provider>
