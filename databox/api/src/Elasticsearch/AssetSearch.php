@@ -250,14 +250,14 @@ class AssetSearch extends AbstractSearch
         ];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
-                $esField = $this->attributeSearch->getESFieldName($field);
+                $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
 
                 $w = strtoupper($way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }
 
-                $sort[] = [$esField => $w];
+                $sort[] = [$esFieldInfo['name'] => $w];
             }
         } else {
             $sort[] = ['createdAt' => 'DESC'];

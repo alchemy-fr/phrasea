@@ -112,10 +112,10 @@ class AttributeSearch
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
-            $type = $this->typeRegistry->getStrictType(TextAttributeType::getName());
+            $esFieldInfo = $this->getESFieldInfo($attr);
 
             if (!empty($values)) {
-                $filterQuery = $type->createFilterQuery($this->getESFieldName($attr), $values);
+                $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
 
                 if ($inverted) {
                     $bool->addMustNot($filterQuery);
@@ -128,8 +128,9 @@ class AttributeSearch
         return $bool;
     }
 
-    public function getESFieldName(string $attr): string
+    public function getESFieldInfo(string $attr): array
     {
+        $type = TextAttributeType::getName();
         if (FacetHandler::FACET_WORKSPACE === $attr) {
             $f = 'workspaceId';
         } elseif (FacetHandler::FACET_COLLECTION === $attr) {
@@ -139,17 +140,22 @@ class AttributeSearch
         } elseif (FacetHandler::FACET_PRIVACY === $attr) {
             $f = 'privacy';
         } elseif (FacetHandler::FACET_CREATED_AT === $attr) {
+            $type = DateAttributeType::getName();
             $f = 'createdAt';
         } else {
             $info = $this->fieldNameResolver->extractField($attr);
-            $type = $this->typeRegistry->getStrictType($info['type']);
+            $t = $this->typeRegistry->getStrictType($info['type']);
+            $type = $t::getName();
             $f = sprintf('attributes._.%s', $info['field']);
-            if (null !== $subField = $type->getAggregationField()) {
+            if (null !== $subField = $t->getAggregationField()) {
                 $f .= '.'.$subField;
             }
         }
 
-        return $f;
+        return [
+            'name' => $f,
+            'type' => $this->typeRegistry->getStrictType($type),
+        ];
     }
 
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch

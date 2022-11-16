@@ -6,6 +6,7 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\FacetInterface;
 use App\Entity\Core\AttributeDefinition;
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Elastica\Query\AbstractQuery;
@@ -27,9 +28,17 @@ class DateAttributeType extends AbstractAttributeType
 
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
+        $startFloor = new DateTime();
+        $startFloor->setTimestamp((int) $value[0]);
+        $startFloor->setTime(0,0, 0);
+
+        $endCeil = new DateTime();
+        $endCeil->setTimestamp((int) $value[1]);
+        $endCeil->setTime(23,59, 59);
+
         return new Range($field, [
-            'gte' => $value[0] * 1000,
-            'lte' => $value[1] * 1000,
+            'gte' => $startFloor->getTimestamp() * 1000,
+            'lte' => $endCeil->getTimestamp() * 1000,
         ]);
     }
 
