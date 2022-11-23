@@ -32,6 +32,13 @@ interface AttributeTypeInterface
     public function normalizeValue($value);
 
     /**
+     * Format value for client.
+     *
+     * @param mixed $value
+     */
+    public function getGroupValueLabel($value): string;
+
+    /**
      * De-normalize value from Elastic search to PHP.
      *
      * @param mixed $value

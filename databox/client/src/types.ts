@@ -1,4 +1,5 @@
 import {ApiHydraObjectResponse} from "./api/hydra";
+import {AttributeType} from "./api/attributes";
 
 type AlternateUrl = {
     type: string;
@@ -12,6 +13,12 @@ export interface File {
     type: string;
     alternateUrls: AlternateUrl[];
     size: number;
+}
+
+type GroupValue = {
+    value: any;
+    label: string;
+    type: AttributeType;
 }
 
 export interface Asset extends IPermissions<{
@@ -34,6 +41,7 @@ export interface Asset extends IPermissions<{
     thumbnailActive: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
+    groupValue?: GroupValue | undefined;
 }
 
 type AttrValue = any;

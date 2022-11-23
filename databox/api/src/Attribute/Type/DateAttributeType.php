@@ -26,6 +26,24 @@ class DateAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function getGroupValueLabel($value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            if ($value instanceof \DateTimeImmutable) {
+                $date = \DateTime::createFromImmutable($value);
+            } else {
+                $date = clone $value;
+            }
+
+            $date->setTime(0,0,0);
+
+            return (string) $date->getTimestamp();
+        }
+
+        return $value ?? '';
+    }
+
+
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
         $startFloor = new DateTime();

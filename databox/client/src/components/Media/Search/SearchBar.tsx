@@ -9,6 +9,7 @@ import {ResultContext} from "./ResultContext";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import SortBy from "./Sorting/SortBy";
+import {zIndex} from "../../../themes/zIndex";
 
 type Props = {};
 
@@ -48,7 +49,6 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
     },
 }));
 
-
 export default function SearchBar({}: Props) {
     const search = useContext(SearchContext);
     const resultContext = useContext(ResultContext);
@@ -70,6 +70,8 @@ export default function SearchBar({}: Props) {
     return <Box
         sx={{
             bgcolor: 'secondary.main',
+            zIndex: zIndex.toolbar,
+            position: 'relative',
         }}
     >
         <Box

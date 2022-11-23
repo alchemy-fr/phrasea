@@ -58,6 +58,7 @@ export default function EditSortBy({
                     a: k,
                     t: f.meta.title,
                     w: 0,
+                    g: false,
                     enabled: false,
                 });
             });
@@ -77,6 +78,7 @@ export default function EditSortBy({
             t: s.t,
             w: s.w,
             a: s.a,
+            g: s.g,
         })));
         onClose();
     }, [orders]);
@@ -86,12 +88,13 @@ export default function EditSortBy({
         onClose();
     }, [orders]);
 
-    const onChange = useCallback<OnChangeHandler>((sortBy, enabled, way) => {
+    const onChange = useCallback<OnChangeHandler>((sortBy, enabled, way, grouped) => {
         setOrders((prev) => {
             return prev.map(s => s.a === sortBy.a ? ({
                 ...s,
                 enabled: enabled ?? s.enabled,
                 w: way ?? s.w,
+                g: grouped ?? s.g,
             }) : s);
         });
     }, []);
@@ -141,11 +144,12 @@ export default function EditSortBy({
                         items={orders}
                         strategy={verticalListSortingStrategy}
                     >
-                        {orders.map(s => <SortByRow
+                        {orders.map((s, i) => <SortByRow
                             sortBy={s}
                             enabled={s.enabled}
                             key={s.a}
                             onChange={onChange}
+                            groupable={i === 0}
                         />)}
                     </SortableContext>
                     </tbody>

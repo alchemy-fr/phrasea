@@ -4,6 +4,7 @@ import React from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
 import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
+import SectionDivider from "./Layout/SectionDivider";
 
 export enum LayoutEnum {
     Grid,
@@ -37,28 +38,19 @@ export default React.memo<Props>(function Pager({
         }}
     >
         {pages.map((assets, i) => {
-            return <Box
+            return <React.Fragment
                 key={i}
-                sx={(theme) => ({
-                    position: 'relative',
-                    width: '100%',
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    '&:first-of-type': {
-                        borderTop: 0,
-                    },
-                    py: 2
-                })}
             >
-                {i > 0 && <Box sx={(theme) => ({
-                    position: 'absolute',
-                    top: -13,
-                    left: 10,
-                    color: theme.palette.divider,
-                    fontWeight: 700,
-                    fontSize: 15,
-                    padding: `2px 10px`,
-                    backgroundColor: theme.palette.common.white,
-                })}># {i + 1}</Box>}
+                {i > 0 && <SectionDivider
+                    rootStyle={theme => ({
+                        top: 49,
+                    })}
+                    textStyle={() => ({
+                        fontWeight: 700,
+                        fontSize: 15,
+                    })}
+
+                ># {i + 1}</SectionDivider>}
                 {React.createElement(layout === LayoutEnum.Grid ? GridLayout : ListLayout, {
                     assets,
                     onSelect,
@@ -69,7 +61,7 @@ export default React.memo<Props>(function Pager({
                     onPreviewToggle,
                     page: i + 1,
                 })}
-            </Box>
+            </React.Fragment>
         })}
     </Box>
 })

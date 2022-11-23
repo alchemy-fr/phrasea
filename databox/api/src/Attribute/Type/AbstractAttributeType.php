@@ -30,6 +30,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return false;
     }
 
+    public function getGroupValueLabel($value): string
+    {
+        return (string) $value;
+    }
+
     public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
     {
         return [];

@@ -6,17 +6,19 @@ import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 
-export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1) => void;
+export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1, grouped?: boolean | undefined) => void;
 
 type Props = {
     enabled: boolean;
     onChange: OnChangeHandler;
     sortBy: TogglableSortBy;
+    groupable: boolean;
 };
 
 export default function SortByRow({
                                       sortBy,
                                       onChange,
+                                      groupable,
                                   }: Props) {
 
     const isDesc = sortBy.w === 1;
@@ -44,6 +46,12 @@ export default function SortByRow({
         style={style}
         {...attributes}
     >
+        <td>
+            {groupable && <Switch
+                checked={Boolean(sortBy.g)}
+                onChange={(e, value) => onChange(sortBy, undefined, undefined, value)}
+            />}
+        </td>
         <td>
             <Switch
                 checked={sortBy.enabled}

@@ -13,6 +13,7 @@ import AssetTagList from "../../Asset/Widgets/AssetTagList";
 import {PrivacyTooltip} from "../../../Ui/PrivacyChip";
 import {replaceHighlight} from "../../Asset/Attribute/Attributes";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
+import GroupRow from "./GroupRow";
 
 const lineHeight = 26;
 const collLineHeight = 32;
@@ -108,7 +109,7 @@ export default function GridLayout({
                                        onUnselect,
                                        onPreviewToggle,
                                        onContextMenuOpen,
-    onOpen,
+                                       onOpen,
                                    }: LayoutProps) {
     const theme = useTheme();
     const d = useContext(DisplayContext)!;
@@ -190,28 +191,33 @@ export default function GridLayout({
         {assets.map(a => {
             const contextMenu = onContextMenuOpen && hasContextMenu(a);
 
-            return <Grid
-                item
+            return <GroupRow
                 key={a.id}
-                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
-                onContextMenu={onContextMenuOpen ? (e) => {
-                    if (!contextMenu) {
-                        e.preventDefault();
-                        return;
-                    }
-                    onContextMenuOpen!(e, a);
-                } : undefined}
+                asset={a}
             >
-                <AssetItem
-                    asset={a}
-                    selected={selectedAssets.includes(a.id)}
-                    onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
-                    onSelect={onSelect}
-                    onPreviewToggle={onPreviewToggle}
-                    onUnselect={onUnselect}
-                    thumbSize={d.thumbSize}
-                />
-            </Grid>
+                <Grid
+                    item
+                    key={a.id}
+                    onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
+                    onContextMenu={onContextMenuOpen ? (e) => {
+                        if (!contextMenu) {
+                            e.preventDefault();
+                            return;
+                        }
+                        onContextMenuOpen!(e, a);
+                    } : undefined}
+                >
+                    <AssetItem
+                        asset={a}
+                        selected={selectedAssets.includes(a.id)}
+                        onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
+                        onSelect={onSelect}
+                        onPreviewToggle={onPreviewToggle}
+                        onUnselect={onUnselect}
+                        thumbSize={d.thumbSize}
+                    />
+                </Grid>
+            </GroupRow>
         })}
     </Grid>
 }

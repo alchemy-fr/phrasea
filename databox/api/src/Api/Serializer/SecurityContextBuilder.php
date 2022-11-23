@@ -33,6 +33,8 @@ class SecurityContextBuilder implements SerializerContextBuilderInterface
         $user = $this->security->getUser();
         $context['userId'] = $user instanceof RemoteUser ? $user->getId() : null;
         $context['groupIds'] = $user instanceof RemoteUser ? $user->getGroupIds() : [];
+        $context['groupBy'] = $request->query->get('group');
+        $context['filters'] = $request->query->get('filters');
 
         return $this->normalizerContextBuilder->buildContext($context);
     }

@@ -24,17 +24,19 @@ function encodeSortBy(sortBy: SortBy): string {
     return [
         sortBy.a,
         sortBy.w.toString(),
+        sortBy.g ? '1' : '',
         encode(sortBy.t),
     ].join(specSep);
 }
 
 function decodeSortBy(str: string): SortBy {
-    const [a, w, t] = str.split(specSep);
+    const [a, w, g, t] = str.split(specSep);
 
     return {
         a,
         w: parseInt(w) as 0 | 1,
         t: decode(t),
+        g: g === '1',
     };
 }
 
