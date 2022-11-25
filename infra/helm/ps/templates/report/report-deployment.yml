@@ -16,6 +16,7 @@ spec:
         app: phrasea
         tier: report-api
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       containers:
       - name: report-api
         image: {{ $.Values.repository.baseurl }}/ps-report-api:{{ $.Values.repository.tag }}

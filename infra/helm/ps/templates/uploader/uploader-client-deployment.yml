@@ -17,6 +17,7 @@ spec:
       annotations:
         {{- include "annotation.checksum.configs" $ | indent 8 }}
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       volumes:
 {{- include "volumes.configs" $ | indent 8 }}
       containers:

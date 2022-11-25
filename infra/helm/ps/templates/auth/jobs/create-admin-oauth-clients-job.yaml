@@ -35,6 +35,7 @@ metadata:
 spec:
   template:
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       volumes:
       - name: scripts
         configMap:

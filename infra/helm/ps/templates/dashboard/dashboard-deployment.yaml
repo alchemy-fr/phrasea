@@ -16,6 +16,7 @@ spec:
         app: phrasea
         tier: dashboard
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       containers:
       - name: dashboard
         image: {{ $.Values.repository.baseurl }}/ps-dashboard:{{ $.Values.repository.tag }}

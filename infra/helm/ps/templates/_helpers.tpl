@@ -21,6 +21,13 @@
     name: {{ .Values.globalConfig.externalConfigmapName | default (printf "%s-configs" .Release.Name) }}
 {{- end }}
 
+{{- define "imagePullSecrets" }}
+{{- if .Values.image.pullSecret.enabled }}
+imagePullSecrets:
+- name: {{ .Values.image.pullSecret.name }}
+{{- end }}
+{{- end }}
+
 {{- define "annotation.checksum.configs" }}
 checksum/configs: {{ .Values.globalConfig.content | sha256sum }}
 {{- end }}
