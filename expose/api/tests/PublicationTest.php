@@ -75,6 +75,17 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
+    public function testCreatePublicationAsUserWithoutPermissions(): void
+    {
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'config' => [
+                'layout' => 'download',
+            ],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
     public function testListPublications(): void
     {
         $pub1 = $this->createPublication([
