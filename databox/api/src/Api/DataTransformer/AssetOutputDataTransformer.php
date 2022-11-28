@@ -17,8 +17,6 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Form\PrivacyChoiceType;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
@@ -91,11 +89,14 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
+            $indexByAttrName = [];
             $preferredAttributes = [];
             foreach ($attributes as $_attrs) {
                 foreach ($preferredLocales as $l) {
-                    if (isset($_attrs[$l])) {
+                    if (isset($_attrs[$l]) && null !== $_attrs[$l]->getValue()) {
                         $preferredAttributes[] = $_attrs[$l];
+                        $key = $this->fieldNameResolver->getFieldName($_attrs[$l]->getDefinition());
+                        $indexByAttrName[$key] = $_attrs[$l]->getValue();
                         continue 2;
                     }
                 }
@@ -125,15 +126,21 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
                     'normalizer' => $normalizer,
                 ] = $this->fieldNameResolver->getFieldFromName($groupBy);
 
-                $value = $isAttr ? $preferredAttributes[$field] : $this->propertyAccessor->getValue($object, $property);
+                $value = $isAttr ? ($indexByAttrName[$groupBy] ?? null) : $this->propertyAccessor->getValue($object, $property);
 
                 if ($value instanceof DoctrineCollection) {
-                    $value = implode(', ', array_map(function ($item) use ($type, $normalizer): string {
+                    $value = implode(', ', array_map(function ($item) use ($isAttr, $type, $normalizer): string {
+                        if ($isAttr) {
+                            $item = $type->denormalizeValue($item);
+                        }
                         $item = $normalizer($item);
 
-                        return $type->getGroupValueLabel($normalizer($item));
+                        return $type->getGroupValueLabel($item);
                     }, $value->getValues()));
                 } else {
+                    if ($isAttr) {
+                        $value = $type->denormalizeValue($value);
+                    }
                     $value = $normalizer($value);
                     $value = $type->getGroupValueLabel($value);
                 }

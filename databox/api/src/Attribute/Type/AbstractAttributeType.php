@@ -22,7 +22,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
     public function denormalizeValue($value)
     {
-        return (string) $value;
+        return $value;
     }
 
     public function isLocaleAware(): bool
@@ -30,8 +30,12 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return false;
     }
 
-    public function getGroupValueLabel($value): string
+    public function getGroupValueLabel($value): ?string
     {
+        if (null === $value) {
+            return null;
+        }
+
         return (string) $value;
     }
 

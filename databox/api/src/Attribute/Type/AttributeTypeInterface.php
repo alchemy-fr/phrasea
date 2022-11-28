@@ -36,7 +36,7 @@ interface AttributeTypeInterface
      *
      * @param mixed $value
      */
-    public function getGroupValueLabel($value): string;
+    public function getGroupValueLabel($value): ?string;
 
     /**
      * De-normalize value from Elastic search to PHP.

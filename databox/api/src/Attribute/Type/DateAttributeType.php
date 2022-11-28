@@ -26,7 +26,7 @@ class DateAttributeType extends AbstractAttributeType
         return true;
     }
 
-    public function getGroupValueLabel($value): string
+    public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
             if ($value instanceof \DateTimeImmutable) {
