@@ -15,7 +15,6 @@ use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
 use kornrunner\Blurhash\Blurhash;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BlurhashIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
@@ -27,10 +26,6 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
     {
         $this->fileFetcher = $fileFetcher;
         $this->batchAttributeManager = $batchAttributeManager;
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
     }
 
     public function handleAsset(Asset $asset, array $options): void

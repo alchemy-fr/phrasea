@@ -20,10 +20,6 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-    }
-
     public function handleFileAction(string $action, Request $request, File $file, array $options): Response
     {
         /** @var WorkspaceIntegration $wsIntegration */

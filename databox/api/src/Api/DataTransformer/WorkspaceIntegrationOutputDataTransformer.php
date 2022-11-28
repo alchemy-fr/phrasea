@@ -63,7 +63,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
             $output->setData($data);
         }
 
-        $options = $this->integrationManager->getIntegrationOptions($object);
+        $options = $this->integrationManager->getIntegrationConfiguration($object);
         /** @var IntegrationInterface $integration */
         $integration = $options['integration'];
         $output->setOptions($integration->resolveClientOptions($object, $options));

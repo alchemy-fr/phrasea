@@ -42,6 +42,7 @@ easy_admin:
       - label: Integrations
         children:
           - Integration
+          - { label: 'Help', route: 'admin_integrations_help' }
       - label: 'Dev'
         children:
           - FailedEvent

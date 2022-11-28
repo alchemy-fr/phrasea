@@ -179,7 +179,7 @@ class PhraseanetIntegrationController extends AbstractController
         $assetToken = $matches[1];
 
         $integration = $integrationManager->loadIntegration($integrationId);
-        $options = $integrationManager->getIntegrationOptions($integration);
+        $options = $integrationManager->getIntegrationConfiguration($integration);
 
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {

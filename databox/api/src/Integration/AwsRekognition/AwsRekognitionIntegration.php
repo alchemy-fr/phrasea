@@ -14,10 +14,11 @@ use App\Integration\AssetOperationIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Util\FileUtil;
 use InvalidArgumentException;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AwsRekognitionIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface, FileActionsIntegrationInterface
 {
@@ -51,22 +52,53 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         $this->fileFetcher = $fileFetcher;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function getConfiguration(): ?TreeBuilder
     {
-        $resolver->setRequired('accessKeyId');
-        $resolver->setRequired('accessKeySecret');
-        $resolver->setDefaults([
-            'analyzeIncoming' => false,
-            'region' => 'eu-central-1',
-            'labels' => false,
-            'texts' => false,
-            'faces' => false,
-        ]);
-        $resolver->setAllowedValues('region', self::SUPPORTED_REGIONS);
-        $resolver->setAllowedTypes('analyzeIncoming', ['boolean']);
-        $resolver->setAllowedTypes('labels', ['boolean']);
-        $resolver->setAllowedTypes('texts', ['boolean']);
-        $resolver->setAllowedTypes('faces', ['boolean']);
+        $treeBuilder = new TreeBuilder('root');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $addNode = function (string $name): NodeDefinition {
+            $treeBuilder = new TreeBuilder($name);
+
+            $treeBuilder->getRootNode()
+                ->canBeEnabled()
+                ->children()
+                    ->booleanNode('processIncoming')
+                    ->info('Analyze all incoming assets automatically')
+                ->end();
+
+            return $treeBuilder->getRootNode();
+        };
+
+        $rootNode
+            ->children()
+                ->scalarNode('accessKeyId')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('The AWS IAM Access Key ID')
+                ->end()
+                ->scalarNode('accessKeySecret')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('The AWS IAM Access Key Secret')
+                ->end()
+                ->scalarNode('region')
+                    ->cannotBeEmpty()
+                    ->defaultValue('eu-central-1')
+                    ->example('us-east-2')
+                    ->validate()
+                        ->ifNotInArray(self::SUPPORTED_REGIONS)
+                        ->thenInvalid(sprintf('Invalid region "%%s". Supported ones are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
+                    ->end()
+                    ->info(sprintf('Supported regions are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
+                ->end()
+                ->append($addNode('labels'))
+                ->append($addNode('texts'))
+                ->append($addNode('faces'))
+            ->end()
+        ;
+
+        return $treeBuilder;
     }
 
     public function handleAsset(Asset $asset, array $options): void

@@ -1,0 +1,24 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% set _request_parameters = app.request.query.all %}
+
+
+{% block content_title %}
+    Integrations - Help
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/agate.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/yaml.min.js" integrity="sha512-443xytogGo2/xpNX1I8F/pBstzA2gafKTtRmzY0RrcOxQGbjpSESSd8fX+4jXi45JuKVqN0mOXkVfNFdLlqCbA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>hljs.highlightAll();</script>
+{% endblock %}
+
+{% block main %}
+    {% for integration in integrations %}
+        <h3>{{ integration.title }}</h3>
+
+        <pre style="font-size: 15px"><code class="language-yaml">{{ integration.reference ?? '# No configuration
+[]' }}</code></pre>
+    {% endfor %}
+{% endblock %}

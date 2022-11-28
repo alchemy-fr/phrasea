@@ -11,6 +11,7 @@ use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
@@ -24,11 +25,13 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
         $this->client = $client;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setRequired(['apiKey']);
-        $resolver->setAllowedTypes('apiKey', ['string']);
-    }
+    // TODO
+//    public function configureOptions(OptionsResolver $resolver): void
+//    {
+//        $resolver->setRequired(['apiKey']);
+//        $resolver->setAllowedTypes('apiKey', ['string']);
+//    }
+
 
     public function handleAsset(Asset $asset, array $options): void
     {

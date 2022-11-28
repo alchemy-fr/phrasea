@@ -27,13 +27,14 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
         $this->client = $client;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setRequired('apiKey');
-        $resolver->setDefaults([
-            'processIncoming' => false,
-        ]);
-    }
+    // TODO
+//    public function configureOptions(OptionsResolver $resolver): void
+//    {
+//        $resolver->setRequired('apiKey');
+//        $resolver->setDefaults([
+//            'processIncoming' => false,
+//        ]);
+//    }
 
     public function handleAsset(Asset $asset, array $options): void
     {

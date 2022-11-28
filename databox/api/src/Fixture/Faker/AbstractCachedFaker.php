@@ -8,27 +8,32 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Storage\FilePathGenerator;
 use Faker\Generator;
 use Faker\Provider\Base as BaseProvider;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractCachedFaker extends BaseProvider
 {
     private FileStorageManager $fileStorageManager;
     private FilePathGenerator $pathGenerator;
+    private LoggerInterface $logger;
     private ?string $cacheDir = null;
 
     public function __construct(
         string $fixturesCacheDir,
         FileStorageManager $fileStorageManager,
         FilePathGenerator $pathGenerator,
-        Generator $generator
+        Generator $generator,
+        LoggerInterface $logger
     ) {
         parent::__construct($generator);
         $this->cacheDir = $fixturesCacheDir;
         $this->fileStorageManager = $fileStorageManager;
         $this->pathGenerator = $pathGenerator;
+        $this->logger = $logger;
     }
 
     protected function download(string $workspaceId, string $cachePath, string $extension, string $url): string
     {
+        $this->logger->debug(sprintf('Fetching "%s"', $url));
         if (null !== $this->cacheDir) {
             if (!is_dir($this->cacheDir)) {
                 mkdir($this->cacheDir);

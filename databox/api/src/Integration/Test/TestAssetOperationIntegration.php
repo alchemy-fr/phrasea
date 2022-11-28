@@ -23,10 +23,6 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-    }
-
     public function handleAsset(Asset $asset, array $options): void
     {
         $input = new AssetAttributeBatchUpdateInput();

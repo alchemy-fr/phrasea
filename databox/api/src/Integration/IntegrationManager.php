@@ -9,6 +9,8 @@ use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -39,7 +41,7 @@ class IntegrationManager
             /** @var WorkspaceIntegration $workspaceIntegration */
             [$integration, $workspaceIntegration] = $integration;
 
-            $options = $this->resolveOptions($workspaceIntegration, $integration);
+            $options = $this->getConfiguration($workspaceIntegration, $integration);
             if ($integration->supportsAsset($asset, $options)) {
                 $integration->handleAsset($asset, $options);
             }
@@ -53,7 +55,7 @@ class IntegrationManager
             throw new InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
-        $options = $this->resolveOptions($workspaceIntegration, $integration);
+        $options = $this->getConfiguration($workspaceIntegration, $integration);
         if (!$integration->supportsFileActions($file, $options)) {
             throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
         }
@@ -71,34 +73,59 @@ class IntegrationManager
         return $integration;
     }
 
-    public function getIntegrationOptions(WorkspaceIntegration $workspaceIntegration): array
+    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): array
     {
-        return $this->resolveOptions(
+        return $this->getConfiguration(
             $workspaceIntegration,
             $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration())
         );
     }
 
-    public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
+    public function validateIntegration(WorkspaceIntegration $workspaceIntegration): void
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        $options = $this->resolveOptions(
+
+        $config = $this->getConfiguration(
             $workspaceIntegration,
             $integration
         );
 
-        return $integration->getConfigurationInfo($options);
+        $integration->validateConfiguration($config);
     }
 
-    private function resolveOptions(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
+    public function getIntegrationReference(IntegrationInterface $integration): ?string
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefault('integrationId', $workspaceIntegration->getId());
-        $resolver->setDefault('workspaceIntegration', $workspaceIntegration);
-        $resolver->setDefault('integration', $integration);
-        $integration->configureOptions($resolver);
+        $treeBuilder = $integration->getConfiguration();
+        if (null === $treeBuilder) {
+            return null;
+        }
 
-        return $resolver->resolve($workspaceIntegration->getOptions());
+        $dumper = new YamlReferenceDumper();
+
+        return $dumper->dumpNode($treeBuilder->buildTree());
+    }
+
+    public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
+    {
+        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        $config = $this->getConfiguration(
+            $workspaceIntegration,
+            $integration
+        );
+
+        return $integration->getConfigurationInfo($config);
+    }
+
+    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
+    {
+        $treeBuilder = $integration->getConfiguration();
+        if (!$treeBuilder) {
+            return [];
+        }
+
+        $processor = new Processor();
+
+        return $processor->process($treeBuilder->buildTree(), ['root' => $workspaceIntegration->getOptions()]);
     }
 
     /**
