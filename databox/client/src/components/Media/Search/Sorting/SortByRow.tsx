@@ -4,21 +4,21 @@ import {SortBy} from "../Filter";
 import {TogglableSortBy} from "./EditSortBy";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-import SortIcon from "@mui/icons-material/Sort";
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 
-export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1) => void;
+export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1, grouped?: boolean | undefined) => void;
 
 type Props = {
     enabled: boolean;
     onChange: OnChangeHandler;
     sortBy: TogglableSortBy;
+    groupable: boolean;
 };
-
 
 export default function SortByRow({
                                       sortBy,
                                       onChange,
+                                      groupable,
                                   }: Props) {
 
     const isDesc = sortBy.w === 1;
@@ -47,12 +47,24 @@ export default function SortByRow({
         {...attributes}
     >
         <td>
+            {groupable && <Switch
+                checked={Boolean(sortBy.g)}
+                onChange={(e, value) => onChange(sortBy, undefined, undefined, value)}
+            />}
+        </td>
+        <td>
             <Switch
                 checked={sortBy.enabled}
                 onChange={(e, value) => onChange(sortBy, value)}
             />
         </td>
-        <td>
+        <td
+            style={{
+                cursor: 'pointer',
+                userSelect: 'none',
+            }}
+            onClick={() => onChange(sortBy, !sortBy.enabled)}
+        >
             {sortBy.t}
         </td>
         <td>
@@ -60,11 +72,20 @@ export default function SortByRow({
                 onChange={(e, value) => onChange(sortBy, true, value ? 1 : 0)}
                 checked={isDesc}
             />
-            {isDesc ? 'Descendant' : 'Ascendant'}
+            <span
+                style={{
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                }}
+                onClick={() => onChange(sortBy, true, Math.abs(sortBy.w - 1) as 0 | 1)}
+            >
+                {isDesc ? 'Descendant' : 'Ascendant'}
+            </span>
         </td>
         <td>
             <div
                 style={{
+                    marginLeft: 20,
                     cursor: 'move',
                     touchAction: 'none',
                 }}

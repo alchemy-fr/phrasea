@@ -16,6 +16,7 @@ import PreviewPopover from "../Asset/PreviewPopover";
 import {DisplayContext} from "../DisplayContext";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "../../../routes";
+import {zIndex} from "../../../themes/zIndex";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -195,17 +196,13 @@ export default function AssetResults() {
             {loading && <div style={linearProgressStyle}>
                 <LinearProgress/>
             </div>}
-            <Box
-                sx={theme => ({
-                    zIndex: theme.zIndex.drawer - 1,
-                })}
-            >
+            <div>
                 <SearchBar/>
                 <ListSubheader
                     component="div"
                     disableGutters={true}
                     sx={theme => ({
-                        zIndex: theme.zIndex.drawer - 1,
+                        zIndex: zIndex.toolbar,
                     })}
                 >
                     <SelectionActions
@@ -223,7 +220,7 @@ export default function AssetResults() {
                     onContextMenuOpen={onContextMenuOpen}
                     onPreviewToggle={onPreviewToggle}
                 />
-            </Box>
+            </div>
             {loadMore ? <Box
                 sx={{
                     textAlign: 'center',

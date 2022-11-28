@@ -20,6 +20,7 @@ import {SearchContext} from "../Media/Search/SearchContext";
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from "./ChangeTheme";
+import {zIndex} from "../../themes/zIndex";
 
 export const menuHeight = 42;
 
@@ -51,7 +52,12 @@ export default function MainAppBar() {
 
     const username = userContext.user?.username;
 
-    return (
+    return <div
+        style={{
+            position: 'relative',
+            zIndex: zIndex.mainBar,
+        }}
+    >
         <AppBar
             style={{
                 height: menuHeight,
@@ -192,5 +198,5 @@ export default function MainAppBar() {
                 </Toolbar>
             </Container>
         </AppBar>
-    );
+    </div>
 };

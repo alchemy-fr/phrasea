@@ -22,12 +22,21 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
     public function denormalizeValue($value)
     {
-        return (string) $value;
+        return $value;
     }
 
     public function isLocaleAware(): bool
     {
         return false;
+    }
+
+    public function getGroupValueLabel($value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array

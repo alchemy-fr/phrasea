@@ -100,3 +100,9 @@ export async function deleteAttributeDefinition(id: string): Promise<void> {
 export async function deleteAttributeClass(id: string): Promise<void> {
     await apiClient.delete(`${attributeClassNS}/${id}`);
 }
+
+export enum AttributeType {
+    Text = 'text',
+    Date = 'date',
+    DateTime = 'date_time',
+}

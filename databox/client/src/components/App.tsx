@@ -17,6 +17,7 @@ import DisplayProvider from "./Media/DisplayProvider";
 import {Outlet, useLocation} from "react-router-dom";
 import {appPathPrefix} from "../routes";
 import uploaderClient from "../api/uploader-client";
+import {zIndex} from "../themes/zIndex";
 
 const AppProxy = React.memo(() => {
     return <SearchProvider>
@@ -37,7 +38,7 @@ const AppProxy = React.memo(() => {
                                 height: `calc(100vh - ${menuHeight}px)`,
                                 overflow: 'auto',
                                 boxShadow: theme.shadows[5],
-                                zIndex: 2,
+                                zIndex: zIndex.leftPanel,
                             })}>
                                 <LeftPanel/>
                             </Box>

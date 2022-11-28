@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
@@ -110,6 +111,12 @@ class AssetOutput extends AbstractUuidOutput
      * @Groups({"asset:index", "asset:read"})
      */
     private $thumbnailActive = null;
+
+    /**
+     * Used for result grouping.
+     * @Groups({"_"})
+     */
+    private ?GroupValue $groupValue = null;
 
     public function getOriginal(): ?AssetRendition
     {
@@ -232,5 +239,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setResolvedTitle(?string $resolvedTitle): void
     {
         $this->resolvedTitle = $resolvedTitle;
+    }
+
+    public function getGroupValue(): ?GroupValue
+    {
+        return $this->groupValue;
+    }
+
+    public function setGroupValue(?GroupValue $groupValue): void
+    {
+        $this->groupValue = $groupValue;
     }
 }

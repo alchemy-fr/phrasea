@@ -11,6 +11,11 @@ export type BucketKeyValue = string | number | {
     label: string;
 }
 
+export type NormalizedBucketKeyValue = string | number | {
+    v: string;
+    l: string;
+}
+
 type Bucket = {
     key: BucketKeyValue;
     doc_count: number;

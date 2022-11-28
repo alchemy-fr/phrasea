@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
+use App\Attribute\Type\AttributeTypeInterface;
+use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
-use App\Entity\Core\File;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -28,19 +33,25 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     private AttributesResolver $attributesResolver;
     private AssetTitleResolver $assetTitleResolver;
     private RequestStack $requestStack;
+    private FieldNameResolver $fieldNameResolver;
+    private PropertyAccessor $propertyAccessor;
+    private ?string $lastGroupValue = null;
 
     public function __construct(
         EntityManagerInterface $em,
         RenditionPermissionManager $renditionPermissionManager,
         AttributesResolver $attributesResolver,
         AssetTitleResolver $assetTitleResolver,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        FieldNameResolver $fieldNameResolver
     ) {
         $this->em = $em;
         $this->renditionPermissionManager = $renditionPermissionManager;
         $this->attributesResolver = $attributesResolver;
         $this->assetTitleResolver = $assetTitleResolver;
         $this->requestStack = $requestStack;
+        $this->fieldNameResolver = $fieldNameResolver;
+        $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
     }
 
     private function getUserLocales(): array
@@ -78,11 +89,14 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
+            $indexByAttrName = [];
             $preferredAttributes = [];
             foreach ($attributes as $_attrs) {
                 foreach ($preferredLocales as $l) {
-                    if (isset($_attrs[$l])) {
+                    if (isset($_attrs[$l]) && null !== $_attrs[$l]->getValue()) {
                         $preferredAttributes[] = $_attrs[$l];
+                        $key = $this->fieldNameResolver->getFieldName($_attrs[$l]->getDefinition());
+                        $indexByAttrName[$key] = $_attrs[$l]->getValue();
                         continue 2;
                     }
                 }
@@ -98,6 +112,43 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
                 $output->setResolvedTitle($object->getTitle());
                 if (isset($highlights['title'])) {
                     $output->setTitleHighlight(reset($highlights['title']));
+                }
+            }
+
+            $groupBy = $context['groupBy'][0] ?? null;
+            if (null !== $groupBy) {
+                /** @var AttributeTypeInterface $type */
+                [
+                    'field' => $field,
+                    'property' => $property,
+                    'type' => $type,
+                    'isAttr' => $isAttr,
+                    'normalizer' => $normalizer,
+                ] = $this->fieldNameResolver->getFieldFromName($groupBy);
+
+                $value = $isAttr ? ($indexByAttrName[$groupBy] ?? null) : $this->propertyAccessor->getValue($object, $property);
+
+                if ($value instanceof DoctrineCollection) {
+                    $value = implode(', ', array_map(function ($item) use ($isAttr, $type, $normalizer): string {
+                        if ($isAttr) {
+                            $item = $type->denormalizeValue($item);
+                        }
+                        $item = $normalizer($item);
+
+                        return $type->getGroupValueLabel($item);
+                    }, $value->getValues()));
+                } else {
+                    if ($isAttr) {
+                        $value = $type->denormalizeValue($value);
+                    }
+                    $value = $normalizer($value);
+                    $value = $type->getGroupValueLabel($value);
+                }
+
+                if ($this->lastGroupValue !== $value) {
+                    $output->setGroupValue(new GroupValue($type::getName(), $value, $value));
+
+                    $this->lastGroupValue = $value;
                 }
             }
         }

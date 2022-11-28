@@ -4,6 +4,7 @@ import {Paper, Popper} from "@mui/material";
 import FilePlayer from "./FilePlayer";
 import {getRelativeViewHeight, getRelativeViewWidth} from "../../../lib/style";
 import {createDimensions} from "./Players";
+import {zIndex} from "../../../themes/zIndex";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -32,7 +33,7 @@ export default function PreviewPopover({
         anchorEl={anchor || null}
         sx={{
             pointerEvents: 'none',
-            zIndex: 3,
+            zIndex: zIndex.assetPreview,
         }}
         modifiers={[
             {

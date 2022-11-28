@@ -130,31 +130,11 @@ class AttributeSearch
 
     public function getESFieldInfo(string $attr): array
     {
-        $type = TextAttributeType::getName();
-        if (FacetHandler::FACET_WORKSPACE === $attr) {
-            $f = 'workspaceId';
-        } elseif (FacetHandler::FACET_COLLECTION === $attr) {
-            $f = 'collectionPaths';
-        } elseif (FacetHandler::FACET_TAG === $attr) {
-            $f = 'tags';
-        } elseif (FacetHandler::FACET_PRIVACY === $attr) {
-            $f = 'privacy';
-        } elseif (FacetHandler::FACET_CREATED_AT === $attr) {
-            $type = DateAttributeType::getName();
-            $f = 'createdAt';
-        } else {
-            $info = $this->fieldNameResolver->extractField($attr);
-            $t = $this->typeRegistry->getStrictType($info['type']);
-            $type = $t::getName();
-            $f = sprintf('attributes._.%s', $info['field']);
-            if (null !== $subField = $t->getAggregationField()) {
-                $f .= '.'.$subField;
-            }
-        }
+        ['field' => $field, 'type' => $type] = $this->fieldNameResolver->getFieldFromName($attr);
 
         return [
-            'name' => $f,
-            'type' => $this->typeRegistry->getStrictType($type),
+            'name' => $field,
+            'type' => $type,
         ];
     }
 

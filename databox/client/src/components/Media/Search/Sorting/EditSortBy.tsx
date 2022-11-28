@@ -9,12 +9,12 @@ import {SortBy} from "../Filter";
 import SortByRow, {OnChangeHandler} from "./SortByRow";
 import {
     closestCenter,
+    DndContext,
     DragEndEvent,
     PointerSensor,
     TouchSensor,
     useSensor,
     useSensors,
-    DndContext,
 } from "@dnd-kit/core";
 import {arrayMove, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
 
@@ -58,6 +58,7 @@ export default function EditSortBy({
                     a: k,
                     t: f.meta.title,
                     w: 0,
+                    g: false,
                     enabled: false,
                 });
             });
@@ -73,7 +74,12 @@ export default function EditSortBy({
     }, [list]);
 
     const apply = useCallback(() => {
-        setSortBy(orders.filter(s => s.enabled));
+        setSortBy(orders.filter(s => s.enabled).map(s => ({
+            t: s.t,
+            w: s.w,
+            a: s.a,
+            g: s.g,
+        })));
         onClose();
     }, [orders]);
 
@@ -82,12 +88,13 @@ export default function EditSortBy({
         onClose();
     }, [orders]);
 
-    const onChange = useCallback<OnChangeHandler>((sortBy, enabled, way) => {
+    const onChange = useCallback<OnChangeHandler>((sortBy, enabled, way, grouped) => {
         setOrders((prev) => {
             return prev.map(s => s.a === sortBy.a ? ({
                 ...s,
                 enabled: enabled ?? s.enabled,
                 w: way ?? s.w,
+                g: grouped ?? s.g,
             }) : s);
         });
     }, []);
@@ -96,6 +103,7 @@ export default function EditSortBy({
         useSensor(PointerSensor),
         useSensor(TouchSensor),
     );
+
     function handleDragEnd(event: DragEndEvent) {
         const {active, over} = event;
 
@@ -125,25 +133,28 @@ export default function EditSortBy({
                 {t('search.sort_by.title', 'Sort by')}
             </Typography>
 
-            <table>
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                <table>
+                    <tbody>
                     <SortableContext
                         items={orders}
                         strategy={verticalListSortingStrategy}
                     >
-                        {orders.map(s => <SortByRow
+                        {orders.map((s, i) => <SortByRow
                             sortBy={s}
                             enabled={s.enabled}
                             key={s.a}
                             onChange={onChange}
+                            groupable={i === 0}
                         />)}
                     </SortableContext>
-                </DndContext>
-            </table>
+                    </tbody>
+                </table>
+            </DndContext>
         </Box>
         <Box sx={{
             textAlign: 'right',

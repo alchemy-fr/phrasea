@@ -12,6 +12,7 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[]
             a: 'createdAt',
             t: 'Creation date',
             w: 1,
+            g: false,
         }
     ];
 }

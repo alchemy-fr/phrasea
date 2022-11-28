@@ -28,6 +28,12 @@ async function search(query: string, sortBy: SortBy[], url?: string, collectionI
         order[s.a] = s.w === 1 ? 'desc' : 'asc';
     });
 
+    const groupBy = sortBy.map((s) => {
+        if (s.g) {
+            return s.a;
+        }
+    });
+
     const options = {
         query,
         parents: collectionIds,
@@ -38,9 +44,9 @@ async function search(query: string, sortBy: SortBy[], url?: string, collectionI
             v: f.v.map(v => extractLabelValueFromKey(v).value),
             t: undefined,
         })),
+        group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };
-
 
     const result = await getAssets(options, {
         signal: lastController.signal,
