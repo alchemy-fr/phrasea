@@ -8,6 +8,7 @@ use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
+use App\Consumer\Handler\File\ReadMetadataHandler;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -61,6 +62,10 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         ));
 
         if ($file instanceof File) {
+            $this->eventProducer->publish(ReadMetadataHandler::createEvent(
+                $file->getId()
+            ));
+
             $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
                 $payload['userId'],
                 $file->getId(),
