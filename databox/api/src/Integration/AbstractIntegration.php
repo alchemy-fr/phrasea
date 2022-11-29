@@ -59,7 +59,11 @@ abstract class AbstractIntegration implements IntegrationInterface
                     ->defaultValue('sliding_window')
                     ->values(ApiBudgetLimiter::POLICIES)
                 ->end()
+                ->integerNode('limit')
+                    ->defaultValue(1000)
+                ->end()
                 ->scalarNode('interval')
+                    ->defaultValue('1 year')
                     ->example([
                         '12 hours',
                         '3 months',

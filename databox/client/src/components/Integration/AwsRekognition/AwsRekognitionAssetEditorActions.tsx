@@ -106,6 +106,10 @@ function parseData<T>(integration: WorkspaceIntegration, key: string): T | undef
 
 type Props = {} & AssetIntegrationActionsProps;
 
+type ApiCategory = {
+    enabled: boolean;
+}
+
 export default function AwsRekognitionAssetEditorActions({
                                                              file,
                                                              integration,
@@ -160,14 +164,14 @@ export default function AwsRekognitionAssetEditorActions({
         }
     }, [enableInc, labels, texts, faces]);
 
-    const options = integration.options as {
-        labels: boolean;
-        texts: boolean;
-        faces: boolean;
+    const config = integration.config as {
+        labels: ApiCategory;
+        texts: ApiCategory;
+        faces: ApiCategory;
     };
 
     return <>
-        {options.labels && !labels && <IntegrationPanelContent>
+        {config.labels.enabled && !labels && <IntegrationPanelContent>
             <Button
                 onClick={() => process(DetectType.Labels)}
                 disabled={running === DetectType.Labels}
@@ -177,7 +181,7 @@ export default function AwsRekognitionAssetEditorActions({
                 Detect image labels
             </Button>
         </IntegrationPanelContent>}
-        {options.texts && !texts && <IntegrationPanelContent>
+        {config.texts.enabled && !texts && <IntegrationPanelContent>
             <Button
                 onClick={() => process(DetectType.Texts)}
                 disabled={running === DetectType.Texts}
@@ -187,7 +191,7 @@ export default function AwsRekognitionAssetEditorActions({
                 Detect texts
             </Button>
         </IntegrationPanelContent>}
-        {options.faces && !faces && <IntegrationPanelContent>
+        {config.faces.enabled && !faces && <IntegrationPanelContent>
             <Button
                 onClick={() => process(DetectType.Faces)}
                 disabled={running === DetectType.Faces}

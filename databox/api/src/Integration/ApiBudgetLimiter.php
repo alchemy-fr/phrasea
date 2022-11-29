@@ -32,6 +32,7 @@ class ApiBudgetLimiter
     public function createLimiter(int $limit, string $policy, string $interval, string $key): LimiterInterface
     {
         $factory = new RateLimiterFactory([
+            'id' => $key,
             'limit' => $limit,
             'policy' => $policy,
             'interval' => $interval,
