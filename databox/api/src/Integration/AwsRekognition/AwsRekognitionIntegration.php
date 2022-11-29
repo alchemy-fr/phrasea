@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
+use App\Integration\ApiBudgetLimiter;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
@@ -39,18 +40,27 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         'us-west-2',
     ];
 
+    private const CATEGORIES = [
+        'labels',
+        'texts',
+        'faces',
+    ];
+
     private AwsRekognitionClient $client;
+    private ApiBudgetLimiter $apiBudgetLimiter;
     private IntegrationDataManager $dataManager;
     private FileFetcher $fileFetcher;
 
     public function __construct(
         AwsRekognitionClient $client,
         IntegrationDataManager $dataManager,
-        FileFetcher $fileFetcher
+        FileFetcher $fileFetcher,
+        ApiBudgetLimiter $apiBudgetLimiter
     ) {
         $this->client = $client;
         $this->dataManager = $dataManager;
         $this->fileFetcher = $fileFetcher;
+        $this->apiBudgetLimiter = $apiBudgetLimiter;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -90,28 +100,36 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
                 ->end()
                 ->info(sprintf('Supported regions are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
             ->end()
-            ->append($addNode('labels'))
-            ->append($addNode('texts'))
-            ->append($addNode('faces'))
         ;
+
+        foreach (self::CATEGORIES as $category) {
+            $builder->append($addNode($category));
+        }
+
+        $builder->append($this->createBudgetLimitConfigNode(true));
     }
 
     public function handleAsset(Asset $asset, array $config): void
     {
-        if (!$config['analyzeIncoming']) {
+        if (!$asset->getFile()) {
             return;
         }
 
-        if ($asset->getFile()) {
-            $this->analyze($asset->getFile(), $config);
+        $categories = [];
+        foreach (self::CATEGORIES as $category) {
+            if ($config[$category]['analyzeIncoming']) {
+                $categories[] = $category;
+            }
         }
+
+        $this->analyze($asset->getFile(), $config, $categories);
     }
 
     public function handleFileAction(string $action, Request $request, File $file, array $config): Response
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
-                $payload = $this->analyze($file, $config, $request->request->get('category'));
+                $payload = $this->analyze($file, $config, [$request->request->get('category')]);
 
                 return new JsonResponse($payload);
             default:
@@ -119,54 +137,53 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         }
     }
 
-    private function analyze(File $file, array $config, ?string $category = null): array
+    private function analyze(File $file, array $config, array $categories): array
     {
+        if (empty($categories)) {
+            return [];
+        }
+
         /** @var WorkspaceIntegration $wsIntegration */
         $wsIntegration = $config['workspaceIntegration'];
 
-        $categories = [
+        $methods = [
             'labels' => 'getImageLabels',
             'texts' => 'getImageTexts',
             'faces' => 'getImageFaces',
         ];
 
-        if ($category) {
-            $categories = [$category => $categories[$category]];
-        }
-
-        $shouldAnalyze = false;
-        foreach ($categories as $key => $method) {
-            if ($config[$key]['enabled']) {
-                $shouldAnalyze = true;
-                break;
-            }
-        }
-
-        if (!$shouldAnalyze) {
-            return [];
-        }
-
         $path = $this->fileFetcher->getFile($file);
         $result = [];
-        foreach ($categories as $key => $method) {
-            if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $key)) {
-                $result[$key] = \GuzzleHttp\json_decode($data->getValue(), true);
+        $missing = [];
+        foreach ($categories as $category) {
+            if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $category)) {
+                $result[$category] = \GuzzleHttp\json_decode($data->getValue(), true);
             } else {
-                $result[$key] = call_user_func([$this->client, $method], $path, $config);
-                $this->dataManager->storeData($wsIntegration, $file, $key, \GuzzleHttp\json_encode($result[$key]));
+                $missing[] = $category;
             }
+        }
+
+        $this->apiBudgetLimiter->acceptIntegrationApiCall($config, count($missing));
+
+        foreach ($missing as $category) {
+            $method = $methods[$category];
+            $result[$category] = call_user_func([$this->client, $method], $path, $config);
+            $this->dataManager->storeData($wsIntegration, $file, $category, \GuzzleHttp\json_encode($result[$category]));
         }
 
         return $result;
     }
 
-    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $config): array
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
     {
-        return [
-            'labels' => $config['labels'],
-            'texts' => $config['texts'],
-            'faces' => $config['faces'],
-        ];
+        $output = [];
+        foreach (self::CATEGORIES as $category) {
+            $output[$category] = [
+                'enabled' => $config[$category]['enabled'],
+            ];
+        }
+
+        return $output;
     }
 
     public function supportsAsset(Asset $asset, array $config): bool

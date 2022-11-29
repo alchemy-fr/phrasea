@@ -19,5 +19,5 @@ interface IntegrationInterface
 
     public function getConfigurationInfo(array $config): array;
 
-    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $config): array;
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array;
 }

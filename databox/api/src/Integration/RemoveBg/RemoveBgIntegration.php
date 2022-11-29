@@ -35,6 +35,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
                 ->cannotBeEmpty()
             ->end()
             ->booleanNode('processIncoming')
+                ->defaultFalse()
             ->end()
         ;
     }

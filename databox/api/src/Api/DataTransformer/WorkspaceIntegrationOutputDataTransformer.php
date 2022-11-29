@@ -66,7 +66,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         $options = $this->integrationManager->getIntegrationConfiguration($object);
         /** @var IntegrationInterface $integration */
         $integration = $options['integration'];
-        $output->setOptions($integration->resolveClientOptions($object, $options));
+        $output->setConfig($integration->resolveClientConfiguration($object, $options));
 
         if (null !== $file) {
             if ($integration instanceof FileActionsIntegrationInterface) {

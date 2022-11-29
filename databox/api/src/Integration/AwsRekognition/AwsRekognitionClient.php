@@ -20,6 +20,7 @@ class AwsRekognitionClient
         ]);
     }
 
+
     public function getImageLabels(string $path, array $options): array
     {
         $client = $this->createClient($options);

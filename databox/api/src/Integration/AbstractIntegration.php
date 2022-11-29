@@ -6,7 +6,13 @@ namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\RateLimiter\Policy\FixedWindowLimiter;
+use Symfony\Component\RateLimiter\Policy\NoLimiter;
+use Symfony\Component\RateLimiter\Policy\SlidingWindowLimiter;
+use Symfony\Component\RateLimiter\Policy\TokenBucketLimiter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -35,7 +41,40 @@ abstract class AbstractIntegration implements IntegrationInterface
         return [];
     }
 
-    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $config): array
+    protected function createBudgetLimitConfigNode(bool $defaultEnabled = false): NodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('budgetLimit');
+
+        $root = $treeBuilder->getRootNode();
+
+        if ($defaultEnabled) {
+            $root->canBeDisabled();
+        } else {
+            $root->canBeEnabled();
+        }
+
+        $root
+            ->children()
+                ->enumNode('policy')
+                    ->defaultValue('sliding_window')
+                    ->values(ApiBudgetLimiter::POLICIES)
+                ->end()
+                ->scalarNode('interval')
+                    ->example([
+                        '12 hours',
+                        '3 months',
+                        '1 day',
+                        '1 year'
+                    ])
+                    ->info('Analyze all incoming assets automatically')
+                ->end()
+            ->end()
+        ;
+
+        return $treeBuilder->getRootNode();
+    }
+
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
     {
         return [];
     }

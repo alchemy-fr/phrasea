@@ -131,7 +131,7 @@ class IntegrationManager
         $node = $this->buildConfiguration($integration);
         $processor = new Processor();
 
-        return $processor->process($node, ['root' => $workspaceIntegration->getOptions()]);
+        return $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
     }
 
     /**

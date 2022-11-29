@@ -1,0 +1,6 @@
+framework:
+  rate_limiter:
+    integrations:
+      policy: 'sliding_window'
+      limit: 1
+      interval: '1 day'
