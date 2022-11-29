@@ -13,6 +13,8 @@ use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
@@ -49,6 +51,7 @@ class WorkspaceIntegration extends AbstractUuidEntity
     private array $options = [];
 
     private ?string $optionsJson = null;
+    private ?string $optionsYaml = null;
 
     public function getTitle(): ?string
     {
@@ -95,6 +98,24 @@ class WorkspaceIntegration extends AbstractUuidEntity
         try {
             $this->options = \GuzzleHttp\json_decode($options, true);
         } catch (InvalidArgumentException $e) {
+        }
+    }
+
+    public function getOptionsYaml(): string
+    {
+        if (null !== $this->optionsYaml) {
+            return $this->optionsYaml;
+        }
+
+        return Yaml::dump($this->options);
+    }
+
+    public function setOptionsYaml(string $options): void
+    {
+        $this->optionsYaml = $options;
+        try {
+            $this->options = Yaml::parse($options);
+        } catch (ParseException $e) {
         }
     }
 

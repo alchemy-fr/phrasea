@@ -11,10 +11,10 @@ use App\Integration\AbstractFileAction;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
 use InvalidArgumentException;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIntegrationInterface
 {
@@ -27,25 +27,28 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
         $this->client = $client;
     }
 
-    // TODO
-//    public function configureOptions(OptionsResolver $resolver): void
-//    {
-//        $resolver->setRequired('apiKey');
-//        $resolver->setDefaults([
-//            'processIncoming' => false,
-//        ]);
-//    }
-
-    public function handleAsset(Asset $asset, array $options): void
+    public function buildConfiguration(NodeBuilder $builder): void
     {
-        $this->process($asset->getFile(), $options);
+        $builder
+            ->scalarNode('apiKey')
+                ->isRequired()
+                ->cannotBeEmpty()
+            ->end()
+            ->booleanNode('processIncoming')
+            ->end()
+        ;
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $options): Response
+    public function handleAsset(Asset $asset, array $config): void
+    {
+        $this->process($asset->getFile(), $config);
+    }
+
+    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
     {
         switch ($action) {
             case self::ACTION_PROCESS:
-                $file = $this->process($file, $options);
+                $file = $this->process($file, $config);
 
                 return new JsonResponse([
                     'url' => $this->fileUrlResolver->resolveUrl($file),
@@ -55,9 +58,9 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
         }
     }
 
-    private function process(File $file, array $options): File
+    private function process(File $file, array $config): File
     {
-        $src = $this->client->getBgRemoved($file, $options['apiKey']);
+        $src = $this->client->getBgRemoved($file, $config['apiKey']);
 
         $bgRemFile = $this->fileManager->createFileFromPath(
             $file->getWorkspace(),
@@ -68,7 +71,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
         );
 
         /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $options['workspaceIntegration'];
+        $wsIntegration = $config['workspaceIntegration'];
         $this->integrationDataManager->storeData($wsIntegration, $file, self::DATA_FILE_ID, $bgRemFile->getId());
 
         $this->em->flush();
@@ -76,14 +79,14 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
         return $bgRemFile;
     }
 
-    public function supportsFileActions(File $file, array $options): bool
+    public function supportsFileActions(File $file, array $config): bool
     {
         return $this->supportsFile($file);
     }
 
-    public function supportsAsset(Asset $asset, array $options): bool
+    public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $options['processIncoming'] && $asset->getFile() && $this->supportsFile($asset->getFile());
+        return $config['processIncoming'] && $asset->getFile() && $this->supportsFile($asset->getFile());
     }
 
     private function supportsFile(File $file): bool

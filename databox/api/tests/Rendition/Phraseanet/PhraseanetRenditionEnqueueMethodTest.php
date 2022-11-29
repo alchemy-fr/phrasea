@@ -197,7 +197,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                     'url' => $thumbnailRemoteUrl,
                     'size' => 42,
                     'type' => 'image/jpeg',
-                ]
+                ],
             ],
         ]);
     }

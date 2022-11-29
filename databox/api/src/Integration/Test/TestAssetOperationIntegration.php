@@ -11,7 +11,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TestAssetOperationIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
@@ -23,7 +22,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function handleAsset(Asset $asset, array $options): void
+    public function handleAsset(Asset $asset, array $config): void
     {
         $input = new AssetAttributeBatchUpdateInput();
 
@@ -39,7 +38,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
         $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
     }
 
-    public function supportsAsset(Asset $asset, array $options): bool
+    public function supportsAsset(Asset $asset, array $config): bool
     {
         return null !== $asset->getFile();
     }
@@ -53,5 +52,4 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
     {
         return 'Test asset operation';
     }
-
 }

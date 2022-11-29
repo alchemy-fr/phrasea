@@ -28,7 +28,7 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
-    public function handleAsset(Asset $asset, array $options): void
+    public function handleAsset(Asset $asset, array $config): void
     {
         $input = new AssetAttributeBatchUpdateInput();
         $i = new AttributeActionInput();
@@ -72,7 +72,7 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
         return 'blurhash';
     }
 
-    public function supportsAsset(Asset $asset, array $options): bool
+    public function supportsAsset(Asset $asset, array $config): bool
     {
         return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
     }

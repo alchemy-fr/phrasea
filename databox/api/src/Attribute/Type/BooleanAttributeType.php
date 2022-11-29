@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Elastica\Query;
 
 class BooleanAttributeType extends AbstractAttributeType
 {

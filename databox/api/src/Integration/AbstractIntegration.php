@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,17 +26,16 @@ abstract class AbstractIntegration implements IntegrationInterface
     {
     }
 
-    public function getConfiguration(): ?TreeBuilder
+    public function buildConfiguration(NodeBuilder $builder): void
     {
-        return null;
     }
 
-    public function getConfigurationInfo(array $options): array
+    public function getConfigurationInfo(array $config): array
     {
         return [];
     }
 
-    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $options): array
+    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $config): array
     {
         return [];
     }
@@ -48,7 +47,7 @@ abstract class AbstractIntegration implements IntegrationInterface
         if ($violations->count() > 0) {
             $a = [];
             foreach ($violations as $violation) {
-                /** @var ConstraintViolation $violation */
+                /* @var ConstraintViolation $violation */
                 $a[] = $violation->getMessage();
             }
 

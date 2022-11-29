@@ -142,7 +142,7 @@ class FacetHandler
 
         foreach ($facets as &$facet) {
             $type = $facet['meta']['type'] ?? FacetInterface::TYPE_STRING;
-            if ($type === FacetInterface::TYPE_DATE_RANGE) {
+            if (FacetInterface::TYPE_DATE_RANGE === $type) {
                 foreach ($facet['buckets'] as &$bucket) {
                     $bucket['key'] = $bucket['key'] / 1000;
                 }

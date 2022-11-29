@@ -220,13 +220,12 @@ class AttributeSearch
                     throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
             }
 
-
             $meta = [
                 'title' => $definition->getName(),
             ];
 
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-            if ($type->getFacetType() !== FacetInterface::TYPE_STRING) {
+            if (FacetInterface::TYPE_STRING !== $type->getFacetType()) {
                 $meta['type'] = $type->getFacetType();
             }
 

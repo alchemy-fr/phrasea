@@ -14,7 +14,7 @@ class AwsRekognitionClient
             'region' => $options['region'],
             'credentials' => [
                 'key' => $options['accessKeyId'],
-                'secret'  => $options['accessKeySecret'],
+                'secret' => $options['accessKeySecret'],
             ],
             'version' => 'latest',
         ]);
@@ -27,7 +27,7 @@ class AwsRekognitionClient
         $res = $client->detectLabels([
             'Image' => [
                 'Bytes' => file_get_contents($path),
-            ]
+            ],
         ]);
 
         return $res->toArray();
@@ -40,7 +40,7 @@ class AwsRekognitionClient
         $res = $client->detectText([
             'Image' => [
                 'Bytes' => file_get_contents($path),
-            ]
+            ],
         ]);
 
         return $res->toArray();
@@ -54,7 +54,7 @@ class AwsRekognitionClient
             'Attributes' => ['ALL'],
             'Image' => [
                 'Bytes' => file_get_contents($path),
-            ]
+            ],
         ]);
 
         return $res->toArray();

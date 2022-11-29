@@ -27,9 +27,7 @@ class IntegrationHelpController extends AbstractController
      */
     public function __invoke(): Response
     {
-
         $integrations = array_map(function (IntegrationInterface $integration): array {
-
             return [
                 'name' => $integration::getName(),
                 'title' => $integration::getTitle(),

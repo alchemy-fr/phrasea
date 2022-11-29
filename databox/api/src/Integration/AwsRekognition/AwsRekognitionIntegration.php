@@ -9,11 +9,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
-use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\AssetOperationIntegrationInterface;
+use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Util\FileUtil;
 use InvalidArgumentException;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -52,11 +53,8 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         $this->fileFetcher = $fileFetcher;
     }
 
-    public function getConfiguration(): ?TreeBuilder
+    public function buildConfiguration(NodeBuilder $builder): void
     {
-        $treeBuilder = new TreeBuilder('root');
-        $rootNode = $treeBuilder->getRootNode();
-
         $addNode = function (string $name): NodeDefinition {
             $treeBuilder = new TreeBuilder($name);
 
@@ -64,59 +62,56 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
                 ->canBeEnabled()
                 ->children()
                     ->booleanNode('processIncoming')
-                    ->info('Analyze all incoming assets automatically')
-                ->end();
+                        ->defaultFalse()
+                        ->info('Analyze all incoming assets automatically')
+                    ->end();
 
             return $treeBuilder->getRootNode();
         };
 
-        $rootNode
-            ->children()
-                ->scalarNode('accessKeyId')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                    ->info('The AWS IAM Access Key ID')
-                ->end()
-                ->scalarNode('accessKeySecret')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                    ->info('The AWS IAM Access Key Secret')
-                ->end()
-                ->scalarNode('region')
-                    ->cannotBeEmpty()
-                    ->defaultValue('eu-central-1')
-                    ->example('us-east-2')
-                    ->validate()
-                        ->ifNotInArray(self::SUPPORTED_REGIONS)
-                        ->thenInvalid(sprintf('Invalid region "%%s". Supported ones are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
-                    ->end()
-                    ->info(sprintf('Supported regions are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
-                ->end()
-                ->append($addNode('labels'))
-                ->append($addNode('texts'))
-                ->append($addNode('faces'))
+        $builder
+            ->scalarNode('accessKeyId')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->info('The AWS IAM Access Key ID')
             ->end()
+            ->scalarNode('accessKeySecret')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->info('The AWS IAM Access Key Secret')
+            ->end()
+            ->scalarNode('region')
+                ->cannotBeEmpty()
+                ->defaultValue('eu-central-1')
+                ->example('us-east-2')
+                ->validate()
+                    ->ifNotInArray(self::SUPPORTED_REGIONS)
+                    ->thenInvalid(sprintf('Invalid region "%%s". Supported ones are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
+                ->end()
+                ->info(sprintf('Supported regions are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
+            ->end()
+            ->append($addNode('labels'))
+            ->append($addNode('texts'))
+            ->append($addNode('faces'))
         ;
-
-        return $treeBuilder;
     }
 
-    public function handleAsset(Asset $asset, array $options): void
+    public function handleAsset(Asset $asset, array $config): void
     {
-        if (!$options['analyzeIncoming']) {
+        if (!$config['analyzeIncoming']) {
             return;
         }
 
         if ($asset->getFile()) {
-            $this->analyze($asset->getFile(), $options);
+            $this->analyze($asset->getFile(), $config);
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $options): Response
+    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
-                $payload = $this->analyze($file, $options, $request->request->get('category'));
+                $payload = $this->analyze($file, $config, $request->request->get('category'));
 
                 return new JsonResponse($payload);
             default:
@@ -124,10 +119,10 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         }
     }
 
-    private function analyze(File $file, array $options, ?string $category = null): array
+    private function analyze(File $file, array $config, ?string $category = null): array
     {
         /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $options['workspaceIntegration'];
+        $wsIntegration = $config['workspaceIntegration'];
 
         $categories = [
             'labels' => 'getImageLabels',
@@ -141,7 +136,7 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
 
         $shouldAnalyze = false;
         foreach ($categories as $key => $method) {
-            if ($options[$key]) {
+            if ($config[$key]['enabled']) {
                 $shouldAnalyze = true;
                 break;
             }
@@ -157,7 +152,7 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
             if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $key)) {
                 $result[$key] = \GuzzleHttp\json_decode($data->getValue(), true);
             } else {
-                $result[$key] = call_user_func([$this->client, $method], $path, $options);
+                $result[$key] = call_user_func([$this->client, $method], $path, $config);
                 $this->dataManager->storeData($wsIntegration, $file, $key, \GuzzleHttp\json_encode($result[$key]));
             }
         }
@@ -165,16 +160,16 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         return $result;
     }
 
-    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $options): array
+    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $config): array
     {
         return [
-            'labels' => $options['labels'],
-            'texts' => $options['texts'],
-            'faces' => $options['faces'],
+            'labels' => $config['labels'],
+            'texts' => $config['texts'],
+            'faces' => $config['faces'],
         ];
     }
 
-    public function supportsAsset(Asset $asset, array $options): bool
+    public function supportsAsset(Asset $asset, array $config): bool
     {
         return $asset->getFile() && $this->supportFile($asset->getFile());
     }
@@ -184,7 +179,7 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         return FileUtil::isImageType($file->getType());
     }
 
-    public function supportsFileActions(File $file, array $options): bool
+    public function supportsFileActions(File $file, array $config): bool
     {
         return $this->supportFile($file);
     }

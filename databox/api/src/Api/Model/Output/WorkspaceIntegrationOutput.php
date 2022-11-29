@@ -44,8 +44,6 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     /**
      * Client options.
      *
-     * @var array
-     *
      * @Groups({"integration:index"})
      */
     private array $options = [];

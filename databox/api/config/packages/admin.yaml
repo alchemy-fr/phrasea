@@ -502,5 +502,5 @@ easy_admin:
           - { property: 'title' }
           - { property: 'workspace' }
           - { property: 'integration', type: App\Form\Type\IntegrationChoiceType }
-          - { property: 'optionsJson', label: Options }
+          - { property: 'optionsYaml', label: Options }
           - { property: 'enabled' }
