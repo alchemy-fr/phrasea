@@ -18,6 +18,7 @@ spec:
         app: phrasea
         tier: {{ $appName }}-api-nginx
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       containers:
       - name: {{ $appName }}-api-nginx
         image: {{ $.Values.repository.baseurl }}/ps-{{ $appName }}-api-nginx:{{ $.Values.repository.tag }}

@@ -2,6 +2,15 @@ repository:
   baseurl: alchemyfr
   tag: latest
 
+image:
+  pullSecret:
+    enabled: false
+    name: registry-secret
+    registry:
+    username:
+    password:
+    email:
+
 auth:
   enabled: true
   autoConnectIdP:

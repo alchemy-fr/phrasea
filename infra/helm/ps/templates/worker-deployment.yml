@@ -19,6 +19,7 @@ spec:
         app: phrasea
         tier: {{ $appName }}-worker
     spec:
+      {{ include "imagePullSecrets" $ | indent 6 }}
       volumes:
 {{- include "volumes.configs" $ | indent 6 }}
 {{- include "app.volumes" $tplArgs | indent 6 }}
