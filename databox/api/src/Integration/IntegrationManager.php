@@ -135,6 +135,7 @@ class IntegrationManager
 
         $config['integration'] = $integration;
         $config['workspaceIntegration'] = $workspaceIntegration;
+        $config['integrationId'] = $workspaceIntegration->getId();
 
         return $config;
     }
