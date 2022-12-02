@@ -28,7 +28,7 @@ class IntegrationExtension extends AbstractExtension
 
     public function getIntegrationOptions(WorkspaceIntegration $integration): string
     {
-        $options = $this->integrationManager->getIntegrationOptions($integration);
+        $options = $this->integrationManager->getIntegrationConfiguration($integration);
 
         return json_encode($options, JSON_PRETTY_PRINT);
     }

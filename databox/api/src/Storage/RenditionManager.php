@@ -54,8 +54,7 @@ class RenditionManager
         Asset $asset,
         RenditionDefinition $definition,
         File $file
-    ): AssetRendition
-    {
+    ): AssetRendition {
         if (null === $asset->getFile() && $definition->isUseAsOriginal()) {
             $asset->setFile($file);
             $this->em->persist($asset);

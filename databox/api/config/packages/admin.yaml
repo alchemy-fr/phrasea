@@ -42,6 +42,7 @@ easy_admin:
       - label: Integrations
         children:
           - Integration
+          - { label: 'Help', route: 'admin_integrations_help' }
       - label: 'Dev'
         children:
           - FailedEvent
@@ -501,5 +502,5 @@ easy_admin:
           - { property: 'title' }
           - { property: 'workspace' }
           - { property: 'integration', type: App\Form\Type\IntegrationChoiceType }
-          - { property: 'optionsJson', label: Options }
+          - { property: 'optionsYaml', label: Options }
           - { property: 'enabled' }

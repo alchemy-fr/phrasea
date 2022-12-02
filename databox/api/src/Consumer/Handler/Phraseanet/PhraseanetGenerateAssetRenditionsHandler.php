@@ -63,7 +63,7 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
         $id = $payload['id'];
 
         $integration = $this->integrationManager->loadIntegration($payload['integrationId']);
-        $options = $this->integrationManager->getIntegrationOptions($integration);
+        $options = $this->integrationManager->getIntegrationConfiguration($integration);
 
         $renditions = $payload['renditions'] ?? null;
 

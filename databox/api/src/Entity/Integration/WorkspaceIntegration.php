@@ -13,6 +13,8 @@ use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
@@ -46,9 +48,10 @@ class WorkspaceIntegration extends AbstractUuidEntity
     /**
      * @ORM\Column(type="json", nullable=false)
      */
-    private array $options = [];
+    private array $config = [];
 
     private ?string $optionsJson = null;
+    private ?string $optionsYaml = null;
 
     public function getTitle(): ?string
     {
@@ -70,14 +73,14 @@ class WorkspaceIntegration extends AbstractUuidEntity
         $this->integration = $integration;
     }
 
-    public function getOptions(): array
+    public function getConfig(): array
     {
-        return $this->options;
+        return $this->config;
     }
 
-    public function setOptions(array $options): void
+    public function setConfig(array $config): void
     {
-        $this->options = $options;
+        $this->config = $config;
     }
 
     public function getOptionsJson(): string
@@ -86,15 +89,33 @@ class WorkspaceIntegration extends AbstractUuidEntity
             return $this->optionsJson;
         }
 
-        return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
+        return \GuzzleHttp\json_encode($this->config, JSON_PRETTY_PRINT);
     }
 
     public function setOptionsJson(string $options): void
     {
         $this->optionsJson = $options;
         try {
-            $this->options = \GuzzleHttp\json_decode($options, true);
+            $this->config = \GuzzleHttp\json_decode($options, true);
         } catch (InvalidArgumentException $e) {
+        }
+    }
+
+    public function getOptionsYaml(): string
+    {
+        if (null !== $this->optionsYaml) {
+            return $this->optionsYaml;
+        }
+
+        return Yaml::dump($this->config);
+    }
+
+    public function setOptionsYaml(string $options): void
+    {
+        $this->optionsYaml = $options;
+        try {
+            $this->config = Yaml::parse($options);
+        } catch (ParseException $e) {
         }
     }
 

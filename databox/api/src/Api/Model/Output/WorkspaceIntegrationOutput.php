@@ -44,11 +44,9 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     /**
      * Client options.
      *
-     * @var array
-     *
      * @Groups({"integration:index"})
      */
-    private array $options = [];
+    private array $config = [];
 
     public function getTitle(): ?string
     {
@@ -90,14 +88,14 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
         $this->data = $data;
     }
 
-    public function getOptions(): array
+    public function getConfig(): array
     {
-        return $this->options;
+        return $this->config;
     }
 
-    public function setOptions(array $options): void
+    public function setConfig(array $config): void
     {
-        $this->options = $options;
+        $this->config = $config;
     }
 
     public function getSupported(): ?bool

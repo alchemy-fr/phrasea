@@ -35,7 +35,7 @@ class DateAttributeType extends AbstractAttributeType
                 $date = clone $value;
             }
 
-            $date->setTime(0,0,0);
+            $date->setTime(0, 0, 0);
 
             return (string) $date->getTimestamp();
         }
@@ -43,16 +43,15 @@ class DateAttributeType extends AbstractAttributeType
         return $value ?? '';
     }
 
-
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
         $startFloor = new DateTime();
         $startFloor->setTimestamp((int) $value[0]);
-        $startFloor->setTime(0,0, 0);
+        $startFloor->setTime(0, 0, 0);
 
         $endCeil = new DateTime();
         $endCeil->setTimestamp((int) $value[1]);
-        $endCeil->setTime(23,59, 59);
+        $endCeil->setTime(23, 59, 59);
 
         return new Range($field, [
             'gte' => $startFloor->getTimestamp() * 1000,
@@ -97,7 +96,7 @@ class DateAttributeType extends AbstractAttributeType
                 return null;
             }
 
-            if (strlen($value) === 10) {
+            if (10 === strlen($value)) {
                 $value .= 'T00:00:00Z';
             }
 

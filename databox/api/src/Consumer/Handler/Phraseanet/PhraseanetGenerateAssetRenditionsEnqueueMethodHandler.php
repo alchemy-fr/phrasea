@@ -50,7 +50,7 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
         $id = $payload['id'];
 
         $integration = $this->integrationManager->loadIntegration($payload['integrationId']);
-        $options = $this->integrationManager->getIntegrationOptions($integration);
+        $options = $this->integrationManager->getIntegrationConfiguration($integration);
 
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);

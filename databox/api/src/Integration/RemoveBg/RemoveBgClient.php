@@ -49,12 +49,12 @@ class RemoveBgClient
         $res = $client->post('/v1.0/removebg', [
             'multipart' => [
                 [
-                    'name'     => 'image_file',
-                    'contents' => fopen($path, 'r')
+                    'name' => 'image_file',
+                    'contents' => fopen($path, 'r'),
                 ],
                 [
-                    'name'     => 'size',
-                    'contents' => 'auto'
+                    'name' => 'size',
+                    'contents' => 'auto',
                 ],
             ],
         ]);

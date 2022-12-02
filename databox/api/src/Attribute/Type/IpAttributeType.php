@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Elastica\Query\AbstractQuery;
 use Elastica\Query;
+use Elastica\Query\AbstractQuery;
 
 class IpAttributeType extends AbstractAttributeType
 {
