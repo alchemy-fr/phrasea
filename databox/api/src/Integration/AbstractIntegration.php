@@ -9,10 +9,6 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
-use Symfony\Component\RateLimiter\Policy\FixedWindowLimiter;
-use Symfony\Component\RateLimiter\Policy\NoLimiter;
-use Symfony\Component\RateLimiter\Policy\SlidingWindowLimiter;
-use Symfony\Component\RateLimiter\Policy\TokenBucketLimiter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -68,7 +64,7 @@ abstract class AbstractIntegration implements IntegrationInterface
                         '12 hours',
                         '3 months',
                         '1 day',
-                        '1 year'
+                        '1 year',
                     ])
                     ->info('Analyze all incoming assets automatically')
                 ->end()

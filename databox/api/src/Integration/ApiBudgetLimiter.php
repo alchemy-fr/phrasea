@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\RateLimitExceededException;
 use Symfony\Component\RateLimiter\LimiterInterface;

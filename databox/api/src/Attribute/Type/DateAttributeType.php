@@ -35,14 +35,13 @@ class DateAttributeType extends AbstractAttributeType
                 $date = clone $value;
             }
 
-            $date->setTime(0,0,0);
+            $date->setTime(0, 0, 0);
 
             return (string) $date->getTimestamp();
         }
 
         return $value ?? '';
     }
-
 
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
