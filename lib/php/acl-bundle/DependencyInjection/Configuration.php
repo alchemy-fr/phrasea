@@ -20,6 +20,23 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_acl');
         $treeBuilder->getRootNode()
             ->children()
+                ->arrayNode('enabled_permissions')
+                    ->scalarPrototype()
+                    ->defaultValue([
+                        'VIEW',
+                        'CREATE',
+                        'EDIT',
+                        'DELETE',
+                        'OPERATOR',
+                        'OWNER',
+                    ])
+                    ->info('Explicit enabled permissions, all are enabled by default.')
+                    ->example([
+                        'VIEW',
+                        'EDIT',
+                    ])
+                    ->end()
+                ->end()
                 ->arrayNode('objects')
                 ->useAttributeAsKey('key')
                     ->prototype('scalar')

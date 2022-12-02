@@ -19,19 +19,22 @@ class PermissionView
     private UserRepositoryInterface $userRepository;
     private GroupRepositoryInterface $groupRepository;
     private EntityManagerInterface $em;
+    private ?array $enabledPermissions;
 
     public function __construct(
         ObjectMapping $objectMapping,
         PermissionRepositoryInterface $repository,
         UserRepositoryInterface $userRepository,
         GroupRepositoryInterface $groupRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ?array $enabledPermissions
     ) {
         $this->objectMapping = $objectMapping;
         $this->repository = $repository;
         $this->userRepository = $userRepository;
         $this->groupRepository = $groupRepository;
         $this->em = $em;
+        $this->enabledPermissions = $enabledPermissions;
     }
 
     public function getObjectKey(string $entityClass): string
@@ -41,7 +44,11 @@ class PermissionView
 
     public function getViewParameters(string $objectKey, ?string $id): array
     {
-        $permissions = PermissionInterface::PERMISSIONS;
+        $permissions = [];
+        foreach ($this->enabledPermissions as $key) {
+            $permissions[$key] = PermissionInterface::PERMISSIONS[$key];
+        }
+
         $aces = [];
         if (null !== $id) {
             $aces = array_merge($aces, $this->repository->getObjectAces($objectKey, null));
