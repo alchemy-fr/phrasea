@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileFetcher;
 use App\Entity\Core\File;
 use App\Metadata\MetadataNormalizer;
@@ -27,7 +26,6 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
 
     public function handle(EventMessage $message): void
     {
-
         $payload = $message->getPayload();
         $id = $payload['id'];
 
