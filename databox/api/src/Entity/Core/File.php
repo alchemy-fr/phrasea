@@ -83,7 +83,7 @@ class File extends AbstractUuidEntity
     private ?array $alternateUrls = null;
 
     /**
-     * normalized metadata (array), stored as json.
+     * normalized metadata
      *
      * @ORM\Column(type="json", nullable=true)
      */

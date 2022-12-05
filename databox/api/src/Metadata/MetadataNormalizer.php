@@ -29,7 +29,7 @@ class MetadataNormalizer
                 if (!json_encode($vMeta->asString())) {
                     continue;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 continue;
             }
 

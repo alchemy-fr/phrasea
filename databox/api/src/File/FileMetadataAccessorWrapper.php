@@ -40,17 +40,17 @@ class FileMetadataAccessorWrapper
         return null;
     }
 
-    public function metadata(string $id)
+    public function getMetadata(string $id)
     {
         if ($this->file) {
-            // call getMetadata() only once per file
+            // call file.getMetadata() only once; initial (false) means unread
             if (false === $this->meta) {
-                $this->meta = $this->file->getMetadata();
+                $this->meta = $this->file->getMetadata();   // array|null
             }
 
             if (is_array($this->meta) && array_key_exists($id, $this->meta) && array_key_exists('values', $this->meta[$id])) {
                 // "value" is not included in persisted normalization (for smaller json)
-                $this->meta[$id]['value'] = join(' ; ', $this->meta[$id]['values']);
+                $this->meta[$id]['value'] = implode(' ; ', $this->meta[$id]['values']);
 
                 return $this->meta[$id];
             }
