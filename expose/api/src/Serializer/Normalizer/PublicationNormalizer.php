@@ -33,7 +33,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $object->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
                 if ($object->isPubliclyListed()) {
-                    $context['groups'] = [Publication::GROUP_INDEX];
+                    $context['groups'] = [Publication::GROUP_LIST];
                 } else {
                     $context['groups'] = ['_'];
                 }
@@ -72,6 +72,12 @@ class PublicationNormalizer extends AbstractRouterNormalizer
         $object->setSecurityContainerId($securityContainer->getId());
         $config->setSecurityMethod($securityContainer->getSecurityMethod());
         $config->setSecurityOptions($securityContainer->getSecurityOptions());
+
+        $object->setCapabilities([
+            'edit' => $this->security->isGranted(PublicationVoter::EDIT, $object),
+            'delete' => $this->security->isGranted(PublicationVoter::DELETE, $object),
+            'operator' => $this->security->isGranted(PublicationVoter::OPERATOR, $object),
+        ]);
     }
 
     protected function generateDownloadViaZippyUrl(Publication $publication): string

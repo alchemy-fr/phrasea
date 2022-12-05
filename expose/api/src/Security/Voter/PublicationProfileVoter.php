@@ -39,24 +39,26 @@ class PublicationProfileVoter extends Voter
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
+        $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
         switch ($attribute) {
             case self::CREATE:
-                return $isAdmin;
+                return $isAdmin
+                    || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile());
             case self::INDEX:
-                return $isAdmin;
+                return $isAuthenticated;
             case self::READ:
                 return $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $isOwner
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject);
             case self::DELETE:
                 return $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $isOwner
                     || $this->security->isGranted(PermissionInterface::DELETE, $subject)
                     ;
             case self::EDIT:
                 return $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
+                    || $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
                     ;
             default:

@@ -13,10 +13,7 @@ class PublicationAssetVoter extends Voter
 {
     const READ = 'READ';
 
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {

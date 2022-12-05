@@ -34,7 +34,8 @@ final class CacheListener implements EventSubscriberInterface
     public function setCacheHeaders(ViewEvent $event): void
     {
         $object = $event->getControllerResult();
-        $method = $event->getRequest()->getMethod();
+        $request = $event->getRequest();
+        $method = $request->getMethod();
 
         if (!$object instanceof Publication || Request::METHOD_GET !== $method) {
             return;
@@ -51,7 +52,10 @@ final class CacheListener implements EventSubscriberInterface
             return;
         }
 
-        $request = $event->getRequest();
+        if ($request->headers->has('Authorization')) {
+            return;
+        }
+
         $request->attributes->set(self::CACHE_ATTR, [
             's_maxage' => 600,
             'max_age' => 600,

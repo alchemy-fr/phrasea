@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filter;
 
+use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -47,18 +49,16 @@ class PublicationFilter extends AbstractContextAwareFilter
 
         if (isset($filters['parentId'])) {
             $queryBuilder
-                ->andWhere(sprintf('o.parent = :parentId'))
-                ->setParameter('parentId', $filters['parentId'])
-            ;
+                ->andWhere('o.parent = :parentId')
+                ->setParameter('parentId', $filters['parentId']);
         } elseif (!(isset($filters['flatten']) && true === $this->normalizeBoolValue($filters['flatten'], 'flatten'))) {
-            $queryBuilder->andWhere(sprintf('o.parent IS NULL'));
+            $queryBuilder->andWhere('o.parent IS NULL');
         }
 
         if (isset($filters['profileId'])) {
             $queryBuilder
-                ->andWhere(sprintf('o.profile = :profileId'))
-                ->setParameter('profileId', $filters['profileId'])
-            ;
+                ->andWhere('o.profile = :profileId')
+                ->setParameter('profileId', $filters['profileId']);
         }
 
         if (isset($filters['expired']) && true === $this->normalizeBoolValue($filters['expired'], 'expired')) {
@@ -67,15 +67,13 @@ class PublicationFilter extends AbstractContextAwareFilter
             }
             $queryBuilder
                 ->andWhere('(o.config.expiresAt < :expiresNow OR (o.config.expiresAt IS NULL AND p.config.expiresAt < :expiresNow))')
-                ->setParameter('expiresNow', date('Y-m-d H:i:s'))
-            ;
+                ->setParameter('expiresNow', date('Y-m-d H:i:s'));
         }
 
         if (isset($filters['empty']) && true === $this->normalizeBoolValue($filters['empty'], 'empty')) {
             $queryBuilder
                 ->leftJoin('o.assets', 'pa')
-                ->andWhere('pa.id IS NULL')
-            ;
+                ->andWhere('pa.id IS NULL');
         }
 
         if (isset($filters['disabled']) && true === $this->normalizeBoolValue($filters['disabled'], 'disabled')) {
@@ -84,19 +82,46 @@ class PublicationFilter extends AbstractContextAwareFilter
             }
 
             $queryBuilder
-                ->andWhere('(o.config.enabled = false OR (p.id IS NOT NULL AND p.config.enabled = false))')
-            ;
+                ->andWhere('(o.config.enabled = false OR (p.id IS NOT NULL AND p.config.enabled = false))');
         }
 
         if (isset($filters['mine'])) {
             $user = $this->security->getUser();
             if (!$user instanceof RemoteUser) {
-                throw new AuthenticationException('Should be an authenticated user');
+                throw new AuthenticationException('User must be authenticated');
             }
             $queryBuilder
                 ->andWhere(sprintf('o.ownerId = :me'))
-                ->setParameter('me', $user->getId())
-            ;
+                ->setParameter('me', $user->getId());
+        }
+
+        if (isset($filters['editable'])) {
+            if (
+                !$this->security->isGranted('ROLE_ADMIN')
+                && !$this->security->isGranted('ROLE_PUBLISH')
+            ) {
+                $user = $this->security->getUser();
+                if (!$user instanceof RemoteUser) {
+                    throw new AuthenticationException('User must be authenticated');
+                }
+                if (!in_array('ace', $queryBuilder->getAllAliases(), true)) {
+                    AccessControlEntryRepository::joinAcl(
+                        $queryBuilder,
+                        $user->getId(),
+                        $user->getGroupIds(),
+                        'publication',
+                        'o',
+                        PermissionInterface::EDIT,
+                        false
+                    );
+                }
+
+                $aclConditions = [
+                    'o.ownerId = :uid',
+                    'ace.id IS NOT NULL',
+                ];
+                $queryBuilder->andWhere(implode(' OR ', $aclConditions));
+            }
         }
     }
 
@@ -126,6 +151,12 @@ class PublicationFilter extends AbstractContextAwareFilter
                 'type' => 'bool',
                 'required' => false,
                 'description' => 'Get publications which the current authenticated user owns',
+            ],
+            'editable' => [
+                'property' => 'editable',
+                'type' => 'bool',
+                'required' => false,
+                'description' => 'Get publications the current authenticated user can edit',
             ],
             'expired' => [
                 'property' => 'expired',

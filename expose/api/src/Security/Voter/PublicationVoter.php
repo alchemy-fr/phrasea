@@ -27,6 +27,7 @@ class PublicationVoter extends Voter
     const INDEX = 'publication:index';
     const READ = 'READ';
     const READ_DETAILS = 'READ_DETAILS';
+    const OPERATOR = 'OPERATOR';
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
 
@@ -76,6 +77,7 @@ class PublicationVoter extends Voter
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;
+        $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
         $isPublicationVisible = $subject instanceof Publication && $subject->isVisible();
 
@@ -88,39 +90,31 @@ class PublicationVoter extends Voter
             case self::READ:
                 return $isPublicationVisible
                     || $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject);
+                    || $isOwner
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::READ_DETAILS:
                 return $isAdmin
                     || $this->isValidJWTForRequest()
                     || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
-                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject);
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
             case self::DELETE:
                 return $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->isGrantedPublicationOrProfile(PermissionInterface::DELETE, $subject)
+                    || $isOwner
+                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
+                    ;
+            case self::OPERATOR:
+                return $isAdmin
+                    || $isOwner
+                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
                     ;
             case self::EDIT:
                 return $isAdmin
-                    || ($isAuthenticated && $subject->getOwnerId() === $user->getId())
-                    || $this->isGrantedPublicationOrProfile(PermissionInterface::EDIT, $subject)
+                    || $isOwner
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
                     ;
             default:
                 return false;
         }
-    }
-
-    private function isGrantedPublicationOrProfile($attribute, Publication $subject): bool
-    {
-        if ($this->security->isGranted($attribute, $subject)) {
-            return true;
-        }
-
-        if (null !== $profile = $subject->getProfile()) {
-            return $this->security->isGranted($attribute, $profile);
-        }
-
-        return false;
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool
@@ -159,12 +153,6 @@ class PublicationVoter extends Voter
                 }
 
                 if (!$this->security->isGranted(PermissionInterface::VIEW, $publication)) {
-                    if (null !== $publication->getProfile()) {
-                        if ($this->security->isGranted(PermissionInterface::VIEW, $publication->getProfile())) {
-                            return true;
-                        }
-                    }
-
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NOT_ALLOWED);
 
                     return false;

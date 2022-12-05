@@ -6,6 +6,7 @@ namespace App\Serializer\Normalizer;
 
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationProfileVoter;
+use App\Security\Voter\PublicationVoter;
 use Symfony\Component\Security\Core\Security;
 
 class PublicationProfileNormalizer extends AbstractRouterNormalizer
@@ -27,6 +28,11 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
                 $context['groups'][] = PublicationProfile::GROUP_ADMIN_READ;
             }
         }
+
+        $object->setCapabilities([
+            'edit' => $this->security->isGranted(PublicationProfileVoter::EDIT, $object),
+            'delete' => $this->security->isGranted(PublicationProfileVoter::DELETE, $object),
+        ]);
     }
 
     public function support($object): bool

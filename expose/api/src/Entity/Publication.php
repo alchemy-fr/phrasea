@@ -12,6 +12,7 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\GetPublicationAction;
 use App\Controller\SortAssetsAction;
+use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
@@ -115,7 +116,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
  */
 class Publication implements AclObjectInterface
 {
-    const GROUP_INDEX = 'publication:index';
+    use CapabilitiesTrait;
+
     const GROUP_READ = 'publication:read';
     const GROUP_ADMIN_READ = 'publication:admin:read';
     const GROUP_LIST = 'publication:index';
@@ -186,10 +188,10 @@ class Publication implements AclObjectInterface
      *         "swagger_context"={
      *             "$ref"="#/definitions/PublicationProfile",
      *         }
-     *     }
+     *     },
      * )
      * @ORM\ManyToOne(targetEntity="PublicationProfile")
-     * @Groups({"publication:admin:read"})
+     * @Groups({"publication:read", "publication:admin:read"})
      */
     private ?PublicationProfile $profile = null;
 
