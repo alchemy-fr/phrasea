@@ -25,7 +25,7 @@ class WebhookLog
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Alchemy\WebhookBundle\Entity\Webhook")
+     * @ORM\ManyToOne(targetEntity="Alchemy\WebhookBundle\Entity\Webhook", inversedBy="failures")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private ?Webhook $webhook = null;

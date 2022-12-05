@@ -39,7 +39,8 @@ class BatchAttributeManager
         AttributeAssigner $attributeAssigner,
         Security $security,
         DeferredIndexListener $deferredIndexListener
-    ) {
+    )
+    {
         $this->em = $em;
         $this->attributeAssigner = $attributeAssigner;
         $this->security = $security;

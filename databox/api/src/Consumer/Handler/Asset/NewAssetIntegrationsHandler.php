@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use ApiPlatform\Core\Api\IriConverterInterface;
+use App\Asset\AssetCopier;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\Workspace;
 use App\Integration\IntegrationManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;

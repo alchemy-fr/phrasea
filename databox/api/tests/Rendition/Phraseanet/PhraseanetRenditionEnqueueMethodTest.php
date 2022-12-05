@@ -65,7 +65,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $integration->setWorkspace($workspace);
         $integration->setTitle('Renditions');
         $integration->setIntegration(PhraseanetRenditionIntegration::getName());
-        $integration->setConfig([
+        $integration->setOptions([
             'baseUrl' => 'https://foo.bar',
             'token' => 'baz',
             'collectionId' => 42,
@@ -197,7 +197,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
                     'url' => $thumbnailRemoteUrl,
                     'size' => 42,
                     'type' => 'image/jpeg',
-                ],
+                ]
             ],
         ]);
     }

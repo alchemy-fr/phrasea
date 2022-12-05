@@ -33,7 +33,12 @@ class ClarifaiClient
         ])->executeSync();
 
         if (!$response->isSuccessful()) {
-            throw new \RuntimeException(sprintf('Response error: [%d] %s - %s', $response->status()->statusCode(), $response->status()->description(), $response->status()->errorDetails()));
+            throw new \RuntimeException(sprintf(
+                'Response error: [%d] %s - %s',
+                $response->status()->statusCode(),
+                $response->status()->description(),
+                $response->status()->errorDetails()
+            ));
         }
 
         /** @var ClarifaiOutput[] $outputs */

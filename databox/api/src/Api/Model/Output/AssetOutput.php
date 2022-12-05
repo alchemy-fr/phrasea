@@ -114,7 +114,6 @@ class AssetOutput extends AbstractUuidOutput
 
     /**
      * Used for result grouping.
-     *
      * @Groups({"_"})
      */
     private ?GroupValue $groupValue = null;

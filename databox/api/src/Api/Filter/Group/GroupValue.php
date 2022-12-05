@@ -25,6 +25,7 @@ class GroupValue
 
     public function __construct(string $type, string $label, $value)
     {
+
         $this->label = $label;
         $this->value = $value;
         $this->type = $type;

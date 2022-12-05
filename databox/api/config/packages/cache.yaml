@@ -8,6 +8,3 @@ framework:
             doctrine.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'
-
-            budget_limit.cache:
-                adapter: cache.adapter.pdo

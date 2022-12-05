@@ -20,7 +20,8 @@ class FileManager
         EntityManagerInterface $em,
         FileStorageManager $storageManager,
         FilePathGenerator $filePathGenerator
-    ) {
+    )
+    {
         $this->em = $em;
         $this->storageManager = $storageManager;
         $this->filePathGenerator = $filePathGenerator;

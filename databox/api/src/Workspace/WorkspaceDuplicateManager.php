@@ -140,7 +140,7 @@ class WorkspaceDuplicateManager
             $i->setTitle($item->getTitle());
             $i->setIntegration($item->getIntegration());
             $i->setEnabled($item->isEnabled());
-            $i->setConfig($item->getConfig());
+            $i->setOptions($item->getOptions());
             $i->setWorkspace($to);
             $this->em->persist($i);
         }

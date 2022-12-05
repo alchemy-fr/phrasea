@@ -190,7 +190,7 @@ export interface WorkspaceIntegration {
     title: string;
     integration: string;
     data: IntegrationData[];
-    config: object;
+    options: object;
     supported?: boolean;
 }
 

@@ -182,12 +182,3 @@ services:
     App\Integration\RemoveBg\RemoveBgClient:
         arguments:
             $cacheDir: '%kernel.cache_dir%/integrations/remove.bg'
-
-    app.budget_limit.cache_storage:
-        class: Symfony\Component\RateLimiter\Storage\CacheStorage
-        arguments:
-            $pool: '@budget_limit.cache'
-
-    App\Integration\ApiBudgetLimiter:
-        arguments:
-            $storage: '@app.budget_limit.cache_storage'

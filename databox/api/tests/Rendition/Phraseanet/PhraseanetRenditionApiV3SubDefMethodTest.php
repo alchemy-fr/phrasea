@@ -61,7 +61,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $integration->setWorkspace($workspace);
         $integration->setTitle('Renditions');
         $integration->setIntegration(PhraseanetRenditionIntegration::getName());
-        $integration->setConfig([
+        $integration->setOptions([
             'baseUrl' => 'https://foo.bar',
             'token' => 'baz',
             'databoxId' => 2,

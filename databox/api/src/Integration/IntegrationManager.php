@@ -9,13 +9,10 @@ use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
-use Symfony\Component\Config\Definition\NodeInterface;
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntegrationManager
 {
@@ -42,9 +39,9 @@ class IntegrationManager
             /** @var WorkspaceIntegration $workspaceIntegration */
             [$integration, $workspaceIntegration] = $integration;
 
-            $config = $this->getConfiguration($workspaceIntegration, $integration);
-            if ($integration->supportsAsset($asset, $config)) {
-                $integration->handleAsset($asset, $config);
+            $options = $this->resolveOptions($workspaceIntegration, $integration);
+            if ($integration->supportsAsset($asset, $options)) {
+                $integration->handleAsset($asset, $options);
             }
         }
     }
@@ -56,12 +53,12 @@ class IntegrationManager
             throw new InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
-        $config = $this->getConfiguration($workspaceIntegration, $integration);
-        if (!$integration->supportsFileActions($file, $config)) {
+        $options = $this->resolveOptions($workspaceIntegration, $integration);
+        if (!$integration->supportsFileActions($file, $options)) {
             throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
         }
 
-        return $integration->handleFileAction($action, $request, $file, $config);
+        return $integration->handleFileAction($action, $request, $file, $options);
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration
@@ -74,70 +71,34 @@ class IntegrationManager
         return $integration;
     }
 
-    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): array
+    public function getIntegrationOptions(WorkspaceIntegration $workspaceIntegration): array
     {
-        return $this->getConfiguration(
+        return $this->resolveOptions(
             $workspaceIntegration,
             $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration())
         );
     }
 
-    public function validateIntegration(WorkspaceIntegration $workspaceIntegration): void
-    {
-        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-
-        $config = $this->getConfiguration(
-            $workspaceIntegration,
-            $integration
-        );
-
-        $integration->validateConfiguration($config);
-    }
-
     public function getIntegrationConfigInfo(WorkspaceIntegration $workspaceIntegration): array
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        $config = $this->getConfiguration(
+        $options = $this->resolveOptions(
             $workspaceIntegration,
             $integration
         );
 
-        return $integration->getConfigurationInfo($config);
+        return $integration->getConfigurationInfo($options);
     }
 
-    private function buildConfiguration(IntegrationInterface $integration): NodeInterface
+    private function resolveOptions(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
     {
-        $treeBuilder = new TreeBuilder('root');
-        $integration->buildConfiguration($treeBuilder->getRootNode()->children());
+        $resolver = new OptionsResolver();
+        $resolver->setDefault('integrationId', $workspaceIntegration->getId());
+        $resolver->setDefault('workspaceIntegration', $workspaceIntegration);
+        $resolver->setDefault('integration', $integration);
+        $integration->configureOptions($resolver);
 
-        return $treeBuilder->buildTree();
-    }
-
-    public function getIntegrationReference(IntegrationInterface $integration): string
-    {
-        $node = $this->buildConfiguration($integration);
-        $dumper = new YamlReferenceDumper();
-
-        $output = $dumper->dumpNode($node);
-        $output = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', $output);
-        $output = preg_replace("#\n {4}#", "\n", $output);
-        $output = preg_replace("#\n\n#", "\n", $output);
-
-        return trim(preg_replace("#^\n+#", '', $output));
-    }
-
-    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
-    {
-        $node = $this->buildConfiguration($integration);
-        $processor = new Processor();
-
-        $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
-
-        $config['integration'] = $integration;
-        $config['workspaceIntegration'] = $workspaceIntegration;
-        $config['integrationId'] = $workspaceIntegration->getId();
-
-        return $config;
+        return $resolver->resolve($workspaceIntegration->getOptions());
     }
 
     /**

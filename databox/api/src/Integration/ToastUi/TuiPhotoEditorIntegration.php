@@ -13,16 +13,21 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TuiPhotoEditorIntegration extends AbstractFileAction
 {
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+    }
+
+    public function handleFileAction(string $action, Request $request, File $file, array $options): Response
     {
         /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
+        $wsIntegration = $options['workspaceIntegration'];
 
         switch ($action) {
             case self::ACTION_SAVE:
@@ -51,7 +56,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
         }
     }
 
-    public function supportsFileActions(File $file, array $config): bool
+    public function supportsFileActions(File $file, array $options): bool
     {
         return FileUtil::isImageType($file->getType());
     }

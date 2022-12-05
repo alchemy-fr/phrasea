@@ -71,7 +71,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
 
     public function supportData(string $integrationName, string $dataKey): bool
     {
-        return $integrationName === static::getName() && self::DATA_FILE_ID === $dataKey;
+        return $integrationName === static::getName() && $dataKey === self::DATA_FILE_ID;
     }
 
     /**

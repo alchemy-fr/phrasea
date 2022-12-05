@@ -63,14 +63,14 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
             $output->setData($data);
         }
 
-        $config = $this->integrationManager->getIntegrationConfiguration($object);
+        $options = $this->integrationManager->getIntegrationOptions($object);
         /** @var IntegrationInterface $integration */
-        $integration = $config['integration'];
-        $output->setConfig($integration->resolveClientConfiguration($object, $config));
+        $integration = $options['integration'];
+        $output->setOptions($integration->resolveClientOptions($object, $options));
 
         if (null !== $file) {
             if ($integration instanceof FileActionsIntegrationInterface) {
-                $output->setSupported($integration->supportsFileActions($file, $config));
+                $output->setSupported($integration->supportsFileActions($file, $options));
             }
         }
 

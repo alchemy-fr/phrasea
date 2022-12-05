@@ -11,7 +11,7 @@ use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegration;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
-use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
@@ -24,19 +24,15 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
         $this->client = $client;
     }
 
-    public function buildConfiguration(NodeBuilder $builder): void
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $builder
-            ->scalarNode('apiKey')
-                ->isRequired()
-                ->cannotBeEmpty()
-            ->end()
-        ;
+        $resolver->setRequired(['apiKey']);
+        $resolver->setAllowedTypes('apiKey', ['string']);
     }
 
-    public function handleAsset(Asset $asset, array $config): void
+    public function handleAsset(Asset $asset, array $options): void
     {
-        $concepts = $this->client->getImageConcepts($asset->getFile(), $config['apiKey']);
+        $concepts = $this->client->getImageConcepts($asset->getFile(), $options['apiKey']);
         if (empty($concepts)) {
             return;
         }
@@ -53,7 +49,7 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
         $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
     }
 
-    public function supportsAsset(Asset $asset, array $config): bool
+    public function supportsAsset(Asset $asset, array $options): bool
     {
         return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
     }

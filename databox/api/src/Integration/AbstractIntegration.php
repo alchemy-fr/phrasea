@@ -5,92 +5,21 @@ declare(strict_types=1);
 namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
-use Symfony\Component\Config\Definition\Builder\NodeBuilder;
-use Symfony\Component\Config\Definition\Builder\NodeDefinition;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractIntegration implements IntegrationInterface
 {
-    private ValidatorInterface $validator;
-
-    /**
-     * @required
-     */
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    public function validateConfiguration(array $config): void
+    public function configureOptions(OptionsResolver $resolver): void
     {
     }
 
-    public function buildConfiguration(NodeBuilder $builder): void
-    {
-    }
-
-    public function getConfigurationInfo(array $config): array
+    public function getConfigurationInfo(array $options): array
     {
         return [];
     }
 
-    protected function createBudgetLimitConfigNode(bool $defaultEnabled = false): NodeDefinition
-    {
-        $treeBuilder = new TreeBuilder('budgetLimit');
-
-        $root = $treeBuilder->getRootNode();
-
-        if ($defaultEnabled) {
-            $root->canBeDisabled();
-        } else {
-            $root->canBeEnabled();
-        }
-
-        $root
-            ->children()
-                ->enumNode('policy')
-                    ->defaultValue('sliding_window')
-                    ->values(ApiBudgetLimiter::POLICIES)
-                ->end()
-                ->integerNode('limit')
-                    ->defaultValue(1000)
-                ->end()
-                ->scalarNode('interval')
-                    ->defaultValue('1 year')
-                    ->example([
-                        '12 hours',
-                        '3 months',
-                        '1 day',
-                        '1 year',
-                    ])
-                    ->info('Analyze all incoming assets automatically')
-                ->end()
-            ->end()
-        ;
-
-        return $treeBuilder->getRootNode();
-    }
-
-    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
+    public function resolveClientOptions(WorkspaceIntegration $workspaceIntegration, array $options): array
     {
         return [];
-    }
-
-    protected function validate($array, $property, $constraints): void
-    {
-        $violations = $this->validator->validate($array[$property] ?? null, $constraints);
-
-        if ($violations->count() > 0) {
-            $a = [];
-            foreach ($violations as $violation) {
-                /* @var ConstraintViolation $violation */
-                $a[] = $violation->getMessage();
-            }
-
-            throw new InvalidConfigurationException(sprintf('%s: %s', $property, implode("\n", $a)));
-        }
     }
 }
