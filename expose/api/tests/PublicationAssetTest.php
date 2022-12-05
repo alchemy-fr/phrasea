@@ -185,7 +185,7 @@ class PublicationAssetTest extends AbstractExposeTestCase
         $i = 0;
         foreach ($sorted as $position => $assetName) {
             $this->assertEquals($assetName, $assets[$i]['asset']['description']);
-            $i++;
+            ++$i;
         }
     }
 }

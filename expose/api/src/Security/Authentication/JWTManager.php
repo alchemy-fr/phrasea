@@ -39,7 +39,7 @@ class JWTManager
             $uri,
             false === strpos($uri, '?') ? '?' : '&',
             'jwt=',
-            $token->toString()
+            $token->toString(),
         ]);
     }
 
@@ -62,7 +62,7 @@ class JWTManager
 
         $constraints = $config->validationConstraints();
 
-        if (! $config->validator()->validate($token, ...$constraints)) {
+        if (!$config->validator()->validate($token, ...$constraints)) {
             throw new AccessDeniedHttpException('Invalid JWT');
         }
     }

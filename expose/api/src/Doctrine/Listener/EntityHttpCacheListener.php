@@ -40,7 +40,7 @@ class EntityHttpCacheListener implements EventSubscriber
 
     public function postUpdate(LifecycleEventArgs $args): void
     {
-       $this->handle($args);
+        $this->handle($args);
     }
 
     public function postPersist(LifecycleEventArgs $args): void
@@ -55,7 +55,7 @@ class EntityHttpCacheListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return  [
+        return [
             Events::postUpdate,
             Events::postPersist,
             Events::preRemove,

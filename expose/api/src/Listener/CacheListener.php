@@ -43,7 +43,7 @@ final class CacheListener implements EventSubscriberInterface
 
         if (
             !$object->isVisible()
-            || $object->getSecurityContainer()->getSecurityMethod() !== Publication::SECURITY_METHOD_NONE
+            || Publication::SECURITY_METHOD_NONE !== $object->getSecurityContainer()->getSecurityMethod()
         ) {
             return;
         }

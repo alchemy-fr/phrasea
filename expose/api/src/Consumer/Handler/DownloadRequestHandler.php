@@ -45,7 +45,7 @@ class DownloadRequestHandler extends AbstractEntityManagerHandler
         } else {
             $parameters['assetId'] = $downloadRequest->getAsset()->getId();
         }
-        $uri = $this->urlGenerator->generate($downloadRequest->getSubDefinition() ? 'download_subdef': 'download_asset', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
+        $uri = $this->urlGenerator->generate($downloadRequest->getSubDefinition() ? 'download_subdef' : 'download_asset', $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
 
         $downloadUrl = $this->JWTManager->signUri(
             $uri,

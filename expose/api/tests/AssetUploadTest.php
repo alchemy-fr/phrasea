@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends AbstractExposeTestCase
@@ -21,7 +20,7 @@ class AssetUploadTest extends AbstractExposeTestCase
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode($response->getContent(), true);
-        if ($response->getStatusCode() === 500) {
+        if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
 

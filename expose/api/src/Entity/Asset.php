@@ -52,14 +52,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Asset implements MediaInterface
 {
+    use ClientAnnotationsTrait;
     const GROUP_READ = 'asset:read';
 
     const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
-
-    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)
@@ -384,7 +383,7 @@ class Asset implements MediaInterface
     public function getPreviewDefinition(): ?SubDefinition
     {
         foreach ($this->getSubDefinitions() as $subDefinition) {
-            if ($subDefinition->getName() === SubDefinition::PREVIEW) {
+            if (SubDefinition::PREVIEW === $subDefinition->getName()) {
                 return $subDefinition;
             }
         }
@@ -401,7 +400,7 @@ class Asset implements MediaInterface
     public function getThumbnailDefinition(): ?SubDefinition
     {
         foreach ($this->getSubDefinitions() as $subDefinition) {
-            if ($subDefinition->getName() === SubDefinition::THUMBNAIL) {
+            if (SubDefinition::THUMBNAIL === $subDefinition->getName()) {
                 return $subDefinition;
             }
         }

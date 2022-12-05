@@ -6,11 +6,11 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\DeletePublicationAssetsAction;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use App\Controller\DeletePublicationAssetsAction;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -47,14 +47,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class PublicationAsset
 {
+    use ClientAnnotationsTrait;
     const GROUP_READ = 'pubasset:read';
 
     const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
-
-    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

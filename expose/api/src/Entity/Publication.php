@@ -9,11 +9,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
-use App\Controller\GetPublicationSlugAvailabilityAction;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use App\Controller\GetPublicationAction;
+use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
+use App\Filter\PublicationFilter;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use DateTime;
@@ -23,10 +26,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
-use App\Filter\PublicationFilter;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 
 /**
  * @ORM\Entity()
@@ -117,6 +117,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 class Publication implements AclObjectInterface
 {
     use CapabilitiesTrait;
+    use ClientAnnotationsTrait;
 
     const GROUP_READ = 'publication:read';
     const GROUP_ADMIN_READ = 'publication:admin:read';
@@ -134,8 +135,6 @@ class Publication implements AclObjectInterface
     const SECURITY_METHOD_NONE = null;
     const SECURITY_METHOD_PASSWORD = 'password';
     const SECURITY_METHOD_AUTHENTICATION = 'authentication';
-
-    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

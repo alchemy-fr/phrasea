@@ -72,7 +72,7 @@ class ConfigurationManager
         }
 
         if (null === $value && isset($c['default'])) {
-            $value = (string)$c['default'];
+            $value = (string) $c['default'];
         }
 
         if ($c['type'] ?? false) {
@@ -134,7 +134,7 @@ class ConfigurationManager
             case 'bool':
                 return !empty($value);
             case 'string':
-                return (string)$value;
+                return (string) $value;
             case 'int':
                 return intval($value);
         }

@@ -12,7 +12,6 @@ use App\Security\Authentication\JWTManager;
 use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

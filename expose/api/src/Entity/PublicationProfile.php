@@ -42,6 +42,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class PublicationProfile implements AclObjectInterface
 {
     use CapabilitiesTrait;
+    use ClientAnnotationsTrait;
 
     const GROUP_ADMIN_READ = 'profile:admin:read';
     const GROUP_READ = 'profile:read';
@@ -55,8 +56,6 @@ class PublicationProfile implements AclObjectInterface
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
-
-    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

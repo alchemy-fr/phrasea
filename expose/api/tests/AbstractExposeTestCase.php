@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Entity\Publication;
@@ -12,7 +13,6 @@ use App\Entity\PublicationAsset;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use InvalidArgumentException;
 

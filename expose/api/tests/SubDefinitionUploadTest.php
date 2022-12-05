@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class SubDefinitionUploadTest extends AbstractExposeTestCase
