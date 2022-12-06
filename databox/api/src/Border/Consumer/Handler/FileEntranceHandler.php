@@ -8,6 +8,7 @@ use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
+use App\Consumer\Handler\File\ReadMetadataHandler;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
