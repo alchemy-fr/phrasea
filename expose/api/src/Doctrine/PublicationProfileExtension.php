@@ -28,27 +28,32 @@ class PublicationProfileExtension implements QueryCollectionExtensionInterface
         if (PublicationProfile::class === $resourceClass) {
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->addOrderBy(sprintf('%s.name', $rootAlias), 'ASC');
+
+            if (
+                !$this->security->isGranted('ROLE_ADMIN')
+                && !$this->security->isGranted('ROLE_PUBLISH')
+            ) {
+                $user = $this->security->getUser();
+                $userId = $user instanceof RemoteUser ? $user->getId() : null;
+                if (!$userId) {
+                    throw new AccessDeniedHttpException('User must be authenticated');
+                }
+
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $user->getId(),
+                    $user->getGroupIds(),
+                    'profile',
+                    'o',
+                    PermissionInterface::VIEW,
+                    false
+                );
+
+                $queryBuilder->andWhere(implode(' OR ', [
+                    'o.ownerId = :uid',
+                    'ace.id IS NOT NULL',
+                ]));
+            }
         }
-
-        $user = $this->security->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
-        if (!$userId) {
-            throw new AccessDeniedHttpException('User must be authenticated');
-        }
-
-        AccessControlEntryRepository::joinAcl(
-            $queryBuilder,
-            $user->getId(),
-            $user->getGroupIds(),
-            'profile',
-            'o',
-            PermissionInterface::VIEW,
-            false
-        );
-
-        $queryBuilder->andWhere(implode(' OR ', [
-            'o.ownerId = :uid',
-            'ace.id IS NOT NULL',
-        ]));
     }
 }

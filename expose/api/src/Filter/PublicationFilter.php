@@ -47,7 +47,7 @@ class PublicationFilter extends AbstractContextAwareFilter
 
         $filters = $context['filters'];
 
-        if (isset($filters['parentId'])) {
+        if (!empty($filters['parentId'])) {
             $queryBuilder
                 ->andWhere('o.parent = :parentId')
                 ->setParameter('parentId', $filters['parentId']);
@@ -55,7 +55,7 @@ class PublicationFilter extends AbstractContextAwareFilter
             $queryBuilder->andWhere('o.parent IS NULL');
         }
 
-        if (isset($filters['profileId'])) {
+        if (!empty($filters['profileId'])) {
             $queryBuilder
                 ->andWhere('o.profile = :profileId')
                 ->setParameter('profileId', $filters['profileId']);
@@ -85,7 +85,7 @@ class PublicationFilter extends AbstractContextAwareFilter
                 ->andWhere('(o.config.enabled = false OR (p.id IS NOT NULL AND p.config.enabled = false))');
         }
 
-        if (isset($filters['mine'])) {
+        if (isset($filters['mine']) && true === $this->normalizeBoolValue($filters['mine'], 'mine')) {
             $user = $this->security->getUser();
             if (!$user instanceof RemoteUser) {
                 throw new AuthenticationException('User must be authenticated');
@@ -95,7 +95,7 @@ class PublicationFilter extends AbstractContextAwareFilter
                 ->setParameter('me', $user->getId());
         }
 
-        if (isset($filters['editable'])) {
+        if (isset($filters['editable']) && true === $this->normalizeBoolValue($filters['editable'], 'editable')) {
             if (
                 !$this->security->isGranted('ROLE_ADMIN')
                 && !$this->security->isGranted('ROLE_PUBLISH')

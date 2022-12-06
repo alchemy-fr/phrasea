@@ -34,7 +34,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
     public function testCreatePublicationAsUser(): void
@@ -64,7 +64,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::USER_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
     public function testListPublications(): void
@@ -607,7 +607,7 @@ class PublicationTest extends AbstractExposeTestCase
             $endDate->add(DateInterval::createFromDateString($end));
             $options['endDate'] = $endDate;
         }
-        $id = $this->createPublication($options);
+        $this->createPublication($options);
         $response = $this->request(null, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
