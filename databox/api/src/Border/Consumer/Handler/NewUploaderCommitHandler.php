@@ -51,6 +51,7 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
         if (empty($destinations)) {
             throw new InvalidArgumentException('No destination provided');
         }
+
         // TODO validate user has permission to write to destinations
 
         $workspaces = [];
