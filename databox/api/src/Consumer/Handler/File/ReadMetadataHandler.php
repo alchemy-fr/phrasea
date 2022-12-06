@@ -49,9 +49,7 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             $em->persist($file);
             $em->flush();
         } finally {
-            if($fetchedFilePath) {
-                @unlink($fetchedFilePath);
-            }
+            @unlink($fetchedFilePath);
         }
     }
 
