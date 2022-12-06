@@ -13,7 +13,7 @@ class MetadataNormalizer
     /**
      * normalize metadata from metadataManipulator bundle (for File.metadata).
      */
-    public function normalizeToArray(MetadataBag $bag): array
+    public function normalize(MetadataBag $bag): array
     {
         $a = [];
 
@@ -42,7 +42,7 @@ class MetadataNormalizer
         return $a;
     }
 
-    public static function getBlankMeta(): array
+    public static function createBlankMeta(): array
     {
         return [
             'name' => null,

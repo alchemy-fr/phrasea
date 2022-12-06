@@ -35,23 +35,20 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
-        $fetchedFilePath = null;
+        $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
-            $fetchedFilePath = $this->fileFetcher->getFile($file);
-
             $mm = new MetadataManipulator();
             $meta = $mm->getAllMetadata(new \SplFileObject($fetchedFilePath));
 
             $file->setMetadata(
-                $this->metadataNormalizer->normalizeToArray($meta)
+                $this->metadataNormalizer->normalize($meta)
             );
             unset($meta, $mm);
 
             $em = $this->getEntityManager();
             $em->persist($file);
             $em->flush();
-        }
-        finally {
+        } finally {
             if($fetchedFilePath) {
                 @unlink($fetchedFilePath);
             }

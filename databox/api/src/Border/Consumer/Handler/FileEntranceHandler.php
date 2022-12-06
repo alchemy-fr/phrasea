@@ -62,10 +62,6 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
         ));
 
         if ($file instanceof File) {
-            $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-                $file->getId()
-            ));
-
             $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
                 $payload['userId'],
                 $file->getId(),
