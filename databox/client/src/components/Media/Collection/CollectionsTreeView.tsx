@@ -230,11 +230,14 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         sx={{
             flexGrow: 1,
             maxWidth: 400,
-            '.Mui-selected, .Mui-selected.Mui-focused': {
+            '.MuiTreeItem-content.Mui-selected, .MuiTreeItem-content.Mui-selected.Mui-focused': {
                 bgcolor: 'success.main',
                 color: 'success.contrastText',
                 fontWeight: 700,
             },
+            '.MuiButtonBase-root': {
+                color: 'inherit',
+            }
         }}
         defaultCollapseIcon={<ExpandMoreIcon/>}
         defaultExpandIcon={<ChevronRightIcon/>}
