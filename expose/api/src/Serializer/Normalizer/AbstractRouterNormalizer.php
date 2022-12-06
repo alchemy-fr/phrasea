@@ -11,9 +11,7 @@ use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 use App\Security\AssetUrlGenerator;
 use App\Security\Authentication\JWTManager;
-use Arthem\RequestSignerBundle\RequestSigner;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface

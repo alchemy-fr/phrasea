@@ -34,7 +34,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
     public function testCreatePublicationAsUser(): void
@@ -64,7 +64,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::USER_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
     }
 
     public function testListPublications(): void
@@ -93,7 +93,7 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1.1',
             'enabled' => true,
             'publiclyListed' => true,
-            'parent_id' => $pub1
+            'parent_id' => $pub1,
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
@@ -165,7 +165,7 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1.1',
             'enabled' => true,
             'publiclyListed' => true,
-            'parent_id' => $pub1
+            'parent_id' => $pub1,
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
@@ -607,7 +607,7 @@ class PublicationTest extends AbstractExposeTestCase
             $endDate->add(DateInterval::createFromDateString($end));
             $options['endDate'] = $endDate;
         }
-        $id = $this->createPublication($options);
+        $this->createPublication($options);
         $response = $this->request(null, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
@@ -740,7 +740,7 @@ class PublicationTest extends AbstractExposeTestCase
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        if ($response->getStatusCode() === 500) {
+        if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
     }
@@ -758,12 +758,12 @@ class PublicationTest extends AbstractExposeTestCase
             'objectId' => $id,
             'userType' => 'user',
             'userId' => AuthServiceClientTestMock::USER_UID,
-            'mask' => 1+2+4,
+            'mask' => 1 + 2 + 4,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications/'.$id);
-        if ($response->getStatusCode() === 500) {
+        if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
         $this->assertEquals(200, $response->getStatusCode());
@@ -776,7 +776,7 @@ class PublicationTest extends AbstractExposeTestCase
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
-        if ($response->getStatusCode() === 500) {
+        if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
         $this->assertEquals(201, $response->getStatusCode());

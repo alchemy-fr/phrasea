@@ -79,7 +79,7 @@ class PublicationAssetListener implements EventSubscriber
             ->getQuery()
             ->getSingleScalarResult();
 
-        return (int) $assoc === 0;
+        return 0 === (int) $assoc;
     }
 
     public function getSubscribedEvents()

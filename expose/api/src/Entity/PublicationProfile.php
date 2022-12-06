@@ -7,6 +7,7 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,6 +41,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class PublicationProfile implements AclObjectInterface
 {
+    use CapabilitiesTrait;
+    use ClientAnnotationsTrait;
+
     const GROUP_ADMIN_READ = 'profile:admin:read';
     const GROUP_READ = 'profile:read';
     const GROUP_LIST = 'profile:index';
@@ -52,8 +56,6 @@ class PublicationProfile implements AclObjectInterface
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
-
-    use ClientAnnotationsTrait;
 
     /**
      * @ApiProperty(identifier=true)

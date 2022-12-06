@@ -30,6 +30,8 @@ class AlchemyAclExtension extends Extension implements PrependExtensionInterface
 
         $mapperDef = $container->findDefinition(ObjectMapping::class);
         $mapperDef->setArgument('$mapping', $config['objects']);
+
+        $container->setParameter('alchemy_acl.enabled_permissions', !empty($config['enabled_permissions']) ? $config['enabled_permissions'] : null);
     }
 
     public function prepend(ContainerBuilder $container)

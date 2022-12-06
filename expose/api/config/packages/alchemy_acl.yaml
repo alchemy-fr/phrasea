@@ -2,3 +2,10 @@ alchemy_acl:
   objects:
     publication: App\Entity\Publication
     profile: App\Entity\PublicationProfile
+  enabled_permissions:
+    - VIEW
+    - CREATE
+    - EDIT
+    - OPERATOR
+    - OWNER
+    - DELETE

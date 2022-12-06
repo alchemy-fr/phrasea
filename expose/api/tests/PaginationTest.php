@@ -81,6 +81,6 @@ class PaginationTest extends AbstractExposeTestCase
 
     private function addZero(int $i): string
     {
-        return $i >= 10 ? (string)$i : '0'.$i;
+        return $i >= 10 ? (string) $i : '0'.$i;
     }
 }

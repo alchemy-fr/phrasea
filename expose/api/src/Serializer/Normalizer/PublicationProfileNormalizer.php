@@ -27,6 +27,11 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
                 $context['groups'][] = PublicationProfile::GROUP_ADMIN_READ;
             }
         }
+
+        $object->setCapabilities([
+            'edit' => $this->security->isGranted(PublicationProfileVoter::EDIT, $object),
+            'delete' => $this->security->isGranted(PublicationProfileVoter::DELETE, $object),
+        ]);
     }
 
     public function support($object): bool
