@@ -127,18 +127,27 @@ class Asset implements MediaInterface
     private ?string $ownerId = null;
 
     /**
-     * @var PublicationAsset[]|Collection
+     * Direct access to asset.
      *
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationAsset",
-     *         }
-     *     }
-     * )
-     * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
+     * @ApiProperty()
+     * @Groups({"publication:read", "asset:read"})
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?Collection $publications = null;
+    protected ?string $slug = null;
+
+    /**
+     * @ApiProperty()
+     *
+     * @ORM\Column(type="smallint", options={"default": 0})
+     */
+    protected int $position = 0;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Publication::class, inversedBy="assets")
+     * TODO ORM\JoinColumn(nullable=false)
+     */
+    private ?Publication $publication = null;
 
     /**
      * @var SubDefinition[]|Collection
@@ -229,7 +238,6 @@ class Asset implements MediaInterface
     public function __construct()
     {
         $this->createdAt = new DateTime();
-        $this->publications = new ArrayCollection();
         $this->subDefinitions = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
@@ -309,22 +317,14 @@ class Asset implements MediaInterface
         $this->mimeType = $mimeType;
     }
 
-    /**
-     * @return PublicationAsset[]|Collection
-     */
-    public function getPublications(): Collection
+    public function getPublication(): Publication
     {
-        return $this->publications;
+        return $this->publication;
     }
 
-    public function addPublication(PublicationAsset $publication): void
+    public function setPublication(?Publication $publication): void
     {
-        $this->publications->add($publication);
-    }
-
-    public function removePublication(PublicationAsset $publication): void
-    {
-        $this->publications->removeElement($publication);
+        $this->publication = $publication;
     }
 
     public function getCreatedAt(): DateTime
@@ -492,5 +492,25 @@ class Asset implements MediaInterface
     public function __toString()
     {
         return $this->getId().($this->title ? '-'.$this->title : '');
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

@@ -43,7 +43,7 @@ export const defaultMapProps = {
 };
 
 function filterGeoAssets(assets) {
-    return assets.filter(a => a.asset.lat && a.asset.lng);
+    return assets.filter(a => a.lat && a.lng);
 }
 
 const maxThumbSize = 100;
@@ -94,11 +94,11 @@ class MapboxLayout extends React.Component {
         }
 
         const {data} = this.props;
-        const locationAsset = data.assets.filter(a => a.asset.lat)[0].asset;
+        const locationAsset = data.assets.filter(a => a.asset.lat)[0];
 
         this.map = initMapbox(this.mapContainer.current, {
             ...this.state,
-            ...(locationAsset ? locationAsset : {}),
+            ...(locationAsset || {}),
         });
 
         this.map.on('move', () => {
@@ -127,11 +127,9 @@ class MapboxLayout extends React.Component {
 
     async configureAssetThumbs() {
         const images = await Promise.all(this.state.assets.map(a => {
-            const {asset} = a;
-
             return new Promise(resolve => {
                 this.map.loadImage(
-                    asset.thumbUrl,
+                    a.thumbUrl,
                     async (err, img) => {
                         if (err) {
                             console.error('err', err);
@@ -148,7 +146,7 @@ class MapboxLayout extends React.Component {
                         }
 
                         resolve({
-                            id: asset.id,
+                            id: a.id,
                             img: await createImageBitmap(img, {
                                 resizeWidth: width,
                                 resizeHeight: height,
@@ -164,16 +162,14 @@ class MapboxLayout extends React.Component {
             'data': {
                 'type': 'FeatureCollection',
                 'features': this.state.assets.map(a => {
-                    const {asset} = a;
-
                     return {
                         'type': 'Feature',
                         'geometry': {
                             'type': 'Point',
-                            'coordinates': [asset.lng, asset.lat]
+                            'coordinates': [a.lng, a.lat]
                         },
                         'properties': {
-                            assetId: asset.id,
+                            assetId: a.id,
                         }
                     }
                 })

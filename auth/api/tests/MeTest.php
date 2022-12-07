@@ -21,6 +21,7 @@ class MeTest extends AbstractTestCase
         $this->assertEquals('foo@bar.com', $json['email']);
         $this->assertArrayHasKey('groups', $json);
         $this->assertIsArray($json['groups']);
+        $this->assertCount(2, $json['groups']);
     }
 
     public function testMeGenerates401WithInvalidAccessToken(): void

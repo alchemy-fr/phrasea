@@ -16,7 +16,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CreateSubDefinitionAction extends AbstractController
 {
@@ -50,9 +49,6 @@ final class CreateSubDefinitionAction extends AbstractController
         }
 
         $asset = $this->findAsset($assetId);
-        if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException(sprintf('Asset %s not found', $assetId));
-        }
         $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
 
         if (null !== $request->request->get('multipart')) {
@@ -79,11 +75,11 @@ final class CreateSubDefinitionAction extends AbstractController
             fclose($stream);
 
             return $this->assetManager->createSubDefinition(
+                $asset,
                 $name,
                 $path,
                 $uploadedFile->getMimeType(),
                 $uploadedFile->getSize(),
-                $asset,
                 $request->request->all()
             );
         } elseif (null !== $upload = $request->request->get('upload')) {
@@ -108,11 +104,11 @@ final class CreateSubDefinitionAction extends AbstractController
             $path = $this->pathGenerator->generatePath($extension);
 
             $subDefinition = $this->assetManager->createSubDefinition(
+                $asset,
                 $name,
                 $path,
                 $contentType,
                 (int) ($upload['size'] ?? 0),
-                $asset,
                 $request->request->all()
             );
 
@@ -130,11 +126,11 @@ final class CreateSubDefinitionAction extends AbstractController
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
         return $this->assetManager->createSubDefinition(
+            $asset,
             $name,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
             $multipartUpload->getSize(),
-            $asset,
             $request->request->all()
         );
     }

@@ -74,6 +74,11 @@ abstract class ApiTestCase extends WebTestCase
         gc_collect_cycles();
     }
 
+    protected function assertMatchesUuid($uuid): void
+    {
+        $this->assertMatchesRegularExpression('#^'.self::UUID_REGEX.'$#', $uuid);
+    }
+
     /**
      * @template T
      *

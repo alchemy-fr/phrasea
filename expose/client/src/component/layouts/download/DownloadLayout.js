@@ -36,9 +36,9 @@ class DownloadLayout extends React.Component {
             <div className={'file-list'}>
                 {assets.map(a => {
                     return <DownloadAsset
-                        key={a.asset.id}
+                        key={a.id}
                         onDownload={onDownload.bind(this)}
-                        data={a.asset}
+                        data={a}
                     />
                 })}
             </div>

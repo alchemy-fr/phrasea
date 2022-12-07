@@ -8,7 +8,8 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Asset;
-use App\Security\Voter\PublicationVoter;
+use App\Entity\Publication;
+use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
 use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,13 +38,10 @@ final class CreateAssetAction extends AbstractController
 
     public function __invoke(Request $request): Asset
     {
-        if (!$request->request->get('publication_id')) {
-            // If no publication is assigned, we validate the following grant:
-            $this->denyAccessUnlessGranted(PublicationVoter::CREATE);
-        }
+        $publication = $this->getPublication($request);
 
         if (null !== $request->request->get('multipart')) {
-            return $this->handleMultipartUpload($request);
+            return $this->handleMultipartUpload($publication, $request);
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -66,6 +64,7 @@ final class CreateAssetAction extends AbstractController
             fclose($stream);
 
             return $this->assetManager->createAsset(
+                $publication,
                 $path,
                 $uploadedFile->getMimeType(),
                 $uploadedFile->getClientOriginalName(),
@@ -94,6 +93,7 @@ final class CreateAssetAction extends AbstractController
             $path = $this->pathGenerator->generatePath($extension);
 
             $asset = $this->assetManager->createAsset(
+                $publication,
                 $path,
                 $contentType,
                 $originalFilename ?? 'file',
@@ -110,11 +110,21 @@ final class CreateAssetAction extends AbstractController
         }
     }
 
-    private function handleMultipartUpload(Request $request): Asset
+    private function getPublication(Request $request): Publication
+    {
+        if (!($id = $request->request->get('publication_id'))) {
+            throw new BadRequestHttpException('Missing "publication_id"');
+        }
+
+        return $this->assetManager->getPublicationWithEditGrant($id);
+    }
+
+    private function handleMultipartUpload(Publication $publication, Request $request): Asset
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
         return $this->assetManager->createAsset(
+            $publication,
             $multipartUpload->getPath(),
             $multipartUpload->getType(),
             $multipartUpload->getFilename(),

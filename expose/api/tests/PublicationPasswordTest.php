@@ -13,7 +13,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
     {
         $id = $this->createPublication([
             'password' => 'xxx',
-        ]);
+        ])->getId();
 
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
@@ -51,7 +51,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
     {
         $id = $this->createPublication([
             'password' => 'xxx',
-        ]);
+        ])->getId();
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
@@ -67,10 +67,10 @@ class PublicationPasswordTest extends AbstractExposeTestCase
     {
         $rootId = $this->createPublication([
             'password' => 'root_secret',
-        ]);
+        ])->getId();
         $childId = $this->createPublication([
             'parent_id' => $rootId,
-        ]);
+        ])->getId();
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId);
         $this->assertEquals(200, $response->getStatusCode());
@@ -104,12 +104,11 @@ class PublicationPasswordTest extends AbstractExposeTestCase
 
     public function testGetNestedPublicationWithPasswordOnChildNode(): void
     {
-        $rootId = $this->createPublication([
-        ]);
+        $rootId = $this->createPublication()->getId();
         $childId = $this->createPublication([
             'parent_id' => $rootId,
             'password' => 'child_secret',
-        ]);
+        ])->getId();
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId);
         $this->assertEquals(200, $response->getStatusCode());
@@ -145,11 +144,11 @@ class PublicationPasswordTest extends AbstractExposeTestCase
     {
         $rootId = $this->createPublication([
             'password' => 'root_secret',
-        ]);
+        ])->getId();
         $childId = $this->createPublication([
             'parent_id' => $rootId,
             'password' => 'child_secret',
-        ]);
+        ])->getId();
 
         $passwords = base64_encode(json_encode([
             $rootId => 'root_secret',

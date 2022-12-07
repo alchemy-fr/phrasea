@@ -92,7 +92,7 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1',
             'enabled' => true,
             'publiclyListed' => true,
-        ]);
+        ])->getId();
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
@@ -115,13 +115,13 @@ class PublicationTest extends AbstractExposeTestCase
             'parent_id' => $pub1,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #3', $json[1]['title']);
     }
@@ -133,7 +133,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => true,
             'publiclyListed' => true,
             'ownerId' => AuthServiceClientTestMock::USER_UID,
-        ]);
+        ])->getId();
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
@@ -154,10 +154,10 @@ class PublicationTest extends AbstractExposeTestCase
             'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(3, count($json));
+        $this->assertCount(3, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #2', $json[1]['title']);
         $this->assertEquals('Pub #3', $json[2]['title']);
@@ -169,33 +169,33 @@ class PublicationTest extends AbstractExposeTestCase
             'title' => 'Pub #1',
             'enabled' => true,
             'publiclyListed' => true,
-        ]);
+        ])->getId();
         $this->createPublication([
             'title' => 'Pub #2',
             'enabled' => true,
             'publiclyListed' => false,
-        ]);
+        ])->getId();
         $this->createPublication([
             'title' => 'Pub #3',
             'enabled' => true,
             'publiclyListed' => true,
-        ]);
+        ])->getId();
         $this->createPublication([
             'title' => 'Pub #1.1',
             'enabled' => true,
             'publiclyListed' => true,
             'parent_id' => $pub1,
-        ]);
+        ])->getId();
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?flatten=true', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?flatten=true');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
-        $this->assertEquals(3, count($json));
+        $this->assertCount(3, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #1.1', $json[1]['title']);
         $this->assertEquals('Pub #3', $json[2]['title']);
@@ -214,13 +214,13 @@ class PublicationTest extends AbstractExposeTestCase
             'publiclyListed' => false,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #2', $json[1]['title']);
     }
@@ -240,13 +240,13 @@ class PublicationTest extends AbstractExposeTestCase
             'ownerId' => AuthServiceClientTestMock::USER_UID,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #2', $json[1]['title']);
     }
@@ -280,15 +280,16 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publications');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetPublicationFromAdmin(): void
     {
-        $id = $this->createPublication();
-        $this->createAsset(['publication_id' => $id]);
-        $this->createAsset(['publication_id' => $id]);
+        $publication = $this->createPublication();
+        $id = $publication->getId();
+        $this->createAsset($publication);
+        $this->createAsset($publication);
 
         $this->clearEmBeforeApiCall();
 
@@ -300,7 +301,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('assets', $json);
-        $this->assertEquals(2, count($json['assets']));
+        $this->assertCount(2, $json['assets']);
         $this->assertArrayHasKey('id', $json['assets'][0]);
         $this->assertNotNull($json['assets'][0]['id']);
         $this->assertEquals(null, $json['ownerId']);
@@ -541,7 +542,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testGetPublicationFromAnonymous(): void
     {
-        $id = $this->createPublication(['enabled' => true]);
+        $id = $this->createPublication(['enabled' => true])->getId();
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
@@ -554,7 +555,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testGetNonEnabledPublicationFromAdmin(): void
     {
-        $id = $this->createPublication(['enabled' => false]);
+        $id = $this->createPublication(['enabled' => false])->getId();
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
@@ -567,7 +568,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testGetNonEnabledPublicationFromAnonymous(): void
     {
-        $id = $this->createPublication(['enabled' => false]);
+        $id = $this->createPublication(['enabled' => false])->getId();
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $this->assertEquals(401, $response->getStatusCode());
     }
@@ -590,7 +591,7 @@ class PublicationTest extends AbstractExposeTestCase
             $endDate->add(DateInterval::createFromDateString($end));
             $options['endDate'] = $endDate;
         }
-        $id = $this->createPublication($options);
+        $id = $this->createPublication($options)->getId();
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $this->assertEquals($shouldBeVisible ? 200 : 401, $response->getStatusCode());
     }
@@ -630,7 +631,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(null, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals($shouldBeVisible ? 1 : 0, count($json));
+        $this->assertCount($shouldBeVisible ? 1 : 0, $json);
     }
 
     public function getPublicationPubliclyListedData(): array
@@ -653,7 +654,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testDeletePublicationAsAdmin(): void
     {
-        $id = $this->createPublication();
+        $id = $this->createPublication()->getId();
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$id);
         $this->assertEquals(204, $response->getStatusCode());
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
@@ -665,7 +666,7 @@ class PublicationTest extends AbstractExposeTestCase
         $id = $this->createPublication([
             'publiclyListed' => true,
             'enabled' => false,
-        ]);
+        ])->getId();
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
@@ -685,7 +686,7 @@ class PublicationTest extends AbstractExposeTestCase
         $id = $this->createPublication([
             'publiclyListed' => true,
             'enabled' => false,
-        ]);
+        ])->getId();
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
@@ -702,7 +703,7 @@ class PublicationTest extends AbstractExposeTestCase
             'ownerId' => AuthServiceClientTestMock::USER_UID,
             'publiclyListed' => true,
             'enabled' => false,
-        ]);
+        ])->getId();
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
@@ -837,7 +838,7 @@ class PublicationTest extends AbstractExposeTestCase
         $id = $this->createPublication([
             'title' => 'Pub',
             'enabled' => false,
-        ]);
+        ])->getId();
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
@@ -881,48 +882,16 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testDeletePublicationAsAnonymous(): void
     {
-        $id = $this->createPublication();
+        $id = $this->createPublication()->getId();
         $response = $this->request(null, 'DELETE', '/publications/'.$id);
         $this->assertEquals(401, $response->getStatusCode());
     }
 
     public function testDeletePublicationAsUser(): void
     {
-        $id = $this->createPublication();
+        $id = $this->createPublication()->getId();
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
-    }
-
-    public function testDeletePublicationWillRemoveOrphanAssets(): void
-    {
-        $pub1 = $this->createPublication([
-            'no_flush' => true,
-        ]);
-        $pub2 = $this->createPublication([
-            'no_flush' => true,
-        ]);
-        $asset1 = $this->createAsset([
-            'publication_id' => $pub1,
-            'no_flush' => true,
-        ]);
-        $asset2 = $this->createAsset([
-            'publication_id' => $pub1,
-            'no_flush' => true,
-        ]);
-        $this->addAssetToPublication($pub2, $asset1);
-
-        $em = $this->getEntityManager();
-        $em->clear();
-
-        $this->assertAssetExists($asset1);
-        $this->assertAssetExists($asset2);
-
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$pub1);
-        $this->assertEquals(204, $response->getStatusCode());
-
-        $this->assertPublicationDoesNotExist($pub1);
-        $this->assertAssetExists($asset1);
-        $this->assertNotAssetExist($asset2);
     }
 
     public function testPublicationWillHaveSafeHtmlDescription(): void

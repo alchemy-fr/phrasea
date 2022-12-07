@@ -96,7 +96,7 @@ class GridLayout extends React.Component {
         const {currentAsset} = this.state;
 
         const images = this.props.data.assets.map(a => ({
-            ...a.asset,
+            ...a,
             downloadEnabled,
         }));
 
@@ -106,14 +106,12 @@ class GridLayout extends React.Component {
                 enableImageSelection={false}
                 onClickThumbnail={this.openAsset}
                 images={this.props.data.assets.map(a => {
-                    const {asset} = a;
-
                     return {
-                        src: asset.previewUrl,
-                        thumbnail: asset.thumbUrl,
-                        thumbnailWidth: asset.thumbWidth,
-                        thumbnailHeight: asset.thumbHeight,
-                        caption: asset.title,
+                        src: a.previewUrl,
+                        thumbnail: a.thumbUrl,
+                        thumbnailWidth: a.thumbWidth,
+                        thumbnailHeight: a.thumbHeight,
+                        caption: a.title,
                     };
                 })}/>
             <ModalGateway>
@@ -157,24 +155,22 @@ class GridLayout extends React.Component {
 
     async loadThumbs() {
         await Promise.all(this.props.data.assets.map(a => {
-            const {asset} = a;
-
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
-                    asset.thumbWidth = img.width;
-                    asset.thumbHeight = img.height;
+                    a.thumbWidth = img.width;
+                    a.thumbHeight = img.height;
                     resolve();
                 };
                 img.onerror = e => {
                     console.error(e);
-                    asset.thumbUrl = squareImg;
-                    asset.previewUrl = squareImg;
-                    asset.thumbWidth = 100;
-                    asset.thumbHeight = 100;
+                    a.thumbUrl = squareImg;
+                    a.previewUrl = squareImg;
+                    a.thumbWidth = 100;
+                    a.thumbHeight = 100;
                     resolve();
                 };
-                img.src = asset.thumbUrl;
+                img.src = a.thumbUrl;
             });
         }));
 

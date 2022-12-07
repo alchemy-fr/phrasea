@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Entity\PublicationAsset;
 use App\Security\AssetUrlGenerator;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManager;
@@ -37,14 +37,10 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
-                $files = array_map(function (PublicationAsset $pubAsset): array {
-                    $asset = $pubAsset->getAsset();
-
-                    $path = $asset->getOriginalName();
-
+                $files = array_map(function (Asset $asset): array {
                     return [
-                        'path' => $path,
-                        'uri' => $this->assetUrlGenerator->generateAssetUrl($asset, false),
+                        'path' => $asset->getOriginalName(),
+                        'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
                     ];
                 }, $publication->getAssets()->getValues());
 

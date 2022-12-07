@@ -61,8 +61,8 @@ class GalleryLayout extends React.Component {
 
         const {data, options, mapOptions} = this.props;
 
-        let locationAsset = data.assets.filter(a => a.asset.lat)[0];
-        locationAsset = locationAsset ? locationAsset.asset : mapOptions;
+        let locationAsset = data.assets.filter(a => a.lat)[0];
+        locationAsset = locationAsset || mapOptions;
 
         switch (options.mapProvider) {
             default:
@@ -76,14 +76,13 @@ class GalleryLayout extends React.Component {
                     zoom: locationAsset && locationAsset.zoom ? locationAsset.zoom : 5
                 });
                 data.assets.forEach((a, pos) => {
-                    const {asset} = a;
-                    if (!(asset.lat && asset.lng)) {
+                    if (!(a.lat && a.lng)) {
                         return;
                     }
                     const marker = new mapboxgl.Marker()
                         .setLngLat([
-                            asset.lng,
-                            asset.lat,])
+                            a.lng,
+                            a.lat,])
                         .addTo(this.map)
                     ;
 
@@ -165,10 +164,10 @@ class GalleryLayout extends React.Component {
                     showFullscreenButton={showFullscreenButton}
                     showPlayButton={showPlayButton}
                     items={assets.map(a => ({
-                        original: a.asset.previewUrl,
-                        thumbnail: a.asset.thumbUrl,
-                        description: a.asset.description,
-                        asset: a.asset,
+                        original: a.previewUrl,
+                        thumbnail: a.thumbUrl,
+                        description: a.description,
+                        asset: a,
                         downloadEnabled,
                         renderItem: this.renderItem,
                     }))}
@@ -209,10 +208,10 @@ class GalleryLayout extends React.Component {
 export default GalleryLayout;
 
 function shouldDisplayControl(props, offset) {
-    const pubAsset = props.data.assets[offset];
+    const asset = props.data.assets[offset];
 
-    if (pubAsset) {
-        return !pubAsset.asset.mimeType.startsWith('video/');
+    if (asset) {
+        return !asset.mimeType.startsWith('video/');
     }
 
     return false;
