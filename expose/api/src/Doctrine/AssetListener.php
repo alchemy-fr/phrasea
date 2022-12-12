@@ -6,6 +6,7 @@ namespace App\Doctrine;
 
 use App\Consumer\Handler\DeleteAssetHandler;
 use App\Entity\Asset;
+use App\Entity\SubDefinition;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Common\EventSubscriber;
@@ -73,7 +74,7 @@ class AssetListener implements EventSubscriber
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
-            if ($entity instanceof Asset) {
+            if ($entity instanceof Asset || $entity instanceof SubDefinition) {
                 $this->eventStack[] = new EventMessage(DeleteAssetHandler::EVENT, [
                     'path' => $entity->getPath(),
                 ]);

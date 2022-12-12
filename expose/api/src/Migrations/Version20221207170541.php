@@ -23,7 +23,7 @@ final class Version20221207170541 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('ALTER TABLE asset ADD publication_id UUID DEFAULT NULL');
-        $this->addSql('UPDATE asset SET publication_id = (SELECT pa.publication_id FROM publication_asset pa WHERE pa.asset_id = id)');
+        $this->addSql('UPDATE asset a SET publication_id = (SELECT pa.publication_id FROM publication_asset pa WHERE pa.asset_id = a.id LIMIT 1)');
         $this->addSql('DELETE FROM asset WHERE publication_id IS NULL');
         $this->addSql('ALTER TABLE asset ADD slug VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE asset ADD position SMALLINT DEFAULT 0 NOT NULL');
