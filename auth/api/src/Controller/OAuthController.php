@@ -74,7 +74,7 @@ class OAuthController extends AbstractIdentityProviderController
             throw new BadRequestHttpException('Missing redirect_uri parameter');
         }
 
-        $redirectUri = $this->generateUrl('oauth_direct_check', [
+        $redirectUri = $this->generateUrl('oauth_check', [
             'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -88,7 +88,7 @@ class OAuthController extends AbstractIdentityProviderController
 
     private function generateOAuthRedirectUri(string $provider): string
     {
-        return $this->generateUrl('oauth_direct_check', [
+        return $this->generateUrl('oauth_check', [
             'provider' => $provider,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
     }
@@ -118,9 +118,6 @@ class OAuthController extends AbstractIdentityProviderController
     }
 
     /**
-     * "direct_check" route is deprecated, use "check" instead.
-     *
-     * @Route(path="/direct-check/{provider}", name="direct_check")
      * @Route(path="/check/{provider}", name="check")
      */
     public function check(
