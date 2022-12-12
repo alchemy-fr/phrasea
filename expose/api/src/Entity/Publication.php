@@ -318,7 +318,7 @@ class Publication implements AclObjectInterface
      * URL slug.
      *
      * @ApiProperty()
-     * @Groups({"publication:index", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:index", "publication:read"})
      *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */

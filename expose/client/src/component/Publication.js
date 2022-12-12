@@ -86,6 +86,10 @@ class Publication extends PureComponent {
         try {
             const res = await loadPublication(id);
 
+            if (res.slug && res.slug !== id) {
+                document.location.href = document.location.href.replace(id, res.slug);
+            }
+
             this.setState({data: res, error: null});
 
             this.timeout && clearTimeout(this.timeout);
@@ -169,7 +173,7 @@ class Publication extends PureComponent {
 
     renderContent(data) {
         if (null === data || (data.slug ? this.props.id !== data.slug : this.props.id !== data.id)) {
-            return <FullPageLoader/>;
+            return <FullPageLoader/>
         }
 
         if (!data.authorized) {
