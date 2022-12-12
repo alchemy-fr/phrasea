@@ -211,5 +211,9 @@ export default GalleryLayout;
 function shouldDisplayControl(props, offset) {
     const asset = props.data.assets[offset].asset;
 
-    return !asset.mimeType.startsWith('video/');
+    if (asset) {
+        return !asset.mimeType.startsWith('video/');
+    }
+
+    return false;
 }
