@@ -45,6 +45,15 @@ class GalleryLayout extends React.Component {
         }
     }
 
+    static getDerivedStateFromProps(props, state = {}) {
+        const displayControls = shouldDisplayControl(props, state.currentIndex || 0);
+
+        return {
+            showFullscreenButton: displayControls,
+            showPlayButton: displayControls,
+        };
+    }
+
     initMap() {
         if (!this.mapContainer.current) {
             return;
@@ -94,9 +103,7 @@ class GalleryLayout extends React.Component {
     }
 
     onSlide = (offset) => {
-        const asset = this.props.data.assets[offset].asset;
-
-        const displayControls = !(asset.mimeType.indexOf('video/') === 0);
+        const displayControls = shouldDisplayControl(this.props, offset);
 
         this.setState({
             currentIndex: offset,
@@ -105,6 +112,7 @@ class GalleryLayout extends React.Component {
         });
 
         if (this.map) {
+            const asset = this.props.data.assets[offset].asset;
             if (asset.lat && asset.lng) {
                 this.map.flyTo({
                     center: [
@@ -199,3 +207,9 @@ class GalleryLayout extends React.Component {
 }
 
 export default GalleryLayout;
+
+function shouldDisplayControl(props, offset) {
+    const asset = props.data.assets[offset].asset;
+
+    return !asset.mimeType.startsWith('video/');
+}

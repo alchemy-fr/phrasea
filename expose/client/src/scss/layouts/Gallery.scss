@@ -59,7 +59,9 @@ $gallery-height: 60vh;
 }
 
 .video-container {
+  margin: 0 auto;
   position: relative;
+  max-width: 100%;
 
   &, .video-js, video {
     max-height: $gallery-height;
