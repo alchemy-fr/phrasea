@@ -38,7 +38,6 @@ final class Version20221207170541 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('CREATE TABLE publication_asset (id UUID NOT NULL, publication_id UUID NOT NULL, asset_id UUID NOT NULL, slug VARCHAR(255) DEFAULT NULL, "position" SMALLINT DEFAULT 0 NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, client_annotations TEXT DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX unique_url ON publication_asset (publication_id, slug)');
         $this->addSql('CREATE INDEX idx_e7711cd038b217a7 ON publication_asset (publication_id)');
