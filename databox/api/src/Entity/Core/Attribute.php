@@ -24,11 +24,13 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
     public const ORIGIN_FALLBACK = 2;
+    public const ORIGIN_INITIAL = 3;
 
     public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
+        self::ORIGIN_INITIAL => 'initial',
     ];
 
     const STATUS_VALID = 0;

@@ -86,6 +86,7 @@ export interface AttributeDefinition extends IPermissions {
     canEdit: boolean;
     searchBoost: number;
     fallback: Record<string, string>;
+    initializers: Record<string, string>;
     workspace: Workspace | string;
     class: AttributeClass | string;
 }
