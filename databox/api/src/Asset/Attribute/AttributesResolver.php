@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Asset\Attribute;
 
-use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
@@ -20,20 +19,17 @@ class AttributesResolver
     private FieldNameResolver $fieldNameResolver;
     private FallbackResolver $fallbackResolver;
     private Security $security;
-    private AttributeTypeRegistry $attributeTypeRegistry;
 
     public function __construct(
         EntityManagerInterface $em,
         FieldNameResolver $fieldNameResolver,
         FallbackResolver $fallbackResolver,
-        Security $security,
-        AttributeTypeRegistry $attributeTypeRegistry
+        Security $security
     ) {
         $this->em = $em;
         $this->fieldNameResolver = $fieldNameResolver;
         $this->fallbackResolver = $fallbackResolver;
         $this->security = $security;
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     /**

@@ -72,7 +72,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em->flush();
 
         $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-            $file->getId()
+            $asset->getId()
         ));
 
         $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));

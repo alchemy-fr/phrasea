@@ -124,6 +124,14 @@ class AttributeDefinition extends AbstractUuidEntity
     private ?int $searchBoost = null;
 
     /**
+     * Initialize attributes after asset creation; key=locale
+     *
+     * @Groups({"attributedef:index"})
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private ?array $initializers = null;
+
+    /**
      * Resolve this template (TWIG syntax) if no user value provided.
      *
      * @Groups({"attributedef:index"})
@@ -324,4 +332,32 @@ class AttributeDefinition extends AbstractUuidEntity
     {
         $this->position = $position;
     }
+
+    /**
+     * @return array|null
+     */
+    public function getInitializers(): ?array
+    {
+        return $this->initializers;
+    }
+
+    /**
+     * @param array|null $initializers
+     */
+    public function setInitializers(?array $initializers): void
+    {
+        $this->initializers = $initializers;
+    }
+
+    public function getInitializersAll(): ?string
+    {
+        return $this->initializers[IndexMappingUpdater::NO_LOCALE] ?? null;
+    }
+
+    public function setInitializersAll(?string $initializer): void
+    {
+        $this->initializers[IndexMappingUpdater::NO_LOCALE] = $initializer;
+    }
+
+
 }

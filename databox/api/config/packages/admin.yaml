@@ -356,23 +356,32 @@ easy_admin:
           - { property: 'searchable' }
           - { property: 'searchBoost', type: number }
           -
+            property: InitializersAll
+            label: "Initializer value (no locale)"
+            type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
+            type_options:
+              height: 60
+          -
             property: fallbackAll
             label: "Fallback value template (no locale)"
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
+              height: 60
           -
             property: fallbackEN
             label: "Fallback value template EN"
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'i.e. Dimensions are: {{ file.width }}x{{ file.height }}'
+              height: 60
           -
             property: fallbackFR
             label: "Fallback value template FR"
             type: App\Form\Type\AceEditorType # TODO use https://github.com/heygrady/ace-mode-twig
             type_options:
               help: 'ex. Les dimensions sont : {{ file.width }}x{{ file.height }}'
+              height: 60
 
     AttributeClass:
       class: App\Entity\Core\AttributeClass

@@ -27,5 +27,10 @@ interface AttributeDefinitionRepositoryInterface extends ObjectRepository
     /**
      * @return AttributeDefinition[]
      */
+    public function getWorkspaceInitializeDefinitions(string $workspaceId): array;
+
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceDefinitions(string $workspaceId): array;
 }
