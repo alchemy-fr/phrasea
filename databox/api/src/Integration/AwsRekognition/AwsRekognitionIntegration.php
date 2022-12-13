@@ -149,12 +149,23 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         $result = $this->analyze($asset->getFile(), $config, $categories);
 
         if (!empty($result['labels']) && !empty($config['labels']['attributes'] ?? [])) {
-            $this->saveTextsToAttributes($asset, $result['labels']['Labels'], $config['labels']['attributes']);
+            $this->saveTextsToAttributes($asset, array_map(function (array $text): array {
+                return [
+                    'value' => $text['Name'],
+                    'confidence' => $text['Confidence'],
+                ];
+            }, $result['labels']['Labels']), $config['labels']['attributes']);
         }
-        // TODO
-//        if (!empty($result['texts']) && !empty($config['labels']['attributes'] ?? [])) {
-//            $this->saveTextsToAttributes($asset, $result['labels'], $config['labels']['attributes']);
-//        }
+        if (!empty($result['texts']) && !empty($config['texts']['attributes'] ?? [])) {
+            $this->saveTextsToAttributes($asset, array_map(function (array $text): array {
+                return [
+                    'value' => $text['DetectedText'],
+                    'confidence' => $text['Confidence'],
+                ];
+            }, array_filter($result['texts']['TextDetections'], function (array $text): bool {
+                return $text['Type'] === 'LINE';
+            })), $config['texts']['attributes']);
+        }
     }
 
     private function saveTextsToAttributes(Asset $asset, array $texts, array $attributes): void
@@ -172,15 +183,15 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
             $i->action = 'delete';
             $input->actions[] = $i;
 
-            foreach ($texts as $label) {
-                if (null === $threshold || $threshold < $label['Confidence']) {
+            foreach ($texts as $text) {
+                if (null === $threshold || $threshold < $text['confidence']) {
                     $i = new AttributeActionInput();
                     $i->action = 'add';
                     $i->originVendor = self::getName();
                     $i->origin = Attribute::ORIGIN_MACHINE;
                     $i->definitionId = $attrDef->getId();
-                    $i->confidence = $label['Confidence'];
-                    $i->value = $label['Name'];
+                    $i->confidence = $text['confidence'];
+                    $i->value = $text['value'];
                     $input->actions[] = $i;
                 }
             }
