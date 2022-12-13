@@ -102,8 +102,26 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
             ->end()
         ;
 
+        /** @var NodeDefinition[] $nodes  */
+        $nodes = [];
         foreach (self::CATEGORIES as $category) {
-            $builder->append($addNode($category));
+            $n = $addNode($category);
+            if ($category === 'labels') {
+                $n
+                    ->children()
+                        ->arrayNode('attributes')
+                        ->info('Save results in attributes (multi-valued string)')
+                        ->prototype('array')
+                            ->children()
+                                ->scalarNode('name')->isRequired()->cannotBeEmpty()->info('Attribute slug')->end()
+                                ->floatNode('threshold')->example(.5)->info('Minimum confidence to be saved into attribute')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ;
+
+            }
+            $builder->append($n);
         }
 
         $builder->append($this->createBudgetLimitConfigNode(true));

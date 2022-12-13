@@ -107,7 +107,7 @@ class WorkspaceIntegration extends AbstractUuidEntity
             return $this->optionsYaml;
         }
 
-        return Yaml::dump($this->config);
+        return Yaml::dump($this->config, 10);
     }
 
     public function setOptionsYaml(string $options): void
