@@ -57,6 +57,7 @@ class Layout extends PureComponent {
 
     logout = () => {
         oauthClient.logout();
+        document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
     }
 
     renderAuthenticated() {

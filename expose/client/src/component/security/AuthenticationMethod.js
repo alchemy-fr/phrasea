@@ -3,6 +3,7 @@ import {PropTypes} from 'prop-types';
 import config from "../../lib/config";
 import {oauthClient, setAuthRedirect} from "../../lib/oauth";
 import {FormLayout, Login} from "react-ps";
+import FullPageLoader from "../FullPageLoader";
 
 class AuthenticationMethod extends PureComponent {
     static propTypes = {
@@ -12,9 +13,21 @@ class AuthenticationMethod extends PureComponent {
 
     componentDidMount() {
         setAuthRedirect(document.location.pathname);
+
+        const autoConnectIdP = config.get('autoConnectIdP');
+        if (autoConnectIdP) {
+            document.location.href = oauthClient.createAuthorizeUrl({
+                connectTo: autoConnectIdP || undefined,
+                redirectPath: `/auth/${autoConnectIdP}`,
+            });
+        }
     }
 
     render() {
+        if (config.get('autoConnectIdP')) {
+            return <FullPageLoader/>
+        }
+
         return <div className={'container'}>
             <FormLayout>
                 <Login
