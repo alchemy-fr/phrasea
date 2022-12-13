@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Integration\AwsRekognition;
 
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
+use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Asset\FileFetcher;
+use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
@@ -50,17 +54,20 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
     private ApiBudgetLimiter $apiBudgetLimiter;
     private IntegrationDataManager $dataManager;
     private FileFetcher $fileFetcher;
+    private BatchAttributeManager $batchAttributeManager;
 
     public function __construct(
         AwsRekognitionClient $client,
         IntegrationDataManager $dataManager,
         FileFetcher $fileFetcher,
-        ApiBudgetLimiter $apiBudgetLimiter
+        ApiBudgetLimiter $apiBudgetLimiter,
+        BatchAttributeManager $batchAttributeManager
     ) {
         $this->client = $client;
         $this->dataManager = $dataManager;
         $this->fileFetcher = $fileFetcher;
         $this->apiBudgetLimiter = $apiBudgetLimiter;
+        $this->batchAttributeManager = $batchAttributeManager;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -106,7 +113,7 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         $nodes = [];
         foreach (self::CATEGORIES as $category) {
             $n = $addNode($category);
-            if ($category === 'labels') {
+            if (in_array($category, ['labels', 'texts'], true)) {
                 $n
                     ->children()
                         ->arrayNode('attributes')
@@ -119,7 +126,6 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
                         ->end()
                     ->end()
                 ;
-
             }
             $builder->append($n);
         }
@@ -135,12 +141,52 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
 
         $categories = [];
         foreach (self::CATEGORIES as $category) {
-            if ($config[$category]['analyzeIncoming']) {
+            if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {
                 $categories[] = $category;
             }
         }
 
-        $this->analyze($asset->getFile(), $config, $categories);
+        $result = $this->analyze($asset->getFile(), $config, $categories);
+
+        if (!empty($result['labels']) && !empty($config['labels']['attributes'] ?? [])) {
+            $this->saveTextsToAttributes($asset, $result['labels']['Labels'], $config['labels']['attributes']);
+        }
+        // TODO
+//        if (!empty($result['texts']) && !empty($config['labels']['attributes'] ?? [])) {
+//            $this->saveTextsToAttributes($asset, $result['labels'], $config['labels']['attributes']);
+//        }
+    }
+
+    private function saveTextsToAttributes(Asset $asset, array $texts, array $attributes): void
+    {
+        foreach ($attributes as $attrConfig) {
+            $attrDef = $this->batchAttributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name']);
+            $threshold = $attrConfig['threshold'] ?? null;
+            if (!$attrDef->isMultiple()) {
+                throw new InvalidArgumentException(sprintf('Attribute "%s" must be multi-valued', $attrDef->getId()));
+            }
+
+            $input = new AssetAttributeBatchUpdateInput();
+            $i = new AttributeActionInput();
+            $i->definitionId = $attrDef->getId();
+            $i->action = 'delete';
+            $input->actions[] = $i;
+
+            foreach ($texts as $label) {
+                if (null === $threshold || $threshold < $label['Confidence']) {
+                    $i = new AttributeActionInput();
+                    $i->action = 'add';
+                    $i->originVendor = self::getName();
+                    $i->origin = Attribute::ORIGIN_MACHINE;
+                    $i->definitionId = $attrDef->getId();
+                    $i->confidence = $label['Confidence'];
+                    $i->value = $label['Name'];
+                    $input->actions[] = $i;
+                }
+            }
+
+            $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
+        }
     }
 
     public function handleFileAction(string $action, Request $request, File $file, array $config): Response
