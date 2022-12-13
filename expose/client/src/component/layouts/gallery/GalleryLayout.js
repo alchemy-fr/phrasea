@@ -209,10 +209,10 @@ class GalleryLayout extends React.Component {
 export default GalleryLayout;
 
 function shouldDisplayControl(props, offset) {
-    const asset = props.data.assets[offset].asset;
+    const pubAsset = props.data.assets[offset];
 
-    if (asset) {
-        return !asset.mimeType.startsWith('video/');
+    if (pubAsset) {
+        return !pubAsset.asset.mimeType.startsWith('video/');
     }
 
     return false;
