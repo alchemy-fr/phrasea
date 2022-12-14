@@ -103,7 +103,7 @@ class BatchAttributeManager
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
                     $this->denyUnlessGranted($definition);
                 } elseif ($action->name) {
-                    $definition = $this->getAttributeDefinitionByName($workspaceId, $action->name);
+                    $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
                     $this->denyUnlessGranted($definition);
                 } else {
                     $definition = null;
@@ -269,14 +269,14 @@ class BatchAttributeManager
         return $def;
     }
 
-    private function getAttributeDefinitionByName(string $workspaceId, string $name): AttributeDefinition
+    public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): AttributeDefinition
     {
         $def = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-            'name' => $name,
+            'slug' => $slug,
             'workspace' => $workspaceId,
         ]);
         if (!$def instanceof AttributeDefinition) {
-            throw new BadRequestHttpException(sprintf('Attribute definition "%s" not found in workspace "%s"', $name, $workspaceId));
+            throw new BadRequestHttpException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $slug, $workspaceId));
         }
 
         return $def;

@@ -122,11 +122,11 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
             [
                 [
                     [
-                        'name' => 'Description',
+                        'name' => 'description',
                         'value' => 'Foo bar',
                     ],
                     [
-                        'name' => 'Keywords',
+                        'name' => 'keywords',
                         'value' => ['This is KW #1'],
                     ],
                 ], [
