@@ -6,8 +6,17 @@ security:
             cost: 12
 
     role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_USER_LIST:
+        - ROLE_USER
+        ROLE_GROUP_LIST:
+        - ROLE_USER
+        ROLE_ADMIN:
+        - ROLE_USER
+        - ROLE_USER_LIST
+        - ROLE_GROUP_LIST
+        ROLE_SUPER_ADMIN:
+        - ROLE_ADMIN
+        - ROLE_ALLOWED_TO_SWITCH
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:

@@ -35,7 +35,9 @@ class UserVoter extends Voter
                     || $token->getUser() instanceof User && $token->getUser() === $subject;
             case self::LIST_USERS:
                 return $this->security->isGranted('ROLE_USER')
-                    || $this->security->isGranted('ROLE_USER:LIST');
+                    || $this->security->isGranted('ROLE_USER:LIST') // Scope
+                    || $this->security->isGranted('ROLE_USER_LIST')
+                ;
             default:
                 return false;
         }

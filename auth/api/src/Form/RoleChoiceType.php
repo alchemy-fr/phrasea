@@ -26,13 +26,16 @@ class RoleChoiceType extends AbstractType
         $choices = [
             'Admin' => 'ROLE_ADMIN',
             'Super Admin' => 'ROLE_SUPER_ADMIN',
+            'List Users' => 'ROLE_USER_LIST',
+            'List Groups' => 'ROLE_GROUP_LIST',
         ];
 
         $resolver->setDefaults([
             'multiple' => true,
             'expanded' => true,
             'choices' => array_filter($choices, function (string $role) {
-                return $this->authorizationChecker->isGranted($role);
+                return $this->authorizationChecker->isGranted($role)
+                    || $this->authorizationChecker->isGranted('ROLE_SUPER_ADMIN');
             }),
         ]);
     }
