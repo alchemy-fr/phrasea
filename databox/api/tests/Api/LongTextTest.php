@@ -30,7 +30,7 @@ class LongTextTest extends AbstractSearchTestCase
             'json' => [
                 'actions' => [
                     [
-                        'name' => 'Description',
+                        'name' => 'description',
                         'value' => $longText,
                     ],
                 ],

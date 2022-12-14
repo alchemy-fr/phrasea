@@ -135,11 +135,11 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             [
                 [
                     [
-                        'name' => 'Description',
+                        'name' => 'description',
                         'value' => 'Foo bar',
                     ],
                     [
-                        'name' => 'Keywords',
+                        'name' => 'keywords',
                         'value' => ['This is KW #1'],
                     ],
                 ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']]),
@@ -147,7 +147,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             [
                 [
                     [
-                        'name' => 'Description',
+                        'name' => 'description',
                         'action' => 'delete',
                     ],
                 ], $withoutDesc,
@@ -155,7 +155,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             [
                 [
                     [
-                        'name' => 'Keywords',
+                        'name' => 'keywords',
                         'action' => 'delete',
                     ],
                 ], $withoutKeywords,
@@ -163,7 +163,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             [
                 [
                     [
-                        'name' => 'Description',
+                        'name' => 'description',
                         'action' => 'replace',
                         'value' => 'description',
                         'replaceWith' => 'replaced',
@@ -183,7 +183,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 //            [
 //                [
 //                    [
-//                        'name' => 'Description',
+//                        'name' => 'description',
 //                        'action' => 'replace',
 //                        'regex' => true,
 //                        'value' => '(e|#)',
