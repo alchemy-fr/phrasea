@@ -30,7 +30,9 @@ class GroupVoter extends Voter
         switch ($attribute) {
             case self::LIST_GROUPS:
                 return $this->security->isGranted('ROLE_USER')
-                    || $this->security->isGranted('ROLE_GROUP:LIST');
+                    || $this->security->isGranted('ROLE_GROUP:LIST') // Scope
+                    || $this->security->isGranted('ROLE_GROUP_LIST')
+                ;
             default:
                 return false;
         }
