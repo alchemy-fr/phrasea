@@ -126,6 +126,8 @@ class BatchAttributeManager
                         }
                         $this->deleteAttributes($assetsId, $definition, [
                             'id' => $action->id,
+                            'origin' => $action->origin,
+                            'originVendor' => $action->originVendor,
                         ]);
                         break;
                     case self::ACTION_SET:
@@ -222,7 +224,7 @@ class BatchAttributeManager
                 }
             }
 
-            // Force assets to be reindexed on terminate
+            // Force assets to be re-indexed on terminate
             foreach ($assetsId as $assetId) {
                 $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
             }
@@ -305,6 +307,16 @@ class BatchAttributeManager
             $qb
                 ->andWhere('a.id = :id')
                 ->setParameter('id', $options['id']);
+        }
+        if ($options['origin'] ?? null) {
+            $qb
+                ->andWhere('a.origin = :origin')
+                ->setParameter('origin', $options['origin']);
+        }
+        if ($options['originVendor'] ?? null) {
+            $qb
+                ->andWhere('a.originVendor = :originVendor')
+                ->setParameter('originVendor', $options['originVendor']);
         }
         $qb->getQuery()->execute();
     }

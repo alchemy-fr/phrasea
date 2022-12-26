@@ -180,13 +180,15 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
             $input = new AssetAttributeBatchUpdateInput();
             $i = new AttributeActionInput();
             $i->definitionId = $attrDef->getId();
-            $i->action = 'delete';
+            $i->action = BatchAttributeManager::ACTION_DELETE;
+            $i->origin = Attribute::ORIGIN_MACHINE;
+            $i->originVendor = self::getName();
             $input->actions[] = $i;
 
             foreach ($texts as $text) {
                 if (null === $threshold || $threshold < $text['confidence']) {
                     $i = new AttributeActionInput();
-                    $i->action = 'add';
+                    $i->action = BatchAttributeManager::ACTION_ADD;
                     $i->originVendor = self::getName();
                     $i->origin = Attribute::ORIGIN_MACHINE;
                     $i->definitionId = $attrDef->getId();
