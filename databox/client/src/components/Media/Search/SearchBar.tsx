@@ -102,13 +102,6 @@ export default function SearchBar({}: Props) {
                     </Button>
                 </Search>
             </form>
-            <div>
-                <IconButton
-                    color={'primary'}
-                >
-                    {hasFilters ? <FilterAltOffIcon/> : <FilterAltIcon/>}
-                </IconButton>
-            </div>
             <SortBy/>
         </Box>
         {search.attrFilters.length > 0 && <Box sx={{p: 1}}>

@@ -28,9 +28,9 @@ class DateAttributeType extends AbstractAttributeType
 
     public function getGroupValueLabel($value): ?string
     {
-        if ($value instanceof \DateTimeInterface) {
-            if ($value instanceof \DateTimeImmutable) {
-                $date = \DateTime::createFromImmutable($value);
+        if ($value instanceof DateTimeInterface) {
+            if ($value instanceof DateTimeImmutable) {
+                $date = DateTime::createFromImmutable($value);
             } else {
                 $date = clone $value;
             }
@@ -47,11 +47,9 @@ class DateAttributeType extends AbstractAttributeType
     {
         $startFloor = new DateTime();
         $startFloor->setTimestamp((int) $value[0]);
-        $startFloor->setTime(0, 0, 0);
 
         $endCeil = new DateTime();
         $endCeil->setTimestamp((int) $value[1]);
-        $endCeil->setTime(23, 59, 59);
 
         return new Range($field, [
             'gte' => $startFloor->getTimestamp() * 1000,

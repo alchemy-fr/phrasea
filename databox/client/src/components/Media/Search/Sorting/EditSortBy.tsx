@@ -144,12 +144,11 @@ export default function EditSortBy({
                         items={orders}
                         strategy={verticalListSortingStrategy}
                     >
-                        {orders.map((s, i) => <SortByRow
+                        {orders.map((s) => <SortByRow
                             sortBy={s}
                             enabled={s.enabled}
                             key={s.a}
                             onChange={onChange}
-                            groupable={i === 0}
                         />)}
                     </SortableContext>
                     </tbody>

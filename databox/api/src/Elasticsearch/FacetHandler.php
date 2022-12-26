@@ -60,6 +60,7 @@ class FacetHandler
             $field
         );
         $agg->setBuckets(20);
+        $agg->setMinimumInterval('minute');
         $agg->setMeta([
             'title' => $title,
             'type' => 'date_range',

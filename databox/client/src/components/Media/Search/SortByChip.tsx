@@ -1,7 +1,7 @@
 import React from 'react';
 import {SortBy} from "./Filter";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {Chip} from "@mui/material";
 
 type Props = {} & SortBy;
@@ -20,12 +20,12 @@ export default function SortByChip({
         label={<>
             {t}
             {' '}
-            {w ? <ArrowDropDownIcon
+            {w ? <ArrowDownwardIcon
                 fontSize={'small'}
                 sx={{
                     verticalAlign: 'middle'
                 }}
-            /> : <ArrowDropUpIcon
+            /> : <ArrowUpwardIcon
                 fontSize={'small'}
                 sx={{
                     verticalAlign: 'middle'

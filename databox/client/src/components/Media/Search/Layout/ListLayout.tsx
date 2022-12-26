@@ -12,6 +12,7 @@ import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 import PrivacyChip from "../../../Ui/PrivacyChip";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
+import moment from "moment";
 
 const AssetItem = React.memo(({
                                   asset,
@@ -96,6 +97,11 @@ const AssetItem = React.memo(({
                 {displayAttributes && <Attributes
                     asset={asset}
                 />}
+                    <div>
+                        <b>Creation date</b>
+                        {' '}
+                        {moment(asset.createdAt).format('LLLL')}
+                    </div>
             </Grid>
         </Grid>
     </div>

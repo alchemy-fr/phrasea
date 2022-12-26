@@ -34,6 +34,7 @@ export type Facet = {
     buckets: Bucket[];
     doc_count_error_upper_bound: number;
     sum_other_doc_count: number;
+    interval?: string;
 }
 
 export type TFacets = Record<string, Facet>;

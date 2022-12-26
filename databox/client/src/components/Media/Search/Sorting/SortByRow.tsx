@@ -12,13 +12,11 @@ type Props = {
     enabled: boolean;
     onChange: OnChangeHandler;
     sortBy: TogglableSortBy;
-    groupable: boolean;
 };
 
 export default function SortByRow({
                                       sortBy,
                                       onChange,
-                                      groupable,
                                   }: Props) {
 
     const isDesc = sortBy.w === 1;
@@ -46,12 +44,6 @@ export default function SortByRow({
         style={style}
         {...attributes}
     >
-        <td>
-            {groupable && <Switch
-                checked={Boolean(sortBy.g)}
-                onChange={(e, value) => onChange(sortBy, undefined, undefined, value)}
-            />}
-        </td>
         <td>
             <Switch
                 checked={sortBy.enabled}
