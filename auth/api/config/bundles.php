@@ -1,6 +1,7 @@
 <?php
 
 return [
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
@@ -22,7 +23,6 @@ return [
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     App\AppBundle::class => ['all' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle::class => ['all' => true],

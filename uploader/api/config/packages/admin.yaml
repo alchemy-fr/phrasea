@@ -21,8 +21,11 @@ easy_admin:
         children:
           - FormSchema
           - TargetParams
-      - OAuthClient
+      - entity: OAuthClient
+        label: OAuth Clients
+        permission: ['ROLE_ADMIN_OAUTH_CLIENTS']
       - label: 'Dev'
+        permission: ROLE_TECH
         children:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }

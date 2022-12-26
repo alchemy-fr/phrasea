@@ -26,8 +26,8 @@ class RoleChoiceType extends AbstractType
         $choices = [
             'Admin' => 'ROLE_ADMIN',
             'Super Admin' => 'ROLE_SUPER_ADMIN',
-            'List Users' => 'ROLE_USER_LIST',
-            'List Groups' => 'ROLE_GROUP_LIST',
+            'Users/Groups management' => 'ROLE_ADMIN_USERS',
+            'Developer / Ops' => 'ROLE_TECH',
         ];
 
         $resolver->setDefaults([

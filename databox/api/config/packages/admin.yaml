@@ -38,12 +38,15 @@ easy_admin:
         children:
           - PopulatePass
           - ESIndexState
-      - OAuthClient
+      - entity: OAuthClient
+        label: OAuth Clients
+        permission: ['ROLE_ADMIN_OAUTH_CLIENTS']
       - label: Integrations
         children:
           - Integration
           - { label: 'Help', route: 'admin_integrations_help' }
       - label: 'Dev'
+        permission: ROLE_TECH
         children:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }

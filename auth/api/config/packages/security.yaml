@@ -5,18 +5,7 @@ security:
             algorithm: bcrypt
             cost: 12
 
-    role_hierarchy:
-        ROLE_USER_LIST:
-        - ROLE_USER
-        ROLE_GROUP_LIST:
-        - ROLE_USER
-        ROLE_ADMIN:
-        - ROLE_USER
-        - ROLE_USER_LIST
-        - ROLE_GROUP_LIST
-        ROLE_SUPER_ADMIN:
-        - ROLE_ADMIN
-        - ROLE_ALLOWED_TO_SWITCH
+    role_hierarchy: '%core.role_hierarchy%'
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:

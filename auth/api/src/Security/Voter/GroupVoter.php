@@ -31,7 +31,7 @@ class GroupVoter extends Voter
             case self::LIST_GROUPS:
                 return $this->security->isGranted('ROLE_USER')
                     || $this->security->isGranted('ROLE_GROUP:LIST') // Scope
-                    || $this->security->isGranted('ROLE_GROUP_LIST')
+                    || $this->security->isGranted('ROLE_ADMIN_USERS')
                 ;
             default:
                 return false;

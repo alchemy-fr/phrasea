@@ -1,7 +1,5 @@
 security:
-    role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_CHUCK-NORRIS, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+    role_hierarchy: '%core.role_hierarchy%'
     providers:
         remote_users:
             id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider

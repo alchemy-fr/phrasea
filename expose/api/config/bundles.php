@@ -1,6 +1,7 @@
 <?php
 
 return [
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
@@ -27,6 +28,5 @@ return [
     OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
 ];

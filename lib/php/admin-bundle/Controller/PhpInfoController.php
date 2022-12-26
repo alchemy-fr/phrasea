@@ -14,6 +14,7 @@ class PhpInfoController extends AbstractAdminController
      */
     public function phpInfoAction()
     {
+        $this->denyAccessUnlessGranted('ROLE_TECH');
         ob_start();
         phpinfo();
         $content = ob_get_contents();

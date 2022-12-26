@@ -31,6 +31,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
+        $loader->load('security.yaml');
+
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['MonologBundle'])) {
             $loader->load('monolog.yaml');

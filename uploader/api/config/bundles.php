@@ -1,6 +1,7 @@
 <?php
 
 return [
+    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class => ['all' => true],
     Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
@@ -30,7 +31,6 @@ return [
     Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Alchemy\CoreBundle\AlchemyCoreBundle::class => ['all' => true],
     Alchemy\ReportBundle\AlchemyReportBundle::class => ['all' => true],
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
     Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle::class => ['all' => true],
