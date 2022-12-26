@@ -1,7 +1,9 @@
-{% set t = value|easyadmin_truncate(7, null, '') -%}
+{# todo: EA3 missing easyadmin_truncate filter #}
+{#  % set t = field.value|easyadmin_truncate(7, null, '') % #}
+{% set t = field.value %}
 <span style="cursor:pointer"
-    title="{{ value }}"
-      onClick="navigator.clipboard.writeText('{{ value }}');var a=this;a.innerHTML = 'Copied!';setTimeout(function(){a.innerHTML='{{ t }}'}, 1000)"
+      title="{{ field.value }}"
+      onClick="navigator.clipboard.writeText('{{ field.value }}');var a=this;a.innerHTML = 'Copied!';setTimeout(function(){a.innerHTML='{{ t }}'}, 1000)"
 >
     {{ t }}
 </span>
