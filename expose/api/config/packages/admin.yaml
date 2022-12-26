@@ -19,9 +19,12 @@ easy_admin:
           - SubDefinition
           - PublicationAsset
           - MultipartUpload
-      - OAuthClient
+      - entity: OAuthClient
+        label: OAuth Clients
+        permission: ['ROLE_ADMIN_OAUTH_CLIENTS']
       - EnvVar
       - label: 'Dev'
+        permission: ROLE_TECH
         children:
           - FailedEvent
           - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }

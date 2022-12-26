@@ -36,7 +36,7 @@ class UserVoter extends Voter
             case self::LIST_USERS:
                 return $this->security->isGranted('ROLE_USER')
                     || $this->security->isGranted('ROLE_USER:LIST') // Scope
-                    || $this->security->isGranted('ROLE_USER_LIST')
+                    || $this->security->isGranted('ROLE_ADMIN_USERS')
                 ;
             default:
                 return false;

@@ -11,11 +11,19 @@ easy_admin:
           - User
           - Group
           - AccessToken
-      - OAuthClient
+      - entity: OAuthClient
+        label: OAuth Clients
+        permission: ['ROLE_ADMIN_OAUTH_CLIENTS']
       - label: 'Dev'
+        permission: ROLE_TECH
         children:
-          - FailedEvent
-          - { label: 'PHP Info', route: 'alchemy_admin_phpinfo' }
+          - label: FailedEvent
+            entity: FailedEvent
+            permission: ROLE_TECH
+          - label: 'PHP Info'
+            route: 'alchemy_admin_phpinfo'
+            permission: ROLE_TECH
+
   entities:
     User:
       templates:
