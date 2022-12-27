@@ -1,0 +1,53 @@
+App\Entity\Asset:
+  asset (template):
+    size: 42
+    title: '<name()>'
+
+  a_gallery_audio{1..10} (extends asset):
+    mimeType: audio/mp3
+    path: '<randomMedia("assets", "mp3", <current()>)>'
+    originalName: '<current()>.mp3'
+
+  a_gallery_video{1..10} (extends asset):
+    mimeType: video/mp4
+    path: '<randomMedia("assets", "mp4", <current()>)>'
+    originalName: '<current()>.mp4'
+
+  a_gallery_img{1..10} (extends asset):
+    mimeType: image/jpeg
+    path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
+    originalName: '<current()>.jpg'
+
+  a_grid_img{1..300} (extends asset):
+    mimeType: image/jpeg
+    path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
+    originalName: '<current()>.jpg'
+
+App\Entity\PublicationAsset:
+  pa-gallery_img{1..10}:
+    publication: '@gallery'
+    asset: '@a_gallery_img<current()>'
+
+  pa-gallery_audio{1..10}:
+    publication: '@gallery'
+    asset: '@a_gallery_audio<current()>'
+
+  pa-gallery_video{1..10}:
+    publication: '@gallery'
+    asset: '@a_gallery_video<current()>'
+
+  pa-download_img{1..10}:
+    publication: '@download'
+    asset: '@a_gallery_img<current()>'
+
+  pa-download_audio{1..10}:
+    publication: '@download'
+    asset: '@a_gallery_audio<current()>'
+
+  pa-download_video{1..10}:
+    publication: '@download'
+    asset: '@a_gallery_video<current()>'
+
+  pa-grid_video{1..300}:
+    publication: '@grid'
+    asset: '@a_grid_img<current()>'

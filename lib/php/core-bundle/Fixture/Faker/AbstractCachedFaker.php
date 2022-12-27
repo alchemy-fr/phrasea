@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Fixture\Faker;
+namespace Alchemy\CoreBundle\Fixture\Faker;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use App\Storage\FilePathGenerator;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use Faker\Generator;
 use Faker\Provider\Base as BaseProvider;
 use Psr\Log\LoggerInterface;
@@ -13,14 +13,14 @@ use Psr\Log\LoggerInterface;
 abstract class AbstractCachedFaker extends BaseProvider
 {
     private FileStorageManager $fileStorageManager;
-    private FilePathGenerator $pathGenerator;
+    private PathGenerator $pathGenerator;
     private LoggerInterface $logger;
-    private ?string $cacheDir = null;
+    private ?string $cacheDir;
 
     public function __construct(
         string $fixturesCacheDir,
         FileStorageManager $fileStorageManager,
-        FilePathGenerator $pathGenerator,
+        PathGenerator $pathGenerator,
         Generator $generator,
         LoggerInterface $logger
     ) {
@@ -31,7 +31,7 @@ abstract class AbstractCachedFaker extends BaseProvider
         $this->logger = $logger;
     }
 
-    protected function download(string $workspaceId, string $cachePath, string $extension, string $url): string
+    protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string
     {
         $this->logger->debug(sprintf('Fetching "%s"', $url));
         if (null !== $this->cacheDir) {
@@ -48,7 +48,7 @@ abstract class AbstractCachedFaker extends BaseProvider
             $stream = fopen($url, 'r');
         }
 
-        $finalPath = $this->pathGenerator->generatePath($workspaceId, $extension);
+        $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
         $this->fileStorageManager->storeStream($finalPath, $stream);
         fclose($stream);
 

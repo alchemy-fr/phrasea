@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    bind:
+      string $fixturesCacheDir: '%kernel.cache_dir%/fixtures'
+
+  Alchemy\CoreBundle\Fixture\Faker\ImageUrlFaker: ~
+  Alchemy\CoreBundle\Fixture\Faker\MediaFaker: ~
