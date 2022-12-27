@@ -18,7 +18,7 @@ App\Entity\Asset:
     path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
     originalName: '<current()>.jpg'
 
-  a_grid_img{1..300} (extends asset):
+  a_grid_img{1..30} (extends asset):
     mimeType: image/jpeg
     path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
     originalName: '<current()>.jpg'
@@ -48,6 +48,6 @@ App\Entity\PublicationAsset:
     publication: '@download'
     asset: '@a_gallery_video<current()>'
 
-  pa-grid_video{1..300}:
+  pa-grid_video{1..30}:
     publication: '@grid'
     asset: '@a_grid_img<current()>'

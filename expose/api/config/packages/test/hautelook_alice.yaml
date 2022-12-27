@@ -1,2 +1,5 @@
-imports:
-    - { resource: ../dev/hautelook_alice.yaml }
+hautelook_alice:
+    fixtures_path:
+        - 'fixtures'
+    root_dirs:
+        - '%kernel.project_dir%/tests'
