@@ -32,9 +32,22 @@ const AssetLiForm = props => {
     const reducer = combineReducers({form: formReducer});
     const store = createStore(reducer);
 
+    const initialValues = {};
+
+    const properties = props.schema.properties;
+    if (properties) {
+        Object.keys(properties).forEach(k => {
+           if (properties[k].defaultValue) {
+               initialValues[k] = properties[k].defaultValue;
+               delete properties[k].defaultValue;
+           }
+        });
+    }
+
     return <Provider store={store}>
         <Liform
             baseForm={BaseForm}
+            initialValues={initialValues}
             schema={props.schema}
             onSubmit={props.onSubmit}
             onCancel={props.onCancel}
