@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Fixture\Faker;
+namespace Alchemy\CoreBundle\Fixture\Faker;
 
 class ImageUrlFaker extends AbstractCachedFaker
 {

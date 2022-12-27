@@ -17,10 +17,9 @@ class FilePathGenerator
 
     public function generatePath(string $workspaceId, ?string $extension): string
     {
-        return sprintf('files/%s/%s/%s',
-            $workspaceId,
-            date('Y/m/d'),
-            $this->pathGenerator->generatePath($extension)
+        return $this->pathGenerator->generatePath(
+            $extension,
+            sprintf('files/%s/%s/', $workspaceId, date('Y/m/d'))
         );
     }
 }

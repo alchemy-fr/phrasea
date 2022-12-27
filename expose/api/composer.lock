@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1b644ad3065a916e384c6ea5d692f2a",
+    "content-hash": "099dac3227a26ab63079a4450c6980e2",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -109,7 +109,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -156,7 +156,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -204,7 +204,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -250,7 +250,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -299,7 +299,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -345,7 +345,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -391,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -703,16 +703,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.255.3",
+            "version": "3.255.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "0530f0679d7b4809c9500c2332a4d7e9f770f47a"
+                "reference": "56fe0ef4f192536daa7c301b731559fb275aed84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0530f0679d7b4809c9500c2332a4d7e9f770f47a",
-                "reference": "0530f0679d7b4809c9500c2332a4d7e9f770f47a",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/56fe0ef4f192536daa7c301b731559fb275aed84",
+                "reference": "56fe0ef4f192536daa7c301b731559fb275aed84",
                 "shasum": ""
             },
             "require": {
@@ -791,9 +791,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.255.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.255.4"
             },
-            "time": "2022-12-23T19:26:27+00:00"
+            "time": "2022-12-27T19:22:28+00:00"
         },
         {
             "name": "brick/math",
@@ -5001,42 +5001,53 @@
         },
         {
             "name": "ramsey/collection",
-            "version": "1.2.2",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/collection.git",
-                "reference": "cccc74ee5e328031b15640b51056ee8d3bb66c0a"
+                "reference": "ad7475d1c9e70b190ecffc58f2d989416af339b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/collection/zipball/cccc74ee5e328031b15640b51056ee8d3bb66c0a",
-                "reference": "cccc74ee5e328031b15640b51056ee8d3bb66c0a",
+                "url": "https://api.github.com/repos/ramsey/collection/zipball/ad7475d1c9e70b190ecffc58f2d989416af339b4",
+                "reference": "ad7475d1c9e70b190ecffc58f2d989416af339b4",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3 || ^8",
+                "php": "^7.4 || ^8.0",
                 "symfony/polyfill-php81": "^1.23"
             },
             "require-dev": {
-                "captainhook/captainhook": "^5.3",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-                "ergebnis/composer-normalize": "^2.6",
-                "fakerphp/faker": "^1.5",
-                "hamcrest/hamcrest-php": "^2",
-                "jangregor/phpstan-prophecy": "^0.8",
-                "mockery/mockery": "^1.3",
+                "captainhook/plugin-composer": "^5.3",
+                "ergebnis/composer-normalize": "^2.28.3",
+                "fakerphp/faker": "^1.21",
+                "hamcrest/hamcrest-php": "^2.0",
+                "jangregor/phpstan-prophecy": "^1.0",
+                "mockery/mockery": "^1.5",
+                "php-parallel-lint/php-console-highlighter": "^1.0",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpcsstandards/phpcsutils": "^1.0.0-rc1",
                 "phpspec/prophecy-phpunit": "^2.0",
-                "phpstan/extension-installer": "^1",
-                "phpstan/phpstan": "^0.12.32",
-                "phpstan/phpstan-mockery": "^0.12.5",
-                "phpstan/phpstan-phpunit": "^0.12.11",
-                "phpunit/phpunit": "^8.5 || ^9",
-                "psy/psysh": "^0.10.4",
-                "slevomat/coding-standard": "^6.3",
-                "squizlabs/php_codesniffer": "^3.5",
-                "vimeo/psalm": "^4.4"
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.9",
+                "phpstan/phpstan-mockery": "^1.1",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpunit/phpunit": "^9.5",
+                "psalm/plugin-mockery": "^1.1",
+                "psalm/plugin-phpunit": "^0.18.4",
+                "ramsey/coding-standard": "^2.0.3",
+                "ramsey/conventional-commits": "^1.3",
+                "vimeo/psalm": "^5.4"
             },
             "type": "library",
+            "extra": {
+                "captainhook": {
+                    "force-install": true
+                },
+                "ramsey/conventional-commits": {
+                    "configFile": "conventional-commits.json"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Ramsey\\Collection\\": "src/"
@@ -5064,7 +5075,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/collection/issues",
-                "source": "https://github.com/ramsey/collection/tree/1.2.2"
+                "source": "https://github.com/ramsey/collection/tree/1.3.0"
             },
             "funding": [
                 {
@@ -5076,7 +5087,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-10-10T03:01:02+00:00"
+            "time": "2022-12-27T19:12:24+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -10260,7 +10271,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-master",
+            "version": "dev-PS-516-expose-perf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",

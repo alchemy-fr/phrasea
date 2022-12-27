@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 
 class PathGenerator
 {
-    public function generatePath(?string $extension): string
+    public function generatePath(?string $extension, string $prefix = ''): string
     {
         $uuid = Uuid::uuid4()->toString();
 
@@ -22,7 +22,7 @@ class PathGenerator
             $path .= '.'.$extension;
         }
 
-        return $path;
+        return $prefix.$path;
     }
 
 }

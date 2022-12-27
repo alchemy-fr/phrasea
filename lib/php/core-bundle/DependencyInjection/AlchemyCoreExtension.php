@@ -6,6 +6,7 @@ use Alchemy\CoreBundle\DependencyInjection\Compiler\HealthCheckerPass;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -31,6 +32,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
+        $this->loadFixtures($container, $loader);
         $loader->load('security.yaml');
 
         $bundles = $container->getParameter('kernel.bundles');
@@ -79,6 +81,14 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         if (isset($bundles['OldSoundRabbitMqBundle'])) {
             $definition = $this->createHealthCheckerDefinition(RabbitMQConnectionChecker::class);
             $container->setDefinition(RabbitMQConnectionChecker::class, $definition);
+        }
+    }
+
+    private function loadFixtures(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['AlchemyStorageBundle'], $bundles['HautelookAliceBundle'])) {
+            $loader->load('fixtures.yaml');
         }
     }
 
