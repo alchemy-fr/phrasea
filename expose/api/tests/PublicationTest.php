@@ -39,6 +39,14 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testCreatePublicationAsUser(): void
     {
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/publications', [
+            'title' => 'Foo',
+            'config' => [
+                'layout' => 'download',
+            ],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => AuthServiceClientTestMock::USER_UID,
@@ -696,6 +704,74 @@ class PublicationTest extends AbstractExposeTestCase
 
         $this->assertEquals(true, $json['config']['enabled']);
         $this->assertEquals(true, $json['config']['publiclyListed']);
+    }
+
+    public function testChangeProfileOnPublication(): void
+    {
+        $publicationId = $this->createPublication([
+            'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
+            'publiclyListed' => true,
+            'enabled' => false,
+        ]);
+
+        $profileId = $this->createProfile([
+            'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
+            'publiclyListed' => true,
+            'enabled' => false,
+        ]);
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+            'profile' => '/publication-profiles/'.$profileId,
+        ]);
+        // Cannot change profile of publication
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $aclRes = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'objectType' => 'publication',
+            'objectId' => $publicationId,
+            'mask' => PermissionInterface::EDIT,
+        ]);
+        $this->assertEquals(200, $aclRes->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+            'profile' => '/publication-profiles/'.$profileId,
+        ]);
+        // Still cannot change profile of publication with EDIT permission (need OPERATOR)
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $aclRes = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'objectType' => 'publication',
+            'objectId' => $publicationId,
+            'mask' => PermissionInterface::OPERATOR + PermissionInterface::EDIT,
+        ]);
+        $this->assertEquals(200, $aclRes->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+            'profile' => '/publication-profiles/'.$profileId,
+        ]);
+        // Cannot read this profile
+        $this->assertEquals(403, $response->getStatusCode());
+
+        $aclRes = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+            'userType' => 'user',
+            'userId' => AuthServiceClientTestMock::USER_UID,
+            'objectType' => 'profile',
+            'objectId' => $profileId,
+            'mask' => PermissionInterface::VIEW,
+        ]);
+        $this->assertEquals(200, $aclRes->getStatusCode());
+
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+            'profile' => '/publication-profiles/'.$profileId,
+        ]);
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        $this->assertEquals($profileId, $json['profile']['id']);
     }
 
     public function testPutAsOwnerUserPublicationProtectedWithPassword(): void

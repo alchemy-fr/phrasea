@@ -56,7 +56,7 @@ class PermissionManager
     private function getAces($user, AclObjectInterface $object): array
     {
         $objectKey = $this->objectMapper->getObjectKey($object);
-        $key = sprintf('%s:%s:%s', $user->getId(), $objectKey, $object->getId());
+        $key = $this->getCacheKey($user->getId(), $objectKey, $object->getId());
         if (isset($this->cache[$key])) {
             return $this->cache[$key];
         }
@@ -132,9 +132,16 @@ class PermissionManager
             $permissions
         );
 
+        unset($this->cache[$this->getCacheKey($userId, $objectType, $objectId)]);
+
         $this->eventDispatcher->dispatch(new AclUpsertEvent($objectType, $objectId), AclUpsertEvent::NAME);
 
         return $ace;
+    }
+
+    private function getCacheKey(string $userId, string $objectType, ?string $objectId): string
+    {
+        return sprintf('%s:%s:%s', $userId, $objectType, $objectId);
     }
 
     public function deleteAce(string $userType, string $userId, string $objectType, ?string $objectId): void
@@ -147,5 +154,7 @@ class PermissionManager
         )) {
             $this->eventDispatcher->dispatch(new AclDeleteEvent($objectType, $objectId), AclDeleteEvent::NAME);
         }
+
+        unset($this->cache[$this->getCacheKey($userId, $objectType, $objectId)]);
     }
 }
