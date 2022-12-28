@@ -29,8 +29,7 @@ class RenditionDefinitionCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'name', 'definition', 'priority'])
             ->setPaginatorPageSize(100)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -68,5 +67,6 @@ class RenditionDefinitionCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
         }
+        return [];
     }
 }

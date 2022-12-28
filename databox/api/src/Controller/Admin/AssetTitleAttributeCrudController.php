@@ -26,8 +26,7 @@ class AssetTitleAttributeCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'priority'])
             ->setPaginatorPageSize(200)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -55,5 +54,6 @@ class AssetTitleAttributeCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $definition, $priority, $overrides];
         }
+        return [];
     }
 }

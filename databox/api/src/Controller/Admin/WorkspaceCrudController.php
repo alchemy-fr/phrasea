@@ -26,8 +26,7 @@ class WorkspaceCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
             ->setPaginatorPageSize(100)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            // ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -59,5 +58,6 @@ class WorkspaceCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$name, $slug, $ownerId, $enabledLocales, $localeFallbacks];
         }
+        return [];
     }
 }

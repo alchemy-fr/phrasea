@@ -22,8 +22,7 @@ class WebhookCrudController extends AbstractCrudController
         return $crud
             ->setSearchFields(['id', 'url', 'secret', 'events', 'options'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -49,5 +48,6 @@ class WebhookCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$url, $events, $verifySSL, $secret, $timeout, $active];
         }
+        return [];
     }
 }

@@ -23,8 +23,7 @@ class IntegrationCrudController extends AbstractCrudController
         return $crud
             ->setSearchFields(['id', 'title', 'integration', 'config'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -50,5 +49,6 @@ class IntegrationCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$title, $workspace, $integration, $optionsYaml, $enabled];
         }
+        return [];
     }
 }

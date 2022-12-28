@@ -26,8 +26,7 @@ class RenditionRuleCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId'])
             ->setPaginatorPageSize(100)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -51,5 +50,6 @@ class RenditionRuleCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$userType, $userId, $objectType, $objectId, $allowed];
         }
+        return [];
     }
 }

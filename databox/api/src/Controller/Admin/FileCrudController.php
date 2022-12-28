@@ -28,8 +28,7 @@ class FileCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'type', 'size', 'checksum', 'path', 'storage', 'originalName', 'extension', 'alternateUrls', 'metadata'])
             ->setPaginatorPageSize(200)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -66,5 +65,6 @@ class FileCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
         }
+        return [];
     }
 }

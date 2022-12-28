@@ -24,8 +24,7 @@ class OAuthClientCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('OAuthClient')
             ->setSearchFields(['randomId', 'redirectUris', 'secret', 'allowedGrantTypes', 'id', 'allowedScopes'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
-            ;
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
     }
 
     public function configureFields(string $pageName): iterable

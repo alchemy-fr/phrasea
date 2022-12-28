@@ -27,8 +27,7 @@ class AttributeClassCrudController extends AbstractCrudController
             ->setSearchFields(['id', 'name', 'key'])
             ->setPaginatorPageSize(100)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -61,5 +60,6 @@ class AttributeClassCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $name, $public, $editable];
         }
+        return [];
     }
 }

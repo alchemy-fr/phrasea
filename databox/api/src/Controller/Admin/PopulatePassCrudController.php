@@ -25,8 +25,7 @@ class PopulatePassCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('PopulatePass')
             ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -53,5 +52,6 @@ class PopulatePassCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
         }
+        return [];
     }
 }

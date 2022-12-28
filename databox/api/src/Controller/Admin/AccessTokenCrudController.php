@@ -26,8 +26,7 @@ class AccessTokenCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('AccessToken')
             ->setSearchFields(['token'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -50,5 +49,6 @@ class AccessTokenCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$token, $expiresAt, $scope, $createdAt, $client];
         }
+        return [];
     }
 }

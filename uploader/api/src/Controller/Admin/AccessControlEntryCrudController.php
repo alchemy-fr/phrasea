@@ -23,8 +23,7 @@ class AccessControlEntryCrudController extends AbstractCrudController
         return $crud
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId', 'mask'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
-            ;
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
     }
 
     public function configureFields(string $pageName): iterable

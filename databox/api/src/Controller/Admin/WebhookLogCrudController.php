@@ -23,8 +23,7 @@ class WebhookLogCrudController extends AbstractCrudController
         return $crud
             ->setSearchFields(['id', 'event', 'payload', 'response'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -47,5 +46,6 @@ class WebhookLogCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$event, $response, $createdAt, $webhook];
         }
+        return [];
     }
 }

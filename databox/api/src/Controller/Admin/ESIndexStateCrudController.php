@@ -23,8 +23,7 @@ class ESIndexStateCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('ESIndexState')
             ->setSearchFields(['id', 'indexName', 'mapping'])
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            // todo: EA3
-            //->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -45,5 +44,6 @@ class ESIndexStateCrudController extends AbstractCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$indexName, $createdAt, $updatedAt];
         }
+        return [];
     }
 }
