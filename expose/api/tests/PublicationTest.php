@@ -720,11 +720,12 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testChangeProfileOnPublication(): void
     {
-        $publicationId = $this->createPublication([
+        $publication = $this->createPublication([
             'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
             'publiclyListed' => true,
             'enabled' => false,
         ]);
+        $publicationId = $publication->getId();
 
         $profileId = $this->createProfile([
             'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
