@@ -19,11 +19,7 @@ import useFormSubmit, {UseFormHandleSubmit} from "../../../hooks/useFormSubmit";
 import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
 import RemoteErrors from "../../Form/RemoteErrors";
-import SortableList, {
-    OrderChangeHandler,
-    SortableItem,
-    SortableItemProps
-} from "../../Ui/Sortable/SortableList";
+import SortableList, {OrderChangeHandler, SortableItem, SortableItemProps} from "../../Ui/Sortable/SortableList";
 
 type DefinitionBase = ApiHydraObjectResponse & { id: string };
 

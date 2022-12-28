@@ -123,13 +123,13 @@ class AssetPostTransformListener implements EventSubscriberInterface
                     $v = $a->getValues();
                     if (!empty($v)) {
                         $v = array_map(function (string $v) use ($type): string {
-                            return $type->normalizeValue($v);
+                            return $type->normalizeElasticsearchValue($v);
                         }, $v);
                     }
                 } else {
                     $v = $a->getValue();
                     if (null !== $v) {
-                        $v = $type->normalizeValue($v);
+                        $v = $type->normalizeElasticsearchValue($v);
                     }
                 }
 

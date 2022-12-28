@@ -83,7 +83,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                                          onChange: onChangeProp,
                                          loadOptions,
                                          disabledValues,
-                                                                              cacheOptions = true,
+                                         cacheOptions = true,
                                          isMulti,
                                          ...rest
                                      }: Props<TFieldValues, IsMulti>) {

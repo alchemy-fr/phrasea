@@ -57,7 +57,7 @@ function AssetList({
 export default function CopyAssetsDialog({
                                              assets,
                                              onComplete,
-    open,
+                                             open,
                                          }: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();

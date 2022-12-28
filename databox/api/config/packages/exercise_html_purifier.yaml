@@ -1,0 +1,10 @@
+exercise_html_purifier:
+    default_cache_serializer_path: '%kernel.cache_dir%/htmlpurifier'
+
+    html_profiles:
+        default:
+            config:
+                # the charset used by the original contents
+                Core.Encoding: 'UTF-8'
+                HTML.Allowed: 'a[href|target],p,br,div[style],img[src|alt|width|height]'
+                Attr.AllowedFrameTargets: '_blank'

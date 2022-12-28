@@ -24,7 +24,10 @@ export type SortableItem = {
     position: number;
 };
 
-function SortableCollectionItem<TFieldValues extends FieldValues>({id, ...props}: { id: string } & CollectionItemProps<TFieldValues>) {
+function SortableCollectionItem<TFieldValues extends FieldValues>({
+                                                                      id,
+                                                                      ...props
+                                                                  }: { id: string } & CollectionItemProps<TFieldValues>) {
     const {
         attributes,
         listeners,
@@ -92,15 +95,15 @@ export function extendSortableList<R = any>(list: R[] | undefined): SortableValu
 }
 
 export default function SortableCollectionWidget<TFieldValues extends FieldValues>({
-                                                                   path,
-                                                                   emptyItem,
-                                                                   renderForm,
-                                                                   control,
-                                                                   register,
-                                                                   label,
-                                                                   removeLabel,
-                                                                   addLabel,
-                                                               }: CollectionWidgetProps<TFieldValues>) {
+                                                                                       path,
+                                                                                       emptyItem,
+                                                                                       renderForm,
+                                                                                       control,
+                                                                                       register,
+                                                                                       label,
+                                                                                       removeLabel,
+                                                                                       addLabel,
+                                                                                   }: CollectionWidgetProps<TFieldValues>) {
     const {fields: _fields, remove, append, move} = useFieldArray<TFieldValues>({
         control,
         name: path as unknown as any,

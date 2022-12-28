@@ -8,13 +8,13 @@ import React from "react";
 import PermissionRowSkeleton from "./PermissionRowSkeleton";
 
 export default function PermissionTable({
-                             permissions,
-                             onMaskChange,
-                             onDelete,
-                             users,
-                             groups,
-                             displayedPermissions,
-                         }: {
+                                            permissions,
+                                            onMaskChange,
+                                            onDelete,
+                                            users,
+                                            groups,
+                                            displayedPermissions,
+                                        }: {
     permissions: Permission[] | undefined;
     users: User[] | undefined;
     groups: Group[] | undefined;

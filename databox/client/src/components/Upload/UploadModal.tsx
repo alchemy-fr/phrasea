@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Box, Grid} from "@mui/material";
 import FileCard from "./FileCard";
 import {toast} from "react-toastify";

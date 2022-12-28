@@ -81,6 +81,7 @@ export default function TranslatableAttributeTabs({
             return <TabPanel
                 currentValue={currentLocale}
                 value={locale}
+                key={locale}
             >
                 {definition.multiple ? <MultiAttributeRow
                     indeterminate={indeterminate}

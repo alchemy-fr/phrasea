@@ -2,6 +2,7 @@ import React, {PropsWithChildren} from 'react';
 import {Asset} from "../../../../types";
 import {formatAttribute} from "../../Asset/Attribute/AttributeFormatter";
 import SectionDivider from "./SectionDivider";
+import {AttributeFormatContext} from "../../Asset/Attribute/Format/AttributeFormatContext";
 
 type Props = PropsWithChildren<{
     asset: Asset;
@@ -12,6 +13,8 @@ export default function GroupRow({
                                      children,
                                  }: Props) {
     const groupValue = asset.groupValue;
+    const formatContext = React.useContext(AttributeFormatContext);
+
     if (!groupValue) {
         return <>{children}</>;
     }
@@ -22,13 +25,8 @@ export default function GroupRow({
     } = groupValue;
 
     return <>
-        <SectionDivider
-            rootStyle={theme => ({
-                margin: `0 -${theme.spacing(1)}`,
-                width: `calc(100% + ${theme.spacing(2)})`,
-            })}
-        >
-            {formatAttribute(type, label)}
+        <SectionDivider>
+            {formatAttribute(type, label, formatContext.formats[type])}
         </SectionDivider>
         {children}
     </>

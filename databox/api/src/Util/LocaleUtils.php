@@ -10,4 +10,9 @@ class LocaleUtils
     {
         return preg_replace('#_.+$#', '', $locale);
     }
+
+    public static function normalizeLocale(string $locale): string
+    {
+        return str_replace('-', '_', $locale);
+    }
 }

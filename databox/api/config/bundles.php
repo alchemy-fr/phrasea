@@ -31,4 +31,5 @@ return [
     Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
     Alchemy\TestBundle\AlchemyTestBundle::class => ['test' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
+    Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
 ];

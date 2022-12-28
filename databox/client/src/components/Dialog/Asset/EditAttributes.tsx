@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Asset, Attribute, AttributeDefinition} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import ContentTab from "../Tabbed/ContentTab";
@@ -49,38 +49,38 @@ export default function EditAttributes({
     }, [data.id]);
 
     return state ? <AttributesEditor
-            attributes={state.attributeIndex}
-            definitions={state.definitionIndex}
-            assetId={data.id}
-            onClose={onClose}
-            minHeight={minHeight}
-            onEdit={() => {
-            }}
-        /> : <ContentTab
+        attributes={state.attributeIndex}
+        definitions={state.definitionIndex}
+        assetId={data.id}
+        onClose={onClose}
+        minHeight={minHeight}
+        onEdit={() => {
+        }}
+    /> : <ContentTab
         minHeight={minHeight}
         onClose={onClose}
     >
-            {[0, 1, 2].map(x => <React.Fragment key={x}>
-                <FormRow>
-                    <FormLabel>
-                        <Skeleton
-                            width={'200'}
-                            variant={'text'}
-                            style={{
-                                display: 'inline-block',
-                                width: '200px',
-                            }}
-                        />
-                    </FormLabel>
+        {[0, 1, 2].map(x => <React.Fragment key={x}>
+            <FormRow>
+                <FormLabel>
                     <Skeleton
-                        width={'100%'}
-                        height={56}
-                        variant={'rectangular'}
-                        sx={{
-                            mb: 2,
+                        width={'200'}
+                        variant={'text'}
+                        style={{
+                            display: 'inline-block',
+                            width: '200px',
                         }}
                     />
-                </FormRow>
-            </React.Fragment>)}
-        </ContentTab>
+                </FormLabel>
+                <Skeleton
+                    width={'100%'}
+                    height={56}
+                    variant={'rectangular'}
+                    sx={{
+                        mb: 2,
+                    }}
+                />
+            </FormRow>
+        </React.Fragment>)}
+    </ContentTab>
 }

@@ -156,7 +156,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         // Then we receive webhook for each generated sub def:
         // Call from Phraseanet with valid token
         $thumbnailRemoteUrl = 'https://foo.bar/permalink/123456/thumb.jpg';
-        $response = $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
+        $apiClient->request('POST', sprintf('/integrations/phraseanet/%s/events', $integration->getId()), [
             'json' => [
                 'event' => 'record.subdef.created',
                 'url' => 'foo.bar',

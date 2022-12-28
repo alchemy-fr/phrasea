@@ -174,6 +174,18 @@
     "elasticsearch/elasticsearch": {
         "version": "v7.10.0"
     },
+    "exercise/htmlpurifier-bundle": {
+        "version": "4.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "99590c5352b58fadacd5535337589aba7e44f5a7"
+        },
+        "files": [
+            "config/packages/exercise_html_purifier.yaml"
+        ]
+    },
     "ezimuel/guzzlestreams": {
         "version": "3.0.1"
     },

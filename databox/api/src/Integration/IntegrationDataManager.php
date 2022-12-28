@@ -8,6 +8,7 @@ use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 class IntegrationDataManager
 {
@@ -16,6 +17,16 @@ class IntegrationDataManager
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
+    }
+
+    public function getWorkspaceIntegration(string $id): WorkspaceIntegration
+    {
+        $workspaceIntegration = $this->em->find(WorkspaceIntegration::class, $id);
+        if (!$workspaceIntegration instanceof WorkspaceIntegration) {
+            throw new InvalidArgumentException(sprintf('WorkspaceIntegration %s not found', $id));
+        }
+
+        return $workspaceIntegration;
     }
 
     public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData

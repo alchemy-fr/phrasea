@@ -14,10 +14,11 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
         const data = await getAttributeFieldTypes();
 
         return data.filter(i =>
-            i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+            i.title.toLowerCase().includes((inputValue || '').toLowerCase())
         ).map(d => ({
-            ...d,
-            image: fieldTypesIcons[d.value] ?? fieldTypesIcons.text,
+            label: d.title,
+            value: d.name,
+            image: fieldTypesIcons[d.name] ?? fieldTypesIcons.text,
         }));
     }, []);
 

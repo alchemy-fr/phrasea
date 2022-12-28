@@ -5,8 +5,7 @@ import {Filters, SortBy} from "./Filter";
 import {hashToQuery, queryToHash} from "./search";
 import useHash from "../../../lib/useHash";
 
-export function getResolvedSortBy(sortBy: SortBy[]): SortBy[]
-{
+export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0 ? sortBy : [
         {
             a: 'createdAt',
@@ -36,7 +35,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     }, [setHash, query, filters, sortBy, workspaceId]);
 
     const setAttrFilters = useCallback((handler: (prev: Filters) => Filters): void => {
-        setHash(queryToHash(query,  handler(filters), sortBy, workspaceId, collectionId));
+        setHash(queryToHash(query, handler(filters), sortBy, workspaceId, collectionId));
     }, [setHash, query, filters, sortBy, workspaceId, collectionId]);
 
     const setSortBy = useCallback((newValue: SortBy[]): void => {

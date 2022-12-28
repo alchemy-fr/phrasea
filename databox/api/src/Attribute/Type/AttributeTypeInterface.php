@@ -23,13 +23,18 @@ interface AttributeTypeInterface
     public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array;
 
     /**
-     * Normalize value for Elastic search.
+     * Normalize value for database.
      *
      * @param mixed $value
+     */
+    public function normalizeValue($value): ?string;
+
+    /**
+     * De-normalize value from database to PHP.
      *
      * @return mixed
      */
-    public function normalizeValue($value);
+    public function denormalizeValue(?string $value);
 
     /**
      * Format value for client.
@@ -39,13 +44,18 @@ interface AttributeTypeInterface
     public function getGroupValueLabel($value): ?string;
 
     /**
-     * De-normalize value from Elastic search to PHP.
+     * De-normalize value from Elasticsearch to database.
      *
      * @param mixed $value
+     */
+    public function denormalizeElasticsearchValue($value): ?string;
+
+    /**
+     * Normalize value from database to ES index.
      *
      * @return mixed
      */
-    public function denormalizeValue($value);
+    public function normalizeElasticsearchValue(?string $value);
 
     public function isLocaleAware(): bool;
 

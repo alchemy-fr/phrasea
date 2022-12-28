@@ -6,10 +6,18 @@ namespace App\Attribute;
 
 use App\Api\Model\Input\Attribute\AbstractAttributeInput;
 use App\Entity\Core\Attribute;
+use App\Util\LocaleUtils;
 use InvalidArgumentException;
 
 class AttributeAssigner
 {
+    private AttributeTypeRegistry $attributeTypeRegistry;
+
+    public function __construct(AttributeTypeRegistry $attributeTypeRegistry)
+    {
+        $this->attributeTypeRegistry = $attributeTypeRegistry;
+    }
+
     public function assignAttributeFromInput(Attribute $attribute, AbstractAttributeInput $data): Attribute
     {
         if ($data->origin) {
@@ -31,10 +39,12 @@ class AttributeAssigner
         }
 
         if ($data->locale) {
-            $attribute->setLocale($data->locale);
+            $attribute->setLocale(LocaleUtils::normalizeLocale($data->locale));
         }
 
-        $value = null === $data->value ? null : (string) $data->value;
+        $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
+        $value = $type->normalizeValue($data->value);
+
         $attribute->setValue($value);
         $attribute->setOriginUserId($data->originUserId);
         $attribute->setOriginVendor($data->originVendor);

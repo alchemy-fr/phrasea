@@ -1,13 +1,11 @@
 import React, {FormEvent, useContext, useEffect, useRef, useState} from 'react';
 import {styled} from "@mui/material/styles";
-import {alpha, Box, Button, IconButton, InputBase} from "@mui/material";
+import {alpha, Box, Button, InputBase} from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import SearchFilters from "./SearchFilters";
 import {useTranslation} from "react-i18next";
 import {SearchContext} from "./SearchContext";
 import {ResultContext} from "./ResultContext";
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import SortBy from "./Sorting/SortBy";
 import {zIndex} from "../../../themes/zIndex";
 

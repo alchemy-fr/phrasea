@@ -14,6 +14,7 @@ import {PrivacyTooltip} from "../../../Ui/PrivacyChip";
 import {replaceHighlight} from "../../Asset/Attribute/Attributes";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
 import GroupRow from "./GroupRow";
+import {sectionDividerClassname} from "./SectionDivider";
 
 const lineHeight = 26;
 const collLineHeight = 32;
@@ -86,7 +87,7 @@ const AssetItem = React.memo(({
         />
         <div className={assetClasses.legend}>
             <div className={assetClasses.title}>
-                {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}
+                {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : (asset.resolvedTitle ?? asset.title)}
             </div>
             {asset.tags.length > 0 && <div>
                 <AssetTagList
@@ -129,6 +130,10 @@ export default function GridLayout({
         spacing={1}
         sx={(theme) => ({
             p: 2,
+            [`.${sectionDividerClassname}`]: {
+                margin: `0 -${theme.spacing(1)}`,
+                width: `calc(100% + ${theme.spacing(2)})`,
+            },
             [`.${assetClasses.item}`]: {
                 width: d.thumbSize,
                 height: totalHeight,

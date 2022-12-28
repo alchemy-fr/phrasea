@@ -1,5 +1,5 @@
 import React from 'react';
-import {Asset, Collection} from "../../../types";
+import {Collection} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import ContentTab from "../Tabbed/ContentTab";
 import {Divider, MenuList} from "@mui/material";
@@ -13,10 +13,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function InfoCollection({
-                                      data,
-                                      onClose,
-                                      minHeight,
-                                  }: Props) {
+                                           data,
+                                           onClose,
+                                           minHeight,
+                                       }: Props) {
     return <ContentTab
         onClose={onClose}
         minHeight={minHeight}

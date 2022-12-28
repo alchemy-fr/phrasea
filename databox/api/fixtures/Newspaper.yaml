@@ -41,6 +41,25 @@ App\Entity\Core\AttributeDefinition:
     name: Admin notes
     class: '@n_ac_business'
     position: 2
+  ad_vtt (extends attribute_definition):
+    name: WebVTT
+    type: web_vtt
+    class: '@n_ac_business'
+    translatable: true
+    position: 3
+  ad_date (extends attribute_definition):
+    name: Date
+    type: date
+    facetEnabled: true
+    class: '@n_ac_public'
+    position: 4
+  ad_languages (extends attribute_definition):
+    name: Languages
+    type: locale
+    facetEnabled: true
+    multiple: true
+    class: '@n_ac_public'
+    position: 5
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):

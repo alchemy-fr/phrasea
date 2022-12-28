@@ -44,15 +44,15 @@ type ItemProps<TFieldValues extends FieldValues> = {
 export type {ItemProps as CollectionItemProps};
 
 export function CollectionItem<TFieldValues extends FieldValues>({
-                                                 renderForm,
-                                                 remove,
-                                                 removeLabel,
-                                                 register,
-                                                 index,
-                                                 path,
-                                                 sortable,
-                                                 dragListeners,
-                                             }: ItemProps<TFieldValues>) {
+                                                                     renderForm,
+                                                                     remove,
+                                                                     removeLabel,
+                                                                     register,
+                                                                     index,
+                                                                     path,
+                                                                     sortable,
+                                                                     dragListeners,
+                                                                 }: ItemProps<TFieldValues>) {
     return <Box
         sx={{
             position: 'relative',
@@ -94,15 +94,15 @@ export function CollectionItem<TFieldValues extends FieldValues>({
 }
 
 export default function CollectionWidget<TFieldValues extends FieldValues>({
-                                                           path,
-                                                           emptyItem,
-                                                           renderForm,
-                                                           control,
-                                                           register,
-                                                           label,
-                                                           removeLabel,
-                                                           addLabel,
-                                                       }: Props<TFieldValues>) {
+                                                                               path,
+                                                                               emptyItem,
+                                                                               renderForm,
+                                                                               control,
+                                                                               register,
+                                                                               label,
+                                                                               removeLabel,
+                                                                               addLabel,
+                                                                           }: Props<TFieldValues>) {
     const {fields, remove, append} = useFieldArray<TFieldValues>({
         control,
         name: path as unknown as any,

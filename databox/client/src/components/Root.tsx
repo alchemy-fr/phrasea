@@ -63,21 +63,6 @@ export default class Root extends PureComponent<{}, State> {
         }
     }
 
-    private authenticate = (): void => {
-        if (!oauthClient.hasAccessToken()) {
-            return;
-        }
-
-        this.setState({authenticating: true}, () => {
-            authenticate().then(() => {
-                this.setState({authenticating: false});
-            }, (error: any) => {
-                console.error(error);
-                oauthClient.logout();
-            });
-        });
-    }
-
     render() {
         return <ThemeProvider theme={createCachedTheme(this.state.theme)}>
             <CssBaseline/>
@@ -119,5 +104,20 @@ export default class Root extends PureComponent<{}, State> {
                 </ModalStack>
             </UserContext.Provider>
         </ThemeProvider>
+    }
+
+    private authenticate = (): void => {
+        if (!oauthClient.hasAccessToken()) {
+            return;
+        }
+
+        this.setState({authenticating: true}, () => {
+            authenticate().then(() => {
+                this.setState({authenticating: false});
+            }, (error: any) => {
+                console.error(error);
+                oauthClient.logout();
+            });
+        });
     }
 }

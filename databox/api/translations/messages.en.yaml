@@ -1,0 +1,15 @@
+field_type:
+  types:
+    text: Text
+    textarea: Textarea
+    json: JSON
+    ip: IP
+    code: Code
+    html: HTML
+    boolean: Boolean
+    color: Color
+    keyword: Keyword
+    number: Number
+    date: Date
+    date_time: Date & Time
+    geo_point: Geo point

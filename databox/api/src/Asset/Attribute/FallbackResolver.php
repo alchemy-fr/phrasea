@@ -36,7 +36,7 @@ class FallbackResolver
         $this->indexByName = [];
 
         foreach ($definitions as $definition) {
-            $this->indexByName[$definition->getName()] = $definition;
+            $this->indexByName[$definition->getSlug()] = $definition;
         }
 
         return $this->indexByName;

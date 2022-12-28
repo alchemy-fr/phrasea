@@ -9,7 +9,6 @@ use App\Util\LocaleUtils;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Throwable;
 
 class TextAttributeType extends AbstractAttributeType
 {
@@ -40,7 +39,7 @@ class TextAttributeType extends AbstractAttributeType
             $mapping['fields'] = [
                 'raw' => [
                     'type' => 'keyword',
-                    'ignore_above' => 10000,
+                    'ignore_above' => 500,
                 ],
             ];
         }
@@ -95,19 +94,6 @@ class TextAttributeType extends AbstractAttributeType
         }
 
         return $mapping;
-    }
-
-    public function normalizeValue($value)
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        try {
-            return (string) $value;
-        } catch (Throwable $e) {
-            return null;
-        }
     }
 
     public function isLocaleAware(): bool

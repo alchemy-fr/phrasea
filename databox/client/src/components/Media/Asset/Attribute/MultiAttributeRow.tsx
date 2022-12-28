@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, InputLabel} from "@mui/material";
+import {Button} from "@mui/material";
 import AttributeWidget from "./AttributeWidget";
 import {AttrValue, createNewValue} from "./AttributesEditor";
 import FormRow from "../../../Form/FormRow";

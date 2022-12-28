@@ -15,6 +15,9 @@ class FileDownloader
         $this->client = $client;
     }
 
+    /**
+     * @return string The temporary file path
+     */
     public function download(string $uri, array &$headers = []): string
     {
         $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');

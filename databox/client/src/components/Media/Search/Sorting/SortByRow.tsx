@@ -5,6 +5,7 @@ import {TogglableSortBy} from "./EditSortBy";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import {grey} from "@mui/material/colors";
 
 export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1, grouped?: boolean | undefined) => void;
 
@@ -90,16 +91,16 @@ export default function SortByRow({
 }
 
 const ToggleWay = styled(Switch)(({theme}) => ({
-    width: 62,
+    width: 60,
     height: 34,
-    padding: 7,
+    padding: 9,
     '& .MuiSwitch-switchBase': {
         margin: 1,
         padding: 0,
         transform: 'translateX(6px)',
         '&.Mui-checked': {
             color: '#fff',
-            transform: 'translateX(22px)',
+            transform: 'translateX(24px)',
             '& .MuiSwitch-thumb:before': {
                 transform: `rotateZ(0)`,
                 backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><polygon fill="${encodeURIComponent(
@@ -108,14 +109,14 @@ const ToggleWay = styled(Switch)(({theme}) => ({
             },
             '& + .MuiSwitch-track': {
                 opacity: 1,
-                backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+                backgroundColor: theme.palette.mode === 'dark' ? grey[600] : grey[400],
             },
         },
     },
     '& .MuiSwitch-thumb': {
-        backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
-        width: 32,
-        height: 32,
+        backgroundColor: theme.palette.primary.main,
+        width: 28,
+        height: 28,
         '&:before': {
             content: "''",
             position: 'absolute',
@@ -133,7 +134,7 @@ const ToggleWay = styled(Switch)(({theme}) => ({
     },
     '& .MuiSwitch-track': {
         opacity: 1,
-        backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+        backgroundColor: theme.palette.mode === 'dark' ? grey[600] : grey[400],
         borderRadius: 20 / 2,
     },
 }));

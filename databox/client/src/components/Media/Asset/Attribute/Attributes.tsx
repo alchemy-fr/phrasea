@@ -1,12 +1,14 @@
-import {Asset, Attribute} from "../../../../types";
+import {Asset} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
-import React, {ReactElement, ReactNode, ReactNodeArray} from "react";
-import {isRtlLocale} from "../../../../lib/lang";
+import React, {PropsWithChildren, ReactElement, ReactNode} from "react";
 import {styled} from "@mui/material/styles";
+import AttributeRowUI from "./AttributeRowUI";
+import {Box} from "@mui/material";
+import {stopPropagation} from "../../../../lib/stdFuncs";
 
 const nl2br = require('react-nl2br');
 
-type FreeNode = string | ReactNode | ReactNodeArray;
+type FreeNode = string | ReactNode | ReactNode[];
 
 function replaceText(text: FreeNode, func: (text: string) => FreeNode, options: {
     props?: {};
@@ -54,44 +56,37 @@ export function replaceHighlight(value?: string): FreeNode {
     return replaceText(replaced, nl2br);
 }
 
-function AttributeRow({
-                          definition,
-                          value,
-                          highlight,
-                          locale,
-                      }: Attribute) {
-    const finalValue = highlight || value;
-
-    const isRtl = isRtlLocale(locale);
-
-    return <div
-        style={isRtl ? {
-            direction: 'rtl'
-        } : undefined}>
-        <b>{definition.name}</b>
-        {' '}
-        <span
-            lang={locale}
-        >
-            {finalValue && Array.isArray(finalValue)
-                ? <ul>{finalValue.map((v, i) => <li key={i}>
-                    {replaceHighlight(v)}
-                </li>)}</ul> : replaceHighlight(finalValue)}
-        </span>
-    </div>
-}
-
-type Props = {
+type Props = PropsWithChildren<{
     asset: Asset;
-}
+}>
 
 export default function Attributes({
                                        asset,
+                                       children,
                                    }: Props) {
-    return <>
-        {asset.attributes.map(a => <AttributeRow
-            {...a}
+    return <Box
+        sx={{
+            '.attr-name': {
+                fontWeight: 100,
+                fontSize: 13,
+            },
+            '.attr-val': {
+                mb: 2,
+            }
+        }}
+        onDoubleClick={stopPropagation}
+        onClick={stopPropagation}
+        onMouseDown={stopPropagation}
+    >
+        {asset.attributes.map(a => <AttributeRowUI
             key={a.id}
+            value={a.value}
+            attributeName={a.definition.name}
+            type={a.definition.fieldType}
+            locale={a.locale}
+            highlight={a.highlight}
+            multiple={a.multiple}
         />)}
-    </>
+        {children}
+    </Box>
 }

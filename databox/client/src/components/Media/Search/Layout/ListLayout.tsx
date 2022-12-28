@@ -1,6 +1,6 @@
 import React, {MouseEvent, useContext} from "react";
 import {LayoutProps, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout";
-import {alpha, Box, Checkbox, Grid, IconButton} from "@mui/material";
+import {Box, Checkbox, Grid, IconButton} from "@mui/material";
 import AssetThumb, {createThumbActiveStyle} from "../../Asset/AssetThumb";
 import {DisplayContext} from "../../DisplayContext";
 import {Asset} from "../../../../types";
@@ -12,7 +12,9 @@ import AssetCollectionList from "../../Asset/Widgets/CollectionList";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 import PrivacyChip from "../../../Ui/PrivacyChip";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
-import moment from "moment";
+import GroupRow from "./GroupRow";
+import AttributeRowUI from "../../Asset/Attribute/AttributeRowUI";
+import {AttributeType} from "../../../../api/attributes";
 
 const AssetItem = React.memo(({
                                   asset,
@@ -77,7 +79,7 @@ const AssetItem = React.memo(({
                 <div
                     className={assetClasses.title}
                 >
-                    {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : asset.title}
+                    {asset.titleHighlight ? replaceHighlight(asset.titleHighlight) : (asset.resolvedTitle ?? asset.title)}
                 </div>
                 {asset.tags.length > 0 && <div>
                     <AssetTagList
@@ -96,12 +98,16 @@ const AssetItem = React.memo(({
                 </div>
                 {displayAttributes && <Attributes
                     asset={asset}
-                />}
-                    <div>
-                        <b>Creation date</b>
-                        {' '}
-                        {moment(asset.createdAt).format('LLLL')}
-                    </div>
+                >
+                    <AttributeRowUI
+                        value={asset.createdAt}
+                        attributeName={`Creation date`}
+                        locale={undefined}
+                        multiple={false}
+                        type={AttributeType.DateTime}
+
+                    />
+                </Attributes>}
             </Grid>
         </Grid>
     </div>
@@ -148,9 +154,7 @@ export default function ListLayout({
                     },
                 },
                 '&.selected': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.5),
                     boxShadow: theme.shadows[2],
-                    color: theme.palette.primary.contrastText,
                 },
                 [`.${assetClasses.thumbWrapper}`]: createThumbActiveStyle(),
             },
@@ -159,28 +163,33 @@ export default function ListLayout({
         {assets.map(a => {
             const contextMenu = onContextMenuOpen && hasContextMenu(a);
 
-            return <div
+            return <GroupRow
                 key={a.id}
-                onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
-                onContextMenu={onContextMenuOpen ? (e) => {
-                    if (!contextMenu) {
-                        e.preventDefault();
-                        return;
-                    }
-                    onContextMenuOpen!(e, a);
-                } : undefined}
+                asset={a}
             >
-                <AssetItem
-                    asset={a}
-                    selected={selectedAssets.includes(a.id)}
-                    onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
-                    displayAttributes={displayAttributes}
-                    onSelect={onSelect}
-                    onUnselect={onUnselect}
-                    thumbSize={thumbSize}
-                    onPreviewToggle={onPreviewToggle}
-                />
-            </div>
+                <div
+                    key={a.id}
+                    onDoubleClick={onOpen && a.original ? () => onOpen(a.id, a.original!.id) : undefined}
+                    onContextMenu={onContextMenuOpen ? (e) => {
+                        if (!contextMenu) {
+                            e.preventDefault();
+                            return;
+                        }
+                        onContextMenuOpen!(e, a);
+                    } : undefined}
+                >
+                    <AssetItem
+                        asset={a}
+                        selected={selectedAssets.includes(a.id)}
+                        onContextMenuOpen={contextMenu ? onContextMenuOpen : undefined}
+                        displayAttributes={displayAttributes}
+                        onSelect={onSelect}
+                        onUnselect={onUnselect}
+                        thumbSize={thumbSize}
+                        onPreviewToggle={onPreviewToggle}
+                    />
+                </div>
+            </GroupRow>
         })}
     </Box>
 }

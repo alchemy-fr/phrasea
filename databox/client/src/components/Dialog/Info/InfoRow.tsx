@@ -22,7 +22,7 @@ export default function InfoRow({
             {icon}
         </ListItemIcon>}
         <ListItemText>{label}</ListItemText>
-        <Typography variant="body2" color="text.secondary">
+        <Typography component="div" variant="body2" color="text.secondary">
             {copyValue && <Box component={'span'} sx={{
                 mr: 1
             }}>

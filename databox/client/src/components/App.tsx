@@ -18,38 +18,41 @@ import {Outlet, useLocation} from "react-router-dom";
 import {appPathPrefix} from "../routes";
 import uploaderClient from "../api/uploader-client";
 import {zIndex} from "../themes/zIndex";
+import AttributeFormatProvider from "./Media/Asset/Attribute/Format/AttributeFormatProvider";
 
 const AppProxy = React.memo(() => {
     return <SearchProvider>
         <ResultProvider>
             <AssetDropzone>
                 <MainAppBar/>
-                <AssetSelectionProvider>
-                    <DisplayProvider>
-                        <Box style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            height: `calc(100vh - ${menuHeight}px)`,
-                        }}>
-                            <Box sx={(theme) => ({
-                                width: 360,
-                                flexGrow: 0,
-                                flexShrink: 0,
+                <AttributeFormatProvider>
+                    <AssetSelectionProvider>
+                        <DisplayProvider>
+                            <Box style={{
+                                display: 'flex',
+                                flexDirection: 'row',
                                 height: `calc(100vh - ${menuHeight}px)`,
-                                overflow: 'auto',
-                                boxShadow: theme.shadows[5],
-                                zIndex: zIndex.leftPanel,
-                            })}>
-                                <LeftPanel/>
-                            </Box>
-                            <Box sx={{
-                                flexGrow: 1,
                             }}>
-                                <AssetResults/>
+                                <Box sx={(theme) => ({
+                                    width: 360,
+                                    flexGrow: 0,
+                                    flexShrink: 0,
+                                    height: `calc(100vh - ${menuHeight}px)`,
+                                    overflow: 'auto',
+                                    boxShadow: theme.shadows[5],
+                                    zIndex: zIndex.leftPanel,
+                                })}>
+                                    <LeftPanel/>
+                                </Box>
+                                <Box sx={{
+                                    flexGrow: 1,
+                                }}>
+                                    <AssetResults/>
+                                </Box>
                             </Box>
-                        </Box>
-                    </DisplayProvider>
-                </AssetSelectionProvider>
+                        </DisplayProvider>
+                    </AssetSelectionProvider>
+                </AttributeFormatProvider>
             </AssetDropzone>
         </ResultProvider>
     </SearchProvider>

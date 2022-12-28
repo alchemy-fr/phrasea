@@ -13,6 +13,11 @@ class FileUtil
         return 1 === preg_match('#^image/#', $mimeType ?? '');
     }
 
+    public static function isVideoType(?string $mimeType): bool
+    {
+        return 1 === preg_match('#^video/#', $mimeType ?? '');
+    }
+
     public static function guessExtension(?string $type, ?string $path): ?string
     {
         $ext = static::getExtensionFromType($type);

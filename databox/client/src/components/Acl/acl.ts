@@ -1,4 +1,3 @@
-
 export enum AclPermission {
     VIEW = 'VIEW',
     SHARE = 'SHARE',

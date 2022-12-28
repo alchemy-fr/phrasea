@@ -5,6 +5,7 @@ import './scss/index.scss';
 import Root from "./components/Root";
 import './config';
 import './i18n';
+import './lib/leaflet';
 
 ReactDOM.render(
     <React.StrictMode>

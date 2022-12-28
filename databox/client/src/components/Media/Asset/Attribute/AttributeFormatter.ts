@@ -1,16 +1,19 @@
 import {AttributeType} from "../../../../api/attributes";
-import moment from "moment";
+import {types} from "./types";
+import {AttributeFormat} from "./types/types";
 
-export function formatAttribute(type: AttributeType, value: any): string | undefined {
+export function formatAttribute(type: AttributeType, value: any, format?: AttributeFormat): string | undefined {
     if (!value) {
         return;
     }
 
-    switch (type) {
-        case AttributeType.Date:
-            return moment(parseInt(value as string) * 1000).format('ll');
-        default:
-        case AttributeType.Text:
-            return value.toString();
-    }
+    const formatter = types[type] ?? types[AttributeType.Text];
+
+    return new formatter().formatValueAsString({
+        value,
+        locale: undefined,
+        multiple: false,
+        highlight: undefined,
+        format,
+    });
 }

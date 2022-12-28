@@ -9,9 +9,9 @@ type Props<TFieldValues extends FieldValues> = {
 } & RSelectProps<TFieldValues, false>;
 
 export default function AttributeClassSelect<TFieldValues extends FieldValues>({
-                                                                        workspaceId,
-                                                                        ...rest
-                                                                    }: Props<TFieldValues>) {
+                                                                                   workspaceId,
+                                                                                   ...rest
+                                                                               }: Props<TFieldValues>) {
     const load = useCallback(async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getAttributeClasses(workspaceId)).result;
 
