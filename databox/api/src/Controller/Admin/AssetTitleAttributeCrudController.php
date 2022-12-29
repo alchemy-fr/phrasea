@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AssetTitleAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class AssetTitleAttributeCrudController extends AbstractCrudController
+class AssetTitleAttributeCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,13 +22,11 @@ class AssetTitleAttributeCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('AssetTitleAttribute')
             ->setEntityLabelInPlural('AssetTitleAttribute')
             ->setSearchFields(['id', 'priority'])
             ->setPaginatorPageSize(200)
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -43,7 +43,7 @@ class AssetTitleAttributeCrudController extends AbstractCrudController
         $definition = AssociationField::new('definition');
         $priority = IntegerField::new('priority');
         $overrides = Field::new('overrides');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $definition, $priority, $overrides];

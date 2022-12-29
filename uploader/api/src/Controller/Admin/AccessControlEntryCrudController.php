@@ -3,15 +3,19 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AccessControlEntryCrudController extends AbstractCrudController
+class AccessControlEntryCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,10 +24,9 @@ class AccessControlEntryCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId', 'mask'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
+            ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -33,7 +36,7 @@ class AccessControlEntryCrudController extends AbstractCrudController
         $objectType = TextField::new('objectType');
         $objectId = TextField::new('objectId');
         $permissions = Field::new('permissions');
-        $id = Field::new('id', 'ID');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $mask = IntegerField::new('mask');
         $createdAt = DateTimeField::new('createdAt');
         $userTypeString = TextareaField::new('userTypeString');

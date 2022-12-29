@@ -2,15 +2,17 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class WebhookCrudController extends AbstractCrudController
+class WebhookCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -19,10 +21,8 @@ class WebhookCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setSearchFields(['id', 'url', 'secret', 'events', 'options'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -34,7 +34,7 @@ class WebhookCrudController extends AbstractCrudController
         $secret = TextField::new('secret');
         $timeout = Field::new('timeout');
         $active = Field::new('active');
-        $id = Field::new('id', 'ID');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $options = TextField::new('options');
         $createdAt = DateTimeField::new('createdAt');
         $eventsLabel = TextareaField::new('eventsLabel');

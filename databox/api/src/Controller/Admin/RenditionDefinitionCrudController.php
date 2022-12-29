@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\RenditionDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -9,12 +10,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class RenditionDefinitionCrudController extends AbstractCrudController
+class RenditionDefinitionCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -23,13 +25,11 @@ class RenditionDefinitionCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('RenditionDefinition')
             ->setEntityLabelInPlural('RenditionDefinition')
             ->setSearchFields(['id', 'name', 'definition', 'priority'])
             ->setPaginatorPageSize(100)
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -51,7 +51,7 @@ class RenditionDefinitionCrudController extends AbstractCrudController
         $useAsThumbnail = Field::new('useAsThumbnail');
         $useAsThumbnailActive = Field::new('useAsThumbnailActive', 'Thumb Active');
         $priority = IntegerField::new('priority');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $download = Field::new('download');
         $definition = TextareaField::new('definition');
         $createdAt = DateTimeField::new('createdAt');

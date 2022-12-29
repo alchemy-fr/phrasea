@@ -247,9 +247,6 @@
     "opis/json-schema": {
         "version": "1.0.18"
     },
-    "pagerfanta/pagerfanta": {
-        "version": "v2.1.2"
-    },
     "paragonie/constant_time_encoding": {
         "version": "v2.4.0"
     },
@@ -513,9 +510,6 @@
     },
     "symfony/event-dispatcher-contracts": {
         "version": "v1.1.7"
-    },
-    "symfony/expression-language": {
-        "version": "v4.2.10"
     },
     "symfony/filesystem": {
         "version": "v4.2.5"

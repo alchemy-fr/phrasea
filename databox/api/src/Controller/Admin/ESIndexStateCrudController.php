@@ -2,14 +2,16 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Admin\ESIndexState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class ESIndexStateCrudController extends AbstractCrudController
+class ESIndexStateCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -18,12 +20,10 @@ class ESIndexStateCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('ESIndexState')
             ->setEntityLabelInPlural('ESIndexState')
             ->setSearchFields(['id', 'indexName', 'mapping'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -32,7 +32,7 @@ class ESIndexStateCrudController extends AbstractCrudController
         $indexName = TextField::new('indexName');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $mapping = TextField::new('mapping');
 
         if (Crud::PAGE_INDEX === $pageName) {

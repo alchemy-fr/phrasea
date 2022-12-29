@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\RenditionClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -9,10 +10,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class RenditionClassCrudController extends AbstractCrudController
+class RenditionClassCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -21,13 +23,11 @@ class RenditionClassCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('RenditionClass')
             ->setEntityLabelInPlural('RenditionClass')
             ->setSearchFields(['id', 'name'])
             ->setPaginatorPageSize(100)
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -43,7 +43,7 @@ class RenditionClassCrudController extends AbstractCrudController
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
         $public = Field::new('public');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');
         $definitions = AssociationField::new('definitions');
 

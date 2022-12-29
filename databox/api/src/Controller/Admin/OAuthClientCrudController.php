@@ -2,15 +2,17 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class OAuthClientCrudController extends AbstractCrudController
+class OAuthClientCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -19,18 +21,16 @@ class OAuthClientCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('OAuthClient')
             ->setEntityLabelInPlural('OAuthClient')
             ->setSearchFields(['randomId', 'redirectUris', 'secret', 'allowedGrantTypes', 'id', 'allowedScopes'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $id = TextField::new('id', 'ID');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $randomId = TextField::new('randomId');
         $secret = TextField::new('secret')->setTemplatePath('@AlchemyAdmin/list/secret.html.twig');
         $allowedGrantTypes = ArrayField::new('allowedGrantTypes');

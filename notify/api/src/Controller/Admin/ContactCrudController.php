@@ -2,51 +2,48 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Contact;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AccessControlEntryCrudController extends AbstractAdminCrudController
+class ContactCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return AccessControlEntry::class;
+        return Contact::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId', 'mask'])
+            ->setEntityLabelInSingular('Contact')
+            ->setEntityLabelInPlural('Contact')
+            ->setSearchFields(['id', 'userId', 'email', 'phone', 'locale'])
             ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $userType = IntegerField::new('userType');
-        $userId = TextField::new('userId', 'ID');
-        $objectType = TextField::new('objectType');
-        $objectId = TextField::new('objectId');
-        $permissions = Field::new('permissions');
+        $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $email = TextField::new('email');
+        $phone = TextField::new('phone');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $mask = IntegerField::new('mask');
+        $locale = TextField::new('locale');
         $createdAt = DateTimeField::new('createdAt');
-        $userTypeString = TextareaField::new('userTypeString');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$userTypeString, $userId, $objectType, $objectId, $mask];
+            return [$id, $userId, $email, $phone, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt];
+            return [$id, $userId, $email, $phone, $locale, $createdAt];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$userId, $email, $phone];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$userId, $email, $phone];
         }
         return [];
     }

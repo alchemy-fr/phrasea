@@ -2,17 +2,19 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AccessTokenCrudController extends AbstractCrudController
+class AccessTokenCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -21,12 +23,10 @@ class AccessTokenCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('AccessToken')
             ->setEntityLabelInPlural('AccessToken')
             ->setSearchFields(['token'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -37,7 +37,7 @@ class AccessTokenCrudController extends AbstractCrudController
         $scope = TextField::new('scope');
         $createdAt = DateTimeField::new('createdAt');
         $client = AssociationField::new('client');
-        $id = Field::new('id', 'ID');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $user = TextareaField::new('user');
 
         if (Crud::PAGE_INDEX === $pageName) {

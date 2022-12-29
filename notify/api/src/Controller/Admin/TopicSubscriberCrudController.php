@@ -3,52 +3,59 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use App\Entity\Core\RenditionRule;
+use App\Entity\TopicSubscriber;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class RenditionRuleCrudController extends AbstractAdminCrudController
+class TopicSubscriberCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return RenditionRule::class;
+        return TopicSubscriber::class;
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('RenditionRule')
-            ->setEntityLabelInPlural('RenditionRule')
-            ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId'])
-            ->setPaginatorPageSize(100)
+            ->setEntityLabelInSingular('TopicSubscriber')
+            ->setEntityLabelInPlural('TopicSubscriber')
+            ->setSearchFields(['id', 'topic'])
+            ;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
             ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $userType = IntegerField::new('userType');
-        $userId = TextField::new('userId');
-        $objectType = IntegerField::new('objectType');
-        $objectId = TextField::new('objectId');
-        $allowed = AssociationField::new('allowed');
+        $topic = TextField::new('topic');
+        $contact = AssociationField::new('contact');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
+        $contactEmail = TextareaField::new('contact.email');
+        $contactPhone = TextareaField::new('contact.phone');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $allowed, $createdAt];
+            return [$id, $topic, $contactEmail, $contactPhone, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $createdAt, $updatedAt, $allowed];
+            return [$id, $topic, $createdAt, $contact];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $allowed];
+            return [$topic, $contact];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $allowed];
+            return [$topic, $contact];
         }
         return [];
     }

@@ -2,38 +2,42 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class MultipartUploadCrudController extends AbstractCrudController
+class MultipartUploadCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
         return MultipartUpload::class;
     }
 
-    public function configureCrud(Crud $crud): Crud
-    {
-        return $crud
-            ->setEntityLabelInSingular('MultipartUpload')
-            ->setEntityLabelInPlural('MultipartUpload')
-            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
-    }
-
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->disable('new', 'edit');
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return parent::configureCrud($crud)
+            ->setEntityLabelInSingular('MultipartUpload')
+            ->setEntityLabelInPlural('MultipartUpload')
+            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path'])
+            ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -45,7 +49,7 @@ class MultipartUploadCrudController extends AbstractCrudController
         $path = TextField::new('path');
         $complete = BooleanField::new('complete');
         $createdAt = DateTimeField::new('createdAt');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {

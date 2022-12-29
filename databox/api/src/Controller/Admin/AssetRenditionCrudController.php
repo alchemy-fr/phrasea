@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -9,10 +10,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class AssetRenditionCrudController extends AbstractCrudController
+class AssetRenditionCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -21,13 +23,11 @@ class AssetRenditionCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('AssetRendition')
             ->setEntityLabelInPlural('AssetRendition')
             ->setSearchFields(['id'])
             ->setPaginatorPageSize(100)
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -46,7 +46,7 @@ class AssetRenditionCrudController extends AbstractCrudController
         $definition = AssociationField::new('definition');
         $asset = AssociationField::new('asset');
         $file = AssociationField::new('file');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $fileId = TextareaField::new('file.id')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {

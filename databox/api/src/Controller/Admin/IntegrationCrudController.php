@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class IntegrationCrudController extends AbstractCrudController
+class IntegrationCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,10 +22,8 @@ class IntegrationCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setSearchFields(['id', 'title', 'integration', 'config'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -34,7 +34,7 @@ class IntegrationCrudController extends AbstractCrudController
         $integration = TextField::new('integration');
         $optionsYaml = Field::new('optionsYaml');
         $enabled = Field::new('enabled');
-        $id = Field::new('id', 'ID');
+        $id = IdField::new('id', 'ID');
         $config = TextField::new('config');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');

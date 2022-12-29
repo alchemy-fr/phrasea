@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Admin\PopulatePass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class PopulatePassCrudController extends AbstractCrudController
+class PopulatePassCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,12 +22,10 @@ class PopulatePassCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('PopulatePass')
             ->setEntityLabelInPlural('PopulatePass')
             ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error'])
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -37,7 +37,7 @@ class PopulatePassCrudController extends AbstractCrudController
         $indexName = TextField::new('indexName');
         $error = TextField::new('error');
         $createdAt = DateTimeField::new('createdAt');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $mapping = TextField::new('mapping');
         $progressString = TextareaField::new('progressString');
         $timeTakenUnit = TextareaField::new('timeTakenUnit');

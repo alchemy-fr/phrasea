@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\TagFilterRule;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class TagFilterRuleCrudController extends AbstractCrudController
+class TagFilterRuleCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -20,13 +22,11 @@ class TagFilterRuleCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('TagFilterRule')
             ->setEntityLabelInPlural('TagFilterRule')
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId'])
             ->setPaginatorPageSize(100)
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ;
     }
 
@@ -40,7 +40,7 @@ class TagFilterRuleCrudController extends AbstractCrudController
         $updatedAt = DateTimeField::new('updatedAt');
         $include = AssociationField::new('include');
         $exclude = AssociationField::new('exclude');
-        $id = Field::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $userType, $userId, $objectType, $objectId, $include, $exclude, $createdAt];
