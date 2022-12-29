@@ -3,24 +3,22 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\StorageBundle\Entity\MultipartUpload;
+use App\Entity\SubDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class MultipartUploadCrudController extends AbstractAdminCrudController
+class SubDefinitionCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return MultipartUpload::class;
+        return SubDefinition::class;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -34,33 +32,29 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('MultipartUpload')
-            ->setEntityLabelInPlural('MultipartUpload')
-            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path'])
+            ->setEntityLabelInSingular('SubDefinition')
+            ->setEntityLabelInPlural('SubDefinition')
             ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $filename = TextField::new('filename');
-        $type = TextField::new('type');
-        $sizeAsString = TextField::new('sizeAsString');
-        $uploadId = TextField::new('uploadId');
+        $name = TextField::new('name');
         $path = TextField::new('path');
-        $complete = BooleanField::new('complete');
+        $size = TextField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        $mimeType = TextField::new('mimeType');
         $createdAt = DateTimeField::new('createdAt');
+        $asset = AssociationField::new('asset');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $filename, $type, $size, $path, $uploadId, $complete, $createdAt];
+            return [$id, $name, $asset, $size, $path, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
+            return [$id, $name, $path, $size, $mimeType, $createdAt, $asset];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
+            return [$name, $path, $size, $mimeType, $createdAt, $asset];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
+            return [$name, $path, $size, $mimeType, $createdAt, $asset];
         }
-        return [];
     }
 }

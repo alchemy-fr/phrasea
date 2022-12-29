@@ -12,7 +12,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -36,7 +35,6 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('MultipartUpload')
             ->setEntityLabelInPlural('MultipartUpload')
-            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path'])
             ;
     }
 
@@ -50,7 +48,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         $complete = BooleanField::new('complete');
         $createdAt = DateTimeField::new('createdAt');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        $size = TextareaField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $filename, $type, $size, $path, $uploadId, $complete, $createdAt];
@@ -61,6 +59,5 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
         }
-        return [];
     }
 }

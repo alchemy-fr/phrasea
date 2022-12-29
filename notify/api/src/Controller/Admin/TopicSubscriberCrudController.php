@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\TopicSubscriber;
+use App\Topic\TopicManager;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -17,9 +18,35 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TopicSubscriberCrudController extends AbstractAdminCrudController
 {
+    /*
+     * ======================================================
+     * code copied from former AdminController
+     */
+
+    private TopicManager $topicManager;
+
+    public function __construct(TopicManager $topicManager)
+    {
+        $this->topicManager = $topicManager;
+    }
+
+    /*
+     * end of code copied from former AdminController
+     * ======================================================
+     */
+
+
     public static function getEntityFqcn(): string
     {
         return TopicSubscriber::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -28,14 +55,6 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('TopicSubscriber')
             ->setEntityLabelInPlural('TopicSubscriber')
             ->setSearchFields(['id', 'topic'])
-            ;
-    }
-
-    public function configureActions(Actions $actions): Actions
-    {
-        return parent::configureActions($actions)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
             ;
     }
 
@@ -59,4 +78,23 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
         }
         return [];
     }
+
+
+    /*
+     * ======================================================
+     * code copied from former AdminController
+     */
+
+    /**
+     * @param TopicSubscriber $entity
+     */
+    public function persistTopicSubscriberEntity($entity)
+    {
+        $this->topicManager->addSubscriber($entity->getContact(), $entity->getTopic());
+    }
+
+    /*
+     * end of code copied from former AdminController
+     * ======================================================
+     */
 }

@@ -9,11 +9,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class AssetCrudController extends AbstractAdminCrudController
@@ -26,6 +26,7 @@ class AssetCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::DETAIL)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ;
@@ -36,33 +37,38 @@ class AssetCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
-            ->setSearchFields(['id', 'path', 'size', 'originalName', 'mimeType', 'userId'])
             ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $path = TextField::new('path');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         $originalName = TextField::new('originalName');
-        $mimeType = TextField::new('mimeType');
-        $acknowledged = BooleanField::new('acknowledged');
-        $createdAt = DateTimeField::new('createdAt');
-        $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $target = AssociationField::new('target');
-        $commit = AssociationField::new('commit');
+        $description = TextareaField::new('description');
+        $lat = NumberField::new('lat');
+        $lng = NumberField::new('lng');
+        $altitude = NumberField::new('altitude');
+        $webVTT = TextareaField::new('webVTT');
+        $clientAnnotations = TextareaField::new('clientAnnotations');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $committed = BooleanField::new('committed');
+        $assetId = TextField::new('assetId');
+        $path = TextField::new('path');
+        $size = TextField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        $title = TextField::new('title');
+        $mimeType = TextField::new('mimeType');
+        $ownerId = TextField::new('ownerId');
+        $createdAt = DateTimeField::new('createdAt');
+        $publications = AssociationField::new('publications');
+        $subDefinitions = AssociationField::new('subDefinitions');
+        $geoPoint = TextareaField::new('geoPoint');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $originalName, $size, $userId, $committed, $acknowledged, $createdAt];
+            return [$id, $originalName, $size, $geoPoint, $path, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
+            return [$id, $assetId, $path, $size, $title, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $publications, $subDefinitions];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
+            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
+            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         }
-        return [];
     }
 }

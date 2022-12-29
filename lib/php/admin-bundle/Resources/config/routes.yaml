@@ -1,6 +1,6 @@
-easy_admin_bundle:
-  resource: '@EasyAdminBundle/Controller/EasyAdminController.php'
-  type: annotation
+#easy_admin_bundle:
+#  resource: '@EasyAdminBundle/Controller/EasyAdminController.php'
+#  type: annotation
 
 alchemy_admin_logout:
   path: /logout
