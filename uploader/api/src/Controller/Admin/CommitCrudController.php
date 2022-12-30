@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Commit;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -18,9 +20,17 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 class CommitCrudController extends AbstractAdminCrudController
 {
+    private EventProducer $eventProducer;
+
+    public function __construct(EventProducer $eventProducer)
+    {
+        $this->eventProducer = $eventProducer;
+    }
+
     public static function getEntityFqcn(): string
     {
         return Commit::class;
@@ -80,7 +90,7 @@ class CommitCrudController extends AbstractAdminCrudController
         return [];
     }
 
-    public function triggerAgain(AdminContext $adminContext)
+    public function triggerAgain(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator)
     {
         $commit = $adminContext->getEntity()->getInstance();
         if (!$commit instanceof Commit) {
@@ -89,6 +99,20 @@ class CommitCrudController extends AbstractAdminCrudController
         if ($commit->isAcknowledged()) {
             $this->addFlash('danger', 'Commit has been acknowledged');
         }
+        else {
+            $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
+                'id' => $commit->getId(),
+            ]));
+        }
+
+        $targetUrl = $adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->setEntityId($commit->getId())
+            ->generateUrl();
+
+        return $this->redirect($targetUrl);
+
 //        $question->setIsApproved(true);
 
         /*
