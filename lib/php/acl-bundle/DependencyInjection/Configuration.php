@@ -21,7 +21,6 @@ class Configuration implements ConfigurationInterface
         $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('enabled_permissions')
-                    ->scalarPrototype()
                     ->defaultValue([
                         'VIEW',
                         'CREATE',
@@ -35,7 +34,7 @@ class Configuration implements ConfigurationInterface
                         'VIEW',
                         'EDIT',
                     ])
-                    ->end()
+                    ->scalarPrototype()->end()
                 ->end()
                 ->arrayNode('objects')
                 ->useAttributeAsKey('key')
