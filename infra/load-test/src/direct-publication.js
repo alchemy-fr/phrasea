@@ -43,17 +43,6 @@ export default function main() {
                     service: "expose-api",
                 },
             })
-
-            http.get(
-                'https://phrasea-sgplay-statics.s3.eu-west-3.amazonaws.com/images/picto-PLAY+ok+(1).jpeg',
-                {
-                    headers: {
-                        'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
-                        'sec-ch-ua-mobile': '?0',
-                        'sec-ch-ua-platform': '"Linux"',
-                    },
-                }
-            )
         });
 
         const publicationRes = http.get(`https://${exposeApiHost}/publications/${publicationId}`, {

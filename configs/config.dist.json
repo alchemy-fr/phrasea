@@ -42,7 +42,7 @@
             "groups": "user_groups"
           }
         },
-        "group_jq_normalizer": "{ \"groups\": [ .user_authorization[] | select(.resource == \"api.phrasea-play\").permissions[] | .name + \"_\" + .constraints[].values[] ]}",
+        "group_jq_normalizer": "{ \"groups\": [ .user_authorization[] | select(.resource == \"api.phrasea-resource\").permissions[] | .name + \"_\" + .constraints[].values[] ]}",
         "group_map": {
           "Group1": "group1",
           "Editor": "edit_guy"
