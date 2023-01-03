@@ -97,7 +97,6 @@
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
-        "easycorp/easyadmin-bundle": "^3.0",
         "eightpoints/guzzle-bundle": "^7.5",
         "fig/link-util": "^1.1",
         "guzzlehttp/guzzle": "^6.3",

@@ -81,7 +81,7 @@ class TargetParams implements AclObjectInterface
         return \GuzzleHttp\json_encode($this->data, JSON_PRETTY_PRINT);
     }
 
-    public function setJsonData(string $jsonData): void
+    public function setJsonData(?string $jsonData): void
     {
         $jsonData ??= '{}';
 

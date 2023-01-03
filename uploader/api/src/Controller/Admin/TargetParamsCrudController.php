@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\TargetParams;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -12,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TargetParamsCrudController extends AbstractAdminCrudController
@@ -19,6 +21,22 @@ class TargetParamsCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return TargetParams::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => 'target_params',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
+
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -33,16 +51,16 @@ class TargetParamsCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $target = AssociationField::new('target');
-        $jsonData = Field::new('jsonData');
+        $jsonData = TextAreaField::new('jsonData');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $data = TextField::new('data');
+        $data = JsonField::new('data');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $updatedAt, $createdAt];
+            return [$id, $target, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $data, $createdAt, $updatedAt, $target];
+            return [$id, $createdAt, $updatedAt, $target, $data];
         } elseif (Crud::PAGE_NEW === $pageName) {
             return [$target, $jsonData];
         } elseif (Crud::PAGE_EDIT === $pageName) {

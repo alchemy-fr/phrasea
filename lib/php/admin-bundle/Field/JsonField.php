@@ -24,18 +24,6 @@ final class JsonField implements FieldInterface
 
             // this is used in 'edit' and 'new' pages to edit the field contents
             // you can use your own form types too
-            ->setFormType(TextareaType::class)
-//            ->addCssClass('field-map')
-//
-//            // loads the CSS and JS assets associated to the given Webpack Encore entry
-//            // in any CRUD page (index/detail/edit/new). It's equivalent to calling
-//            // encore_entry_link_tags('...') and encore_entry_script_tags('...')
-//            ->addWebpackEncoreEntries('admin-field-map')
-//
-//            // these methods allow to define the web assets loaded when the
-//            // field is displayed in any CRUD page (index/detail/edit/new)
-//            ->addCssFiles('js/admin/field-map.css')
-//            ->addJsFiles('js/admin/field-map.js')
-            ;
+            ->setFormType(TextareaType::class);
     }
 }

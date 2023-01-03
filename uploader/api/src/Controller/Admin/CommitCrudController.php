@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -12,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -64,13 +66,13 @@ class CommitCrudController extends AbstractAdminCrudController
         $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $token = TextField::new('token');
         $acknowledged = BooleanField::new('acknowledged');
-        $formDataJson = Field::new('formDataJson');
-        $optionsJson = Field::new('optionsJson');
+        $formDataJson = TextAreaField::new('formDataJson');
+        $optionsJson = TextAreaField::new('optionsJson');
         $notifyEmail = TextField::new('notifyEmail');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $totalSize = IntegerField::new('totalSize')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-        $formData = TextField::new('formData');
-        $options = TextField::new('options');
+        $formData = JsonField::new('formData');
+        $options = JsonField::new('options');
         $locale = TextField::new('locale');
         $acknowledgedAt = DateTimeField::new('acknowledgedAt');
         $createdAt = DateTimeField::new('createdAt');
@@ -112,32 +114,5 @@ class CommitCrudController extends AbstractAdminCrudController
             ->generateUrl();
 
         return $this->redirect($targetUrl);
-
-//        $question->setIsApproved(true);
-
-        /*
-        $id = $this->request->query->get('id');
-        /** @var Commit $commit * /
-        $commit = $this->em->getRepository(Commit::class)->find($id);
-
-        if ($commit->isAcknowledged()) {
-            $this->addFlash('danger', 'Commit has been acknowledged');
-
-            return $this->redirectToRoute('easyadmin', [
-                'action' => 'list',
-                'entity' => $this->request->query->get('entity'),
-            ]);
-        }
-
-        $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
-            'id' => $commit->getId(),
-        ]));
-
-        return $this->redirectToRoute('easyadmin', [
-            'action' => 'list',
-            'entity' => $this->request->query->get('entity'),
-        ]);
-        */
     }
-
 }

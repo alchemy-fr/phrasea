@@ -96,7 +96,7 @@ class FormSchema implements AclObjectInterface
     {
         $jsonData ??= '{}';
 
-        $this->data = \GuzzleHttp\json_decode($jsonData, true);
+        $this->data = json_decode($jsonData, true);
     }
 
     public function setData(array $data): void

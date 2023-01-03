@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -32,10 +33,10 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $userType = IntegerField::new('userType');
-        $userId = TextField::new('userId', 'ID');
+        $userId = IdField::new('userId', 'User ID');
         $objectType = TextField::new('objectType');
-        $objectId = TextField::new('objectId');
-        $permissions = Field::new('permissions');
+        $objectId = IdField::new('objectId');
+        $permissions = ArrayField::new('permissions');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $mask = IntegerField::new('mask');
         $createdAt = DateTimeField::new('createdAt');
@@ -44,11 +45,11 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$userTypeString, $userId, $objectType, $objectId, $mask];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt];
+            return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt, $permissions];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$userType, $userId, $objectType, $objectId, $mask, $permissions];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$id, $userType, $userId, $objectType, $objectId, $permissions];
         }
         return [];
     }
