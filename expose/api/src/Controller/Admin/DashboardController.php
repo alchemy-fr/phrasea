@@ -64,7 +64,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        return UserMenu::new()
+        return (parent::configureUserMenu($user))
             ->displayUserAvatar(false);
     }
 

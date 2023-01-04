@@ -187,7 +187,7 @@ class Commit
      */
     public function getFormDataJson(): string
     {
-        return son_encode($this->formData, JSON_PRETTY_PRINT);
+        return json_encode($this->formData, JSON_PRETTY_PRINT);
     }
 
     public function setFormDataJson(?string $json): void
