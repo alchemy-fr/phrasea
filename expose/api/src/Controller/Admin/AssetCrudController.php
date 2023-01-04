@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -50,12 +51,12 @@ class AssetCrudController extends AbstractAdminCrudController
         $webVTT = TextareaField::new('webVTT');
         $clientAnnotations = TextareaField::new('clientAnnotations');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $assetId = TextField::new('assetId');
+        $assetId = IdField::new('assetId');
         $path = TextField::new('path');
-        $size = TextField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         $title = TextField::new('title');
         $mimeType = TextField::new('mimeType');
-        $ownerId = TextField::new('ownerId');
+        $ownerId = IdField::new('ownerId');
         $createdAt = DateTimeField::new('createdAt');
         $publications = AssociationField::new('publications');
         $subDefinitions = AssociationField::new('subDefinitions');
@@ -70,5 +71,6 @@ class AssetCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         }
+        return [];
     }
 }

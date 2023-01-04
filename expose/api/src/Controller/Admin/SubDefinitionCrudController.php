@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class SubDefinitionCrudController extends AbstractAdminCrudController
@@ -41,7 +42,7 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
     {
         $name = TextField::new('name');
         $path = TextField::new('path');
-        $size = TextField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         $mimeType = TextField::new('mimeType');
         $createdAt = DateTimeField::new('createdAt');
         $asset = AssociationField::new('asset');
@@ -56,5 +57,6 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$name, $path, $size, $mimeType, $createdAt, $asset];
         }
+        return [];
     }
 }

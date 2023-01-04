@@ -47,5 +47,6 @@ class OAuthClientCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$id, $randomId, $secret, $allowedGrantTypes, $allowedScopes, $redirectUris];
         }
+        return [];
     }
 }

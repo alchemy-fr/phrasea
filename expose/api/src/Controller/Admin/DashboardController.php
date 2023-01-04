@@ -92,7 +92,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
-        yield MenuItem::linkToCrud('OAuth Clients', 'fas fa-folder-open', OAuthClient::class)->setPermission(['ROLE_ADMIN_OAUTH_CLIENTS']);
+        yield MenuItem::linkToCrud('OAuth Clients', 'fas fa-folder-open', OAuthClient::class)->setPermission('ROLE_ADMIN_OAUTH_CLIENTS');
         yield MenuItem::linkToCrud('EnvVar', 'fas fa-folder-open', EnvVar::class);
         yield MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu3)->setPermission('ROLE_TECH');
     }

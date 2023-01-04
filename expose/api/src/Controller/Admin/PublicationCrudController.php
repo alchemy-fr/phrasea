@@ -4,15 +4,21 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Publication;
+use App\Field\LayoutOptionsField;
+use App\Field\MapOptionsField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use App\Field\PublicationConfigField;
+use App\Field\SecurityMethodChoiceField;
 
 class PublicationCrudController extends AbstractAdminCrudController
 {
@@ -37,7 +43,7 @@ class PublicationCrudController extends AbstractAdminCrudController
         $slug = TextField::new('slug');
         $profile = AssociationField::new('profile');
         $date = DateTimeField::new('date');
-        $config = Field::new('config');
+        $config = PublicationConfigField::new('config');
         $ownerId = TextField::new('ownerId');
         $clientAnnotations = TextareaField::new('clientAnnotations');
         $zippyId = TextField::new('zippyId');
@@ -47,7 +53,7 @@ class PublicationCrudController extends AbstractAdminCrudController
         $configEnabled = Field::new('config.enabled');
         $configDownloadViaEmail = Field::new('config.downloadViaEmail');
         $configIncludeDownloadTermsInZippy = Field::new('config.includeDownloadTermsInZippy');
-        $configUrls = TextField::new('config.urls');
+        $configUrls = ArrayField::new('config.urls');
         $configCopyrightText = TextareaField::new('config.copyrightText');
         $configCss = TextareaField::new('config.css');
         $configLayout = TextField::new('config.layout');
@@ -56,10 +62,10 @@ class PublicationCrudController extends AbstractAdminCrudController
         $configDownloadEnabled = Field::new('config.downloadEnabled');
         $configBeginsAt = DateTimeField::new('config.beginsAt');
         $configExpiresAt = DateTimeField::new('config.expiresAt');
-        $configSecurityMethod = TextField::new('config.securityMethod');
-        $configSecurityOptions = TextField::new('config.securityOptions');
-        $configMapOptions = TextField::new('config.mapOptions');
-        $configLayoutOptions = TextField::new('config.layoutOptions');
+        $configSecurityMethod = SecurityMethodChoiceField::new('config.securityMethod');
+        $configSecurityOptions = ArrayField::new('config.securityOptions');
+        $configMapOptions = MapOptionsField::new('config.mapOptions');
+        $configLayoutOptions = LayoutOptionsField::new('config.layoutOptions');
         $configTermsText = TextareaField::new('config.terms.text');
         $configTermsUrl = TextField::new('config.terms.url');
         $configDownloadTermsText = TextareaField::new('config.downloadTerms.text');
@@ -68,8 +74,8 @@ class PublicationCrudController extends AbstractAdminCrudController
         $package = AssociationField::new('package');
         $cover = AssociationField::new('cover');
         $children = AssociationField::new('children');
-        $childrenCount = TextareaField::new('children.count');
-        $assetsCount = TextareaField::new('assets.count');
+        $childrenCount = IntegerField::new('children.count');
+        $assetsCount = IntegerField::new('assets.count');
         $publiclyListed = BooleanField::new('publiclyListed');
         $enabled = BooleanField::new('enabled');
         $securityMethod = TextareaField::new('securityMethod');
@@ -77,11 +83,12 @@ class PublicationCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $title, $slug, $profile, $parent, $childrenCount, $assetsCount, $publiclyListed, $enabled, $securityMethod, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $description, $ownerId, $slug, $date, $createdAt, $zippyId, $zippyHash, $clientAnnotations, $configEnabled, $configDownloadViaEmail, $configIncludeDownloadTermsInZippy, $configUrls, $configCopyrightText, $configCss, $configLayout, $configTheme, $configPubliclyListed, $configDownloadEnabled, $configBeginsAt, $configExpiresAt, $configSecurityMethod, $configSecurityOptions, $configMapOptions, $configLayoutOptions, $configTermsText, $configTermsUrl, $configDownloadTermsText, $configDownloadTermsUrl, $assets, $profile, $package, $cover, $parent, $children];
+            return [$id, $title, $description, $ownerId, $slug, $date, $createdAt, $zippyId, $zippyHash, $clientAnnotations, $configEnabled, $configDownloadViaEmail, $configIncludeDownloadTermsInZippy, $configUrls, $configCopyrightText, $configCss, $configLayout, $configTheme, $configPubliclyListed, $configDownloadEnabled, $configBeginsAt, $configExpiresAt, $configSecurityMethod, $configSecurityOptions /*, $configMapOptions , $configLayoutOptions */, $configTermsText, $configTermsUrl, $configDownloadTermsText, $configDownloadTermsUrl, $assets, $profile, $package, $cover, $parent, $children];
         } elseif (Crud::PAGE_NEW === $pageName) {
             return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
         }
+        return [];
     }
 }

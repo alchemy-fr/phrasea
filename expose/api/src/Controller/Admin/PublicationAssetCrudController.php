@@ -41,7 +41,7 @@ class PublicationAssetCrudController extends AbstractAdminCrudController
         $publicationTitle = TextareaField::new('publication.title');
         $publicationId = TextareaField::new('publication.id', 'Publication ID');
         $assetTitle = TextareaField::new('asset.title');
-        $assetId = TextareaField::new('asset.id', 'Asset ID');
+        $assetId = IdField::new('asset.id', 'Asset ID');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $publicationTitle, $publicationId, $assetTitle, $assetId, $slug, $position, $createdAt];
@@ -52,5 +52,6 @@ class PublicationAssetCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$publication, $asset, $slug, $position, $clientAnnotations];
         }
+        return [];
     }
 }
