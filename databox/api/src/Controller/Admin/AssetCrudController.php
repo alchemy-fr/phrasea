@@ -33,7 +33,9 @@ class AssetCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'asset',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

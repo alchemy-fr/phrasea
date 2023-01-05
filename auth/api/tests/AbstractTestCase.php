@@ -66,6 +66,6 @@ abstract class AbstractTestCase extends ApiTestCase
 
     protected function assertTokenContent(string $token)
     {
-        $this->assertRegExp('#^[!a-zA-Z0-9]+$#', $token, 'Invalid token');
+        $this->assertMatchesRegularExpression('#^[!a-zA-Z0-9]+$#', $token, 'Invalid token');
     }
 }

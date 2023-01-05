@@ -30,7 +30,9 @@ class WorkspaceCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'workspace',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

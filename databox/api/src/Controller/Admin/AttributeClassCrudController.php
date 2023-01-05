@@ -32,7 +32,9 @@ class AttributeClassCrudController extends AbstractAdminCrudController
                 [
                     'type' => '???',
                 ]
-            );
+            )
+           ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

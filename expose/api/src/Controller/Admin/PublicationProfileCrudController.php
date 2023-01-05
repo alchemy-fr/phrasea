@@ -34,7 +34,9 @@ class PublicationProfileCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'profile',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

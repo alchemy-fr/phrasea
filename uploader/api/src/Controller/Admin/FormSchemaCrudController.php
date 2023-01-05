@@ -36,7 +36,9 @@ class FormSchemaCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'form_schema',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

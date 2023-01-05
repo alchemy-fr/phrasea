@@ -37,7 +37,9 @@ class PublicationCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'publication',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)

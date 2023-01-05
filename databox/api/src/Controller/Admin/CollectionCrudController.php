@@ -32,7 +32,9 @@ class CollectionCrudController extends AbstractAdminCrudController
                 [
                     'type' => 'collection',
                 ]
-            );
+            )
+            ->createAsGlobalAction()
+        ;
 
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)
