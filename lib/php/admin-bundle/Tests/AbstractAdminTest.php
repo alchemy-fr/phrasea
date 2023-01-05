@@ -34,14 +34,13 @@ abstract class AbstractAdminTest extends WebTestCase
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
-        // todo: EA3 : (re)do a better test on now more complex uri
-        // $this->assertMatchesRegularExpression('#^http\://localhost/admin/\?crudAction=index\&entity=.+$#', $this->client->getHistory()->current()->getUri());
-        $this->assertMatchesRegularExpression('#^http\://localhost/admin/\?.+$#', $this->client->getHistory()->current()->getUri());
 
         $crawler
             ->filter('nav#main-menu ul.submenu a')
             ->each(function ($node, $i) {
                 if ('#' !== $href = $node->attr('href')) {
+                    // todo: EA3 : (re)do a better test on now more complex uri
+                    $this->assertMatchesRegularExpression('#^http\://localhost/admin\?.+$#', $href);
                     $this->explore($href);
                 }
             });
@@ -53,6 +52,14 @@ abstract class AbstractAdminTest extends WebTestCase
 
         $crawler
             ->filter('a.action-new')
+            ->each(function ($node, $i) {
+                if ('#' !== $href = $node->attr('href')) {
+                    $this->loadPage($href);
+                }
+            });
+
+        $crawler
+            ->filter('a.action-permissions')
             ->each(function ($node, $i) {
                 if ('#' !== $href = $node->attr('href')) {
                     $this->loadPage($href);
