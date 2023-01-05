@@ -18,7 +18,7 @@ trait CreatedAtTrait
      */
     protected ?DateTimeInterface $createdAt = null;
 
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
