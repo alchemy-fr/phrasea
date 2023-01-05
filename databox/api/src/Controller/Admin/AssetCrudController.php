@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\Asset;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -21,6 +23,21 @@ class AssetCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return Asset::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => 'asset',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
     }
 
     public function configureCrud(Crud $crud): Crud

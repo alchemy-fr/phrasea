@@ -8,6 +8,8 @@ use App\Field\LayoutOptionsField;
 use App\Field\MapOptionsField;
 use App\Field\PublicationConfigField;
 use App\Field\SecurityMethodChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -22,6 +24,21 @@ class PublicationProfileCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return PublicationProfile::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => 'profile',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
     }
 
     public function configureCrud(Crud $crud): Crud

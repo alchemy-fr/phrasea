@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AttributeClass;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -20,6 +22,23 @@ class AttributeClassCrudController extends AbstractAdminCrudController
     {
         return AttributeClass::class;
     }
+
+    /* todo: EA ; this "permissions" existed in EA2, but not implemented in "Permissions" menu.
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => '???',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
+    }
+    */
 
     public function configureCrud(Crud $crud): Crud
     {

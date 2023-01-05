@@ -41,7 +41,6 @@ class FormSchemaCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $permissionsAction)
             ;
-
     }
 
     public function configureCrud(Crud $crud): Crud

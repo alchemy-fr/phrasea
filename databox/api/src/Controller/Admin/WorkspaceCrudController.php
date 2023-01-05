@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\Workspace;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -18,6 +20,21 @@ class WorkspaceCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return Workspace::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => 'workspace',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
     }
 
     public function configureCrud(Crud $crud): Crud

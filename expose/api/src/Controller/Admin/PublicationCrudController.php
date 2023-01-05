@@ -6,6 +6,8 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Publication;
 use App\Field\LayoutOptionsField;
 use App\Field\MapOptionsField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -25,6 +27,21 @@ class PublicationCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return Publication::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $permissionsAction = Action::new('permissions')
+            ->linkToRoute(
+                'admin_global_permissions',
+                [
+                    'type' => 'publication',
+                ]
+            );
+
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $permissionsAction)
+            ;
     }
 
     public function configureCrud(Crud $crud): Crud
