@@ -7,10 +7,8 @@ use App\Entity\SubDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -26,16 +24,14 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('SubDefinition')
-            ->setEntityLabelInPlural('SubDefinition')
-            ;
+            ->setEntityLabelInPlural('SubDefinition');
     }
 
     public function configureFields(string $pageName): iterable
@@ -50,13 +46,17 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $asset, $size, $path, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $path, $size, $mimeType, $createdAt, $asset];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $path, $size, $mimeType, $createdAt, $asset];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$name, $path, $size, $mimeType, $createdAt, $asset];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$name, $path, $size, $mimeType, $createdAt, $asset];
+        }
+
         return [];
     }
 }

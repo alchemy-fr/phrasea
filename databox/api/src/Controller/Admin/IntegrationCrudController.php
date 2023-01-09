@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -23,8 +22,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'title', 'integration', 'config'])
-            ;
+            ->setSearchFields(['id', 'title', 'integration', 'config']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -42,13 +40,17 @@ class IntegrationCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$enabled, $title, $integration, $workspace, $createdAt, $that, $updatedAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $integration, $optionsYaml, $enabled];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $integration, $optionsYaml, $enabled];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$title, $workspace, $integration, $optionsYaml, $enabled];
+        }
+
         return [];
     }
 }

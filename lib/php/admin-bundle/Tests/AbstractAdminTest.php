@@ -39,7 +39,7 @@ abstract class AbstractAdminTest extends WebTestCase
             ->filter('nav#main-menu ul.submenu a')
             ->each(function ($node, $i) {
                 if ('#' !== $href = $node->attr('href')) {
-                    // todo: EA3 : (re)do a better test on now more complex uri
+                    // todo EA3 : (re)do a better test on now more complex uri
                     $this->assertMatchesRegularExpression('#^http\://localhost/admin\?.+$#', $href);
                     $this->explore($href);
                 }

@@ -6,10 +6,11 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Publication;
 use App\Field\LayoutOptionsField;
 use App\Field\MapOptionsField;
+use App\Field\PublicationConfigField;
+use App\Field\SecurityMethodChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -19,8 +20,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use App\Field\PublicationConfigField;
-use App\Field\SecurityMethodChoiceField;
 
 class PublicationCrudController extends AbstractAdminCrudController
 {
@@ -38,20 +37,17 @@ class PublicationCrudController extends AbstractAdminCrudController
                     'type' => 'publication',
                 ]
             )
-            ->createAsGlobalAction()
-        ;
+            ->createAsGlobalAction();
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Publication')
-            ->setEntityLabelInPlural('Publication')
-            ;
+            ->setEntityLabelInPlural('Publication');
     }
 
     public function configureFields(string $pageName): iterable
@@ -101,13 +97,17 @@ class PublicationCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $title, $slug, $profile, $parent, $childrenCount, $assetsCount, $publiclyListed, $enabled, $securityMethod, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $description, $ownerId, $slug, $date, $createdAt, $zippyId, $zippyHash, $clientAnnotations, $configEnabled, $configDownloadViaEmail, $configIncludeDownloadTermsInZippy, $configUrls, $configCopyrightText, $configCss, $configLayout, $configTheme, $configPubliclyListed, $configDownloadEnabled, $configBeginsAt, $configExpiresAt, $configSecurityMethod, $configSecurityOptions /*, $configMapOptions , $configLayoutOptions */, $configTermsText, $configTermsUrl, $configDownloadTermsText, $configDownloadTermsUrl, $assets, $profile, $package, $cover, $parent, $children];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
+        }
+
         return [];
     }
 }

@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -27,8 +26,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('AssetRendition')
             ->setEntityLabelInPlural('AssetRendition')
             ->setSearchFields(['id'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -51,13 +49,17 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $definition, $asset, $fileId, $updatedAt, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
+        }
+
         return [];
     }
 }

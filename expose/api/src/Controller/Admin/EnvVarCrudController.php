@@ -5,9 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\EnvVar;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -23,8 +21,7 @@ class EnvVarCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('EnvVar')
-            ->setEntityLabelInPlural('EnvVar')
-            ;
+            ->setEntityLabelInPlural('EnvVar');
     }
 
     public function configureFields(string $pageName): iterable
@@ -37,13 +34,17 @@ class EnvVarCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$name, $value, $createdAt, $updatedAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $value, $createdAt, $updatedAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $value];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$name, $value];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$name, $value];
+        }
+
         return [];
     }
 }

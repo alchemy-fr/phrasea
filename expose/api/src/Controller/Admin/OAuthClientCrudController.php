@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -23,8 +22,7 @@ class OAuthClientCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('OAuthClient')
-            ->setEntityLabelInPlural('OAuthClient')
-            ;
+            ->setEntityLabelInPlural('OAuthClient');
     }
 
     public function configureFields(string $pageName): iterable
@@ -40,13 +38,17 @@ class OAuthClientCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$publicId, $secret, $allowedScopes, $allowedGrantTypes, $redirectUris];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$randomId, $redirectUris, $secret, $allowedGrantTypes, $id, $createdAt, $allowedScopes];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$id, $randomId, $secret, $allowedGrantTypes, $allowedScopes, $redirectUris];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$id, $randomId, $secret, $allowedGrantTypes, $allowedScopes, $redirectUris];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$id, $randomId, $secret, $allowedGrantTypes, $allowedScopes, $redirectUris];
+        }
+
         return [];
     }
 }

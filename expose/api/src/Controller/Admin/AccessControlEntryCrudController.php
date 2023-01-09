@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -22,8 +21,7 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return parent::configureCrud($crud)
-            ;
+        return parent::configureCrud($crud);
     }
 
     public function configureFields(string $pageName): iterable
@@ -40,13 +38,17 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$userTypeString, $userId, $objectType, $objectId, $mask];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$userType, $userId, $objectType, $objectId, $permissions];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$userType, $userId, $objectType, $objectId, $permissions];
+        }
+
         return [];
     }
 }

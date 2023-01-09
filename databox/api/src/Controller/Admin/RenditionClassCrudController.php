@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\RenditionClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -27,8 +26,7 @@ class RenditionClassCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('RenditionClass')
             ->setEntityLabelInPlural('RenditionClass')
             ->setSearchFields(['id', 'name'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -49,13 +47,17 @@ class RenditionClassCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $name, $public, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $public, $createdAt, $workspace, $definitions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name, $public];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $name, $public];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$workspace, $name, $public];
+        }
+
         return [];
     }
 }

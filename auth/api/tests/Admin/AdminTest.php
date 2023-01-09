@@ -9,7 +9,7 @@ use Alchemy\AdminBundle\Tests\AbstractAdminTest;
 class AdminTest extends AbstractAdminTest
 {
     /*
-     * todo: EA3 ; fix test that now fails cause 500 on /admin after login (?)
+     * todo EA3 : fix test that now fails cause 500 on /admin after login (?)
      */
     public function testAdmin()
     {

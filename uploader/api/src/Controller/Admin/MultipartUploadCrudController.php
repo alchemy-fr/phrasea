@@ -7,13 +7,10 @@ use Alchemy\StorageBundle\Entity\MultipartUpload;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class MultipartUploadCrudController extends AbstractAdminCrudController
@@ -27,8 +24,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -36,8 +32,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('MultipartUpload')
             ->setEntityLabelInPlural('MultipartUpload')
-            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path'])
-            ;
+            ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -54,13 +49,17 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $filename, $type, $size, $path, $uploadId, $complete, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
+        }
+
         return [];
     }
 }

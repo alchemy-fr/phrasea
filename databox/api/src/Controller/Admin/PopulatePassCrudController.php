@@ -5,10 +5,8 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Admin\PopulatePass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -25,8 +23,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('PopulatePass')
             ->setEntityLabelInPlural('PopulatePass')
-            ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error'])
-            ;
+            ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -45,13 +42,17 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $indexName, $progressString, $timeTakenUnit, $endedAt, $successful, $error, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $endedAt, $documentCount, $progress, $indexName, $mapping, $error, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
+        }
+
         return [];
     }
 }

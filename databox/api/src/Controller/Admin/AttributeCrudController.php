@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\Attribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -28,8 +27,7 @@ class AttributeCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Attribute')
             ->setEntityLabelInPlural('Attribute')
             ->setSearchFields(['id', 'locale', 'position', 'translationId', 'translationOriginHash', 'value', 'origin', 'originVendor', 'originUserId', 'originVendorContext', 'coordinates', 'status', 'confidence'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFields(string $pageName): iterable
@@ -57,13 +55,17 @@ class AttributeCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $asset, $definition, $value, $locale, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $locale, $locked, $position, $translationId, $translationOriginHash, $value, $origin, $originVendor, $originUserId, $originVendorContext, $coordinates, $status, $confidence, $createdAt, $updatedAt, $asset, $definition, $translationOrigin, $translations];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];
+        }
+
         return [];
     }
 }

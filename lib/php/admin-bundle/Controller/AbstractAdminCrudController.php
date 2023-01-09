@@ -17,7 +17,7 @@ abstract class AbstractAdminCrudController extends AbstractCrudController
     {
         return $actions
             // ...
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)  // todo: EA3 ; disable "show" action ?
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)  // todo EA3 : disable "show" action ?
 //            ->remove(Crud::PAGE_INDEX, Action::EDIT)
 //            ->remove(Crud::PAGE_INDEX, Action::NEW)
             ;

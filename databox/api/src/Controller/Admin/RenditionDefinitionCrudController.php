@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\RenditionDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -29,8 +28,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('RenditionDefinition')
             ->setEntityLabelInPlural('RenditionDefinition')
             ->setSearchFields(['id', 'name', 'definition', 'priority'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -60,13 +58,17 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $download, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $definition, $priority, $createdAt, $updatedAt, $workspace, $class, $renditions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
+        }
+
         return [];
     }
 }

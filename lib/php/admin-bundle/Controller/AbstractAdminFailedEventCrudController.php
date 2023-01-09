@@ -69,9 +69,9 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
     {
         $createdAt = DateTimeField::new('createdAt');
         $type = TextField::new('type')->setTemplatePath('@AlchemyAdmin/rabbit/type.html.twig');
-        // todo: EA3 : bump ArthemRabbit or set a AlchemyAdmin errortype
+        // todo EA3 : bump ArthemRabbit or set a AlchemyAdmin errortype
         $error = TextareaField::new('error'); //->setTemplatePath('@ArthemRabbit/admin/error.html.twig');
-        // todo: EA3 ; restore copy payload
+        // todo EA3 : restore copy payload
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig'); //->setTemplatePath('@ArthemRabbit/admin/id.html.twig');
         $payload = JsonField::new('payloadAsJson', 'Payload'); //->setTemplatePath('@ArthemRabbit/admin/payload.html.twig');
 
@@ -96,7 +96,7 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
     /*
      * ======================================================
      * code copied from former AdminController on each app
-     * todo: EA3 ; check how this code is called (by a ArthemRabbit field ?)
+     * todo EA3 : check how this code is called (by a ArthemRabbit field ?)
      */
 
     protected function getFailedEventManager(): FailedEventManager

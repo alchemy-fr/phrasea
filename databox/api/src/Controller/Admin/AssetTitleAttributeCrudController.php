@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AssetTitleAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -26,8 +25,7 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('AssetTitleAttribute')
             ->setEntityLabelInPlural('AssetTitleAttribute')
             ->setSearchFields(['id', 'priority'])
-            ->setPaginatorPageSize(200)
-            ;
+            ->setPaginatorPageSize(200);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -47,13 +45,17 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $definition, $priority, $overrides];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $priority, $overrides, $workspace, $definition];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $definition, $priority, $overrides];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $definition, $priority, $overrides];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$workspace, $definition, $priority, $overrides];
+        }
+
         return [];
     }
 }

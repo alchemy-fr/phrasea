@@ -7,11 +7,9 @@ use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -31,12 +29,10 @@ class WorkspaceCrudController extends AbstractAdminCrudController
                     'type' => 'workspace',
                 ]
             )
-            ->createAsGlobalAction()
-        ;
+            ->createAsGlobalAction();
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -45,8 +41,7 @@ class WorkspaceCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Workspace')
             ->setEntityLabelInPlural('Workspace')
             ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFields(string $pageName): iterable
@@ -70,13 +65,17 @@ class WorkspaceCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $updatedAt, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $slug, $ownerId, $config, $enabledLocales, $localeFallbacks, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $slug, $ownerId, $enabledLocales, $localeFallbacks];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$name, $slug, $ownerId, $enabledLocales, $localeFallbacks];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$name, $slug, $ownerId, $enabledLocales, $localeFallbacks];
+        }
+
         return [];
     }
 }

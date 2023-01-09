@@ -2,13 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminController;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\OAuthServerBundle\Entity\AccessToken;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -27,8 +23,7 @@ class AccessTokenCrudController extends AbstractAdminCrudController  // Abstract
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('AccessToken')
             ->setEntityLabelInPlural('AccessToken')
-            ->setSearchFields(['token'])
-            ;
+            ->setSearchFields(['token']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -43,13 +38,17 @@ class AccessTokenCrudController extends AbstractAdminCrudController  // Abstract
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $user, $token, $scope, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$token, $expiresAt, $scope, $id, $createdAt, $client, $user];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$token, $expiresAt, $scope, $createdAt, $client, $user];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$token, $expiresAt, $scope, $createdAt, $client, $user];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$token, $expiresAt, $scope, $createdAt, $client, $user];
+        }
+
         return [];
     }
 }

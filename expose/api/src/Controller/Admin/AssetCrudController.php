@@ -7,10 +7,8 @@ use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
@@ -29,16 +27,14 @@ class AssetCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
 //            ->remove(Crud::PAGE_INDEX, Action::DETAIL)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
-            ->setEntityLabelInPlural('Asset')
-            ;
+            ->setEntityLabelInPlural('Asset');
     }
 
     public function configureFields(string $pageName): iterable
@@ -64,13 +60,17 @@ class AssetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $originalName, $size, $geoPoint, $path, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $assetId, $path, $size, $title, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $publications, $subDefinitions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
+        }
+
         return [];
     }
 }

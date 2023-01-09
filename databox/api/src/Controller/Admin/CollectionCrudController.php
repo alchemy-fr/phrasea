@@ -8,10 +8,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -33,12 +31,10 @@ class CollectionCrudController extends AbstractAdminCrudController
                     'type' => 'collection',
                 ]
             )
-            ->createAsGlobalAction()
-        ;
+            ->createAsGlobalAction();
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -47,8 +43,7 @@ class CollectionCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Collection')
             ->setEntityLabelInPlural('Collection')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -76,13 +71,17 @@ class CollectionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $title, $parent, $workspace, $privacy, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $deletedAt, $locale, $privacy, $parent, $children, $assets, $referenceAssets, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $parent, $privacy, $ownerId];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $parent, $privacy, $ownerId];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$title, $workspace, $parent, $privacy, $ownerId];
+        }
+
         return [];
     }
 }

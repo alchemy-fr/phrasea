@@ -5,10 +5,8 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\PublicationAsset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -25,8 +23,7 @@ class PublicationAssetCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('PublicationAsset')
-            ->setEntityLabelInPlural('PublicationAsset')
-            ;
+            ->setEntityLabelInPlural('PublicationAsset');
     }
 
     public function configureFields(string $pageName): iterable
@@ -45,13 +42,17 @@ class PublicationAssetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $publicationTitle, $publicationId, $assetTitle, $assetId, $slug, $position, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $slug, $position, $createdAt, $clientAnnotations, $publication, $asset];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$publication, $asset, $slug, $position, $clientAnnotations];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$publication, $asset, $slug, $position, $clientAnnotations];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$publication, $asset, $slug, $position, $clientAnnotations];
+        }
+
         return [];
     }
 }

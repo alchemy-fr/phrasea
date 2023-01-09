@@ -8,13 +8,10 @@ use App\Entity\TargetParams;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TargetParamsCrudController extends AbstractAdminCrudController
 {
@@ -32,12 +29,10 @@ class TargetParamsCrudController extends AbstractAdminCrudController
                     'type' => 'target_params',
                 ]
             )
-            ->createAsGlobalAction()
-        ;
+            ->createAsGlobalAction();
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
 
     }
 
@@ -46,8 +41,7 @@ class TargetParamsCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('TargetParams')
             ->setEntityLabelInPlural('TargetParams')
-            ->setSearchFields(['id', 'data'])
-            ;
+            ->setSearchFields(['id', 'data']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -61,13 +55,17 @@ class TargetParamsCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $createdAt, $updatedAt, $target, $data];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$target, $jsonData];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$target, $jsonData];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$target, $jsonData];
+        }
+
         return [];
     }
 }

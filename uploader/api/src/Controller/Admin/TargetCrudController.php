@@ -4,14 +4,9 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
-use Alchemy\AdminBundle\Form\GroupChoiceType;
 use App\Entity\Target;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -30,8 +25,7 @@ class TargetCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Target')
             ->setEntityLabelInPlural('Target')
-            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'targetAccessToken', 'targetTokenType', 'allowedGroups'])
-            ;
+            ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'targetAccessToken', 'targetTokenType', 'allowedGroups']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -56,14 +50,18 @@ class TargetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $enabled, $slug, $name, $pullModeUrl, $targetUrl, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            // todo: EA3 display allowedGroups on detail page ? (now "array to string conversion" error if added)
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
+            // todo EA3 : display allowedGroups on detail page ? (now "array to string conversion" error if added)
             return [$id, $enabled, $slug, $name, $description, $targetUrl, $defaultDestination, $targetAccessToken, $targetTokenType, $createdAt, $targetParams];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$enabled, $slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$enabled, $slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$enabled, $slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups];
+        }
+
         return [];
     }
 }

@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\File;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -28,8 +27,7 @@ class FileCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('File')
             ->setEntityLabelInPlural('File')
             ->setSearchFields(['id', 'type', 'size', 'checksum', 'path', 'storage', 'originalName', 'extension', 'alternateUrls', 'metadata'])
-            ->setPaginatorPageSize(200)
-            ;
+            ->setPaginatorPageSize(200);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -58,13 +56,17 @@ class FileCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $path, $storage, $workspace, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $metadata, $createdAt, $updatedAt, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
+        }
+
         return [];
     }
 }

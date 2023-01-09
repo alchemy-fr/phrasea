@@ -6,7 +6,6 @@ namespace App\Admin;
 
 use Alchemy\AclBundle\Admin\PermissionTrait;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
-use App\Entity\TargetParams;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Controller\AdminReplayControllerTrait;

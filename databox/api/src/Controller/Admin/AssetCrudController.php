@@ -8,13 +8,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -34,12 +32,10 @@ class AssetCrudController extends AbstractAdminCrudController
                     'type' => 'asset',
                 ]
             )
-            ->createAsGlobalAction()
-        ;
+            ->createAsGlobalAction();
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -48,8 +44,7 @@ class AssetCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(200)
-            ;
+            ->setPaginatorPageSize(200);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -77,19 +72,21 @@ class AssetCrudController extends AbstractAdminCrudController
         $attributes = AssociationField::new('attributes');
         $file = AssociationField::new('file');
         $renditions = AssociationField::new('renditions');
-        // todo: EA3
-//        $collectionsCount = TextareaField::new('collections.count', '# Colls');
+        $collectionsCount = IntegerField::new('collections.count', '# Colls');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            // return [$id, $title, $workspace, $privacy, $collectionsCount, $file, $key, $createdAt];
-            return [$id, $title, $workspace, $privacy, $file, $key, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+            return [$id, $title, $workspace, $privacy, $collectionsCount, $file, $key, $createdAt];
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $locale, $privacy, $collections, $tags, $storyCollection, $referenceCollection, $attributes, $file, $renditions, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $startingCollections, $tags, $privacy, $ownerId];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_EDIT === $pageName) {
             return [$title, $workspace, $tags, $startingCollections, $privacy, $ownerId];
         }
+
         return [];
     }
 }

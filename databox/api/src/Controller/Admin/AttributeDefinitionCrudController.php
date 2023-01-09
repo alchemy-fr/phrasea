@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AttributeDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -30,8 +29,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('AttributeDefinition')
             ->setEntityLabelInPlural('AttributeDefinition')
             ->setSearchFields(['id', 'name', 'slug', 'fileType', 'fieldType', 'searchBoost', 'fallback', 'key', 'position'])
-            ->setPaginatorPageSize(100)
-            ;
+            ->setPaginatorPageSize(100);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -71,13 +69,17 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $class, $name, $fileType, $fieldType, $multiple, $facetEnabled, $searchable, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
+        }
+
         return [];
     }
 }

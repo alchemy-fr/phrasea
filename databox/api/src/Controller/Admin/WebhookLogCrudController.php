@@ -5,10 +5,8 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -23,8 +21,7 @@ class WebhookLogCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'event', 'payload', 'response'])
-            ;
+            ->setSearchFields(['id', 'event', 'payload', 'response']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -39,13 +36,17 @@ class WebhookLogCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$webhookUrl, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $event, $payload, $response, $createdAt, $webhook];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$event, $response, $createdAt, $webhook];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$event, $response, $createdAt, $webhook];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$event, $response, $createdAt, $webhook];
+        }
+
         return [];
     }
 }

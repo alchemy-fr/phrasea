@@ -20,8 +20,8 @@ class AdminController extends EasyAdminController
     private FailedEventManager $failedEventManager;
 
     public function __construct(
-        TopicManager $topicManager,
-        EventProducer $eventProducer,
+        TopicManager       $topicManager,
+        EventProducer      $eventProducer,
         FailedEventManager $failedEventManager
     )
     {

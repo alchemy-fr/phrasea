@@ -8,17 +8,15 @@ use App\Topic\TopicManager;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TopicSubscriberCrudController extends AbstractAdminCrudController
 {
-    /*
+    /* todo EA3 : check evthing is copied from former AdminController
      * ======================================================
      * code copied from former AdminController
      */
@@ -45,8 +43,7 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -54,8 +51,7 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('TopicSubscriber')
             ->setEntityLabelInPlural('TopicSubscriber')
-            ->setSearchFields(['id', 'topic'])
-            ;
+            ->setSearchFields(['id', 'topic']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -69,13 +65,17 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $topic, $contactEmail, $contactPhone, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $topic, $createdAt, $contact];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$topic, $contact];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$topic, $contact];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$topic, $contact];
+        }
+
         return [];
     }
 

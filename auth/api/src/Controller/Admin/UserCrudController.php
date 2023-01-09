@@ -4,11 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\User;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -28,8 +25,7 @@ class UserCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('User')
             ->setEntityLabelInPlural('User')
-            ->setSearchFields(['username'])
-            ;
+            ->setSearchFields(['username']);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -58,13 +54,17 @@ class UserCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $username, $enabled, $groups, $userRoles, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $username, $emailVerified, $enabled, $securityToken, $salt, $roles, $password, $locale, $createdAt, $lastInviteAt, $updatedAt, $groups];
-        } elseif (Crud::PAGE_NEW === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$username, $userRoles, $enabled, $groups, $inviteByEmail];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_EDIT === $pageName) {
             return [$username, $userRoles, $enabled, $groups];
         }
+
         return [];
     }
 }

@@ -6,18 +6,15 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Commit;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -41,14 +38,12 @@ class CommitCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         $triggerAgainAction = Action::new('triggerAgain')
-            ->linkToCrudAction('triggerAgain')
-        ;
+            ->linkToCrudAction('triggerAgain');
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->add(Crud::PAGE_INDEX, $triggerAgainAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $triggerAgainAction);
 
     }
 
@@ -57,8 +52,7 @@ class CommitCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Commit')
             ->setEntityLabelInPlural('Commit')
-            ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notifyEmail', 'locale'])
-            ;
+            ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notifyEmail', 'locale']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -82,13 +76,17 @@ class CommitCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $userId, $assetCount, $token, $acknowledged, $totalSize, $notifyEmail, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $totalSize, $formData, $options, $userId, $token, $acknowledged, $notifyEmail, $locale, $acknowledgedAt, $createdAt, $assets, $target];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
+        }
+
         return [];
     }
 

@@ -7,11 +7,9 @@ use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -27,8 +25,7 @@ class AssetCrudController extends AbstractAdminCrudController
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -36,8 +33,7 @@ class AssetCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
-            ->setSearchFields(['id', 'path', 'size', 'originalName', 'mimeType', 'userId'])
-            ;
+            ->setSearchFields(['id', 'path', 'size', 'originalName', 'mimeType', 'userId']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -56,13 +52,17 @@ class AssetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $originalName, $size, $userId, $committed, $acknowledged, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
+        }
+
         return [];
     }
 }

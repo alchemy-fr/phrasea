@@ -43,18 +43,6 @@ class DashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-//        // redirect to some CRUD controller
-//        $routeBuilder = $this->get(AdminUrlGenerator::class);
-//
-//        return $this->redirect($routeBuilder->setController(OneOfYourCrudController::class)->generateUrl());
-//
-//        // you can also redirect to different pages depending on the current user
-//        if ('jane' === $this->getUser()->getUsername()) {
-//            return $this->redirect('...');
-//        }
-//
-        // you can also render some template to display a proper Dashboard
-        // (tip: it's easier if your template extends from @EasyAdmin/page/content.html.twig)
         return $this->render('@AlchemyAdmin/layout.html.twig');
     }
 
@@ -72,8 +60,7 @@ class DashboardController extends AbstractDashboardController
             ->setDateTimeFormat('dd/MM/yyyy HH:mm:ss')
             ->setTimeFormat('HH:mm')
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
-            ;
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu

@@ -5,9 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Contact;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -23,8 +21,7 @@ class ContactCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Contact')
             ->setEntityLabelInPlural('Contact')
-            ->setSearchFields(['id', 'userId', 'email', 'phone', 'locale'])
-            ;
+            ->setSearchFields(['id', 'userId', 'email', 'phone', 'locale']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -38,13 +35,17 @@ class ContactCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $userId, $email, $phone, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $userId, $email, $phone, $locale, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userId, $email, $phone];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
             return [$userId, $email, $phone];
         }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$userId, $email, $phone];
+        }
+
         return [];
     }
 }

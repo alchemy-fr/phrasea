@@ -8,7 +8,7 @@ use Alchemy\AdminBundle\Tests\AbstractAdminTest;
 
 class AdminTest extends AbstractAdminTest
 {
-    /* todo: EA3 fix
+    /* todo EA3 : fix
      * 1) App\Tests\Admin\AdminTest::testAdmin
      * TypeError: Argument 1 passed to EasyCorp\Bundle\EasyAdminBundle\Field\Configurator\AssociationConfigurator::EasyCorp\Bundle\EasyAdminBundle\Field\Configurator\{closure}()
      * must be an instance of Doctrine\ORM\EntityRepository,
