@@ -20,6 +20,12 @@ class PhpInfoController extends AbstractAdminController
         $content = ob_get_contents();
         ob_end_clean();
 
-        return new Response($content);
+        // too bad phpinfo() contains css that conflicts with ea
+        // keep only the html
+        $content = preg_replace('%^.*<body>(.*)</body>.*$%ms', '$1', $content);
+
+        return $this->render('@AlchemyAdmin/phpinfo.html.twig', [
+            'data' => $content,
+        ]);
     }
 }
