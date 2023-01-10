@@ -187,13 +187,13 @@ class Commit
      */
     public function getFormDataJson(): string
     {
-        return json_encode($this->formData, JSON_PRETTY_PRINT);
+        return \GuzzleHttp\json_encode($this->formData, JSON_PRETTY_PRINT);
     }
 
     public function setFormDataJson(?string $json): void
     {
         $json ??= '{}';
-        $this->formData = json_decode($json, true);
+        $this->formData = \GuzzleHttp\json_decode($json, true);
     }
 
     /**
@@ -201,14 +201,14 @@ class Commit
      */
     public function getOptionsJson(): string
     {
-        return json_encode($this->options, JSON_PRETTY_PRINT);
+        return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
     }
 
     public function setOptionsJson(?string $json): void
     {
         $json ??= '{}';
 
-        $this->options = json_decode($json, true);
+        $this->options = \GuzzleHttp\json_decode($json, true);
     }
 
     public function setFormData(array $formData): void
