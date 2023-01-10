@@ -226,5 +226,7 @@ jobs:
           AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
         if: env.AWS_ECR_ACCESS_KEY_ID != null
         run: |
-          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${{ steps.ecr.outputs.registry }}/ps-,2" | bash
-          REGISTRY_NAMESPACE=${{ steps.ecr.outputs.registry }}/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
+          ECR_REGISTRY="${{ steps.ecr.outputs.registry }}"
+          ECR_REGISTRY=${ECR_REGISTRY#"https://"}
+          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
+          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
