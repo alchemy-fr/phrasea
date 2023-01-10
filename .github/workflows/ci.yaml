@@ -223,7 +223,7 @@ jobs:
         with:
           access_key: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           secret_access_key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
-          region: ${{ env.AWS_ECR_REGION }}
+          region: ${{ vars.AWS_ECR_REGION }}
       - name: Push images to AWS ECR
         env:
           AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
