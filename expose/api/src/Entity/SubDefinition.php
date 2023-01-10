@@ -64,7 +64,7 @@ class SubDefinition implements MediaInterface
     private ?string $path = null;
 
     /**
-     * @Groups({"subdef:read", "publication:read"})
+     * @Groups({"subdef:read", "publication:read", "asset:read"})
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private ?string $size = null;
