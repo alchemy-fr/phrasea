@@ -176,7 +176,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read"})
+     * @Groups({"asset:read", "publication:read"})
      */
     private ?string $webVTTLink = null;
 
@@ -198,25 +198,25 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read"})
+     * @Groups({"asset:read", "publication:read"})
      */
     private ?string $url = null;
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
     private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
     private ?string $thumbUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read", "publication:index"})
+     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
     private ?string $previewUrl = null;
 
