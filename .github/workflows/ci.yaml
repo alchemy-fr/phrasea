@@ -197,23 +197,40 @@ jobs:
         run: |
           docker-compose down --volumes
       - name: Login to Docker Hub
-        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        if: env.DOCKERHUB_USERNAME != null && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Push images
-        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+      - name: Push images to Dockerhub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
         run: |
-          set -x
-          if [[ -z "${DOCKERHUB_USERNAME}" ]]; then
-            docker image ls
-            docker image ls | grep ${DOCKER_TAG}
-            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }'
-            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest
-            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2"
-            docker image ls | grep ${DOCKER_TAG} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${DOCKER_TAG} {}:latest | sed "s,${REGISTRY_NAMESPACE},alchemyfr/ps-,2" | bash
-            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker-compose push
-          else
-            echo "Publish step skipped."
-          fi
+          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
+      - name: Configure AWS Credentials
+        env:
+          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        if: env.AWS_ECR_ACCESS_KEY_ID != null
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
+          aws-region: us-east-1
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: public
+      - name: Push images to AWS ECR
+        env:
+          AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          REGISTRY_ALIAS: b2s9z7l1
+        if: env.AWS_ECR_ACCESS_KEY_ID != null
+        run: |
+          ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
+          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
+          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
