@@ -390,7 +390,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "publication:index"})
      */
     public function isEnabled(): bool
     {
@@ -402,7 +402,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "publication:index"})
      */
     public function isPubliclyListed(): bool
     {
