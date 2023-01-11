@@ -54,6 +54,8 @@ class AdminController extends EasyAdminController
         return $this->eventProducer;
     }
 
+    // todo EA3 : restore user manipulation (create, delete ???) from this whole code
+
     public function createNewUserEntity()
     {
         return $this->userManager->createUser();

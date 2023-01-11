@@ -138,11 +138,6 @@ class UserCrudController extends AbstractAdminCrudController
             $this->addFlash('success', sprintf('User will be invited by email at %s', $user->getEmail()));
         }
 
-//        return $this->redirectToRoute('easyadmin', [
-//            'action' => 'list',
-//            'entity' => $this->request->query->get('entity'),
-//        ]);
-//
         $targetUrl = $this->adminUrlGenerator
             ->setController(self::class)
             ->setAction(Crud::PAGE_INDEX)

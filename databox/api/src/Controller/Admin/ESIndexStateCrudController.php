@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Admin\ESIndexState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -30,7 +31,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $mapping = TextField::new('mapping');
+        $mapping = JsonField::new('mapping');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $indexName, $createdAt, $updatedAt];
