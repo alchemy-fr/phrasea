@@ -207,9 +207,9 @@ jobs:
       - name: Push images to Dockerhub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        if: env.DOCKERHUB_USERNAME != null && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
+        if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
         run: |
-          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:latest | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
+          docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
       - name: Configure AWS Credentials
         env:
