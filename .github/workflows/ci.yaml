@@ -212,6 +212,7 @@ jobs:
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
           
+          set -ex
           LATEST_TAG=$(curl \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
