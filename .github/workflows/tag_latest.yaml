@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  pull_images:
+  latest_tag:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
