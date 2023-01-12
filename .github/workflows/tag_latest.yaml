@@ -1,6 +1,12 @@
 name: Set latest tag to images on Dockerhub
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      from_tag:
+        description: 'From Docker tag'
+        type: string
+        required: true
 
 jobs:
   pull_images:
@@ -18,9 +24,9 @@ jobs:
       - name: Pull, tag, then push images to Dockerhub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_TAG: ${{ github.ref_name }}
+          DOCKER_TAG: ${{ github.event.inputs.from_tag || github.ref_name }}
         if: env.DOCKERHUB_USERNAME != null
         run: |
-          docker-compose pull
+          docker-compose pull --quiet
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} docker tag {}:${{ github.ref_name }} {}:latest
           DOCKER_TAG=latest docker-compose push
