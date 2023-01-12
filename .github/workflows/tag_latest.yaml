@@ -15,11 +15,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Push images to Dockerhub
+      - name: Pull, tag, then push images to Dockerhub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKER_TAG: ${{ github.ref_name }}
-        if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
+        if: env.DOCKERHUB_USERNAME != null
         run: |
           docker-compose pull
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} docker tag {}:${{ github.ref_name }} {}:latest
