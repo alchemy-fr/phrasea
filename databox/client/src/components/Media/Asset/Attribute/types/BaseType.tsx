@@ -12,4 +12,8 @@ export default abstract class BaseType {
             return availableFormats[0].name;
         }
     }
+
+    supportsMultiple() {
+        return false;
+    }
 }

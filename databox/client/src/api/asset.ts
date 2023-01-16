@@ -108,8 +108,6 @@ export async function attributeBatchUpdate(
         };
     });
 
-    console.log('assetId', assetId);
-
     if (typeof assetId === 'string') {
         return (await apiClient.post(`/assets/${assetId}/attributes`, {
             actions

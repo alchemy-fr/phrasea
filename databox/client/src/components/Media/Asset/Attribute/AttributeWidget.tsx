@@ -41,7 +41,6 @@ export default function AttributeWidget({
     }, [initialValue?.id]);
 
     const changeHandler = useCallback((newValue: any) => {
-        console.log('newValue', newValue);
         const nv: AttrValue<string | number> = {...(value || createNewValue(type))};
         nv.value = newValue;
         setValue(nv);

@@ -17,7 +17,7 @@ export async function uploadMultipartFile(
     userId: string,
     accessToken: string,
     upload: Upload,
-    onProgress: OnProgress
+    onProgress?: OnProgress
 ): Promise<string> {
     const file = upload.file;
     const fileUID = getUniqueFileId(file, fileChunkSize);
@@ -74,7 +74,7 @@ export async function uploadMultipartFile(
                         loaded: e.loaded + start,
                     };
 
-                    onProgress(multiPartEvent);
+                    onProgress && onProgress(multiPartEvent);
                 }
             });
 

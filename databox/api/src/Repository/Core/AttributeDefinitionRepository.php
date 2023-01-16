@@ -7,14 +7,19 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Security;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    private Security $security;
+
+    public function __construct(ManagerRegistry $registry, Security $security)
     {
         parent::__construct($registry, AttributeDefinition::class);
+        $this->security = $security;
     }
 
     /**
@@ -28,19 +33,21 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->innerJoin('t.class', 'c')
         ;
 
-        if (null !== $userId) {
-            AccessControlEntryRepository::joinAcl(
-                $queryBuilder,
-                $userId,
-                $groupIds,
-                'attribute_class',
-                'c',
-                PermissionInterface::VIEW,
-                false
-            );
-            $queryBuilder->andWhere('c.public = true OR ace.id IS NOT NULL');
-        } else {
-            $queryBuilder->andWhere('c.public = true');
+        if (!$this->security->isGranted(ChuckNorrisVoter::ROLE)) {
+            if (null !== $userId) {
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $userId,
+                    $groupIds,
+                    'attribute_class',
+                    'c',
+                    PermissionInterface::VIEW,
+                    false
+                );
+                $queryBuilder->andWhere('c.public = true OR ace.id IS NOT NULL');
+            } else {
+                $queryBuilder->andWhere('c.public = true');
+            }
         }
 
         if (null !== $workspaceIds) {

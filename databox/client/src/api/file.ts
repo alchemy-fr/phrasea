@@ -36,8 +36,6 @@ export async function UploadFile(targetSlug: string, userId: string, file: File)
     return await uploadMultipartFile(targetSlug, userId, oauthClient.getAccessToken()!, {
         file,
         id: (uploadId++).toString()
-    }, (e) => {
-        console.log('e', e);
     });
 }
 

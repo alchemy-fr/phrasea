@@ -72,6 +72,10 @@ export default function Attributes({
             },
             '.attr-val': {
                 mb: 2,
+            },
+            'ul': {
+                m: 0,
+                pl: 2,
             }
         }}
         onDoubleClick={stopPropagation}

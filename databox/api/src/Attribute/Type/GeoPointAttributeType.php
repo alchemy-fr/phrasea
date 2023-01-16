@@ -18,7 +18,7 @@ class GeoPointAttributeType extends AbstractAttributeType
 
     public function getElasticSearchType(): string
     {
-        return 'ip';
+        return 'geo_point';
     }
 
     public function supportsAggregation(): bool

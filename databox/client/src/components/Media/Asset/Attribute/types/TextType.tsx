@@ -61,4 +61,8 @@ export default class TextType extends BaseType implements AttributeType {
             type: 'text',
         };
     }
+
+    supportsMultiple(): boolean {
+        return true;
+    }
 }

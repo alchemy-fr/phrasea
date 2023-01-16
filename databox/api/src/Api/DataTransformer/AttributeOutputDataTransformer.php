@@ -29,9 +29,11 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
         $output->asset = $object->getAsset();
-        $output->value = $object->getValues() ? array_map(function (?string $v) use ($type) {
+        $values = $object->getValues();
+        $output->value = $values ? array_map(function (?string $v) use ($type) {
             return $type->denormalizeValue($v);
         }, $object->getValues()) : $type->denormalizeValue($object->getValue());
+        $output->multiple = null !== $values;
         $output->highlight = $object->getHighlights() ?? $object->getHighlight();
         $output->origin = $object->getOriginLabel();
         $output->originUserId = $object->getOriginUserId();
