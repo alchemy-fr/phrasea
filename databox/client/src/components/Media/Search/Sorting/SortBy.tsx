@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Chip, IconButton, Menu} from "@mui/material";
+import React, {useContext, useEffect} from 'react';
+import {Chip, Menu} from "@mui/material";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
 import SortByChip from "../SortByChip";
 import EditSortBy from "./EditSortBy";
@@ -49,7 +49,7 @@ export default function SortBy({}: Props) {
                 />
                 Sort by
                 <>
-                    {search.sortBy.map((o, i ) => <SortByChip
+                    {search.sortBy.map((o, i) => <SortByChip
                         key={i}
                         {...o}
                     />)}

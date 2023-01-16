@@ -50,6 +50,7 @@ export interface Attribute extends IPermissions {
     id: string;
     definition: AttributeDefinition;
     origin: "human" | "machine";
+    multiple: boolean;
     originVendor?: string;
     locale?: string | undefined;
     originUserId?: string;
@@ -81,6 +82,11 @@ export interface AttributeClass extends ApiHydraObjectResponse {
     public: boolean;
     editable: boolean;
     workspace: Workspace | string;
+}
+
+export interface FieldType extends ApiHydraObjectResponse {
+    name: string;
+    title: string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse {

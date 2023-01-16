@@ -1,6 +1,6 @@
 import {uploadMultipartFile} from "../lib/upload/multiPartUpload";
 import {oauthClient} from "../oauth";
-import {AxiosRequestHeaders, HeadersDefaults, RawAxiosRequestHeaders} from "axios";
+import {RawAxiosRequestHeaders} from "axios";
 import config from "../config";
 import uploaderClient from "./uploader-client";
 

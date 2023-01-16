@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\AwsRekognition;
+namespace App\Integration\Aws\Rekognition;
 
 use Aws\Rekognition\RekognitionClient;
 

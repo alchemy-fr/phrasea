@@ -7,17 +7,6 @@ import FormRow from "../../../Form/FormRow";
 import {FormLabel} from "@mui/material";
 import TranslatableAttributeTabs from "./TranslatableAttributeTabs";
 
-type Props = {
-    definition: AttributeDefinition;
-    attributes: LocalizedAttributeIndex<string | number>;
-    disabled: boolean;
-    onChange: OnChangeHandler;
-    indeterminate?: boolean;
-    readOnly?: boolean;
-    currentLocale: string;
-    onLocaleChange: (locale: string) => void;
-}
-
 function extractNoLocaleOrDefinedLocaleValue<T>(attributes: LocalizedAttributeIndex<T>): AttrValue<T> | AttrValue<T>[] | undefined {
     if (attributes.hasOwnProperty(NO_LOCALE)) {
         return attributes[NO_LOCALE];
@@ -29,6 +18,18 @@ function extractNoLocaleOrDefinedLocaleValue<T>(attributes: LocalizedAttributeIn
     }
 }
 
+type Props = {
+    definition: AttributeDefinition;
+    attributes: LocalizedAttributeIndex<string | number>;
+    disabled: boolean;
+    onChange: OnChangeHandler;
+    indeterminate?: boolean;
+    readOnly?: boolean;
+    autoFocus?: boolean;
+    currentLocale: string;
+    onLocaleChange: (locale: string) => void;
+}
+
 export default function AttributeType({
                                           definition,
                                           readOnly,
@@ -37,20 +38,13 @@ export default function AttributeType({
                                           onChange,
                                           indeterminate,
                                           currentLocale,
+                                          autoFocus,
                                           onLocaleChange,
                                       }: Props) {
 
-    const changeHandler = (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
-        const na = {...attributes};
-
-        if (v && !(v instanceof Array)) {
-            v = (v as AttrValue<string | number>).value ? v : undefined as any;
-        }
-
-        na[locale] = v;
-
-        onChange(definition.id, na);
-    };
+    const changeHandler = React.useCallback((locale: string, value: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
+        onChange(definition.id, locale, value);
+    }, [onChange]);
 
     if (definition.translatable) {
         return <>
@@ -80,12 +74,13 @@ export default function AttributeType({
             type={definition.fieldType}
             name={definition.name}
             values={(extractNoLocaleOrDefinedLocaleValue(attributes) || []) as AttrValue<string | number>[]}
-            onChange={(values) => changeHandler(NO_LOCALE, values)}
+            onChange={(v) => changeHandler(NO_LOCALE, v)}
             id={definition.id}
         /> : <AttributeWidget
             indeterminate={indeterminate}
             readOnly={readOnly}
             isRtl={false}
+            autoFocus={autoFocus}
             value={extractNoLocaleOrDefinedLocaleValue(attributes) as AttrValue<string | number> | undefined}
             required={false}
             disabled={disabled}

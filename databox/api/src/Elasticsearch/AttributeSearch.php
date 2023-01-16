@@ -7,7 +7,7 @@ namespace App\Elasticsearch;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\DateAttributeType;
+use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -72,7 +72,7 @@ class AttributeSearch
 
                 if (!(
                     $type instanceof TextAttributeType
-                    || $type instanceof DateAttributeType
+                    || $type instanceof DateTimeAttributeType
                 )) {
                     continue;
                 }
@@ -80,7 +80,7 @@ class AttributeSearch
                 $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
 
                 $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                if ($type instanceof DateAttributeType) {
+                if ($type instanceof DateTimeAttributeType) {
                     $field .= '.text';
                 }
                 $weights[$field] = $definition->getSearchBoost() ?? 1;

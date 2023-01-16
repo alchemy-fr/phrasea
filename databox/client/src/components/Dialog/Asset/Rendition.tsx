@@ -51,7 +51,7 @@ export function Rendition({
         </div>}
         actions={<>
             {file?.url && <Button
-                startIcon={<DownloadIcon />}
+                startIcon={<DownloadIcon/>}
                 href={file.url}
                 target={'_blank'}
                 rel={'noreferrer'}
@@ -93,7 +93,7 @@ function RenditionStructure({
             <Typography component="div" variant="h5">
                 {title}
             </Typography>
-            <Typography variant="body1">
+            <Typography component="div" variant="body1">
                 {info}
             </Typography>
 

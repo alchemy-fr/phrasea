@@ -31,7 +31,7 @@ type IndexedDefinition = {
 
 export default function ExportAssetsDialog({
                                                assets,
-    open,
+                                               open,
                                            }: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();

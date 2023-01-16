@@ -6,6 +6,7 @@ namespace App\Twig;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationManager;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -35,6 +36,10 @@ class IntegrationExtension extends AbstractExtension
 
     public function getIntegrationConfigInfo(WorkspaceIntegration $integration): array
     {
-        return $this->integrationManager->getIntegrationConfigInfo($integration);
+        try {
+            return $this->integrationManager->getIntegrationConfigInfo($integration);
+        } catch (InvalidConfigurationException $e) {
+            return [];
+        }
     }
 }

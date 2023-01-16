@@ -25,7 +25,7 @@ type HydraCollectionResponse<T, E extends {} = {}> = {
 export interface ApiHydraObjectResponse {
     '@id': string;
     '@type': string;
-};
+}
 
 export function getHydraCollection<T, E extends {} = {}>(response: HydraCollectionResponse<T, E>): ApiCollectionResponse<T> {
     const res: ApiCollectionResponse<T> = {

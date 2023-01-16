@@ -26,7 +26,7 @@ export default function MoveAssetsDialog({
                                              assetIds,
                                              workspaceId,
                                              onComplete,
-    open,
+                                             open,
                                          }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();

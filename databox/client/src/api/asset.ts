@@ -77,8 +77,15 @@ export async function putAssetAttribute(
     })).data;
 }
 
+export enum AttributeBatchActionEnum {
+    Set = 'set',
+    Replace = 'replace',
+    Add = 'add',
+    Delete = 'delete',
+}
+
 export type AttributeBatchAction = {
-    action?: "set" | "replace" | "add" | "delete" | undefined;
+    action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;
     value?: any | undefined;
     definitionId?: string | undefined;
@@ -100,6 +107,8 @@ export async function attributeBatchUpdate(
             origin: 'human',
         };
     });
+
+    console.log('assetId', assetId);
 
     if (typeof assetId === 'string') {
         return (await apiClient.post(`/assets/${assetId}/attributes`, {

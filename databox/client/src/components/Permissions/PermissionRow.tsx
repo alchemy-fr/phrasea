@@ -18,15 +18,15 @@ function isAllChecked(mask: number, allMask: number): boolean | null {
 
 
 export default function PermissionRow({
-                                   mask: initMask,
-                                   userName,
-                                   userType,
-                                   userId,
-                                   onMaskChange,
-                                   onDelete,
-                                   permissions,
-                                   all = true,
-                               }: Props) {
+                                          mask: initMask,
+                                          userName,
+                                          userType,
+                                          userId,
+                                          onMaskChange,
+                                          onDelete,
+                                          permissions,
+                                          all = true,
+                                      }: Props) {
     const {t} = useTranslation();
     const [mask, setMask] = useState(initMask);
 

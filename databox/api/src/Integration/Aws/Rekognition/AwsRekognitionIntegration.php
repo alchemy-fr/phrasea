@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\AwsRekognition;
+namespace App\Integration\Aws\Rekognition;
 
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
@@ -12,9 +12,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\AbstractIntegration;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\AssetOperationIntegrationInterface;
+use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Util\FileUtil;
@@ -26,23 +26,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AwsRekognitionIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface, FileActionsIntegrationInterface
+class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetOperationIntegrationInterface, FileActionsIntegrationInterface
 {
     private const ACTION_ANALYZE = 'analyze';
-
-    private const SUPPORTED_REGIONS = [
-        'ap-northeast-1',
-        'ap-northeast-2',
-        'ap-south-1',
-        'ap-southeast-1',
-        'ap-southeast-2',
-        'eu-central-1',
-        'eu-west-1',
-        'eu-west-2',
-        'us-east-1',
-        'us-east-2',
-        'us-west-2',
-    ];
 
     private const CATEGORIES = [
         'labels',
@@ -70,6 +56,23 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
         $this->batchAttributeManager = $batchAttributeManager;
     }
 
+    protected function getSupportedRegions(): array
+    {
+        return [
+            'ap-northeast-1',
+            'ap-northeast-2',
+            'ap-south-1',
+            'ap-southeast-1',
+            'ap-southeast-2',
+            'eu-central-1',
+            'eu-west-1',
+            'eu-west-2',
+            'us-east-1',
+            'us-east-2',
+            'us-west-2',
+        ];
+    }
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $addNode = function (string $name): NodeDefinition {
@@ -86,31 +89,9 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
             return $treeBuilder->getRootNode();
         };
 
-        $builder
-            ->scalarNode('accessKeyId')
-                ->isRequired()
-                ->cannotBeEmpty()
-                ->info('The AWS IAM Access Key ID')
-            ->end()
-            ->scalarNode('accessKeySecret')
-                ->isRequired()
-                ->cannotBeEmpty()
-                ->info('The AWS IAM Access Key Secret')
-            ->end()
-            ->scalarNode('region')
-                ->cannotBeEmpty()
-                ->defaultValue('eu-central-1')
-                ->example('us-east-2')
-                ->validate()
-                    ->ifNotInArray(self::SUPPORTED_REGIONS)
-                    ->thenInvalid(sprintf('Invalid region "%%s". Supported ones are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
-                ->end()
-                ->info(sprintf('Supported regions are: "%s"', implode('", "', self::SUPPORTED_REGIONS)))
-            ->end()
-        ;
+        $this->addCredentialConfigNode($builder);
+        $this->addRegionConfigNode($builder);
 
-        /** @var NodeDefinition[] $nodes  */
-        $nodes = [];
         foreach (self::CATEGORIES as $category) {
             $n = $addNode($category);
             if (in_array($category, ['labels', 'texts'], true)) {
@@ -163,7 +144,7 @@ class AwsRekognitionIntegration extends AbstractIntegration implements AssetOper
                     'confidence' => $text['Confidence'],
                 ];
             }, array_filter($result['texts']['TextDetections'], function (array $text): bool {
-                return $text['Type'] === 'LINE';
+                return 'LINE' === $text['Type'];
             })), $config['texts']['attributes']);
         }
     }

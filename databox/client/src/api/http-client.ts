@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from "axios";
 
 type HttpClient = {
     errorListeners: ErrorListener[];
@@ -16,8 +16,7 @@ type ErrorListener = (error: AxiosError) => void;
 
 export type RequestConfig = { meta?: RequestMeta } & AxiosRequestConfig<RequestMeta>;
 
-export function createHttpClient(baseURL: string): HttpClient
-{
+export function createHttpClient(baseURL: string): HttpClient {
     const client = axios.create({
         baseURL,
     }) as HttpClient;

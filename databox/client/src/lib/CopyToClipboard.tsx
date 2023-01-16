@@ -21,7 +21,7 @@ interface OwnState {
  * copy function is invoked
  */
 class CopyToClipboard extends React.Component<Props, OwnState> {
-    public state: OwnState = { showTooltip: false };
+    public state: OwnState = {showTooltip: false};
 
     public render() {
         return (
@@ -32,18 +32,18 @@ class CopyToClipboard extends React.Component<Props, OwnState> {
                 onClose={this.handleOnTooltipClose}
                 {...this.props.TooltipProps || {}}
             >
-                {this.props.children({ copy: this.onCopy }) as React.ReactElement<any>}
+                {this.props.children({copy: this.onCopy}) as React.ReactElement<any>}
             </Tooltip>
         );
     }
 
     private onCopy = (content: any) => {
         copy(content);
-        this.setState({ showTooltip: true });
+        this.setState({showTooltip: true});
     };
 
     private handleOnTooltipClose = () => {
-        this.setState({ showTooltip: false });
+        this.setState({showTooltip: false});
     };
 }
 

@@ -1,5 +1,5 @@
 import React, {CSSProperties, PropsWithChildren} from 'react';
-import {Theme, useTheme} from "@mui/material";
+import {Divider, Theme, useTheme} from "@mui/material";
 import {zIndex} from "../../../../themes/zIndex";
 
 type Props = PropsWithChildren<{
@@ -18,6 +18,8 @@ function applyStyle(theme: Theme, defaultStyle: CSSProperties, style: ((theme: T
     return defaultStyle;
 }
 
+export const sectionDividerClassname = 'section-divider';
+
 export default function SectionDivider({
                                            children,
                                            rootStyle,
@@ -25,40 +27,28 @@ export default function SectionDivider({
                                        }: Props) {
 
     const theme = useTheme();
-    const bg = theme.palette.common.white;
-    const spacing1 = theme.spacing(1);
-    const spacing2 = theme.spacing(2);
 
     return <div
         style={applyStyle(theme, {
             zIndex: zIndex.sectionDivider,
-            width: '100%',
             position: 'sticky',
             top: 55,
-            backgroundColor: bg,
-            overflow: 'visible',
+            backgroundColor: theme.palette.common.white,
         }, rootStyle)}
+        className={sectionDividerClassname}
     >
-        <div
-            style={{
-                borderBottom: `1px solid ${theme.palette.divider}`,
-                color: theme.palette.secondary.main,
-                margin: `${spacing2} 0`,
-                position: 'relative',
-            }}
-       >
+        <Divider
+            textAlign={'left'}
+        >
             <div
                 style={applyStyle(theme, {
-                    backgroundColor: bg,
-                    top: `-9px`,
-                    padding: `0 ${spacing1}`,
-                    marginLeft: `${spacing2}`,
                     fontSize: 13,
-                    position: 'absolute'
+                    paddingTop: theme.spacing(1),
+                    paddingBottom: theme.spacing(1),
                 }, textStyle)}
             >
                 {children}
             </div>
-        </div>
+        </Divider>
     </div>
 }

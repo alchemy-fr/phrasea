@@ -27,7 +27,7 @@ class NumberAttributeType extends AbstractAttributeType
      *
      * @return float
      */
-    public function normalizeValue($value)
+    public function normalizeElasticsearchValue($value)
     {
         return (float) $value;
     }

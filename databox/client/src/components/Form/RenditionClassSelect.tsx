@@ -9,9 +9,9 @@ type Props<TFieldValues> = {
 } & RSelectProps<TFieldValues, false>;
 
 export default function RenditionClassSelect<TFieldValues extends FieldValues>({
-                                                                        workspaceId,
-                                                                        ...rest
-                                                                    }: Props<TFieldValues>) {
+                                                                                   workspaceId,
+                                                                                   ...rest
+                                                                               }: Props<TFieldValues>) {
     const load = useCallback(async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getRenditionClasses(workspaceId));
 

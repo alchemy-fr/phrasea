@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
-import {Box, Button} from "@mui/material";
+import {Button} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import ReactCompareImage from "react-compare-image";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";

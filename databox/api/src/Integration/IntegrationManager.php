@@ -49,6 +49,15 @@ class IntegrationManager
         }
     }
 
+    public function callIntegrationFunction(string $integrationId, string $func, array $args): void
+    {
+        $workspaceIntegration = $this->loadIntegration($integrationId);
+        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        $config = $this->getConfiguration($workspaceIntegration, $integration);
+
+        call_user_func([$integration, $func], $config, $args);
+    }
+
     public function handleFileAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, File $file): Response
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
@@ -136,6 +145,7 @@ class IntegrationManager
         $config['integration'] = $integration;
         $config['workspaceIntegration'] = $workspaceIntegration;
         $config['integrationId'] = $workspaceIntegration->getId();
+        $config['workspaceId'] = $workspaceIntegration->getWorkspaceId();
 
         return $config;
     }

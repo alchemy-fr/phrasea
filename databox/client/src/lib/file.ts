@@ -34,5 +34,5 @@ export function dataURLtoFile(dataurl: string, filename: string): File {
         u8arr[n - 1] = s.charCodeAt(n - 1);
         --n;
     }
-    return new File([u8arr], filename, { type: mime });
+    return new File([u8arr], filename, {type: mime});
 }

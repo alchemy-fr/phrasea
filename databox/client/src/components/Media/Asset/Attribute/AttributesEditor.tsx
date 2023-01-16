@@ -1,7 +1,12 @@
 import React, {useCallback, useState} from "react";
 import {Box} from "@mui/material";
 import {isSame} from "../../../../utils/comparison";
-import {AttributeBatchAction, attributeBatchUpdate, getAssetAttributes,} from "../../../../api/asset";
+import {
+    AttributeBatchAction,
+    AttributeBatchActionEnum,
+    attributeBatchUpdate,
+    getAssetAttributes,
+} from "../../../../api/asset";
 import {Asset, Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
 import {toast} from "react-toastify";
@@ -76,7 +81,7 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
     return attributeIndex;
 }
 
-export type OnChangeHandler = (defId: string, value: LocalizedAttributeIndex<string | number>) => void;
+export type OnChangeHandler = (defId: string, locale: string, value: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => void;
 
 export default function AttributesEditor({
                                              assetId,
@@ -92,14 +97,23 @@ export default function AttributesEditor({
     const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
     const [saving, setSaving] = useState<any>(false);
 
-    const onChange = useCallback((defId: string, value: LocalizedAttributeIndex<string | number> | undefined) => {
+    const onChange = useCallback<OnChangeHandler>((defId, locale, value) => {
         setAttributes((prev: AttributeIndex<string | number>): AttributeIndex<string | number> => {
             const newValues = {...prev};
 
             if (value === undefined) {
-                delete newValues[defId];
+                if (newValues[defId]) {
+                    delete newValues[defId][locale];
+                }
             } else {
-                newValues[defId] = value;
+                newValues[defId] = {
+                    ...(newValues[defId] ?? {}),
+                    [locale]: value,
+                };
+            }
+
+            if (Object.keys(newValues[defId]).length === 0) {
+                delete newValues[defId];
             }
 
             return newValues;
@@ -128,18 +142,18 @@ export default function AttributesEditor({
                         if (currValue instanceof Array) {
                             if (!removeV) {
                                 actions.push({
-                                    action: 'set',
+                                    action: AttributeBatchActionEnum.Set,
                                     definitionId: defId,
                                     value: currValue.map(_v => _v.value),
                                     locale: locale !== NO_LOCALE ? locale : undefined,
                                 });
                             } else {
                                 currValue.forEach((v: AttrValue<string | number>) => {
-                                    if (v.value) {
+                                    if (v.value !== undefined) {
                                         const found = removeV.find(_v => _v.id === v.id);
                                         if (!found) {
                                             actions.push({
-                                                action: 'add',
+                                                action: AttributeBatchActionEnum.Add,
                                                 definitionId: defId,
                                                 value: v.value,
                                                 locale: locale !== NO_LOCALE ? locale : undefined,
@@ -147,7 +161,7 @@ export default function AttributesEditor({
                                         } else {
                                             if (!isSame(found.value, v.value)) {
                                                 actions.push({
-                                                    action: 'set',
+                                                    action: AttributeBatchActionEnum.Set,
                                                     id: found.id,
                                                     definitionId: defId,
                                                     value: v.value,
@@ -157,7 +171,7 @@ export default function AttributesEditor({
                                         }
                                     } else if (typeof v.id === 'string') {
                                         actions.push({
-                                            action: 'delete',
+                                            action: AttributeBatchActionEnum.Delete,
                                             definitionId: defId,
                                             id: v.id,
                                         });
@@ -166,7 +180,7 @@ export default function AttributesEditor({
                             }
                         } else {
                             actions.push({
-                                action: 'set',
+                                action: AttributeBatchActionEnum.Set,
                                 definitionId: defId,
                                 value: currValue.value,
                                 locale: locale !== NO_LOCALE ? locale : undefined,
@@ -188,16 +202,16 @@ export default function AttributesEditor({
                                 const found = attrV.find(_v => _v.id === v.id);
                                 if (!found) {
                                     actions.push({
-                                        action: 'delete',
+                                        action: AttributeBatchActionEnum.Delete,
                                         definitionId: defId,
                                         id: v.id,
                                     });
                                 }
                             });
                         } else {
-                            if (!attributes[defId] || !attributes[defId][locale] || !(attributes[defId][locale] as AttrValue).value) {
+                            if (!attributes[defId] || !attributes[defId][locale] || (attributes[defId][locale] as AttrValue).value === undefined) {
                                 actions.push({
-                                    action: 'delete',
+                                    action: AttributeBatchActionEnum.Delete,
                                     definitionId: defId,
                                     id: remoteV.id,
                                 });
@@ -207,7 +221,9 @@ export default function AttributesEditor({
                 });
             });
 
-            await attributeBatchUpdate(assetId, actions);
+            if (actions.length > 0) {
+                await attributeBatchUpdate(assetId, actions);
+            }
             const res = await getAssetAttributes(assetId);
             const attributeIndex = buildAttributeIndex(definitions, res);
 

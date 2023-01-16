@@ -1,7 +1,6 @@
-import {AttributeClass, AttributeDefinition} from "../types";
+import {AttributeClass, AttributeDefinition, FieldType} from "../types";
 import apiClient from "./api-client";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
-import {SelectOption} from "../components/Form/RSelect";
 
 export const attributeClassNS = '/attribute-classes';
 export const attributeDefinitionNS = '/attribute-definitions';
@@ -44,33 +43,10 @@ export async function getAttributeClasses(
     return getHydraCollection<AttributeClass>(res.data)
 }
 
-export async function getAttributeFieldTypes(): Promise<SelectOption[]> {
-    return [
-        {
-            label: 'Text',
-            value: 'text',
-        },
-        {
-            label: 'Textarea',
-            value: 'textarea',
-        },
-        {
-            label: 'Number',
-            value: 'number',
-        },
-        {
-            label: 'Ip',
-            value: 'ip',
-        },
-        {
-            label: 'Date',
-            value: 'date',
-        },
-        {
-            label: 'Boolean',
-            value: 'boolean',
-        },
-    ];
+export async function getAttributeFieldTypes(): Promise<FieldType[]> {
+    const res = await apiClient.get(`/field-types`);
+
+    return res.data['hydra:member'];
 }
 
 export async function getWorkspaceAttributeClasses(workspaceId: string): Promise<AttributeClass[]> {
@@ -102,7 +78,18 @@ export async function deleteAttributeClass(id: string): Promise<void> {
 }
 
 export enum AttributeType {
-    Text = 'text',
+    Boolean = 'boolean',
+    Code = 'code',
+    Keyword = 'keyword',
+    Color = 'color',
     Date = 'date',
     DateTime = 'date_time',
+    GeoPoint = 'geo_point',
+    Html = 'html',
+    Ip = 'ip',
+    Json = 'json',
+    Number = 'number',
+    Text = 'text',
+    Textarea = 'textarea',
+    WebVtt = 'web_vtt',
 }

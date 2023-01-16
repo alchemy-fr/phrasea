@@ -83,7 +83,7 @@ class File extends AbstractUuidEntity
     private ?array $alternateUrls = null;
 
     /**
-     * normalized metadata
+     * Normalized metadata.
      *
      * @ORM\Column(type="json", nullable=true)
      */
@@ -187,6 +187,11 @@ class File extends AbstractUuidEntity
     public function getExtension(): ?string
     {
         return $this->extension;
+    }
+
+    public function getExtensionWithDot(): string
+    {
+        return $this->extension ? '.'.$this->extension : '';
     }
 
     public function setExtension(?string $extension): void

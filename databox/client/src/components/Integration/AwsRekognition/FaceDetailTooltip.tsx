@@ -56,7 +56,8 @@ export default function FaceDetailTooltip({
         <div>
             <b>{title}</b> <small>(<ValueConfidence confidence={detail.Confidence}/>)</small>
         </div>
-        {detail.AgeRange && <Assertion title={'Age range'} value={`${detail.AgeRange.Low} - ${detail.AgeRange.High} years old`}/>}
+        {detail.AgeRange &&
+            <Assertion title={'Age range'} value={`${detail.AgeRange.Low} - ${detail.AgeRange.High} years old`}/>}
         {detail.Gender && <Assertion title={'Gender'} value={<>
             {detail.Gender.Value}{' - '}
             <ValueConfidence confidence={detail.Gender.Confidence}/>

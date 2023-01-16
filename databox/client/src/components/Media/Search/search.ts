@@ -6,17 +6,17 @@ const arraySep = ',';
 
 function encode(str: string): string {
     return str
-        .replace(/%/g,  '%9')
-        .replace(/,/g,  '%1')
-        .replace(/;/g,  '%2')
+        .replace(/%/g, '%9')
+        .replace(/,/g, '%1')
+        .replace(/;/g, '%2')
         ;
 }
 
 function decode(str: string): string {
     return str
-        .replace(/%1/g,  ',')
-        .replace(/%2/g,  ';')
-        .replace(/%9/g,  '%')
+        .replace(/%1/g, ',')
+        .replace(/%2/g, ';')
+        .replace(/%9/g, '%')
         ;
 }
 
@@ -64,7 +64,7 @@ function decodeFilter(str: string): FilterEntry {
 
 function normalizeBucketValue(v: BucketKeyValue): NormalizedBucketKeyValue {
     if (typeof v === 'object') {
-        return  {
+        return {
             v: v.value,
             l: v.label,
         }
@@ -75,7 +75,7 @@ function normalizeBucketValue(v: BucketKeyValue): NormalizedBucketKeyValue {
 
 function denormalizeBucketValue(v: NormalizedBucketKeyValue): BucketKeyValue {
     if (typeof v === 'object') {
-        return  {
+        return {
             value: v.v,
             label: v.l,
         }

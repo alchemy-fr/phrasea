@@ -21,7 +21,7 @@ export default function CreateAsset({
                                         workspaceId,
                                         collectionId,
                                         workspaceTitle,
-    open,
+                                        open,
                                     }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();

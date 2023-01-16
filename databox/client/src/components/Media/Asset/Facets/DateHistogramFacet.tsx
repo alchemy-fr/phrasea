@@ -78,6 +78,9 @@ export default function DateHistogramFacet({
     }, [facet.buckets, colorActive, greyInactive, value]);
 
     return <Box
+        style={{
+            overflow: 'hidden',
+        }}
     >
         {!hasRange && <>
             <ListItem>

@@ -7,22 +7,45 @@ namespace App\Attribute\Type;
 use App\Elasticsearch\FacetInterface;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Throwable;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
 {
-    public function normalizeValue($value)
+    public function normalizeValue($value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        try {
+            return (string) $value;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public function denormalizeValue(?string $value)
     {
         return $value;
+    }
+
+    public function normalizeElasticsearchValue(?string $value)
+    {
+        return $value;
+    }
+
+    public function denormalizeElasticsearchValue($value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     public function getFacetType(): string
     {
         return FacetInterface::TYPE_STRING;
-    }
-
-    public function denormalizeValue($value)
-    {
-        return $value;
     }
 
     public function isLocaleAware(): bool

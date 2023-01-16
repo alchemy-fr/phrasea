@@ -119,7 +119,6 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             if (null !== $groupBy) {
                 /** @var AttributeTypeInterface $type */
                 [
-                    'field' => $field,
                     'property' => $property,
                     'type' => $type,
                     'isAttr' => $isAttr,

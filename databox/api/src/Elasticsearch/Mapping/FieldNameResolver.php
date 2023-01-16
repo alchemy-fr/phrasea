@@ -6,7 +6,7 @@ namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\DateAttributeType;
+use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\FacetHandler;
 use App\Entity\Core\AttributeDefinition;
@@ -76,7 +76,7 @@ class FieldNameResolver
                 };
                 break;
             case FacetHandler::FACET_CREATED_AT:
-                $type = DateAttributeType::getName();
+                $type = DateTimeAttributeType::getName();
                 $property = $f = 'createdAt';
                 break;
             default:

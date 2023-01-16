@@ -25,7 +25,10 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
         control,
         formState: {errors, isDirty}
     } = useForm<any>({
-        defaultValues: data,
+        defaultValues: data ?? {
+            title: '',
+            privacy: 0,
+        },
     });
     useDirtyFormPrompt(!submitted && isDirty);
 

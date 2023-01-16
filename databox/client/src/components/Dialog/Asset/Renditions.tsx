@@ -33,10 +33,10 @@ export default function Renditions({
         {renditions && renditions.map(r => {
             return <Rendition
                 key={r.id}
-                    rendition={r}
-                    title={data.resolvedTitle}
-                    maxDimensions={maxDimensions}
-                />
+                rendition={r}
+                title={data.resolvedTitle}
+                maxDimensions={maxDimensions}
+            />
         })}
         {!renditions && [0, 1, 2].map(i => <RenditionSkeleton
             key={i}

@@ -6,6 +6,8 @@ namespace App\Tests\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateAttributeType;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 class DateAttributeTypeTest extends AbstractAttributeTypeTest
 {
@@ -20,20 +22,28 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
             [null, null],
             ['', null],
             [' ', null],
-            [[], null],
-            [new \stdClass(), null],
             ['2008', null],
             ['2009', null],
             ['foo', null],
             ['1', null],
-            [1, null],
-            [0, null],
-            [false, null],
-            [true, null],
             ['2008-01-12T12:13:00Z', '2008-01-12T12:13:00+00:00'],
             ['2008-01-12T00:00:00Z', '2008-01-12T00:00:00+00:00'],
             ['2008-01-12T00:00:00+00:00', '2008-01-12T00:00:00+00:00'],
             ['2008-01-12', '2008-01-12T00:00:00+00:00'],
+        ];
+    }
+
+    public function getDenormalizationCases(): array
+    {
+        return [
+            [null, null],
+            ['', null],
+            [' ', null],
+            ['2008', null],
+            ['2009', null],
+            ['foo', null],
+            ['1', null],
+            ['2008-01-12T12:13:00Z', DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, '2008-01-12T12:13:00Z')],
         ];
     }
 }
