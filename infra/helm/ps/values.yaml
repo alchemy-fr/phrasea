@@ -399,3 +399,7 @@ elasticsearch:
     resources:
       requests:
         storage: 5Gi
+
+newrelic:
+  enabled: false
+  licenceKey: ~
