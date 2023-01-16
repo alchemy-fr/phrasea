@@ -217,9 +217,9 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/releases/latest | jq '.tag_name')
+            https://api.github.com/repos/${{ github.repository }}/releases/latest | jq --raw-output '.tag_name')
           
-          if [ "${LATEST_TAG}" == "${{ github.ref_name }}"]; then
+          if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
             docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:latest | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
             REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker-compose push
           fi
