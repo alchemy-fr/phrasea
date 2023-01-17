@@ -56,7 +56,19 @@ export default function AttributeRowUI({
             className={'attr-val'}
             lang={locale}
         >
-            {formatter.formatValue({
+            {multiple && !formatter.supportsMultiple() ? <ul>
+                {value ? value.map((v: any, i: number) => <li
+                    key={i}
+                >
+                    {formatter.formatValue({
+                        value: v,
+                        highlight,
+                        locale,
+                        multiple,
+                        format: formatContext.formats[type],
+                    })}
+                </li>) : ''}
+            </ul> : formatter.formatValue({
                 value,
                 highlight,
                 locale,

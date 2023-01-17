@@ -8,6 +8,7 @@ use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -55,7 +56,7 @@ class AttributeSearch
         $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
 
         foreach ($workspaces as $workspace) {
-            $searchQuery = new Query\BoolQuery();
+            $wsSearchQuery = new Query\BoolQuery();
 
             /** @var AttributeDefinition[] $attributeDefinitions */
             $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
@@ -86,19 +87,32 @@ class AttributeSearch
                 $weights[$field] = $definition->getSearchBoost() ?? 1;
             }
 
+            $matchBoolQuery = new Query\BoolQuery();
+
             $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
-            if ($strict) {
-                $searchQuery->addMust($multiMatch);
-            } else {
-                $subBool = new Query\BoolQuery();
-                $multiMatch->setParam('boost', 50);
-                $subBool->addShould($multiMatch);
-                $subBool->addShould($this->createMultiMatch($queryString, $weights, true, $options));
-                $searchQuery->addMust($subBool);
+            $multiMatch->setParam('boost', 50);
+            $matchBoolQuery->addShould($multiMatch);
+
+            if (!$strict) {
+                $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
             }
 
-            $searchQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
-            $boolQuery->addShould($searchQuery);
+            // Add should for terms
+            foreach ($attributeDefinitions as $definition) {
+                $fieldName = $this->fieldNameResolver->getFieldName($definition);
+                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+
+                if ($type instanceof KeywordAttributeType) {
+                    $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
+                    $field = sprintf('attributes.%s.%s', $l, $fieldName);
+                    $matchBoolQuery->addShould(new Query\Term([$field => $queryString]));
+                }
+            }
+
+            $wsSearchQuery->addMust($matchBoolQuery);
+            $wsSearchQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
+
+            $boolQuery->addShould($wsSearchQuery);
         }
 
         return $boolQuery;

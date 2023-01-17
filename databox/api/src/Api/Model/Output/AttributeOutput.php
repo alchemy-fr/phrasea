@@ -106,4 +106,10 @@ class AttributeOutput extends AbstractUuidOutput
      * @Groups({"attribute:index", "attribute:read"})
      */
     public $confidence;
+
+    /**
+     * @var bool
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     */
+    public $multiple;
 }

@@ -88,7 +88,7 @@ class PopulatePassListener implements EventSubscriberInterface
     {
         $indexName = $event->getOptions()['indexName'];
         $populatePass = $this->getPass($indexName);
-        $populatePass->setError($event->getException()->getMessage());
+        $populatePass->setError(substr($event->getException()->getMessage(), 0, 255));
         $populatePass->setEndedAt(new DateTimeImmutable());
         $this->em->persist($populatePass);
         $this->em->flush();

@@ -30,6 +30,7 @@ export type AvailableFormat = {
 }
 
 export type AttributeTypeFormatter = {
+    supportsMultiple(): boolean;
     formatValue(props: AttributeFormatterProps): React.ReactNode;
     formatValueAsString(props: AttributeFormatterProps): string | undefined;
 
