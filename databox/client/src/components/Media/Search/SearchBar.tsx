@@ -8,6 +8,7 @@ import {SearchContext} from "./SearchContext";
 import {ResultContext} from "./ResultContext";
 import SortBy from "./Sorting/SortBy";
 import {zIndex} from "../../../themes/zIndex";
+import GeoPointFilter from "./GeoPointFilter";
 
 type Props = {};
 
@@ -100,6 +101,7 @@ export default function SearchBar({}: Props) {
                     </Button>
                 </Search>
             </form>
+            <GeoPointFilter/>
             <SortBy/>
         </Box>
         {search.attrFilters.length > 0 && <Box sx={{p: 1}}>

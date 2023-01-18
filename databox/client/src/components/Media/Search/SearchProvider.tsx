@@ -1,9 +1,10 @@
-import React, {PropsWithChildren, useCallback, useState} from "react";
+import React, {PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {SearchContext} from "./SearchContext";
 import {BucketKeyValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
 import {Filters, SortBy} from "./Filter";
 import {hashToQuery, queryToHash} from "./search";
 import useHash from "../../../lib/useHash";
+import {useBrowserPosition} from "../../../hooks/useBrowserLocation";
 
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0 ? sortBy : [
@@ -19,34 +20,38 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
-    const {query, filters, collectionId, workspaceId, sortBy} = hashToQuery(hash);
+    const {query, filters, collectionId, workspaceId, sortBy, geolocation} = hashToQuery(hash);
     const resolvedSortBy = getResolvedSortBy(sortBy);
 
     const selectWorkspace = useCallback((workspaceId: string | undefined, forceReload?: boolean): void => {
-        if (!setHash(queryToHash(query, filters, sortBy, workspaceId, undefined)) && forceReload) {
+        if (!setHash(queryToHash(query, filters, sortBy, workspaceId, undefined, geolocation)) && forceReload) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, sortBy, collectionId]);
+    }, [setHash, query, filters, sortBy, collectionId, geolocation]);
 
     const selectCollection = useCallback((collectionId: string | undefined, forceReload?: boolean): void => {
-        if (!setHash(queryToHash(query, filters, sortBy, undefined, collectionId)) && forceReload) {
+        if (!setHash(queryToHash(query, filters, sortBy, undefined, collectionId, geolocation)) && forceReload) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, sortBy, workspaceId]);
+    }, [setHash, query, filters, sortBy, workspaceId, geolocation]);
 
     const setAttrFilters = useCallback((handler: (prev: Filters) => Filters): void => {
-        setHash(queryToHash(query, handler(filters), sortBy, workspaceId, collectionId));
-    }, [setHash, query, filters, sortBy, workspaceId, collectionId]);
+        setHash(queryToHash(query, handler(filters), sortBy, workspaceId, collectionId, geolocation));
+    }, [setHash, query, filters, sortBy, workspaceId, collectionId, geolocation]);
 
     const setSortBy = useCallback((newValue: SortBy[]): void => {
-        setHash(queryToHash(query, filters, newValue, workspaceId, collectionId));
-    }, [setHash, query, filters, workspaceId, collectionId]);
+        setHash(queryToHash(query, filters, newValue, workspaceId, collectionId, geolocation));
+    }, [setHash, query, filters, workspaceId, collectionId, geolocation]);
 
     const setQuery = useCallback((handler: string | ((prev: string) => string), forceReload?: boolean): void => {
-        if (!setHash(queryToHash(typeof handler === 'string' ? handler : handler(query), filters, sortBy, workspaceId, collectionId))) {
+        if (!setHash(queryToHash(typeof handler === 'string' ? handler : handler(query), filters, sortBy, workspaceId, collectionId, geolocation))) {
             setReloadInc(p => p + 1);
         }
-    }, [setHash, query, filters, sortBy, workspaceId, collectionId]);
+    }, [setHash, query, filters, sortBy, workspaceId, collectionId, geolocation]);
+
+    const setGeoLocation = React.useCallback((position: string | undefined) => {
+        setHash(queryToHash(query, filters, sortBy, workspaceId, collectionId, position));
+    }, [setHash, query, filters, sortBy, workspaceId, collectionId, geolocation]);
 
     const removeAttrFilter = (key: number): void => {
         setAttrFilters(prev => {
@@ -135,10 +140,19 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         attrFilters: filters,
         query,
         setQuery,
-        searchChecksum: JSON.stringify({query, filters, collectionId, workspaceId, sortBy: resolvedSortBy}),
+        searchChecksum: JSON.stringify({
+            query,
+            filters,
+            collectionId,
+            workspaceId,
+            sortBy: resolvedSortBy,
+            geolocation,
+        }),
         reloadInc,
         sortBy: resolvedSortBy,
         setSortBy: setSortBy,
+        geolocation,
+        setGeoLocation,
     }}>
         {children}
     </SearchContext.Provider>

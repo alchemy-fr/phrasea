@@ -153,10 +153,22 @@ export default function TUIPhotoEditor({
             </LoadingButton>
         </IntegrationPanelContent>
 
-        <List>
+        {integration.data.length > 0 && <List>
             <ListSubheader>
                 Open recent
             </ListSubheader>
+            <ListItemButton
+                selected={selectedFile === file.url}
+                onClick={() => onOpen(file.url!, '')}
+            >
+                <ListItemIcon>
+                    <FileOpenIcon/>
+                </ListItemIcon>
+                <ListItemText>
+                    Original
+                </ListItemText>
+            </ListItemButton>
+
             {integration.data.map(d => {
                 return <ListItemButton
                     disabled={deleting === d.id}
@@ -184,6 +196,6 @@ export default function TUIPhotoEditor({
                     </ListItemSecondaryAction>
                 </ListItemButton>
             })}
-        </List>
+        </List>}
     </>
 }

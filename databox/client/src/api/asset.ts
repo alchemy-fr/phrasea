@@ -4,11 +4,17 @@ import {Asset, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
 
-interface AssetOptions {
+export interface GetAssetOptions {
     url?: string;
     query?: string;
     workspaces?: string[];
     parents?: string[];
+    filters?: any[];
+    order: Record<string, 'asc' | 'desc'>;
+    group?: string[] | undefined;
+    context?: {
+        position?: string | undefined,
+    } | undefined;
 }
 
 export type ESDebug = {
@@ -17,7 +23,7 @@ export type ESDebug = {
     totalResponseTime: number;
 }
 
-export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
+export async function getAssets(options: GetAssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
     debug: ESDebug;
 }>> {
     const res = options.url

@@ -3,6 +3,7 @@ import {AttributeFormatterProps, AttributeWidgetProps, AvailableFormat} from "./
 import TextType from "./TextType";
 import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
 import {Box} from "@mui/material";
+import OpenStreetMap from "../../../../Map/OpenStreetMap";
 
 enum Formats {
     Map = 'map',
@@ -53,27 +54,15 @@ export default class GeoPointType extends TextType {
                     lng,
                 };
 
-                return <Box sx={{
-                    overflow: 'hidden',
-                    position: 'relative',
-                    zIndex: 0,
-                    '.leaflet-container': {
-                        width: 500,
-                        height: 300,
-                    }
-                }}>
-                    <MapContainer center={position} zoom={13} scrollWheelZoom={false}>
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker position={position}>
-                            <Popup>
-                                {this.formatValueAsString(props)}
-                            </Popup>
-                        </Marker>
-                    </MapContainer>
-                </Box>
+                return <OpenStreetMap
+                    center={position} zoom={13} scrollWheelZoom={false}
+                >
+                    <Marker position={position}>
+                        <Popup>
+                            {this.formatValueAsString(props)}
+                        </Popup>
+                    </Marker>
+                </OpenStreetMap>
             default:
             case Formats.Coords:
                 return <>{lng}, {lat}</>

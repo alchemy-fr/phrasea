@@ -6,6 +6,7 @@ import ReactCompareImage from "react-compare-image";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
+import SaveIcon from "@mui/icons-material/Save";
 
 type Props = {} & AssetIntegrationActionsProps;
 
@@ -55,9 +56,19 @@ export default function RemoveBGAssetEditorActions({
         }
     }, [enableInc, url]);
 
+    const saveAs =  () => {}; // TODO
+
     if (url) {
         return <IntegrationPanelContent>
             Use slider to compare
+
+            <Button
+                startIcon={<SaveIcon/>}
+                onClick={saveAs}
+                variant={'contained'}
+            >
+                Save as new asset
+            </Button>
         </IntegrationPanelContent>
     }
 

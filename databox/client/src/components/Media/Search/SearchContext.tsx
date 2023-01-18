@@ -11,6 +11,8 @@ export type TSearchContext = {
     workspaces?: string[];
     query: string;
     setQuery: (query: string, force?: boolean) => void;
+    geolocation?: string | undefined;
+    setGeoLocation: (position: string | undefined) => void;
     setAttrFilter: (attrName: string, values: BucketKeyValue[], attrTitle: string, type?: FacetType) => void;
     toggleAttrFilter: (attrName: string, value: BucketKeyValue, attrTitle: string) => void;
     removeAttrFilter: (key: number) => void;
@@ -41,6 +43,8 @@ export const SearchContext = React.createContext<TSearchContext>({
     invertAttrFilter: () => {
     },
     setSortBy: () => {
+    },
+    setGeoLocation: () => {
     },
     reloadInc: 0,
 });
