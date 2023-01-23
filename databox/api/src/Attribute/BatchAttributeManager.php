@@ -163,6 +163,7 @@ class BatchAttributeManager
                                         'definition' => $definition->getId(),
                                         'asset' => $assetId,
                                     ]);
+                                    $this->denyUnlessGranted($attribute->getDefinition());
                                     $this->upsertAttribute($attribute, [$assetId], $definition, $action);
                                 }
                             }

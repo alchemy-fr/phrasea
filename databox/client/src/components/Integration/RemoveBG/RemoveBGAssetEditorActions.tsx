@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
-import {Button} from "@mui/material";
+import {Button, Typography} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import ReactCompareImage from "react-compare-image";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
-import SaveIcon from "@mui/icons-material/Save";
-
-type Props = {} & AssetIntegrationActionsProps;
+import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
 
 function RemoveBgComparison({
                                 left,
@@ -33,7 +31,10 @@ function RemoveBgComparison({
     </div>;
 }
 
+type Props = {} & AssetIntegrationActionsProps;
+
 export default function RemoveBGAssetEditorActions({
+    asset,
                                                        file,
                                                        integration,
                                                        setIntegrationOverlay,
@@ -56,19 +57,16 @@ export default function RemoveBGAssetEditorActions({
         }
     }, [enableInc, url]);
 
-    const saveAs =  () => {}; // TODO
-
     if (url) {
         return <IntegrationPanelContent>
-            Use slider to compare
+            <Typography sx={{mb: 3}}>
+                Use slider to compare
+            </Typography>
 
-            <Button
-                startIcon={<SaveIcon/>}
-                onClick={saveAs}
-                variant={'contained'}
-            >
-                Save as new asset
-            </Button>
+            <SaveAsButton
+                asset={asset}
+                file={file}
+            />
         </IntegrationPanelContent>
     }
 

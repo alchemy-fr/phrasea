@@ -23,6 +23,7 @@ import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -184,6 +185,10 @@ export default function TUIPhotoEditor({
                     </ListItemText>
 
                     <ListItemSecondaryAction>
+                        <SaveAsButton
+                            asset={asset}
+                            file={file}
+                        />
                         <IconButton
                             onMouseDown={e => e.stopPropagation()}
                             onMouseUp={e => e.stopPropagation()}

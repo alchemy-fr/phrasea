@@ -30,7 +30,7 @@ class AttributeVoter extends AbstractVoter
             case self::CREATE:
             case self::EDIT:
             case self::DELETE:
-                return $this->security->isGranted(self::EDIT, $subject->getAsset())
+                return $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                     && (
                         $subject->getDefinition()->getClass()->isEditable()
                         || $this->security->isGranted(PermissionInterface::EDIT, $subject->getDefinition()->getClass())
