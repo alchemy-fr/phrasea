@@ -154,9 +154,10 @@ export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
 
 type AssetPostType = {
     title?: string;
-    privacy: number;
+    privacy?: number;
     collection?: string,
     workspace?: string;
+    sourceFileId?: string;
 }
 
 export async function postAsset(data: AssetPostType): Promise<Asset> {

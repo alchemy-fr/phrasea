@@ -51,7 +51,7 @@ class File extends AbstractUuidEntity
     private ?string $checksum = null;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private ?string $path = null;
 

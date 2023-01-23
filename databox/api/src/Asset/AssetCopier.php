@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -13,7 +12,6 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Security\RenditionPermissionManager;
-use App\Storage\FilePathGenerator;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -21,27 +19,24 @@ class AssetCopier
 {
     private EventProducer $eventProducer;
     private EntityManagerInterface $em;
-    private FileStorageManager $storageManager;
-    private FilePathGenerator $pathGenerator;
 
     public const OPT_WITH_ATTRIBUTES = 'withAttributes';
     public const OPT_WITH_TAGS = 'withTags';
 
     private array $fileCopies = [];
     private RenditionPermissionManager $renditionPermissionManager;
+    private FileCopier $fileCopier;
 
     public function __construct(
         EventProducer $eventProducer,
         EntityManagerInterface $em,
-        FileStorageManager $storageManager,
-        FilePathGenerator $pathGenerator,
-        RenditionPermissionManager $renditionPermissionManager
+        RenditionPermissionManager $renditionPermissionManager,
+        FileCopier $fileCopier
     ) {
         $this->eventProducer = $eventProducer;
         $this->em = $em;
-        $this->storageManager = $storageManager;
-        $this->pathGenerator = $pathGenerator;
         $this->renditionPermissionManager = $renditionPermissionManager;
+        $this->fileCopier = $fileCopier;
     }
 
     public function copyAsset(
@@ -54,7 +49,7 @@ class AssetCopier
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         if (!$sameWorkspace) {
-            if (!$asset->getFile()) {
+            if (!$asset->getSource()) {
                 $options[self::OPT_WITH_TAGS] = false;
                 $options[self::OPT_WITH_ATTRIBUTES] = false;
                 $this->doCopyAsset(
@@ -67,7 +62,7 @@ class AssetCopier
                 );
                 $this->em->flush();
             } else {
-                $file = $this->copyFile($asset->getFile(), $workspace);
+                $file = $this->copyFile($asset->getSource(), $workspace);
                 $this->em->flush();
 
                 $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
@@ -110,8 +105,8 @@ class AssetCopier
         if ($collection instanceof Collection) {
             $copy->addToCollection($collection);
         }
-        if ($asset->getFile()) {
-            $copy->setFile($this->copyFile($asset->getFile(), $workspace));
+        if ($asset->getSource()) {
+            $copy->setSource($this->copyFile($asset->getSource(), $workspace));
         }
 
         foreach ($asset->getRenditions() as $rendition) {
@@ -183,28 +178,6 @@ class AssetCopier
             return $this->fileCopies[$file->getId()];
         }
 
-        $copy = new File();
-        $copy->setType($file->getType());
-        $copy->setWorkspace($workspace);
-        $copy->setAlternateUrls($file->getAlternateUrls());
-        $copy->setPathPublic($file->isPathPublic());
-        $copy->setStorage($file->getStorage());
-        $copy->setSize($file->getSize());
-        $copy->setOriginalName($file->getOriginalName());
-        $copy->setExtension($file->getExtension());
-
-        if (File::STORAGE_S3_MAIN === $file->getStorage()) {
-            $stream = $this->storageManager->getStream($file->getPath());
-            $extension = strtolower(pathinfo($file->getPath(), PATHINFO_EXTENSION) ?? '');
-            $path = $this->pathGenerator->generatePath($workspace->getId(), $extension);
-            $this->storageManager->storeStream($path, $stream);
-            $copy->setPath($path);
-        } else {
-            $copy->setPath($file->getPath());
-        }
-
-        $this->em->persist($copy);
-
-        return $this->fileCopies[$file->getId()] = $copy;
+        return $this->fileCopies[$file->getId()] = $this->fileCopier->copyFile($file, $workspace);
     }
 }

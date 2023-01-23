@@ -11,6 +11,7 @@ import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import RemoteErrors from "../../../Form/RemoteErrors";
 import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
 import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
+import {toast} from "react-toastify";
 
 type Props = {
     assetIds: string[];
@@ -39,19 +40,21 @@ export default function MoveAssetsDialog({
         control,
         formState: {errors, isDirty}
     } = useForm<FormData>();
-    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
         onSuccess: () => {
+            toast.success(`Assets were moved`);
             closeModal();
             onComplete();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const formId = 'move-assets';
 

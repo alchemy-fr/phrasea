@@ -39,12 +39,12 @@ export default function ReplaceAssetWithFileDialog({
         defaultValues: {
         }
     });
-    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             return data;
@@ -54,6 +54,7 @@ export default function ReplaceAssetWithFileDialog({
             closeModal();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const formId = 'save-file-as-new-asset';
 

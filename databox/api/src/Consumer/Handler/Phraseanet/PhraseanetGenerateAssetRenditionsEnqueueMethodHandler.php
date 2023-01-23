@@ -58,7 +58,7 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
             throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
         }
 
-        if (!$asset->getFile() instanceof File) {
+        if (!$asset->getSource() instanceof File) {
             $this->logger->warning(sprintf('%s error: Asset %s has no file', __CLASS__, $asset->getId()));
 
             return;

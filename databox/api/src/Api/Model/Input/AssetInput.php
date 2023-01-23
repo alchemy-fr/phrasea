@@ -40,6 +40,11 @@ class AssetInput extends AbstractOwnerIdInput
     public $source = null;
 
     /**
+     * @var string|null
+     */
+    public $sourceFileId = null;
+
+    /**
      * @var RenditionInput[]
      */
     public ?array $renditions = null;

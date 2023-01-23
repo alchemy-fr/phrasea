@@ -36,7 +36,7 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
         $i->origin = Attribute::ORIGIN_MACHINE;
         $i->originVendorContext = 'v'.self::VERSION;
         $i->name = 'blurhash';
-        $i->value = $this->getBlurhash($asset->getFile());
+        $i->value = $this->getBlurhash($asset->getSource());
         $input->actions[] = $i;
 
         $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
@@ -74,7 +74,7 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
+        return $asset->getSource() && FileUtil::isImageType($asset->getSource()->getType());
     }
 
     public static function getTitle(): string

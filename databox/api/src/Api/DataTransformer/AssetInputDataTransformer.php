@@ -8,9 +8,11 @@ use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetSourceInput;
+use App\Asset\FileCopier;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
-use App\Consumer\Handler\File\ImportRenditionHandler;
+use App\Consumer\Handler\File\CopyFileStorageToFileHandler;
+use App\Consumer\Handler\File\ImportFileHandler;
 use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -26,6 +28,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -39,6 +42,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
     private UploadManager $uploadManager;
     private RequestStack $requestStack;
     private FileUploadManager $fileUploadManager;
+    private FileCopier $fileCopier;
 
     public function __construct(
         PostFlushStack $postFlushStackListener,
@@ -48,7 +52,8 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         RenditionManager $renditionManager,
         UploadManager $uploadManager,
         FileUploadManager $fileUploadManager,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        FileCopier $fileCopier
     ) {
         $this->postFlushStackListener = $postFlushStackListener;
         $this->em = $em;
@@ -58,6 +63,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $this->uploadManager = $uploadManager;
         $this->requestStack = $requestStack;
         $this->fileUploadManager = $fileUploadManager;
+        $this->fileCopier = $fileCopier;
     }
 
     /**
@@ -115,16 +121,13 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
             if ($source = $data->source) {
                 $file = $this->handleSource($source, $object, $object->getWorkspace());
-                $origRenditions = $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
+                $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
 
-                if ($source->importFile) {
-                    foreach ($origRenditions as $origRendition) {
-                        $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($origRendition->getId()));
-                        // One import is sufficient as it is the same File
-                        break;
-                    }
-                }
+                $this->postFlushStackListener
+                    ->addEvent(ImportFileHandler::createEvent($file->getId()));
+            } elseif (null !== $sourceFileId = $data->sourceFileId) {
+                $file = $this->handleFromFile($sourceFileId, $workspace);
+                $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
             } elseif (null !== $request = $this->requestStack->getCurrentRequest()) {
                 $file = $this->handleUpload($object, $request);
                 if (null !== $file) {
@@ -132,7 +135,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 }
             }
 
-            if (null !== $object->getFile()) {
+            if (null !== $object->getSource()) {
                 $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
             }
 
@@ -151,7 +154,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
 
                     if ($renditionInput->source->importFile) {
                         $this->postFlushStackListener
-                            ->addEvent(ImportRenditionHandler::createEvent($rendition->getId()));
+                            ->addEvent(ImportFileHandler::createEvent($rendition->getId()));
                     }
                 }
             }
@@ -220,7 +223,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             $file->setSize($multipartUpload->getSize());
             $file->setOriginalName($multipartUpload->getFilename());
             $file->setPath($multipartUpload->getPath());
-            $asset->setFile($file);
+            $asset->setSource($file);
 
             return $file;
         }
@@ -229,7 +232,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $uploadedFile = $request->files->get('file');
         if (null !== $uploadedFile) {
             $file = $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $uploadedFile);
-            $asset->setFile($file);
+            $asset->setSource($file);
 
             return $file;
         }
@@ -249,7 +252,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         $src->setPathPublic(!$source->isPrivate);
         $src->setStorage(File::STORAGE_URL);
         $src->setWorkspace($workspace);
-        $object->setFile($src);
+        $object->setSource($src);
 
         if (null !== $source->alternateUrls) {
             foreach ($source->alternateUrls as $altUrl) {
@@ -258,6 +261,23 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         }
 
         return $src;
+    }
+
+    private function handleFromFile(string $fileId, Workspace $workspace): File
+    {
+        $file = $this->em->find(File::class, $fileId);
+        if (!$file instanceof File) {
+            throw new BadRequestHttpException(sprintf('File "%s" does not exist', $fileId));
+        }
+        if (!$file->isPathPublic()) {
+            throw new BadRequestHttpException(sprintf('Copy error: File "%s" has a private path', $fileId));
+        }
+
+        $copy = $this->fileCopier->copyFileProperties($file, $workspace);
+
+        $this->postFlushStackListener->addEvent(CopyFileStorageToFileHandler::createEvent($file->getId()));
+
+        return $copy;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

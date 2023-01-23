@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Consumer\Handler;
+namespace App\Border\Consumer\Handler\Uploader;
 
 use ApiPlatform\Core\Api\IriConverterInterface;
 use App\Border\Model\Upload\IncomingUpload;
@@ -14,9 +14,9 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use InvalidArgumentException;
 
-class NewUploaderCommitHandler extends AbstractEntityManagerHandler
+class UploaderNewCommitHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'new_uploader_commit';
+    const EVENT = 'uploader_new_commit';
 
     private EventProducer $eventProducer;
     private UploaderClient $uploaderClient;
@@ -73,7 +73,7 @@ class NewUploaderCommitHandler extends AbstractEntityManagerHandler
 
         foreach ($workspaces as $wId => $collections) {
             foreach ($upload->assets as $assetId) {
-                $this->eventProducer->publish(new EventMessage(FileEntranceHandler::EVENT, [
+                $this->eventProducer->publish(new EventMessage(UploaderNewFileHandler::EVENT, [
                     'assetId' => $assetId,
                     'baseUrl' => $upload->base_url,
                     'commitId' => $upload->commit_id,

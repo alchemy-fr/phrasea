@@ -43,19 +43,18 @@ App\Entity\Core\AttributeDefinition:
     position: 2
   ad_vtt (extends attribute_definition):
     name: WebVTT
-    type: web_vtt
+    fieldType: code
     class: '@n_ac_business'
     translatable: true
     position: 3
   ad_date (extends attribute_definition):
     name: Date
-    type: date
+    fieldType: date
     facetEnabled: true
     class: '@n_ac_public'
     position: 4
   ad_languages (extends attribute_definition):
     name: Languages
-    type: locale
     facetEnabled: true
     multiple: true
     class: '@n_ac_public'
@@ -196,19 +195,19 @@ App\Entity\Core\Asset:
   a_img{1..50} (extends asset):
     title: 'Image #<ucwords($current)>'
     ownerId: <{user_bob}>
-    file: '@f_img_o<current()>'
+    source: '@f_img_o<current()>'
   a_audio{1..10} (extends asset):
     title: 'Audio #<ucwords($current)>'
     ownerId: <{user_bob}>
-    file: '@f_audio_o<current()>'
+    source: '@f_audio_o<current()>'
   a_video{1..10} (extends asset):
     title: 'Video #<ucwords($current)>'
     ownerId: <{user_alice}>
-    file: '@f_video_o<current()>'
+    source: '@f_video_o<current()>'
   a_pdf{1..10} (extends asset):
     title: 'PDF #<ucwords($current)>'
     ownerId: <{user_jack}>
-    file: '@f_pdf_o<current()>'
+    source: '@f_pdf_o<current()>'
 
 App\Entity\Core\File:
   file (template):

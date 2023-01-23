@@ -37,6 +37,7 @@ export interface Asset extends IPermissions<{
     collections: Collection[];
     original: AssetRendition | null;
     preview: AssetRendition | null;
+    source: File | undefined;
     thumbnail: AssetRendition | null;
     thumbnailActive: AssetRendition | null;
     createdAt: string;
@@ -188,7 +189,7 @@ export type IntegrationData = {
     id: string;
     keyId: string | null;
     name: string;
-    value: string;
+    value: any;
 }
 
 export interface WorkspaceIntegration {

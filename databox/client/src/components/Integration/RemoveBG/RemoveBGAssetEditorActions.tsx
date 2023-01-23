@@ -7,6 +7,7 @@ import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
+import {File} from "../../../types";
 
 function RemoveBgComparison({
                                 left,
@@ -41,23 +42,23 @@ export default function RemoveBGAssetEditorActions({
                                                        enableInc,
                                                    }: Props) {
     const [running, setRunning] = useState(false);
-    const [url, setUrl] = useState<string | undefined>(integration.data.find(d => d.name === 'file_url')?.value);
+    const [bgRemovedFile, setBgRemovedFile] = useState<File | undefined>(integration.data.find(d => d.name === 'file')?.value);
 
     const process = async () => {
         setRunning(true);
-        setUrl((await runIntegrationFileAction('process', integration.id, file.id)).url);
+        setBgRemovedFile(await runIntegrationFileAction('process', integration.id, file.id));
     };
 
     useEffect(() => {
-        if (enableInc && url) {
+        if (enableInc && bgRemovedFile) {
             setIntegrationOverlay(RemoveBgComparison, {
                 left: file.url,
-                right: url,
+                right: bgRemovedFile.url,
             }, true);
         }
-    }, [enableInc, url]);
+    }, [enableInc, bgRemovedFile]);
 
-    if (url) {
+    if (bgRemovedFile) {
         return <IntegrationPanelContent>
             <Typography sx={{mb: 3}}>
                 Use slider to compare
@@ -65,7 +66,9 @@ export default function RemoveBGAssetEditorActions({
 
             <SaveAsButton
                 asset={asset}
-                file={file}
+                file={bgRemovedFile}
+                suggestedTitle={asset.resolvedTitle + ' - BG removed'}
+
             />
         </IntegrationPanelContent>
     }

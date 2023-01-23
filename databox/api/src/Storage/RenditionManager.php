@@ -55,8 +55,8 @@ class RenditionManager
         RenditionDefinition $definition,
         File $file
     ): AssetRendition {
-        if (null === $asset->getFile() && $definition->isUseAsOriginal()) {
-            $asset->setFile($file);
+        if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
+            $asset->setSource($file);
             $this->em->persist($asset);
         }
 

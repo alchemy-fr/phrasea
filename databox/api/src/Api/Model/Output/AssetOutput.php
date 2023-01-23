@@ -10,6 +10,7 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -87,6 +88,12 @@ class AssetOutput extends AbstractUuidOutput
      * @Groups({"asset:index", "asset:read"})
      */
     private array $collections;
+
+    /**
+     * @var File
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private $source = null;
 
     /**
      * @var AssetRendition
@@ -250,5 +257,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setGroupValue(?GroupValue $groupValue): void
     {
         $this->groupValue = $groupValue;
+    }
+
+    public function getSource(): ?File
+    {
+        return $this->source;
+    }
+
+    public function setSource(?File $source): void
+    {
+        $this->source = $source;
     }
 }

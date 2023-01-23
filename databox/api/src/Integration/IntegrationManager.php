@@ -30,7 +30,7 @@ class IntegrationManager
 
     public function handleAsset(Asset $asset): void
     {
-        if (null === $asset->getFile()) {
+        if (null === $asset->getSource()) {
             throw new InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
         }
 

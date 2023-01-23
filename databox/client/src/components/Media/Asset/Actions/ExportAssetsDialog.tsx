@@ -73,12 +73,12 @@ export default function ExportAssetsDialog({
             renditions: [],
         },
     });
-    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             setLoading(true);
@@ -102,6 +102,7 @@ export default function ExportAssetsDialog({
             closeModal();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const formId = 'export';
 

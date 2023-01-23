@@ -21,7 +21,7 @@ class IntegrationDataOutput extends AbstractUuidOutput
     /**
      * @Groups({"integration:index"})
      */
-    private string $value;
+    private $value;
 
     public function getName(): string
     {
@@ -33,12 +33,12 @@ class IntegrationDataOutput extends AbstractUuidOutput
         $this->name = $name;
     }
 
-    public function getValue(): string
+    public function getValue()
     {
         return $this->value;
     }
 
-    public function setValue(string $value): void
+    public function setValue($value): void
     {
         $this->value = $value;
     }

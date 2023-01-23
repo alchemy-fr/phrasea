@@ -4,41 +4,42 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use App\Asset\FileFetcher;
 use App\Asset\FileUrlResolver;
-use App\Border\FileDownloader;
-use App\Entity\Core\AssetRendition;
+use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Storage\FileManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Psr7\Header;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
-class ImportRenditionHandler extends AbstractEntityManagerHandler
+class ImportFileHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'import_rendition';
+    const EVENT = 'import_file';
 
     private FileUrlResolver $fileUrlResolver;
-    private FileDownloader $downloader;
+    private FileFetcher $fileFetcher;
     private FileManager $fileManager;
 
     public function __construct(
         FileUrlResolver $fileUrlResolver,
         FileManager $fileManager,
-        FileDownloader $downloader,
+        FileFetcher $fileFetcher,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->fileUrlResolver = $fileUrlResolver;
-        $this->downloader = $downloader;
+        $this->fileFetcher = $fileFetcher;
         $this->fileManager = $fileManager;
     }
 
-    public static function createEvent(string $renditionId): EventMessage
+    public static function createEvent(string $fileId): EventMessage
     {
         $payload = [
-            'id' => $renditionId,
+            'id' => $fileId,
         ];
 
         return new EventMessage(self::EVENT, $payload);
@@ -50,21 +51,17 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
         $id = $payload['id'];
 
         $em = $this->getEntityManager();
-        $rendition = $em->find(AssetRendition::class, $id);
-        if (!$rendition instanceof AssetRendition) {
-            throw new ObjectNotFoundForHandlerException(AssetRendition::class, $id, __CLASS__);
+        $file = $em->find(File::class, $id);
+        if (!$file instanceof File) {
+            throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
-        $file = $rendition->getFile();
-
-        if (!$file instanceof File) {
-            $this->logger->warning(sprintf('%s error: AssetRendition %s has no file', __CLASS__, $rendition->getId()));
-
-            return;
+        if (!$file->isPathPublic()) {
+            throw new InvalidArgumentException(sprintf('Source of file "%s" is not publicly accessible', $file->getId()));
         }
 
         $headers = [];
-        $src = $this->downloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+        $src = $this->fileFetcher->getFile($file, $headers);
 
         if (isset($headers['Content-Length'])) {
             $size = Header::parse($headers['Content-Length']);
@@ -81,7 +78,7 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
         }
 
         $finalPath = $this->fileManager->storeFile(
-            $rendition->getAsset()->getWorkspace(),
+            $file->getWorkspace(),
             $src,
             $mimeType,
             $file->getExtension(),
@@ -90,6 +87,7 @@ class ImportRenditionHandler extends AbstractEntityManagerHandler
 
         $file->setPath($finalPath);
         $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPathPublic(true);
         $em->persist($file);
         $em->flush();
 

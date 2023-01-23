@@ -57,7 +57,7 @@ class FallbackResolver
         if (!empty($fallbacks[$locale])) {
             if (!isset($attributes[$definition->getId()][$locale])) {
                 $fallbackValue = $this->resolveFallback($fallbacks[$locale], [
-                    'file' => $asset->getFile(),
+                    'file' => $asset->getSource(),
                     'asset' => $asset,
                     'attr' => new DynamicAttributeBag($attributes, $definitionsIndex, function (AttributeDefinition $depDef) use (
                         $asset,

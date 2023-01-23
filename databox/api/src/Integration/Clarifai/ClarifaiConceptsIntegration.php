@@ -36,7 +36,7 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
 
     public function handleAsset(Asset $asset, array $config): void
     {
-        $concepts = $this->client->getImageConcepts($asset->getFile(), $config['apiKey']);
+        $concepts = $this->client->getImageConcepts($asset->getSource(), $config['apiKey']);
         if (empty($concepts)) {
             return;
         }
@@ -55,7 +55,7 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $asset->getFile() && FileUtil::isImageType($asset->getFile()->getType());
+        return $asset->getSource() && FileUtil::isImageType($asset->getSource()->getType());
     }
 
     public static function getName(): string

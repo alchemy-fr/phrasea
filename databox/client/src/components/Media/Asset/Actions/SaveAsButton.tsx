@@ -13,14 +13,17 @@ import SaveFileAsNewAssetDialog from "./SaveFileAsNewAssetDialog";
 import {useModals} from "../../../../hooks/useModalStack";
 import ReplaceAssetWithFileDialog from "./ReplaceAssetWithFileDialog";
 import SaveFileAsRenditionDialog from "./SaveFileAsRenditionDialog";
+import {stopPropagation} from "../../../../lib/stdFuncs";
 
 type Props = {
     asset: Asset;
     file: File;
     variant?: ButtonProps['variant'];
+    suggestedTitle?: string;
 };
 
 export default function SaveAsButton({
+                                         suggestedTitle,
                                          file,
                                          asset,
                                         variant = 'contained',
@@ -38,11 +41,14 @@ export default function SaveAsButton({
             title: `Rendition`,
             component: SaveFileAsRenditionDialog,
         },
-        {
+    ];
+
+    if (asset.source?.id !== file.id) {
+        options.push({
             title: `Replace asset source`,
             component: ReplaceAssetWithFileDialog,
-        },
-    ];
+        });
+    }
 
     const handleMenuItemClick = (
         event: React.MouseEvent<HTMLLIElement, MouseEvent>,
@@ -52,11 +58,13 @@ export default function SaveAsButton({
         openModal(item.component, {
             asset,
             file,
+            suggestedTitle,
         });
         setOpen(false);
     };
 
-    const handleToggle = () => {
+    const handleToggle = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
         setOpen((prevOpen) => !prevOpen);
     };
 
@@ -78,6 +86,7 @@ export default function SaveAsButton({
         >
             <Button
                 onClick={handleToggle}
+                onMouseDown={stopPropagation}
                 aria-controls={open ? 'split-button-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}
                 aria-label="save"
@@ -113,6 +122,7 @@ export default function SaveAsButton({
                                     <MenuItem
                                         key={option.title}
                                         onClick={(event) => handleMenuItemClick(event, index)}
+                                        onMouseDown={stopPropagation}
                                     >
                                         {option.title}
                                     </MenuItem>

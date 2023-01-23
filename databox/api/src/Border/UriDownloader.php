@@ -6,7 +6,7 @@ namespace App\Border;
 
 use GuzzleHttp\Client;
 
-class FileDownloader
+class UriDownloader
 {
     private Client $client;
 

@@ -108,7 +108,7 @@ services:
         arguments:
             $client: '@app.border.http_client'
 
-    App\Border\FileDownloader:
+    App\Border\UriDownloader:
         arguments:
             $client: '@app.file_downloader.http_client'
 

@@ -24,6 +24,7 @@ import {toast} from "react-toastify";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
+import {File} from "../../../types";
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -77,7 +78,7 @@ export default function TUIPhotoEditor({
     const editoRef = useRef<any>();
     const [fileName, setFileName] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
-    const [selectedFile, setSelectedFile] = useState(file.url);
+    const [selectedFile, setSelectedFile] = useState<File>(file);
     const [deleting, setDeleting] = useState<string | undefined>();
 
     const saveAs = async () => {
@@ -107,23 +108,23 @@ export default function TUIPhotoEditor({
     }
 
     useEffect(() => {
-        setSelectedFile(file.url);
+        setSelectedFile(file);
         setFileName('');
     }, [enableInc]);
 
     useEffect(() => {
         if (enableInc) {
             setIntegrationOverlay(PhotoEditor, {
-                url: selectedFile,
+                url: selectedFile.url,
                 name: file.id,
                 ref: editoRef,
-                key: selectedFile,
+                key: selectedFile.id,
             }, true);
         }
     }, [selectedFile, enableInc]);
 
-    const onOpen = (url: string, name: string | null) => {
-        setSelectedFile(url);
+    const onOpen = (file: File, name: string | null) => {
+        setSelectedFile(file);
         setFileName(name || '');
     }
 
@@ -159,8 +160,8 @@ export default function TUIPhotoEditor({
                 Open recent
             </ListSubheader>
             <ListItemButton
-                selected={selectedFile === file.url}
-                onClick={() => onOpen(file.url!, '')}
+                selected={selectedFile?.id === file.id}
+                onClick={() => onOpen(file!, '')}
             >
                 <ListItemIcon>
                     <FileOpenIcon/>
@@ -173,7 +174,7 @@ export default function TUIPhotoEditor({
             {integration.data.map(d => {
                 return <ListItemButton
                     disabled={deleting === d.id}
-                    selected={selectedFile === d.value}
+                    selected={selectedFile?.id === d.value.id}
                     key={d.id}
                     onClick={() => onOpen(d.value, d.keyId)}
                 >
@@ -187,7 +188,8 @@ export default function TUIPhotoEditor({
                     <ListItemSecondaryAction>
                         <SaveAsButton
                             asset={asset}
-                            file={file}
+                            file={d.value}
+                            suggestedTitle={asset.resolvedTitle + ' - ' + d.keyId}
                         />
                         <IconButton
                             onMouseDown={e => e.stopPropagation()}

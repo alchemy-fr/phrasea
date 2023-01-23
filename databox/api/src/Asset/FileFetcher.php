@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
-use App\Border\FileDownloader;
+use App\Border\UriDownloader;
 use App\Entity\Core\File;
+use InvalidArgumentException;
 
 class FileFetcher
 {
     private FileUrlResolver $fileUrlResolver;
-    private FileDownloader $fileDownloader;
+    private UriDownloader $fileDownloader;
 
-    public function __construct(FileUrlResolver $fileUrlResolver, FileDownloader $fileDownloader)
+    public function __construct(FileUrlResolver $fileUrlResolver, UriDownloader $fileDownloader)
     {
         $this->fileUrlResolver = $fileUrlResolver;
         $this->fileDownloader = $fileDownloader;
@@ -20,6 +21,10 @@ class FileFetcher
 
     public function getFile(File $file, array &$headers = []): string
     {
+        if (!$file->isPathPublic()) {
+            throw new InvalidArgumentException(sprintf('File "%s" has a private path', $file->getId()));
+        }
+
         return $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
     }
 }

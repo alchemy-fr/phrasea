@@ -48,7 +48,7 @@ class IntegrationData extends AbstractUuidEntity
      * @ORM\Column(type="text", nullable=false)
      * @Groups({"integrationdata:index"})
      */
-    private ?string $value = null;
+    private $value = null;
 
     public function getIntegration(): ?WorkspaceIntegration
     {
@@ -80,12 +80,12 @@ class IntegrationData extends AbstractUuidEntity
         $this->name = $name;
     }
 
-    public function getValue(): ?string
+    public function getValue()
     {
         return $this->value;
     }
 
-    public function setValue(?string $value): void
+    public function setValue($value): void
     {
         $this->value = $value;
     }

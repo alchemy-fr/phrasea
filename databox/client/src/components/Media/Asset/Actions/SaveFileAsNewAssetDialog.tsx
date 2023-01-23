@@ -13,22 +13,25 @@ import {toast} from "react-toastify";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import FormRow from "../../../Form/FormRow";
+import {postAsset} from "../../../../api/asset";
 
 type FormData = {
     title: string;
-    destinations: string[];
+    destination: string;
 };
 
 
 type Props = {
     asset: Asset;
     file: File;
+    suggestedTitle: string | undefined;
 } & StackedModalProps;
 
 export default function SaveFileAsNewAssetDialog({
                                                      asset,
                                                      file,
                                                      open,
+                                                     suggestedTitle,
                                                  }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -41,25 +44,34 @@ export default function SaveFileAsNewAssetDialog({
         formState: {errors, isDirty}
     } = useForm<FormData>({
         defaultValues: {
-            title: asset.resolvedTitle,
-            destinations: [],
+            title: suggestedTitle || asset.resolvedTitle,
+            destination: undefined,
         }
     });
-    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
-            return data;
+            const workspace = data.destination.includes('/workspaces/') ? data.destination : undefined;
+            const collection = !workspace ? data.destination : undefined;
+
+            return await postAsset({
+                title: data.title,
+                collection,
+                workspace,
+                sourceFileId: file.id,
+            });
         },
         onSuccess: () => {
             toast.success(`File is saved`);
             closeModal();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const formId = 'save-file-as-new-asset';
 
@@ -97,14 +109,14 @@ export default function SaveFileAsNewAssetDialog({
                     rules={{
                         required: true,
                     }}
-                    name={'destinations'}
-                    label={t('form.upload.destinations.label', 'Destinations')}
-                    multiple={true}
+                    name={'destination'}
+                    label={t('form.save_as.destination.label', 'Destination')}
+                    multiple={false}
                     required={true}
-                    allowNew={true}
+                    workspaceId={asset.workspace.id}
                 />
                 <FormFieldErrors
-                    field={'destinations'}
+                    field={'destination'}
                     errors={errors}
                 />
             </FormRow>

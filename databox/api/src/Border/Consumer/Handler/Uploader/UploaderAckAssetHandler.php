@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Consumer\Handler;
+namespace App\Border\Consumer\Handler\Uploader;
 
 use App\Border\UploaderClient;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;

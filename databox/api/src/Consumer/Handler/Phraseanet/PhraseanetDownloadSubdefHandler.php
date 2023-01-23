@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Phraseanet;
 
-use App\Consumer\Handler\File\ImportRenditionHandler;
+use App\Consumer\Handler\File\ImportFileHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Storage\RenditionManager;
@@ -84,7 +84,7 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 
         $em->flush();
 
-        $this->eventProducer->publish(ImportRenditionHandler::createEvent($rendition->getId()));
+        $this->eventProducer->publish(ImportFileHandler::createEvent($rendition->getId()));
     }
 
     public static function getHandledEvents(): array

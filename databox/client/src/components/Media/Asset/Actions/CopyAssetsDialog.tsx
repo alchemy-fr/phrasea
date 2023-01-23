@@ -15,6 +15,7 @@ import {Asset} from "../../../../types";
 import AssetSelection from "../AssetSelection";
 import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
 import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
+import {toast} from "react-toastify";
 
 type Props = {
     assets: Asset[];
@@ -81,7 +82,6 @@ export default function CopyAssetsDialog({
             withTags: true,
         }
     });
-    useDirtyFormPrompt(isDirty);
 
     const byRef = watch('byReference');
 
@@ -89,6 +89,7 @@ export default function CopyAssetsDialog({
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: (data: FormData) => {
             const finalSelection: string[] = [
@@ -110,10 +111,12 @@ export default function CopyAssetsDialog({
             )
         },
         onSuccess: () => {
+            toast.success(`Assets were copied`);
             closeModal();
             onComplete();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const nonLinkablePerm: Asset[] = useMemo(
         () => byRef ? assets.filter(a => !a.capabilities.canShare) : [],

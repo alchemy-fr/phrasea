@@ -45,12 +45,12 @@ export default function SaveFileAsRenditionDialog({
             definition: undefined,
         }
     });
-    useDirtyFormPrompt(isDirty);
 
     const {
         handleSubmit: onSubmit,
         errors: remoteErrors,
         submitting,
+        submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             return data;
@@ -60,6 +60,7 @@ export default function SaveFileAsRenditionDialog({
             closeModal();
         },
     });
+    useDirtyFormPrompt(!submitted && isDirty);
 
     const formId = 'save-file-as-rendition';
 

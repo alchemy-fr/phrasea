@@ -50,15 +50,17 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         $link = $link && $destWorkspace->getId() === $asset->getWorkspaceId();
 
         if ($link) {
-            $collectionAsset = $em->getRepository(CollectionAsset::class)->findCollectionAsset(
-                $asset->getId(),
-                $destination->getId()
-            );
+            if ($destCollection) {
+                $collectionAsset = $em->getRepository(CollectionAsset::class)->findCollectionAsset(
+                    $asset->getId(),
+                    $destCollection->getId()
+                );
 
-            if (null === $collectionAsset) {
-                $asset->addToCollection($destination);
-                $em->persist($asset);
-                $em->flush();
+                if (null === $collectionAsset) {
+                    $asset->addToCollection($destCollection);
+                    $em->persist($asset);
+                    $em->flush();
+                }
             }
         } else {
             $this->assetCopier->copyAsset(

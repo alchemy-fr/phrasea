@@ -191,8 +191,8 @@ class PhraseanetIntegrationController extends AbstractController
 
         return new JsonResponse([
             'id' => $asset->getId(),
-            'originalName' => sprintf('%s%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $asset->getFile()->getExtension()),
-            'url' => $fileUrlResolver->resolveUrl($asset->getFile()),
+            'originalName' => sprintf('%s%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $asset->getSource()->getExtension()),
+            'url' => $fileUrlResolver->resolveUrl($asset->getSource()),
             'formData' => [
                 'collection_destination' => $options['collectionId'],
             ],
