@@ -4,66 +4,35 @@ declare(strict_types=1);
 
 namespace App\Api\DataTransformer;
 
-use Alchemy\StorageBundle\Upload\UploadManager;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
-use App\Api\Model\Input\AssetSourceInput;
-use App\Asset\FileCopier;
+use App\Api\Model\Input\AssetRelationshipInput;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
-use App\Consumer\Handler\File\CopyFileStorageToFileHandler;
+use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Consumer\Handler\File\ImportFileHandler;
-use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Http\FileUploadManager;
-use App\Storage\RenditionManager;
-use App\Util\FileUtil;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\Integration\WorkspaceIntegration;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AssetInputDataTransformer extends AbstractInputDataTransformer
+class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 {
     use WithOwnerIdDataTransformerTrait;
 
-    private PostFlushStack $postFlushStackListener;
-    private EntityManagerInterface $em;
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
-    private RenditionManager $renditionManager;
-    private UploadManager $uploadManager;
-    private RequestStack $requestStack;
-    private FileUploadManager $fileUploadManager;
-    private FileCopier $fileCopier;
 
     public function __construct(
-        PostFlushStack $postFlushStackListener,
-        EntityManagerInterface $em,
         OriginalRenditionManager $originalRenditionManager,
-        AttributeInputDataTransformer $attributeInputDataTransformer,
-        RenditionManager $renditionManager,
-        UploadManager $uploadManager,
-        FileUploadManager $fileUploadManager,
-        RequestStack $requestStack,
-        FileCopier $fileCopier
+        AttributeInputDataTransformer $attributeInputDataTransformer
     ) {
-        $this->postFlushStackListener = $postFlushStackListener;
-        $this->em = $em;
         $this->originalRenditionManager = $originalRenditionManager;
         $this->attributeInputDataTransformer = $attributeInputDataTransformer;
-        $this->renditionManager = $renditionManager;
-        $this->uploadManager = $uploadManager;
-        $this->requestStack = $requestStack;
-        $this->fileUploadManager = $fileUploadManager;
-        $this->fileCopier = $fileCopier;
     }
 
     /**
@@ -71,6 +40,8 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
      */
     public function transform($data, string $to, array $context = [])
     {
+        $this->validator->validate($data);
+
         $workspace = null;
         if ($data->workspace) {
             $workspace = $data->workspace;
@@ -112,6 +83,7 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
             if ($data->key) {
                 $object->setKey($data->key);
             }
+
             if (null !== $data->collection) {
                 if (null === $object->getReferenceCollection()) {
                     $object->setReferenceCollection($data->collection);
@@ -119,45 +91,6 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                 $object->addToCollection($data->collection);
             }
 
-            if ($source = $data->source) {
-                $file = $this->handleSource($source, $object, $object->getWorkspace());
-                $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
-
-                $this->postFlushStackListener
-                    ->addEvent(ImportFileHandler::createEvent($file->getId()));
-            } elseif (null !== $sourceFileId = $data->sourceFileId) {
-                $file = $this->handleFromFile($sourceFileId, $workspace);
-                $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
-            } elseif (null !== $request = $this->requestStack->getCurrentRequest()) {
-                $file = $this->handleUpload($object, $request);
-                if (null !== $file) {
-                    $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
-                }
-            }
-
-            if (null !== $object->getSource()) {
-                $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
-            }
-
-            if (!empty($data->renditions)) {
-                foreach ($data->renditions as $renditionInput) {
-                    $rendition = new AssetRendition();
-                    $rendition->setAsset($object);
-                    $rendition->setDefinition($this->renditionManager->getRenditionDefinitionByName(
-                        $workspace,
-                        $renditionInput->definition
-                    ));
-                    $rendition->setReady(true);
-                    $this->handleSource($renditionInput->source, $rendition, $workspace);
-                    $this->em->persist($rendition);
-                    $this->em->persist($rendition->getFile());
-
-                    if ($renditionInput->source->importFile) {
-                        $this->postFlushStackListener
-                            ->addEvent(ImportFileHandler::createEvent($rendition->getId()));
-                    }
-                }
-            }
             if (!empty($data->attributes)) {
                 foreach ($data->attributes as $attribute) {
                     $attribute->asset = $object;
@@ -192,7 +125,41 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
                     $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
                 }
             }
+
+            if ($data->relationship) {
+                $this->handleRelationship($data->relationship, $object);
+            }
         }
+
+        if (null !== $file = $this->handleFile($data, $object)) {
+            $object->setSource($file);
+
+            $this->renditionManager->resetAssetRenditions($object);
+
+            $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
+            $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
+        }
+
+        if (!empty($data->renditions)) {
+            foreach ($data->renditions as $renditionInput) {
+                $definition = $this->renditionManager->getRenditionDefinitionByName(
+                    $workspace,
+                    $renditionInput->definition
+                );
+                $rendition = $this->renditionManager->getOrCreateRendition($object, $definition);
+                $this->handleSource($renditionInput->source, $workspace);
+
+                $this->em->persist($rendition);
+                $this->em->persist($rendition->getFile());
+
+                if ($renditionInput->source->importFile) {
+                    $this->postFlushStackListener
+                        ->addEvent(ImportFileHandler::createEvent($rendition->getId()));
+                }
+            }
+        }
+
+        $this->renditionManager->deleteScheduledRenditions();
 
         if (isset($data->tags)) {
             $object->getTags()->clear();
@@ -204,80 +171,36 @@ class AssetInputDataTransformer extends AbstractInputDataTransformer
         return $this->transformOwnerId($object, $to, $context);
     }
 
-    private function handleUpload(Asset $asset, Request $request): ?File
+    private function handleFile(AssetInput $data, Asset $asset): ?File
     {
-        if (!$asset->getWorkspace()) {
-            // Workspace is not set, validation will reject request.
-            return null;
-        }
-
-        $file = new File();
-        $file->setWorkspace($asset->getWorkspace());
-        $file->setStorage(File::STORAGE_S3_MAIN);
-
-        if (null !== $request->request->get('multipart')) {
-            $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
-
-            $file->setType($multipartUpload->getType());
-            $file->setExtension(FileUtil::guessExtension($multipartUpload->getType(), $multipartUpload->getFilename()));
-            $file->setSize($multipartUpload->getSize());
-            $file->setOriginalName($multipartUpload->getFilename());
-            $file->setPath($multipartUpload->getPath());
-            $asset->setSource($file);
-
+        if (null !== $file = $this->handleSource($data->sourceFile, $asset->getWorkspace())) {
             return $file;
-        }
-
-        /** @var UploadedFile|null $uploadedFile */
-        $uploadedFile = $request->files->get('file');
-        if (null !== $uploadedFile) {
-            $file = $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $uploadedFile);
-            $asset->setSource($file);
-
+        } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
+            $this->postFlushStackListener->addEvent(CopyFileToAssetHandler::createEvent($asset->getId(), $file->getId()));
+            return $file;
+        } elseif (null !== $file = $this->handleUpload($asset->getWorkspace())) {
             return $file;
         }
 
         return null;
     }
 
-    /**
-     * @param Asset|AssetRendition $object
-     */
-    private function handleSource(AssetSourceInput $source, $object, Workspace $workspace): File
+    private function handleRelationship(AssetRelationshipInput $input, Asset $asset): void
     {
-        $src = new File();
-        $src->setPath($source->url);
-        $src->setOriginalName($source->originalName);
-        $src->setExtension(FileUtil::getExtensionFromPath($source->originalName ?: $source->url));
-        $src->setPathPublic(!$source->isPrivate);
-        $src->setStorage(File::STORAGE_URL);
-        $src->setWorkspace($workspace);
-        $object->setSource($src);
+        $rel = new AssetRelationship();
+        $rel->setTarget($asset);
+        $rel->setSource($this->getEntity(Asset::class, $input->source));
 
-        if (null !== $source->alternateUrls) {
-            foreach ($source->alternateUrls as $altUrl) {
-                $src->setAlternateUrl($altUrl->type, $altUrl->url);
-            }
+        if ($input->sourceFileId) {
+            $rel->setSourceFile($this->getEntity(File::class, $input->sourceFileId));
+        }
+        if ($input->integration) {
+            $rel->setIntegration($this->getEntity(WorkspaceIntegration::class, $input->integration));
         }
 
-        return $src;
-    }
+        $rel->setType($input->type);
 
-    private function handleFromFile(string $fileId, Workspace $workspace): File
-    {
-        $file = $this->em->find(File::class, $fileId);
-        if (!$file instanceof File) {
-            throw new BadRequestHttpException(sprintf('File "%s" does not exist', $fileId));
-        }
-        if (!$file->isPathPublic()) {
-            throw new BadRequestHttpException(sprintf('Copy error: File "%s" has a private path', $fileId));
-        }
-
-        $copy = $this->fileCopier->copyFileProperties($file, $workspace);
-
-        $this->postFlushStackListener->addEvent(CopyFileStorageToFileHandler::createEvent($file->getId()));
-
-        return $copy;
+        $this->em->persist($rel);
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

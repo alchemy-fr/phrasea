@@ -20,6 +20,20 @@ export async function getAssetRenditions(assetId: string): Promise<ApiCollection
     return getHydraCollection(res.data);
 }
 
+type RenditionInput = {
+    name?: string | undefined;
+    definitionId?: string | undefined;
+    sourceFileId?: string | undefined;
+    assetId: string;
+}
+
+export async function postRendition(
+    data: RenditionInput
+): Promise<AssetRendition> {
+    return (await apiClient.post(renditionNS, data)).data;
+}
+
+
 export async function getRenditionDefinitions(options: GetOptions = {}): Promise<ApiCollectionResponse<RenditionDefinition>> {
     const res = await apiClient.get(renditionDefinitionNS, {
         params: options,

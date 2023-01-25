@@ -20,18 +20,22 @@ type FormData = {
     destination: string;
 };
 
-
-type Props = {
+export type BaseSaveAsProps = {
     asset: Asset;
     file: File;
-    suggestedTitle: string | undefined;
-} & StackedModalProps;
+    suggestedTitle?: string | undefined;
+    integrationId?: string | undefined;
+}
+
+type Props = {
+} & BaseSaveAsProps & StackedModalProps;
 
 export default function SaveFileAsNewAssetDialog({
                                                      asset,
                                                      file,
                                                      open,
                                                      suggestedTitle,
+                                                     integrationId,
                                                  }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -64,6 +68,12 @@ export default function SaveFileAsNewAssetDialog({
                 collection,
                 workspace,
                 sourceFileId: file.id,
+                relationship: {
+                    source: asset.id,
+                    type: 'parent',
+                    sourceFile: file.id,
+                    integration: integrationId,
+                }
             });
         },
         onSuccess: () => {

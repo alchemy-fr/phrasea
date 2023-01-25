@@ -13,6 +13,7 @@ import {toast} from "react-toastify";
 import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import FormRow from "../../../Form/FormRow";
+import {putAsset} from "../../../../api/asset";
 
 type FormData = {
 };
@@ -47,7 +48,9 @@ export default function ReplaceAssetWithFileDialog({
         submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
-            return data;
+            return await putAsset(asset.id, {
+                sourceFileId: file.id,
+            })
         },
         onSuccess: () => {
             toast.success(`Asset has been replaced`);

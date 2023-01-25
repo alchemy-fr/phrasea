@@ -9,7 +9,6 @@ use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Entity\Core\Asset;
-use App\Entity\Core\File;
 use App\Integration\IntegrationManager;
 use App\Security\JWTTokenManager;
 use App\Storage\FileManager;
@@ -94,22 +93,18 @@ class PhraseanetIntegrationController extends AbstractController
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 
-        $path = $fileManager->storeFile(
+        $file = $fileManager->createFileFromPath(
             $asset->getWorkspace(),
             $uploadedFile->getRealPath(),
-            $uploadedFile->getType(),
+            $uploadedFile->getMimeType(),
             null,
             $uploadedFile->getClientOriginalName()
         );
 
-        $renditionManager->createOrReplaceRendition(
+        $renditionManager->createOrReplaceRenditionFile(
             $asset,
             $definition,
-            File::STORAGE_S3_MAIN,
-            $path,
-            $uploadedFile->getMimeType(),
-            $uploadedFile->getSize(),
-            $uploadedFile->getClientOriginalName()
+            $file
         );
 
         $em->flush();

@@ -152,7 +152,7 @@ export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
     return res.data;
 }
 
-type AssetPostType = {
+type AssetApiInput = {
     title?: string;
     privacy?: number;
     collection?: string,
@@ -160,7 +160,16 @@ type AssetPostType = {
     sourceFileId?: string;
 }
 
-export async function postAsset(data: AssetPostType): Promise<Asset> {
+type NewAssetPostType = {
+    relationship?: {
+        source: string;
+        type: string;
+        sourceFile?: string | undefined;
+        integration?: string | undefined;
+    } | undefined;
+} & AssetApiInput;
+
+export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     const res = await apiClient.post(`/assets`, data);
 
     return res.data;

@@ -21,7 +21,7 @@ class FileListener implements EventSubscriber
 
     public function preRemove(LifecycleEventArgs $args): void
     {
-        $object = $args->getEntity();
+        $object = $args->getObject();
 
         if ($object instanceof File) {
             if (File::STORAGE_S3_MAIN === $object->getStorage()) {

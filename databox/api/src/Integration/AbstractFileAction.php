@@ -8,6 +8,7 @@ use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
+use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -21,6 +22,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     protected const DATA_FILE_ID = 'file_id';
     protected const DATA_FILE = 'file';
     protected FileManager $fileManager;
+    protected FileUploadManager $fileUploadManager;
     protected EntityManagerInterface $em;
     protected IntegrationDataManager $integrationDataManager;
     protected FileUrlResolver $fileUrlResolver;
@@ -46,13 +48,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
             throw new InvalidArgumentException('Missing or invalid file');
         }
 
-        return $this->fileManager->createFileFromPath(
-            $asset->getWorkspace(),
-            $file->getRealPath(),
-            $file->getMimeType(),
-            null,
-            $file->getClientOriginalName()
-        );
+        return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);
     }
 
     protected function serializeData(IntegrationData $data): string
@@ -115,5 +111,13 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     public function setSerializer(SerializerInterface $serializer): void
     {
         $this->serializer = $serializer;
+    }
+
+    /**
+     * @required
+     */
+    public function setFileUploadManager(FileUploadManager $fileUploadManager): void
+    {
+        $this->fileUploadManager = $fileUploadManager;
     }
 }

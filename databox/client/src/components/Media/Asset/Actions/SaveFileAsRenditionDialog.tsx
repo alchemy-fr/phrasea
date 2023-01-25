@@ -15,6 +15,7 @@ import FormFieldErrors from "../../../Form/FormFieldErrors";
 import FormRow from "../../../Form/FormRow";
 import RenditionClassSelect from "../../../Form/RenditionClassSelect";
 import RenditionDefinitionSelect from "../../../Form/RenditionDefinitionSelect";
+import {postRendition} from "../../../../api/rendition";
 
 type FormData = {
     definition: string | undefined;
@@ -53,7 +54,11 @@ export default function SaveFileAsRenditionDialog({
         submitted,
     } = useFormSubmit({
         onSubmit: async (data: FormData) => {
-            return data;
+            return await postRendition({
+                definitionId: data.definition,
+                assetId: asset.id,
+                sourceFileId: file.id,
+            });
         },
         onSuccess: () => {
             toast.success(`Rendition has been saved`);

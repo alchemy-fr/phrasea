@@ -8,15 +8,21 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
+use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class OriginalRenditionManager
 {
     private EntityManagerInterface $em;
+    private RenditionManager $renditionManager;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(
+        EntityManagerInterface $em,
+        RenditionManager $renditionManager
+    )
     {
         $this->em = $em;
+        $this->renditionManager = $renditionManager;
     }
 
     /**
@@ -32,11 +38,8 @@ class OriginalRenditionManager
 
         $renditions = [];
         foreach ($originalRenditionDefinitions as $originalRenditionDefinition) {
-            $origRendition = new AssetRendition();
-            $origRendition->setAsset($asset);
+            $origRendition = $this->renditionManager->getOrCreateRendition($asset, $originalRenditionDefinition);
             $origRendition->setFile($file);
-            $origRendition->setDefinition($originalRenditionDefinition);
-            $origRendition->setReady(true);
 
             $this->em->persist($origRendition);
             $renditions[] = $origRendition;

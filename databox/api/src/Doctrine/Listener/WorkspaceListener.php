@@ -21,7 +21,7 @@ class WorkspaceListener implements EventSubscriber
 
     public function preRemove(LifecycleEventArgs $args): void
     {
-        $object = $args->getEntity();
+        $object = $args->getObject();
 
         if ($object instanceof Workspace) {
             $this->postFlushStack->addEvent(OnWorkspaceDeleteHandler::createEvent($object->getId()));

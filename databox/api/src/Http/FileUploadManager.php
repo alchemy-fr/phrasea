@@ -34,7 +34,7 @@ class FileUploadManager
         return $this->fileManager->createFileFromPath(
             $workspace,
             $uploadedFile->getRealPath(),
-            $uploadedFile->getType(),
+            $uploadedFile->getMimeType(),
             null,
             $uploadedFile->getClientOriginalName()
         );

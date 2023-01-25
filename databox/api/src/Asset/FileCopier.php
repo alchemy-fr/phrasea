@@ -32,8 +32,7 @@ class FileCopier
 
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $stream = $this->storageManager->getStream($file->getPath());
-            $extension = strtolower(pathinfo($file->getPath(), PATHINFO_EXTENSION) ?? '');
-            $path = $this->pathGenerator->generatePath($workspace->getId(), $extension);
+            $path = $this->pathGenerator->generatePath($workspace->getId(), $file->getExtension());
             $this->storageManager->storeStream($path, $stream);
             $copy->setPath($path);
         }

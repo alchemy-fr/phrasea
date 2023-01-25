@@ -8,25 +8,21 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import {Asset, File} from "../../../../types";
-import SaveFileAsNewAssetDialog from "./SaveFileAsNewAssetDialog";
+import SaveFileAsNewAssetDialog, {BaseSaveAsProps} from "./SaveFileAsNewAssetDialog";
 import {useModals} from "../../../../hooks/useModalStack";
 import ReplaceAssetWithFileDialog from "./ReplaceAssetWithFileDialog";
 import SaveFileAsRenditionDialog from "./SaveFileAsRenditionDialog";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 
 type Props = {
-    asset: Asset;
-    file: File;
     variant?: ButtonProps['variant'];
-    suggestedTitle?: string;
-};
+} & BaseSaveAsProps;
 
 export default function SaveAsButton({
-                                         suggestedTitle,
                                          file,
                                          asset,
                                         variant = 'contained',
+    ...saveAsProps
                                      }: Props) {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -56,9 +52,9 @@ export default function SaveAsButton({
     ) => {
         const item = options[index];
         openModal(item.component, {
+            ...saveAsProps,
             asset,
             file,
-            suggestedTitle,
         });
         setOpen(false);
     };

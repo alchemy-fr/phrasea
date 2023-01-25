@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Asset\FileFetcher;
-use App\Asset\FileUrlResolver;
-use App\Border\UriDownloader;
 use App\Entity\Core\File;
 use App\Storage\FileManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
@@ -20,18 +18,15 @@ class ImportFileHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'import_file';
 
-    private FileUrlResolver $fileUrlResolver;
     private FileFetcher $fileFetcher;
     private FileManager $fileManager;
 
     public function __construct(
-        FileUrlResolver $fileUrlResolver,
         FileManager $fileManager,
         FileFetcher $fileFetcher,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
-        $this->fileUrlResolver = $fileUrlResolver;
         $this->fileFetcher = $fileFetcher;
         $this->fileManager = $fileManager;
     }
@@ -57,7 +52,11 @@ class ImportFileHandler extends AbstractEntityManagerHandler
         }
 
         if (!$file->isPathPublic()) {
-            throw new InvalidArgumentException(sprintf('Source of file "%s" is not publicly accessible', $file->getId()));
+            throw new InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
+        }
+
+        if ($file->getStorage() !== File::STORAGE_URL) {
+            throw new InvalidArgumentException(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
         }
 
         $headers = [];

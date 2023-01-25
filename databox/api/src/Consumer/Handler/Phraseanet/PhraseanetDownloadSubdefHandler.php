@@ -69,7 +69,7 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 
         [$urlPart] = explode('?', $url, 2);
 
-        $rendition = $this->renditionManager->createOrReplaceRendition(
+        $rendition = $this->renditionManager->createOrReplaceRenditionByPath(
             $asset,
             $this->renditionManager->getRenditionDefinitionByName(
                 $workspace,

@@ -47,7 +47,7 @@ class RenditionVoter extends AbstractVoter
             case self::CREATE:
             case self::EDIT:
             case self::DELETE:
-                return $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset());
+                return $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset());
         }
 
         return false;

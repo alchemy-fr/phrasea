@@ -7,6 +7,7 @@ namespace App\Api\Model\Input;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class AssetInput extends AbstractOwnerIdInput
 {
@@ -37,12 +38,18 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var AssetSourceInput|null
      */
-    public $source = null;
+    public $sourceFile = null;
 
     /**
      * @var string|null
      */
     public $sourceFileId = null;
+
+    /**
+     * @var AssetRelationshipInput|null
+     * @Assert\Valid()
+     */
+    public $relationship = null;
 
     /**
      * @var RenditionInput[]

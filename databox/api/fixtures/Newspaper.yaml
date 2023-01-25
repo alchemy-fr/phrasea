@@ -251,7 +251,6 @@ App\Entity\Core\File:
 
 App\Entity\Core\AssetRendition:
   asset_rendition (template):
-    ready: true
 
   ar_img_o{1..50} (extends asset_rendition):
     definition: '@n_rd_original'
@@ -315,4 +314,10 @@ App\Entity\Core\Attribute:
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:
     name: '<current()>'
+    workspace: '@w_newspaper'
+
+App\Entity\Integration\WorkspaceIntegration:
+  toast_ui:
+    title: ToastUI
+    integration: tui.photo-editor
     workspace: '@w_newspaper'
