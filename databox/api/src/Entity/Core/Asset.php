@@ -90,6 +90,8 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      */
     private ?File $source = null;
 
+    private bool $noFileVersion = false;
+
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
      */
@@ -305,5 +307,15 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function isObjectIndexable(): bool
     {
         return null === $this->workspace->getDeletedAt();
+    }
+
+    public function isNoFileVersion(): bool
+    {
+        return $this->noFileVersion;
+    }
+
+    public function setNoFileVersion(bool $noFileVersion): void
+    {
+        $this->noFileVersion = $noFileVersion;
     }
 }

@@ -52,6 +52,7 @@ class CopyFileToAssetHandler extends AbstractEntityManagerHandler
         $copy = $this->fileCopier->copyFile($file, $asset->getWorkspace());
 
         $asset->setSource($copy);
+        $asset->setNoFileVersion(true);
 
         $em->persist($asset);
         $em->flush();

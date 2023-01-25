@@ -60,6 +60,14 @@ export interface Attribute extends IPermissions {
     highlight: AttrValue;
 }
 
+export interface AssetFileVersion {
+    id: string;
+    asset: Asset;
+    file: File;
+    name: string;
+    createdAt: string;
+}
+
 export interface AttributeDefinition extends IPermissions {
     id: string;
     name: string;

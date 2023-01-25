@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -24,12 +25,14 @@ class AssetFileVersion extends AbstractUuidEntity
     /**
      * @ORM\ManyToOne(targetEntity=Asset::class)
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"assetfileversion:index"})
      */
     private ?Asset $asset = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=File::class)
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"assetfileversion:index"})
      */
     private ?File $file = null;
 
@@ -46,6 +49,14 @@ class AssetFileVersion extends AbstractUuidEntity
     public function setVersionName(?string $versionName): void
     {
         $this->versionName = $versionName;
+    }
+
+    /**
+     * @Groups({"assetfileversion:index"})
+     */
+    public function getName(): string
+    {
+        return $this->versionName ?? 'v-'.$this->createdAt->format('Y-m-d_H-i-s');
     }
 
     public function getAsset(): ?Asset

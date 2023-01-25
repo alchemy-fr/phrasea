@@ -19,6 +19,8 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use InvalidArgumentException;
+use LogicException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 {
@@ -173,6 +175,11 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 
     private function handleFile(AssetInput $data, Asset $asset): ?File
     {
+        if (null === $asset->getWorkspace()) {
+            // Will API will respond 422
+            return null;
+        }
+
         if (null !== $file = $this->handleSource($data->sourceFile, $asset->getWorkspace())) {
             return $file;
         } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {

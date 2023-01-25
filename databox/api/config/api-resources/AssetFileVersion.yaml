@@ -1,0 +1,14 @@
+resources:
+  App\Entity\Core\AssetFileVersion:
+    shortName: asset-file-version
+    attributes:
+      normalization_context:
+        groups:
+          - 'assetfileversion:index'
+    itemOperations:
+      get:
+        security: 'is_granted("READ", object)'
+      delete:
+        security: 'is_granted("DELETE", object)'
+    collectionOperations:
+      get: ~

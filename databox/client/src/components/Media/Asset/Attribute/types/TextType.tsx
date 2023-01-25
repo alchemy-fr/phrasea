@@ -1,10 +1,10 @@
 import React from 'react';
-import {AttributeFormatterProps, AttributeType, AttributeWidgetProps} from "./types";
+import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps} from "./types";
 import {TextField, TextFieldProps} from "@mui/material";
 import {replaceHighlight} from "../Attributes";
 import BaseType from "./BaseType";
 
-export default class TextType extends BaseType implements AttributeType {
+export default class TextType extends BaseType implements AttributeTypeInstance {
     renderWidget({
                      value,
                      onChange,

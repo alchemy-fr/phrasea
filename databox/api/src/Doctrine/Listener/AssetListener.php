@@ -17,7 +17,7 @@ class AssetListener implements EventSubscriber
         $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
         foreach ($uow->getScheduledEntityUpdates() as $entityUpdate) {
-            if ($entityUpdate instanceof Asset) {
+            if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 $fileChange = $changeSet['source'] ?? null;
                 if ($fileChange) {
