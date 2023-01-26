@@ -1,10 +1,9 @@
 import React from "react";
 import {isRtlLocale} from "../../../../lib/lang";
 import {AttributeFormatContext} from "./Format/AttributeFormatContext";
-import {types} from "./types";
-import {AttributeType} from "../../../../api/attributes";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from "@mui/material";
+import {getAttributeType} from "./types";
 
 type Props = {
     type: string;
@@ -25,8 +24,7 @@ export default function AttributeRowUI({
                                        }: Props) {
     const isRtl = isRtlLocale(locale);
     const formatContext = React.useContext(AttributeFormatContext);
-    const formatterClass = types[type] ?? types[AttributeType.Text];
-    const formatter = new formatterClass();
+    const formatter = getAttributeType(type);
     const availableFormats = formatter.getAvailableFormats();
 
     const toggleFormat = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {

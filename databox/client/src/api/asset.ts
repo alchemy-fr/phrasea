@@ -1,14 +1,20 @@
 import apiClient from "./api-client";
 import {RequestConfig} from "./http-client";
-import {Asset, Attribute} from "../types";
+import {Asset, AssetFileVersion, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
 
-interface AssetOptions {
+export interface GetAssetOptions {
     url?: string;
     query?: string;
     workspaces?: string[];
     parents?: string[];
+    filters?: any[];
+    order: Record<string, 'asc' | 'desc'>;
+    group?: string[] | undefined;
+    context?: {
+        position?: string | undefined,
+    } | undefined;
 }
 
 export type ESDebug = {
@@ -17,7 +23,7 @@ export type ESDebug = {
     totalResponseTime: number;
 }
 
-export async function getAssets(options: AssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
+export async function getAssets(options: GetAssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
     debug: ESDebug;
 }>> {
     const res = options.url
@@ -46,35 +52,21 @@ export async function getAsset(id: string): Promise<Asset> {
 export async function getAssetAttributes(assetId: string | string[]): Promise<Attribute[]> {
     const res = await apiClient.get(`/attributes`, {
         params: {
-            asset: assetId,
+            assetId,
         }
     });
 
     return res.data['hydra:member'];
 }
 
-export async function putAssetAttribute(
-    id: string | undefined,
-    assetId: string,
-    definitionId: string,
-    value: any,
-    locale: string | undefined,
-    position?: number
-): Promise<Attribute> {
-    if (id) {
-        return ((await apiClient.put(`/attributes/${id}`, {
-            value,
-        })).data);
-    }
+export async function getAssetFileVersions(assetId: string | string[]): Promise<ApiCollectionResponse<AssetFileVersion>> {
+    const res = await apiClient.get(`/asset-file-versions`, {
+        params: {
+            assetId,
+        }
+    });
 
-    return (await apiClient.post(`/attributes`, {
-        origin: 'human',
-        asset: `/assets/${assetId}`,
-        definition: `/attribute-definitions/${definitionId}`,
-        value,
-        locale,
-        position,
-    })).data;
+    return getHydraCollection(res.data);
 }
 
 export enum AttributeBatchActionEnum {
@@ -146,14 +138,24 @@ export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
     return res.data;
 }
 
-type AssetPostType = {
+type AssetApiInput = {
     title?: string;
-    privacy: number;
+    privacy?: number;
     collection?: string,
     workspace?: string;
+    sourceFileId?: string;
 }
 
-export async function postAsset(data: AssetPostType): Promise<Asset> {
+type NewAssetPostType = {
+    relationship?: {
+        source: string;
+        type: string;
+        sourceFile?: string | undefined;
+        integration?: string | undefined;
+    } | undefined;
+} & AssetApiInput;
+
+export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     const res = await apiClient.post(`/assets`, data);
 
     return res.data;

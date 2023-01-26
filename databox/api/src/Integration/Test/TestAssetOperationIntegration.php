@@ -40,7 +40,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Asset
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return null !== $asset->getFile();
+        return null !== $asset->getSource();
     }
 
     public static function getName(): string

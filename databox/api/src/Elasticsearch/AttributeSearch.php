@@ -182,6 +182,7 @@ class AttributeSearch
         array $options = []
     ): void {
         $language = $options['locale'] ?? '*';
+        $position = $options['context']['position'] ?? null;
         $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
 
         if (empty($workspaces)) {
@@ -215,6 +216,10 @@ class AttributeSearch
             }
             $facets[$field] = true;
 
+            $meta = [
+                'title' => $definition->getName(),
+            ];
+
             switch ($type->getFacetType()) {
                 case FacetInterface::TYPE_STRING:
                     $agg = new Aggregation\Terms($fieldName);
@@ -230,13 +235,44 @@ class AttributeSearch
                     );
                     $agg->setBuckets(20);
                     break;
+                case FacetInterface::TYPE_GEO_DISTANCE:
+                    if (!$position) {
+                        continue 2;
+                    }
+                    $geoPoint = array_map(function (string $c): float {
+                        return (float) $c;
+                    }, explode(',', $position));
+                    $subField = $type->getAggregationField();
+                    $agg = new Aggregation\GeoDistance(
+                        $fieldName,
+                        $field.($subField ? '.'.$subField : ''),
+                        implode(',', $geoPoint)
+                    );
+
+                    $meta['position'] = $geoPoint;
+                    $distances = [
+                        100,
+                        500,
+                        1000,
+                        5000,
+                        10000
+                    ];
+                    $ranges = [];
+                    for ($i = 0; $i < count($distances) - 1; $i++) {
+                        $r = ['key' => (string) $i];
+                        if ($i > 0) {
+                            $r['from'] = $distances[$i - 1] * 1000;
+                        }
+                        if ($i < count($distances) - 1) {
+                            $r['to'] = $distances[$i] * 1000;
+                        }
+                        $ranges[] =  $r;
+                    }
+                    $agg->setParam('ranges', $ranges);
+                    break;
                 default:
                     throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
             }
-
-            $meta = [
-                'title' => $definition->getName(),
-            ];
 
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             if (FacetInterface::TYPE_STRING !== $type->getFacetType()) {

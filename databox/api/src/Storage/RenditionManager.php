@@ -10,12 +10,15 @@ use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\PersistentCollection;
 use InvalidArgumentException;
 
 class RenditionManager
 {
     private EntityManagerInterface $em;
     private FileManager $fileManager;
+
+    private array $renditionsToDelete = [];
 
     public function __construct(
         EntityManagerInterface $em,
@@ -25,7 +28,7 @@ class RenditionManager
         $this->fileManager = $fileManager;
     }
 
-    public function createOrReplaceRendition(
+    public function createOrReplaceRenditionByPath(
         Asset $asset,
         RenditionDefinition $definition,
         string $storage,
@@ -55,64 +58,51 @@ class RenditionManager
         RenditionDefinition $definition,
         File $file
     ): AssetRendition {
-        if (null === $asset->getFile() && $definition->isUseAsOriginal()) {
-            $asset->setFile($file);
+        if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
+            $asset->setSource($file);
             $this->em->persist($asset);
         }
 
-        $rendition = $this->em->getRepository(AssetRendition::class)
-            ->findOneBy([
-                'asset' => $asset->getId(),
-                'definition' => $definition->getId(),
-            ]);
-
-        if (!$rendition instanceof AssetRendition) {
-            $rendition = new AssetRendition();
-            $rendition->setAsset($asset);
-            $rendition->setDefinition($definition);
-        } else {
-            // TODO remove old rendition file
-        }
+        $rendition = $this->getOrCreateRendition($asset, $definition);
 
         $rendition->setFile($file);
-        $rendition->setReady(true);
 
         $this->em->persist($rendition);
 
         return $rendition;
     }
 
-    public function createOrReplaceRenditionFromSource(
-        Asset $asset,
-        RenditionDefinition $definition,
-        string $src,
-        ?string $type,
-        ?string $extension,
-        ?string $originalName
-    ): AssetRendition {
-        $file = $this->fileManager->createFileFromPath(
-            $asset->getWorkspace(),
-            $src,
-            $type,
-            $extension,
-            $originalName
-        );
-
-        return $this->createOrReplaceRenditionFile($asset, $definition, $file);
-    }
-
-    public function getAssetFromId(string $id): ?Asset
+    public function getOrCreateRendition(Asset $asset, RenditionDefinition $definition): AssetRendition
     {
-        return $this->em->find(Asset::class, $id);
-    }
+        $renditions = $asset->getRenditions();
+        $collectionReady = !$renditions instanceof PersistentCollection || $renditions->isInitialized();
+        if ($collectionReady) {
+            foreach ($renditions as $rendition) {
+                if ($rendition->getDefinition() === $definition) {
+                    unset($this->renditionsToDelete[$rendition->getId()]);
 
-    public function getDefinitionFromId(Workspace $workspace, string $id): ?RenditionDefinition
-    {
-        return $this->em->getRepository(RenditionDefinition::class)
-            ->findOneBy([
-                'workspace' => $workspace->getId(),
-                'id' => $id,
-            ]);
+                    return $rendition;
+                }
+            }
+        } else {
+            $rendition = $this->em->getRepository(AssetRendition::class)
+                ->findOneBy([
+                    'asset' => $asset->getId(),
+                    'definition' => $definition->getId(),
+                ]);
+
+            if ($rendition instanceof AssetRendition) {
+                unset($this->renditionsToDelete[$rendition->getId()]);
+
+                return $rendition;
+            }
+        }
+
+        $rendition = new AssetRendition();
+        $rendition->setAsset($asset);
+        $rendition->setDefinition($definition);
+
+        return $rendition;
     }
 
     public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
@@ -132,12 +122,25 @@ class RenditionManager
         return $definition;
     }
 
-    public function getDefinitionFromName(Workspace $workspace, string $name): ?RenditionDefinition
+    public function resetAssetRenditions(Asset $asset): void
     {
-        return $this->em->getRepository(RenditionDefinition::class)
-            ->findOneBy([
-                'workspace' => $workspace->getId(),
-                'name' => $name,
-            ]);
+        $renditions = $asset->getRenditions();
+
+        foreach ($renditions as $rendition) {
+            $this->renditionsToDelete[$rendition->getId()] = true;
+        }
+    }
+
+    public function deleteScheduledRenditions(): void
+    {
+        $keys = array_keys($this->renditionsToDelete);
+        $this->renditionsToDelete = [];
+
+        foreach ($keys as $key) {
+            $rendition = $this->em->find(AssetRendition::class, $key);
+            if ($rendition instanceof AssetRendition) {
+                $this->em->remove($rendition);
+            }
+        }
     }
 }

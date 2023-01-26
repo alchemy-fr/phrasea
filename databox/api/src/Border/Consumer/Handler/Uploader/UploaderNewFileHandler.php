@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Consumer\Handler;
+namespace App\Border\Consumer\Handler\Uploader;
 
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
@@ -15,9 +15,9 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
-class FileEntranceHandler extends AbstractEntityManagerHandler
+class UploaderNewFileHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'file_entrance';
+    const EVENT = 'uploader_new_file';
 
     private BorderManager $borderManager;
     private EventProducer $eventProducer;
@@ -70,8 +70,6 @@ class FileEntranceHandler extends AbstractEntityManagerHandler
                 $formData,
                 $payload['locale'] ?? null
             ));
-        } else {
-            // TODO place into quarantine
         }
     }
 

@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
-import {Button} from "@mui/material";
+import {Button, Typography} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import ReactCompareImage from "react-compare-image";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
-
-type Props = {} & AssetIntegrationActionsProps;
+import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
+import {File} from "../../../types";
 
 function RemoveBgComparison({
                                 left,
@@ -32,32 +32,44 @@ function RemoveBgComparison({
     </div>;
 }
 
+type Props = {} & AssetIntegrationActionsProps;
+
 export default function RemoveBGAssetEditorActions({
+    asset,
                                                        file,
                                                        integration,
                                                        setIntegrationOverlay,
                                                        enableInc,
                                                    }: Props) {
     const [running, setRunning] = useState(false);
-    const [url, setUrl] = useState<string | undefined>(integration.data.find(d => d.name === 'file_url')?.value);
+    const [bgRemovedFile, setBgRemovedFile] = useState<File | undefined>(integration.data.find(d => d.name === 'file')?.value);
 
     const process = async () => {
         setRunning(true);
-        setUrl((await runIntegrationFileAction('process', integration.id, file.id)).url);
+        setBgRemovedFile(await runIntegrationFileAction('process', integration.id, file.id));
     };
 
     useEffect(() => {
-        if (enableInc && url) {
+        if (enableInc && bgRemovedFile) {
             setIntegrationOverlay(RemoveBgComparison, {
                 left: file.url,
-                right: url,
+                right: bgRemovedFile.url,
             }, true);
         }
-    }, [enableInc, url]);
+    }, [enableInc, bgRemovedFile]);
 
-    if (url) {
+    if (bgRemovedFile) {
         return <IntegrationPanelContent>
-            Use slider to compare
+            <Typography sx={{mb: 3}}>
+                Use slider to compare
+            </Typography>
+
+            <SaveAsButton
+                asset={asset}
+                file={bgRemovedFile}
+                suggestedTitle={asset.resolvedTitle + ' - BG removed'}
+
+            />
         </IntegrationPanelContent>
     }
 

@@ -15,7 +15,7 @@ export default function RenditionClassSelect<TFieldValues extends FieldValues>({
     const load = useCallback(async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getRenditionClasses(workspaceId));
 
-        return data.map((t: RenditionClass) => ({
+        return data.result.map((t: RenditionClass) => ({
             value: `${renditionClassNS}/${t.id}`,
             label: t.name,
         })).filter(i =>

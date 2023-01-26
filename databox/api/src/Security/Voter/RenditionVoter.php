@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionVoter extends AbstractVoter
 {
-    const SCOPE_PREFIX = 'ROLE_RENDITION:';
     private RenditionPermissionManager $renditionPermissionManager;
 
     public function __construct(RenditionPermissionManager $renditionPermissionManager)
@@ -45,6 +44,10 @@ class RenditionVoter extends AbstractVoter
                     $userId,
                     $groupIds
                 );
+            case self::CREATE:
+            case self::EDIT:
+            case self::DELETE:
+                return $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset());
         }
 
         return false;

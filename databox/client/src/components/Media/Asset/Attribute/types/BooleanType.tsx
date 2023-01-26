@@ -1,5 +1,5 @@
 import React from 'react';
-import {AttributeFormatterProps, AttributeType, AttributeWidgetProps, AvailableFormat} from "./types";
+import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps, AvailableFormat} from "./types";
 import {Checkbox, Chip, FormControlLabel, TextFieldProps} from "@mui/material";
 import BaseType from "./BaseType";
 
@@ -10,7 +10,7 @@ enum Formats {
     TrueFalse = 'true_false',
 }
 
-export default class BooleanType extends BaseType implements AttributeType {
+export default class BooleanType extends BaseType implements AttributeTypeInstance {
     formatValue({value, format}: AttributeFormatterProps): React.ReactNode {
         if (false !== value && true !== value) {
             return;

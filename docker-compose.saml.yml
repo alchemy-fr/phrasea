@@ -14,6 +14,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.saml-idp.rule=Host(`saml-idp.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.saml-idp.loadbalancer.server.port=8080"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   saml-idp2:
     image: alchemyfr/test-saml-idp:${DOCKER_TAG}
@@ -28,3 +29,4 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.saml-idp2.rule=Host(`saml-idp2.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.saml-idp2.loadbalancer.server.port=8080"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"

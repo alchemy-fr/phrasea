@@ -28,6 +28,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   expose-client:
     profiles:
@@ -56,6 +57,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   databox-client:
     profiles:
@@ -88,3 +90,4 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"

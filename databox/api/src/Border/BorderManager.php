@@ -16,13 +16,13 @@ use Doctrine\ORM\EntityManagerInterface;
 class BorderManager
 {
     private EntityManagerInterface $em;
-    private FileDownloader $fileDownloader;
+    private UriDownloader $fileDownloader;
     private FileStorageManager $storageManager;
     private FilePathGenerator $pathGenerator;
 
     public function __construct(
         EntityManagerInterface $em,
-        FileDownloader $fileDownloader,
+        UriDownloader $fileDownloader,
         FileStorageManager $storageManager,
         FilePathGenerator $pathGenerator
     ) {

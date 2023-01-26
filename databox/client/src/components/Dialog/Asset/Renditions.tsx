@@ -32,6 +32,7 @@ export default function Renditions({
     >
         {renditions && renditions.map(r => {
             return <Rendition
+                asset={data}
                 key={r.id}
                 rendition={r}
                 title={data.resolvedTitle}

@@ -27,6 +27,7 @@ services:
       - "traefik.http.middlewares.admin-secured.basicauth.realm=Secured"
       - "traefik.http.middlewares.admin-secured.basicauth.users=${ADMIN_BASIC_AUTH_USER}"
       - "traefik.http.routers.traefik-console.middlewares=admin-secured@docker"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
@@ -35,6 +36,7 @@ services:
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      - TRAEFIK_PROVIDERS_DOCKER_CONSTRAINTS=Label(`traefik.project_name`,`${COMPOSE_PROJECT_NAME}`)
       - TRAEFIK_ENTRYPOINTS_WEB=true
       - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
       - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
@@ -194,6 +196,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   auth-worker:
     profiles:
@@ -309,6 +312,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth-api.rule=Host(`api-auth.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   expose-api-php:
     profiles:
@@ -455,6 +459,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   notify-api-php:
     profiles:
@@ -555,6 +560,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   redis:
     profiles:
@@ -594,6 +600,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   dockerize:
     profiles:
@@ -638,6 +645,7 @@ services:
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   minio-mc:
     profiles:
@@ -688,6 +696,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   matomo-db:
     profiles:
@@ -744,6 +753,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   phpmyadmin:
     profiles:
@@ -757,6 +767,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   mailhog:
     profiles:
@@ -769,6 +780,7 @@ services:
       - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
       - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   dashboard:
     profiles:
@@ -833,6 +845,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   databox-api-php:
     profiles:
@@ -987,6 +1000,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   databox-indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
@@ -1073,6 +1087,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1106,6 +1121,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   k6:
     profiles:
@@ -1150,6 +1166,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   webhook-endpoint:
     image: mendhak/http-https-echo:23
@@ -1160,6 +1177,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   zippy-api:
     image: alchemyfr/zippy-api:latest
@@ -1181,6 +1199,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.zippy-svc.rule=Host(`zippy-svc.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     extra_hosts:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -1236,6 +1255,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
 volumes:
   db_vol:

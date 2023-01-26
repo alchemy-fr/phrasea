@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AssetVoter extends AbstractVoter
 {
     public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
+    public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     public const SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject)
@@ -36,11 +37,8 @@ class AssetVoter extends AbstractVoter
                 if (null !== $collection = $subject->getReferenceCollection()) {
                     return $this->security->isGranted(CollectionVoter::EDIT, $collection);
                 }
-                if ($subject->getWorkspace()) {
-                    return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
-                }
 
-                return $user instanceof RemoteUser;
+                return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
             case self::READ:
                 return $isOwner
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
@@ -62,6 +60,13 @@ class AssetVoter extends AbstractVoter
                     || (
                         null !== $subject->getReferenceCollection()
                         && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
+                    );
+            case self::EDIT_RENDITIONS:
+                return $isOwner
+                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
+                    || (
+                        null !== $subject->getReferenceCollection()
+                        && $this->security->isGranted(PermissionInterface::OPERATOR, $subject->getReferenceCollection())
                     );
             case self::SHARE:
                 return $isOwner

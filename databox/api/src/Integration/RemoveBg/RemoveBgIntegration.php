@@ -42,7 +42,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
 
     public function handleAsset(Asset $asset, array $config): void
     {
-        $this->process($asset->getFile(), $config);
+        $this->process($asset->getSource(), $config);
     }
 
     public function handleFileAction(string $action, Request $request, File $file, array $config): Response
@@ -52,6 +52,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
                 $file = $this->process($file, $config);
 
                 return new JsonResponse([
+                    'id' => $file->getId(),
                     'url' => $this->fileUrlResolver->resolveUrl($file),
                 ]);
             default:
@@ -87,7 +88,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $config['processIncoming'] && $asset->getFile() && $this->supportsFile($asset->getFile());
+        return $config['processIncoming'] && $asset->getSource() && $this->supportsFile($asset->getSource());
     }
 
     private function supportsFile(File $file): bool

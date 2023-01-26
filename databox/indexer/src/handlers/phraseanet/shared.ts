@@ -60,7 +60,7 @@ export function createAsset(
 
             return {
                 definition: defName,
-                source: {
+                sourceFile: {
                     url: s.permalink.url,
                     isPrivate: false,
                     importFile: importFiles,

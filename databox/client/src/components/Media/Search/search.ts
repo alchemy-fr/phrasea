@@ -90,6 +90,7 @@ export function queryToHash(
     sortBy: SortBy[],
     workspaceId: string | undefined,
     collectionId: string | undefined,
+    geolocation: string | undefined
 ): string {
     let hash = '';
     if (query) {
@@ -108,6 +109,9 @@ export function queryToHash(
     if (collectionId) {
         hash += `${hash ? '&' : ''}c=${collectionId}`;
     }
+    if (geolocation) {
+        hash += `${hash ? '&' : ''}l=${encodeURIComponent(geolocation)}`;
+    }
 
     return hash;
 }
@@ -116,6 +120,7 @@ export function hashToQuery(hash: string): {
     query: string;
     filters: Filters;
     sortBy: SortBy[];
+    geolocation: string | undefined,
     workspaceId: string | undefined;
     collectionId: string | undefined;
 } {
@@ -127,5 +132,6 @@ export function hashToQuery(hash: string): {
         workspaceId: decodeURIComponent(params.get('w') || '') || undefined,
         filters: params.get('f') ? (params.get('f') as string).split(arraySep).map(decodeFilter) : [],
         sortBy: params.get('s') ? decodeURIComponent(params.get('s') as string).split(arraySep).map(decodeSortBy) : [],
+        geolocation: params.get('l') ? decodeURIComponent(params.get('l') as string) : undefined,
     }
 }

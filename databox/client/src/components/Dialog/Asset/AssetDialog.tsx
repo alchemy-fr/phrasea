@@ -10,6 +10,7 @@ import {getAsset} from "../../../api/asset";
 import EditAttributes from "./EditAttributes";
 import Renditions from "./Renditions";
 import InfoAsset from "./InfoAsset";
+import AssetFileVersions from "./AssetFileVersions";
 
 type Props = {};
 
@@ -71,6 +72,15 @@ export default function AssetDialog({}: Props) {
                     data,
                 },
                 enabled: true,
+            },
+            {
+                title: t('asset.manage.acl.versions', 'Versions'),
+                component: AssetFileVersions,
+                id: 'versions',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
             },
             {
                 title: t('asset.manage.acl.title', 'Permissions'),

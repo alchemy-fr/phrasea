@@ -43,12 +43,6 @@ class AssetRendition extends AbstractUuidEntity
      */
     private ?File $file = null;
 
-    /**
-     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
-     * @ORM\Column(type="boolean")
-     */
-    private bool $ready = false;
-
     public function getAsset(): Asset
     {
         return $this->asset;
@@ -57,6 +51,7 @@ class AssetRendition extends AbstractUuidEntity
     public function setAsset(Asset $asset): void
     {
         $this->asset = $asset;
+        $asset->getRenditions()->add($this);
     }
 
     public function getFile(): ?File
@@ -90,11 +85,7 @@ class AssetRendition extends AbstractUuidEntity
 
     public function isReady(): bool
     {
-        return $this->ready;
+        return null !== $this->file;
     }
 
-    public function setReady(bool $ready): void
-    {
-        $this->ready = $ready;
-    }
 }

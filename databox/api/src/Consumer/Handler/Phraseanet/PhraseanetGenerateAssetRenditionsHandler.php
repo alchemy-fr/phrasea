@@ -73,7 +73,7 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
             throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
         }
 
-        $file = $asset->getFile();
+        $file = $asset->getSource();
 
         if (!$file instanceof File) {
             $this->logger->warning(sprintf('%s error: Asset %s has no file', __CLASS__, $asset->getId()));

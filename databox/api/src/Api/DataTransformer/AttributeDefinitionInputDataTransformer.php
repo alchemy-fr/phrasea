@@ -13,13 +13,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeDefinitionInputDataTransformer extends AbstractInputDataTransformer
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
-
     /**
      * @param AttributeDefinitionInput $data
      */

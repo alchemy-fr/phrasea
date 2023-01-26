@@ -18,10 +18,10 @@ export type AttributeFormat = string;
 
 export type AttributeFormatterProps = {
     value: any;
-    highlight: any;
+    highlight?: any;
     format?: AttributeFormat;
-    multiple: boolean;
-    locale: string | undefined;
+    multiple?: boolean;
+    locale?: string | undefined;
 };
 
 export type AvailableFormat = {
@@ -40,5 +40,5 @@ export type AttributeTypeWidget = {
     renderWidget(props: AttributeWidgetProps): React.ReactNode;
 }
 
-export type AttributeType = AttributeTypeFormatter & AttributeTypeWidget;
-export type AttributeTypeClass = { new(): AttributeType };
+export type AttributeTypeInstance = AttributeTypeFormatter & AttributeTypeWidget;
+export type AttributeTypeClass = { new(): AttributeTypeInstance };

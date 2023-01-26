@@ -100,7 +100,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Asse
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return null !== $asset->getFile();
+        return null !== $asset->getSource();
     }
 
     public static function getTitle(): string

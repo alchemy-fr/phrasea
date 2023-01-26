@@ -1,15 +1,27 @@
 import {ResultContext} from "./ResultContext";
 import {PropsWithChildren, useContext, useEffect, useState} from "react";
-import {ESDebug, getAssets} from "../../../api/asset";
+import {ESDebug, GetAssetOptions, getAssets} from "../../../api/asset";
 import {Asset} from "../../../types";
 import {SearchContext} from "./SearchContext";
 import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters, SortBy} from "./Filter";
 import axios from "axios";
 
+type UserSearchContext = {
+    position?: string | undefined;
+}
+
 let lastController: AbortController;
 
-async function search(query: string, sortBy: SortBy[], url?: string, collectionIds?: string[], workspaceIds?: string[], attrFilters?: Filters): Promise<{
+async function search(
+    query: string,
+    sortBy: SortBy[],
+    url?: string,
+    collectionIds?: string[],
+    workspaceIds?: string[],
+    attrFilters?: Filters,
+    userContext?: UserSearchContext
+): Promise<{
     result: Asset[];
     facets: TFacets;
     total: number;
@@ -23,18 +35,14 @@ async function search(query: string, sortBy: SortBy[], url?: string, collectionI
 
     lastController = new AbortController();
 
-    const order: Record<string, 'asc' | 'desc'> = {};
+    const order: GetAssetOptions['order'] = {};
     sortBy.forEach(s => {
         order[s.a] = s.w === 1 ? 'desc' : 'asc';
     });
 
-    const groupBy = sortBy.map((s) => {
-        if (s.g) {
-            return s.a;
-        }
-    });
+    const groupBy = sortBy.filter(s => s.g).map((s) => s.a);
 
-    const options = {
+    const options: GetAssetOptions = {
         query,
         parents: collectionIds,
         workspaces: workspaceIds,
@@ -47,6 +55,12 @@ async function search(query: string, sortBy: SortBy[], url?: string, collectionI
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };
+
+    if (userContext) {
+        options.context = {
+            ...userContext,
+        };
+    }
 
     const result = await getAssets(options, {
         signal: lastController.signal,
@@ -103,7 +117,10 @@ export default function ResultProvider({children}: Props) {
             nextUrl,
             collectionIds,
             workspaceIds,
-            searchContext.attrFilters
+            searchContext.attrFilters,
+            {
+                position: searchContext.geolocation,
+            }
         ).then((r) => {
             setState((prevState) => {
                 return {

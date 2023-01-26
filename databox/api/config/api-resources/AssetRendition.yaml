@@ -17,9 +17,8 @@ resources:
     collectionOperations:
       get: ~
       post:
-        controller: App\Controller\Core\CreateRenditionAction
-        defaults:
-          _api_receive: false
+        security_post_denormalize: 'is_granted("CREATE", object)'
+        input: App\Api\Model\Input\RenditionInput
         validation_groups:
           - Default
         openapi_context:

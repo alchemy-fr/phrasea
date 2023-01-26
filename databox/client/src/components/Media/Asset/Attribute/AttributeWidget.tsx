@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {AttrValue, createNewValue} from "./AttributesEditor";
-import {types} from "./types";
-import {AttributeType} from "../../../../api/attributes";
+import {getAttributeType} from "./types";
 
 type Props = {
     id: string;
@@ -54,10 +53,10 @@ export default function AttributeWidget({
         // eslint-disable-next-line
     }, [onChange, setValue, value]);
 
-    const widgetClass = (types[type] ?? types[AttributeType.Text]);
+    const widget = getAttributeType(type);
 
     return <>
-        {new widgetClass().renderWidget({
+        {widget.renderWidget({
             value: value ? value.value : undefined,
             isRtl,
             onChange: changeHandler,

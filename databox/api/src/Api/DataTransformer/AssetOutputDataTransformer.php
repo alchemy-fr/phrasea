@@ -81,6 +81,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
 
+        $output->setSource($object->getSource());
+
         $highlights = $object->getElasticHighlights();
 
         if (isset($context['groups']) && in_array('asset:index', $context['groups'], true)) {
@@ -153,8 +155,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         }
 
         if (empty($output->getResolvedTitle())) {
-            if (null !== $object->getFile()) {
-                $output->setResolvedTitle($object->getFile()->getOriginalName());
+            if (null !== $object->getSource()) {
+                $output->setResolvedTitle($object->getSource()->getOriginalName());
             }
         }
 

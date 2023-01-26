@@ -1,5 +1,5 @@
 import {AttributeType} from "../../../../api/attributes";
-import {types} from "./types";
+import {getAttributeType} from "./types";
 import {AttributeFormat} from "./types/types";
 
 export function formatAttribute(type: AttributeType, value: any, format?: AttributeFormat): string | undefined {
@@ -7,9 +7,9 @@ export function formatAttribute(type: AttributeType, value: any, format?: Attrib
         return;
     }
 
-    const formatter = types[type] ?? types[AttributeType.Text];
+    const formatter = getAttributeType(type);
 
-    return new formatter().formatValueAsString({
+    return formatter.formatValueAsString({
         value,
         locale: undefined,
         multiple: false,

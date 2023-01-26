@@ -7,7 +7,7 @@ namespace App\Integration\Aws\Transcribe;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
-use App\Border\FileDownloader;
+use App\Border\UriDownloader;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
@@ -30,7 +30,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
     private IntegrationDataManager $dataManager;
     private S3Copier $s3Copier;
     private BatchAttributeManager $batchAttributeManager;
-    private FileDownloader $fileDownloader;
+    private UriDownloader $fileDownloader;
 
     public function __construct(
         AwsTranscribeClient $client,
@@ -38,7 +38,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
         S3Copier $s3Copier,
         ApiBudgetLimiter $apiBudgetLimiter,
         BatchAttributeManager $batchAttributeManager,
-        FileDownloader $fileDownloader
+        UriDownloader $fileDownloader
     ) {
         $this->client = $client;
         $this->dataManager = $dataManager;
@@ -100,7 +100,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
 
     public function handleAsset(Asset $asset, array $config): void
     {
-        $this->transcribe($asset, $asset->getFile(), $config);
+        $this->transcribe($asset, $asset->getSource(), $config);
     }
 
     private function transcribe(Asset $asset, File $file, array $config): void
@@ -196,7 +196,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $asset->getFile() && $this->supportFile($asset->getFile());
+        return $asset->getSource() && $this->supportFile($asset->getSource());
     }
 
     private function supportFile(File $file): bool

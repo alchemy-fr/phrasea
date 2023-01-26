@@ -16,12 +16,10 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
 {
     public const ATTRIBUTE_DEFINITION = '_ATTR_DEF';
 
-    private EntityManagerInterface $em;
     private AttributeAssigner $attributeAssigner;
 
-    public function __construct(EntityManagerInterface $em, AttributeAssigner $attributeAssigner)
+    public function __construct(AttributeAssigner $attributeAssigner)
     {
-        $this->em = $em;
         $this->attributeAssigner = $attributeAssigner;
     }
 

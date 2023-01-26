@@ -88,7 +88,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    private ?File $file = null;
+    private ?File $source = null;
+
+    private bool $noFileVersion = false;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
@@ -121,14 +123,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->ownerId = $ownerId;
     }
 
-    public function getFile(): ?File
+    public function getSource(): ?File
     {
-        return $this->file;
+        return $this->source;
     }
 
-    public function setFile(?File $file): void
+    public function setSource(?File $source): void
     {
-        $this->file = $file;
+        $this->source = $source;
     }
 
     public function getStoryCollection(): ?DoctrineCollection
@@ -305,5 +307,15 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function isObjectIndexable(): bool
     {
         return null === $this->workspace->getDeletedAt();
+    }
+
+    public function isNoFileVersion(): bool
+    {
+        return $this->noFileVersion;
+    }
+
+    public function setNoFileVersion(bool $noFileVersion): void
+    {
+        $this->noFileVersion = $noFileVersion;
     }
 }

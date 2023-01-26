@@ -12,7 +12,7 @@ type Source = {
 };
 
 export type AssetInput = {
-    source?: Source;
+    sourceFile?: Source;
     key?: string;
     title?: string;
     collection?: string;

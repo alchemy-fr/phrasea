@@ -42,13 +42,9 @@ class FileManager
         $file->setWorkspace($workspace);
         $file->setOriginalName($originalName);
 
-        if ($originalName) {
-            $file->setExtension(FileUtil::getExtensionFromPath($originalName));
-        } elseif ($file->getType()) {
-            $extension = FileUtil::getExtensionFromType($file->getType());
-            if (!empty($extension)) {
-                $file->setExtension($extension);
-            }
+        $extension = FileUtil::guessExtension($type, $originalName);
+        if (!empty($extension)) {
+            $file->setExtension($extension);
         }
 
         $this->em->persist($file);
@@ -73,6 +69,14 @@ class FileManager
 
     public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension, ?string $originalName): File
     {
+        if (null === $extension) {
+            $extension = FileUtil::guessExtension($type, $originalName);
+        }
+
+        if (null === $type) {
+            $type = FileUtil::getTypeFromExtension($extension);
+        }
+
         $path = $this->storeFile($workspace, $src, $type, $extension, $originalName);
 
         return $this->createFile(

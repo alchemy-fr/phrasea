@@ -23,6 +23,7 @@ easy_admin:
           - Collection
           - Asset
           - File
+          - AssetFileVersion
           - Attribute
           - AssetTitleAttribute
           - AttributeDefinition
@@ -71,7 +72,7 @@ easy_admin:
           - { property: 'workspace' }
           - { property: 'privacy', template: 'admin/field_privacy.html.twig' }
           - { property: 'collections.count', label: '# Colls' }
-          - { property: 'file' }
+          - { property: 'source' }
           - { property: 'key' }
           - createdAt
       edit:
@@ -111,6 +112,23 @@ easy_admin:
           - { property: 'definition' }
           - { property: 'priority', help: 'Higher value is more prioritized' }
           - { property: 'overrides' }
+
+    AssetFileVersion:
+      class: App\Entity\Core\AssetFileVersion
+      list:
+        max_results: 200
+        filters: ['asset']
+        sort: [asset, DESC]
+        fields:
+          - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
+          - { property: 'asset' }
+          - { property: 'file' }
+          - createdAt
+
+      form:
+        fields:
+          - { property: 'asset' }
+          - { property: 'file' }
 
     File:
       class: App\Entity\Core\File

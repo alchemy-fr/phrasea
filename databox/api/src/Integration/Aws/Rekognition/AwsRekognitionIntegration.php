@@ -116,7 +116,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
 
     public function handleAsset(Asset $asset, array $config): void
     {
-        if (!$asset->getFile()) {
+        if (!$asset->getSource()) {
             return;
         }
 
@@ -127,7 +127,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
             }
         }
 
-        $result = $this->analyze($asset->getFile(), $config, $categories);
+        $result = $this->analyze($asset->getSource(), $config, $categories);
 
         if (!empty($result['labels']) && !empty($config['labels']['attributes'] ?? [])) {
             $this->saveTextsToAttributes($asset, array_map(function (array $text): array {
@@ -246,7 +246,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
 
     public function supportsAsset(Asset $asset, array $config): bool
     {
-        return $asset->getFile() && $this->supportFile($asset->getFile());
+        return $asset->getSource() && $this->supportFile($asset->getSource());
     }
 
     private function supportFile(File $file): bool

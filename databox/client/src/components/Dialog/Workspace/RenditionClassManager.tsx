@@ -114,7 +114,7 @@ export default function RenditionClassManager({
     return <DefinitionManager
         itemComponent={Item}
         listComponent={ListItem}
-        load={() => getRenditionClasses(workspace.id)}
+        load={() => getRenditionClasses(workspace.id).then(r => r.result)}
         workspaceId={workspace.id}
         minHeight={minHeight}
         onClose={onClose}

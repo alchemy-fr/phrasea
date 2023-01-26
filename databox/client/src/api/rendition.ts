@@ -20,6 +20,20 @@ export async function getAssetRenditions(assetId: string): Promise<ApiCollection
     return getHydraCollection(res.data);
 }
 
+type RenditionInput = {
+    name?: string | undefined;
+    definitionId?: string | undefined;
+    sourceFileId?: string | undefined;
+    assetId: string;
+}
+
+export async function postRendition(
+    data: RenditionInput
+): Promise<AssetRendition> {
+    return (await apiClient.post(renditionNS, data)).data;
+}
+
+
 export async function getRenditionDefinitions(options: GetOptions = {}): Promise<ApiCollectionResponse<RenditionDefinition>> {
     const res = await apiClient.get(renditionDefinitionNS, {
         params: options,
@@ -54,14 +68,14 @@ export async function postRenditionDefinition(
     return (await apiClient.post(renditionDefinitionNS, data)).data;
 }
 
-export async function getRenditionClasses(workspaceId: string): Promise<RenditionClass[]> {
+export async function getRenditionClasses(workspaceId: string): Promise<ApiCollectionResponse<RenditionClass>> {
     const res = await apiClient.get(renditionClassNS, {
         params: {
             workspaceId,
         }
     });
 
-    return res.data['hydra:member'];
+    return getHydraCollection(res.data);
 }
 
 export async function getWorkspaceRenditionDefinitions(workspaceId: string): Promise<RenditionDefinition[]> {

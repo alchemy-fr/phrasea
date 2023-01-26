@@ -1,10 +1,11 @@
-import {useContext, useState} from "react";
+import React, {useContext, useState} from "react";
 import {ResultContext} from "../Search/ResultContext";
 import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import StringFacet from "./Facets/StringFacet";
 import DateHistogramFacet from "./Facets/DateHistogramFacet";
 import moment from "moment";
+import GeoDistanceFacet from "./Facets/GeoDistanceFacet";
 
 export type BucketKeyValue = string | number | {
     value: string;
@@ -16,7 +17,7 @@ export type NormalizedBucketKeyValue = string | number | {
     l: string;
 }
 
-type Bucket = {
+export type Bucket = {
     key: BucketKeyValue;
     doc_count: number;
 }
@@ -24,6 +25,7 @@ type Bucket = {
 export enum FacetType {
     String = 'string',
     DateRange = 'date_range',
+    GeoDistance = 'geo_distance',
 }
 
 export type Facet = {
@@ -63,6 +65,12 @@ export type FacetRowProps = {
     name: string;
 }
 
+const facetWidgets: Record<FacetType, React.FC<FacetRowProps>> = {
+    [FacetType.String]: StringFacet,
+    [FacetType.DateRange]: DateHistogramFacet,
+    [FacetType.GeoDistance]: GeoDistanceFacet,
+}
+
 function FacetRow({
                       facet,
                       name,
@@ -87,15 +95,10 @@ function FacetRow({
             </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-            {type === FacetType.String && <StringFacet
-                facet={facet}
-                name={name}
-            />}
-            {type === FacetType.DateRange && <DateHistogramFacet
-                facet={facet}
-                name={name}
-            />}
-
+            {React.createElement(facetWidgets[type] ?? facetWidgets[FacetType.String], {
+                facet,
+                name
+            })}
         </Collapse>
     </>
 }

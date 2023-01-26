@@ -6,10 +6,27 @@ namespace App\Api\Model\Input;
 
 class RenditionInput
 {
-    public ?string $definition = null;
+    /**
+     * Rendition definition ID. Or provide name.
+     * @var string|null
+     */
+    public $definitionId = null;
+
+    public ?string $assetId = null;
 
     /**
-     * @var AssetSourceInput
+     * Rendition definition name. Or provide definitionId.
+     * @var string|null
+     */
+    public $name = null;
+
+    /**
+     * @var AssetSourceInput|null
      */
     public $source;
+
+    /**
+     * @var string|null
+     */
+    public $sourceFileId;
 }

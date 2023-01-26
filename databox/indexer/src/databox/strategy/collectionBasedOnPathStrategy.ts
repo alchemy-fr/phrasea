@@ -30,7 +30,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     try {
         await databoxClient.createAsset({
-            source: asset.publicUrl ? {
+            sourceFile: asset.publicUrl ? {
                 url: asset.publicUrl,
                 isPrivate: asset.isPrivate,
                 alternateUrls,
