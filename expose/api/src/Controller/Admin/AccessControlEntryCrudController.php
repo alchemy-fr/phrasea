@@ -43,10 +43,10 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
             return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$userType, $userId, $objectType, $objectId, $mask];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
+            return [$userType, $userId, $objectType, $objectId, $mask];
         }
 
         return [];
