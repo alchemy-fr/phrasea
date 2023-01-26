@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
+use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Asset;
@@ -12,31 +13,11 @@ use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Entity\TargetParams;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
-use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 
-class DashboardController extends AbstractDashboardController
+class DashboardController  extends AbstractAdminDashboardController
 {
-    /**
-     * @Route("/admin")
-     */
-    public function index(): Response
-    {
-        return $this->render('@AlchemyAdmin/layout.html.twig');
-    }
-
-    public function configureDashboard(): Dashboard
-    {
-        return Dashboard::new()
-            ->setTitle('<div><img src="https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png" width="80px" title="Uploader" alt="Uploader" /><div>Uploader</div></div>');
-    }
-
     public function configureCrud(): Crud
     {
         return Crud::new()
@@ -45,12 +26,6 @@ class DashboardController extends AbstractDashboardController
             ->setTimeFormat('HH:mm')
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
             ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
-    }
-
-    public function configureUserMenu(UserInterface $user): UserMenu
-    {
-        return (parent::configureUserMenu($user))
-            ->displayUserAvatar(false);
     }
 
     public function configureMenuItems(): iterable

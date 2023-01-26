@@ -11,9 +11,13 @@ abstract class AbstractAdminController extends AbstractController
     private string $siteTitle;
     private ?string $siteLogo;
 
-    public function __construct(string $siteTitle, ?string $siteLogo)
+    public function setSiteTitle(string $siteTitle): void
     {
         $this->siteTitle = $siteTitle;
+    }
+
+    public function setSiteLogo(?string $siteLogo): void
+    {
         $this->siteLogo = $siteLogo;
     }
 

@@ -12,10 +12,7 @@ services:
 
   Alchemy\AdminBundle\Controller\:
     resource: '../../Controller'
-    arguments:
-      $siteTitle: '%alchemy_admin.site_title%'
-      $siteLogo: '%alchemy_admin.site_logo%'
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
