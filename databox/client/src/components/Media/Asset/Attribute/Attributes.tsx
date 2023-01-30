@@ -1,11 +1,11 @@
-import {Asset} from "../../../../types";
+import {Asset, Attribute} from "../../../../types";
 import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode} from "react";
+import React, {ReactElement, ReactNode, useContext} from "react";
 import {styled} from "@mui/material/styles";
 import AttributeRowUI from "./AttributeRowUI";
 import {Box} from "@mui/material";
 import {stopPropagation} from "../../../../lib/stdFuncs";
-import {AttributeType} from "../../../../api/attributes";
+import {UserPreferencesContext} from "../../../User/Preferences/UserPreferencesContext";
 
 const nl2br = require('react-nl2br');
 
@@ -60,12 +60,53 @@ export function replaceHighlight(value?: string): FreeNode {
 type Props = {
     asset: Asset;
     controls: boolean;
+    pinnedOnly?: boolean;
 };
 
 export default function Attributes({
-                                       asset,
+    asset,
     controls,
-                                   }: Props) {
+    pinnedOnly,
+}: Props) {
+    const {preferences, updatePreference} = useContext(UserPreferencesContext);
+
+    const togglePin = React.useCallback((definitionId: string) => {
+        updatePreference('pinnedAttrs', prev => {
+            const ws = {...prev};
+
+            if (ws[asset.workspace.id]?.includes(definitionId)) {
+                ws[asset.workspace.id] = ws[asset.workspace.id].filter(c => c !== definitionId);
+            } else {
+                ws[asset.workspace.id] = [
+                    ...(ws[asset.workspace.id] || []),
+                    definitionId,
+                ];
+            }
+
+            return ws;
+        });
+    }, []);
+
+    const pinnedAttributes = (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [];
+
+    const attributes = asset.attributes;
+
+    const sortedAttributes: Attribute[] = [];
+    pinnedAttributes.forEach((defId) => {
+        const i = asset.attributes.findIndex(a => a.definition.id === defId);
+        if (i >= 0) {
+            sortedAttributes.push(asset.attributes[i]);
+        }
+    });
+
+    if (!pinnedOnly) {
+        asset.attributes.forEach(a => {
+            if (!sortedAttributes.some(sa => sa.definition.id === a.definition.id)) {
+                sortedAttributes.push(a);
+            }
+        });
+    }
+
     return <Box
         sx={{
             '.attr-name': {
@@ -84,8 +125,9 @@ export default function Attributes({
         onClick={stopPropagation}
         onMouseDown={stopPropagation}
     >
-        {asset.attributes.map(a => <AttributeRowUI
+        {sortedAttributes.map(a => <AttributeRowUI
             key={a.id}
+            definitionId={a.definition.id}
             value={a.value}
             attributeName={a.definition.name}
             type={a.definition.fieldType}
@@ -93,14 +135,8 @@ export default function Attributes({
             highlight={a.highlight}
             multiple={a.multiple}
             controls={controls}
+            pinnedAttributes={pinnedAttributes}
+            togglePin={togglePin}
         />)}
-        <AttributeRowUI
-            value={asset.createdAt}
-            attributeName={`Creation date`}
-            locale={undefined}
-            multiple={false}
-            type={AttributeType.DateTime}
-            controls={controls}
-        />
     </Box>
 }

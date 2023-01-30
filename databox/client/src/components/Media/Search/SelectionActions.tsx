@@ -45,8 +45,8 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
 }));
 
 type Props = {
-    layout: number;
-    onLayoutChange: (l: number) => void;
+    layout: LayoutEnum;
+    onLayoutChange: (l: LayoutEnum) => void;
 };
 
 function getSelectedAssets(selectionContext: TAssetSelectionContext, resultContext: TResultContext): Asset[] {

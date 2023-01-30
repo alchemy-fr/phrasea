@@ -4,20 +4,15 @@ import config from "../config";
 import apiClient from "../api/api-client";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
-import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
 import FullPageLoader from "./Ui/FullPageLoader";
-import {createCachedTheme, ThemeName} from "../lib/theme";
 import Routes from "./Routing/Routes";
 import {BrowserRouter} from "react-router-dom";
 import ModalStack from "../hooks/useModalStack";
+import UserPreferencesProvider from "./User/Preferences/UserPreferencesProvider";
 
 type State = {
-    user?: User;
-    authenticating: boolean;
-    theme: ThemeName;
+    user?: User; authenticating: boolean;
 };
-
-const scrollbarWidth = 8;
 
 function authenticate() {
     return oauthClient.authenticate();
@@ -26,7 +21,6 @@ function authenticate() {
 export default class Root extends PureComponent<{}, State> {
     state: State = {
         authenticating: oauthClient.hasAccessToken(),
-        theme: 'default',
     }
 
     componentDidMount() {
@@ -35,8 +29,7 @@ export default class Root extends PureComponent<{}, State> {
             this.setState({
                 user: (evt as unknown as {
                     user: User;
-                }).user,
-                authenticating: false,
+                }).user, authenticating: false,
             });
         });
         oauthClient.registerListener('login', async () => {
@@ -44,6 +37,7 @@ export default class Root extends PureComponent<{}, State> {
         });
 
         oauthClient.registerListener('logout', async () => {
+            sessionStorage.clear();
             if (config.isDirectLoginForm()) {
                 this.setState({
                     user: undefined,
@@ -64,46 +58,20 @@ export default class Root extends PureComponent<{}, State> {
     }
 
     render() {
-        return <ThemeProvider theme={createCachedTheme(this.state.theme)}>
-            <CssBaseline/>
-            <GlobalStyles
-                styles={(theme) => ({
-                    '*': {
-                        '*::-webkit-scrollbar': {
-                            width: scrollbarWidth
-                        },
-                        '*::-webkit-scrollbar-track': {
-                            borderRadius: 10,
-                        },
-                        '*::-webkit-scrollbar-thumb': {
-                            borderRadius: scrollbarWidth,
-                            backgroundColor: theme.palette.primary.main,
-                        }
-                    },
-                    body: {
-                        backgroundColor: theme.palette.common.white,
-                    }
-                })}
-            />
-            <UserContext.Provider value={{
-                user: this.state.user,
-                logout: this.state.user ? this.logout : undefined,
-                currentTheme: this.state.theme,
-                changeTheme: (theme: ThemeName) => {
-                    this.setState({theme});
-                },
-            }}>
+        return <UserContext.Provider value={{
+            user: this.state.user,
+            logout: this.state.user ? this.logout : undefined,
+        }}>
+            <UserPreferencesProvider>
                 <ModalStack>
-                    {this.state.authenticating
-                        ? <FullPageLoader/>
-                        : <Suspense fallback={`Loading...`}>
-                            <BrowserRouter>
-                                <Routes/>
-                            </BrowserRouter>
-                        </Suspense>}
+                    {this.state.authenticating ? <FullPageLoader/> : <Suspense fallback={`Loading...`}>
+                        <BrowserRouter>
+                            <Routes/>
+                        </BrowserRouter>
+                    </Suspense>}
                 </ModalStack>
-            </UserContext.Provider>
-        </ThemeProvider>
+            </UserPreferencesProvider>
+        </UserContext.Provider>
     }
 
     private authenticate = (): void => {

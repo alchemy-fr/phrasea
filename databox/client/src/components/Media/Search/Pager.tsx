@@ -7,8 +7,8 @@ import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuO
 import SectionDivider from "./Layout/SectionDivider";
 
 export enum LayoutEnum {
-    Grid,
-    List,
+    Grid = 'grid',
+    List = 'list',
 }
 
 type Props = {
