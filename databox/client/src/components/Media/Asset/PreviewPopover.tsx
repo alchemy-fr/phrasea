@@ -93,6 +93,7 @@ export default function PreviewPopover({
                     <Attributes
                         asset={asset}
                         controls={previewLocked}
+                        pinnedOnly={true}
                     />
                 </div>}
             </Stack>
