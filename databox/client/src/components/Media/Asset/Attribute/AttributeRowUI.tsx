@@ -11,6 +11,7 @@ type Props = {
     attributeName: string;
     value: any,
     highlight?: any,
+    controls: boolean,
     multiple: boolean,
 }
 
@@ -21,6 +22,8 @@ export default function AttributeRowUI({
                                            value,
                                            highlight,
                                            multiple,
+
+    controls,
                                        }: Props) {
     const isRtl = isRtlLocale(locale);
     const formatContext = React.useContext(AttributeFormatContext);
@@ -41,7 +44,7 @@ export default function AttributeRowUI({
         } : undefined}>
         <div className={'attr-name'}>
             {attributeName}
-            {availableFormats.length > 0 && <IconButton
+            {controls && availableFormats.length > 0 && <IconButton
                 onClick={toggleFormat}
                 sx={{
                     ml: 1,

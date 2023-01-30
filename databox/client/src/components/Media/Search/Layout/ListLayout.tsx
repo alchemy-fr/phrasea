@@ -98,16 +98,8 @@ const AssetItem = React.memo(({
                 </div>
                 {displayAttributes && <Attributes
                     asset={asset}
-                >
-                    <AttributeRowUI
-                        value={asset.createdAt}
-                        attributeName={`Creation date`}
-                        locale={undefined}
-                        multiple={false}
-                        type={AttributeType.DateTime}
-
-                    />
-                </Attributes>}
+                    controls={true}
+                />}
             </Grid>
         </Grid>
     </div>

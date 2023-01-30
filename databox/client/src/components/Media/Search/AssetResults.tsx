@@ -248,6 +248,7 @@ export default function AssetResults() {
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}
+                displayAttributes={layout === LayoutEnum.Grid}
             />
         </div>
     </div>

@@ -5,6 +5,7 @@ import {styled} from "@mui/material/styles";
 import AttributeRowUI from "./AttributeRowUI";
 import {Box} from "@mui/material";
 import {stopPropagation} from "../../../../lib/stdFuncs";
+import {AttributeType} from "../../../../api/attributes";
 
 const nl2br = require('react-nl2br');
 
@@ -56,13 +57,14 @@ export function replaceHighlight(value?: string): FreeNode {
     return replaceText(replaced, nl2br);
 }
 
-type Props = PropsWithChildren<{
+type Props = {
     asset: Asset;
-}>
+    controls: boolean;
+};
 
 export default function Attributes({
                                        asset,
-                                       children,
+    controls,
                                    }: Props) {
     return <Box
         sx={{
@@ -90,7 +92,15 @@ export default function Attributes({
             locale={a.locale}
             highlight={a.highlight}
             multiple={a.multiple}
+            controls={controls}
         />)}
-        {children}
+        <AttributeRowUI
+            value={asset.createdAt}
+            attributeName={`Creation date`}
+            locale={undefined}
+            multiple={false}
+            type={AttributeType.DateTime}
+            controls={controls}
+        />
     </Box>
 }
