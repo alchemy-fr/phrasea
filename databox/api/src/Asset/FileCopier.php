@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Storage\FilePathGenerator;
+use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileCopier
@@ -32,7 +33,12 @@ class FileCopier
 
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $stream = $this->storageManager->getStream($file->getPath());
-            $path = $this->pathGenerator->generatePath($workspace->getId(), $file->getExtension());
+            $extension = $file->getExtension();
+            if (null === $extension) {
+                $extension = FileUtil::guessExtension($file->getType(), $file->getPath());
+            }
+
+            $path = $this->pathGenerator->generatePath($workspace->getId(), $extension);
             $this->storageManager->storeStream($path, $stream);
             $copy->setPath($path);
         }

@@ -225,7 +225,7 @@ class AttributeSearch
                     $agg = new Aggregation\Terms($fieldName);
                     $subField = $type->getAggregationField();
                     $agg->setField($field.($subField ? '.'.$subField : ''));
-                    $agg->setSize(5);
+                    $agg->setSize(20);
                     break;
                 case FacetInterface::TYPE_DATE_RANGE:
                     $subField = $type->getAggregationField();
