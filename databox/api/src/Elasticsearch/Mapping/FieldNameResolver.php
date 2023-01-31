@@ -8,23 +8,31 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\FacetHandler;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
 class FieldNameResolver
 {
     private AttributeTypeRegistry $attributeTypeRegistry;
-    private AttributeTypeRegistry $typeRegistry;
+    private EntityManagerInterface $em;
+    private FacetRegistry $facetRegistry;
 
-    public function __construct(AttributeTypeRegistry $attributeTypeRegistry, AttributeTypeRegistry $typeRegistry)
+    public function __construct(
+        AttributeTypeRegistry $attributeTypeRegistry,
+        EntityManagerInterface $em,
+        FacetRegistry $facetRegistry
+    )
     {
         $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->typeRegistry = $typeRegistry;
+        $this->em = $em;
+        $this->facetRegistry = $facetRegistry;
     }
 
     public function getFieldName(AttributeDefinition $definition): string
@@ -40,63 +48,22 @@ class FieldNameResolver
 
     public function getFieldFromName(string $name)
     {
-        $type = TextAttributeType::getName();
-        $isAttr = false;
-        $property = null;
-
-        $normalizer = function ($value) {
-            return $value;
-        };
-
-        switch ($name) {
-            case FacetHandler::FACET_WORKSPACE:
-                $f = 'workspaceId';
-                $property = 'workspace';
-                $normalizer = function (Workspace $workspace): string {
-                    return $workspace->getName();
-                };
-                break;
-            case FacetHandler::FACET_COLLECTION:
-                $f = 'collectionPaths';
-                $property = 'collections';
-                $normalizer = function (CollectionAsset $collectionAsset): string {
-                    return $collectionAsset->getCollection()->getTitle();
-                };
-                break;
-            case FacetHandler::FACET_TAG:
-                $property = $f = 'tags';
-                $normalizer = function (Tag $tag): string {
-                    return $tag->getName();
-                };
-                break;
-            case FacetHandler::FACET_PRIVACY:
-                $property = $f = 'privacy';
-                $normalizer = function (int $value): string {
-                    return WorkspaceItemPrivacyInterface::LABELS[$value];
-                };
-                break;
-            case FacetHandler::FACET_CREATED_AT:
-                $type = DateTimeAttributeType::getName();
-                $property = $f = 'createdAt';
-                break;
-            default:
-                $isAttr = true;
-                $info = $this->extractField($name);
-                $t = $this->typeRegistry->getStrictType($info['type']);
-                $type = $t::getName();
-                $f = sprintf('attributes._.%s', $info['field']);
-                if (null !== $subField = $t->getAggregationField()) {
-                    $f .= '.'.$subField;
-                }
-                break;
+        $facet = $this->facetRegistry->getFacet($name);
+        if (null !== $facet) {
+            $type = $this->attributeTypeRegistry->getStrictType($facet->getType());
+            $f = $facet->getFieldName();
+        } else {
+            $info = $this->extractField($name);
+            $type = $this->attributeTypeRegistry->getStrictType($info['type']);
+            $f = sprintf('attributes._.%s', $info['field']);
+            if (null !== $subField = $type->getAggregationField()) {
+                $f .= '.'.$subField;
+            }
         }
 
         return [
             'field' => $f,
-            'property' => $property,
-            'type' => $this->typeRegistry->getStrictType($type),
-            'isAttr' => $isAttr,
-            'normalizer' => $normalizer,
+            'type' => $type,
         ];
     }
 

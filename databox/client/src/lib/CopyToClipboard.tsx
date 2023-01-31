@@ -28,7 +28,7 @@ class CopyToClipboard extends React.Component<Props, OwnState> {
             <Tooltip
                 open={this.state.showTooltip}
                 title={"Copied to clipboard!"}
-                leaveDelay={1500}
+                leaveDelay={1000}
                 onClose={this.handleOnTooltipClose}
                 {...this.props.TooltipProps || {}}
             >
@@ -38,8 +38,10 @@ class CopyToClipboard extends React.Component<Props, OwnState> {
     }
 
     private onCopy = (content: any) => {
-        copy(content);
-        this.setState({showTooltip: true});
+        if (content) {
+            copy(content);
+            this.setState({showTooltip: true});
+        }
     };
 
     private handleOnTooltipClose = () => {

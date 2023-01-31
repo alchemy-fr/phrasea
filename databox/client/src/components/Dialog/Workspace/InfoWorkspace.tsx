@@ -32,6 +32,7 @@ export default function InfoWorkspace({
             <InfoRow
                 label={'Creation date'}
                 value={data.createdAt}
+                copyValue={data.createdAt}
                 icon={<EventIcon/>}
             />
         </MenuList>

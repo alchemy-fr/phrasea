@@ -218,6 +218,7 @@ class AttributeSearch
 
             $meta = [
                 'title' => $definition->getName(),
+                'sortable' => $definition->isSortable()
             ];
 
             switch ($type->getFacetType()) {

@@ -32,11 +32,19 @@ export default function InfoAsset({
             <InfoRow
                 label={'Creation date'}
                 value={data.createdAt}
+                copyValue={data.createdAt}
                 icon={<EventIcon/>}
             />
             <InfoRow
-                label={'Modification date'}
-                value={data.updatedAt}
+                label={'Last Modification date'}
+                value={data.editedAt}
+                copyValue={data.editedAt}
+                icon={<EventIcon/>}
+            />
+            <InfoRow
+                label={'Last attribute modification date'}
+                value={data.attributesEditedAt}
+                copyValue={data.attributesEditedAt}
                 icon={<EventIcon/>}
             />
         </MenuList>

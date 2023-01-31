@@ -10,7 +10,11 @@ use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,18 +27,21 @@ class AssetPostTransformListener implements EventSubscriberInterface
     private FieldNameResolver $fieldNameResolver;
     private CacheInterface $cache;
     private AttributesResolver $attributesResolver;
+    private EntityManagerInterface $em;
 
     public function __construct(
         PermissionManager $permissionManager,
         AttributeTypeRegistry $attributeTypeRegistry,
         FieldNameResolver $fieldNameResolver,
-        AttributesResolver $attributesResolver
+        AttributesResolver $attributesResolver,
+        EntityManagerInterface $em
     ) {
         $this->permissionManager = $permissionManager;
         $this->attributeTypeRegistry = $attributeTypeRegistry;
         $this->fieldNameResolver = $fieldNameResolver;
         $this->disableCache();
         $this->attributesResolver = $attributesResolver;
+        $this->em = $em;
     }
 
     public function setCache(CacheInterface $cache): void
@@ -105,6 +112,26 @@ class AssetPostTransformListener implements EventSubscriberInterface
         $document->set('groups', array_values(array_unique($groups)));
         $document->set('collectionPaths', array_unique($collectionsPaths));
         $document->set('attributes', $this->compileAttributes($asset));
+        $document->set('renditions', $this->compileRenditions($asset));
+    }
+
+    private function compileRenditions(Asset $asset): array
+    {
+        $renditionsDefinitions = $this->em->createQueryBuilder()
+            ->select('rd.id')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin(RenditionDefinition::class, 'rd', Join::WITH, 'rd.id = r.definition')
+            ->andWhere('r.asset = :id')
+            ->setParameter('id', $asset->getId())
+            ->getQuery()
+            ->toIterable();
+
+        $renditions = [];
+        foreach ($renditionsDefinitions as $row) {
+            $renditions[] = (string) $row['id'];
+        }
+
+        return $renditions;
     }
 
     private function compileAttributes(Asset $asset): array

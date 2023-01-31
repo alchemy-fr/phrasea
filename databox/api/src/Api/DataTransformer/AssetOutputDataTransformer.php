@@ -9,7 +9,9 @@ use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
+use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
@@ -23,8 +25,6 @@ use App\Security\Voter\CollectionVoter;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\PropertyAccess\PropertyAccess;
-use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -34,8 +34,9 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     private AssetTitleResolver $assetTitleResolver;
     private RequestStack $requestStack;
     private FieldNameResolver $fieldNameResolver;
-    private PropertyAccessor $propertyAccessor;
     private ?string $lastGroupValue = null;
+    private FacetRegistry $facetRegistry;
+    private AttributeTypeRegistry $attributeTypeRegistry;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -43,7 +44,9 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         AttributesResolver $attributesResolver,
         AssetTitleResolver $assetTitleResolver,
         RequestStack $requestStack,
-        FieldNameResolver $fieldNameResolver
+        FieldNameResolver $fieldNameResolver,
+        FacetRegistry $facetRegistry,
+        AttributeTypeRegistry $attributeTypeRegistry
     ) {
         $this->em = $em;
         $this->renditionPermissionManager = $renditionPermissionManager;
@@ -51,7 +54,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $this->assetTitleResolver = $assetTitleResolver;
         $this->requestStack = $requestStack;
         $this->fieldNameResolver = $fieldNameResolver;
-        $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $this->facetRegistry = $facetRegistry;
+        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     private function getUserLocales(): array
@@ -79,6 +83,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         $output = new AssetOutput();
         $output->setCreatedAt($object->getCreatedAt());
         $output->setUpdatedAt($object->getUpdatedAt());
+        $output->setEditedAt($object->getEditedAt());
+        $output->setAttributesEditedAt($object->getAttributesEditedAt());
         $output->setId($object->getId());
 
         $output->setSource($object->getSource());
@@ -119,30 +125,33 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
             $groupBy = $context['groupBy'][0] ?? null;
             if (null !== $groupBy) {
-                /** @var AttributeTypeInterface $type */
-                [
-                    'property' => $property,
-                    'type' => $type,
-                    'isAttr' => $isAttr,
-                    'normalizer' => $normalizer,
-                ] = $this->fieldNameResolver->getFieldFromName($groupBy);
+                $facet = $this->facetRegistry->getFacet($groupBy);
 
-                $value = $isAttr ? ($indexByAttrName[$groupBy] ?? null) : $this->propertyAccessor->getValue($object, $property);
+                if (null !== $facet) {
+                    $value = $facet->getValueFromAsset($object);
+                    $type = $this->attributeTypeRegistry->getStrictType($facet->getType());
+                } else {
+                    $info = $this->fieldNameResolver->getFieldFromName($groupBy);
+                    $type = $info['type'];
+                    $value = $indexByAttrName[$groupBy] ?? null;
+                }
 
                 if ($value instanceof DoctrineCollection) {
-                    $value = implode(', ', array_map(function ($item) use ($isAttr, $type, $normalizer): string {
-                        if ($isAttr) {
+                    $value = implode(', ', array_map(function ($item) use ($type, $facet): string {
+                        if ($facet) {
+                            $item = $facet->resolveValue($item);
+                        } else {
                             $item = $type->denormalizeValue($item);
                         }
-                        $item = $normalizer($item);
 
                         return $type->getGroupValueLabel($item);
                     }, $value->getValues()));
                 } else {
-                    if ($isAttr) {
+                    if ($facet) {
+                        $value = $facet->resolveValue($value);
+                    } else {
                         $value = $type->denormalizeValue($value);
                     }
-                    $value = $normalizer($value);
                     $value = $type->getGroupValueLabel($value);
                 }
 

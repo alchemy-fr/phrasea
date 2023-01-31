@@ -53,6 +53,9 @@ fos_elastica:
                 privacy:
                     property_path: false
                     type: byte
+                renditions:
+                    property_path: false
+                    type: keyword
                 workspaceId:
                     type: keyword
                 ownerId:
@@ -67,6 +70,10 @@ fos_elastica:
                     property_path: tagIds
                     type: keyword
                 createdAt:
+                    type: date
+                editedAt:
+                    type: date
+                attributesEditedAt:
                     type: date
             persistence:
                 driver: orm

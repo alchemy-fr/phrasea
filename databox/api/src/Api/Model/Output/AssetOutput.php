@@ -11,6 +11,7 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use DateTimeImmutable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -118,6 +119,18 @@ class AssetOutput extends AbstractUuidOutput
      * @Groups({"asset:index", "asset:read"})
      */
     private $thumbnailActive = null;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"dates"})
+     */
+    private DateTimeImmutable $editedAt;
+
+    /**
+     * @ApiProperty()
+     * @Groups({"dates"})
+     */
+    private DateTimeImmutable $attributesEditedAt;
 
     /**
      * Used for result grouping.
@@ -267,5 +280,25 @@ class AssetOutput extends AbstractUuidOutput
     public function setSource(?File $source): void
     {
         $this->source = $source;
+    }
+
+    public function getEditedAt(): DateTimeImmutable
+    {
+        return $this->editedAt;
+    }
+
+    public function setEditedAt(DateTimeImmutable $editedAt): void
+    {
+        $this->editedAt = $editedAt;
+    }
+
+    public function getAttributesEditedAt(): DateTimeImmutable
+    {
+        return $this->attributesEditedAt;
+    }
+
+    public function setAttributesEditedAt(DateTimeImmutable $attributesEditedAt): void
+    {
+        $this->attributesEditedAt = $attributesEditedAt;
     }
 }

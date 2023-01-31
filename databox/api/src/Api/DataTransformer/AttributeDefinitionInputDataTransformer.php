@@ -63,6 +63,15 @@ class AttributeDefinitionInputDataTransformer extends AbstractInputDataTransform
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);
         }
+        if (null !== $data->searchable) {
+            $object->setSearchable($data->searchable);
+        }
+        if (null !== $data->sortable) {
+            $object->setSortable($data->sortable);
+        }
+        if (null !== $data->facetEnabled) {
+            $object->setFacetEnabled($data->facetEnabled);
+        }
         if (null !== $data->multiple) {
             $object->setMultiple($data->multiple);
         }

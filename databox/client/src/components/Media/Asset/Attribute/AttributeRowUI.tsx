@@ -5,6 +5,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from "@mui/material";
 import {getAttributeType} from "./types";
 import PushPinIcon from '@mui/icons-material/PushPin';
+import CopyAttribute from "./CopyAttribute";
 
 type Props = {
     type: string;
@@ -20,17 +21,17 @@ type Props = {
 }
 
 export default function AttributeRowUI({
-                                           type,
+    type,
     definitionId,
-                                           locale,
-                                           attributeName,
-                                           value,
-                                           highlight,
-                                           multiple,
+    locale,
+    attributeName,
+    value,
+    highlight,
+    multiple,
     togglePin,
     pinnedAttributes,
     controls,
-                                       }: Props) {
+}: Props) {
     const isRtl = isRtlLocale(locale);
     const formatContext = React.useContext(AttributeFormatContext);
     const formatter = getAttributeType(type);
@@ -44,6 +45,14 @@ export default function AttributeRowUI({
 
         formatContext.changeFormat(type, availableFormats[(currentIndex + 1) % availableFormats.length].name);
     }, [formatContext]);
+
+    const valueFormatterProps = {
+        value,
+        highlight,
+        locale,
+        multiple,
+        format: formatContext.formats[type],
+    };
 
     return <div
         style={isRtl ? {
@@ -59,6 +68,13 @@ export default function AttributeRowUI({
             >
                 <VisibilityIcon fontSize={'small'}/>
             </IconButton>}
+
+            {controls && <CopyAttribute
+                sx={{
+                    ml: 1,
+                }}
+                value={formatter.formatValueAsString(valueFormatterProps)}
+            />}
 
             {controls && <IconButton
                 onClick={() => togglePin(definitionId)}
@@ -77,24 +93,27 @@ export default function AttributeRowUI({
             lang={locale}
         >
             {multiple && !formatter.supportsMultiple() ? <ul>
-                {value ? value.map((v: any, i: number) => <li
-                    key={i}
-                >
-                    {formatter.formatValue({
+                {value ? value.map((v: any, i: number) => {
+                    const formatProps = {
                         value: v,
                         highlight,
                         locale,
                         multiple,
                         format: formatContext.formats[type],
-                    })}
-                </li>) : ''}
-            </ul> : formatter.formatValue({
-                value,
-                highlight,
-                locale,
-                multiple,
-                format: formatContext.formats[type],
-            })}
+                    };
+
+                    return <li
+                        key={i}
+                    >
+                        {formatter.formatValue(formatProps)}
+                        <CopyAttribute
+                            value={formatter.formatValueAsString(formatProps)}
+                        />
+                    </li>;
+                }) : ''}
+            </ul> : <>
+                {formatter.formatValue(valueFormatterProps)}
+            </>}
         </div>
     </div>
 }

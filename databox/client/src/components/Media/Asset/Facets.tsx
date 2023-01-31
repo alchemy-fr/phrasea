@@ -32,6 +32,7 @@ export type Facet = {
     meta: {
         title: string;
         type?: FacetType;
+        sortable: boolean;
     };
     buckets: Bucket[];
     doc_count_error_upper_bound: number;
