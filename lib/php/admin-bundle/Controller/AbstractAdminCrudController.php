@@ -13,16 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 abstract class AbstractAdminCrudController extends AbstractCrudController
 {
-    public function configureActions(Actions $actions): Actions
-    {
-        return $actions
-            // ...
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)  // todo EA3 : disable "show" action ?
-//            ->remove(Crud::PAGE_INDEX, Action::EDIT)
-//            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ;
-    }
-
     public function configureCrud(Crud $crud): Crud
     {
         return $crud

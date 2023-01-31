@@ -237,7 +237,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
 
     public function isEnabled(): bool
     {
-        return $this->enabled;
+        return !!$this->enabled;
     }
 
     public function setEnabled(bool $enabled): void
