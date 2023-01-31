@@ -158,12 +158,12 @@ class BatchAttributeManager
                                     $this->upsertAttribute(null, $assetsId, $definition, $vAction);
                                 }
                             } else {
+                                $this->denyUnlessGranted($definition);
                                 foreach ($assetsId as $assetId) {
                                     $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
                                         'definition' => $definition->getId(),
                                         'asset' => $assetId,
                                     ]);
-                                    $this->denyUnlessGranted($attribute->getDefinition());
                                     $this->upsertAttribute($attribute, [$assetId], $definition, $action);
                                 }
                             }
