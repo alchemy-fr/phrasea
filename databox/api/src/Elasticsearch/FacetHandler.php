@@ -29,7 +29,7 @@ class FacetHandler
             $facet = $this->facetRegistry->getFacet($k);
 
             if ($facet) {
-                $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): array {
+                $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): ?array {
                     return $facet->normalizeBucket($bucket);
                 }, $f['buckets'])));
             }
