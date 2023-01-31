@@ -30,6 +30,17 @@ export default function AssetFileVersions({
         minHeight={minHeight}
         disableGutters={true}
     >
+        {data.source && <AssetFileVersionCard
+            asset={data}
+            version={{
+                file: data.source,
+                asset: data,
+                id: 'current',
+                name: 'Current',
+                createdAt: '',
+            }}
+            maxDimensions={maxDimensions}
+        />}
         {versions && versions.map(v => {
             return <AssetFileVersionCard
                 key={v.id}

@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\BooleanAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -155,12 +156,16 @@ class AssetPostTransformListener implements EventSubscriberInterface
                     }
                 } else {
                     $v = $a->getValue();
+
                     if (null !== $v) {
                         $v = $type->normalizeElasticsearchValue($v);
                     }
                 }
 
-                if (!empty($v)) {
+                if (
+                    null !== $v
+                    && (!is_array($v) || !empty($v))
+                ) {
                     $fieldName = $this->fieldNameResolver->getFieldName($definition);
                     $data[$l][$fieldName] = $v;
                 }

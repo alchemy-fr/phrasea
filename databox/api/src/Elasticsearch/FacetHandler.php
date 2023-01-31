@@ -31,11 +31,13 @@ class FacetHandler
             if ($facet) {
                 $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): ?array {
                     return $facet->normalizeBucket($bucket);
-                }, $f['buckets'])));
+                }, $f['buckets']), function ($value): bool {
+                    return null !== $value;
+                }));
             }
 
-            $type = $f['meta']['type'] ?? FacetInterface::TYPE_STRING;
-            if (FacetInterface::TYPE_DATE_RANGE === $type) {
+            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_STRING;
+            if (ESFacetInterface::TYPE_DATE_RANGE === $facetWidget) {
                 foreach ($f['buckets'] as &$bucket) {
                     $bucket['key'] = $bucket['key'] / 1000;
                 }

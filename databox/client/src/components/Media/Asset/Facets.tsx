@@ -2,28 +2,35 @@ import React, {useContext, useState} from "react";
 import {ResultContext} from "../Search/ResultContext";
 import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
-import StringFacet from "./Facets/StringFacet";
+import TextFacet from "./Facets/TextFacet";
 import DateHistogramFacet from "./Facets/DateHistogramFacet";
 import moment from "moment";
 import GeoDistanceFacet from "./Facets/GeoDistanceFacet";
+import {AttributeType} from "../../../api/attributes";
+import {getAttributeType} from "./Attribute/types";
 
-export type BucketKeyValue = string | number | {
-    value: string;
+export type BucketValue = string | number | boolean;
+
+export type LabelledBucketValue = {
     label: string;
+    value: BucketValue;
 }
 
-export type NormalizedBucketKeyValue = string | number | {
-    v: string;
+export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
+
+export type NormalizedBucketKeyValue = BucketValue | {
     l: string;
+    v: BucketValue;
 }
 
 export type Bucket = {
-    key: BucketKeyValue;
+    key: BucketValue;
     doc_count: number;
 }
 
 export enum FacetType {
     String = 'string',
+    Boolean = 'string',
     DateRange = 'date_range',
     GeoDistance = 'geo_distance',
 }
@@ -31,7 +38,8 @@ export enum FacetType {
 export type Facet = {
     meta: {
         title: string;
-        type?: FacetType;
+        widget?: FacetType;
+        type?: AttributeType;
         sortable: boolean;
     };
     buckets: Bucket[];
@@ -42,23 +50,39 @@ export type Facet = {
 
 export type TFacets = Record<string, Facet>;
 
-export function extractLabelValueFromKey(key: BucketKeyValue): {
-    label: string;
-    value: string | number;
-} {
-    if (typeof key === 'string') {
+export function extractLabelValueFromKey(key: ResolvedBucketValue, type: AttributeType | undefined): LabelledBucketValue {
+    if (typeof key === 'object' && key.hasOwnProperty('value')) {
+        return key as LabelledBucketValue;
+    }
+
+    type = type ?? AttributeType.Text;
+    const t = getAttributeType(type);
+
+    if ([
+        AttributeType.DateTime,
+        AttributeType.Date,
+    ].includes(type)) {
         return {
-            label: key,
-            value: key,
+            label: t.formatValueAsString({
+                value: key,
+            })!,
+            value: key as BucketValue,
         };
-    } else if (typeof key === 'number') {
+    } else if (type === AttributeType.Boolean) {
         return {
-            label: moment(key * 1000).format('ll'),
-            value: key,
+            label: t.formatValueAsString({
+                value: !!key,
+            })!,
+            value: !!key,
         };
     }
 
-    return key;
+    return {
+        label: t.formatValueAsString({
+            value: key as string,
+        })!,
+        value: key as BucketValue,
+    };
 }
 
 export type FacetRowProps = {
@@ -67,7 +91,7 @@ export type FacetRowProps = {
 }
 
 const facetWidgets: Record<FacetType, React.FC<FacetRowProps>> = {
-    [FacetType.String]: StringFacet,
+    [FacetType.String]: TextFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
 }
@@ -78,7 +102,7 @@ function FacetRow({
                   }: FacetRowProps) {
     const [open, setOpen] = useState(true);
 
-    const type = facet.meta.type ?? FacetType.String;
+    const widget = facet.meta.widget ?? FacetType.String;
 
     return <>
         <ListItem
@@ -96,9 +120,9 @@ function FacetRow({
             </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-            {React.createElement(facetWidgets[type] ?? facetWidgets[FacetType.String], {
+            {React.createElement(facetWidgets[widget] ?? facetWidgets[FacetType.String], {
                 facet,
-                name
+                name,
             })}
         </Collapse>
     </>

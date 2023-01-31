@@ -6,6 +6,7 @@ import {SearchContext} from "./SearchContext";
 import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters, SortBy} from "./Filter";
 import axios from "axios";
+import {AttributeType} from "../../../api/attributes";
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -49,7 +50,7 @@ async function search(
         url,
         filters: attrFilters?.map((f) => ({
             ...f,
-            v: f.v.map(v => extractLabelValueFromKey(v).value),
+            v: f.v.map(v => extractLabelValueFromKey(v, f.x).value),
             t: undefined,
         })),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,

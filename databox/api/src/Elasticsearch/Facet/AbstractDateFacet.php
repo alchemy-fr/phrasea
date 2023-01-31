@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use App\Attribute\Type\DateAttributeType;
+use App\Elasticsearch\ESFacetInterface;
 use Elastica\Query;
 use Elastica\Aggregation;
 
@@ -22,11 +24,17 @@ abstract class AbstractDateFacet extends AbstractFacet
         );
         $agg->setBuckets($this->getAggregationSize());
         $agg->setMinimumInterval('minute');
-        $agg->setMeta([
-            'title' => $this->getAggregationTitle(),
-            'type' => 'date_range',
-            'sortable' => $this->isSortable(),
-        ]);
+        $agg->setMeta($this->getAggregationMeta());
         $query->addAggregation($agg);
+    }
+
+    protected function getFacetWidget(): string
+    {
+        return ESFacetInterface::TYPE_DATE_RANGE;
+    }
+
+    public function getType(): string
+    {
+        return DateAttributeType::getName();
     }
 }
