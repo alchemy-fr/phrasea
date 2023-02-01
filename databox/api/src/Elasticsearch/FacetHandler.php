@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Elasticsearch\Facet\FacetRegistry;
+use Elastica\Aggregation\Missing;
 use Elastica\Query;
 
-class FacetHandler
+final class FacetHandler
 {
+    public const MISSING_SUFFIX = '::missing';
+
     private FacetRegistry $facetRegistry;
 
     public function __construct(FacetRegistry $facetRegistry)
@@ -16,16 +19,30 @@ class FacetHandler
         $this->facetRegistry = $facetRegistry;
     }
 
-    public function buildFacets(Query $query): void
+    public function addBuiltInFacets(Query $query): void
     {
         foreach ($this->facetRegistry->getAll() as $facet) {
             $facet->buildFacet($query);
+            if ($facet->includesMissing()) {
+                $missingAgg = new Missing($facet::getKey().self::MISSING_SUFFIX, $facet->getFieldName());
+                $query->addAggregation($missingAgg);
+            }
         }
     }
 
     public function normalizeBuckets(array $facets): array
     {
-        foreach ($facets as $k => &$f) {
+        $missing = [];
+        $mergedFacets = [];
+        foreach ($facets as $k => $f) {
+            if (1 === preg_match('#'.preg_quote(self::MISSING_SUFFIX, '#').'$#', $k)) {
+                $k = substr($k, 0, -strlen(self::MISSING_SUFFIX));
+
+                $missing[$k] = $f['doc_count'];
+
+                continue;
+            }
+
             $facet = $this->facetRegistry->getFacet($k);
 
             if ($facet) {
@@ -36,14 +53,20 @@ class FacetHandler
                 }));
             }
 
-            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_STRING;
+            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_TEXT;
             if (ESFacetInterface::TYPE_DATE_RANGE === $facetWidget) {
                 foreach ($f['buckets'] as &$bucket) {
                     $bucket['key'] = $bucket['key'] / 1000;
                 }
             }
+
+            $mergedFacets[$k] = $f;
         }
 
-        return $facets;
+        foreach ($missing as $k => $count) {
+            $mergedFacets[$k]['missing_count'] = $count;
+        }
+
+        return $mergedFacets;
     }
 }

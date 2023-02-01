@@ -49,7 +49,7 @@ abstract class AbstractFacet implements FacetInterface
         if (TextAttributeType::NAME !== $this->getType()) {
             $meta['type'] = $this->getType();
         }
-        if (ESFacetInterface::TYPE_STRING !== $this->getFacetWidget()) {
+        if (ESFacetInterface::TYPE_TEXT !== $this->getFacetWidget()) {
             $meta['widget'] = $this->getFacetWidget();
         }
 
@@ -63,7 +63,12 @@ abstract class AbstractFacet implements FacetInterface
 
     protected function getFacetWidget(): string
     {
-        return ESFacetInterface::TYPE_STRING;
+        return ESFacetInterface::TYPE_TEXT;
+    }
+
+    public function includesMissing(): bool
+    {
+        return true;
     }
 
     abstract protected function getAggregationTitle(): string;

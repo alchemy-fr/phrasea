@@ -17,6 +17,7 @@ use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
+use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use InvalidArgumentException;
 
@@ -123,10 +124,21 @@ class AttributeSearch
         $bool = new Query\BoolQuery();
         foreach ($filters as $filter) {
             $attr = $filter['a'];
+            $xType = $filter['x'] ?? null;
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
             $esFieldInfo = $this->getESFieldInfo($attr);
+
+            if ('missing' === $xType) {
+                $existQuery = new Query\Exists($esFieldInfo['name']);
+                if ($inverted) {
+                    $bool->addMust($existQuery);
+                } else {
+                    $bool->addMustNot($existQuery);
+                }
+                continue;
+            }
 
             if (!empty($values)) {
                 $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
@@ -223,28 +235,28 @@ class AttributeSearch
             if (TextAttributeType::getName() !== $type::getName()) {
                 $meta['type'] = $type::getName();
             }
-            if (ESFacetInterface::TYPE_STRING !== $type->getFacetType()) {
+            if (ESFacetInterface::TYPE_TEXT !== $type->getFacetType()) {
                 $meta['facetType'] = $type->getFacetType();
             }
 
+            $subField = $type->getAggregationField();
+            $fullFieldName = $field.($subField ? '.'.$subField : '');
+
             switch ($type->getFacetType()) {
-                case ESFacetInterface::TYPE_STRING:
+                case ESFacetInterface::TYPE_TEXT:
                     $agg = new Aggregation\Terms($fieldName);
-                    $subField = $type->getAggregationField();
-                    $agg->setField($field.($subField ? '.'.$subField : ''));
+                    $agg->setField($fullFieldName);
                     $agg->setSize(20);
                     break;
                 case ESFacetInterface::TYPE_BOOLEAN:
                     $agg = new Aggregation\Terms($fieldName);
-                    $subField = $type->getAggregationField();
-                    $agg->setField($field.($subField ? '.'.$subField : ''));
+                    $agg->setField($fullFieldName);
                     $agg->setSize(2);
                     break;
                 case ESFacetInterface::TYPE_DATE_RANGE:
-                    $subField = $type->getAggregationField();
                     $agg = new Aggregation\AutoDateHistogram(
                         $fieldName,
-                        $field.($subField ? '.'.$subField : '')
+                        $fullFieldName
                     );
                     $agg->setBuckets(20);
                     break;
@@ -255,10 +267,9 @@ class AttributeSearch
                     $geoPoint = array_map(function (string $c): float {
                         return (float) $c;
                     }, explode(',', $position));
-                    $subField = $type->getAggregationField();
                     $agg = new Aggregation\GeoDistance(
                         $fieldName,
-                        $field.($subField ? '.'.$subField : ''),
+                        $fullFieldName,
                         implode(',', $geoPoint)
                     );
 
@@ -289,6 +300,9 @@ class AttributeSearch
 
             $agg->setMeta($meta);
             $query->addAggregation($agg);
+
+            $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fullFieldName);
+            $query->addAggregation($missingAgg);
         }
     }
 }

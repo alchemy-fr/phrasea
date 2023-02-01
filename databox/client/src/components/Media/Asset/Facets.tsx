@@ -4,10 +4,10 @@ import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/mater
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 import TextFacet from "./Facets/TextFacet";
 import DateHistogramFacet from "./Facets/DateHistogramFacet";
-import moment from "moment";
 import GeoDistanceFacet from "./Facets/GeoDistanceFacet";
 import {AttributeType} from "../../../api/attributes";
 import {getAttributeType} from "./Attribute/types";
+import {FilterType} from "../Search/Filter";
 
 export type BucketValue = string | number | boolean;
 
@@ -29,8 +29,8 @@ export type Bucket = {
 }
 
 export enum FacetType {
-    String = 'string',
-    Boolean = 'string',
+    Text = 'text',
+    Boolean = 'boolean',
     DateRange = 'date_range',
     GeoDistance = 'geo_distance',
 }
@@ -45,14 +45,22 @@ export type Facet = {
     buckets: Bucket[];
     doc_count_error_upper_bound: number;
     sum_other_doc_count: number;
+    missing_count?: number;
     interval?: string;
 }
 
 export type TFacets = Record<string, Facet>;
 
-export function extractLabelValueFromKey(key: ResolvedBucketValue, type: AttributeType | undefined): LabelledBucketValue {
+export function extractLabelValueFromKey(key: ResolvedBucketValue, type: FilterType | undefined): LabelledBucketValue {
     if (typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
+    }
+
+    if ('missing' === type) {
+        return {
+            label: 'Missing',
+            value: '__missing__',
+        }
     }
 
     type = type ?? AttributeType.Text;
@@ -91,7 +99,8 @@ export type FacetRowProps = {
 }
 
 const facetWidgets: Record<FacetType, React.FC<FacetRowProps>> = {
-    [FacetType.String]: TextFacet,
+    [FacetType.Text]: TextFacet,
+    [FacetType.Boolean]: TextFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
 }
@@ -102,7 +111,7 @@ function FacetRow({
                   }: FacetRowProps) {
     const [open, setOpen] = useState(true);
 
-    const widget = facet.meta.widget ?? FacetType.String;
+    const widget = facet.meta.widget ?? FacetType.Text;
 
     return <>
         <ListItem
@@ -120,7 +129,7 @@ function FacetRow({
             </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-            {React.createElement(facetWidgets[widget] ?? facetWidgets[FacetType.String], {
+            {React.createElement(facetWidgets[widget] ?? facetWidgets[FacetType.Text], {
                 facet,
                 name,
             })}

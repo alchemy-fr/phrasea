@@ -11,12 +11,17 @@ export default function TextFacet({
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
     const {type} = facet.meta;
 
+    const missingOnClick = () => {
+        toggleAttrFilter(name, 'missing', '', facet.meta.title);
+    };
+    const missingSelected = Boolean(attrFilter && attrFilter.v.some(v => extractLabelValueFromKey(v, type).value === ''));
+
     return <>
         <List component="div" disablePadding>
             {facet.buckets.map(b => {
                 const {value: keyV, label} = extractLabelValueFromKey(b.key, type);
 
-                const selected = Boolean(attrFilter && attrFilter.v.findIndex(v => extractLabelValueFromKey(v, type).value === keyV) >= 0);
+                const selected = Boolean(attrFilter && attrFilter.v.some(v => extractLabelValueFromKey(v, type).value === keyV));
 
                 const onClick = () => toggleAttrFilter(name, facet.meta.type, b.key, facet.meta.title);
 
@@ -35,6 +40,24 @@ export default function TextFacet({
                     </ListItemSecondaryAction>
                 </ListItemButton>
             })}
+            {facet.missing_count ? <ListItemButton
+                onClick={missingOnClick}
+            >
+                <ListItemText
+                    secondary={`Missing (${facet.missing_count})`}
+                    secondaryTypographyProps={{
+                        color: 'info',
+                    }}
+                />
+                <ListItemSecondaryAction>
+                    <Checkbox
+                        edge="end"
+                        onChange={missingOnClick}
+                        checked={missingSelected}
+                        inputProps={{'aria-labelledby': 'Missing'}}
+                    />
+                </ListItemSecondaryAction>
+            </ListItemButton> : ''}
         </List>
     </>
 }
