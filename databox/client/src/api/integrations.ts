@@ -5,10 +5,11 @@ import {AxiosRequestConfig} from "axios";
 
 export const integrationNS = '/integrations';
 
-export async function getWorkspaceIntegrations(fileId: string): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
+export async function getWorkspaceIntegrations(workspaceId: string, fileId: string): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
             fileId,
+            workspace: workspaceId,
         },
     });
 

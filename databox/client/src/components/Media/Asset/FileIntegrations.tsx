@@ -75,7 +75,7 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getWorkspaceIntegrations(file.id).then(r => setIntegrations(r.result));
+        getWorkspaceIntegrations(asset.workspace.id, file.id).then(r => setIntegrations(r.result));
     }, [file.id]);
 
     useEffect(() => {
@@ -85,9 +85,9 @@ export default function FileIntegrations({
     }, [expanded, integrations]);
 
     const refreshIntegrations = useCallback(async () => {
-        const r = await getWorkspaceIntegrations(file.id)
+        const r = await getWorkspaceIntegrations(asset.workspace.id, file.id)
         setIntegrations(r.result);
-    }, [file.id]);
+    }, [file.id, asset.workspace.id]);
 
     return <>
         {!integrations && <CircularProgress color="inherit"/>}

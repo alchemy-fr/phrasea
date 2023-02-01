@@ -90,8 +90,12 @@ abstract class AbstractFileInputDataTransformer extends AbstractInputDataTransfo
             }
         }
 
-        $this->postFlushStackListener
-            ->addEvent(ImportFileHandler::createEvent($file->getId()));
+        $this->em->persist($file);
+
+        if ($source->importFile) {
+            $this->postFlushStackListener
+                ->addEvent(ImportFileHandler::createEvent($file->getId()));
+        }
 
         return $file;
     }

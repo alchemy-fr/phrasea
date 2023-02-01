@@ -149,15 +149,10 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
                     $renditionInput->definition
                 );
                 $rendition = $this->renditionManager->getOrCreateRendition($object, $definition);
-                $this->handleSource($renditionInput->source, $workspace);
+                $file = $this->handleSource($renditionInput->source, $workspace);
+                $rendition->setFile($file);
 
                 $this->em->persist($rendition);
-                $this->em->persist($rendition->getFile());
-
-                if ($renditionInput->source->importFile) {
-                    $this->postFlushStackListener
-                        ->addEvent(ImportFileHandler::createEvent($rendition->getId()));
-                }
             }
         }
 
