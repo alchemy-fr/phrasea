@@ -53,7 +53,7 @@ final class FacetHandler
                 }));
             }
 
-            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_STRING;
+            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_TEXT;
             if (ESFacetInterface::TYPE_DATE_RANGE === $facetWidget) {
                 foreach ($f['buckets'] as &$bucket) {
                     $bucket['key'] = $bucket['key'] / 1000;

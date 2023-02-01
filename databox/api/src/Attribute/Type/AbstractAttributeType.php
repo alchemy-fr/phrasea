@@ -45,7 +45,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
     public function getFacetType(): string
     {
-        return ESFacetInterface::TYPE_STRING;
+        return ESFacetInterface::TYPE_TEXT;
     }
 
     public function isLocaleAware(): bool
