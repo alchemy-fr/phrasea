@@ -3,7 +3,7 @@ import {AttributeType} from "../../../api/attributes";
 
 export type FilterEntry = {
     t: string; // Attribute title
-    x?: AttributeType | undefined; // Attribute type if not "text"
+    x?: FilterType | undefined; // Attribute type if not "text"
     w?: FacetType;
     a: string; // Attribute name
     i?: 1 | undefined; // Inverted
@@ -18,3 +18,5 @@ export type SortBy = {
     w: 0 | 1; // ASC=0, DESC=1
     g: boolean; // Grouped in UI
 }
+
+export type FilterType = AttributeType | "missing";

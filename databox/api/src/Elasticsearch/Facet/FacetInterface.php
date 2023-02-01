@@ -20,4 +20,6 @@ interface FacetInterface
     public function buildFacet(Query $query): void;
 
     public function getType(): string;
+
+    public function includesMissing(): bool;
 }

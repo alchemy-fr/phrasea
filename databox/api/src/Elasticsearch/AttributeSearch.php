@@ -17,6 +17,7 @@ use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
+use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use InvalidArgumentException;
 
@@ -123,10 +124,21 @@ class AttributeSearch
         $bool = new Query\BoolQuery();
         foreach ($filters as $filter) {
             $attr = $filter['a'];
+            $xType = $filter['x'] ?? null;
             $values = $filter['v'];
             $inverted = (bool) ($filter['i'] ?? false);
 
             $esFieldInfo = $this->getESFieldInfo($attr);
+
+            if ('missing' === $xType) {
+                $existQuery = new Query\Exists($esFieldInfo['name']);
+                if ($inverted) {
+                    $bool->addMust($existQuery);
+                } else {
+                    $bool->addMustNot($existQuery);
+                }
+                continue;
+            }
 
             if (!empty($values)) {
                 $filterQuery = $esFieldInfo['type']->createFilterQuery($esFieldInfo['name'], $values);
@@ -289,6 +301,9 @@ class AttributeSearch
 
             $agg->setMeta($meta);
             $query->addAggregation($agg);
+
+            $missingAgg = new Missing($fieldName.FacetHandler::MISSING_SUFFIX, $fieldName);
+            $query->addAggregation($missingAgg);
         }
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Chip} from "@mui/material";
-import {FilterEntry, Filters} from "./Filter";
+import {FilterEntry, Filters, FilterType} from "./Filter";
 import {extractLabelValueFromKey, FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {AttributeType} from "../../../api/attributes";
 
@@ -20,13 +20,17 @@ function truncate(value: string, maxLength: number): string {
 
 function formatFilterTitle(
     widget: FacetType | undefined,
-    type: AttributeType | undefined,
+    type: FilterType | undefined,
     title: string,
     value: ResolvedBucketValue[]
 ): string {
+    if (type === 'missing') {
+        return `${title} is missing`;
+    }
+
     switch (widget) {
         default:
-        case FacetType.String:
+        case FacetType.Text:
             return `${title} = "${value.map(v => extractLabelValueFromKey(v, type).label).join('" or "')}"`;
         case FacetType.DateRange:
             return `${title} between ${extractLabelValueFromKey(value[0], type).label} and ${extractLabelValueFromKey(value[1], type).label}`;
@@ -35,7 +39,7 @@ function formatFilterTitle(
 
 function formatFilterLabel(
     widget: FacetType | undefined,
-    type: AttributeType | undefined,
+    type: FilterType | undefined,
     title: string,
     value: ResolvedBucketValue[]
 ): string {
@@ -43,9 +47,13 @@ function formatFilterLabel(
         return `${title}: ${extractLabelValueFromKey(value[0], type).label}`;
     }
 
+    if (type === 'missing') {
+        return `${title}: missing`;
+    }
+
     switch (widget) {
         default:
-        case FacetType.String:
+        case FacetType.Text:
             return value.map(s => truncate(extractLabelValueFromKey(s, type).label, 15)).join(', ');
         case FacetType.DateRange:
             return `${extractLabelValueFromKey(value[0], type).label} - ${extractLabelValueFromKey(value[1], type).label}`;

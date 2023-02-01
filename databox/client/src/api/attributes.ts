@@ -93,3 +93,4 @@ export enum AttributeType {
     Textarea = 'textarea',
     WebVtt = 'web_vtt',
 }
+

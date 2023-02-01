@@ -66,5 +66,10 @@ abstract class AbstractFacet implements FacetInterface
         return ESFacetInterface::TYPE_STRING;
     }
 
+    public function includesMissing(): bool
+    {
+        return true;
+    }
+
     abstract protected function getAggregationTitle(): string;
 }
