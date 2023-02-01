@@ -13,6 +13,7 @@ import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {useModals} from "../../../hooks/useModalStack";
+import SaveAsButton from "./Actions/SaveAsButton";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -120,6 +121,10 @@ export default function AssetContextMenu({
                 </ListItemIcon>
                 <ListItemText primary="Open"/>
             </MenuItem>}
+            {asset.source && <SaveAsButton
+                asset={asset}
+                file={asset.source}
+            />}
             {original?.file?.alternateUrls && original.file.alternateUrls.map(a => <MenuItem
                 key={a.type}
                 onClick={() => openUrl(a.url)}

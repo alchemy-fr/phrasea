@@ -1,11 +1,13 @@
-import {BucketKeyValue, FacetType} from "../Asset/Facets";
+import {BucketValue, FacetType, ResolvedBucketValue} from "../Asset/Facets";
+import {AttributeType} from "../../../api/attributes";
 
 export type FilterEntry = {
     t: string; // Attribute title
+    x?: AttributeType | undefined; // Attribute type if not "text"
     w?: FacetType;
     a: string; // Attribute name
     i?: 1 | undefined; // Inverted
-    v: BucketKeyValue[];
+    v: ResolvedBucketValue[];
 }
 
 export type Filters = FilterEntry[];

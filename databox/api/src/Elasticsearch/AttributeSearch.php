@@ -218,16 +218,29 @@ class AttributeSearch
 
             $meta = [
                 'title' => $definition->getName(),
+                'sortable' => $definition->isSortable()
             ];
+            if (TextAttributeType::getName() !== $type::getName()) {
+                $meta['type'] = $type::getName();
+            }
+            if (ESFacetInterface::TYPE_STRING !== $type->getFacetType()) {
+                $meta['facetType'] = $type->getFacetType();
+            }
 
             switch ($type->getFacetType()) {
-                case FacetInterface::TYPE_STRING:
+                case ESFacetInterface::TYPE_STRING:
                     $agg = new Aggregation\Terms($fieldName);
                     $subField = $type->getAggregationField();
                     $agg->setField($field.($subField ? '.'.$subField : ''));
                     $agg->setSize(20);
                     break;
-                case FacetInterface::TYPE_DATE_RANGE:
+                case ESFacetInterface::TYPE_BOOLEAN:
+                    $agg = new Aggregation\Terms($fieldName);
+                    $subField = $type->getAggregationField();
+                    $agg->setField($field.($subField ? '.'.$subField : ''));
+                    $agg->setSize(2);
+                    break;
+                case ESFacetInterface::TYPE_DATE_RANGE:
                     $subField = $type->getAggregationField();
                     $agg = new Aggregation\AutoDateHistogram(
                         $fieldName,
@@ -235,7 +248,7 @@ class AttributeSearch
                     );
                     $agg->setBuckets(20);
                     break;
-                case FacetInterface::TYPE_GEO_DISTANCE:
+                case ESFacetInterface::TYPE_GEO_DISTANCE:
                     if (!$position) {
                         continue 2;
                     }
@@ -274,13 +287,7 @@ class AttributeSearch
                     throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
             }
 
-            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-            if (FacetInterface::TYPE_STRING !== $type->getFacetType()) {
-                $meta['type'] = $type->getFacetType();
-            }
-
             $agg->setMeta($meta);
-
             $query->addAggregation($agg);
         }
     }

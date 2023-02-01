@@ -1,8 +1,9 @@
 import React from 'react';
 import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps} from "./types";
-import {TextField, TextFieldProps} from "@mui/material";
+import {Box, TextField, TextFieldProps} from "@mui/material";
 import {replaceHighlight} from "../Attributes";
 import BaseType from "./BaseType";
+import CopyAttribute, {copyToClipBoardClass} from "../CopyAttribute";
 
 export default class TextType extends BaseType implements AttributeTypeInstance {
     renderWidget({
@@ -46,9 +47,24 @@ export default class TextType extends BaseType implements AttributeTypeInstance 
 
         return <>
             {finalValue && multiple
-                ? <ul>{finalValue.map((v: any, i: number) => <li key={i}>
+                ? <Box
+                    component={'ul'}
+                    sx={{
+                        [`.${copyToClipBoardClass}`]: {
+                            display: 'inline-block',
+                            visibility: 'hidden',
+                            ml: 2,
+                        },
+                        [`li:hover .${copyToClipBoardClass}`]: {
+                            visibility: 'visible',
+                        }
+                    }}
+                >{finalValue.map((v: any, i: number) => <li key={i}>
                     {replaceHighlight(v)}
-                </li>)}</ul> : replaceHighlight(finalValue)}
+                    <CopyAttribute
+                        value={value[i]}
+                    />
+                </li>)}</Box> : replaceHighlight(finalValue)}
         </>
     }
 

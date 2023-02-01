@@ -3,24 +3,25 @@ import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText} f
 import {extractLabelValueFromKey, FacetRowProps} from "../Facets";
 import {SearchContext} from "../../Search/SearchContext";
 
-
-export default function StringFacet({
-                                        facet,
-                                        name,
-                                    }: FacetRowProps) {
+export default function TextFacet({
+    facet,
+    name,
+}: FacetRowProps) {
     const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
+    const {type} = facet.meta;
 
     return <>
         <List component="div" disablePadding>
             {facet.buckets.map(b => {
-                const {value: keyV, label} = extractLabelValueFromKey(b.key);
-                const selected = Boolean(attrFilter && attrFilter.v.find(v => extractLabelValueFromKey(v).value === keyV));
+                const {value: keyV, label} = extractLabelValueFromKey(b.key, type);
 
-                const onClick = () => toggleAttrFilter(name, b.key, facet.meta.title);
+                const selected = Boolean(attrFilter && attrFilter.v.findIndex(v => extractLabelValueFromKey(v, type).value === keyV) >= 0);
+
+                const onClick = () => toggleAttrFilter(name, facet.meta.type, b.key, facet.meta.title);
 
                 return <ListItemButton
-                    key={keyV}
+                    key={keyV.toString()}
                     onClick={onClick}
                 >
                     <ListItemText secondary={`${label} (${b.doc_count})`}/>

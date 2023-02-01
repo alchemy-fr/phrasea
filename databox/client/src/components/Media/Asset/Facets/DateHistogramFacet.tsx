@@ -50,7 +50,7 @@ export default function DateHistogramFacet({
         if (step) {
             (newValue as [number, number])[1] += step;
         }
-        setAttrFilter(name, newValue as [number, number], facet.meta.title, FacetType.DateRange);
+        setAttrFilter(name, facet.meta.type, newValue as [number, number], facet.meta.title, facet.meta.widget);
     }, [facet, step]);
 
     const hasRange = max > min;

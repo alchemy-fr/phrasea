@@ -14,6 +14,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AssetVoter;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -225,6 +226,17 @@ class BatchAttributeManager
                 }
             }
 
+            $this->em->createQueryBuilder()
+                ->update()
+                ->from(Asset::class, 't')
+                ->set('t.attributesEditedAt', ':now')
+                ->andWhere('t.id IN (:ids)')
+                ->setParameter('now', new DateTimeImmutable())
+                ->setParameter('ids', $assetsId)
+                ->getQuery()
+                ->execute()
+            ;
+
             // Force assets to be re-indexed on terminate
             foreach ($assetsId as $assetId) {
                 $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
@@ -241,7 +253,7 @@ class BatchAttributeManager
         AttributeActionInput $action
     ): void {
         if (null !== $attribute && count($assetsId) > 1) {
-            throw new InvalidArgumentException(sprintf('Attribute update is provided with many assets ID'));
+            throw new InvalidArgumentException('Attribute update is provided with many assets ID');
         }
 
         foreach ($assetsId as $assetId) {

@@ -1,5 +1,6 @@
 import {FilterEntry, Filters, SortBy} from "./Filter";
-import {BucketKeyValue, FacetType, NormalizedBucketKeyValue} from "../Asset/Facets";
+import {FacetType, NormalizedBucketKeyValue, ResolvedBucketValue} from "../Asset/Facets";
+import {AttributeType} from "../../../api/attributes";
 
 const specSep = ';';
 const arraySep = ',';
@@ -46,23 +47,25 @@ function encodeFilter(filter: FilterEntry): string {
         filter.w,
         encode(filter.t),
         encode(JSON.stringify(filter.v.map(normalizeBucketValue))),
+        filter.x === AttributeType.Text ? '' : filter.x,
         filter.i ? '1' : '',
     ].join(specSep);
 }
 
 function decodeFilter(str: string): FilterEntry {
-    const [a, w, t, v, i] = str.split(specSep);
+    const [a, w, t, v, x, i] = str.split(specSep);
 
     return {
         a,
+        x: x as AttributeType | undefined,
         w: (w as FacetType) || undefined,
         t: decode(t),
-        v: JSON.parse(decode(v)).map(denormalizeBucketValue) as BucketKeyValue[],
+        v: JSON.parse(decode(v)).map(denormalizeBucketValue) as ResolvedBucketValue[],
         i: i ? 1 : undefined,
     };
 }
 
-function normalizeBucketValue(v: BucketKeyValue): NormalizedBucketKeyValue {
+function normalizeBucketValue(v: ResolvedBucketValue): NormalizedBucketKeyValue {
     if (typeof v === 'object') {
         return {
             v: v.value,
@@ -73,7 +76,7 @@ function normalizeBucketValue(v: BucketKeyValue): NormalizedBucketKeyValue {
     return v;
 }
 
-function denormalizeBucketValue(v: NormalizedBucketKeyValue): BucketKeyValue {
+function denormalizeBucketValue(v: NormalizedBucketKeyValue): ResolvedBucketValue {
     if (typeof v === 'object') {
         return {
             value: v.v,

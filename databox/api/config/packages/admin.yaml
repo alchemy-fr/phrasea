@@ -362,6 +362,7 @@ easy_admin:
           - { property: 'fieldType' }
           - { property: 'multiple', type: boolean }
           - { property: 'facetEnabled', label: 'Facet' }
+          - { property: 'sortable' }
           - { property: 'searchable', type: boolean }
           - createdAt
       form:

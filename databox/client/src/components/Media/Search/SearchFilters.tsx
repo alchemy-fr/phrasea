@@ -1,7 +1,8 @@
 import React from 'react';
 import {Box, Chip} from "@mui/material";
 import {FilterEntry, Filters} from "./Filter";
-import {BucketKeyValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
+import {extractLabelValueFromKey, FacetType, ResolvedBucketValue} from "../Asset/Facets";
+import {AttributeType} from "../../../api/attributes";
 
 type FilterProps = {
     onInvert: () => void;
@@ -17,41 +18,56 @@ function truncate(value: string, maxLength: number): string {
     return value;
 }
 
-function formatFilterTitle(widget: FacetType | undefined, t: string, v: BucketKeyValue[]): string {
+function formatFilterTitle(
+    widget: FacetType | undefined,
+    type: AttributeType | undefined,
+    title: string,
+    value: ResolvedBucketValue[]
+): string {
     switch (widget) {
         default:
         case FacetType.String:
-            return `${t} = "${v.map(v => extractLabelValueFromKey(v).label).join('" or "')}"`;
+            return `${title} = "${value.map(v => extractLabelValueFromKey(v, type).label).join('" or "')}"`;
         case FacetType.DateRange:
-            return `${t} between ${extractLabelValueFromKey(v[0]).label} and ${extractLabelValueFromKey(v[1]).label}`;
+            return `${title} between ${extractLabelValueFromKey(value[0], type).label} and ${extractLabelValueFromKey(value[1], type).label}`;
     }
 }
 
-function formatFilterLabel(widget: FacetType | undefined, t: string, v: BucketKeyValue[]): string {
+function formatFilterLabel(
+    widget: FacetType | undefined,
+    type: AttributeType | undefined,
+    title: string,
+    value: ResolvedBucketValue[]
+): string {
+    if (type === AttributeType.Boolean) {
+        return `${title}: ${extractLabelValueFromKey(value[0], type).label}`;
+    }
+
     switch (widget) {
         default:
         case FacetType.String:
-            return v.map(s => truncate(extractLabelValueFromKey(s).label, 15)).join(', ');
+            return value.map(s => truncate(extractLabelValueFromKey(s, type).label, 15)).join(', ');
         case FacetType.DateRange:
-            return `${extractLabelValueFromKey(v[0]).label} - ${extractLabelValueFromKey(v[1]).label}`;
+            return `${extractLabelValueFromKey(value[0], type).label} - ${extractLabelValueFromKey(value[1], type).label}`;
     }
 }
 
 function Filter({
-                    t,
-                    i,
-                    v,
-                    w,
-                    onInvert,
-                    onDelete,
-                }: FilterProps) {
+    t,
+    x,
+    i,
+    v,
+    w,
+    onInvert,
+    onDelete,
+}: FilterProps) {
     return <Chip
         sx={{
             mb: 1,
             mr: 1,
         }}
-        title={formatFilterTitle(w, t, v)}
-        label={formatFilterLabel(w, t, v)}
+        title={`${i ? 'Not ' : ''}${formatFilterTitle(w, x, t, v)}`}
+        label={`${i ? 'Not ' : ''}${formatFilterLabel(w, x, t, v)}`}
         onDelete={onDelete}
         onClick={onInvert}
         color={i ? 'error' : 'primary'}
@@ -65,10 +81,10 @@ type Props = {
 };
 
 export default function SearchFilters({
-                                          filters,
-                                          onDelete,
-                                          onInvert,
-                                      }: Props) {
+    filters,
+    onDelete,
+    onInvert,
+}: Props) {
     return <Box sx={{
         mb: -1,
         mr: -1,

@@ -53,6 +53,10 @@ export default function EditSortBy({
 
                 const f = facets[k];
 
+                if (!f.meta.sortable) {
+                    return;
+                }
+
                 l.push({
                     id: k,
                     a: k,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\FacetInterface;
+use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeDefinition;
 use DateTime;
 use DateTimeImmutable;
@@ -51,7 +51,7 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function getFacetType(): string
     {
-        return FacetInterface::TYPE_DATE_RANGE;
+        return ESFacetInterface::TYPE_DATE_RANGE;
     }
 
     public function getElasticSearchType(): string

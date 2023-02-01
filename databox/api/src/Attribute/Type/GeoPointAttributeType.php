@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\FacetInterface;
+use App\Elasticsearch\ESFacetInterface;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 
@@ -24,7 +24,7 @@ class GeoPointAttributeType extends AbstractAttributeType
 
     public function getFacetType(): string
     {
-        return FacetInterface::TYPE_GEO_DISTANCE;
+        return ESFacetInterface::TYPE_GEO_DISTANCE;
     }
 
     public function supportsAggregation(): bool

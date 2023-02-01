@@ -42,6 +42,8 @@ export interface Asset extends IPermissions<{
     thumbnailActive: AssetRendition | null;
     createdAt: string;
     updatedAt: string;
+    editedAt: string;
+    attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
 }
 

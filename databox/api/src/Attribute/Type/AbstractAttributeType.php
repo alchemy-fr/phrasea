@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\FacetInterface;
+use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Throwable;
@@ -45,7 +45,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
     public function getFacetType(): string
     {
-        return FacetInterface::TYPE_STRING;
+        return ESFacetInterface::TYPE_STRING;
     }
 
     public function isLocaleAware(): bool

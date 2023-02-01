@@ -84,7 +84,7 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 
         $em->flush();
 
-        $this->eventProducer->publish(ImportFileHandler::createEvent($rendition->getId()));
+        $this->eventProducer->publish(ImportFileHandler::createEvent($rendition->getFile()->getId()));
     }
 
     public static function getHandledEvents(): array

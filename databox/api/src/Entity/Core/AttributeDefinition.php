@@ -103,6 +103,12 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"attributedef:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
+    private bool $sortable = false;
+
+    /**
+     * @Groups({"attributedef:index"})
+     * @ORM\Column(type="boolean", nullable=false)
+     */
     private bool $translatable = false;
 
     /**
@@ -323,5 +329,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function isSortable(): bool
+    {
+        return $this->sortable;
+    }
+
+    public function setSortable(bool $sortable): void
+    {
+        $this->sortable = $sortable;
     }
 }

@@ -33,6 +33,8 @@ services:
             tags: ['app.integration']
         App\Integration\IntegrationDataTransformerInterface:
             tags: ['app.integration_data_transformer']
+        App\Elasticsearch\Facet\FacetInterface:
+            tags: ['app.search.facet']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -176,6 +178,10 @@ services:
                     http_errors: false
                     headers:
                         Accept: "application/json"
+
+    App\Elasticsearch\Facet\FacetRegistry:
+        arguments:
+            - !tagged_iterator { tag: 'app.search.facet', default_index_method: 'getKey' }
 
     App\Integration\IntegrationRegistry:
         arguments:

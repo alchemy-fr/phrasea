@@ -44,6 +44,16 @@ class AttributeDefinitionInput
     /**
      * @var bool
      */
+    public $facetEnabled;
+
+    /**
+     * @var bool
+     */
+    public $sortable;
+
+    /**
+     * @var bool
+     */
     public $translatable;
 
     /**

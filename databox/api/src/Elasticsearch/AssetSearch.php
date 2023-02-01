@@ -149,11 +149,7 @@ class AssetSearch extends AbstractSearch
             ],
         ]);
 
-        $this->facetHandler->buildWorkspaceFacet($query);
-        $this->facetHandler->buildCollectionFacet($query);
-        $this->facetHandler->buildPrivacyFacet($query);
-        $this->facetHandler->buildTagFacet($query);
-        $this->facetHandler->buildDateFacet($query, 'createdAt', 'Creation date');
+        $this->facetHandler->buildFacets($query);
         $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
 
         /** @var FantaPaginatorAdapter $adapter */
@@ -168,6 +164,8 @@ class AssetSearch extends AbstractSearch
 
         $start = microtime(true);
         $facets = $adapter->getAggregations();
+
+        dump($facets);
 
         $facets = $this->facetHandler->normalizeBuckets($facets);
 

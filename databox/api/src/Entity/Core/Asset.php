@@ -18,12 +18,14 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use InvalidArgumentException;
 use LogicException;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
@@ -104,6 +106,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public ?CopyAssetInput $copyAction = null;
     public ?MoveAssetInput $moveAction = null;
 
+    /**
+     * Last update time of attribute
+     *
+     * @ORM\Column(type="datetime_immutable")
+     * @Groups({"dates"})
+     */
+    protected ?DateTimeImmutable $attributesEditedAt = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -111,6 +121,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+        $this->attributesEditedAt = new DateTimeImmutable();
     }
 
     public function getOwnerId(): ?string
@@ -317,5 +328,34 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function setNoFileVersion(bool $noFileVersion): void
     {
         $this->noFileVersion = $noFileVersion;
+    }
+
+    /**
+     * Last update time of any element of the asset.
+     *
+     * @Groups({"dates"})
+     */
+    public function getEditedAt(): ?DateTimeImmutable
+    {
+        $date = max(
+            $this->attributesEditedAt,
+            $this->updatedAt,
+        );
+
+        if (!$date instanceof DateTimeImmutable) {
+            return DateTimeImmutable::createFromMutable($date);
+        }
+
+        return $date;
+    }
+
+    public function getAttributesEditedAt(): ?DateTimeImmutable
+    {
+        return $this->attributesEditedAt;
+    }
+
+    public function setAttributesEditedAt(?DateTimeImmutable $attributesEditedAt): void
+    {
+        $this->attributesEditedAt = $attributesEditedAt;
     }
 }
