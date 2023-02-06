@@ -165,8 +165,6 @@ class AssetSearch extends AbstractSearch
         $start = microtime(true);
         $facets = $adapter->getAggregations();
 
-        dump($facets);
-
         $facets = $this->facetHandler->normalizeBuckets($facets);
 
         $searchTime = microtime(true) - $start;
