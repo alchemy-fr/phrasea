@@ -44,19 +44,21 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
             return;
         }
 
+        $arr = [
+            'assets' => array_map(function (Asset $asset): string {
+                return $asset->getId();
+            }, $commit->getAssets()->toArray()),
+            'publisher' => $commit->getUserId(),
+            'commit_id' => $commit->getId(),
+            'token' => $commit->getToken(),
+            'base_url' => $this->uploadBaseUrl,
+        ];
+        dump($arr);
         $this->client->post($target->getTargetUrl(), [
             'headers' => [
                 'Authorization' => ($target->getTargetTokenType() ?? 'Bearer').' '.$accessToken,
             ],
-            'json' => [
-                'assets' => array_map(function (Asset $asset): string {
-                    return $asset->getId();
-                }, $commit->getAssets()->toArray()),
-                'publisher' => $commit->getUserId(),
-                'commit_id' => $commit->getId(),
-                'token' => $commit->getToken(),
-                'base_url' => $this->uploadBaseUrl,
-            ],
+            'json' => $arr,
         ]);
     }
 

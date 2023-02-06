@@ -57,6 +57,13 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     private ?string $key = null;
 
     /**
+     * Token sent to Uploader.
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $pendingUploadToken = null;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="asset", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -357,5 +364,15 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function setAttributesEditedAt(?DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
+    }
+
+    public function getPendingUploadToken(): ?string
+    {
+        return $this->pendingUploadToken;
+    }
+
+    public function setPendingUploadToken(?string $pendingUploadToken): void
+    {
+        $this->pendingUploadToken = $pendingUploadToken;
     }
 }

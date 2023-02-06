@@ -144,9 +144,10 @@ type AssetApiInput = {
     collection?: string,
     workspace?: string;
     sourceFileId?: string;
+    pendingUploadToken?: string;
 }
 
-type NewAssetPostType = {
+export type NewAssetPostType = {
     relationship?: {
         source: string;
         type: string;

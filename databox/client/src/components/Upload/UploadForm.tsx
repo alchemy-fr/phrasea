@@ -1,4 +1,3 @@
-import {TextField} from "@mui/material";
 import {useForm} from "react-hook-form";
 import React, {FC} from "react";
 import {useTranslation} from "react-i18next";
@@ -6,28 +5,31 @@ import FormRow from "../Form/FormRow";
 import FormFieldErrors from "../Form/FormFieldErrors";
 import {FormProps} from "../Form/types";
 import CollectionTreeWidget from "../Form/CollectionTreeWidget";
+import PrivacyField from "../Ui/PrivacyField";
+import {Privacy} from "../../api/privacy";
 
 export type UploadData = {
-    title: string;
-    destinations: string[];
+    destination: string;
+    privacy: number;
 };
 
 export const UploadForm: FC<FormProps<UploadData>> = function ({
                                                                    formId,
-                                                                   data,
                                                                    onSubmit,
                                                                    submitting,
                                                                }) {
     const {t} = useTranslation();
 
     const {
-        register,
         handleSubmit,
         control,
         setError,
         formState: {errors}
     } = useForm<any>({
-        defaultValues: data,
+        defaultValues: {
+            destination: null,
+            privacy: Privacy.Secret
+        },
     });
 
     return <form
@@ -35,33 +37,26 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
         onSubmit={handleSubmit(onSubmit(setError))}
     >
         <FormRow>
-            <TextField
-                autoFocus
-                label={t('form.upload.title.label', 'Title')}
-                disabled={submitting}
-                fullWidth={true}
-                {...register('title')}
-            />
-            <FormFieldErrors
-                field={'title'}
-                errors={errors}
-            />
-        </FormRow>
-        <FormRow>
             <CollectionTreeWidget
                 control={control}
                 rules={{
                     required: true,
                 }}
-                name={'destinations'}
-                label={t('form.upload.destinations.label', 'Destinations')}
-                multiple={true}
+                name={'destination'}
+                label={t('form.upload.destination.label', 'Destination')}
                 required={true}
                 allowNew={true}
+                disabled={submitting}
             />
             <FormFieldErrors
-                field={'destinations'}
+                field={'destination'}
                 errors={errors}
+            />
+        </FormRow>
+        <FormRow>
+            <PrivacyField
+                control={control}
+                name={'privacy'}
             />
         </FormRow>
     </form>

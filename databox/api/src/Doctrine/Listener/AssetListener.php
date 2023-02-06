@@ -6,6 +6,7 @@ namespace App\Doctrine\Listener;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\File;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
@@ -20,7 +21,7 @@ class AssetListener implements EventSubscriber
             if ($entityUpdate instanceof Asset && !$entityUpdate->isNoFileVersion()) {
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 $fileChange = $changeSet['source'] ?? null;
-                if ($fileChange) {
+                if ($fileChange && $fileChange[0] instanceof File) {
                     $assetFileVersion = new AssetFileVersion();
                     $assetFileVersion->setAsset($entityUpdate);
                     $assetFileVersion->setFile($fileChange[0]);

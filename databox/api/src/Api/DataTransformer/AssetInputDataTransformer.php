@@ -73,6 +73,9 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
         if ($data->title) {
             $object->setTitle($data->title);
         }
+        if ($data->pendingUploadToken) {
+            $object->setPendingUploadToken($data->pendingUploadToken);
+        }
 
         $this->transformPrivacy($data, $object);
 
@@ -134,6 +137,9 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
         }
 
         if (null !== $file = $this->handleFile($data, $object)) {
+            if (null !== $object->getPendingUploadToken()) {
+                throw new BadRequestHttpException(sprintf('Asset "%s" has pending upload, cannot provide file', $object->getId()));
+            }
             $object->setSource($file);
 
             $this->renditionManager->resetAssetRenditions($object);

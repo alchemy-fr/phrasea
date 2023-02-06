@@ -45,13 +45,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  *             },
  *         }
  *     },
+ *     normalizationContext={"groups"={"commit:read"}},
+ *     denormalizationContext={"groups"={"commit:write"}}
  * )
  */
 class Commit
 {
     /**
      * @ApiProperty(identifier=true)
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read"})
      *
      * @var Uuid
      *
@@ -61,10 +63,9 @@ class Commit
     private $id;
 
     /**
-     * TODO make async cascade remove.
-     *
      * @var Asset[]|Collection
      * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
+     * @Groups({"commit:read", "commit:write"})
      */
     private ?Collection $assets = null;
 
@@ -73,12 +74,12 @@ class Commit
      * @ORM\JoinColumn(nullable=false)
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
      * @Assert\NotNull()
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?Target $target = null;
 
     /**
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read"})
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      * @ApiProperty(writable=false)
      */
@@ -86,30 +87,33 @@ class Commit
 
     /**
      * @ORM\Column(type="json")
+     * @Groups("asset:read", "commit:read", "commit:write")
      */
     private array $formData = [];
 
     /**
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read", "commit:write"})
      * @ORM\Column(type="json")
      */
     private array $options = [];
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?string $userId = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(writable=false)
+     * @Groups({"commit:read"})
      */
     private ?string $token = null;
 
     /**
      * @ORM\Column(type="boolean")
      * @ApiFilter(BooleanFilter::class)
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read"})
      * @ApiProperty(writable=false)
      */
     private bool $acknowledged = false;
@@ -118,11 +122,13 @@ class Commit
      * If set, this email will be notified when asset consumer acknowledges the commit.
      *
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"commit:read", "commit:write"})
      */
     private ?string $notifyEmail = null;
 
     /**
      * @ORM\Column(type="string", length=5, nullable=true)
+     * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?string $locale = null;
 
@@ -130,6 +136,7 @@ class Commit
      * @var DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"asset:read", "commit:read"})
      */
     private $acknowledgedAt;
 
@@ -138,12 +145,13 @@ class Commit
      *
      * @ORM\Column(type="datetime")
      * @ApiProperty()
-     * @Groups("asset_read")
+     * @Groups({"asset:read", "commit:read"})
      */
     private $createdAt;
 
     /**
      * Not mapped.
+     * @Groups({"commit:write"})
      */
     private array $files = [];
 

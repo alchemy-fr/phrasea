@@ -28,7 +28,8 @@ class AssetManager
         string $mimeType,
         string $originalName,
         int $size,
-        string $userId
+        string $userId,
+        ?array $data = null
     ): Asset {
         $asset = new Asset();
         $asset->setTarget($target);
@@ -37,6 +38,7 @@ class AssetManager
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
+        $asset->setData($data);
 
         $this->em->persist($asset);
         $this->em->flush();

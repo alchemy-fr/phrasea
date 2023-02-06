@@ -19,7 +19,10 @@ use App\Controller\AssetAckAction;
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
  * @ApiResource(
  *     normalizationContext={
- *         "groups"={"asset_read"},
+ *         "groups"={"asset:read"},
+ *     },
+ *     denormalizationContext={
+ *         "groups"={"asset:write"},
  *     },
  *     itemOperations={
  *         "get"={"access_control"="is_granted('READ_META', object)"},
@@ -45,7 +48,7 @@ class Asset
 {
     /**
      * @ApiProperty(identifier=true)
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      *
      * @var Uuid
      *
@@ -61,16 +64,22 @@ class Asset
     private $path;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     * @Groups("asset:read", "asset:write")
+     */
+    private ?array $data = [];
+
+    /**
      * Dynamic signed URL.
      *
      * @ApiProperty()
-     * @Groups({"asset_read"})
+     * @Groups({"asset:read"})
      */
     private ?string $url = null;
 
     /**
      * @var int|string
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private $size;
@@ -80,7 +89,7 @@ class Asset
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty(iri="http://schema.org/name")
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      */
     private $originalName;
 
@@ -89,7 +98,7 @@ class Asset
      *
      * @ORM\Column(type="string", length=255)
      * @ApiProperty()
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      */
     private $mimeType;
 
@@ -109,7 +118,7 @@ class Asset
     /**
      * @var bool
      * @ORM\Column(type="boolean")
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      * @ApiFilter(BooleanFilter::class)
      */
     private $acknowledged = false;
@@ -119,7 +128,7 @@ class Asset
      *
      * @ORM\Column(type="datetime")
      * @ApiProperty()
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      */
     private $createdAt;
 
@@ -186,7 +195,7 @@ class Asset
     }
 
     /**
-     * @Groups("asset_read")
+     * @Groups("asset:read")
      */
     public function getFormData(): ?array
     {
@@ -254,5 +263,15 @@ class Asset
     public function setTarget(?Target $target): void
     {
         $this->target = $target;
+    }
+
+    public function getData(): array
+    {
+        return null !== $this->data ? $this->data : [];
+    }
+
+    public function setData(?array $data): void
+    {
+        $this->data = $data;
     }
 }

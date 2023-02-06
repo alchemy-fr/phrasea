@@ -144,6 +144,7 @@ type Props<IsMulti extends boolean = false> = {
     workspaceId?: string;
     disabledBranches?: string[];
     allowNew?: boolean;
+    disabled?: boolean | undefined;
 }
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
@@ -153,6 +154,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                                                                          workspaceId,
                                                                          disabledBranches,
                                                                          allowNew,
+    disabled,
                                                                      }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
     const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPath>();
@@ -167,6 +169,9 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     }, [setNewCollectionPath]);
 
     const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: IsMulti extends true ? string[] : string) => {
+        if (disabled) {
+            return;
+        }
         if (multiple) {
             const striped = (nodeIds as string[]).map(i => normalizeNodeId(i, newCollectionPath));
             setSelected(nodeIds as any);

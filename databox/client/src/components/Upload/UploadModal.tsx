@@ -7,16 +7,17 @@ import UploadIcon from '@mui/icons-material/Upload';
 import useFormSubmit from "../../hooks/useFormSubmit";
 import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
-import {UploadFiles} from "../../api/file";
+import {UploadFiles} from "../../api/uploader/file";
 import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 import {nodeNewPrefix} from "../Media/Collection/EditableTree";
 import {postCollection} from "../../api/collection";
 import {newCollectionPathSeparator, treeViewPathSeparator} from "../Media/Collection/CollectionsTreeView";
+import {submitFiles} from "../../lib/upload/uploader";
+import moment from "moment";
 
 type Props = {
     files: File[];
-    title?: string | undefined;
     userId: string;
 } & StackedModalProps;
 
@@ -29,7 +30,6 @@ export default function UploadModal({
                                         files: initFiles,
                                         userId,
                                         open,
-                                        title,
                                     }: Props) {
     const {t} = useTranslation();
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
@@ -46,33 +46,13 @@ export default function UploadModal({
         errors
     } = useFormSubmit({
         onSubmit: async (data: UploadData) => {
-            const newCollectionPaths = data.destinations.filter(d => d.startsWith(nodeNewPrefix));
-            if (newCollectionPaths.length > 0) {
-                const newCollections: string[] = [];
-
-                await Promise.all(newCollectionPaths.map(async (p) => {
-                    const [parentPath, ...rest] = p.substring(nodeNewPrefix.length).split(newCollectionPathSeparator);
-                    const [workspaceId, parentIri] = parentPath.split(treeViewPathSeparator);
-                    let parent = parentIri;
-                    for (p of rest) {
-                        parent = (await postCollection({
-                            title: p,
-                            parent,
-                            workspace: `/workspaces/${workspaceId}`,
-                        }))['@id'];
-                    }
-                    newCollections.push(parent);
-                }));
-
-                data.destinations = [
-                    ...data.destinations.filter(d => !d.startsWith(nodeNewPrefix)),
-                    ...newCollections,
-                ];
-            }
-
-            return await UploadFiles(userId, files.map(f => f.file), {
-                destinations: data.destinations!,
-                title: data.title,
+            return await submitFiles(userId, {
+                files: files.map(f => ({
+                    file: f.file,
+                    title: f.file.name === 'image.png' ? createPastedImageTitle() : f.file.name,
+                    destination: data.destination,
+                    privacy: data.privacy,
+                })),
             });
         },
         onSuccess: (item) => {
@@ -131,13 +111,15 @@ export default function UploadModal({
         </Box>
         <UploadForm
             formId={formId}
-            data={title ? {
-                title,
-                destinations: [],
-            } : undefined}
             onSubmit={handleSubmit}
             submitting={submitting}
             submitted={submitted}
         />
     </FormDialog>
+}
+
+function createPastedImageTitle(): string {
+    const m = moment();
+
+    return `Pasted-image-${m.format('YYYY-MM-DD_HH-mm-ss')}`;
 }

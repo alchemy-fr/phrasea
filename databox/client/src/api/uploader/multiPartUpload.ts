@@ -1,14 +1,12 @@
-import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
-import {makeAuthorizationHeaders} from "../../api/file";
-import uploaderClient from "../../api/uploader-client";
+import {getUniqueFileId, uploadStateStorage} from "../../lib/upload/uploadStateStorage";
+import {makeAuthorizationHeaders} from "./file";
+import uploaderClient from "../uploader-client";
 import {AxiosProgressEvent} from "axios";
-
-const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
 
 type OnProgress = (progressEvent: AxiosProgressEvent) => void;
 
-type Upload = {
-    id: string,
+export type UploadedFile = {
+    data?: Record<string, any>;
     file: File,
 }
 
@@ -16,9 +14,10 @@ export async function uploadMultipartFile(
     targetSlug: string,
     userId: string,
     accessToken: string,
-    upload: Upload,
+    upload: UploadedFile,
     onProgress?: OnProgress
 ): Promise<string> {
+    const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3
     const file = upload.file;
     const fileUID = getUniqueFileId(file, fileChunkSize);
 
@@ -92,7 +91,8 @@ export async function uploadMultipartFile(
             multipart: {
                 uploadId,
                 parts: uploadParts,
-            }
+            },
+            data: upload.data,
         }, {
             headers: makeAuthorizationHeaders(accessToken),
         });
