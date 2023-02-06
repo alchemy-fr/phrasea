@@ -76,6 +76,11 @@ class AssetOutput extends AbstractUuidOutput
     private int $privacy;
 
     /**
+     * @Groups({"asset:index", "asset:read"})
+     */
+    private bool $pendingSourceFile = false;
+
+    /**
      * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private $workspace;
@@ -300,5 +305,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setAttributesEditedAt(DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
+    }
+
+    public function isPendingSourceFile(): bool
+    {
+        return $this->pendingSourceFile;
+    }
+
+    public function setPendingSourceFile(bool $pendingSourceFile): void
+    {
+        $this->pendingSourceFile = $pendingSourceFile;
     }
 }

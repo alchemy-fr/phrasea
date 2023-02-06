@@ -43,6 +43,7 @@ export interface Asset extends IPermissions<{
     createdAt: string;
     updatedAt: string;
     editedAt: string;
+    pendingSourceFile: boolean;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
 }

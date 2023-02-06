@@ -6,6 +6,7 @@ import assetClasses from "../Search/Layout/classes";
 import FilePlayer from "./FilePlayer";
 import {SxProps} from "@mui/system";
 import {createDimensions} from "./Players";
+import {CircularProgress} from "@mui/material";
 
 type Props = {
     selected?: boolean;
@@ -16,6 +17,7 @@ type Props = {
 export default function AssetThumb({
                                        asset: {
                                            resolvedTitle,
+                                           pendingSourceFile,
                                            thumbnail,
                                            thumbnailActive,
                                            original,
@@ -35,8 +37,11 @@ export default function AssetThumb({
         <div
             className={thumbnailActive ? assetClasses.thumbInactive : undefined}
         >
-            {!thumbnail && original?.file && <AssetFileIcon file={original.file}/>}
-            {thumbnail?.file && <FilePlayer
+            {pendingSourceFile && <CircularProgress
+                title={'Uploading...'}
+            />}
+            {!pendingSourceFile && !thumbnail && original?.file && <AssetFileIcon file={original.file}/>}
+            {!pendingSourceFile && thumbnail?.file && <FilePlayer
                 file={thumbnail.file}
                 title={resolvedTitle}
                 minDimensions={dimensions}
@@ -44,7 +49,7 @@ export default function AssetThumb({
                 autoPlayable={false}
             />}
         </div>
-        {thumbnailActive?.file && <div className={assetClasses.thumbActive}>
+        {!pendingSourceFile && thumbnailActive?.file && <div className={assetClasses.thumbActive}>
             <FilePlayer
                 minDimensions={dimensions}
                 maxDimensions={dimensions}
