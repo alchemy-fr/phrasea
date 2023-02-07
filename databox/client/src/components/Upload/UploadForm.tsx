@@ -7,42 +7,61 @@ import {FormProps} from "../Form/types";
 import CollectionTreeWidget from "../Form/CollectionTreeWidget";
 import PrivacyField from "../Ui/PrivacyField";
 import {Privacy} from "../../api/privacy";
+import {FormGroup, InputLabel} from "@mui/material";
+import TagSelect from "../Form/TagSelect";
+import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 
 export type UploadData = {
     destination: string;
-    privacy: number;
+    privacy: Privacy;
+    tags: string[];
 };
 
-export const UploadForm: FC<FormProps<UploadData>> = function ({
-                                                                   formId,
-                                                                   onSubmit,
-                                                                   submitting,
-                                                               }) {
+export const UploadForm: FC<{
+    workspaceId?: string | undefined;
+    noDestination?: boolean | undefined;
+} & FormProps<UploadData>> = function ({
+    formId,
+    onSubmit,
+    submitting,
+    submitted,
+    workspaceId: initWsId,
+    noDestination,
+}) {
     const {t} = useTranslation();
+    const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(initWsId);
 
     const {
         handleSubmit,
         control,
         setError,
-        formState: {errors}
-    } = useForm<any>({
+        setValue,
+        formState: {errors, isDirty}
+    } = useForm<UploadData>({
         defaultValues: {
-            destination: null,
-            privacy: Privacy.Secret
+            destination: '',
+            privacy: Privacy.Secret,
+            tags: [],
         },
     });
+    useNavigationPrompt('Are you sure you want to dismiss upload?', !submitting && !submitted && isDirty);
+
+    React.useEffect(() => {
+        setValue('tags', []);
+    }, [workspaceId, setValue]);
 
     return <form
         id={formId}
         onSubmit={handleSubmit(onSubmit(setError))}
     >
-        <FormRow>
+        {!noDestination && <FormRow>
             <CollectionTreeWidget
                 control={control}
                 rules={{
                     required: true,
                 }}
                 name={'destination'}
+                onChange={(s, wsId) => setWorkspaceId(wsId)}
                 label={t('form.upload.destination.label', 'Destination')}
                 required={true}
                 allowNew={true}
@@ -52,7 +71,23 @@ export const UploadForm: FC<FormProps<UploadData>> = function ({
                 field={'destination'}
                 errors={errors}
             />
-        </FormRow>
+        </FormRow>}
+        {workspaceId && <FormRow>
+            <FormGroup>
+                <InputLabel>
+                    {t('form.asset.tags.label', 'Tags')}
+                </InputLabel>
+                <TagSelect
+                    workspaceId={workspaceId}
+                    control={control}
+                    name={'tags'}
+                />
+                <FormFieldErrors
+                    field={'tags'}
+                    errors={errors}
+                />
+            </FormGroup>
+        </FormRow>}
         <FormRow>
             <PrivacyField
                 control={control}

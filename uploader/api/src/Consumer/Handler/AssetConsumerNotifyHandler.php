@@ -53,7 +53,6 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
             'token' => $commit->getToken(),
             'base_url' => $this->uploadBaseUrl,
         ];
-        dump($arr);
         $this->client->post($target->getTargetUrl(), [
             'headers' => [
                 'Authorization' => ($target->getTargetTokenType() ?? 'Bearer').' '.$accessToken,

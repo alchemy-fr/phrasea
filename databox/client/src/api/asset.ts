@@ -138,9 +138,10 @@ export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
     return res.data;
 }
 
-type AssetApiInput = {
+export type AssetApiInput = {
     title?: string;
     privacy?: number;
+    tags?: string[];
     collection?: string,
     workspace?: string;
     sourceFileId?: string;

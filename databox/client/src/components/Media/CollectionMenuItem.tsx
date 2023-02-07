@@ -13,11 +13,12 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CreateCollection from "./Collection/CreateCollection";
 import {toast} from "react-toastify";
 import {useTranslation} from "react-i18next";
-import CreateAsset from "./Asset/CreateAsset";
 import ModalLink from "../Routing/ModalLink";
 import ConfirmDialog from "../Ui/ConfirmDialog";
 import {useModals} from "../../hooks/useModalStack";
 import {OnCollectionEdit} from "../Dialog/Collection/EditCollection";
+import UploadModal from "../Upload/UploadModal";
+import {UserContext} from "../Security/UserContext";
 
 type Props = {
     level: number;
@@ -28,20 +29,21 @@ type Props = {
 } & Collection;
 
 export default function CollectionMenuItem({
-                                               id,
-                                               ['@id']: iri,
-                                               children,
-                                               absolutePath,
-                                               titlePath,
-                                               title,
-                                               capabilities,
-                                               onCollectionDelete,
-                                               workspace,
-                                               level,
-                                           }: Props) {
+    id,
+    ['@id']: iri,
+    children,
+    absolutePath,
+    titlePath,
+    title,
+    capabilities,
+    onCollectionDelete,
+    workspace,
+    level,
+}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
+    const userContext = useContext(UserContext);
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
@@ -197,10 +199,12 @@ export default function CollectionMenuItem({
                 <span className="c-action">
                     {capabilities.canEdit && <IconButton
                         title={t('collection.item.create_asset', 'Add new asset to collection')}
-                        onClick={() => openModal(CreateAsset, {
-                            collectionId: id,
+                        onClick={() => openModal(UploadModal, {
+                            files: [],
+                            userId: userContext!.user!.id,
                             workspaceTitle: workspace.name,
                             workspaceId: workspace.id,
+                            collectionId: id,
                             titlePath: (titlePath ?? []).concat(title),
                         })}
                         aria-label="create-asset">

@@ -2,17 +2,19 @@ import {FormGroup, InputLabel, TextField} from "@mui/material";
 import {useForm} from "react-hook-form";
 import React, {FC} from "react";
 import {useTranslation} from "react-i18next";
-import {Asset} from "../../types";
 import FormFieldErrors from "./FormFieldErrors";
 import PrivacyField from "../Ui/PrivacyField";
 import FormRow from "./FormRow";
 import {FormProps} from "./types";
 import TagSelect from "./TagSelect";
 import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
+import {Privacy} from "../../api/privacy";
+import {AssetApiInput} from "../../api/asset";
+import {Asset} from "../../types";
 
 export const AssetForm: FC<{
     workspaceId: string;
-} & FormProps<Asset>> = function ({
+} & FormProps<AssetApiInput, Asset>> = function ({
                                       formId,
                                       data,
                                       onSubmit,
@@ -28,13 +30,18 @@ export const AssetForm: FC<{
         setError,
         control,
         formState: {errors, isDirty}
-    } = useForm<any>({
-        defaultValues: {
-            ...data,
-            tags: data?.tags.map(t => t['@id']) ?? [],
+    } = useForm<AssetApiInput>({
+        defaultValues: data ? {
+            title: data.title,
+            privacy: data.privacy,
+            tags: data?.tags?.map(t => t['@id']) ?? [],
+        } : {
+            title: '',
+            privacy: Privacy.Secret,
+            tags: [],
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(!submitting && !submitted && isDirty);
 
     return <>
         <form

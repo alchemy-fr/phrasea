@@ -10,6 +10,7 @@ type InputFile = {
     title?: string;
     file: File;
     privacy?: number;
+    tags?: string[];
     destination: string;
     uploadToken?: string;
     assetId?: string;
@@ -50,6 +51,7 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
             title: f.title,
             pendingUploadToken: uploadToken,
             privacy: f.privacy,
+            tags: f.tags,
         };
 
         if (destination.startsWith('/workspaces/')) {

@@ -30,5 +30,6 @@ export default function TagSelect<TFieldValues extends FieldValues>({
         {...rest}
         loadOptions={load}
         isMulti={true as any}
+        key={workspaceId}
     />
 }
