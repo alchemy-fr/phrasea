@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\Attribute;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -14,11 +16,18 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AttributeCrudController extends AbstractAdminCrudController
+
+class AttributeCrudController extends AbstractAdminCrudController //  implements EventSubscriberInterface
 {
     public static function getEntityFqcn(): string
     {
         return Attribute::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -60,7 +69,7 @@ class AttributeCrudController extends AbstractAdminCrudController
             return [$id, $locale, $locked, $position, $translationId, $translationOriginHash, $value, $origin, $originVendor, $originUserId, $originVendorContext, $coordinates, $status, $confidence, $createdAt, $updatedAt, $asset, $definition, $translationOrigin, $translations];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];
+            return [$value, $locale, $locked, $origin, $originVendor, $originVendorContext];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
             return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];

@@ -49,17 +49,17 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setTemplatePath('@AlchemyAdmin/list/code.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $enabled, $slug, $name, $pullModeUrl, $targetUrl, $createdAt];
+            return [$id, $slug, $name, $pullModeUrl, $targetUrl, $enabled, $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
             // todo EA3 : display allowedGroups on detail page ? (now "array to string conversion" error if added)
             return [$id, $enabled, $slug, $name, $description, $targetUrl, $defaultDestination, $targetAccessToken, $targetTokenType, $createdAt, $targetParams];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$enabled, $slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups];
+            return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$enabled, $slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups];
+            return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
         }
 
         return [];

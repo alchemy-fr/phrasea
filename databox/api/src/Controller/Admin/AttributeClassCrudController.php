@@ -2,42 +2,51 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AclBundle\Admin\PermissionTrait;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AttributeClass;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 class AttributeClassCrudController extends AbstractAdminCrudController
 {
+    use PermissionTrait;
+
     public static function getEntityFqcn(): string
     {
         return AttributeClass::class;
     }
 
-    /* todo EA3 : this "permissions" existed in EA2, but not implemented in "Permissions" menu.
     public function configureActions(Actions $actions): Actions
     {
-        $permissionsAction = Action::new('permissions')
+        $globalPermissionsAction = Action::new('globalPermissions')
             ->linkToRoute(
                 'admin_global_permissions',
                 [
-                    'type' => '???',
+                    'type' => 'attributeClass',
                 ]
             )
-           ->createAsGlobalAction()
+            ->createAsGlobalAction();
+
+        $permissionsAction = Action::new('permissions')
+            ->linkToCrudAction('permissions')
         ;
 
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $permissionsAction)
-            ;
+            ->add(Crud::PAGE_INDEX, $globalPermissionsAction)
+            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
-    */
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -82,5 +91,20 @@ class AttributeClassCrudController extends AbstractAdminCrudController
         }
 
         return [];
+    }
+
+    public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
+    {
+        /** @var AttributeClass $attributeClass */
+        $attributeClass = $adminContext->getEntity()->getInstance();
+        $id = $attributeClass->getId();
+
+        $twigParameters = $this->permissionView->getViewParameters(
+            $this->permissionView->getObjectKey(AttributeClass::class),
+            $id
+        );
+        $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
+
+        return $this->render('@AlchemyAcl/permissions/entity/acl.html.twig', $twigParameters);
     }
 }

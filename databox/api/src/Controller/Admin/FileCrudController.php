@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\File;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -11,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -19,6 +22,12 @@ class FileCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return File::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -40,7 +49,7 @@ class FileCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $type = TextField::new('type');
-        $size = TextField::new('size');
+        $size = IntegerField::new('size');
         $checksum = TextField::new('checksum');
         $path = TextField::new('path');
         $pathPublic = Field::new('pathPublic');

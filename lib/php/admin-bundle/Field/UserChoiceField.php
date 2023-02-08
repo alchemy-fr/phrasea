@@ -2,32 +2,33 @@
 
 namespace Alchemy\AdminBundle\Field;
 
-use Alchemy\AdminBundle\Form\GroupChoiceType;
-use Alchemy\AdminBundle\Form\UserChoiceType;
-use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Alchemy\RemoteAuthBundle\Client\AdminClient;
+use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
-final class UserChoiceField implements FieldInterface
+final class UserChoiceField
 {
-    use FieldTrait;
+    private AdminClient $adminClient;
+    private AuthServiceClient $authServiceClient;
 
-    /**s
-     * @param string|false|null $label
-     */
-    public static function new(string $propertyName, $label = null): self
+    public function __construct(AdminClient $adminClient, AuthServiceClient $authServiceClient)
     {
-       return (new self())
-            ->setFormTypeOptions([
-                'multiple' => true,
-                'expanded' => true
-            ])
-            ->setProperty($propertyName)
-            ->setLabel($label)
-            ->setFormType(UserChoiceType::class)
-            // ->setHelp('If no group is selected, the target will be allowed to any user.')
-            ;
+        $this->adminClient = $adminClient;
+        $this->authServiceClient = $authServiceClient;
     }
+
+    public function create(string $propertyName, ?string $label = null)
+    {
+        /** @var RemoteUser[] $users */
+        $users = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {
+            return $this->authServiceClient->getUsers($accessToken);
+        });
+        $choices = [];
+        foreach ($users as $user) {
+            $choices[$user['username']] = $user['id'];
+        }
+        return ChoiceField::new($propertyName, $label)->setChoices($choices);
+    }
+
 }

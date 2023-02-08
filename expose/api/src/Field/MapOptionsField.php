@@ -17,7 +17,6 @@ class MapOptionsField implements FieldInterface
         return (new self())
             ->setProperty($propertyName)
             ->setLabel($label)
-//            ->setTemplateName('crud/field/integer')
             ->setFormType(MapOptionsType::class);
     }
 

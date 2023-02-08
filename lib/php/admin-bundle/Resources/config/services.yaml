@@ -47,3 +47,5 @@ services:
 
   Alchemy\AdminBundle\Form\UserChoiceType: ~
   Alchemy\AdminBundle\Form\GroupChoiceType: ~
+
+  Alchemy\AdminBundle\Field\UserChoiceField:

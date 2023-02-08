@@ -6,7 +6,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Group;
 use App\Form\RoleChoiceHelper;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -43,6 +42,7 @@ class GroupCrudController extends AbstractAdminCrudController
         $roles = ChoiceField::new('roles')
             ->setChoices(RoleChoiceHelper::getRoleChoices($this->authorizationChecker))
             ->allowMultipleChoices()
+            ->renderExpanded()
         ;
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');

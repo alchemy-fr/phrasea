@@ -41,7 +41,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         $sizeAsString = TextField::new('sizeAsString');
         $uploadId = IdField::new('uploadId');
         $path = TextField::new('path');
-        $complete = BooleanField::new('complete');
+        $complete = BooleanField::new('complete')->renderAsSwitch(false);
         $createdAt = DateTimeField::new('createdAt');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');

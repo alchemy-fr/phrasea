@@ -23,7 +23,7 @@ class DashboardController extends AbstractAdminDashboardController
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
 
-        return $this->redirect($adminUrlGenerator->setController(OAuthClientCrudController::class)->generateUrl());
+        return $this->redirect($adminUrlGenerator->setController(UserCrudController::class)->generateUrl());
     }
 
     public function configureCrud(): Crud

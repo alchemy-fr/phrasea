@@ -3,15 +3,17 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use App\Consumer\Handler\UserInviteHandler;
 use App\Entity\User;
 use App\Form\ImportUsersForm;
 use App\Form\RoleChoiceHelper;
-use App\Form\RoleChoiceType;
 use App\User\Import\UserImporter;
 use App\User\InviteManager;
+use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -33,21 +35,25 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserCrudController extends AbstractAdminCrudController
 {
+    private AdminUrlGenerator $adminUrlGenerator;
+    private RequestStack $requestStack;
+    private AuthorizationCheckerInterface $authorizationChecker;
+    private UserManager $userManager;
+    private EventProducer $eventProducer;
+
 
     public static function getEntityFqcn(): string
     {
         return User::class;
     }
 
-    private AdminUrlGenerator $adminUrlGenerator;
-    private RequestStack $requestStack;
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack, AuthorizationCheckerInterface $authorizationChecker, UserManager $userManager, EventProducer $eventProducer)
     {
         $this->adminUrlGenerator = $adminUrlGenerator;
         $this->requestStack = $requestStack;
         $this->authorizationChecker = $authorizationChecker;
+        $this->userManager = $userManager;
+        $this->eventProducer = $eventProducer;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -89,14 +95,13 @@ class UserCrudController extends AbstractAdminCrudController
     {
         $roleChoices = RoleChoiceHelper::getRoleChoices($this->authorizationChecker);
 
+        // todo ea3 : disable editing userRoles of myself
         $username = TextField::new('username');
-
         $userRoles = ChoiceField::new('userRoles')
             ->setChoices($roleChoices)
             ->allowMultipleChoices()
-//            ->renderExpanded()      // todo EA3 : to render as checkboxes (does not work for AssociationField)
+            ->renderExpanded()
         ;
-
         $enabled = BooleanField::new('enabled');
         $groups = AssociationField::new('groups');
         $inviteByEmail = BooleanField::new('inviteByEmail');
@@ -104,7 +109,6 @@ class UserCrudController extends AbstractAdminCrudController
         $emailVerified = Field::new('emailVerified');
         $securityToken = TextField::new('securityToken');
         $salt = TextField::new('salt');
-        $roles = ChoiceField::new('roles')->setChoices($roleChoices)->allowMultipleChoices();
         $password = TextField::new('password');
         $locale = TextField::new('locale');
         $createdAt = DateTimeField::new('createdAt');
@@ -115,7 +119,7 @@ class UserCrudController extends AbstractAdminCrudController
             return [$id, $username, $enabled, $groups, $userRoles, $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $username, $emailVerified, $enabled, $securityToken, $salt, $roles, $password, $locale, $createdAt, $lastInviteAt, $updatedAt, $groups];
+            return [$id, $username, $emailVerified, $enabled, $securityToken, $salt, $userRoles, $password, $locale, $createdAt, $lastInviteAt, $updatedAt, $groups];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
             return [$username, $userRoles, $enabled, $groups, $inviteByEmail];
@@ -127,14 +131,40 @@ class UserCrudController extends AbstractAdminCrudController
         return [];
     }
 
-    public function inviteAction(AdminContext $adminContext, InviteManager $inviteManager, EventProducer $eventProducer)
+    public function createEntity(string $entityFqcn)
+    {
+        return $this->userManager->createUser();
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $entityManager->persist($entityInstance);
+        $entityManager->flush();
+
+        /** @var User $entityInstance */
+        if ($entityInstance->isInviteByEmail()) {
+            $this->eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
+                'id' => $entityInstance->getId(),
+            ]));
+        } else {
+            $this->eventProducer->publish(new EventMessage(RegisterUserToNotifierHandler::EVENT, [
+                'id' => $entityInstance->getId(),
+            ]));
+        }
+    }
+
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $entityManager->remove($entityInstance);
+        $entityManager->flush();
+    }
+
+    public function inviteAction(AdminContext $adminContext, InviteManager $inviteManager)
     {
         $user = $adminContext->getEntity()->getInstance();
         if (!$user instanceof User) {
             throw new \LogicException('Entity is missing or not a Commit');
         }
-
-        $request = $adminContext->getRequest();
 
         if ($user->isEmailVerified()) {
             $this->addFlash('warning', sprintf('User %s has already joined', $user->getUsername()));
@@ -145,7 +175,7 @@ class UserCrudController extends AbstractAdminCrudController
                 $inviteManager->getAllowedInviteDelay()
             ));
         } else {
-            $eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
+            $this->eventProducer->publish(new EventMessage(UserInviteHandler::EVENT, [
                 'id' => $user->getId(),
             ]));
 

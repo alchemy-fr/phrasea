@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use App\Entity\Core\AssetRendition;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -20,6 +22,13 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         return AssetRendition::class;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, ACTION::EDIT)
+            ->remove(Crud::PAGE_INDEX, ACTION::NEW)
+        ;
+    }
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)

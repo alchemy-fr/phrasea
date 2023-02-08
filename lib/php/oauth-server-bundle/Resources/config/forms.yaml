@@ -6,3 +6,6 @@ services:
   Alchemy\OAuthServerBundle\Form\AllowedScopesChoiceType:
     arguments:
       $scopes: '%alchemy_oauth_server.allowed_scopes%'
+  Alchemy\OAuthServerBundle\Field\AllowedScopesChoiceField:
+    arguments:
+      $scopes: '%alchemy_oauth_server.allowed_scopes%'

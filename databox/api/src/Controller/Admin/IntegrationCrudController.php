@@ -3,8 +3,10 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -30,13 +32,13 @@ class IntegrationCrudController extends AbstractAdminCrudController
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
         $integration = TextField::new('integration');
-        $optionsYaml = Field::new('optionsYaml');
+        $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');
         $id = IdField::new('id', 'ID');
-        $config = TextField::new('config');
+        $config = JsonField::new('config');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
-        $that = TextareaField::new('this')->setTemplatePath('admin/integration_config_info.html.twig');
+        $that = ArrayField::new('this', "Config info")->setTemplatePath('admin/integration_config_info.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$enabled, $title, $integration, $workspace, $createdAt, $that, $updatedAt];

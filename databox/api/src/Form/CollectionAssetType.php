@@ -13,7 +13,6 @@ class CollectionAssetType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefault('class', Collection::class);
         $resolver->setDefault('multiple', true);
         $resolver->setDefault('expanded', true);
     }

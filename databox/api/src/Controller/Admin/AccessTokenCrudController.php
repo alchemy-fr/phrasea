@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\OAuthServerBundle\Entity\AccessToken;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -17,6 +19,13 @@ class AccessTokenCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return AccessToken::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            // ->remove(Crud::PAGE_INDEX, Action::EDIT)     // todo ea3 : check if editing an access token is possible
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
     public function configureCrud(Crud $crud): Crud

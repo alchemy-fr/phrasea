@@ -42,13 +42,13 @@ class AssetCrudController extends AbstractAdminCrudController
         $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         $originalName = TextField::new('originalName');
         $mimeType = TextField::new('mimeType');
-        $acknowledged = BooleanField::new('acknowledged');
+        $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
         $createdAt = DateTimeField::new('createdAt');
         $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $target = AssociationField::new('target');
         $commit = AssociationField::new('commit');
         $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
-        $committed = BooleanField::new('committed');
+        $committed = BooleanField::new('committed')->renderAsSwitch(false);
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $originalName, $size, $userId, $committed, $acknowledged, $createdAt];

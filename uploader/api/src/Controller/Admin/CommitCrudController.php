@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -24,10 +25,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 class CommitCrudController extends AbstractAdminCrudController
 {
     private EventProducer $eventProducer;
+    private UserChoiceField $userChoiceField;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(EventProducer $eventProducer, UserChoiceField $userChoiceField)
     {
         $this->eventProducer = $eventProducer;
+        $this->userChoiceField = $userChoiceField;
     }
 
     public static function getEntityFqcn(): string
@@ -41,7 +44,6 @@ class CommitCrudController extends AbstractAdminCrudController
             ->linkToCrudAction('triggerAgain');
 
         return parent::configureActions($actions)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, $triggerAgainAction);
 
@@ -58,8 +60,9 @@ class CommitCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $user = $this->userChoiceField->create('userId', 'User');
         $token = TextField::new('token');
-        $acknowledged = BooleanField::new('acknowledged');
+        $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
         $formDataJson = TextAreaField::new('formDataJson');
         $optionsJson = TextAreaField::new('optionsJson');
         $notifyEmail = TextField::new('notifyEmail');
@@ -84,7 +87,7 @@ class CommitCrudController extends AbstractAdminCrudController
             return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
+            return [$user, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
         }
 
         return [];
