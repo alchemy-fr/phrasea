@@ -11,6 +11,7 @@ import EditAttributes from "./EditAttributes";
 import Renditions from "./Renditions";
 import InfoAsset from "./InfoAsset";
 import AssetFileVersions from "./AssetFileVersions";
+import OperationsAsset from "./OperationsAsset";
 
 type Props = {};
 
@@ -90,6 +91,15 @@ export default function AssetDialog({}: Props) {
                     data,
                 },
                 enabled: data.capabilities.canEditPermissions,
+            },
+            {
+                title: t('asset.manage.operations.title', 'Operations'),
+                component: OperationsAsset,
+                id: 'operations',
+                props: {
+                    data,
+                },
+                enabled: data.capabilities.canEdit,
             },
         ]}
     />
