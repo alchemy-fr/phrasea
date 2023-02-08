@@ -11,6 +11,7 @@ import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 type Props<T extends object> = PropsWithChildren<{
     title: ReactNode;
     loading: boolean;
+    submittable?: boolean;
     formId?: string;
     onSave?: () => void;
     errors?: ReactNode[];
@@ -19,16 +20,17 @@ type Props<T extends object> = PropsWithChildren<{
 } & StackedModalProps>;
 
 export default function FormDialog<T extends object>({
-                                                         title,
-                                                         formId,
-                                                         onSave,
-                                                         errors,
-                                                         submitLabel,
-                                                         submitIcon,
-                                                         loading,
-                                                         open,
-                                                         children,
-                                                     }: Props<T>) {
+    title,
+    formId,
+    onSave,
+    errors,
+    submitLabel,
+    submitIcon,
+    loading,
+    submittable = true,
+    open,
+    children,
+}: Props<T>) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
 
@@ -52,7 +54,7 @@ export default function FormDialog<T extends object>({
                 loading={loading}
                 onClick={onSave}
                 color={'primary'}
-                disabled={loading}
+                disabled={!submittable || loading}
             >
                 {submitLabel || t('dialog.save', 'Save')}
             </LoadingButton>

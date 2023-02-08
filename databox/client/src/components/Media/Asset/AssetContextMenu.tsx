@@ -124,6 +124,7 @@ export default function AssetContextMenu({
             {asset.source && <SaveAsButton
                 asset={asset}
                 file={asset.source}
+                variant={'text'}
             />}
             {original?.file?.alternateUrls && original.file.alternateUrls.map(a => <MenuItem
                 key={a.type}

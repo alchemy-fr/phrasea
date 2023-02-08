@@ -5,7 +5,7 @@ import {toast} from "react-toastify";
 import useFormSubmit from "../../../hooks/useFormSubmit";
 import FormTab from "../Tabbed/FormTab";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
-import {putAsset} from "../../../api/asset";
+import {AssetApiInput, putAsset} from "../../../api/asset";
 import {AssetForm} from "../../Form/AssetForm";
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 } & DialogTabProps;
 
 export default function EditAsset({
-                                      data,
+                                      data: asset,
                                       onClose,
                                       minHeight,
                                   }: Props) {
@@ -26,8 +26,8 @@ export default function EditAsset({
         handleSubmit,
         errors,
     } = useFormSubmit({
-        onSubmit: async (data: Asset) => {
-            return await putAsset(data.id, data);
+        onSubmit: async (data: AssetApiInput) => {
+            return await putAsset(asset.id, data);
         },
         onSuccess: (item) => {
             toast.success(t('form.asset_edit.success', 'Asset edited!'))
@@ -45,12 +45,12 @@ export default function EditAsset({
         minHeight={minHeight}
     >
         <AssetForm
-            data={data}
+            data={asset}
             formId={formId}
             onSubmit={handleSubmit}
             submitting={submitting}
             submitted={submitted}
-            workspaceId={data.workspace.id}
+            workspaceId={asset.workspace.id}
         />
     </FormTab>
 }

@@ -1,5 +1,12 @@
 resources:
   App\Entity\Asset:
+    attributes:
+      normalization_context:
+        groups:
+          - asset:read
+      denormalization_context:
+        groups:
+          - asset:write
     collectionOperations:
       post:
         controller: App\Controller\CreateAssetAction

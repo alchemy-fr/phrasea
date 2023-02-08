@@ -18,6 +18,8 @@ class AssetInput extends AbstractOwnerIdInput
 
     public ?string $privacyLabel = null;
 
+    public ?string $pendingUploadToken = null;
+
     /**
      * @var Tag[]
      */
@@ -29,6 +31,8 @@ class AssetInput extends AbstractOwnerIdInput
     public $workspace = null;
 
     public ?Collection $collection = null;
+
+    public ?array $destinations = null;
 
     /**
      * @var AttributeInput[]

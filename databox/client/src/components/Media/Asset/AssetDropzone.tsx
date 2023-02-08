@@ -7,12 +7,6 @@ import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
 import moment from "moment/moment";
 import {useModals} from "../../../hooks/useModalStack";
 
-function createPastedImageTitle(): string {
-    const m = moment();
-
-    return `Pasted-image-${m.format('YYYY-MM-DD_HH-mm-ss')}`;
-}
-
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
     const {openModal} = useModals();
@@ -34,7 +28,6 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         retrieveImageFromClipboardAsBlob(e, (imageBlob) => {
             openModal(UploadModal, {
                 files: [imageBlob],
-                title: imageBlob.name === 'image.png' ? createPastedImageTitle() : undefined,
                 userId: userContext.user!.id,
             });
         });

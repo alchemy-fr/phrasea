@@ -196,6 +196,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             })
             ->getValues());
 
+        $output->setPendingSourceFile(null !== $object->getPendingUploadToken());
+
         $output->setCapabilities([
             'canEdit' => $this->isGranted(AssetVoter::EDIT, $object),
             'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $object),

@@ -20,9 +20,9 @@ trait CacheDecoratorTrait
         return $this->decorated->createResultSetMappingBuilder($alias);
     }
 
-    public function find($id)
+    public function find($id, $lockMode = null, $lockVersion = null)
     {
-        return $this->decorated->find($id);
+        return $this->decorated->find($id, $lockMode, $lockVersion);
     }
 
     public function findAll()
@@ -35,9 +35,9 @@ trait CacheDecoratorTrait
         return $this->decorated->findBy($criteria, $orderBy, $limit, $offset);
     }
 
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria, ?array $orderBy = null)
     {
-        return $this->decorated->findOneBy($criteria);
+        return $this->decorated->findOneBy($criteria, $orderBy);
     }
 
     public function getClassName()

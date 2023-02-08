@@ -6,10 +6,12 @@ namespace App\Repository\Cache;
 
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDefinitionRepositoryInterface, CacheRepositoryInterface
+class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepository implements AttributeDefinitionRepositoryInterface, CacheRepositoryInterface
 {
     use CacheDecoratorTrait;
 
@@ -17,10 +19,14 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator implements AttributeDef
 
     private TagAwareCacheInterface $cache;
 
-    public function __construct(AttributeDefinitionRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache)
+    public function __construct(ManagerRegistry $registry, AttributeDefinitionRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache)
     {
         $this->decorated = $decorated;
         $this->cache = $memoryCache;
+
+        $manager = $registry->getManagerForClass(AttributeDefinition::class);
+
+        parent::__construct($manager, $manager->getClassMetadata(AttributeDefinition::class));
     }
 
     public function getSearchableAttributes(

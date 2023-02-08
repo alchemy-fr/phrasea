@@ -7,13 +7,14 @@ namespace App\Border\Consumer\Handler\Uploader;
 use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
-use App\Consumer\Handler\File\NewAssetFromBorderHandler;
+use App\Consumer\Handler\File\AssignSourceFileToAssetHandler;
+use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use InvalidArgumentException;
 
 class UploaderNewFileHandler extends AbstractEntityManagerHandler
 {
@@ -36,16 +37,20 @@ class UploaderNewFileHandler extends AbstractEntityManagerHandler
     public function handle(EventMessage $message): void
     {
         $payload = $message->getPayload();
-
         $em = $this->getEntityManager();
-        $workspaceId = $payload['workspaceId'];
-        $formData = $payload['formData'] ?? null;
-        $workspace = $em->find(Workspace::class, $workspaceId);
-        if (!$workspace instanceof Workspace) {
-            throw new ObjectNotFoundForHandlerException(Workspace::class, $workspaceId, __CLASS__);
-        }
 
         $assetData = $this->uploaderClient->getAsset($payload['baseUrl'], $payload['assetId'], $payload['token']);
+
+        $assetId = $assetData['data']['targetAsset'];
+        $uploadToken = $assetData['data']['uploadToken'];
+
+        $asset = $em->find(Asset::class, $assetId);
+        if (!$asset instanceof Asset) {
+            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
+        }
+        if ($uploadToken !== $asset->getPendingUploadToken()) {
+            throw new InvalidArgumentException('Unexpected upload token, skipping...');
+        }
 
         $inputFile = new InputFile(
             $assetData['originalName'],
@@ -54,23 +59,27 @@ class UploaderNewFileHandler extends AbstractEntityManagerHandler
             $assetData['url'],
         );
 
-        $file = $this->borderManager->acceptFile($inputFile, $workspace);
+        $file = $this->borderManager->acceptFile($inputFile, $asset->getWorkspace());
 
         $this->eventProducer->publish(UploaderAckAssetHandler::createEvent(
             $payload['baseUrl'], $payload['assetId'], $payload['token']
         ));
 
         if ($file instanceof File) {
-            $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
-                $payload['userId'],
+            $this->eventProducer->publish(AssignSourceFileToAssetHandler::createEvent(
+                $assetId,
                 $file->getId(),
-                $payload['collections'],
-                $payload['title'] ?? null,
-                $inputFile->getName(),
-                $formData,
-                $payload['locale'] ?? null
             ));
         }
+    }
+
+    public static function createEvent(string $assetId, string $baseUrl, string $token): EventMessage
+    {
+        return new EventMessage(self::EVENT, [
+            'assetId' => $assetId,
+            'baseUrl' => $baseUrl,
+            'token' => $token,
+        ]);
     }
 
     public static function getHandledEvents(): array

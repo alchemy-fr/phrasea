@@ -4,33 +4,22 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
-use App\Asset\OriginalRenditionManager;
-use App\Attribute\AttributeDataExporter;
-use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
+use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'new_asset_from_border';
 
-    private OriginalRenditionManager $originalRenditionManager;
-    private AttributeDataExporter $attributeDataExporter;
-    private EventProducer $eventProducer;
+    private AssetManager $assetManager;
 
-    public function __construct(
-        OriginalRenditionManager $originalRenditionManager,
-        AttributeDataExporter $attributeDataExporter,
-        EventProducer $eventProducer
-    ) {
-        $this->originalRenditionManager = $originalRenditionManager;
-        $this->attributeDataExporter = $attributeDataExporter;
-        $this->eventProducer = $eventProducer;
+    public function __construct(AssetManager $assetManager) {
+        $this->assetManager = $assetManager;
     }
 
     public function handle(EventMessage $message): void
@@ -56,26 +45,12 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $workspace = $file->getWorkspace();
         $asset->setWorkspace($workspace);
 
-        if (!empty($formData)) {
-            $this->attributeDataExporter->importAttributes($asset, $formData, $locale);
-        }
-
-        $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
-
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);
             $em->persist($assetCollection);
         }
 
-        $em = $this->getEntityManager();
-        $em->persist($asset);
-        $em->flush();
-
-        $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-            $file->getId()
-        ));
-
-        $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
+        $this->assetManager->assignNewAssetSourceFile($asset, $file, $formData, $locale);
     }
 
     public static function createEvent(

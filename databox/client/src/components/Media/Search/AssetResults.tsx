@@ -1,6 +1,15 @@
-import React, {CSSProperties, MouseEvent, useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, {
+    CSSProperties,
+    MouseEvent,
+    MouseEventHandler,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState
+} from "react";
 import {AssetSelectionContext} from "../AssetSelectionContext";
-import {Box, LinearProgress, ListSubheader} from "@mui/material";
+import {Box, Fab, LinearProgress, ListSubheader} from "@mui/material";
 import {ResultContext} from "./ResultContext";
 import Pager, {LayoutEnum} from "./Pager";
 import SearchBar from "./SearchBar";
@@ -17,6 +26,10 @@ import {DisplayContext} from "../DisplayContext";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "../../../routes";
 import {zIndex} from "../../../themes/zIndex";
+import AddIcon from "@mui/icons-material/Add";
+import UploadModal from "../../Upload/UploadModal";
+import {useModals} from "../../../hooks/useModalStack";
+import {UserContext} from "../../Security/UserContext";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -69,6 +82,7 @@ export function getAssetListFromEvent(currentSelection: string[], id: string, pa
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
+    const userContext = useContext(UserContext);
     const navigate = useNavigate();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;
@@ -84,6 +98,7 @@ export default function AssetResults() {
     const {t} = useTranslation();
     const [layout, setLayout] = useState(LayoutEnum.Grid);
     const timer = useRef<ReturnType<typeof setTimeout>>();
+    const {openModal} = useModals();
 
     useEffect(() => {
         // Force preview close on result change
@@ -110,6 +125,13 @@ export default function AssetResults() {
         });
         // eslint-disable-next-line
     }, [pages]);
+
+    const openUpload = useCallback<MouseEventHandler<HTMLButtonElement>>((e): void => {
+        openModal(UploadModal, {
+            files: [],
+            userId: userContext.user!.id,
+        });
+    }, []);
 
     const onOpen = useCallback<OnOpen>((assetId: string, renditionId: string): void => {
         navigate(getPath('app_asset_view', {
@@ -250,6 +272,18 @@ export default function AssetResults() {
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={layout === LayoutEnum.Grid}
             />
+            <Fab
+                onClick={openUpload}
+                color="primary"
+                aria-label="add"
+                sx={theme => ({
+                    position: 'absolute',
+                    bottom: theme.spacing(2),
+                    right: theme.spacing(2),
+                })}
+            >
+                <AddIcon />
+            </Fab>
         </div>
     </div>
 }

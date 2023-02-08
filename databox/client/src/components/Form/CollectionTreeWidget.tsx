@@ -17,6 +17,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
     workspaceId?: string;
     allowNew?: boolean | undefined;
+    disabled?: boolean | undefined;
 };
 
 export default function CollectionTreeWidget<TFieldValues extends FieldValues,
@@ -30,6 +31,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
                                          workspaceId,
                                          required,
                                          allowNew,
+    disabled,
                                      }: Props<TFieldValues, IsMulti>) {
     return <FormControl component="fieldset" variant="standard">
         {label && <FormLabel
@@ -48,6 +50,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
             render={({field: {onChange, value, ref}}) => {
                 return <CollectionsTreeView
                     workspaceId={workspaceId}
+                    disabled={disabled}
                     value={value}
                     multiple={multiple}
                     allowNew={allowNew}
