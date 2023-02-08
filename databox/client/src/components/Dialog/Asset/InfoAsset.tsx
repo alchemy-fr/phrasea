@@ -8,7 +8,6 @@ import EventIcon from '@mui/icons-material/Event';
 import InfoRow from "../Info/InfoRow";
 
 type Props = {
-    id: string;
     data: Asset;
 } & DialogTabProps;
 

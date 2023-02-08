@@ -36,7 +36,7 @@ class AssetManager
     public function assignNewAssetSourceFile(Asset $asset, File $file, ?array $formData = [], ?string $locale = null): void
     {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
-            throw new InvalidArgumentException(sprintf('Asset and File are not in the same workspace'));
+            throw new InvalidArgumentException('Asset and File are not in the same workspace');
         }
 
         $asset->setSource($file);
@@ -51,10 +51,17 @@ class AssetManager
         $this->em->persist($asset);
         $this->em->flush();
 
-        $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-            $file->getId()
-        ));
+        $this->triggerAssetWorkflow($asset);
+    }
 
-        $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
+    public function triggerAssetWorkflow(Asset $asset): void
+    {
+        if ($asset->getSource()) {
+            $this->eventProducer->publish(ReadMetadataHandler::createEvent(
+                $asset->getSource()->getId()
+            ));
+
+            $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
+        }
     }
 }

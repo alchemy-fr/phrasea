@@ -15,11 +15,10 @@ resources:
         security: 'is_granted("EDIT", object)'
       patch:
         security: 'is_granted("EDIT", object)'
-      post_generate_renditions:
+      post_trigger_workflow:
         method: POST
-        path: /assets/{id}/generate-renditions
-        input: App\Api\Model\Input\AssetGenerateRenditionsInput
-        controller: App\Controller\Core\GenerateRenditionsAction
+        path: /assets/{id}/trigger-workflow
+        controller: App\Controller\Core\TriggerAssetWorkflowAction
         read: false
         security: 'is_granted("EDIT", object)'
       post_batch_attributes:
