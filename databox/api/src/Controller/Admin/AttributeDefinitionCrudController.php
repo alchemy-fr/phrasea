@@ -64,8 +64,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices);
         $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false);
         $translatable = BooleanField::new('translatable')->renderAsSwitch(false);
-        $translatable = BooleanField::new('sortable')->renderAsSwitch(false);
-        // todo ea3 : add the "sortable" field after update
+        $sortable = BooleanField::new('sortable');
         $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
         $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
         $searchBoost = IntegerField::new('searchBoost');
@@ -83,16 +82,16 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $class, $name, $fileType, $fieldType, $multiple, $facetEnabled, $searchable, $createdAt];
+            return [$id, $workspace, $class, $name, $fileType, $fieldType, $multiple, $facetEnabled, $sortable, $searchable, $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
+            return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
+            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
+            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
         }
 
         return [];
