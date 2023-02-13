@@ -101,7 +101,6 @@
         "php": ">=7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "ext-gd": "*",
         "ext-json": "*",
         "alchemy/acl-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
