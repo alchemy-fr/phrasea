@@ -179,7 +179,12 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
                 }
             }
 
-            $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
+            $this->batchAttributeManager->handleBatch(
+                $asset->getWorkspaceId(),
+                [$asset->getId()],
+                $input,
+                null
+            );
         }
     }
 

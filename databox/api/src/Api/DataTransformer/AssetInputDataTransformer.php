@@ -8,7 +8,7 @@ use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Asset\OriginalRenditionManager;
-use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
+use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Entity\Core\Asset;
@@ -145,7 +145,7 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
             $this->renditionManager->resetAssetRenditions($object);
 
             $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
-            $this->postFlushStackListener->addEvent(NewAssetIntegrationsHandler::createEvent($object->getId()));
+            $this->postFlushStackListener->addEvent(NewAssetIntegrationCollectionHandler::createEvent($object->getId()));
         }
 
         if (!empty($data->renditions)) {

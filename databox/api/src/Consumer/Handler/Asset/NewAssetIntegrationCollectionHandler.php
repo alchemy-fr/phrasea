@@ -10,7 +10,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 
-class NewAssetIntegrationsHandler extends AbstractEntityManagerHandler
+class NewAssetIntegrationCollectionHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'new_asset_integrations';
     private IntegrationManager $integrationManager;

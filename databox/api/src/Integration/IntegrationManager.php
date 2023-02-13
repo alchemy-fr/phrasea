@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
+use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -21,11 +23,17 @@ class IntegrationManager
 {
     private IntegrationRegistry $integrationRegistry;
     private EntityManagerInterface $em;
+    private EventProducer $eventProducer;
 
-    public function __construct(IntegrationRegistry $integrationRegistry, EntityManagerInterface $em)
+    public function __construct(
+        IntegrationRegistry $integrationRegistry,
+        EntityManagerInterface $em,
+        EventProducer $eventProducer
+    )
     {
         $this->integrationRegistry = $integrationRegistry;
         $this->em = $em;
+        $this->eventProducer = $eventProducer;
     }
 
     public function handleAsset(Asset $asset): void
@@ -44,8 +52,25 @@ class IntegrationManager
 
             $config = $this->getConfiguration($workspaceIntegration, $integration);
             if ($integration->supportsAsset($asset, $config)) {
-                $integration->handleAsset($asset, $config);
+                $this->eventProducer->publish(NewAssetIntegrationHandler::createEvent(
+                    $asset->getId(),
+                    $workspaceIntegration->getId()
+                ));
             }
+        }
+    }
+
+    public function handleAssetIntegration(Asset $asset, WorkspaceIntegration $workspaceIntegration): void
+    {
+        if (null === $asset->getSource()) {
+            throw new InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
+        }
+
+        $config = $this->getIntegrationConfiguration($workspaceIntegration);
+        /** @var AssetOperationIntegrationInterface $integration */
+        $integration = $config['integration'];
+        if ($integration->supportsAsset($asset, $config)) {
+            $integration->handleAsset($asset, $config);
         }
     }
 

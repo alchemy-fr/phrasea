@@ -81,6 +81,28 @@ class BatchAttributeManager
             }
         }
 
+        foreach ($input->actions as $i => $action) {
+            if ($action->definitionId) {
+                $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
+                $this->denyUnlessGranted($definition);
+            } elseif ($action->name) {
+                $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
+                $this->denyUnlessGranted($definition);
+            }
+
+            if ($action->id) {
+                try {
+                    $attribute = $this->em->find(Attribute::class, $action->id);
+                    if (!$attribute instanceof Attribute) {
+                        throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
+                    }
+                    $this->denyUnlessGranted($attribute->getDefinition());
+                } catch (ConversionException $e) {
+                    throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
+                }
+            }
+        }
+
         return $workspaceId;
     }
 
@@ -92,20 +114,18 @@ class BatchAttributeManager
         }
     }
 
-    public function handleBatch(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input): void
+    public function handleBatch(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input, ?RemoteUser $user): void
     {
         if (empty($assetsId)) {
             return;
         }
 
-        $this->em->wrapInTransaction(function () use ($input, $assetsId, $workspaceId): void {
+        $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId): void {
             foreach ($input->actions as $i => $action) {
                 if ($action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
-                    $this->denyUnlessGranted($definition);
                 } elseif ($action->name) {
                     $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
-                    $this->denyUnlessGranted($definition);
                 } else {
                     $definition = null;
                 }
@@ -125,7 +145,7 @@ class BatchAttributeManager
                         if (!$definition) {
                             throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                         }
-                        $this->deleteAttributes($assetsId, $definition, [
+                        $this->deleteAttributes($assetsId, $definition, $user, [
                             'id' => $action->id,
                             'origin' => $action->origin,
                             'originVendor' => $action->originVendor,
@@ -138,7 +158,6 @@ class BatchAttributeManager
                                 if (!$attribute instanceof Attribute) {
                                     throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
                                 }
-                                $this->denyUnlessGranted($attribute->getDefinition());
                                 $this->upsertAttribute($attribute, $assetsId, $definition, $action);
                             } catch (ConversionException $e) {
                                 throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
@@ -152,14 +171,13 @@ class BatchAttributeManager
                                     throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                                 }
 
-                                $this->deleteAttributes($assetsId, $definition);
+                                $this->deleteAttributes($assetsId, $definition, $user);
                                 foreach ($action->value as $value) {
                                     $vAction = clone $action;
                                     $vAction->value = $value;
                                     $this->upsertAttribute(null, $assetsId, $definition, $vAction);
                                 }
                             } else {
-                                $this->denyUnlessGranted($definition);
                                 foreach ($assetsId as $assetId) {
                                     $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
                                         'definition' => $definition->getId(),
@@ -203,10 +221,14 @@ class BatchAttributeManager
                                 ->from(AttributeDefinition::class, 'ad')
                                 ->andWhere('ad.workspace = :ws')
                                 ->setParameter('ws', $workspaceId)
-                                ->innerJoin('ad.class', 'ac')
-                                ->andWhere('ac.public = true OR ace.id IS NOT NULL')
                             ;
-                            $this->joinUserAcl($sub);
+                            if ($user instanceof RemoteUser) {
+                                $sub
+                                    ->innerJoin('ad.class', 'ac')
+                                    ->andWhere('ac.public = true OR ace.id IS NOT NULL')
+                                ;
+                                $this->joinUserAcl($sub, $user);
+                            }
 
                             foreach ($sub->getParameters() as $param) {
                                 $qb->setParameter($param->getName(), $param->getValue());
@@ -297,7 +319,7 @@ class BatchAttributeManager
         return $def;
     }
 
-    private function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, array $options = []): void
+    private function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, ?RemoteUser $user, array $options = []): void
     {
         $qb = $this->em->createQueryBuilder()
             ->delete()
@@ -309,12 +331,14 @@ class BatchAttributeManager
                 ->andWhere('a.definition = :def')
                 ->setParameter('def', $definition->getId());
         } else {
-            $qb
-                ->innerJoin('a.definition', 'ad')
-                ->innerJoin('ad.class', 'ac')
-                ->andWhere('ac.public = true OR ace.id IS NOT NULL')
-            ;
-            $this->joinUserAcl($qb);
+            if ($user instanceof RemoteUser) {
+                $qb
+                    ->innerJoin('a.definition', 'ad')
+                    ->innerJoin('ad.class', 'ac')
+                    ->andWhere('ac.public = true OR ace.id IS NOT NULL')
+                ;
+                $this->joinUserAcl($qb, $user);
+            }
         }
         if ($options['id'] ?? null) {
             $qb
@@ -334,11 +358,8 @@ class BatchAttributeManager
         $qb->getQuery()->execute();
     }
 
-    private function joinUserAcl(QueryBuilder $queryBuilder): void
+    private function joinUserAcl(QueryBuilder $queryBuilder, RemoteUser $user): void
     {
-        /** @var RemoteUser $user */
-        $user = $this->security->getUser();
-
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
             $user->getId(),

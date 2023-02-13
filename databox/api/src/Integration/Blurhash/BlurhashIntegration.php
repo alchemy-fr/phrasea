@@ -39,7 +39,12 @@ class BlurhashIntegration extends AbstractIntegration implements AssetOperationI
         $i->value = $this->getBlurhash($asset->getSource());
         $input->actions[] = $i;
 
-        $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
+        $this->batchAttributeManager->handleBatch(
+            $asset->getWorkspaceId(),
+            [$asset->getId()],
+            $input,
+            null
+        );
     }
 
     private function getBlurhash(File $file): string
