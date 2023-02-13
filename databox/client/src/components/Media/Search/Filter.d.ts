@@ -1,4 +1,4 @@
-import {BucketValue, FacetType, ResolvedBucketValue} from "../Asset/Facets";
+import {FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {AttributeType} from "../../../api/attributes";
 
 export type FilterEntry = {

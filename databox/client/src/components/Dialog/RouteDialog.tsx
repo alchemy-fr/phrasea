@@ -10,8 +10,8 @@ type Props = {
 };
 
 export default function RouteDialog({
-                                        children,
-                                    }: Props) {
+    children,
+}: Props) {
     const {state} = useLocation() as {
         state?: {
             background?: string;

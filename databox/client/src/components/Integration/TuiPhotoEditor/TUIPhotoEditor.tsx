@@ -34,10 +34,10 @@ const PhotoEditor = React.forwardRef<any, {
     url: string;
     name: string;
 } & IntegrationOverlayCommonProps>(({
-                                        url,
-                                        name,
-                                        maxDimensions,
-                                    }, ref) => {
+    url,
+    name,
+    maxDimensions,
+}, ref) => {
     return <div>
         <ImageEditor
             ref={ref}
@@ -68,13 +68,13 @@ const PhotoEditor = React.forwardRef<any, {
 type Props = {} & AssetIntegrationActionsProps;
 
 export default function TUIPhotoEditor({
-                                           asset,
-                                           file,
-                                           integration,
-                                           setIntegrationOverlay,
-                                           refreshIntegrations,
-                                           enableInc,
-                                       }: Props) {
+    asset,
+    file,
+    integration,
+    setIntegrationOverlay,
+    refreshIntegrations,
+    enableInc,
+}: Props) {
     const editoRef = useRef<any>();
     const [fileName, setFileName] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);

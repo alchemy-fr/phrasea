@@ -1,14 +1,14 @@
 import React, {ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {FacetRowProps, FacetType} from "../Facets";
+import {FacetRowProps} from "../Facets";
 import {Box, Button, ListItem, ListItemSecondaryAction, ListItemText, Slider, useTheme} from "@mui/material";
 import moment from "moment";
 import {SearchContext} from "../../Search/SearchContext";
 
 
 export default function DateHistogramFacet({
-                                               facet,
-                                               name,
-                                           }: FacetRowProps) {
+    facet,
+    name,
+}: FacetRowProps) {
     const {attrFilters, setAttrFilter, removeAttrFilter} = useContext(SearchContext);
     const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
     const attrFilter = attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;

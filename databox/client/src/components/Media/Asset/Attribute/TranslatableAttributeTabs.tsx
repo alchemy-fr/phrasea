@@ -35,15 +35,15 @@ type Props = {
 };
 
 export default function TranslatableAttributeTabs({
-                                                      currentLocale,
-                                                      onLocaleChange,
-                                                      definition,
-                                                      indeterminate,
-                                                      disabled,
-                                                      changeHandler,
-                                                      attributes,
-                                                      readOnly,
-                                                  }: Props) {
+    currentLocale,
+    onLocaleChange,
+    definition,
+    indeterminate,
+    disabled,
+    changeHandler,
+    attributes,
+    readOnly,
+}: Props) {
 
     return <>
         <Box sx={{

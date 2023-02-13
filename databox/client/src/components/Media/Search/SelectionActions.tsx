@@ -66,9 +66,9 @@ function getAsset(pages: Asset[][], id: string): Asset {
 }
 
 export default function SelectionActions({
-                                             layout,
-                                             onLayoutChange,
-                                         }: Props) {
+    layout,
+    onLayoutChange,
+}: Props) {
     const {t} = useTranslation();
     const navigate = useNavigate();
     const {openModal} = useModals();
@@ -77,7 +77,10 @@ export default function SelectionActions({
 
     const selectionLength = selectionContext.selectedAssets.length;
     const hasSelection = selectionLength > 0;
-    const allSelected = hasSelection && selectionLength === resultContext.pages.reduce((currentCount, row) => currentCount + row.length, 0);
+    const allSelected = hasSelection && selectionLength === resultContext.pages.reduce((
+        currentCount,
+        row
+    ) => currentCount + row.length, 0);
 
     const toggleSelectAll = useCallback(() => {
         selectionContext.selectAssets(

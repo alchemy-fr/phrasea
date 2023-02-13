@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
 import {TextField, Typography} from "@mui/material";
@@ -27,16 +27,15 @@ export type BaseSaveAsProps = {
     integrationId?: string | undefined;
 }
 
-type Props = {
-} & BaseSaveAsProps & StackedModalProps;
+type Props = {} & BaseSaveAsProps & StackedModalProps;
 
 export default function SaveFileAsNewAssetDialog({
-                                                     asset,
-                                                     file,
-                                                     open,
-                                                     suggestedTitle,
-                                                     integrationId,
-                                                 }: Props) {
+    asset,
+    file,
+    open,
+    suggestedTitle,
+    integrationId,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 

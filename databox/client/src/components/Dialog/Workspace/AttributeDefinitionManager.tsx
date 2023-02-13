@@ -21,12 +21,12 @@ import {toast} from "react-toastify";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
-                  data,
-                  handleSubmit: onSubmit,
-                  formId,
-                  submitting,
-                  workspaceId,
-              }: DefinitionItemFormProps<AttributeDefinition>) {
+    data,
+    handleSubmit: onSubmit,
+    formId,
+    submitting,
+    workspaceId,
+}: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
     function createData(data: AttributeDefinition) {
@@ -190,10 +190,10 @@ function createNewItem(): Partial<AttributeDefinition> {
 }
 
 export default function AttributeDefinitionManager({
-                                                       data: workspace,
-                                                       minHeight,
-                                                       onClose,
-                                                   }: Props) {
+    data: workspace,
+    minHeight,
+    onClose,
+}: Props) {
     const {t} = useTranslation();
 
     const handleSave = async (data: AttributeDefinition) => {

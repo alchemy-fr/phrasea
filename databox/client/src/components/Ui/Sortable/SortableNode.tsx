@@ -7,9 +7,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function SortableNode({
-                                         id,
-                                         children,
-                                     }: Props) {
+    id,
+    children,
+}: Props) {
     const {
         attributes,
         listeners,

@@ -22,9 +22,9 @@ function Metric({n}: {
 }
 
 export default function DebugEsModal({
-                                         debug,
-                                         open,
-                                     }: Props) {
+    debug,
+    open,
+}: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
 

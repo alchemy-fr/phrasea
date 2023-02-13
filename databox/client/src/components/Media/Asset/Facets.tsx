@@ -106,9 +106,9 @@ const facetWidgets: Record<FacetType, React.FC<FacetRowProps>> = {
 }
 
 function FacetRow({
-                      facet,
-                      name,
-                  }: FacetRowProps) {
+    facet,
+    name,
+}: FacetRowProps) {
     const [open, setOpen] = useState(true);
 
     const widget = facet.meta.widget ?? FacetType.Text;

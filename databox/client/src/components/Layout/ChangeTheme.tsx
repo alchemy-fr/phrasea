@@ -10,8 +10,8 @@ type Props = {
 };
 
 export default function ChangeTheme({
-                                        onClose,
-                                    }: Props) {
+    onClose,
+}: Props) {
     const {t} = useTranslation();
     const prefContext = useContext(UserPreferencesContext);
     const {preferences, updatePreference} = prefContext;

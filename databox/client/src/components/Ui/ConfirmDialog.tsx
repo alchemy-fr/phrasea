@@ -18,15 +18,15 @@ type Props = PropsWithChildren<{
 } & StackedModalProps>;
 
 export default function ConfirmDialog({
-                                          onCancel,
-                                          onConfirm,
-                                          title,
-                                          confirmLabel,
-                                          disabled,
-                                          open,
-                                          textToType,
-                                          children,
-                                      }: Props) {
+    onCancel,
+    onConfirm,
+    title,
+    confirmLabel,
+    disabled,
+    open,
+    textToType,
+    children,
+}: Props) {
     const {closeModal} = useModals();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);

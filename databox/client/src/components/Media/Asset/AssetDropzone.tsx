@@ -4,7 +4,6 @@ import {UserContext} from "../../Security/UserContext";
 import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
 import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
-import moment from "moment/moment";
 import {useModals} from "../../../hooks/useModalStack";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {

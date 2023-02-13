@@ -9,8 +9,8 @@ type Props = {
 };
 
 export default function AssetTagList({
-                                         tags,
-                                     }: Props) {
+    tags,
+}: Props) {
     const {tagsLimit, displayTags} = useContext(DisplayContext)!;
 
     if (!displayTags) {

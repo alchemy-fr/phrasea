@@ -16,10 +16,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function EditCollection({
-                                           data,
-                                           onClose,
-                                           minHeight,
-                                       }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const {t} = useTranslation();
 
     const {

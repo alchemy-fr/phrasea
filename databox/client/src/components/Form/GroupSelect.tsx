@@ -9,9 +9,9 @@ type Props<TFieldValues extends FieldValues> = {
 } & RSelectProps<TFieldValues, false>;
 
 export default function GroupSelect<TFieldValues extends FieldValues>({
-                                                                          data,
-                                                                          ...props
-                                                                      }: Props<TFieldValues>) {
+    data,
+    ...props
+}: Props<TFieldValues>) {
     const load = async (inputValue?: string | undefined): Promise<SelectOption[]> => {
         const result = await (!inputValue && data ? data : getGroups());
 

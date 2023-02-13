@@ -21,11 +21,11 @@ export const nodeNewPrefix = 'new:';
 export const defaultNewCollectionName = 'Collection';
 
 export default function EditableCollectionTree({
-                                                   offset,
-                                                   nodes,
-                                                   onEdit,
-                                                   setExpanded,
-                                               }: Props) {
+    offset,
+    nodes,
+    onEdit,
+    setExpanded,
+}: Props) {
     const node = nodes[0];
     const id = node.id;
     const remainingPath = nodes.slice(1);

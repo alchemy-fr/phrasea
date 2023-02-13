@@ -15,13 +15,13 @@ import {Asset} from "../../types";
 export const AssetForm: FC<{
     workspaceId: string;
 } & FormProps<AssetApiInput, Asset>> = function ({
-                                      formId,
-                                      data,
-                                      onSubmit,
-                                      submitting,
-                                      submitted,
-                                      workspaceId,
-                                  }) {
+    formId,
+    data,
+    onSubmit,
+    submitting,
+    submitted,
+    workspaceId,
+}) {
     const {t} = useTranslation();
 
     const {

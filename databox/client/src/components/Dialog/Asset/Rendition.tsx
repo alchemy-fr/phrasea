@@ -28,14 +28,14 @@ type Props = {
 };
 
 export function Rendition({
-                              title,
-                              asset,
-                              maxDimensions,
-                              rendition: {
-                                  name,
-                                  file,
-                              }
-                          }: Props) {
+    title,
+    asset,
+    maxDimensions,
+    rendition: {
+        name,
+        file,
+    }
+}: Props) {
     const {t} = useTranslation();
 
     return <RenditionStructure
@@ -73,12 +73,12 @@ export function Rendition({
 }
 
 function RenditionStructure({
-                                title,
-                                info,
-                                media,
-                                actions,
-                                maxDimensions,
-                            }: {
+    title,
+    info,
+    media,
+    actions,
+    maxDimensions,
+}: {
     title: ReactNode;
     info: ReactNode;
     media: ReactNode | undefined;

@@ -8,7 +8,10 @@ export type UserPreferences = {
     layout?: LayoutEnum;
 }
 
-export type UpdatePreferenceHandler = <T extends keyof UserPreferences>(name: T, handler: (((prev: UserPreferences[T]) => UserPreferences[T]) | UserPreferences[T])) => void;
+export type UpdatePreferenceHandler = <T extends keyof UserPreferences>(
+    name: T,
+    handler: (((prev: UserPreferences[T]) => UserPreferences[T]) | UserPreferences[T])
+) => void;
 
 export type TUserPreferencesContext = {
     preferences: UserPreferences;
@@ -18,5 +21,6 @@ export type TUserPreferencesContext = {
 
 export const UserPreferencesContext = React.createContext<TUserPreferencesContext>({
     preferences: {},
-    updatePreference: () => {},
+    updatePreference: () => {
+    },
 });

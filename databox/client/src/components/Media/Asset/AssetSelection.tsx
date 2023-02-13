@@ -19,8 +19,8 @@ type Props = {
 };
 
 function SelectionProxy({
-                            pages,
-                        }: {
+    pages,
+}: {
     pages: Asset[][];
 }) {
     const {t} = useTranslation();
@@ -62,10 +62,10 @@ function SelectionProxy({
 }
 
 export default function AssetSelection({
-                                           assets,
-                                           onSelectionChange,
-                                           style,
-                                       }: Props) {
+    assets,
+    onSelectionChange,
+    style,
+}: Props) {
     const pages = useMemo(() => [assets], [assets]);
 
     const displayContext: TDisplayContext = useMemo(() => ({

@@ -7,12 +7,12 @@ import {PDFPageProxy} from "react-pdf";
 type Props = {} & PlayerProps;
 
 export default function PDFPlayer({
-                                      file,
-                                      minDimensions,
-                                      maxDimensions,
-                                      onLoad,
-                                      noInteraction,
-                                  }: Props) {
+    file,
+    minDimensions,
+    maxDimensions,
+    onLoad,
+    noInteraction,
+}: Props) {
     const [ratio, setRatio] = useState<number>();
     const pdfDimensions = getMaxVideoDimensions(maxDimensions, ratio);
     const onDocLoad = useCallback((pdf: any) => {

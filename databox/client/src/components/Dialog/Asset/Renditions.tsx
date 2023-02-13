@@ -15,10 +15,10 @@ const maxDimensions = {
 }
 
 export default function Renditions({
-                                       data,
-                                       onClose,
-                                       minHeight,
-                                   }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const [renditions, setRenditions] = useState<AssetRendition[]>();
 
     useEffect(() => {

@@ -17,18 +17,18 @@ type Props = {
 }
 
 export default function AttributeWidget({
-                                            id,
-                                            disabled,
-                                            autoFocus,
-                                            name,
-                                            value: initialValue,
-                                            onChange,
-                                            isRtl,
-                                            required,
-                                            type,
-                                            indeterminate,
-                                            readOnly,
-                                        }: Props) {
+    id,
+    disabled,
+    autoFocus,
+    name,
+    value: initialValue,
+    onChange,
+    isRtl,
+    required,
+    type,
+    indeterminate,
+    readOnly,
+}: Props) {
 
 
     const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);

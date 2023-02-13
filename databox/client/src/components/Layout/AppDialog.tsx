@@ -74,17 +74,17 @@ type Props = PropsWithChildren<{
 } & StackedModalProps>;
 
 export default function AppDialog({
-                                      title,
-                                      children,
-                                      actions,
-                                      loading,
-                                      onClose,
-                                      disablePadding,
-                                      fullScreen,
-                                      open = true,
-                                      maxWidth = 'md',
-                                      sx,
-                                  }: Props) {
+    title,
+    children,
+    actions,
+    loading,
+    onClose,
+    disablePadding,
+    fullScreen,
+    open = true,
+    maxWidth = 'md',
+    sx,
+}: Props) {
     const progressHeight = 3;
 
     const handleClose = () => {

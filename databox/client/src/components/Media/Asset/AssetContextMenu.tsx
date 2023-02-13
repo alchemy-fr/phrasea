@@ -29,11 +29,11 @@ export function hasContextMenu({capabilities}: Asset): boolean {
 }
 
 export default function AssetContextMenu({
-                                             asset,
-                                             anchorPosition,
-                                             anchorEl,
-                                             onClose,
-                                         }: Props) {
+    asset,
+    anchorPosition,
+    anchorEl,
+    onClose,
+}: Props) {
     const {openModal} = useModals();
     const navigate = useNavigate();
     const resultContext = useContext(ResultContext);

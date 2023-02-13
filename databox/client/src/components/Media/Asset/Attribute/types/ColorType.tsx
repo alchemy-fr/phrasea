@@ -11,13 +11,13 @@ enum Formats {
 
 export default class ColorType extends TextType {
     renderWidget({
-                     value,
-                     onChange,
-                     id,
-                     disabled,
-                     name,
-                     readOnly,
-                 }: AttributeWidgetProps): React.ReactNode {
+        value,
+        onChange,
+        id,
+        disabled,
+        name,
+        readOnly,
+    }: AttributeWidgetProps): React.ReactNode {
         return <ColorPicker
             color={value}
             onChange={onChange}

@@ -24,16 +24,16 @@ export function useDirtyFormPrompt(isDirty: boolean) {
 }
 
 export default function FormTab<T extends object>({
-                                                      formId,
-                                                      onSave,
-                                                      errors,
-                                                      submitLabel,
-                                                      submitIcon,
-                                                      loading,
-                                                      children,
-                                                      onClose,
-                                                      minHeight,
-                                                  }: Props<T>) {
+    formId,
+    onSave,
+    errors,
+    submitLabel,
+    submitIcon,
+    loading,
+    children,
+    onClose,
+    minHeight,
+}: Props<T>) {
     const {t} = useTranslation();
     const progressHeight = 3;
 

@@ -10,10 +10,10 @@ type Props = {
 
 
 export default function TagRulesTab({
-                                        data,
-                                        onClose,
-                                        minHeight,
-                                    }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     return <ContentTab
         onClose={onClose}
         minHeight={minHeight}

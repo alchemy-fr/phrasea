@@ -1,4 +1,3 @@
-
 export enum Privacy {
     Secret,
     PrivateInWorkspace,

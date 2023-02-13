@@ -1,5 +1,5 @@
 import React, {ReactNode} from 'react';
-import {Asset, AssetFileVersion, AssetRendition} from "../../../types";
+import {Asset, AssetFileVersion} from "../../../types";
 import FilePlayer from "../../Media/Asset/FilePlayer";
 import {Dimensions} from "../../Media/Asset/Players";
 import {Button, Card, CardActions, CardContent, CardMedia, Skeleton, Typography} from "@mui/material";
@@ -28,14 +28,14 @@ type Props = {
 };
 
 export function AssetFileVersionCard({
-                              version: {
-                                  file,
-                                  name,
-                                  createdAt,
-                              },
-                              asset,
-                              maxDimensions,
-                          }: Props) {
+    version: {
+        file,
+        name,
+        createdAt,
+    },
+    asset,
+    maxDimensions,
+}: Props) {
     const {t} = useTranslation();
 
     return <AssetFileVersionStructure
@@ -54,7 +54,7 @@ export function AssetFileVersionCard({
                 {file.type}
             </div>}
             <div>
-                <Date date={createdAt} />
+                <Date date={createdAt}/>
             </div>
         </div>}
         actions={<>
@@ -78,12 +78,12 @@ export function AssetFileVersionCard({
 }
 
 function AssetFileVersionStructure({
-                                name,
-                                info,
-                                media,
-                                actions,
-                                maxDimensions,
-                            }: {
+    name,
+    info,
+    media,
+    actions,
+    maxDimensions,
+}: {
     name: ReactNode;
     media: ReactNode | undefined;
     actions: ReactNode;

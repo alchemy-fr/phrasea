@@ -9,9 +9,9 @@ type Props<TFieldValues> = {
 } & RSelectProps<TFieldValues, false>;
 
 export default function TagSelect<TFieldValues extends FieldValues>({
-                                                                        workspaceId,
-                                                                        ...rest
-                                                                    }: Props<TFieldValues>) {
+    workspaceId,
+    ...rest
+}: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (await getTags({
             workspace: workspaceId,

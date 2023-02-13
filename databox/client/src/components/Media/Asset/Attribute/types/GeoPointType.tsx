@@ -1,8 +1,7 @@
 import React from 'react';
 import {AttributeFormatterProps, AttributeWidgetProps, AvailableFormat} from "./types";
 import TextType from "./TextType";
-import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
-import {Box} from "@mui/material";
+import {Marker, Popup} from "react-leaflet";
 import OpenStreetMap from "../../../../Map/OpenStreetMap";
 
 enum Formats {
@@ -29,9 +28,9 @@ export default class GeoPointType extends TextType {
     }
 
     renderWidget({
-                     value,
-                     ...rest
-                 }: AttributeWidgetProps): React.ReactNode {
+        value,
+        ...rest
+    }: AttributeWidgetProps): React.ReactNode {
         return super.renderWidget({
             value: this.denormalizeValue(value),
             ...rest

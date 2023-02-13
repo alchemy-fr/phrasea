@@ -17,10 +17,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function EditAttributes({
-                                           data,
-                                           onClose,
-                                           minHeight,
-                                       }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const [state, setState] = useState<{
         attributeIndex: AttributeIndex;
         definitionIndex: DefinitionIndex;

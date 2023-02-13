@@ -11,11 +11,11 @@ type Props = {
 };
 
 export default function InfoRow({
-                                    icon,
-                                    label,
-                                    value,
-                                    copyValue
-                                }: Props) {
+    icon,
+    label,
+    value,
+    copyValue
+}: Props) {
 
     return <MenuItem disableRipple={true}>
         {icon && <ListItemIcon>

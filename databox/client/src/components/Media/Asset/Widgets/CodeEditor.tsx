@@ -8,12 +8,12 @@ type Props = {
 } & IAceEditorProps;
 
 export default function CodeEditor({
-                                       value: initialValue,
-                                       onChange,
-                                       prettify,
-                                       mode,
-                                       ...rest
-                                   }: Props) {
+    value: initialValue,
+    onChange,
+    prettify,
+    mode,
+    ...rest
+}: Props) {
     const [value, setValue] = React.useState<string | undefined>();
 
     React.useEffect(() => {

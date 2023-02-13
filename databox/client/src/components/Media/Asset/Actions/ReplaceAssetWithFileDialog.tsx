@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
-import {TextField, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
@@ -10,13 +10,9 @@ import {Asset, File} from "../../../../types";
 import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
 import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
 import {toast} from "react-toastify";
-import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
-import FormFieldErrors from "../../../Form/FormFieldErrors";
-import FormRow from "../../../Form/FormRow";
 import {putAsset} from "../../../../api/asset";
 
-type FormData = {
-};
+type FormData = {};
 
 
 type Props = {
@@ -25,10 +21,10 @@ type Props = {
 } & StackedModalProps;
 
 export default function ReplaceAssetWithFileDialog({
-                                                     asset,
-                                                     file,
-                                                     open,
-                                                 }: Props) {
+    asset,
+    file,
+    open,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
@@ -37,8 +33,7 @@ export default function ReplaceAssetWithFileDialog({
         setError,
         formState: {errors, isDirty}
     } = useForm<FormData>({
-        defaultValues: {
-        }
+        defaultValues: {}
     });
 
     const {

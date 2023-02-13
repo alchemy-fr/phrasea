@@ -15,12 +15,12 @@ type Props<TFieldValues extends FieldValues> = {
 } & SwitchProps;
 
 export default function SwitchWidget<TFieldValues extends FieldValues>({
-                                                                           name,
-                                                                           control,
-                                                                           rules,
-                                                                           label,
-                                                                           ...switchProps
-                                                                       }: Props<TFieldValues>) {
+    name,
+    control,
+    rules,
+    label,
+    ...switchProps
+}: Props<TFieldValues>) {
 
     return <Controller
         control={control}

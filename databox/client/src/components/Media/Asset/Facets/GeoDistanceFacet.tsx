@@ -7,9 +7,9 @@ import OpenStreetMap from "../../../Map/OpenStreetMap";
 
 
 export default function GeoDistanceFacet({
-                                             facet,
-                                             name,
-                                         }: FacetRowProps) {
+    facet,
+    name,
+}: FacetRowProps) {
     const {attrFilters, setAttrFilter, removeAttrFilter} = useContext(SearchContext);
     const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
     const attrFilter = attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;
@@ -33,26 +33,26 @@ export default function GeoDistanceFacet({
         {(facet.buckets as ({ to?: number, from?: number } & Bucket)[]).filter(b => Boolean(b.to) && b.doc_count > 0)
             .map((b, i) => {
 
-            return <React.Fragment
-                key={b.key.toString()}>
-                <Marker
-                    position={meta.position}
-                >
-                    <Popup>
+                return <React.Fragment
+                    key={b.key.toString()}>
+                    <Marker
+                        position={meta.position}
+                    >
+                        <Popup>
                         <span>
                             {b.doc_count}
                         </span>
-                    </Popup>
-                </Marker>
-                <Circle
-                    center={meta.position}
-                    radius={b.to}
-                    key={b.key.toString()}
-                    fillColor={colors[i] ?? colors[0]}
-                    color={colors[i] ?? colors[0]}
-                />
-            </React.Fragment>
-        })}
+                        </Popup>
+                    </Marker>
+                    <Circle
+                        center={meta.position}
+                        radius={b.to}
+                        key={b.key.toString()}
+                        fillColor={colors[i] ?? colors[0]}
+                        color={colors[i] ?? colors[0]}
+                    />
+                </React.Fragment>
+            })}
         <Marker position={meta.position}>
         </Marker>
     </OpenStreetMap>

@@ -30,13 +30,13 @@ const assetSx = (thumbSize: number) => (theme: Theme) => ({
 });
 
 export default function Thumb({
-                                  selected,
-                                  children,
-                                  size,
-                                  onMouseOver,
-                                  onMouseLeave,
-                                  className,
-                              }: Props) {
+    selected,
+    children,
+    size,
+    onMouseOver,
+    onMouseLeave,
+    className,
+}: Props) {
 
     return <Box
         sx={assetSx(size)}

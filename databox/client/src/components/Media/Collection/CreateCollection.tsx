@@ -19,13 +19,13 @@ type Props = {
 } & StackedModalProps;
 
 export default function CreateCollection({
-                                             parent,
-                                             titlePath,
-                                             workspaceId,
-                                             workspaceTitle,
-                                             onCreate,
-                                             open,
-                                         }: Props) {
+    parent,
+    titlePath,
+    workspaceId,
+    workspaceTitle,
+    onCreate,
+    open,
+}: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
     const {

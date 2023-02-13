@@ -18,15 +18,15 @@ type Props = {
 };
 
 export default function FilePlayer({
-                                       file,
-                                       title,
-                                       minDimensions,
-                                       maxDimensions,
-                                       onLoad,
-                                       controls,
-                                       noInteraction,
-                                       autoPlayable,
-                                   }: Props) {
+    file,
+    title,
+    minDimensions,
+    maxDimensions,
+    onLoad,
+    controls,
+    noInteraction,
+    autoPlayable,
+}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (!file.url) {

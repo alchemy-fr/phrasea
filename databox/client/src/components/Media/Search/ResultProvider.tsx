@@ -6,7 +6,6 @@ import {SearchContext} from "./SearchContext";
 import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters, SortBy} from "./Filter";
 import axios from "axios";
-import {AttributeType} from "../../../api/attributes";
 
 type UserSearchContext = {
     position?: string | undefined;

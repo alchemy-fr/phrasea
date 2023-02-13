@@ -10,10 +10,10 @@ import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
 import {File} from "../../../types";
 
 function RemoveBgComparison({
-                                left,
-                                right,
-                                maxDimensions
-                            }: {
+    left,
+    right,
+    maxDimensions
+}: {
     left: string;
     right: string;
 } & IntegrationOverlayCommonProps) {
@@ -36,11 +36,11 @@ type Props = {} & AssetIntegrationActionsProps;
 
 export default function RemoveBGAssetEditorActions({
     asset,
-                                                       file,
-                                                       integration,
-                                                       setIntegrationOverlay,
-                                                       enableInc,
-                                                   }: Props) {
+    file,
+    integration,
+    setIntegrationOverlay,
+    enableInc,
+}: Props) {
     const [running, setRunning] = useState(false);
     const [bgRemovedFile, setBgRemovedFile] = useState<File | undefined>(integration.data.find(d => d.name === 'file')?.value);
 

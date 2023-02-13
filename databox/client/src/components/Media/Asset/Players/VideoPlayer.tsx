@@ -45,14 +45,14 @@ type Props = {
 } & PlayerProps;
 
 export default function VideoPlayer({
-                                        file,
-                                        minDimensions,
-                                        maxDimensions,
-                                        onLoad,
-                                        autoPlayable,
-                                        noInteraction,
-                                        controls,
-                                    }: Props) {
+    file,
+    minDimensions,
+    maxDimensions,
+    onLoad,
+    autoPlayable,
+    noInteraction,
+    controls,
+}: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
     const displayContext = useContext(DisplayContext);

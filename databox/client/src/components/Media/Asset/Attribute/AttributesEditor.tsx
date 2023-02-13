@@ -81,16 +81,20 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
     return attributeIndex;
 }
 
-export type OnChangeHandler = (defId: string, locale: string, value: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => void;
+export type OnChangeHandler = (
+    defId: string,
+    locale: string,
+    value: AttrValue<string | number> | AttrValue<string | number>[] | undefined
+) => void;
 
 export default function AttributesEditor({
-                                             assetId,
-                                             definitions,
-                                             attributes: initialAttrs,
-                                             onClose,
-                                             onEdit,
-                                             minHeight,
-                                         }: Props) {
+    assetId,
+    definitions,
+    attributes: initialAttrs,
+    onClose,
+    onEdit,
+    minHeight,
+}: Props) {
     const [currentLocale, setCurrentLocale] = useState<string>('fr_FR');
     const [error, setError] = useState<string>();
     const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);

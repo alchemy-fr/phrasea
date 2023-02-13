@@ -35,11 +35,11 @@ type Props<D extends SortableItem, ItemProps extends {}> = {
 };
 
 export default function SortableList<D extends SortableItem, ItemProps extends {}>({
-                                                                                       list,
-                                                                                       onOrderChange,
-                                                                                       itemComponent,
-                                                                                       itemProps,
-                                                                                   }: Props<D, ItemProps>) {
+    list,
+    onOrderChange,
+    itemComponent,
+    itemProps,
+}: Props<D, ItemProps>) {
     const [activeId, setActiveId] = useState<string | null>(null);
     const activeIndex = null !== activeId ? list.findIndex(f => f.id === activeId) : null;
     const activeItem = null !== activeIndex ? list[activeIndex] : null;

@@ -7,8 +7,8 @@ type Props = {
 };
 
 export default function Date({
-                                 date
-                             }: Props) {
+    date
+}: Props) {
     return <>
         {getAttributeType(AttributeType.DateTime).formatValue({
             value: date,

@@ -33,10 +33,10 @@ export default class BooleanType extends BaseType implements AttributeTypeInstan
     }
 
     renderWidget({
-                     value,
-                     onChange,
-                     name,
-                 }: AttributeWidgetProps): React.ReactNode {
+        value,
+        onChange,
+        name,
+    }: AttributeWidgetProps): React.ReactNode {
         return <FormControlLabel
             control={<Checkbox
                 checked={value ?? false}

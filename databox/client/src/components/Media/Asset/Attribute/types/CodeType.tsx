@@ -5,11 +5,11 @@ import CodeEditor from "../../Widgets/CodeEditor";
 
 export default class CodeType extends TextareaType {
     renderWidget({
-                     value,
-                     onChange,
-                     id,
-                     readOnly,
-                 }: AttributeWidgetProps): React.ReactNode {
+        value,
+        onChange,
+        id,
+        readOnly,
+    }: AttributeWidgetProps): React.ReactNode {
         return <CodeEditor
             readOnly={readOnly}
             mode={this.getAceMode()}

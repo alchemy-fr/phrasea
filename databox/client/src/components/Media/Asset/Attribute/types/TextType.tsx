@@ -7,17 +7,17 @@ import CopyAttribute, {copyToClipBoardClass} from "../CopyAttribute";
 
 export default class TextType extends BaseType implements AttributeTypeInstance {
     renderWidget({
-                     value,
-                     onChange,
-                     readOnly,
-                     id,
-                     disabled,
-                     required,
-                     name,
-                     autoFocus,
-                     isRtl,
-                     indeterminate,
-                 }: AttributeWidgetProps): React.ReactNode {
+        value,
+        onChange,
+        readOnly,
+        id,
+        disabled,
+        required,
+        name,
+        autoFocus,
+        isRtl,
+        indeterminate,
+    }: AttributeWidgetProps): React.ReactNode {
         return <TextField
             {...this.getFieldProps()}
             id={id}
@@ -72,13 +72,13 @@ export default class TextType extends BaseType implements AttributeTypeInstance 
         return value.toString();
     }
 
+    supportsMultiple(): boolean {
+        return true;
+    }
+
     protected getFieldProps(): TextFieldProps {
         return {
             type: 'text',
         };
-    }
-
-    supportsMultiple(): boolean {
-        return true;
     }
 }

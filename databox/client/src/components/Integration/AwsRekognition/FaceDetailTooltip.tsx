@@ -9,9 +9,9 @@ type Props = {
 };
 
 function BooleanAssertion({
-                              title,
-                              value,
-                          }: {
+    title,
+    value,
+}: {
     title: string;
     value: TValueConfidence<boolean> | undefined;
 }) {
@@ -36,9 +36,9 @@ function BooleanAssertion({
 }
 
 function Assertion({
-                       title,
-                       value,
-                   }: {
+    title,
+    value,
+}: {
     title: string;
     value: ReactNode;
 }) {
@@ -48,9 +48,9 @@ function Assertion({
 }
 
 export default function FaceDetailTooltip({
-                                              detail,
-                                              title,
-                                          }: Props) {
+    detail,
+    title,
+}: Props) {
 
     return <>
         <div>

@@ -13,10 +13,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function InfoCollection({
-                                           data,
-                                           onClose,
-                                           minHeight,
-                                       }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     return <ContentTab
         onClose={onClose}
         minHeight={minHeight}

@@ -10,12 +10,12 @@ import {FormProps} from "./types";
 import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
-                                                                       formId,
-                                                                       data,
-                                                                       onSubmit,
-                                                                       submitting,
-                                                                       submitted,
-                                                                   }) {
+    formId,
+    data,
+    onSubmit,
+    submitting,
+    submitted,
+}) {
     const {t} = useTranslation();
 
     const {

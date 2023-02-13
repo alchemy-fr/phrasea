@@ -7,7 +7,7 @@ import {
 } from "./UserPreferencesContext";
 import {UserContext} from "../../Security/UserContext";
 import {getUserPreferences, putUserPreferences} from "../../../api/user";
-import {createCachedTheme, ThemeName} from "../../../lib/theme";
+import {createCachedTheme} from "../../../lib/theme";
 import {CssBaseline, GlobalStyles, ThemeProvider} from "@mui/material";
 
 type Props = PropsWithChildren<{}>;
@@ -15,6 +15,7 @@ type Props = PropsWithChildren<{}>;
 const scrollbarWidth = 8;
 
 const sessionStorageKey = 'userPrefs';
+
 function getFromStorage(): UserPreferences {
     const item = sessionStorage.getItem(sessionStorageKey);
 
@@ -84,7 +85,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     }
                 })}
             />
-        {children}
+            {children}
         </ThemeProvider>
     </UserPreferencesContext.Provider>
 }

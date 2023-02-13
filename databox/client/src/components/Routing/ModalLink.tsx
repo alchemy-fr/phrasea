@@ -8,10 +8,10 @@ type Props = {
 } & Omit<LinkProps, "to">;
 
 export default React.forwardRef<HTMLAnchorElement, Props>(({
-                                                               routeName,
-                                                               params,
-                                                               ...rest
-                                                           }, ref) => {
+    routeName,
+    params,
+    ...rest
+}, ref) => {
     const location = useLocation();
 
     return <Link

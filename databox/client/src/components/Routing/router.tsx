@@ -8,9 +8,9 @@ type WrapperProps = {
 } & RouteDefinition;
 
 function RouteProxy({
-                        component: Component,
-                        public: isPublic,
-                    }: WrapperProps) {
+    component: Component,
+    public: isPublic,
+}: WrapperProps) {
     const {user} = useContext(UserContext);
 
     if (!isPublic && !user) {
