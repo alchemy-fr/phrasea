@@ -79,10 +79,10 @@ class OAuthController extends AbstractIdentityProviderController
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri, [
-            'state' => http_build_query([
+            'state' => base64_decode(http_build_query([
                 'c' =>  $clientId,
                 'r' => $lastRedirectUri,
-            ])
+            ]))
         ]));
     }
 

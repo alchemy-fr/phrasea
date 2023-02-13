@@ -9,6 +9,7 @@ use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
+use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
@@ -104,6 +105,10 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(NewAssetIntegrationCollectionHandler::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+
+        $eventMessage = $eventProducer->shiftEvent();
+        self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();
