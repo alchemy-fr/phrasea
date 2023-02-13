@@ -23,9 +23,11 @@ class LoginController extends AbstractAdminController
     {
         $targetPath = $this->getTargetPath($request->getSession(), 'admin');
 
+        $target = $request->get('r', $targetPath);
+
         return $this->redirect($OAuthClient->getAuthorizeUrl(
             $this->getRedirectUrl(),
-            $authStateEncoder->encodeState($request->get('r', $targetPath))
+            $target ? $authStateEncoder->encodeState($target) : null
         ));
     }
 
