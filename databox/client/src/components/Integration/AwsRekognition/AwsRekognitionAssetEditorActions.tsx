@@ -21,10 +21,10 @@ import FaceDetailTooltip from "./FaceDetailTooltip";
 import ValueConfidence from "./ValueConfidence";
 
 function ImageOverlay({
-                          labels,
-                          texts,
-                          faces
-                      }: {
+    labels,
+    texts,
+    faces
+}: {
     labels: ImageLabel[] | undefined;
     texts: TextDetection[] | undefined;
     faces: FaceDetail[] | undefined;
@@ -111,11 +111,11 @@ type ApiCategory = {
 }
 
 export default function AwsRekognitionAssetEditorActions({
-                                                             file,
-                                                             integration,
-                                                             setIntegrationOverlay,
-                                                             enableInc,
-                                                         }: Props) {
+    file,
+    integration,
+    setIntegrationOverlay,
+    enableInc,
+}: Props) {
     const [running, setRunning] = useState<DetectType | undefined>();
     const [labels, setLabels] = useState<LabelsData | undefined>();
     const [texts, setTexts] = useState<TextsData | undefined>();

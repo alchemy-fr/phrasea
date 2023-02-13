@@ -14,10 +14,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function EditAsset({
-                                      data: asset,
-                                      onClose,
-                                      minHeight,
-                                  }: Props) {
+    data: asset,
+    onClose,
+    minHeight,
+}: Props) {
     const {t} = useTranslation();
 
     const {

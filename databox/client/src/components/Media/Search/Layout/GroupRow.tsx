@@ -9,9 +9,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function GroupRow({
-                                     asset,
-                                     children,
-                                 }: Props) {
+    asset,
+    children,
+}: Props) {
     const groupValue = asset.groupValue;
     const formatContext = React.useContext(AttributeFormatContext);
 

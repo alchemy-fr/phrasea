@@ -14,7 +14,10 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     name: FieldPath<TFieldValues>;
     multiple?: IsMulti;
     rules?: Omit<RegisterOptions<TFieldValues, FieldPath<TFieldValues>>, 'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'>;
-    onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
+    onChange?: (
+        selection: IsMulti extends true ? string[] : string,
+        workspaceId?: IsMulti extends true ? string : never
+    ) => void;
     workspaceId?: string;
     allowNew?: boolean | undefined;
     disabled?: boolean | undefined;
@@ -22,17 +25,17 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
 
 export default function CollectionTreeWidget<TFieldValues extends FieldValues,
     IsMulti extends boolean = false>({
-                                         name,
-                                         control,
-                                         rules,
-                                         label,
-                                         multiple,
-                                         onChange: extOnChange,
-                                         workspaceId,
-                                         required,
-                                         allowNew,
+    name,
+    control,
+    rules,
+    label,
+    multiple,
+    onChange: extOnChange,
+    workspaceId,
+    required,
+    allowNew,
     disabled,
-                                     }: Props<TFieldValues, IsMulti>) {
+}: Props<TFieldValues, IsMulti>) {
     return <FormControl component="fieldset" variant="standard">
         {label && <FormLabel
             required={required}

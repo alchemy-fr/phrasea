@@ -17,9 +17,9 @@ type Props = {
 }
 
 export function FileBlobThumb({
-                                  file,
-                                  size,
-                              }: Props) {
+    file,
+    size,
+}: Props) {
 
     const [dataUri, setDataUri] = useState<string>();
 

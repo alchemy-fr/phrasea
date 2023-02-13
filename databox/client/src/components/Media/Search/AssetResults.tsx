@@ -47,7 +47,12 @@ const linearProgressStyle: CSSProperties = {
 const previewEnterDelay = 500;
 const previewLeaveDelay = 400;
 
-export function getAssetListFromEvent(currentSelection: string[], id: string, pages: Asset[][], e?: React.MouseEvent): string[] {
+export function getAssetListFromEvent(
+    currentSelection: string[],
+    id: string,
+    pages: Asset[][],
+    e?: React.MouseEvent
+): string[] {
     if (e?.ctrlKey) {
         return currentSelection.includes(id) ? currentSelection.filter(a => a !== id) : currentSelection.concat([id]);
     }
@@ -282,7 +287,7 @@ export default function AssetResults() {
                     right: theme.spacing(2),
                 })}
             >
-                <AddIcon />
+                <AddIcon/>
             </Fab>
         </div>
     </div>

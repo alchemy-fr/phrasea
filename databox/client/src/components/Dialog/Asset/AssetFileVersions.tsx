@@ -15,10 +15,10 @@ const maxDimensions = {
 }
 
 export default function AssetFileVersions({
-                                       data,
-                                       onClose,
-                                       minHeight,
-                                   }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const [versions, setVersions] = useState<AssetFileVersion[]>();
 
     useEffect(() => {

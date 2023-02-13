@@ -15,12 +15,12 @@ type Props<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValue
 };
 
 export default function CheckboxWidget<TFieldValues extends FieldValues>({
-                                                                             name,
-                                                                             label,
-                                                                             control,
-                                                                             disabled,
-                                                                             rules,
-                                                                         }: Props<TFieldValues>) {
+    name,
+    label,
+    control,
+    disabled,
+    rules,
+}: Props<TFieldValues>) {
 
     return <FormControlLabel
         control={

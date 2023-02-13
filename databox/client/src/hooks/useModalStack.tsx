@@ -70,10 +70,10 @@ function decreaseState(l: number, step = 1) {
 }
 
 export default function ModalStack({
-                                       children,
-                                       renderModals: ModalsComponent = Modals,
-                                       renderBackdrop: BackdropComponent,
-                                   }: ModalStackProps) {
+    children,
+    renderModals: ModalsComponent = Modals,
+    renderBackdrop: BackdropComponent,
+}: ModalStackProps) {
     const [stack, setStack] = useState<Stack>({
         modals: [],
         current: -1,

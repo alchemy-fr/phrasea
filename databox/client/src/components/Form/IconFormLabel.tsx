@@ -6,9 +6,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function IconFormLabel({
-                                          startIcon,
-                                          children,
-                                      }: Props) {
+    startIcon,
+    children,
+}: Props) {
     return <>
         <Box sx={theme => ({
             marginRight: theme.spacing(1),

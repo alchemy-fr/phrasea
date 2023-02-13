@@ -13,19 +13,17 @@ import {stopPropagation} from "../../../../lib/stdFuncs";
 import PrivacyChip from "../../../Ui/PrivacyChip";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
 import GroupRow from "./GroupRow";
-import AttributeRowUI from "../../Asset/Attribute/AttributeRowUI";
-import {AttributeType} from "../../../../api/attributes";
 
 const AssetItem = React.memo(({
-                                  asset,
-                                  selected,
-                                  onSelect,
-                                  onUnselect,
-                                  onContextMenuOpen,
-                                  thumbSize,
-                                  displayAttributes,
-                                  onPreviewToggle,
-                              }: {
+    asset,
+    selected,
+    onSelect,
+    onUnselect,
+    onContextMenuOpen,
+    thumbSize,
+    displayAttributes,
+    onPreviewToggle,
+}: {
     asset: Asset;
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
@@ -107,14 +105,14 @@ const AssetItem = React.memo(({
 
 
 export default function ListLayout({
-                                       assets,
-                                       onSelect,
-                                       onUnselect,
-                                       onContextMenuOpen,
-                                       selectedAssets,
-                                       onPreviewToggle,
-                                       onOpen,
-                                   }: LayoutProps) {
+    assets,
+    onSelect,
+    onUnselect,
+    onContextMenuOpen,
+    selectedAssets,
+    onPreviewToggle,
+    onOpen,
+}: LayoutProps) {
     const {thumbSize, displayAttributes} = useContext(DisplayContext)!;
 
     return <Box

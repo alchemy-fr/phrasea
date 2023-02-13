@@ -14,7 +14,6 @@ use App\Entity\Core\File;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Integration\Aws\AbstractAwsIntegration;
-use App\Integration\IntegrationDataManager;
 use App\Storage\S3Copier;
 use App\Util\FileUtil;
 use App\Util\LocaleUtils;
@@ -27,21 +26,18 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
 
     private AwsTranscribeClient $client;
     private ApiBudgetLimiter $apiBudgetLimiter;
-    private IntegrationDataManager $dataManager;
     private S3Copier $s3Copier;
     private BatchAttributeManager $batchAttributeManager;
     private UriDownloader $fileDownloader;
 
     public function __construct(
         AwsTranscribeClient $client,
-        IntegrationDataManager $dataManager,
         S3Copier $s3Copier,
         ApiBudgetLimiter $apiBudgetLimiter,
         BatchAttributeManager $batchAttributeManager,
         UriDownloader $fileDownloader
     ) {
         $this->client = $client;
-        $this->dataManager = $dataManager;
         $this->apiBudgetLimiter = $apiBudgetLimiter;
         $this->batchAttributeManager = $batchAttributeManager;
         $this->s3Copier = $s3Copier;
@@ -106,6 +102,8 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
     private function transcribe(Asset $asset, File $file, array $config): void
     {
         if ($this->supportFile($file)) {
+            $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
+
             $key = sprintf('workload/%s-%s%s', $file->getId(), uniqid(), $file->getExtensionWithDot());
 
             $this->s3Copier->copyToS3($file, $config['workloadS3Bucket'], $key, [
@@ -177,7 +175,12 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
 
         $assetId = $this->getTagByKey($job['Tags'], 'assetId');
 
-        $this->batchAttributeManager->handleBatch($config['workspaceId'], [$assetId], $input);
+        $this->batchAttributeManager->handleBatch(
+            $config['workspaceId'],
+            [$assetId],
+            $input,
+        null
+        );
     }
 
     private function createAttribute(string $name, $value, ?float $confidence, ?string $locale): AttributeActionInput

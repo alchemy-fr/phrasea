@@ -10,11 +10,11 @@ import {deleteTag, getTags, postTag, putTag} from "../../../api/tag";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
-                  data,
-                  handleSubmit: onSubmit,
-                  formId,
-                  submitting,
-              }: DefinitionItemFormProps<Tag>) {
+    data,
+    handleSubmit: onSubmit,
+    formId,
+    submitting,
+}: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
 
     const {
@@ -63,10 +63,10 @@ function createNewItem(): Partial<Tag> {
 }
 
 export default function TagManager({
-                                       data: workspace,
-                                       minHeight,
-                                       onClose,
-                                   }: Props) {
+    data: workspace,
+    minHeight,
+    onClose,
+}: Props) {
     const {t} = useTranslation();
 
     const handleSave = async (data: Tag) => {

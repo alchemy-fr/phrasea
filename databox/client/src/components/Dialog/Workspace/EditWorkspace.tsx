@@ -14,10 +14,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function EditWorkspace({
-                                          data,
-                                          onClose,
-                                          minHeight,
-                                      }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const {t} = useTranslation();
 
     const {

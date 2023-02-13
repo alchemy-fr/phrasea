@@ -12,10 +12,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function InfoAsset({
-                                      data,
-                                      onClose,
-                                      minHeight,
-                                  }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     return <ContentTab
         onClose={onClose}
         minHeight={minHeight}

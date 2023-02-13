@@ -10,9 +10,9 @@ type Props = {
 };
 
 export default function AssetCollectionList({
-                                                workspace,
-                                                collections,
-                                            }: Props) {
+    workspace,
+    collections,
+}: Props) {
     const {collectionsLimit, displayCollections} = useContext(DisplayContext)!;
 
     if (!displayCollections) {

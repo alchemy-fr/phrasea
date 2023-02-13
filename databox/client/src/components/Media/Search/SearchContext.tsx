@@ -1,5 +1,5 @@
 import React from "react";
-import {ResolvedBucketValue, FacetType} from "../Asset/Facets";
+import {FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {Filters, FilterType, SortBy} from "./Filter";
 
 export type TSearchContext = {
@@ -13,8 +13,19 @@ export type TSearchContext = {
     setQuery: (query: string, force?: boolean) => void;
     geolocation?: string | undefined;
     setGeoLocation: (position: string | undefined) => void;
-    setAttrFilter: (attrName: string, type: FilterType | undefined, values: ResolvedBucketValue[], attrTitle: string, widget?: FacetType | undefined) => void;
-    toggleAttrFilter: (attrName: string, type: FilterType | undefined, value: ResolvedBucketValue, attrTitle: string) => void;
+    setAttrFilter: (
+        attrName: string,
+        type: FilterType | undefined,
+        values: ResolvedBucketValue[],
+        attrTitle: string,
+        widget?: FacetType | undefined
+    ) => void;
+    toggleAttrFilter: (
+        attrName: string,
+        type: FilterType | undefined,
+        value: ResolvedBucketValue,
+        attrTitle: string
+    ) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
     attrFilters: Filters;

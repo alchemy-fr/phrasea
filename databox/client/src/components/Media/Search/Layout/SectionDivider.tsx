@@ -7,7 +7,11 @@ type Props = PropsWithChildren<{
     rootStyle?: (theme: Theme) => CSSProperties;
 }>;
 
-function applyStyle(theme: Theme, defaultStyle: CSSProperties, style: ((theme: Theme) => CSSProperties) | undefined): CSSProperties {
+function applyStyle(
+    theme: Theme,
+    defaultStyle: CSSProperties,
+    style: ((theme: Theme) => CSSProperties) | undefined
+): CSSProperties {
     if (style) {
         return {
             ...defaultStyle,
@@ -21,10 +25,10 @@ function applyStyle(theme: Theme, defaultStyle: CSSProperties, style: ((theme: T
 export const sectionDividerClassname = 'section-divider';
 
 export default function SectionDivider({
-                                           children,
-                                           rootStyle,
-                                           textStyle,
-                                       }: Props) {
+    children,
+    rootStyle,
+    textStyle,
+}: Props) {
 
     const theme = useTheme();
 

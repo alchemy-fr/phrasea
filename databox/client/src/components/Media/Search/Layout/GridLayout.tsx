@@ -21,14 +21,14 @@ const collLineHeight = 32;
 const tagLineHeight = 32;
 
 const AssetItem = React.memo(({
-                                  asset,
-                                  selected,
-                                  onSelect,
-                                  onUnselect,
-                                  onContextMenuOpen,
-                                  thumbSize,
-                                  onPreviewToggle,
-                              }: {
+    asset,
+    selected,
+    onSelect,
+    onUnselect,
+    onContextMenuOpen,
+    thumbSize,
+    onPreviewToggle,
+}: {
     asset: Asset;
     onSelect: OnSelectAsset;
     onUnselect: OnUnselectAsset;
@@ -104,14 +104,14 @@ const AssetItem = React.memo(({
 });
 
 export default function GridLayout({
-                                       assets,
-                                       selectedAssets,
-                                       onSelect,
-                                       onUnselect,
-                                       onPreviewToggle,
-                                       onContextMenuOpen,
-                                       onOpen,
-                                   }: LayoutProps) {
+    assets,
+    selectedAssets,
+    onSelect,
+    onUnselect,
+    onPreviewToggle,
+    onContextMenuOpen,
+    onOpen,
+}: LayoutProps) {
     const theme = useTheme();
     const d = useContext(DisplayContext)!;
     const spacing = Number(theme.spacing(1).slice(0, -2));

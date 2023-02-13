@@ -8,9 +8,9 @@ type Props = PropsWithChildren<{} & {
 }>;
 
 export default function FormRow({
-                                    children,
-                                    sx
-                                }: Props) {
+    children,
+    sx
+}: Props) {
     return <Box
         sx={{
             mb: 3,

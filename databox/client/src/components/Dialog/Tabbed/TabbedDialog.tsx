@@ -29,14 +29,14 @@ export type DialogTabProps = {
 }
 
 export default function TabbedDialog<P extends {}>({
-                                                       routeName,
-                                                       routeParams,
-                                                       tabs: configTabs,
-                                                       maxWidth,
-                                                       minHeight,
-                                                       title,
-                                                       ...rest
-                                                   }: Props<P>) {
+    routeName,
+    routeParams,
+    tabs: configTabs,
+    maxWidth,
+    minHeight,
+    title,
+    ...rest
+}: Props<P>) {
     const {tab} = useParams();
     const {state} = useLocation() as {
         state?: {

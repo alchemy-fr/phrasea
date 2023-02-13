@@ -35,9 +35,9 @@ const assetListStyle = {
 };
 
 function AssetList({
-                       assets,
-                       setSelection,
-                   }: {
+    assets,
+    setSelection,
+}: {
     assets: Asset[];
     setSelection: (selection: string[]) => void;
 }) {
@@ -56,10 +56,10 @@ function AssetList({
 }
 
 export default function CopyAssetsDialog({
-                                             assets,
-                                             onComplete,
-                                             open,
-                                         }: Props) {
+    assets,
+    onComplete,
+    open,
+}: Props) {
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
     const {closeModal} = useModals();

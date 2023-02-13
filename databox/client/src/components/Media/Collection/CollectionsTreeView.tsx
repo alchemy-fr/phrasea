@@ -31,16 +31,16 @@ type CollectionTreeProps = {
 export type UpdateCollectionPath = (index: number, id: string | null, value?: string | null, editing?: boolean) => void;
 
 function CollectionTree({
-                            updateCollectionPath,
-                            newCollectionPath,
-                            setNewCollectionPath,
-                            collection,
-                            workspaceId,
-                            disabledBranches,
-                            setExpanded,
-                            allowNew,
-                            depth = 0
-                        }: CollectionTreeProps) {
+    updateCollectionPath,
+    newCollectionPath,
+    setNewCollectionPath,
+    collection,
+    workspaceId,
+    disabledBranches,
+    setExpanded,
+    allowNew,
+    depth = 0
+}: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
     const [tree, setTree] = React.useState<CollectionOptionalWorkspace[] | undefined>(collection.children);
 
@@ -138,7 +138,10 @@ type NewCollectionPath = {
 type SetNewCollectionPath = (nodes: NewCollectionNode[], rootId?: string) => void;
 
 type Props<IsMulti extends boolean = false> = {
-    onChange?: (selection: IsMulti extends true ? string[] : string, workspaceId?: IsMulti extends true ? string : never) => void;
+    onChange?: (
+        selection: IsMulti extends true ? string[] : string,
+        workspaceId?: IsMulti extends true ? string : never
+    ) => void;
     value?: IsMulti extends true ? string[] : string;
     multiple?: IsMulti;
     workspaceId?: string;
@@ -148,14 +151,14 @@ type Props<IsMulti extends boolean = false> = {
 }
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
-                                                                         onChange,
-                                                                         value,
-                                                                         multiple,
-                                                                         workspaceId,
-                                                                         disabledBranches,
-                                                                         allowNew,
+    onChange,
+    value,
+    multiple,
+    workspaceId,
+    disabledBranches,
+    allowNew,
     disabled,
-                                                                     }: Props<IsMulti>) {
+}: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
     const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPath>();
     const [expanded, setExpanded] = React.useState<string[]>([]);

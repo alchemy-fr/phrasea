@@ -12,11 +12,11 @@ import RenditionClassPermissions from "./RenditionClassPermissions";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
-                  data,
-                  handleSubmit: onSubmit,
-                  formId,
-                  submitting,
-              }: DefinitionItemFormProps<RenditionClass>) {
+    data,
+    handleSubmit: onSubmit,
+    formId,
+    submitting,
+}: DefinitionItemFormProps<RenditionClass>) {
     const {t} = useTranslation();
 
     const {
@@ -91,10 +91,10 @@ function createNewItem(): Partial<RenditionClass> {
 }
 
 export default function RenditionClassManager({
-                                                  data: workspace,
-                                                  minHeight,
-                                                  onClose,
-                                              }: Props) {
+    data: workspace,
+    minHeight,
+    onClose,
+}: Props) {
     const {t} = useTranslation();
 
     const handleSave = async (data: RenditionClass) => {

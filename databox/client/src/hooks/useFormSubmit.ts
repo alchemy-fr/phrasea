@@ -13,9 +13,9 @@ type Props<T extends object, R> = {
 export type UseFormHandleSubmit<T extends object> = (setError: UseFormSetError<T>) => (data: T) => Promise<void>;
 
 export default function useFormSubmit<T extends object, R = any>({
-                                                                     onSubmit,
-                                                                     onSuccess,
-                                                                 }: Props<T, R>) {
+    onSubmit,
+    onSuccess,
+}: Props<T, R>) {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);

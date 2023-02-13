@@ -10,14 +10,14 @@ type ColorBoxProps = PropsWithChildren<{
 }> & React.HTMLProps<HTMLDivElement>;
 
 export function ColorBox({
-                             color,
-                             width = 30,
-                             height = 22,
-                             borderWidth = 2,
-                             children,
-                             style,
-                             ...divProps
-                         }: ColorBoxProps) {
+    color,
+    width = 30,
+    height = 22,
+    borderWidth = 2,
+    children,
+    style,
+    ...divProps
+}: ColorBoxProps) {
     return <div
         style={{
             width,
@@ -39,12 +39,12 @@ type Props = {
 };
 
 export default function ColorPicker({
-                                        color,
-                                        label,
-                                        onChange,
-                                        disabled,
-                                        readOnly,
-                                    }: Props) {
+    color,
+    label,
+    onChange,
+    disabled,
+    readOnly,
+}: Props) {
     const [open, setOpen] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>();
 

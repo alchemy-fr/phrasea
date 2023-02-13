@@ -13,9 +13,9 @@ type Props = {
 }
 
 export default function FileCard({
-                                     file,
-                                     onRemove,
-                                 }: Props) {
+    file,
+    onRemove,
+}: Props) {
     return <Paper sx={(theme) => ({
         padding: theme.spacing(2),
         margin: 'auto',

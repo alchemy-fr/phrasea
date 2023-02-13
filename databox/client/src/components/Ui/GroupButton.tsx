@@ -29,13 +29,13 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function GroupButton({
-                                        actions,
-                                        children,
-                                        onClick,
-                                        startIcon,
-                                        id,
-                                        disabled,
-                                    }: Props) {
+    actions,
+    children,
+    onClick,
+    startIcon,
+    id,
+    disabled,
+}: Props) {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLDivElement>(null);
 

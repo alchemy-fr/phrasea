@@ -24,7 +24,11 @@ type IntegrationOverlay<P extends {} = any> = {
     replace: boolean;
 }
 
-export type SetIntegrationOverlayFunction<P extends {} = any> = (component: FC<P & IntegrationOverlayCommonProps>, props?: P, replace?: boolean) => void;
+export type SetIntegrationOverlayFunction<P extends {} = any> = (
+    component: FC<P & IntegrationOverlayCommonProps>,
+    props?: P,
+    replace?: boolean
+) => void;
 
 const menuWidth = 300;
 

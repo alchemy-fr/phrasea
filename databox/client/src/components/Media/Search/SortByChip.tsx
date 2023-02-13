@@ -7,10 +7,10 @@ import {Chip} from "@mui/material";
 type Props = {} & SortBy;
 
 export default function SortByChip({
-                                       t,
-                                       w,
-                                       a,
-                                   }: Props) {
+    t,
+    w,
+    a,
+}: Props) {
 
     return <Chip
         sx={{

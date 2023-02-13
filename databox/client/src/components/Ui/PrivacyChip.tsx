@@ -26,9 +26,9 @@ function usePrivacyLabel(privacy: Privacy) {
 }
 
 export default function PrivacyChip({
-                                        privacy,
-                                        ...props
-                                    }: Props & ChipProps) {
+    privacy,
+    ...props
+}: Props & ChipProps) {
     const privacyLabel = usePrivacyLabel(privacy);
 
     return <Chip
@@ -47,10 +47,10 @@ export default function PrivacyChip({
 }
 
 export function PrivacyTooltip({
-                                   privacy,
-                                   iconProps = {},
-                                   tooltipProps = {},
-                               }: {
+    privacy,
+    iconProps = {},
+    tooltipProps = {},
+}: {
     privacy: Privacy;
     iconProps?: SvgIconProps;
     tooltipProps?: Omit<TooltipProps, "children" | "title">;

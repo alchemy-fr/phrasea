@@ -15,17 +15,17 @@ type Props = {
 } & DOMAttributes<HTMLElement>;
 
 export default function AssetThumb({
-                                       asset: {
-                                           resolvedTitle,
-                                           pendingSourceFile,
-                                           thumbnail,
-                                           thumbnailActive,
-                                           original,
-                                       },
-                                       thumbSize,
-                                       selected,
-                                       ...domAttrs
-                                   }: Props) {
+    asset: {
+        resolvedTitle,
+        pendingSourceFile,
+        thumbnail,
+        thumbnailActive,
+        original,
+    },
+    thumbSize,
+    selected,
+    ...domAttrs
+}: Props) {
     const dimensions = createDimensions(thumbSize);
 
     return <Thumb

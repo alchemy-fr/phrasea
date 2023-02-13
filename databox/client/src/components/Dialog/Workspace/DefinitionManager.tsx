@@ -47,9 +47,9 @@ type SortableListItemProps<D extends SortableItem & DefinitionBase> = {
 }
 
 const SortableListItem = React.memo(<D extends SortableItem & DefinitionBase>({
-                                                                                  data,
-                                                                                  itemProps,
-                                                                              }: {
+    data,
+    itemProps,
+}: {
     itemProps: SortableListItemProps<D>;
 } & SortableItemProps<D>) => {
     const {
@@ -91,18 +91,18 @@ type Props<D extends DefinitionBase> = {
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
-                                                                        load,
-                                                                        handleDelete,
-                                                                        itemComponent,
-                                                                        listComponent,
-                                                                        onClose,
-                                                                        createNewItem,
-                                                                        minHeight,
-                                                                        newLabel,
-                                                                        handleSave,
-                                                                        workspaceId,
-                                                                        onSort,
-                                                                    }: Props<D>) {
+    load,
+    handleDelete,
+    itemComponent,
+    listComponent,
+    onClose,
+    createNewItem,
+    minHeight,
+    newLabel,
+    handleSave,
+    workspaceId,
+    onSort,
+}: Props<D>) {
     const [state, setState] = useState<State<D>>({
         list: undefined,
         item: undefined,

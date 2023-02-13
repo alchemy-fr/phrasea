@@ -24,10 +24,10 @@ const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
 }
 
 function IntegrationProxy({
-                              expanded,
-                              onExpand,
-                              ...props
-                          }: {
+    expanded,
+    onExpand,
+    ...props
+}: {
     expanded: boolean;
     onExpand: () => void;
 } & AssetIntegrationActionsProps) {
@@ -65,10 +65,10 @@ type Props = {
 };
 
 export default function FileIntegrations({
-                                             asset,
-                                             file,
-                                             setIntegrationOverlay,
-                                         }: Props) {
+    asset,
+    file,
+    setIntegrationOverlay,
+}: Props) {
     const [integrations, setIntegrations] = useState<WorkspaceIntegration[]>();
     const [expanded, setExpanded] = useState<string>();
     const enableIncs = useRef<Record<string, number>>({});

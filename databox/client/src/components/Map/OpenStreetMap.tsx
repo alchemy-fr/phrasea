@@ -9,11 +9,11 @@ type Props = PropsWithChildren<{
 }> & MapOptions;
 
 export default function OpenStreetMap({
-                                          width,
-                                          height,
-                                          children,
-                                          ...mapProps
-                                      }: Props) {
+    width,
+    height,
+    children,
+    ...mapProps
+}: Props) {
 
     return <Box sx={{
         overflow: 'hidden',

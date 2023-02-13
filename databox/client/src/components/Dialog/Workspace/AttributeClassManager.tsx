@@ -18,11 +18,11 @@ import {AclPermission} from "../../Acl/acl";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
-                  data,
-                  handleSubmit: onSubmit,
-                  formId,
-                  submitting,
-              }: DefinitionItemFormProps<AttributeClass>) {
+    data,
+    handleSubmit: onSubmit,
+    formId,
+    submitting,
+}: DefinitionItemFormProps<AttributeClass>) {
     const {t} = useTranslation();
 
     const {
@@ -139,10 +139,10 @@ function createNewItem(): Partial<AttributeClass> {
 }
 
 export default function AttributeClassManager({
-                                                  data: workspace,
-                                                  minHeight,
-                                                  onClose,
-                                              }: Props) {
+    data: workspace,
+    minHeight,
+    onClose,
+}: Props) {
     const {t} = useTranslation();
 
     const handleSave = async (data: AttributeClass) => {

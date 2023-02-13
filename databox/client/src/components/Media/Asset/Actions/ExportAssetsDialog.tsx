@@ -30,9 +30,9 @@ type IndexedDefinition = {
 }
 
 export default function ExportAssetsDialog({
-                                               assets,
-                                               open,
-                                           }: Props) {
+    assets,
+    open,
+}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
@@ -41,7 +41,11 @@ export default function ExportAssetsDialog({
     const count = assets.length;
 
     useEffect(() => {
-        const workspaceIds = assets.map(a => a.workspace.id).filter((value, index, self) => self.indexOf(value) === index);
+        const workspaceIds = assets.map(a => a.workspace.id).filter((
+            value,
+            index,
+            self
+        ) => self.indexOf(value) === index);
 
         getRenditionDefinitions({
             workspaceIds,

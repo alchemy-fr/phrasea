@@ -23,11 +23,11 @@ type Props = {
 };
 
 export default function PermissionList({
-                                           displayedPermissions,
-                                           loadPermissions,
-                                           updatePermission,
-                                           deletePermission,
-                                       }: Props) {
+    displayedPermissions,
+    loadPermissions,
+    updatePermission,
+    deletePermission,
+}: Props) {
     const [data, setData] = useState<State>();
     const {t} = useTranslation();
 

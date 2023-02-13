@@ -11,10 +11,10 @@ type Props = {
 };
 
 export default function AclForm({
-                                    objectType,
-                                    objectId,
-                                    displayedPermissions,
-                                }: Props) {
+    objectType,
+    objectId,
+    displayedPermissions,
+}: Props) {
 
     const loadPermissions = useCallback(async () => {
         return getAces(objectType, objectId);

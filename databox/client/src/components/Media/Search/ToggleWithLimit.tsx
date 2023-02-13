@@ -11,13 +11,13 @@ type Props = {
 };
 
 export default function ToggleWithLimit({
-                                            value,
-                                            toggle,
-                                            setLimit,
-                                            limit,
-                                            label,
-                                            unit
-                                        }: Props) {
+    value,
+    toggle,
+    setLimit,
+    limit,
+    label,
+    unit
+}: Props) {
 
     return <Grid container spacing={2} alignItems="center">
         <Grid item>

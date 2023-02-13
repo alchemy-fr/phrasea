@@ -1,11 +1,9 @@
-import React, {PropsWithChildren, useCallback, useEffect, useState} from "react";
+import React, {PropsWithChildren, useCallback, useState} from "react";
 import {SearchContext} from "./SearchContext";
-import {ResolvedBucketValue, extractLabelValueFromKey, FacetType} from "../Asset/Facets";
+import {extractLabelValueFromKey, FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {FilterEntry, Filters, FilterType, SortBy} from "./Filter";
 import {hashToQuery, queryToHash} from "./search";
 import useHash from "../../../lib/useHash";
-import {useBrowserPosition} from "../../../hooks/useBrowserLocation";
-import {AttributeType} from "../../../api/attributes";
 
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0 ? sortBy : [
@@ -77,7 +75,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         });
     };
 
-    const toggleAttrFilter = (attrName: string, type: FilterType | undefined, keyValue: ResolvedBucketValue, attrTitle: string): void => {
+    const toggleAttrFilter = (
+        attrName: string,
+        type: FilterType | undefined,
+        keyValue: ResolvedBucketValue,
+        attrTitle: string
+    ): void => {
         setAttrFilters(prev => {
             const f = [...prev];
 
@@ -109,7 +112,13 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         });
     };
 
-    const setAttrFilter = (attrName: string, type: FilterType | undefined, values: ResolvedBucketValue[], attrTitle: string, widget?: FacetType): void => {
+    const setAttrFilter = (
+        attrName: string,
+        type: FilterType | undefined,
+        values: ResolvedBucketValue[],
+        attrTitle: string,
+        widget?: FacetType
+    ): void => {
         setAttrFilters(prev => {
             const f = [...prev];
 

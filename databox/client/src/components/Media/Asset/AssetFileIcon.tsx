@@ -58,9 +58,9 @@ type Props = {
 } & SvgIconProps;
 
 export default function AssetFileIcon({
-                                          file,
-                                          ...iconProps
-                                      }: Props) {
+    file,
+    ...iconProps
+}: Props) {
     return React.createElement(getIconFromType(file.type), {
         fontSize: 'large',
         ...iconProps,

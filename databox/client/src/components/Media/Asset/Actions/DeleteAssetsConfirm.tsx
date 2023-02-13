@@ -10,10 +10,10 @@ type Props = {
 } & StackedModalProps;
 
 export default function DeleteAssetsConfirm({
-                                                assetIds,
-                                                onDelete,
-                                                open,
-                                            }: Props) {
+    assetIds,
+    onDelete,
+    open,
+}: Props) {
     const {t} = useTranslation();
     const count = assetIds.length;
 

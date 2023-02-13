@@ -13,13 +13,13 @@ type Props<T extends object> = PropsWithChildren<{
 }>;
 
 export default function ContentTab<T extends object>({
-                                                         loading,
-                                                         children,
-                                                         onClose,
-                                                         minHeight,
-                                                         disableGutters,
-                                                         disablePadding,
-                                                     }: Props<T>) {
+    loading,
+    children,
+    onClose,
+    minHeight,
+    disableGutters,
+    disablePadding,
+}: Props<T>) {
     const {t} = useTranslation();
     const progressHeight = 3;
 

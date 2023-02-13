@@ -19,11 +19,11 @@ type Props = {
 } & BaseSaveAsProps;
 
 export default function SaveAsButton({
-                                         file,
-                                         asset,
-                                        variant = 'contained',
+    file,
+    asset,
+    variant = 'contained',
     ...saveAsProps
-                                     }: Props) {
+}: Props) {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const {openModal} = useModals();

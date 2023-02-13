@@ -31,18 +31,21 @@ type Props = {
 }
 
 export default function AttributeType({
-                                          definition,
-                                          readOnly,
-                                          attributes,
-                                          disabled,
-                                          onChange,
-                                          indeterminate,
-                                          currentLocale,
-                                          autoFocus,
-                                          onLocaleChange,
-                                      }: Props) {
+    definition,
+    readOnly,
+    attributes,
+    disabled,
+    onChange,
+    indeterminate,
+    currentLocale,
+    autoFocus,
+    onLocaleChange,
+}: Props) {
 
-    const changeHandler = React.useCallback((locale: string, value: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => {
+    const changeHandler = React.useCallback((
+        locale: string,
+        value: AttrValue<string | number> | AttrValue<string | number>[] | undefined
+    ) => {
         onChange(definition.id, locale, value);
     }, [onChange]);
 

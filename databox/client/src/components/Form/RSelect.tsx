@@ -75,18 +75,18 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = ({
 
 export default function RSelectWidget<TFieldValues extends FieldValues,
     IsMulti extends boolean = false>({
-                                         cacheId,
-                                         control,
-                                         name,
-                                         value: initialValue,
-                                         clearOnSelect,
-                                         onChange: onChangeProp,
-                                         loadOptions,
-                                         disabledValues,
-                                         cacheOptions = true,
-                                         isMulti,
-                                         ...rest
-                                     }: Props<TFieldValues, IsMulti>) {
+    cacheId,
+    control,
+    name,
+    value: initialValue,
+    clearOnSelect,
+    onChange: onChangeProp,
+    loadOptions,
+    disabledValues,
+    cacheOptions = true,
+    isMulti,
+    ...rest
+}: Props<TFieldValues, IsMulti>) {
     const [value, setValue] = useState(initialValue);
     const [lastOptions, setLastOptions] = useState<Record<string, Option>>(cacheId ? (cache[cacheId] ?? {}) : {});
     const theme = useTheme();

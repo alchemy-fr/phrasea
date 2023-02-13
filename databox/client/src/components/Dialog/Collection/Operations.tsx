@@ -15,10 +15,10 @@ type Props = {
 } & DialogTabProps;
 
 export default function Operations({
-                                       data,
-                                       onClose,
-                                       minHeight,
-                                   }: Props) {
+    data,
+    onClose,
+    minHeight,
+}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const deleteConfirmCollection = async () => {

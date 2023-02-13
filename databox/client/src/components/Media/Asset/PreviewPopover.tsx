@@ -6,8 +6,6 @@ import {getRelativeViewHeight, getRelativeViewWidth} from "../../../lib/style";
 import {createDimensions} from "./Players";
 import {zIndex} from "../../../themes/zIndex";
 import Attributes from "./Attribute/Attributes";
-import AttributeRowUI from "./Attribute/AttributeRowUI";
-import {AttributeType} from "../../../api/attributes";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -19,11 +17,11 @@ type Props = {
 const relativeSize = 50;
 
 export default function PreviewPopover({
-                                           previewLocked,
-                                           asset,
-                                           anchorEl,
+    previewLocked,
+    asset,
+    anchorEl,
     displayAttributes,
-                                       }: Props) {
+}: Props) {
     const [anchor, setAnchor] = useState<HTMLElement>();
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
@@ -75,19 +73,22 @@ export default function PreviewPopover({
                 direction={'row'}
                 spacing={1}
             >
-                <FilePlayer
-                    key={asset.id}
-                    file={asset.preview!.file!}
-                    maxDimensions={createDimensions(width / 2, height)}
-                    title={asset.resolvedTitle}
-                    onLoad={onLoad}
-                    noInteraction={!previewLocked}
-                    controls={previewLocked}
-                    autoPlayable={true}
-                />
+                <div>
+                    <FilePlayer
+                        key={asset.id}
+                        file={asset.preview!.file!}
+                        maxDimensions={createDimensions(width / 2, height)}
+                        title={asset.resolvedTitle}
+                        onLoad={onLoad}
+                        noInteraction={!previewLocked}
+                        controls={previewLocked}
+                        autoPlayable={true}
+                    />
+                </div>
                 {displayAttributes && <div
                     style={{
                         maxHeight: height,
+                        overflow: previewLocked ? 'auto' : 'hidden',
                     }}
                 >
                     <Attributes

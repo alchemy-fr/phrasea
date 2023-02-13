@@ -29,9 +29,9 @@ function getLocaleCountryFlag(locale: string): FunctionComponent | undefined {
 }
 
 export default function Flag({
-                                 locale,
-                                 ...iconProps
-                             }: Props & IconProps) {
+    locale,
+    ...iconProps
+}: Props & IconProps) {
     const component = getLocaleCountryFlag(locale);
 
     if (component) {

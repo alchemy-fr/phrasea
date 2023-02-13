@@ -14,9 +14,9 @@ type Props = {
 };
 
 export default function CollectionMoveSection({
-                                                  collection,
-                                                  onMoved,
-                                              }: Props) {
+    collection,
+    onMoved,
+}: Props) {
     const {t} = useTranslation();
     const [dest, setDest] = useState<string>('');
     const [loading, setLoading] = useState(false);

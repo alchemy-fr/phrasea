@@ -117,7 +117,12 @@ type CopyOptions = {
     withTags?: boolean;
 };
 
-export async function copyAssets(assetIds: string[], destIri: string, byReference: boolean, options: CopyOptions = {}): Promise<void> {
+export async function copyAssets(
+    assetIds: string[],
+    destIri: string,
+    byReference: boolean,
+    options: CopyOptions = {}
+): Promise<void> {
     await apiClient.post(`/assets/copy`, {
         destination: destIri,
         ids: assetIds,

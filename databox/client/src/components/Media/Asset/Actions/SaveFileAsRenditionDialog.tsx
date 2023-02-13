@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useTranslation} from "react-i18next";
 import {useForm} from "react-hook-form";
-import {FormGroup, FormLabel, TextField, Typography} from "@mui/material";
+import {FormGroup, FormLabel} from "@mui/material";
 import FormDialog from "../../../Dialog/FormDialog";
 import useFormSubmit from "../../../../hooks/useFormSubmit";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
@@ -10,10 +10,8 @@ import {Asset, File} from "../../../../types";
 import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
 import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
 import {toast} from "react-toastify";
-import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
 import FormFieldErrors from "../../../Form/FormFieldErrors";
 import FormRow from "../../../Form/FormRow";
-import RenditionClassSelect from "../../../Form/RenditionClassSelect";
 import RenditionDefinitionSelect from "../../../Form/RenditionDefinitionSelect";
 import {postRendition} from "../../../../api/rendition";
 
@@ -28,10 +26,10 @@ type Props = {
 } & StackedModalProps;
 
 export default function SaveFileAsRenditionDialog({
-                                                     asset,
-                                                     file,
-                                                     open,
-                                                 }: Props) {
+    asset,
+    file,
+    open,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 

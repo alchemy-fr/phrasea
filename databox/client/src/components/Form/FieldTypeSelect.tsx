@@ -7,8 +7,8 @@ import {getAttributeFieldTypes} from "../../api/attributes";
 type Props<TFieldValues extends FieldValues> = {} & RSelectProps<TFieldValues, false>;
 
 export default function FieldTypeSelect<TFieldValues extends FieldValues>({
-                                                                              ...rest
-                                                                          }: Props<TFieldValues>) {
+    ...rest
+}: Props<TFieldValues>) {
 
     const load = useCallback(async (inputValue: string): Promise<SelectOption[]> => {
         const data = await getAttributeFieldTypes();

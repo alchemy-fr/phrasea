@@ -20,16 +20,16 @@ type Props = {
 const deferred = 0;
 
 export default function MultiAttributeRow({
-                                              id,
-                                              name,
-                                              values: initialValues,
-                                              disabled,
-                                              isRtl,
-                                              onChange,
-                                              type,
-                                              indeterminate,
-                                              readOnly,
-                                          }: Props) {
+    id,
+    name,
+    values: initialValues,
+    disabled,
+    isRtl,
+    onChange,
+    type,
+    indeterminate,
+    readOnly,
+}: Props) {
     const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(initialValues.length > 0 ? initialValues : [createNewValue(type)]);
 

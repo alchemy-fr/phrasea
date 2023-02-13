@@ -2,7 +2,7 @@ import React from 'react';
 import {Asset} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import ContentTab from "../Tabbed/ContentTab";
-import {Button, styled, Typography} from "@mui/material";
+import {Button, styled} from "@mui/material";
 import {triggerAssetWorkflow} from "../../../api/asset";
 import {toast} from "react-toastify";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';

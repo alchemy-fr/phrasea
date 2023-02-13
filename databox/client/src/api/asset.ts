@@ -23,7 +23,10 @@ export type ESDebug = {
     totalResponseTime: number;
 }
 
-export async function getAssets(options: GetAssetOptions, requestConfig?: AxiosRequestConfig): Promise<ApiCollectionResponse<Asset, {
+export async function getAssets(
+    options: GetAssetOptions,
+    requestConfig?: AxiosRequestConfig
+): Promise<ApiCollectionResponse<Asset, {
     debug: ESDebug;
 }>> {
     const res = options.url

@@ -8,9 +8,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function AssetSelectionProvider({
-                                                   children,
-                                                   onSelectionChange
-                                               }: Props) {
+    children,
+    onSelectionChange
+}: Props) {
     const resultContext = useContext(ResultContext);
     const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
     const didMount = useRef(false);

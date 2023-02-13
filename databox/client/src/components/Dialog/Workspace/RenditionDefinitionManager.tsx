@@ -19,12 +19,12 @@ import {toast} from "react-toastify";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
 
 function Item({
-                  data,
-                  handleSubmit: onSubmit,
-                  formId,
-                  submitting,
-                  workspaceId,
-              }: DefinitionItemFormProps<RenditionDefinition>) {
+    data,
+    handleSubmit: onSubmit,
+    formId,
+    submitting,
+    workspaceId,
+}: DefinitionItemFormProps<RenditionDefinition>) {
     const {t} = useTranslation();
 
     const {
@@ -162,10 +162,10 @@ function createNewItem(): Partial<RenditionDefinition> {
 }
 
 export default function RenditionDefinitionManager({
-                                                       data: workspace,
-                                                       minHeight,
-                                                       onClose,
-                                                   }: Props) {
+    data: workspace,
+    minHeight,
+    onClose,
+}: Props) {
     const {t} = useTranslation();
 
     const handleSave = async (data: RenditionDefinition) => {

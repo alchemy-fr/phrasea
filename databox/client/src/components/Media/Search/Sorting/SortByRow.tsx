@@ -7,7 +7,12 @@ import {CSS} from "@dnd-kit/utilities";
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import {grey} from "@mui/material/colors";
 
-export type OnChangeHandler = (sortBy: SortBy, enabled: boolean | undefined, way?: 0 | 1, grouped?: boolean | undefined) => void;
+export type OnChangeHandler = (
+    sortBy: SortBy,
+    enabled: boolean | undefined,
+    way?: 0 | 1,
+    grouped?: boolean | undefined
+) => void;
 
 type Props = {
     enabled: boolean;
@@ -16,9 +21,9 @@ type Props = {
 };
 
 export default function SortByRow({
-                                      sortBy,
-                                      onChange,
-                                  }: Props) {
+    sortBy,
+    onChange,
+}: Props) {
 
     const isDesc = sortBy.w === 1;
 

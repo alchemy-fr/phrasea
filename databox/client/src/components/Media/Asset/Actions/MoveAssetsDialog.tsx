@@ -24,11 +24,11 @@ type FormData = {
 }
 
 export default function MoveAssetsDialog({
-                                             assetIds,
-                                             workspaceId,
-                                             onComplete,
-                                             open,
-                                         }: Props) {
+    assetIds,
+    workspaceId,
+    onComplete,
+    open,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 

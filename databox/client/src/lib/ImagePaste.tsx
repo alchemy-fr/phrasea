@@ -1,6 +1,9 @@
 import React from "react";
 
-export function retrieveImageFromClipboardAsBlob(pasteEvent: React.ClipboardEvent, callback: (blob: File) => void): void {
+export function retrieveImageFromClipboardAsBlob(
+    pasteEvent: React.ClipboardEvent,
+    callback: (blob: File) => void
+): void {
     if (!pasteEvent.clipboardData) {
         return;
     }

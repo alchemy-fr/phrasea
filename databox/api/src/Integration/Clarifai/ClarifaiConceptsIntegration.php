@@ -50,7 +50,12 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
             $input->actions[] = $i;
         }
 
-        $this->batchAttributeManager->handleBatch($asset->getWorkspaceId(), [$asset->getId()], $input);
+        $this->batchAttributeManager->handleBatch(
+            $asset->getWorkspaceId(),
+            [$asset->getId()],
+            $input,
+            null
+        );
     }
 
     public function supportsAsset(Asset $asset, array $config): bool

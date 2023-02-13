@@ -28,8 +28,8 @@ export type TogglableSortBy = {
 } & SortBy;
 
 export default function EditSortBy({
-                                       onClose,
-                                   }: Props) {
+    onClose,
+}: Props) {
     const {sortBy, setSortBy} = useContext(SearchContext);
     const {facets} = useContext(ResultContext);
     const {t} = useTranslation();

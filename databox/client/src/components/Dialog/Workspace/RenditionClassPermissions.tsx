@@ -11,10 +11,10 @@ type Props = {
 };
 
 export default function RenditionClassPermissions({
-                                                      classId,
-                                                      collectionId,
-                                                      workspaceId,
-                                                  }: Props) {
+    classId,
+    collectionId,
+    workspaceId,
+}: Props) {
     const loadPermissions = useCallback(async (): Promise<Permission[]> => {
         const rules = await getRenditionRules(classId);
 

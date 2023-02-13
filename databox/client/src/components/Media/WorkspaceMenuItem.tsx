@@ -19,11 +19,11 @@ import {OnCollectionEdit} from "../Dialog/Collection/EditCollection";
 export type WorkspaceMenuItemProps = {} & Workspace;
 
 export default function WorkspaceMenuItem({
-                                              id,
-                                              name,
-                                              collections,
-                                              capabilities,
-                                          }: WorkspaceMenuItemProps) {
+    id,
+    name,
+    collections,
+    capabilities,
+}: WorkspaceMenuItemProps) {
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
     const {openModal} = useModals();

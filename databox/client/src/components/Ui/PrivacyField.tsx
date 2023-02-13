@@ -51,9 +51,9 @@ type Props<TFieldValues extends FieldValues> = {
 };
 
 export default function PrivacyField<TFieldValues extends FieldValues>({
-                                                                           control,
-                                                                           name,
-                                                                       }: Props<TFieldValues>) {
+    control,
+    name,
+}: Props<TFieldValues>) {
     const {t} = useTranslation();
     const {
         field: {onChange, onBlur, ref, value},

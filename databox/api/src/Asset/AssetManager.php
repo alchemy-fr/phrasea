@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Asset;
 
 use App\Attribute\AttributeDataExporter;
-use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
+use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\File\ReadMetadataHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
@@ -61,7 +61,7 @@ class AssetManager
                 $asset->getSource()->getId()
             ));
 
-            $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
+            $this->eventProducer->publish(NewAssetIntegrationCollectionHandler::createEvent($asset->getId()));
         }
     }
 }

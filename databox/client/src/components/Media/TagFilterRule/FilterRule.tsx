@@ -39,19 +39,19 @@ type Props = {
 };
 
 export default function FilterRule({
-                                       data,
-                                       onSubmit,
-                                       disabledGroups,
-                                       disabledUsers,
-                                       type,
-                                       onDelete,
-                                       onCancel,
-                                       users,
-                                       groups,
-                                       workspaceId,
-                                       collectionId,
-                                       workspaceIdForTags,
-                                   }: Props) {
+    data,
+    onSubmit,
+    disabledGroups,
+    disabledUsers,
+    type,
+    onDelete,
+    onCancel,
+    users,
+    groups,
+    workspaceId,
+    collectionId,
+    workspaceIdForTags,
+}: Props) {
     const {t} = useTranslation();
 
     const {

@@ -5,7 +5,10 @@ import {AxiosRequestConfig} from "axios";
 
 export const integrationNS = '/integrations';
 
-export async function getWorkspaceIntegrations(workspaceId: string, fileId: string): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
+export async function getWorkspaceIntegrations(
+    workspaceId: string,
+    fileId: string
+): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
             fileId,
@@ -16,7 +19,13 @@ export async function getWorkspaceIntegrations(workspaceId: string, fileId: stri
     return getHydraCollection(res.data);
 }
 
-export async function runIntegrationFileAction(action: string, integrationId: string, fileId: string, data?: Record<string, string | Blob>, file?: File): Promise<any> {
+export async function runIntegrationFileAction(
+    action: string,
+    integrationId: string,
+    fileId: string,
+    data?: Record<string, string | Blob>,
+    file?: File
+): Promise<any> {
     const config: AxiosRequestConfig<any> = {};
     let formData: FormData = new FormData();
     if (file) {

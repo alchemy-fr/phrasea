@@ -4,7 +4,7 @@ import {postCollection} from "../../api/collection";
 import {UploadFiles} from "../../api/uploader/file";
 import {Asset} from "../../types";
 import {NewAssetPostType, postAsset} from "../../api/asset";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 
 type InputFile = {
     title?: string;

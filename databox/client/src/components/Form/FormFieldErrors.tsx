@@ -10,9 +10,9 @@ type Props<T extends FieldValues> = {
 }
 
 export default function FormFieldErrors<T extends FieldValues>({
-                                                                   field,
-                                                                   errors,
-                                                               }: Props<T>) {
+    field,
+    errors,
+}: Props<T>) {
     const {t} = useTranslation();
 
     return <>
