@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\RemoteAuthBundle\Http\AuthStateEncoder;
 use App\Entity\User;
 use App\OAuth\OAuthProviderFactory;
 use App\Security\OAuthUserProvider;
@@ -24,10 +25,15 @@ use Throwable;
 class OAuthController extends AbstractIdentityProviderController
 {
     private OAuthUserProvider $OAuthUserProvider;
+    private AuthStateEncoder $authStateEncoder;
 
-    public function __construct(OAuthUserProvider $OAuthUserProvider)
+    public function __construct(
+        OAuthUserProvider $OAuthUserProvider,
+        AuthStateEncoder $authStateEncoder
+    )
     {
         $this->OAuthUserProvider = $OAuthUserProvider;
+        $this->authStateEncoder = $authStateEncoder;
     }
 
     /**
@@ -47,10 +53,7 @@ class OAuthController extends AbstractIdentityProviderController
             $resourceOwner->getAuthorizationUrl(
                 $this->generateOAuthRedirectUri($provider),
                 [
-                    'state' => http_build_query([
-                        'd' => '1',
-                        'r' => $redirectUri,
-                    ])
+                    'state' => $this->authStateEncoder->encodeState($redirectUri, null, true)
                 ]
             )
         );
@@ -79,10 +82,7 @@ class OAuthController extends AbstractIdentityProviderController
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->redirect($resourceOwner->getAuthorizationUrl($redirectUri, [
-            'state' => http_build_query([
-                'c' =>  $clientId,
-                'r' => $lastRedirectUri,
-            ])
+            'state' => $this->authStateEncoder->encodeState($lastRedirectUri, $clientId),
         ]));
     }
 
@@ -128,10 +128,8 @@ class OAuthController extends AbstractIdentityProviderController
         TokenStorageInterface $tokenStorage
     ) {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
-        parse_str($request->get('state', ''), $state);
-        $isInternal = $state['d'] ?? false;
-        $finalRedirectUri = $state['r'];
-        $clientId = $state['c'] ?? null;
+
+        $state = $this->authStateEncoder->decodeState($request->get('state', ''));
 
         $redirectUri = $this->generateUrl($request->attributes->get('_route'), [
             'provider' => $provider,
@@ -143,7 +141,7 @@ class OAuthController extends AbstractIdentityProviderController
             $redirectUri
         );
 
-        if ($isInternal) {
+        if ($state['internal']) {
             // Manually authenticate user in controller
             $firewallName = 'auth';
 
@@ -155,12 +153,12 @@ class OAuthController extends AbstractIdentityProviderController
             $tokenStorage->setToken($token);
             $request->getSession()->set('_security_'.$firewallName, serialize($token));
 
-            return $this->redirect($finalRedirectUri);
+            return $this->redirect($state['redirect']);
         } else {
             $scope = $request->get('scope');
             $subRequest = new Request();
-            $subRequest->query->set('client_id', $clientId);
-            $subRequest->query->set('redirect_uri', $finalRedirectUri);
+            $subRequest->query->set('client_id', $state['clientId']);
+            $subRequest->query->set('redirect_uri', $state['redirect']);
             $subRequest->query->set('response_type', 'code');
 
             try {

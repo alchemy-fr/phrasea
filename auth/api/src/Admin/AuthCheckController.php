@@ -3,6 +3,7 @@
 namespace App\Admin;
 
 use Alchemy\OAuthServerBundle\Entity\AuthCode;
+use Alchemy\RemoteAuthBundle\Http\AuthStateEncoder;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +37,8 @@ class AuthCheckController extends AbstractController
         EntityManagerInterface $em,
         TokenStorageInterface $tokenStorage,
         SessionInterface $session,
-        EventDispatcherInterface $dispatcher
+        EventDispatcherInterface $dispatcher,
+        AuthStateEncoder $authStateEncoder
     ) {
         $code = $request->query->get('code');
 
@@ -62,10 +64,9 @@ class AuthCheckController extends AbstractController
         $dispatcher->dispatch($event);
 
         if ($state = $request->query->get('state')) {
-            parse_str($state, $statePayload);
-            if (isset($statePayload['r'])) {
-                return $this->redirect($statePayload['r']);
-            }
+            $state = $authStateEncoder->decodeState($state);
+
+            return $this->redirect($state['redirect']);
         }
 
         return $this->redirectToRoute('easyadmin');
