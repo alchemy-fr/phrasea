@@ -3,6 +3,7 @@
 namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\Auth\OAuthClient;
+use Alchemy\RemoteAuthBundle\Http\AuthStateEncoder;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,14 +19,16 @@ class LoginController extends AbstractAdminController
     /**
      * @Route("/login", name="login")
      */
-    public function login(OAuthClient $OAuthClient, Request $request): Response
+    public function login(Request $request, OAuthClient $OAuthClient, AuthStateEncoder $authStateEncoder): Response
     {
         $targetPath = $this->getTargetPath($request->getSession(), 'admin');
-        $finalRedirectUri = $request->get('r', $targetPath);
 
-        return $this->redirect($OAuthClient->getAuthorizeUrl($this->getRedirectUrl(), http_build_query([
-            'r' => $finalRedirectUri,
-        ])));
+        $target = $request->get('r', $targetPath);
+
+        return $this->redirect($OAuthClient->getAuthorizeUrl(
+            $this->getRedirectUrl(),
+            $target ? $authStateEncoder->encodeState($target) : null
+        ));
     }
 
     /**
@@ -35,7 +38,8 @@ class LoginController extends AbstractAdminController
         Request $request,
         OAuthClient $oauthClient,
         RemoteAuthProvider $userProvider,
-        RemoteAuthAuthenticator $authenticator
+        RemoteAuthAuthenticator $authenticator,
+        AuthStateEncoder $authStateEncoder
     ): Response {
         $accessToken = $oauthClient->getAccessTokenFromAuthorizationCode(
             $request->get('code'),
@@ -48,10 +52,9 @@ class LoginController extends AbstractAdminController
         $authenticator->authenticateUser($request, $accessToken, $tokenInfo, $user, 'admin');
 
         if ($state = $request->query->get('state')) {
-            parse_str($state, $statePayload);
-            if (isset($statePayload['r'])) {
-                return $this->redirect($statePayload['r']);
-            }
+            $state = $authStateEncoder->decodeState($state);
+
+            return $this->redirect($state['redirect']);
         }
 
         return $this->redirectToRoute('easyadmin');

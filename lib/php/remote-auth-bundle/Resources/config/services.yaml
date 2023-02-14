@@ -39,7 +39,7 @@ services:
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator: ~
   Alchemy\RemoteAuthBundle\Client\AdminClient: ~
-
+  Alchemy\RemoteAuthBundle\Http\AuthStateEncoder: ~
   Alchemy\RemoteAuthBundle\Repository\AbstractRemoteAuthRepository: ~
   Alchemy\RemoteAuthBundle\Repository\RemoteAuthUserRepository: ~
   Alchemy\RemoteAuthBundle\Repository\RemoteAuthGroupRepository: ~
