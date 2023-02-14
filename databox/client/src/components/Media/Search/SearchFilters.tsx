@@ -53,7 +53,6 @@ function formatFilterLabel(
 
     switch (widget) {
         default:
-        case FacetType.Text:
             return value.map(s => truncate(extractLabelValueFromKey(s, type).label, 15)).join(', ');
         case FacetType.DateRange:
             return `${extractLabelValueFromKey(value[0], type).label} - ${extractLabelValueFromKey(value[1], type).label}`;

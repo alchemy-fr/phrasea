@@ -41,6 +41,7 @@ class AssetInput extends AbstractOwnerIdInput
 
     /**
      * @var AssetSourceInput|null
+     * @Assert\Valid()
      */
     public $sourceFile = null;
 

@@ -55,6 +55,10 @@ export default class DateType extends TextType {
             return '';
         }
 
+        if (typeof value === 'number') {
+            value *= 1000;
+        }
+
         switch (format ?? this.getAvailableFormats()[0].name) {
             case Formats.Short:
                 return moment(value).format('ll');

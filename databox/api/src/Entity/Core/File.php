@@ -96,6 +96,10 @@ class File extends AbstractUuidEntity
 
     public function setPath(?string $path): void
     {
+        if (null !== $path && empty(trim($path))) {
+            throw new \InvalidArgumentException('Empty path');
+        }
+
         $this->path = $path;
     }
 
