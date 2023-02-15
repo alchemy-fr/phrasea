@@ -93,7 +93,6 @@ export default function SearchFilters({
     onInvert,
 }: Props) {
     return <Box sx={{
-        mb: -1,
         mr: -1,
     }}>
         {filters.map((f, i) => {

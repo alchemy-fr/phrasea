@@ -129,8 +129,9 @@ export default function CollectionMenuItem({
 
     const nextPage = getNextPage();
 
+    const selected = searchContext.collections.includes('/'+absolutePath);
     const onClick = () => {
-        searchContext.selectCollection(absolutePath, searchContext.collectionId === absolutePath);
+        searchContext.selectCollection(absolutePath, (titlePath ?? []).concat(title).join(` / `), selected);
         expand(true);
     };
 
@@ -181,8 +182,7 @@ export default function CollectionMenuItem({
         setExpanded(true);
     };
 
-    const selected = searchContext.collectionId === absolutePath;
-    const currentInSelectedHierarchy = searchContext.collectionId && searchContext.collectionId.startsWith(absolutePath);
+    const currentInSelectedHierarchy = searchContext.collections.some(c => c.startsWith('/'+absolutePath));
 
     return <>
         <ListItem
@@ -273,7 +273,7 @@ export default function CollectionMenuItem({
                         absolutePath={`${absolutePath}/${c.id}`}
                         titlePath={(titlePath ?? []).concat(title)}
                         level={level + 1}
-                    />;
+                    />
                 })}
                 {Boolean(nextPage) && <ListItemButton
                     onClick={loadMore}

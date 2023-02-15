@@ -33,7 +33,7 @@ export default function MainAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const searchContext = useContext(SearchContext);
-    const onTitleClick = () => searchContext.selectWorkspace(undefined, true);
+    const onTitleClick = () => searchContext.selectWorkspace(undefined, undefined, true);
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);

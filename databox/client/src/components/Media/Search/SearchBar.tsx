@@ -55,8 +55,6 @@ export default function SearchBar({}: Props) {
     const inputRef = useRef<HTMLInputElement>();
     const {t} = useTranslation();
 
-    const hasFilters = search.attrFilters.length > 0;
-
     useEffect(() => {
         setQueryValue(search.query);
     }, [search.query]);
@@ -104,7 +102,9 @@ export default function SearchBar({}: Props) {
             <GeoPointFilter/>
             <SortBy/>
         </Box>
-        {search.attrFilters.length > 0 && <Box sx={{p: 1}}>
+        {search.attrFilters.length > 0 && <Box sx={{
+            px: 1,
+        }}>
             <SearchFilters
                 onDelete={search.removeAttrFilter}
                 onInvert={search.invertAttrFilter}

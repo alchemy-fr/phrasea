@@ -5,6 +5,12 @@ import {AttributeType} from "../../../api/attributes";
 const specSep = ';';
 const arraySep = ',';
 
+export enum BuiltInFilter {
+    Collection = 'c',
+    Workspace = 'w',
+    CreatedAt = 'createdAt',
+}
+
 function encode(str: string): string {
     return str
         .replace(/%/g, '%9')
@@ -91,8 +97,6 @@ export function queryToHash(
     query: string,
     filters: Filters,
     sortBy: SortBy[],
-    workspaceId: string | undefined,
-    collectionId: string | undefined,
     geolocation: string | undefined
 ): string {
     let hash = '';
@@ -106,12 +110,6 @@ export function queryToHash(
     if (sortBy && sortBy.length > 0) {
         hash += `${hash ? '&' : ''}s=${encodeURIComponent(sortBy.map(encodeSortBy).join(arraySep))}`;
     }
-    if (workspaceId) {
-        hash += `${hash ? '&' : ''}w=${workspaceId}`;
-    }
-    if (collectionId) {
-        hash += `${hash ? '&' : ''}c=${collectionId}`;
-    }
     if (geolocation) {
         hash += `${hash ? '&' : ''}l=${encodeURIComponent(geolocation)}`;
     }
@@ -123,16 +121,12 @@ export function hashToQuery(hash: string): {
     query: string;
     filters: Filters;
     sortBy: SortBy[];
-    geolocation: string | undefined,
-    workspaceId: string | undefined;
-    collectionId: string | undefined;
+    geolocation: string | undefined;
 } {
     const params = new URLSearchParams(hash.substring(1));
 
     return {
         query: decodeURIComponent(params.get('q') || ''),
-        collectionId: decodeURIComponent(params.get('c') || '') || undefined,
-        workspaceId: decodeURIComponent(params.get('w') || '') || undefined,
         filters: params.get('f') ? (params.get('f') as string).split(arraySep).map(decodeFilter) : [],
         sortBy: params.get('s') ? decodeURIComponent(params.get('s') as string).split(arraySep).map(decodeSortBy) : [],
         geolocation: params.get('l') ? decodeURIComponent(params.get('l') as string) : undefined,

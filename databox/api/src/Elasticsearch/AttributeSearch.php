@@ -165,6 +165,11 @@ class AttributeSearch
         return $bool;
     }
 
+    /**
+     * @param string $attr
+     *
+     * @return array{name: string, type: AttributeTypeInterface}
+     */
     public function getESFieldInfo(string $attr): array
     {
         ['field' => $field, 'type' => $type] = $this->fieldNameResolver->getFieldFromName($attr);

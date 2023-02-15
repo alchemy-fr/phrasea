@@ -27,7 +27,7 @@ export default function WorkspaceMenuItem({
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
     const {openModal} = useModals();
-    const selected = searchContext.workspaceId === id;
+    const selected = searchContext.workspaces.includes(id);
     const [expanded, setExpanded] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
         loadingMore: boolean,
@@ -61,7 +61,7 @@ export default function WorkspaceMenuItem({
     const nextPage = getNextPage();
 
     const onClick = () => {
-        searchContext.selectWorkspace(id, searchContext.workspaceId === id);
+        searchContext.selectWorkspace(id, name, selected);
         expand(true);
     };
 
