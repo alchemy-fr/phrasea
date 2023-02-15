@@ -17,7 +17,7 @@ export {nodeSeparator as treeViewPathSeparator};
 export type SetExpanded = (nodeIds: (string[] | ((prevNodeIds: string[]) => string[]))) => void;
 
 type CollectionTreeProps = {
-    newCollectionPath: NewCollectionPath | undefined;
+    newCollectionPath: NewCollectionPathState | undefined;
     collection: CollectionOptionalWorkspace;
     workspaceId: string;
     depth?: number,
@@ -29,6 +29,15 @@ type CollectionTreeProps = {
 }
 
 export type UpdateCollectionPath = (index: number, id: string | null, value?: string | null, editing?: boolean) => void;
+
+export type NewCollectionPath = {
+    rootId: string;
+    path: string[];
+}
+
+type CollectionId = string;
+
+export type Collection = CollectionId | NewCollectionPath;
 
 function CollectionTree({
     updateCollectionPath,
@@ -112,43 +121,48 @@ function CollectionTree({
     </TreeItem>
 }
 
-function normalizeNodeId(nodeId: string, newCollectionPath: NewCollectionPath | undefined): string {
+function normalizeNodeId(nodeId: string, newCollectionPath: NewCollectionPathState | undefined): Collection {
     if (newCollectionPath && nodeId.startsWith(nodeNewPrefix)) {
         const offset = parseInt(nodeId.substring(nodeNewPrefix.length));
 
-        return nodeNewPrefix + newCollectionPath.rootNode + newCollectionPathSeparator + (new Array(offset + 1)
-            .fill(true, 0, offset + 1)).map((_, i) => newCollectionPath.nodes[i].value)
-            .join(newCollectionPathSeparator);
+        return {
+            rootId: newCollectionPath.rootNode,
+            path: (new Array(offset + 1)
+                .fill(true, 0, offset + 1))
+                .map((_, i) => newCollectionPath.nodes[i].value)
+        };
     }
 
     return nodeId.split(nodeSeparator)[1];
 }
 
-export type NewCollectionNode = {
+export type NewCollectionNodeState = {
     id: string;
     value: string;
     editing?: boolean | undefined;
 }
 
-type NewCollectionPath = {
-    rootNode: string | null;
-    nodes: NewCollectionNode[];
+type NewCollectionPathState = {
+    rootNode: string;
+    nodes: NewCollectionNodeState[];
 };
 
-type SetNewCollectionPath = (nodes: NewCollectionNode[], rootId?: string) => void;
+type SetNewCollectionPath = (nodes: NewCollectionNodeState[], rootId?: string) => void;
 
 type Props<IsMulti extends boolean = false> = {
     onChange?: (
-        selection: IsMulti extends true ? string[] : string,
+        selection: IsMulti extends true ? Collection[] : Collection,
         workspaceId?: IsMulti extends true ? string : never
     ) => void;
-    value?: IsMulti extends true ? string[] : string;
+    value?: IsMulti extends true ? Collection[] : Collection;
     multiple?: IsMulti;
     workspaceId?: string;
     disabledBranches?: string[];
     allowNew?: boolean;
     disabled?: boolean | undefined;
 }
+
+export type {Props as CollectionTreeViewProps};
 
 export function CollectionsTreeView<IsMulti extends boolean = false>({
     onChange,
@@ -160,7 +174,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     disabled,
 }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
-    const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPath>();
+    const [newCollectionPath, setNewCollectionPath] = useState<NewCollectionPathState>();
     const [expanded, setExpanded] = React.useState<string[]>([]);
     const [selected, setSelected] = React.useState<IsMulti extends true ? string[] : (string | undefined)>(value ?? (multiple ? [] : '') as any);
 
@@ -181,8 +195,10 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
             onChange && onChange(striped as any);
         } else {
             const striped = normalizeNodeId(nodeIds as string, newCollectionPath);
+            const workspaceId = typeof striped === 'object' ? striped.rootId?.split(nodeSeparator)[0] : (nodeIds as string).split(nodeSeparator)[0];
+
             setSelected(nodeIds);
-            onChange && onChange(striped as any, (nodeIds as string).split(nodeSeparator)[0] as any);
+            onChange && onChange(striped as any, workspaceId as any);
         }
     };
 

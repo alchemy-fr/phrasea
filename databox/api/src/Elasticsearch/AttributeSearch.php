@@ -56,6 +56,8 @@ class AttributeSearch
         $boolQuery->setMinimumShouldMatch(1);
         $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
 
+        $this->addIdQueryShould($boolQuery, $queryString);
+
         foreach ($workspaces as $workspace) {
             $wsSearchQuery = new Query\BoolQuery();
 
@@ -117,6 +119,15 @@ class AttributeSearch
         }
 
         return $boolQuery;
+    }
+
+    protected function addIdQueryShould(Query\BoolQuery $parentQuery, string $queryString): void
+    {
+        $queryString = trim($queryString);
+
+        if (1 === preg_match('#([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})#', $queryString, $uuid)) {
+            $parentQuery->addShould(new Query\Term(['_id' => $uuid[1]]));
+        }
     }
 
     public function addAttributeFilters(array $filters): Query\BoolQuery

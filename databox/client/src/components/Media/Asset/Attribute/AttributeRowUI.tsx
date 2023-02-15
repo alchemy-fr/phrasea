@@ -35,15 +35,11 @@ export default function AttributeRowUI({
     const isRtl = isRtlLocale(locale);
     const formatContext = React.useContext(AttributeFormatContext);
     const formatter = getAttributeType(type);
-    const availableFormats = formatter.getAvailableFormats();
     const pinned = pinnedAttributes.includes(definitionId);
 
     const toggleFormat = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
         e.stopPropagation();
-        const currentFormat = formatContext.formats[type];
-        const currentIndex = currentFormat ? availableFormats.findIndex(f => f.name === currentFormat) ?? 0 : 0;
-
-        formatContext.changeFormat(type, availableFormats[(currentIndex + 1) % availableFormats.length].name);
+        formatContext.toggleFormat(type);
     }, [formatContext]);
 
     const valueFormatterProps = {
@@ -60,7 +56,7 @@ export default function AttributeRowUI({
         } : undefined}>
         <div className={'attr-name'}>
             {attributeName}
-            {controls && availableFormats.length > 0 && <IconButton
+            {controls && formatContext.hasFormats(type) && <IconButton
                 onClick={toggleFormat}
                 sx={{
                     ml: 1,

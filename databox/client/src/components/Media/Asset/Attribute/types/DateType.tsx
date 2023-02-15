@@ -55,20 +55,18 @@ export default class DateType extends TextType {
             return '';
         }
 
-        if (typeof value === 'number') {
-            value *= 1000;
-        }
+        const m = moment(typeof value === 'number' ? value * 1000 : value);
 
         switch (format ?? this.getAvailableFormats()[0].name) {
             case Formats.Short:
-                return moment(value).format('ll');
+                return m.format('ll');
             default:
             case Formats.Medium:
-                return moment(value).format('L');
+                return m.format('L');
             case Formats.Relative:
-                return moment(value).fromNow();
+                return m.fromNow();
             case Formats.Long:
-                return moment(value).format('LLLL');
+                return m.format('LLLL');
         }
     }
 }

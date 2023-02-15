@@ -224,7 +224,6 @@ export default function AssetResults() {
                 <LinearProgress/>
             </div>}
             <div>
-                <SearchBar/>
                 <ListSubheader
                     component="div"
                     disableGutters={true}
@@ -232,6 +231,7 @@ export default function AssetResults() {
                         zIndex: zIndex.toolbar,
                     })}
                 >
+                    <SearchBar/>
                     <SelectionActions
                         layout={layout}
                         onLayoutChange={setLayout}

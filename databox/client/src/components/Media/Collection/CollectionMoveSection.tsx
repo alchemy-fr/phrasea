@@ -47,7 +47,7 @@ export default function CollectionMoveSection({
             workspaceId={collection.workspace.id}
             value={dest}
             onChange={(collections) => {
-                setDest(collections);
+                setDest(collections as string);
             }}
             disabledBranches={[
                 `${collection.workspace.id}${treeViewPathSeparator}${collection['@id']}`

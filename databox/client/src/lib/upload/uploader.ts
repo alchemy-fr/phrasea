@@ -1,5 +1,9 @@
 import {nodeNewPrefix} from "../../components/Media/Collection/EditableTree";
-import {newCollectionPathSeparator, treeViewPathSeparator} from "../../components/Media/Collection/CollectionsTreeView";
+import {
+    Collection, NewCollectionPath,
+    newCollectionPathSeparator,
+    treeViewPathSeparator
+} from "../../components/Media/Collection/CollectionsTreeView";
 import {postCollection} from "../../api/collection";
 import {UploadFiles} from "../../api/uploader/file";
 import {Asset} from "../../types";
@@ -11,7 +15,7 @@ type InputFile = {
     file: File;
     privacy?: number;
     tags?: string[];
-    destination: string;
+    destination: Collection;
     uploadToken?: string;
     assetId?: string;
 };
@@ -43,7 +47,7 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
         f.uploadToken = uploadToken;
 
         let destination = f.destination;
-        if (destination.startsWith(nodeNewPrefix)) {
+        if (typeof destination === 'object') {
             destination = await createCollection(destination);
         }
 
@@ -68,11 +72,15 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
     }));
 }
 
-async function createCollection(newCollectionPath: string): Promise<string> {
-    const [parentPath, ...rest] = newCollectionPath.substring(nodeNewPrefix.length).split(newCollectionPathSeparator);
-    const [workspaceId, parentIri] = parentPath.split(treeViewPathSeparator);
+async function createCollection(newCollectionPath: NewCollectionPath): Promise<string> {
+    const {
+        rootId,
+        path,
+    } = newCollectionPath;
+
+    const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
     let parent = parentIri;
-    for (let p of rest) {
+    for (let p of path) {
         parent = (await postCollection({
             title: p,
             parent,
