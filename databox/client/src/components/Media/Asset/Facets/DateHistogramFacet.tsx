@@ -3,6 +3,7 @@ import {FacetRowProps} from "../Facets";
 import {Box, Button, ListItem, ListItemSecondaryAction, ListItemText, Slider, useTheme} from "@mui/material";
 import moment from "moment";
 import {SearchContext} from "../../Search/SearchContext";
+import {AttributeType} from "../../../../api/attributes";
 
 
 export default function DateHistogramFacet({
@@ -50,7 +51,7 @@ export default function DateHistogramFacet({
         if (step) {
             (newValue as [number, number])[1] += step;
         }
-        setAttrFilter(name, facet.meta.type, newValue as [number, number], facet.meta.title, facet.meta.widget);
+        setAttrFilter(name, AttributeType.DateTime, newValue as [number, number], facet.meta.title, facet.meta.widget);
     }, [facet, step]);
 
     const hasRange = max > min;

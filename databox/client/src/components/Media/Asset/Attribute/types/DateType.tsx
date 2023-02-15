@@ -11,6 +11,8 @@ enum Formats {
     Long = 'long',
 }
 
+export {Formats as DateFormats};
+
 export default class DateType extends TextType {
     formatValue(props: AttributeFormatterProps): React.ReactNode {
         return <>{this.format(props)}</>
@@ -41,7 +43,7 @@ export default class DateType extends TextType {
         ];
     }
 
-    protected getFieldProps(): TextFieldProps {
+    public getFieldProps(): TextFieldProps {
         return {
             type: 'date',
             InputLabelProps: {
@@ -50,7 +52,7 @@ export default class DateType extends TextType {
         };
     }
 
-    private format({value, format}: AttributeFormatterProps): string {
+    protected format({value, format}: AttributeFormatterProps): string {
         if (!value) {
             return '';
         }

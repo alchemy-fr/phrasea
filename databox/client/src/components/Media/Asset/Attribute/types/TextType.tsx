@@ -76,7 +76,7 @@ export default class TextType extends BaseType implements AttributeTypeInstance 
         return true;
     }
 
-    protected getFieldProps(): TextFieldProps {
+    public getFieldProps(): TextFieldProps {
         return {
             type: 'text',
         };

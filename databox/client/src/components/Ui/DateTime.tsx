@@ -3,15 +3,15 @@ import {AttributeType} from "../../api/attributes";
 import {getAttributeType} from "../Media/Asset/Attribute/types";
 
 type Props = {
-    date: string;
+    datetime: string;
 };
 
-export default function Date({
-    date
+export default function DateTime({
+    datetime
 }: Props) {
     return <>
         {getAttributeType(AttributeType.DateTime).formatValue({
-            value: date,
+            value: datetime,
         })}
     </>
 }

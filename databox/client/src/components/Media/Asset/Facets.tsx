@@ -8,6 +8,7 @@ import GeoDistanceFacet from "./Facets/GeoDistanceFacet";
 import {AttributeType} from "../../../api/attributes";
 import {getAttributeType} from "./Attribute/types";
 import {FilterType} from "../Search/Filter";
+import {AttributeFormat} from "./Attribute/types/types";
 
 export type BucketValue = string | number | boolean;
 
@@ -51,7 +52,11 @@ export type Facet = {
 
 export type TFacets = Record<string, Facet>;
 
-export function extractLabelValueFromKey(key: ResolvedBucketValue, type: FilterType | undefined): LabelledBucketValue {
+export function extractLabelValueFromKey(
+    key: ResolvedBucketValue,
+    type: FilterType | undefined,
+    format?: AttributeFormat,
+): LabelledBucketValue {
     if (typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
     }
@@ -73,6 +78,7 @@ export function extractLabelValueFromKey(key: ResolvedBucketValue, type: FilterT
         return {
             label: t.formatValueAsString({
                 value: key,
+                format,
             })!,
             value: key as BucketValue,
         };
@@ -80,6 +86,7 @@ export function extractLabelValueFromKey(key: ResolvedBucketValue, type: FilterT
         return {
             label: t.formatValueAsString({
                 value: !!key,
+                format,
             })!,
             value: !!key,
         };
@@ -88,6 +95,7 @@ export function extractLabelValueFromKey(key: ResolvedBucketValue, type: FilterT
     return {
         label: t.formatValueAsString({
             value: key as string,
+            format,
         })!,
         value: key as BucketValue,
     };
