@@ -69,6 +69,8 @@ fos_elastica:
                 tags:
                     property_path: tagIds
                     type: keyword
+                inc:
+                    type: integer
                 createdAt:
                     type: date
                 editedAt:

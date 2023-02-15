@@ -40,6 +40,11 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use WorkspacePrivacyTrait;
 
     /**
+     * @ORM\Column(type="bigint", nullable=false, options={"autoincrement"=true, "unsigned"=true})
+     */
+    private ?int $inc = null;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $title = null;
@@ -374,5 +379,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function setPendingUploadToken(?string $pendingUploadToken): void
     {
         $this->pendingUploadToken = $pendingUploadToken;
+    }
+
+    public function getInc(): ?int
+    {
+        return $this->inc;
     }
 }

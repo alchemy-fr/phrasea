@@ -9,7 +9,7 @@ export interface GetAssetOptions {
     query?: string;
     workspaces?: string[];
     parents?: string[];
-    filters?: any[];
+    filters?: any;
     order: Record<string, 'asc' | 'desc'>;
     group?: string[] | undefined;
     context?: {

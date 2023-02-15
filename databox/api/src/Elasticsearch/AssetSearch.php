@@ -259,6 +259,8 @@ class AssetSearch extends AbstractSearch
             $sort[] = ['createdAt' => 'DESC'];
         }
 
+        $sort[] = ['inc' => 'DESC'];
+
         $query->setSort($sort);
     }
 

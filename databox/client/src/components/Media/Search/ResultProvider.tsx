@@ -43,11 +43,11 @@ async function search(
     const options: GetAssetOptions = {
         query,
         url,
-        filters: attrFilters?.map((f) => ({
+        filters: JSON.stringify(attrFilters?.map((f) => ({
             ...f,
             v: f.v.map(v => extractLabelValueFromKey(v, f.x).value),
             t: undefined,
-        })),
+        }))),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };
