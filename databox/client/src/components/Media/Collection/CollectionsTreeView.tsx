@@ -35,7 +35,7 @@ export type NewCollectionPath = {
     path: string[];
 }
 
-type CollectionId = string;
+export type CollectionId = string;
 
 export type Collection = CollectionId | NewCollectionPath;
 

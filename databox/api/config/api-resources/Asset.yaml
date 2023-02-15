@@ -33,6 +33,16 @@ resources:
       get: ~
       post:
         security_post_denormalize: 'is_granted("CREATE", object)'
+      post_multiple:
+        normalization_context:
+          groups:
+            - asset:read
+        method: POST
+        controller: App\Controller\Core\MultipleAssetCreate
+        path: /assets/multiple
+        input: App\Api\Model\Input\MultipleAssetInput
+        output: App\Api\Model\Output\MultipleAssetOutput
+        validate: false
       delete_by_key:
         method: DELETE
         path: /assets-by-keys

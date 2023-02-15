@@ -9,12 +9,6 @@ export default class JsonType extends CodeType {
         return 'json';
     }
 
-    protected getFieldProps(): TextFieldProps {
-        return {
-            type: 'text',
-        };
-    }
-
     protected prettifyCode(code: string): string {
         return JSON.stringify(JSON.parse(code), null, 2);
     }

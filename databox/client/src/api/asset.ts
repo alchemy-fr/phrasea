@@ -169,3 +169,11 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
 
     return res.data;
 }
+
+export async function postMultipleAssets(assets: NewAssetPostType[]): Promise<Asset[]> {
+    const res = await apiClient.post(`/assets/multiple`, {
+        assets,
+    });
+
+    return res.data.assets;
+}

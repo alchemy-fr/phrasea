@@ -40,9 +40,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use WorkspacePrivacyTrait;
 
     /**
-     * @ORM\Column(type="bigint", nullable=false, options={"autoincrement"=true, "unsigned"=true})
+     * @ORM\Column(type="integer", nullable=false)
      */
-    private ?int $inc = null;
+    private int $microseconds = 0;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $sequence = 0;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -126,7 +131,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      */
     protected ?DateTimeImmutable $attributesEditedAt = null;
 
-    public function __construct()
+    /**
+     * @param float $now got from microtime(true)
+     */
+    public function __construct(?float $now = null, ?int $sequence = null)
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
@@ -134,6 +142,16 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
         $this->attributesEditedAt = new DateTimeImmutable();
+
+        /** @var $now float */
+        $now ??= microtime(true);
+        $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
+        $this->updatedAt = $this->createdAt;
+        $this->microseconds = ($now * 1000000) % 1000000;
+
+        if (null !== $sequence) {
+            $this->sequence = $sequence;
+        }
     }
 
     public function getOwnerId(): ?string
@@ -381,8 +399,13 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->pendingUploadToken = $pendingUploadToken;
     }
 
-    public function getInc(): ?int
+    public function getSequence(): int
     {
-        return $this->inc;
+        return $this->sequence;
+    }
+
+    public function getMicroseconds(): int
+    {
+        return $this->microseconds;
     }
 }

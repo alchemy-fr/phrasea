@@ -78,7 +78,7 @@ export default class BooleanType extends BaseType implements AttributeTypeInstan
         ];
     }
 
-    protected getFieldProps(): TextFieldProps {
+    public getFieldProps(): TextFieldProps {
         return {
             type: 'date',
             InputLabelProps: {

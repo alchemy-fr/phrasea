@@ -45,7 +45,11 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
                 $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
                     'path' => $asset->getPath(),
                 ]));
+                $em->remove($asset);
             }
+
+            $em->remove($commit);
+            $em->flush();
         }
     }
 

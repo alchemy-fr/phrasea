@@ -1,13 +1,12 @@
-import {nodeNewPrefix} from "../../components/Media/Collection/EditableTree";
 import {
-    Collection, NewCollectionPath,
-    newCollectionPathSeparator,
+    CollectionId,
+    NewCollectionPath,
     treeViewPathSeparator
 } from "../../components/Media/Collection/CollectionsTreeView";
 import {postCollection} from "../../api/collection";
 import {UploadFiles} from "../../api/uploader/file";
 import {Asset} from "../../types";
-import {NewAssetPostType, postAsset} from "../../api/asset";
+import {NewAssetPostType, postMultipleAssets} from "../../api/asset";
 import {v4 as uuidv4} from 'uuid';
 
 type InputFile = {
@@ -15,7 +14,7 @@ type InputFile = {
     file: File;
     privacy?: number;
     tags?: string[];
-    destination: Collection;
+    destination: CollectionId;
     uploadToken?: string;
     assetId?: string;
 };
@@ -41,38 +40,39 @@ export async function submitFiles(userId: string, data: UploadInput): Promise<As
 }
 
 async function createAssets({files}: UploadInput): Promise<Asset[]> {
-
-    return await Promise.all(files.map(async (f): Promise<Asset> => {
+    const indexedFiles: Record<string, InputFile> = {};
+    files.forEach(f => {
         const uploadToken = uuidv4();
         f.uploadToken = uploadToken;
+        indexedFiles[uploadToken] = f;
+    });
 
-        let destination = f.destination;
-        if (typeof destination === 'object') {
-            destination = await createCollection(destination);
-        }
-
+    return await postMultipleAssets(files.map((f): NewAssetPostType => {
         const data: NewAssetPostType = {
             title: f.title,
-            pendingUploadToken: uploadToken,
+            pendingUploadToken: f.uploadToken,
             privacy: f.privacy,
             tags: f.tags,
         };
 
-        if (destination.startsWith('/workspaces/')) {
-            data.workspace = destination;
+        const dest = f.destination as string;
+        if (dest.startsWith('/workspaces/')) {
+            data.workspace = dest;
         } else {
-            data.collection = destination;
+            data.collection = dest;
         }
 
-        return await postAsset(data).then(a => {
-            f.assetId = a.id;
+        return data;
+    })).then((assets) => {
+        return assets.map(a => {
+            indexedFiles[a.pendingUploadToken!].assetId = a.id;
 
             return a;
         });
-    }));
+    });
 }
 
-async function createCollection(newCollectionPath: NewCollectionPath): Promise<string> {
+export async function createCollection(newCollectionPath: NewCollectionPath): Promise<string> {
     const {
         rootId,
         path,

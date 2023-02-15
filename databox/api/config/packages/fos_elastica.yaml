@@ -69,7 +69,9 @@ fos_elastica:
                 tags:
                     property_path: tagIds
                     type: keyword
-                inc:
+                microseconds:
+                    type: integer
+                sequence:
                     type: integer
                 createdAt:
                     type: date
