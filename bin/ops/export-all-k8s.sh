@@ -29,7 +29,6 @@ EXPORTED=""
 DB_HOST="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_HOST']}")"
 DB_PORT="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_PORT']}")"
 DB_USER="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_USER']}" | base64 -d)"
-DB_PASSWORD="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_PASSWORD']}" | base64 -d)"
 
 POD=db-psql-dump
 
@@ -48,15 +47,21 @@ spec:
     args: [ "while true; do sleep 10; done;" ]
     env:
       - name: PGPASSWORD
-        value: "${DB_PASSWORD}"
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-secret
+            key: POSTGRES_PASSWORD
 EOF
 
 kubectl -n $NS wait --for=condition=Ready pod/${POD}
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
-  APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}")
+  APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}") || continue
   DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/ash -c 'echo $DB_NAME')
+  if [ -z "${DB_NAME}" ]; then
+    DB_NAME="${d}"
+  fi
 
   kubectl -n $NS exec -i ${POD} -- pg_dump --data-only -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME} > ${DUMP_FILE} 2> /dev/null
   EXPORTED="${EXPORTED} ${d}.sql"
