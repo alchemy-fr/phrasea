@@ -66,7 +66,6 @@ fi
 DB_HOST="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_HOST']}")"
 DB_PORT="$(kubectl -n $NS get configmap postgresql-php-config -o "jsonpath={.data['POSTGRES_PORT']}")"
 DB_USER="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_USER']}" | base64 -d)"
-DB_PASSWORD="$(kubectl -n $NS get secret postgresql-secret -o "jsonpath={.data['POSTGRES_PASSWORD']}" | base64 -d)"
 
 POD=db-psql-import
 
@@ -85,7 +84,10 @@ spec:
     args: [ "while true; do sleep 10; done;" ]
     env:
       - name: PGPASSWORD
-        value: "${DB_PASSWORD}"
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-secret
+            key: POSTGRES_PASSWORD
 EOF
 
 kubectl -n $NS wait --for=condition=Ready pod/${POD}
