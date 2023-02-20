@@ -43,6 +43,11 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private ?string $ownerId = null;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $public = false;
+
+    /**
      * @ORM\Column(type="json", nullable=false)
      */
     private array $config = [];
@@ -184,5 +189,15 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setLocaleFallbacks(?array $localeFallbacks): void
     {
         $this->localeFallbacks = $localeFallbacks;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
     }
 }

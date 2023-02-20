@@ -40,6 +40,7 @@ class WorkspaceVoter extends AbstractVoter
         switch ($attribute) {
             case self::READ:
                 return $isOwner
+                    || $subject->isPublic()
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject);
             case self::EDIT:
                 return $isOwner

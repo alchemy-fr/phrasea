@@ -41,7 +41,6 @@ export default function AttributeType({
     autoFocus,
     onLocaleChange,
 }: Props) {
-
     const changeHandler = React.useCallback((
         locale: string,
         value: AttrValue<string | number> | AttrValue<string | number>[] | undefined

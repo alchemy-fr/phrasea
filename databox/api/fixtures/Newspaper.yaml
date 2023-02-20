@@ -51,14 +51,22 @@ App\Entity\Core\AttributeDefinition:
     name: Date
     fieldType: date
     facetEnabled: true
+    sortable: true
     class: '@n_ac_public'
     position: 4
+  ad_datetime (extends attribute_definition):
+    name: 'Date & Time'
+    fieldType: date_time
+    facetEnabled: true
+    sortable: true
+    class: '@n_ac_public'
+    position: 5
   ad_languages (extends attribute_definition):
     name: Languages
     facetEnabled: true
     multiple: true
     class: '@n_ac_public'
-    position: 5
+    position: 6
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):
@@ -310,6 +318,20 @@ App\Entity\Core\Attribute:
     definition: '@ad_keywords'
     asset: '@a_*'
     value: '<word()>'
+
+  at_date_{@a_*} (extends attribute):
+    __factory:
+      'App\Fixture\DateFixtureFactory::createDateAttribute':
+        - '<dateTimeBetween("-200 days", "now")>'
+    definition: '@ad_date'
+    asset: '@a_*'
+
+  at_datetime_{@a_*} (extends attribute):
+    __factory:
+      'App\Fixture\DateFixtureFactory::createDateTimeAttribute':
+        - '<dateTimeBetween("-200 days", "now")>'
+    definition: '@ad_datetime'
+    asset: '@a_*'
 
 App\Entity\Core\Tag:
   tag_{offline, online, embargo_it, embargo_fr}:

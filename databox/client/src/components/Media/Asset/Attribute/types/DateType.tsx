@@ -22,6 +22,14 @@ export default class DateType extends TextType {
         return this.format(props);
     }
 
+    denormalize(value: string | undefined): string | undefined {
+        if (value) {
+            return value.replace(/(Z|[+-]\d{2}:\d{2})$/, '');
+        }
+
+        return value;
+    }
+
     getAvailableFormats(): AvailableFormat[] {
         return [
             {

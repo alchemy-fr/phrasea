@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class WorkspaceRepository extends EntityRepository
 {
@@ -69,7 +70,14 @@ class WorkspaceRepository extends EntityRepository
     /**
      * @return Workspace[]
      */
-    public function getAllowedWorkspaces(string $userId, array $groupIds, ?array $ids = []): array
+    public function getAllowedWorkspaces(?string $userId, ?array $groupIds, ?array $ids = []): array
+    {
+        return $this->createAllowedWorkspacesQueryBuilder($userId, $groupIds, $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds = null, ?array $ids = []): QueryBuilder
     {
         $queryBuilder = $this
             ->createQueryBuilder('w')
@@ -89,11 +97,11 @@ class WorkspaceRepository extends EntityRepository
             $groupIds,
             'workspace',
             'w',
-            PermissionInterface::VIEW
+            PermissionInterface::VIEW,
+            false
         );
+        $queryBuilder->andWhere('w.public = true OR ace.id IS NOT NULL');
 
-        return $queryBuilder
-            ->getQuery()
-            ->getResult();
+        return $queryBuilder;
     }
 }

@@ -6,7 +6,7 @@ namespace App\Elasticsearch\Facet;
 
 use App\Entity\Core\Asset;
 
-class EditedAtFacet extends AbstractDateFacet
+class EditedAtTimeFacet extends AbstractDateTimeFacet
 {
     protected function getAggregationTitle(): string
     {

@@ -5,32 +5,12 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Facet;
 
 use App\Attribute\Type\DateAttributeType;
-use App\Elasticsearch\ESFacetInterface;
-use Elastica\Query;
-use Elastica\Aggregation;
 
-abstract class AbstractDateFacet extends AbstractFacet
+abstract class AbstractDateFacet extends AbstractDateTimeFacet
 {
-    public function normalizeBucket(array $bucket): ?array
+    protected function getAggregationMinimumInterval(): string
     {
-        return $bucket;
-    }
-
-    public function buildFacet(Query $query): void
-    {
-        $agg = new Aggregation\AutoDateHistogram(
-            static::getKey(),
-            $this->getFieldName()
-        );
-        $agg->setBuckets($this->getAggregationSize());
-        $agg->setMinimumInterval('minute');
-        $agg->setMeta($this->getAggregationMeta());
-        $query->addAggregation($agg);
-    }
-
-    protected function getFacetWidget(): string
-    {
-        return ESFacetInterface::TYPE_DATE_RANGE;
+        return 'day';
     }
 
     public function getType(): string

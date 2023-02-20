@@ -38,6 +38,7 @@ export type AttributeTypeFormatter = {
 }
 export type AttributeTypeWidget = {
     renderWidget(props: AttributeWidgetProps): React.ReactNode;
+    denormalize(value: any): any;
 }
 
 export type AttributeTypeInstance = AttributeTypeFormatter & AttributeTypeWidget;
