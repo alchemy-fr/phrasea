@@ -57,387 +57,6 @@
             "time": "2023-02-20T16:01:27+00:00"
         },
         {
-            "name": "alchemy/admin-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/admin-bundle",
-                "reference": "bdbcb8a10e74551e6c733342ad28e9c836234506"
-            },
-            "require": {
-                "alchemy/remote-auth-bundle": "@dev",
-                "easycorp/easyadmin-bundle": "^2.3",
-                "guzzlehttp/guzzle": "^6.3",
-                "php": "^7.4",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\AdminBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\AdminBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "./vendor/bin/phpunit"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony admin bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "keywords": [
-                "Admin"
-            ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/core-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/core-bundle",
-                "reference": "64209ececa613ce570fa263534501494676a0a19"
-            },
-            "require": {
-                "php": "^7.4",
-                "symfony/framework-bundle": "^4.0||^5",
-                "symfony/monolog-bundle": "^3.5",
-                "symfony/security-bundle": "^4.0||^5"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^8.4"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\CoreBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\CoreBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Alchemy core bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/notify-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/notify-bundle",
-                "reference": "2f876449eb238814a217569f26ec009bb18457ea"
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.3",
-                "php": "^7.4",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\NotifyBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\NotifyBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony notify bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "keywords": [
-                "Notification email"
-            ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/oauth-server-bundle",
-                "reference": "d5951268306ec67f3e900845152261c1b2306580"
-            },
-            "require": {
-                "friendsofsymfony/oauth-server-bundle": "^1.6",
-                "php": "^7.4",
-                "symfony/framework-bundle": "^4.0 || ^5.0 || ^5",
-                "symfony/templating": "^4.0 || ^5.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\OAuthServerBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\OAuthServerBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony OAuth server bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/remote-auth-bundle",
-                "reference": "5d4e95e9ec7827f1ac228f7de61ae5da5a824e08"
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.3",
-                "php": "^7.4",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5",
-                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony remote auth bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "keywords": [
-                "User Security"
-            ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/report-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/report-bundle",
-                "reference": "91a453ae903620b8a11eb20e7f1cf931e4308e0c"
-            },
-            "require": {
-                "alchemy/report-sdk": "@dev",
-                "php": "^7.4",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
-                "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\ReportBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony report bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/report-sdk",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/report-sdk",
-                "reference": "6112cea9452978ba23c16095f5063d8449dcc430"
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.3",
-                "opis/json-schema": "^1.0",
-                "php": "^7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^8.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\ReportSDK\\": "src/"
-                },
-                "exclude-from-classmap": [
-                    "/tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\ReportSDK\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "./vendor/bin/phpunit"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony report SDK",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/storage-bundle",
-            "version": "dev-PS-537-collection-create",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/storage-bundle",
-                "reference": "d1061e58a0a31021efa4164ae34b4fa324e9c0ac"
-            },
-            "require": {
-                "aws/aws-sdk-php": "^3.20",
-                "league/flysystem-aws-s3-v3": "^1.0",
-                "oneup/flysystem-bundle": "^3.1",
-                "php": "^7.4",
-                "ramsey/uuid": "^4.2.3",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\StorageBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\StorageBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony storage bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
             "name": "api-platform/core",
             "version": "v2.6.8",
             "source": {
@@ -568,7 +187,7 @@
             ],
             "authors": [
                 {
-                    "name": "Kévin Dunglas",
+                    "name": "K\u00e9vin Dunglas",
                     "email": "kevin@dunglas.fr",
                     "homepage": "https://dunglas.fr"
                 }
@@ -3050,7 +2669,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -3244,7 +2863,7 @@
                     "homepage": "https://github.com/Nyholm"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://github.com/sagikazarmark"
                 },
@@ -4260,7 +3879,7 @@
                     "role": "Original Maintainer"
                 },
                 {
-                    "name": "Raúl Araya",
+                    "name": "Ra\u00fal Araya",
                     "email": "nubeiro@gmail.com",
                     "role": "Maintainer"
                 },
@@ -4270,7 +3889,7 @@
                     "role": "Maintainer"
                 },
                 {
-                    "name": "Ramūnas Dronga",
+                    "name": "Ram\u016bnas Dronga",
                     "email": "github@ramuno.lt",
                     "role": "Maintainer"
                 }
@@ -4406,7 +4025,7 @@
             ],
             "authors": [
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "M\u00e1rk S\u00e1gi-Kaz\u00e1r",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -4649,7 +4268,7 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Hans-Jürgen Petrich",
+                    "name": "Hans-J\u00fcrgen Petrich",
                     "email": "petrich@tronic-media.com",
                     "role": "Developer"
                 },
@@ -4742,7 +4361,7 @@
                     "role": "Creator & Maintainer"
                 },
                 {
-                    "name": "Till Krüss",
+                    "name": "Till Kr\u00fcss",
                     "homepage": "https://till.im",
                     "role": "Maintainer"
                 }
@@ -8699,7 +8318,7 @@
             ],
             "authors": [
                 {
-                    "name": "Kévin Dunglas",
+                    "name": "K\u00e9vin Dunglas",
                     "email": "dunglas@gmail.com"
                 },
                 {
@@ -10366,7 +9985,7 @@
             ],
             "authors": [
                 {
-                    "name": "Kévin Dunglas",
+                    "name": "K\u00e9vin Dunglas",
                     "email": "dunglas@gmail.com"
                 },
                 {
@@ -11132,7 +10751,7 @@
             ],
             "authors": [
                 {
-                    "name": "François Zaninotto"
+                    "name": "Fran\u00e7ois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -11239,7 +10858,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Dariusz Rumiński",
+                    "name": "Dariusz Rumi\u0144ski",
                     "email": "dariusz.ruminski@gmail.com"
                 }
             ],
@@ -11309,7 +10928,7 @@
                     "email": "brensch@gmail.com"
                 },
                 {
-                    "name": "Théo FIDRY",
+                    "name": "Th\u00e9o FIDRY",
                     "email": "theo.fidry@gmail.com",
                     "homepage": "https://github.com/theofidry"
                 }
@@ -11454,7 +11073,7 @@
                     "email": "shelburt02@gmail.com"
                 },
                 {
-                    "name": "Théo FIDRY",
+                    "name": "Th\u00e9o FIDRY",
                     "email": "theo.fidry@gmail.com"
                 }
             ],
@@ -13193,7 +12812,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-François Simon",
+                    "name": "Jean-Fran\u00e7ois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -13764,7 +13383,7 @@
             ],
             "authors": [
                 {
-                    "name": "Théo FIDRY",
+                    "name": "Th\u00e9o FIDRY",
                     "email": "theo.fidry@gmail.com",
                     "homepage": "https://github.com/theofidry"
                 }
