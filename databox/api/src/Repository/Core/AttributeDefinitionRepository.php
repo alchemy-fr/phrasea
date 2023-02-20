@@ -25,15 +25,44 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
     /**
      * @return AttributeDefinition[]
      */
-    public function getSearchableAttributes(?array $workspaceIds, ?string $userId, array $groupIds, array $options = []): array
+    public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array
     {
         $queryBuilder = $this
             ->createQueryBuilder('t')
             ->andWhere('t.searchable = true')
             ->innerJoin('t.class', 'c')
+            ->innerJoin('t.workspace', 'w')
         ;
 
         if (!$this->security->isGranted(ChuckNorrisVoter::ROLE)) {
+            if (null !== $userId) {
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $userId,
+                    $groupIds,
+                    'attribute_class',
+                    'c',
+                    PermissionInterface::VIEW,
+                    false,
+                    'ac_ace'
+                );
+                AccessControlEntryRepository::joinAcl(
+                    $queryBuilder,
+                    $userId,
+                    $groupIds,
+                    'workspace',
+                    'w',
+                    PermissionInterface::VIEW,
+                    false,
+                    'w_ace'
+                );
+                $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('w.public = true OR w_ace.id IS NOT NULL');
+            } else {
+                $queryBuilder->andWhere('c.public = true');
+                $queryBuilder->andWhere('w.public = true');
+            }
+
             if (null !== $userId) {
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
@@ -48,13 +77,6 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             } else {
                 $queryBuilder->andWhere('c.public = true');
             }
-        }
-
-        if (null !== $workspaceIds) {
-            $queryBuilder
-                ->andWhere('t.workspace IN (:w)')
-                ->setParameter('w', $workspaceIds)
-            ;
         }
 
         if ($options[self::OPT_TYPES] ?? null) {

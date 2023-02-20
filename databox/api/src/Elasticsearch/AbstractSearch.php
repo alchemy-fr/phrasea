@@ -26,10 +26,17 @@ abstract class AbstractSearch
             return $aclBoolQuery;
         }
 
+        $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+
         if (null !== $userId) {
-            $shoulds[] = new Query\Range('privacy', [
-                'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
-            ]);
+            if (!empty($publicWorkspaceIds)) {
+                $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
+                    'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
+                ]));
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $shoulds[] = $publicWorkspaceBoolQuery;
+            }
 
             $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
             if (!empty($allowedWorkspaceIds)) {
@@ -49,9 +56,14 @@ abstract class AbstractSearch
                 $shoulds[] = new Query\Terms('groups', $groupIds);
             }
         } else {
-            $shoulds[] = new Query\Range('privacy', [
-                'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
-            ]);
+            if (!empty($publicWorkspaceIds)) {
+                $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
+                    'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
+                ]));
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $shoulds[] = $publicWorkspaceBoolQuery;
+            }
         }
 
         foreach ($shoulds as $query) {
@@ -64,6 +76,11 @@ abstract class AbstractSearch
     private function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
         return $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+    }
+
+    private function getPublicWorkspaceIds(): array
+    {
+        return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
     /**

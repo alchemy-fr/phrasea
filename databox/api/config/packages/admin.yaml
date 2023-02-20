@@ -179,6 +179,7 @@ easy_admin:
           - { property: id, template: '@AlchemyAdmin/list/id.html.twig' }
           - { property: 'name' }
           - { property: 'slug' }
+          - { property: 'public' }
           - { property: 'enabledLocales', type: array }
           - { property: 'localeFallbacks', type: array }
           - updatedAt
@@ -187,6 +188,7 @@ easy_admin:
         fields:
           - { property: 'name' }
           - { property: 'slug' }
+          - { property: 'public' }
           - { property: 'ownerId', label: 'Owner', type: Alchemy\AdminBundle\Form\UserChoiceType }
           - { property: 'enabledLocales', type: collection }
           - { property: 'localeFallbacks', type: collection }

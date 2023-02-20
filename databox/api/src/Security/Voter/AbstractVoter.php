@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -20,20 +19,6 @@ abstract class AbstractVoter extends Voter
 
     protected EntityManagerInterface $em;
     protected Security $security;
-    private array $cache = [];
-
-    protected function getAllowedWorkspaceIds(string $userId, array $groupIds): array
-    {
-        if (isset($this->cache[$userId])) {
-            return $this->cache[$userId];
-        }
-
-        $workspaceIds = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
-
-        $this->cache[$userId] = $workspaceIds;
-
-        return $workspaceIds;
-    }
 
     /**
      * @required

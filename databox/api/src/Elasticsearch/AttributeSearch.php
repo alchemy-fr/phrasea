@@ -13,7 +13,6 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
@@ -50,23 +49,28 @@ class AttributeSearch
     ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
-        $workspaces = $this->em->getRepository(Workspace::class)->findAll();
-
         $boolQuery = new Query\BoolQuery();
         $boolQuery->setMinimumShouldMatch(1);
         $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
 
         $this->addIdQueryShould($boolQuery, $queryString);
 
-        foreach ($workspaces as $workspace) {
+        /** @var AttributeDefinition[] $attributeDefinitions */
+        $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributes($userId, $groupIds);
+
+        $wsIndexed = [];
+        foreach ($attributeDefinitions as $definition) {
+            $workspaceId = $definition->getWorkspaceId();
+            $wsIndexed[$workspaceId] ??= [];
+            $wsIndexed[$workspaceId][] = $definition;
+        }
+
+        foreach ($wsIndexed as $workspaceId => $attributeDefinitions) {
             $wsSearchQuery = new Query\BoolQuery();
 
-            /** @var AttributeDefinition[] $attributeDefinitions */
-            $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-                ->getSearchableAttributes([$workspace->getId()], $userId, $groupIds);
-
             $weights = [];
-            if (!$this->assetTitleResolver->hasTitleOverride($workspace->getId())) {
+            if (!$this->assetTitleResolver->hasTitleOverride($workspaceId)) {
                 $weights['title'] = 10;
             }
 
@@ -113,7 +117,7 @@ class AttributeSearch
             }
 
             $wsSearchQuery->addMust($matchBoolQuery);
-            $wsSearchQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
+            $wsSearchQuery->addMust(new Query\Term(['workspaceId' => $workspaceId]));
 
             $boolQuery->addShould($wsSearchQuery);
         }
@@ -211,11 +215,6 @@ class AttributeSearch
     ): void {
         $language = $options['locale'] ?? '*';
         $position = $options['context']['position'] ?? null;
-        $workspaces = $this->em->getRepository(Workspace::class)->getUserWorkspaces($userId, $groupIds, $options['workspaces'] ?? null);
-
-        if (empty($workspaces)) {
-            return;
-        }
 
         $facetTypes = array_map(function (AttributeTypeInterface $attributeType): string {
             return $attributeType::getName();
@@ -225,9 +224,7 @@ class AttributeSearch
 
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-            ->getSearchableAttributes(array_map(function (Workspace $w): string {
-                return $w->getId();
-            }, $workspaces), $userId, $groupIds, [
+            ->getSearchableAttributes($userId, $groupIds, [
                 AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
                 AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
             ]);

@@ -15,7 +15,7 @@ interface AttributeDefinitionRepositoryInterface extends ObjectRepository
     /**
      * @return AttributeDefinition[]
      */
-    public function getSearchableAttributes(?array $workspaceIds, ?string $userId, array $groupIds, array $options = []): array;
+    public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array;
 
     public function findByKey(string $key, string $workspaceId): ?AttributeDefinition;
 

@@ -30,12 +30,11 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepositor
     }
 
     public function getSearchableAttributes(
-        ?array $workspaceIds,
         ?string $userId,
         array $groupIds,
         array $options = []
     ): array {
-        return $this->decorated->getSearchableAttributes($workspaceIds, $userId, $groupIds, $options);
+        return $this->decorated->getSearchableAttributes($userId, $groupIds, $options);
     }
 
     public function findByKey(string $key, string $workspaceId): ?AttributeDefinition

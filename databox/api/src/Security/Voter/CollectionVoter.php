@@ -38,8 +38,6 @@ class CollectionVoter extends AbstractVoter
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
 
-        $workspaceIds = $userId ? $this->getAllowedWorkspaceIds($userId, $user->getGroupIds()) : [];
-
         switch ($attribute) {
             case self::CREATE:
                 return $subject->getParent() ? $this->security->isGranted(CollectionVoter::EDIT, $subject->getParent())
@@ -48,14 +46,14 @@ class CollectionVoter extends AbstractVoter
                 return $isOwner
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
-                    || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                    || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
             case self::READ:
                 return $isOwner
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                    || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
             case self::EDIT:
