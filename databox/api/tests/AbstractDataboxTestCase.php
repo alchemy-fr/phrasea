@@ -208,7 +208,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     {
         $permissionManager = self::getContainer()->get(PermissionManager::class);
         $permissionManager->updateOrCreateAce(
-            AccessControlEntryInterface::TYPE_USER,
+            AccessControlEntryInterface::TYPE_USER_VALUE,
             $ownerId,
             'workspace',
             $workspaceId,

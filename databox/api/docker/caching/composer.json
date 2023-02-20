@@ -23,6 +23,10 @@
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
             "type": "path",
             "url": "./__lib/core-bundle",
             "options": {
@@ -32,13 +36,6 @@
         {
             "type": "path",
             "url": "./__lib/test-bundle",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
-            "url": "./__lib/acl-bundle",
             "options": {
                 "symlink": true
             }
@@ -98,7 +95,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "alchemy/acl-bundle": "@dev",
+        "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
@@ -117,6 +114,7 @@
         "doctrine/doctrine-bundle": "^2.7.0",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "exercise/htmlpurifier-bundle": "^4.1",
         "friendsofsymfony/elastica-bundle": "^6@dev",
         "friendsofsymfony/oauth-server-bundle": "dev-master as 1.6.99",
         "gedmo/doctrine-extensions": "^3.5",
@@ -124,6 +122,7 @@
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^4.1",
         "nelmio/cors-bundle": "^2.1",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.6,<1.7",
@@ -138,6 +137,7 @@
         "symfony/mime": "^5.2.0",
         "symfony/property-access": "^5.2.0",
         "symfony/property-info": "^5.2.0",
+        "symfony/rate-limiter": "^5.2.0",
         "symfony/security-bundle": "^5.2.0",
         "symfony/security-core": "^5.2,<5.4.0",
         "symfony/serializer": "^5.2.0",

@@ -28,7 +28,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
 
@@ -41,7 +41,7 @@ class AssetUploadTest extends AbstractExposeTestCase
 
         $this->assertEquals('Foo', $json['title']);
         $this->assertEquals(1, count($json['assets']));
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['assets'][0]['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['assets'][0]['id']);
         $this->assertEquals('image/jpeg', $json['assets'][0]['asset']['mimeType']);
     }
 

@@ -186,7 +186,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         self::getPermissionManager()->updateOrCreateAce(
-            AccessControlEntryInterface::TYPE_USER,
+            AccessControlEntryInterface::TYPE_USER_VALUE,
             AuthServiceClientTestMock::USER_UID,
             'asset',
             null,
@@ -249,7 +249,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         self::getPermissionManager()->updateOrCreateAce(
-            AccessControlEntryInterface::TYPE_USER,
+            AccessControlEntryInterface::TYPE_USER_VALUE,
             AuthServiceClientTestMock::USER_UID,
             'collection',
             null,

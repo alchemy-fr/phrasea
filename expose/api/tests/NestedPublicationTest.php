@@ -33,7 +33,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Sub Foo', $json['title']);
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#',
             $json['id']
         );
