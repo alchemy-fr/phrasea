@@ -47,6 +47,8 @@ const linearProgressStyle: CSSProperties = {
 const previewEnterDelay = 500;
 const previewLeaveDelay = 400;
 
+export const searchMenuId = 'search-menu';
+
 export function getAssetListFromEvent(
     currentSelection: string[],
     id: string,
@@ -225,6 +227,7 @@ export default function AssetResults() {
             </div>}
             <div>
                 <ListSubheader
+                    id={searchMenuId}
                     component="div"
                     disableGutters={true}
                     sx={theme => ({

@@ -24,9 +24,11 @@ type Props = PropsWithChildren<{
     textStyle?: (theme: Theme) => CSSProperties;
     rootStyle?: (theme: Theme) => CSSProperties;
     dividerSx?: SxProps;
+    top: number;
 }>;
 
 export default function SectionDivider({
+    top,
     children,
     rootStyle,
     textStyle,
@@ -38,7 +40,7 @@ export default function SectionDivider({
         style={applyStyle(theme, {
             zIndex: zIndex.sectionDivider,
             position: 'sticky',
-            top: 55,
+            top,
             backgroundColor: theme.palette.common.white,
         }, rootStyle)}
         className={sectionDividerClassname}

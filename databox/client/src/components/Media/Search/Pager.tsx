@@ -1,10 +1,12 @@
 import GridLayout from "./Layout/GridLayout";
 import ListLayout from "./Layout/ListLayout";
-import React from "react";
+import React, {useEffect} from "react";
 import {Asset} from "../../../types";
 import {Box} from "@mui/material";
 import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "./Layout/Layout";
 import SectionDivider from "./Layout/SectionDivider";
+import useWindowSize from "../../../hooks/useWindowSize";
+import {searchMenuId} from "./AssetResults";
 
 export enum LayoutEnum {
     Grid = 'grid',
@@ -32,6 +34,20 @@ export default React.memo<Props>(function Pager({
     onContextMenuOpen,
     onPreviewToggle,
 }: Props) {
+    const [searchMenuHeight, setSearchMenuHeight] = React.useState(document.getElementById(searchMenuId)?.offsetHeight ?? 0);
+
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver((entries) => {
+            setSearchMenuHeight(entries[0].target.clientHeight);
+        });
+
+        resizeObserver.observe(document.getElementById(searchMenuId)!);
+
+        return () => {
+            resizeObserver.disconnect();
+        }
+    }, []);
+
     return <Box
         sx={{
             bgcolor: 'common.white',
@@ -42,9 +58,7 @@ export default React.memo<Props>(function Pager({
                 key={i}
             >
                 {i > 0 && <SectionDivider
-                    rootStyle={theme => ({
-                        top: 49,
-                    })}
+                    top={searchMenuHeight}
                     textStyle={() => ({
                         fontWeight: 700,
                         fontSize: 15,
@@ -59,6 +73,7 @@ export default React.memo<Props>(function Pager({
                     selectedAssets,
                     onContextMenuOpen,
                     onPreviewToggle,
+                    searchMenuHeight,
                     page: i + 1,
                 })}
             </React.Fragment>

@@ -28,7 +28,7 @@ export default class DateTimeType extends DateType {
                 return m.format('L LT');
             default:
             case DateFormats.Medium:
-                return m.format('L LT');
+                return m.format('lll');
             case DateFormats.Relative:
                 return m.fromNow();
             case DateFormats.Long:

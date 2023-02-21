@@ -262,7 +262,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $sort[] = ['microseconds' => 'DESC'];
-        $sort[] = ['sequence' => 'DESC'];
+        $sort[] = ['sequence' => 'ASC'];
 
         $query->setSort($sort);
     }

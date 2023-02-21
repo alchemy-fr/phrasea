@@ -47,12 +47,13 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
         indexedFiles[uploadToken] = f;
     });
 
-    return await postMultipleAssets(files.map((f): NewAssetPostType => {
+    return await postMultipleAssets(files.map((f, i): NewAssetPostType => {
         const data: NewAssetPostType = {
             title: f.title,
             pendingUploadToken: f.uploadToken,
             privacy: f.privacy,
             tags: f.tags,
+            sequence: i,
         };
 
         const dest = f.destination as string;

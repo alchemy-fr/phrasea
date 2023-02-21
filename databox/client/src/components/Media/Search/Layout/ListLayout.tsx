@@ -112,6 +112,7 @@ export default function ListLayout({
     selectedAssets,
     onPreviewToggle,
     onOpen,
+    searchMenuHeight,
 }: LayoutProps) {
     const {thumbSize, displayAttributes} = useContext(DisplayContext)!;
 
@@ -156,6 +157,7 @@ export default function ListLayout({
             return <GroupRow
                 key={a.id}
                 asset={a}
+                searchMenuHeight={searchMenuHeight}
             >
                 <div
                     key={a.id}

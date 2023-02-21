@@ -153,6 +153,7 @@ export type AssetApiInput = {
     workspace?: string;
     sourceFileId?: string;
     pendingUploadToken?: string;
+    sequence?: number;
 }
 
 export type NewAssetPostType = {

@@ -8,11 +8,13 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 
 type Props = PropsWithChildren<{
     asset: Asset;
+    searchMenuHeight: number;
 }>;
 
 export default function GroupRow({
     asset,
     children,
+    searchMenuHeight,
 }: Props) {
     const groupValue = asset.groupValue;
     const formatContext = React.useContext(AttributeFormatContext);
@@ -44,6 +46,7 @@ export default function GroupRow({
                     },
                 }
             }}
+            top={searchMenuHeight}
         >
             {formatContext.hasFormats(type) && <IconButton
                 className={toggleFormatClass}

@@ -104,6 +104,7 @@ const AssetItem = React.memo(({
 });
 
 export default function GridLayout({
+    searchMenuHeight,
     assets,
     selectedAssets,
     onSelect,
@@ -199,6 +200,7 @@ export default function GridLayout({
             return <GroupRow
                 key={a.id}
                 asset={a}
+                searchMenuHeight={searchMenuHeight}
             >
                 <Grid
                     item

@@ -3,6 +3,7 @@ import {oauthClient} from "../../oauth";
 import {RawAxiosRequestHeaders} from "axios";
 import config from "../../config";
 import uploaderClient from "../uploader-client";
+import {promiseConcurrency} from "../../lib/promises";
 
 interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;
@@ -20,7 +21,7 @@ type FormData = Record<string, any> | undefined;
 
 export async function UploadFiles(userId: string, files: UploadedFile[], formData?: FormData): Promise<void> {
     const targetSlug = config.get('uploaderTargetSlug');
-    const assets = await Promise.all(files.map(f => UploadFile(targetSlug, userId, f)));
+    const assets = await promiseConcurrency(files.map(f => () => UploadFile(targetSlug, userId, f)), 2);
 
     await CommitUpload(targetSlug, assets, formData);
 }
