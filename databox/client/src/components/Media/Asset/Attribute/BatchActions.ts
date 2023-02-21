@@ -6,7 +6,7 @@ export function getBatchActions(
     attributes: AttributeIndex<string | number>,
     definitions: DefinitionIndex,
     remoteAttrs?: AttributeIndex | undefined
-): AttributeBatchAction[] {
+) {
     const actions: AttributeBatchAction[] = [];
 
     Object.keys(attributes).forEach((defId): void => {
