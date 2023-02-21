@@ -1,16 +1,7 @@
-import React, {useCallback, useState} from "react";
+import React from "react";
 import {Box} from "@mui/material";
-import {isSame} from "../../../../utils/comparison";
-import {
-    AttributeBatchAction,
-    AttributeBatchActionEnum,
-    attributeBatchUpdate,
-    getAssetAttributes,
-} from "../../../../api/asset";
-import {Asset, Attribute, AttributeDefinition} from "../../../../types";
+import {Attribute, AttributeDefinition} from "../../../../types";
 import AttributeType from "./AttributeType";
-import {toast} from "react-toastify";
-import FormTab from "../../../Dialog/Tabbed/FormTab";
 
 export type AttrValue<T = string> = {
     id: T;
@@ -21,16 +12,6 @@ export const NO_LOCALE = '_';
 export type DefinitionIndex = Record<string, AttributeDefinition>;
 export type LocalizedAttributeIndex<T = string> = { [locale: string]: AttrValue<T> | AttrValue<T>[] | undefined };
 export type AttributeIndex<T = string> = { [definitionId: string]: LocalizedAttributeIndex<T> };
-
-type Props = {
-    assetId: string | string[];
-    multiAssets?: Asset[];
-    definitions: DefinitionIndex;
-    attributes: AttributeIndex;
-    onClose: () => void;
-    onEdit: () => void;
-    minHeight?: number | undefined;
-}
 
 let idInc = 1;
 
@@ -87,202 +68,41 @@ export type OnChangeHandler = (
     value: AttrValue<string | number> | AttrValue<string | number>[] | undefined
 ) => void;
 
+type Props = {
+    attributes: AttributeIndex<string | number>;
+    definitions: DefinitionIndex;
+    onChange: OnChangeHandler;
+    disabled: boolean;
+}
+
 export default function AttributesEditor({
-    assetId,
+    attributes,
     definitions,
-    attributes: initialAttrs,
-    onClose,
-    onEdit,
-    minHeight,
+    onChange,
+    disabled,
 }: Props) {
-    const [currentLocale, setCurrentLocale] = useState<string>('fr_FR');
-    const [error, setError] = useState<string>();
-    const [remoteAttrs, setRemoteAttrs] = useState<AttributeIndex>(initialAttrs);
-    const [attributes, setAttributes] = useState<AttributeIndex<string | number>>(initialAttrs);
-    const [saving, setSaving] = useState<any>(false);
-
-    const onChange = useCallback<OnChangeHandler>((defId, locale, value) => {
-        setAttributes((prev: AttributeIndex<string | number>): AttributeIndex<string | number> => {
-            const newValues = {...prev};
-
-            if (value === undefined) {
-                if (newValues[defId]) {
-                    delete newValues[defId][locale];
-                }
-            } else {
-                newValues[defId] = {
-                    ...(newValues[defId] ?? {}),
-                    [locale]: value,
-                };
-            }
-
-            if (Object.keys(newValues[defId]).length === 0) {
-                delete newValues[defId];
-            }
-
-            return newValues;
-        });
-    }, [setAttributes]);
-
-    const save = async () => {
-        setSaving(true);
-        try {
-            const actions: AttributeBatchAction[] = [];
-
-            Object.keys(attributes).forEach((defId): void => {
-                if (!definitions[defId].canEdit) {
-                    return;
-                }
-
-                const lv = attributes[defId];
-                Object.keys(lv).forEach((locale): void => {
-                    const currValue = lv[locale];
-                    if (isSame(remoteAttrs[defId][locale], currValue)) {
-                        return;
-                    }
-
-                    if (currValue) {
-                        const removeV = remoteAttrs[defId][locale] as AttrValue[];
-                        if (currValue instanceof Array) {
-                            if (!removeV) {
-                                actions.push({
-                                    action: AttributeBatchActionEnum.Set,
-                                    definitionId: defId,
-                                    value: currValue.map(_v => _v.value),
-                                    locale: locale !== NO_LOCALE ? locale : undefined,
-                                });
-                            } else {
-                                currValue.forEach((v: AttrValue<string | number>) => {
-                                    if (v.value !== undefined) {
-                                        const found = removeV.find(_v => _v.id === v.id);
-                                        if (!found) {
-                                            actions.push({
-                                                action: AttributeBatchActionEnum.Add,
-                                                definitionId: defId,
-                                                value: v.value,
-                                                locale: locale !== NO_LOCALE ? locale : undefined,
-                                            });
-                                        } else {
-                                            if (!isSame(found.value, v.value)) {
-                                                actions.push({
-                                                    action: AttributeBatchActionEnum.Set,
-                                                    id: found.id,
-                                                    definitionId: defId,
-                                                    value: v.value,
-                                                    locale: locale !== NO_LOCALE ? locale : undefined,
-                                                });
-                                            }
-                                        }
-                                    } else if (typeof v.id === 'string') {
-                                        actions.push({
-                                            action: AttributeBatchActionEnum.Delete,
-                                            definitionId: defId,
-                                            id: v.id,
-                                        });
-                                    }
-                                });
-                            }
-                        } else {
-                            actions.push({
-                                action: AttributeBatchActionEnum.Set,
-                                definitionId: defId,
-                                value: currValue.value,
-                                locale: locale !== NO_LOCALE ? locale : undefined,
-                            });
-                        }
-                    }
-                });
-            });
-
-            Object.keys(remoteAttrs).forEach((defId): void => {
-                Object.keys(remoteAttrs[defId]).forEach((locale): void => {
-                    const remoteV = remoteAttrs[defId][locale];
-
-                    if (remoteV) {
-                        if (remoteV instanceof Array) {
-                            const attrV = attributes[defId][locale] as AttrValue<string | number>[];
-
-                            remoteV.forEach(v => {
-                                const found = attrV.find(_v => _v.id === v.id);
-                                if (!found) {
-                                    actions.push({
-                                        action: AttributeBatchActionEnum.Delete,
-                                        definitionId: defId,
-                                        id: v.id,
-                                    });
-                                }
-                            });
-                        } else {
-                            if (!attributes[defId] || !attributes[defId][locale] || (attributes[defId][locale] as AttrValue).value === undefined) {
-                                actions.push({
-                                    action: AttributeBatchActionEnum.Delete,
-                                    definitionId: defId,
-                                    id: remoteV.id,
-                                });
-                            }
-                        }
-                    }
-                });
-            });
-
-            if (actions.length > 0) {
-                await attributeBatchUpdate(assetId, actions);
-            }
-            const res = await getAssetAttributes(assetId);
-            const attributeIndex = buildAttributeIndex(definitions, res);
-
-            setRemoteAttrs(attributeIndex);
-            setAttributes(attributeIndex);
-
-            toast.success("Attributes saved !", {});
-
-            setSaving(false);
-
-            if (error) {
-                setError(undefined);
-            }
-
-            onEdit();
-        } catch (e: any) {
-            console.error('e', e);
-            setSaving(false);
-            if (e.response && typeof e.response.data === 'object') {
-                const data = e.response.data;
-                setError(`${data['hydra:title']}: ${data['hydra:description']}`);
-            } else {
-                setError(e.toString());
-            }
-        }
-    }
+    const [currentLocale, setCurrentLocale] = React.useState('fr_FR');
 
     return <>
-        <FormTab
-            formId={'a'}
-            onSave={save}
-            onClose={onClose}
-            minHeight={minHeight}
-            loading={saving}
-        >
-            {Object.keys(definitions).map(defId => {
-                const d = definitions[defId];
+        {Object.keys(definitions).map(defId => {
+            const d = definitions[defId];
 
-                return <Box
-                    key={defId}
-                    sx={{
-                        mb: 5
-                    }}
-                >
-                    <AttributeType
-                        readOnly={!d.canEdit}
-                        attributes={attributes[defId]}
-                        disabled={saving}
-                        definition={d}
-                        onChange={onChange}
-                        onLocaleChange={setCurrentLocale}
-                        currentLocale={currentLocale}
-                    />
-                </Box>
-            })}
-        </FormTab>
+            return <Box
+                key={defId}
+                sx={{
+                    mb: 5
+                }}
+            >
+                <AttributeType
+                    readOnly={!d.canEdit}
+                    attributes={attributes[defId]}
+                    disabled={disabled}
+                    definition={d}
+                    onChange={onChange}
+                    onLocaleChange={setCurrentLocale}
+                    currentLocale={currentLocale}
+                />
+            </Box>
+        })}
     </>
 }

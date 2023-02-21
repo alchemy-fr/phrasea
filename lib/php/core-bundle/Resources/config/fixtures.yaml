@@ -3,7 +3,7 @@ services:
     autowire: true
     autoconfigure: true
     bind:
-      string $fixturesCacheDir: '%kernel.cache_dir%/fixtures'
+      string $fixturesCacheDir: '%kernel.project_dir%/var/fixtures'
 
   Alchemy\CoreBundle\Fixture\Faker\ImageUrlFaker: ~
   Alchemy\CoreBundle\Fixture\Faker\MediaFaker: ~
