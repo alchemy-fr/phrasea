@@ -1,21 +1,26 @@
 import React from "react";
 import {FormLabel, Skeleton} from "@mui/material";
-import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
+import {OnAttributesChange, useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 import AttributesEditor from "../Media/Asset/Attribute/AttributesEditor";
 import FormRow from "../Form/FormRow";
 
 type Props = {
-    usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    workspaceId: string;
+    onAttributesChange?: OnAttributesChange;
 }
 
 export default function UploadAttributes({
-    usedAttributeEditor
+    workspaceId,
+    onAttributesChange,
 }: Props) {
     const {
+        onChangeHandler,
         attributes,
         definitionIndex,
-        onChangeHandler,
-    } = usedAttributeEditor;
+    } = useAttributeEditor({
+        workspaceId,
+        onAttributesChange,
+    });
 
     return <>
         {(attributes && definitionIndex) ? <AttributesEditor

@@ -6,7 +6,7 @@ import {
 import {postCollection} from "../../api/collection";
 import {UploadFiles} from "../../api/uploader/file";
 import {Asset} from "../../types";
-import {AttributeBatchAction, NewAssetPostType, postMultipleAssets} from "../../api/asset";
+import {NewAssetPostType, postMultipleAssets} from "../../api/asset";
 import {v4 as uuidv4} from 'uuid';
 import {AttributeIndex} from "../../components/Media/Asset/Attribute/AttributesEditor";
 
@@ -18,7 +18,7 @@ type InputFile = {
     destination: CollectionId;
     uploadToken?: string;
     assetId?: string;
-    attributes?: AttributeBatchAction[] | undefined;
+    attributes?: AttributeIndex<string | number> | undefined;
 };
 
 type UploadInput = {
@@ -56,7 +56,6 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
             privacy: f.privacy,
             tags: f.tags,
             sequence: i,
-            attributes: f.attributes,
         };
 
         const dest = f.destination as string;
