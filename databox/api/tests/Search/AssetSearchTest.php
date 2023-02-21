@@ -9,26 +9,79 @@ use DateTimeImmutable;
 
 class AssetSearchTest extends AbstractSearchTest
 {
+    public function testAssetSearchInPublicWorkspace(): void
+    {
+        $workspace = $this->createWorkspace([
+            'no_acl' => true,
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'public' => true,
+            'workspace' => $workspace,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/assets',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(1, $data);
+    }
+
+    public function testAssetSearchInPrivateWorkspace(): void
+    {
+        $workspace = $this->createWorkspace([
+            'no_acl' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'public' => true,
+            'workspace' => $workspace,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/assets',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(0, $data);
+    }
+
     public function testLocalizedQuery(): void
     {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
         $textDefinition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
             'name' => 'Description',
             'translatable' => true,
             'no_flush' => true,
         ]);
         $multiValuedDefinition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
             'name' => 'Keywords',
             'translatable' => true,
             'multiple' => true,
             'no_flush' => true,
         ]);
         $dateDefinition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
             'name' => 'Date',
             'type' => DateTimeAttributeType::getName(),
             'no_flush' => true,
         ]);
 
         $this->createAsset([
+            'workspace' => $workspace,
             'title' => 'FR',
             'public' => true,
             'attributes' => [
@@ -56,6 +109,7 @@ class AssetSearchTest extends AbstractSearchTest
         ]);
 
         $this->createAsset([
+            'workspace' => $workspace,
             'title' => 'EN',
             'public' => true,
             'attributes' => [
@@ -83,6 +137,7 @@ class AssetSearchTest extends AbstractSearchTest
         ]);
 
         $this->createAsset([
+            'workspace' => $workspace,
             'title' => 'AR',
             'public' => true,
             'attributes' => [
@@ -108,9 +163,7 @@ class AssetSearchTest extends AbstractSearchTest
             ],
             'no_flush' => true,
         ]);
-
         $this->getEntityManager()->flush();
-
         self::releaseIndex();
 
         foreach ($this->getSearchCases() as $args) {
@@ -159,7 +212,7 @@ class AssetSearchTest extends AbstractSearchTest
         };
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(count($expectedResults), count($data), $getMessage('Invalid result count'));
+        $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);
             $this->assertEquals($expectedResult, $r['title'], $getMessage('Invalid result order'));

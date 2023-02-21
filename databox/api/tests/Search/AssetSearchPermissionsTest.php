@@ -19,11 +19,15 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
     public function testSearchPublicAssetsAsAnonymousUser(): void
     {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
         $asset = $this->createAsset([
+            'workspace' => $workspace,
             'title' => 'Foo',
             'public' => true,
         ]);
-
         self::releaseIndex();
 
         $response = $this->request(
@@ -33,7 +37,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -278,10 +282,17 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         array $exclude,
         array $expectedResults
     ): void {
-        $collection = $this->createCollection();
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $collection = $this->createCollection([
+            'workspace' => $workspace,
+        ]);
 
         foreach ($assets as $assetName => $tags) {
             $this->createAsset([
+                'workspace' => $workspace,
                 'title' => $assetName,
                 'public' => true,
                 'collectionId' => $collection->getId(),
@@ -290,8 +301,8 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         }
         self::releaseIndex();
 
-        $resolveTag = function (string $tagName): string {
-            $tag = $this->findOrCreateTagByName($tagName);
+        $resolveTag = function (string $tagName) use ($workspace): string {
+            $tag = $this->findOrCreateTagByName($tagName, $workspace);
 
             return $tag->getId();
         };
@@ -315,7 +326,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(count($expectedResults), count($data));
+        $this->assertSameSize($expectedResults, $data);
         $hasNamedAsset = function (string $name) use ($data): bool {
             foreach ($data as $asset) {
                 if ($asset['title'] === $name) {

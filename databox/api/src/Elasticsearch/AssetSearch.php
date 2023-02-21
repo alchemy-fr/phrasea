@@ -52,7 +52,9 @@ class AssetSearch extends AbstractSearch
         $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        $filterQueries[] = $aclBoolQuery;
+        if (null !== $aclBoolQuery) {
+            $filterQueries[] = $aclBoolQuery;
+        }
 
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];

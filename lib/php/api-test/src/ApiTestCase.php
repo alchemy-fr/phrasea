@@ -74,8 +74,20 @@ abstract class ApiTestCase extends WebTestCase
         gc_collect_cycles();
     }
 
+    /**
+     * @template T
+     *
+     * @param class-string<T> $name
+     *
+     * @return T
+     */
+    protected static function getService(string $name): object
+    {
+        return self::getContainer()->get($name);
+    }
+
     protected static function getEntityManager(): EntityManagerInterface
     {
-        return self::$container->get(EntityManagerInterface::class);
+        return self::getService(EntityManagerInterface::class);
     }
 }

@@ -195,6 +195,7 @@ export interface Workspace extends IPermissions {
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     createdAt: string;
+    public: boolean;
 }
 
 export type IntegrationData = {

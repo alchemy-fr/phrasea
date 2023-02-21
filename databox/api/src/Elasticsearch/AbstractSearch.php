@@ -16,18 +16,16 @@ abstract class AbstractSearch
     private EntityManagerInterface $em;
     protected Security $security;
 
-    public function createACLBoolQuery(?string $userId, array $groupIds): Query\BoolQuery
+    public function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
-        $aclBoolQuery = new Query\BoolQuery();
-
-        $shoulds = [];
-
         if ($this->security->isGranted(ChuckNorrisVoter::ROLE)) {
-            return $aclBoolQuery;
+            return null;
         }
 
-        $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+        $aclBoolQuery = new Query\BoolQuery();
+        $shoulds = [];
 
+        $publicWorkspaceIds = $this->getPublicWorkspaceIds();
         if (null !== $userId) {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
@@ -66,8 +64,12 @@ abstract class AbstractSearch
             }
         }
 
-        foreach ($shoulds as $query) {
-            $aclBoolQuery->addShould($query);
+        if (!empty($shoulds)) {
+            foreach ($shoulds as $query) {
+                $aclBoolQuery->addShould($query);
+            }
+        } else {
+            $aclBoolQuery->addShould(new Query\Term(['workspaceId' => 'PUBLIC_WS']));
         }
 
         return $aclBoolQuery;
