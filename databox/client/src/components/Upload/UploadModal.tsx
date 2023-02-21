@@ -15,6 +15,7 @@ import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from "./UploadDropzone";
 import {CollectionChip, WorkspaceChip} from "../Ui/Chips";
 import {CollectionId} from "../Media/Collection/CollectionsTreeView";
+import {AttributeIndex} from "../Media/Asset/Attribute/AttributesEditor";
 
 type FileWrapper = {
     id: string;
@@ -46,6 +47,7 @@ export default function UploadModal({
     })));
     const {closeModal} = useModals();
     useNavigationPrompt('Are you sure you want to dismiss upload?', files.length > 0);
+    const [attributes, setAttributes] = React.useState<AttributeIndex<string | number> | undefined>();
 
     const {
         submitting,
@@ -65,6 +67,7 @@ export default function UploadModal({
                     title: f.file.name === 'image.png' ? createPastedImageTitle() : f.file.name,
                     destination: collectionId ? `/collections/${collectionId}` : (data.destination as CollectionId),
                     privacy: data.privacy,
+                    attributes,
                 })),
             });
         },
@@ -148,6 +151,7 @@ export default function UploadModal({
             submitting={submitting}
             submitted={submitted}
             noDestination={Boolean(workspaceTitle)}
+            onAttributesChange={setAttributes}
         />
     </FormDialog>
 }

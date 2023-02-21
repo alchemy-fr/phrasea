@@ -10,6 +10,8 @@ import {Privacy} from "../../api/privacy";
 import {FormGroup, InputLabel} from "@mui/material";
 import TagSelect from "../Form/TagSelect";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
+import UploadAttributes from "./UploadAttributes";
+import {OnAttributesChange} from "../Media/Asset/Attribute/useAttributeEditor";
 import {Collection} from "../Media/Collection/CollectionsTreeView";
 
 export type UploadData = {
@@ -21,6 +23,7 @@ export type UploadData = {
 export const UploadForm: FC<{
     workspaceId?: string | undefined;
     noDestination?: boolean | undefined;
+    onAttributesChange: OnAttributesChange;
 } & FormProps<UploadData>> = function ({
     formId,
     onSubmit,
@@ -28,6 +31,7 @@ export const UploadForm: FC<{
     submitted,
     workspaceId: initWsId,
     noDestination,
+    onAttributesChange,
 }) {
     const {t} = useTranslation();
     const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(initWsId);
@@ -49,51 +53,59 @@ export const UploadForm: FC<{
 
     React.useEffect(() => {
         setValue('tags', []);
+        onAttributesChange(undefined);
     }, [workspaceId, setValue]);
 
-    return <form
-        id={formId}
-        onSubmit={handleSubmit(onSubmit(setError))}
-    >
-        {!noDestination && <FormRow>
-            <CollectionTreeWidget
-                control={control}
-                rules={{
-                    required: true,
-                }}
-                name={'destination'}
-                onChange={(s, wsId) => setWorkspaceId(wsId)}
-                label={t('form.upload.destination.label', 'Destination')}
-                required={true}
-                allowNew={true}
-                disabled={submitting}
-            />
-            <FormFieldErrors
-                field={'destination'}
-                errors={errors}
-            />
-        </FormRow>}
-        {workspaceId && <FormRow>
-            <FormGroup>
-                <InputLabel>
-                    {t('form.asset.tags.label', 'Tags')}
-                </InputLabel>
-                <TagSelect
-                    workspaceId={workspaceId}
+    return <>
+        <form
+            id={formId}
+            onSubmit={handleSubmit(onSubmit(setError))}
+        >
+            {!noDestination && <FormRow>
+                <CollectionTreeWidget
                     control={control}
-                    name={'tags'}
+                    rules={{
+                        required: true,
+                    }}
+                    name={'destination'}
+                    onChange={(s, wsId) => setWorkspaceId(wsId)}
+                    label={t('form.upload.destination.label', 'Destination')}
+                    required={true}
+                    allowNew={true}
+                    disabled={submitting}
                 />
                 <FormFieldErrors
-                    field={'tags'}
+                    field={'destination'}
                     errors={errors}
                 />
-            </FormGroup>
-        </FormRow>}
-        <FormRow>
-            <PrivacyField
-                control={control}
-                name={'privacy'}
-            />
-        </FormRow>
-    </form>
+            </FormRow>}
+            {workspaceId && <FormRow>
+                <FormGroup>
+                    <InputLabel>
+                        {t('form.asset.tags.label', 'Tags')}
+                    </InputLabel>
+                    <TagSelect
+                        workspaceId={workspaceId}
+                        control={control}
+                        name={'tags'}
+                    />
+                    <FormFieldErrors
+                        field={'tags'}
+                        errors={errors}
+                    />
+                </FormGroup>
+            </FormRow>}
+            <FormRow>
+                <PrivacyField
+                    control={control}
+                    name={'privacy'}
+                />
+            </FormRow>
+        </form>
+
+        {workspaceId && <UploadAttributes
+            workspaceId={workspaceId}
+            onAttributesChange={onAttributesChange}
+        />}
+    </>
 }

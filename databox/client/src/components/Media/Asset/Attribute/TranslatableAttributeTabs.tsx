@@ -44,6 +44,7 @@ export default function TranslatableAttributeTabs({
     attributes,
     readOnly,
 }: Props) {
+    const locales = definition.locales!;
 
     return <>
         <Box sx={{
@@ -61,7 +62,7 @@ export default function TranslatableAttributeTabs({
                     }
                 }}
             >
-                {definition.locales!.map(l => <Tab
+                {locales.map(l => <Tab
                     key={l}
                     label={<>
                         <Flag
@@ -75,7 +76,7 @@ export default function TranslatableAttributeTabs({
             </Tabs>
         </Box>
 
-        {definition.locales!.map((locale) => {
+        {locales.map((locale) => {
             const label = `${definition.name} ${locale}`;
 
             return <TabPanel

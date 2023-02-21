@@ -1,10 +1,10 @@
 import React from "react";
 import {FormLabel, Skeleton} from "@mui/material";
-import {attributeBatchUpdate, getAssetAttributes,} from "../../../../api/asset";
+import {attributeBatchUpdate} from "../../../../api/asset";
 import {Asset} from "../../../../types";
 import {toast} from "react-toastify";
 import FormTab from "../../../Dialog/Tabbed/FormTab";
-import AttributesEditor, {buildAttributeIndex} from "./AttributesEditor";
+import AttributesEditor from "./AttributesEditor";
 import {useAttributeEditor} from "./useAttributeEditor";
 import FormRow from "../../../Form/FormRow";
 
@@ -24,11 +24,14 @@ export default function AttributesEditorForm({
 }: Props) {
     const {
         getActions,
-        onChange,
+        onChangeHandler,
         attributes,
         definitionIndex,
-        setRemoteAttributes,
-    } = useAttributeEditor(workspaceId, assetId);
+        reloadAssetAttributes,
+    } = useAttributeEditor({
+        workspaceId,
+        assetId: assetId as string,
+    });
     const [saving, setSaving] = React.useState(false);
     const [error, setError] = React.useState<string | undefined>();
 
@@ -40,10 +43,7 @@ export default function AttributesEditorForm({
             if (actions.length > 0) {
                 await attributeBatchUpdate(assetId, actions);
             }
-            const res = await getAssetAttributes(assetId);
-            const attributeIndex = buildAttributeIndex(definitionIndex!, res);
-
-            setRemoteAttributes(attributeIndex);
+            await reloadAssetAttributes(assetId as string);
 
             toast.success("Attributes saved!", {});
 
@@ -76,7 +76,7 @@ export default function AttributesEditorForm({
                 attributes={attributes}
                 definitions={definitionIndex}
                 disabled={saving}
-                onChange={onChange}
+                onChangeHandler={onChangeHandler}
             /> : <>
                 {[0, 1, 2].map(x => <React.Fragment key={x}>
                     <FormRow>

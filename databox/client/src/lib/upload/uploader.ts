@@ -8,6 +8,7 @@ import {UploadFiles} from "../../api/uploader/file";
 import {Asset} from "../../types";
 import {NewAssetPostType, postMultipleAssets} from "../../api/asset";
 import {v4 as uuidv4} from 'uuid';
+import {AttributeIndex} from "../../components/Media/Asset/Attribute/AttributesEditor";
 
 type InputFile = {
     title?: string;
@@ -17,6 +18,7 @@ type InputFile = {
     destination: CollectionId;
     uploadToken?: string;
     assetId?: string;
+    attributes?: AttributeIndex<string | number> | undefined;
 };
 
 type UploadInput = {
