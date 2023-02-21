@@ -177,6 +177,9 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
     protected function getDataFromResponse($response, ?int $expectedCode)
     {
+        if ($response->getStatusCode() !== $expectedCode) {
+            dump($response->getContent());
+        }
         $this->assertEquals($expectedCode, $response->getStatusCode());
 
         return \GuzzleHttp\json_decode($response->getContent(), true);
