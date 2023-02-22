@@ -14,8 +14,9 @@ class AssetTest extends AbstractSearchTestCase
 {
     public function testGetAssetCollection(): void
     {
+        $limit = 10;
         self::enableFixtures();
-        $response = static::createClient()->request('GET', '/assets', [
+        $response = static::createClient()->request('GET', '/assets?limit='.$limit, [
             'headers' => [
                 'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
             ],
@@ -29,16 +30,16 @@ class AssetTest extends AbstractSearchTestCase
             '@type' => 'hydra:Collection',
             'hydra:totalItems' => 62,
             'hydra:view' => [
-                '@id' => '/assets?page=1',
+                '@id' => '/assets?limit='.$limit.'&page=1',
                 '@type' => 'hydra:PartialCollectionView',
-                'hydra:first' => '/assets?page=1',
-                'hydra:last' => '/assets?page=3',
-                'hydra:next' => '/assets?page=2',
+                'hydra:first' => '/assets?limit='.$limit.'&page=1',
+                'hydra:last' => '/assets?limit='.$limit.'&page=7',
+                'hydra:next' => '/assets?limit='.$limit.'&page=2',
             ],
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount(30, $response->toArray()['hydra:member']);
+        $this->assertCount($limit, $response->toArray()['hydra:member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
