@@ -329,7 +329,7 @@ App\Entity\Core\Attribute:
   at_datetime_{@a_*} (extends attribute):
     __factory:
       'App\Fixture\DateFixtureFactory::createDateTimeAttribute':
-        - '<dateTimeBetween("-200 days", "now")>'
+        - '<dateTimeBetween("-3 days", "now")>'
     definition: '@ad_datetime'
     asset: '@a_*'
 

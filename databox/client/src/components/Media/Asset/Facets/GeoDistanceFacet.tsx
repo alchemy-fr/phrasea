@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Bucket, Facet, FacetRowProps} from "../Facets";
+import {Bucket, Facet, FacetGroupProps} from "../Facets";
 import {useTheme} from "@mui/material";
 import {SearchContext} from "../../Search/SearchContext";
 import {Circle, Marker, Popup} from "react-leaflet";
@@ -9,7 +9,7 @@ import OpenStreetMap from "../../../Map/OpenStreetMap";
 export default function GeoDistanceFacet({
     facet,
     name,
-}: FacetRowProps) {
+}: FacetGroupProps) {
     const {attrFilters, setAttrFilter, removeAttrFilter} = useContext(SearchContext);
     const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
     const attrFilter = attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;

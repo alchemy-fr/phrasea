@@ -80,4 +80,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     {
         return null;
     }
+
+    public function normalizeBucket(array $bucket): ?array
+    {
+        return $bucket;
+    }
 }

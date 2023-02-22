@@ -41,6 +41,11 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     private string $name;
 
     /**
+     * @ORM\Column(type="string", length=6, nullable=true)
+     */
+    private ?string $color = null;
+
+    /**
      * Override trait for annotation.
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
@@ -62,5 +67,23 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
     public function __toString()
     {
         return $this->getName() ?? $this->getId();
+    }
+
+    public function getColor(): ?string
+    {
+        if ($this->color) {
+            return '#'.$this->color;
+        }
+
+        return null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if ($color && $color[0] === '#') {
+            $color = substr($color, 1);
+        }
+
+        $this->color = $color;
     }
 }

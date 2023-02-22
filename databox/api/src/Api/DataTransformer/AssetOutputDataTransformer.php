@@ -34,7 +34,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     private AssetTitleResolver $assetTitleResolver;
     private RequestStack $requestStack;
     private FieldNameResolver $fieldNameResolver;
-    private ?string $lastGroupValue = null;
+    private ?string $lastGroupKey = null;
     private FacetRegistry $facetRegistry;
     private AttributeTypeRegistry $attributeTypeRegistry;
 
@@ -125,40 +125,13 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 
             $groupBy = $context['groupBy'][0] ?? null;
             if (null !== $groupBy) {
-                $facet = $this->facetRegistry->getFacet($groupBy);
+                $groupValue = $this->getGroupValue($groupBy, $object, $indexByAttrName[$groupBy] ?? null);
+                $groupKey = $groupValue ? $groupValue->getKey() : null;
 
-                if (null !== $facet) {
-                    $value = $facet->getValueFromAsset($object);
-                    $type = $this->attributeTypeRegistry->getStrictType($facet->getType());
-                } else {
-                    $info = $this->fieldNameResolver->getFieldFromName($groupBy);
-                    $type = $info['type'];
-                    $value = $indexByAttrName[$groupBy] ?? null;
-                }
+                if ($this->lastGroupKey !== $groupKey) {
+                    $output->setGroupValue($groupValue);
 
-                if ($value instanceof DoctrineCollection) {
-                    $value = implode(', ', array_map(function ($item) use ($type, $facet): string {
-                        if ($facet) {
-                            $item = $facet->resolveValue($item);
-                        } else {
-                            $item = $type->denormalizeValue($item);
-                        }
-
-                        return $type->getGroupValueLabel($item);
-                    }, $value->getValues()));
-                } else {
-                    if ($facet) {
-                        $value = $facet->resolveValue($value);
-                    } else {
-                        $value = $type->denormalizeValue($value);
-                    }
-                    $value = $type->getGroupValueLabel($value);
-                }
-
-                if ($this->lastGroupValue !== $value) {
-                    $output->setGroupValue(new GroupValue($type::getName(), $value, $value));
-
-                    $this->lastGroupValue = $value;
+                    $this->lastGroupKey = $groupKey;
                 }
             }
         }
@@ -237,5 +210,28 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
     public function supportsTransformation($data, string $to, array $context = []): bool
     {
         return AssetOutput::class === $to && $data instanceof Asset;
+    }
+
+    private function getGroupValue($groupBy, Asset $object, $indexValue): ?GroupValue
+    {
+        $facet = $this->facetRegistry->getFacet($groupBy);
+
+        if (null !== $facet) {
+            $value = $facet->getValueFromAsset($object);
+
+            return $facet->resolveGroupValue($value);
+        } else {
+            ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
+            $key = $value = $indexValue ?? null;
+            if (null === $key) {
+                return null;
+            }
+            if (is_array($key)) {
+                $key = implode(',', $key);
+            }
+            $value = $type->getGroupValueLabel($type->denormalizeValue($value));
+
+            return new GroupValue($type::getName(), $key, [$value]);
+        }
     }
 }

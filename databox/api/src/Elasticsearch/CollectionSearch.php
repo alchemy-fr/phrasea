@@ -75,7 +75,7 @@ class CollectionSearch extends AbstractSearch
 
         $aggregation->addAggregation($termAgg);
 
-        $maxLimit = 30;
+        $maxLimit = 50;
         $limit = (int) ($options['limit'] ?? $maxLimit);
         if ($limit > $maxLimit) {
             $limit = $maxLimit;

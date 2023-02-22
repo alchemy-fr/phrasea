@@ -3,7 +3,7 @@ import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText} f
 import {extractLabelValueFromKey, FacetGroupProps} from "../Facets";
 import {SearchContext} from "../../Search/SearchContext";
 
-export default function TextFacet({
+export default function TagsFacet({
     facet,
     name,
 }: FacetGroupProps) {

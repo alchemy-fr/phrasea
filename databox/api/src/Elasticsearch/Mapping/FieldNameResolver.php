@@ -6,32 +6,21 @@ namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\DateTimeAttributeType;
-use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Facet\FacetRegistry;
-use App\Elasticsearch\FacetHandler;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\CollectionAsset;
-use App\Entity\Core\Tag;
-use App\Entity\Core\Workspace;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
 class FieldNameResolver
 {
     private AttributeTypeRegistry $attributeTypeRegistry;
-    private EntityManagerInterface $em;
     private FacetRegistry $facetRegistry;
 
     public function __construct(
         AttributeTypeRegistry $attributeTypeRegistry,
-        EntityManagerInterface $em,
         FacetRegistry $facetRegistry
     )
     {
         $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->em = $em;
         $this->facetRegistry = $facetRegistry;
     }
 
@@ -41,12 +30,15 @@ class FieldNameResolver
 
         return sprintf('%s_%s_%s',
             $definition->getSlug(),
-            $type->getElasticSearchType(),
+            str_replace('_', '-', $type::getName()),
             $definition->isMultiple() ? 'm' : 's'
         );
     }
 
-    public function getFieldFromName(string $name)
+    /**
+     * @return array{field: string, type: AttributeTypeInterface}
+     */
+    public function getFieldFromName(string $name): array
     {
         $facet = $this->facetRegistry->getFacet($name);
         if (null !== $facet) {
@@ -54,7 +46,7 @@ class FieldNameResolver
             $f = $facet->getFieldName();
         } else {
             $info = $this->extractField($name);
-            $type = $this->attributeTypeRegistry->getStrictType($info['type']);
+            $type = $info['type'];
             $f = sprintf('attributes._.%s', $info['field']);
             if (null !== $subField = $type->getAggregationField()) {
                 $f .= '.'.$subField;
@@ -67,18 +59,18 @@ class FieldNameResolver
         ];
     }
 
+    /**
+     * @param string $fieldName
+     *
+     * @return array{name: string, field: string, type: AttributeTypeInterface, multiple: bool}
+     */
     private function extractField(string $fieldName): array
     {
-        $types = array_map(function (AttributeTypeInterface $t): string {
-            return $t->getElasticSearchType();
-        }, $this->attributeTypeRegistry->getTypes());
-
-        $regex = sprintf('#^(.+)_(%s)_(s|m)$#', implode('|', $types));
-        if (1 === preg_match($regex, $fieldName, $matches)) {
+        if (1 === preg_match('#^(.+)_([^_]+)_([sm])$#', $fieldName, $matches)) {
             return [
                 'name' => $matches[1],
                 'field' => sprintf('%s_%s_%s', $matches[1], $matches[2], $matches[3]),
-                'type' => $matches[2],
+                'type' => $this->attributeTypeRegistry->getStrictType(str_replace('-', '_', $matches[2])),
                 'multiple' => 'm' === $matches[3],
             ];
         }

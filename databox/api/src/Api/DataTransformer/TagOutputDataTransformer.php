@@ -18,6 +18,7 @@ class TagOutputDataTransformer implements DataTransformerInterface
         $output = new TagOutput();
         $output->setId($object->getId());
         $output->setName($object->getName());
+        $output->setColor($object->getColor());
 
         return $output;
     }

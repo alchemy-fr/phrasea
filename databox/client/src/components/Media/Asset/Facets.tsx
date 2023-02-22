@@ -101,22 +101,22 @@ export function extractLabelValueFromKey(
     };
 }
 
-export type FacetRowProps = {
+export type FacetGroupProps = {
     facet: Facet;
     name: string;
 }
 
-const facetWidgets: Record<FacetType, React.FC<FacetRowProps>> = {
+const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.Text]: TextFacet,
     [FacetType.Boolean]: TextFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
 }
 
-function FacetRow({
+function FacetGroup({
     facet,
     name,
-}: FacetRowProps) {
+}: FacetGroupProps) {
     const [open, setOpen] = useState(true);
 
     const widget = facet.meta.widget ?? FacetType.Text;
@@ -167,7 +167,7 @@ export default function Facets() {
             }
         })}
     >
-        {Object.keys(facets).filter(k => facets[k].buckets.length > 0).map((k) => <FacetRow
+        {Object.keys(facets).filter(k => facets[k].buckets.length > 0).map((k) => <FacetGroup
             key={k}
             name={k}
             facet={facets[k]}

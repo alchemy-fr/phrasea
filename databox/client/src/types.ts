@@ -16,8 +16,8 @@ export interface File {
 }
 
 type GroupValue = {
-    value: any;
-    label: string;
+    key: string;
+    values: any[];
     type: AttributeType;
 }
 
@@ -162,6 +162,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    color: string | null;
     workspace: Workspace | string;
 }
 

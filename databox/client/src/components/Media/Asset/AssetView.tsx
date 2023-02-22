@@ -13,6 +13,7 @@ import RouteDialog from "../../Dialog/RouteDialog";
 import {getAssetRenditions} from "../../../api/rendition";
 import MenuItem from "@mui/material/MenuItem";
 import {getPath} from "../../../routes";
+import {useNavigateToModal} from "../../Routing/ModalLink";
 
 export type IntegrationOverlayCommonProps = {
     maxDimensions: Dimensions;
@@ -39,7 +40,7 @@ type Props = {};
 
 export default function AssetView({}: Props) {
     const {assetId, renditionId} = useParams();
-    const navigate = useNavigate();
+    const navigateToModal = useNavigateToModal();
 
     const [data, setData] = useState<Asset>();
     const [renditions, setRenditions] = useState<AssetRendition[]>();
@@ -74,7 +75,7 @@ export default function AssetView({}: Props) {
     const rendition = renditions.find(r => r.id === renditionId);
 
     const handleRenditionChange = (renditionId: string) => {
-        navigate(getPath('app_asset_view', {
+        navigateToModal(getPath('app_asset_view', {
             assetId,
             renditionId,
         }));

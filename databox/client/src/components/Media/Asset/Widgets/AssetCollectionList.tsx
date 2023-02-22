@@ -39,11 +39,15 @@ export default function AssetCollectionList({
     ].flat();
 
     return <Box sx={{
+        px: 1,
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
         '.MuiChip-root': {
             my: 0.5,
+        },
+        '.MuiChip-root+.MuiChip-root': {
+            ml: 0.5,
         }
     }}>
         {workspace && <WorkspaceChip

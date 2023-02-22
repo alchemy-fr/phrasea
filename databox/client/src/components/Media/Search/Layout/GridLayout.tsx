@@ -8,7 +8,7 @@ import {createSizeTransition} from "../../Asset/Thumb";
 import SettingsIcon from '@mui/icons-material/Settings';
 import assetClasses from "./classes";
 import {stopPropagation} from "../../../../lib/stdFuncs";
-import AssetCollectionList from "../../Asset/Widgets/CollectionList";
+import AssetCollectionList from "../../Asset/Widgets/AssetCollectionList";
 import AssetTagList from "../../Asset/Widgets/AssetTagList";
 import {PrivacyTooltip} from "../../../Ui/PrivacyChip";
 import {replaceHighlight} from "../../Asset/Attribute/Attributes";

@@ -38,11 +38,21 @@ final class CollectionFacet extends AbstractFacet
     }
 
     /**
+     * @param CollectionAsset $item
+     *
+     * @return Collection
+     */
+    protected function resolveCollectionItem($item)
+    {
+        return $item->getCollection();
+    }
+
+    /**
      * @param CollectionAsset $value
      *
      * @return string
      */
-    public function resolveValue($value): string
+    public function resolveLabel($value): string
     {
         return $value->getCollection()->getTitle();
     }

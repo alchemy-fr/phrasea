@@ -30,6 +30,7 @@ import AddIcon from "@mui/icons-material/Add";
 import UploadModal from "../../Upload/UploadModal";
 import {useModals} from "../../../hooks/useModalStack";
 import {UserContext} from "../../Security/UserContext";
+import {useNavigateToModal} from "../../Routing/ModalLink";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -90,7 +91,7 @@ export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
     const userContext = useContext(UserContext);
-    const navigate = useNavigate();
+    const navigateToModal = useNavigateToModal();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
@@ -141,12 +142,12 @@ export default function AssetResults() {
     }, []);
 
     const onOpen = useCallback<OnOpen>((assetId: string, renditionId: string): void => {
-        navigate(getPath('app_asset_view', {
+        navigateToModal(getPath('app_asset_view', {
             assetId,
             renditionId,
         }));
         // eslint-disable-next-line
-    }, [navigate]);
+    }, [navigateToModal]);
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();

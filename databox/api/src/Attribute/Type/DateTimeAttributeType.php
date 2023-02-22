@@ -127,4 +127,11 @@ class DateTimeAttributeType extends AbstractAttributeType
             return;
         }
     }
+
+    public function normalizeBucket(array $bucket): ?array
+    {
+        $bucket['key'] = $bucket['key'] / 1000;
+
+        return $bucket;
+    }
 }

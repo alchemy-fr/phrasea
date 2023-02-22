@@ -26,7 +26,7 @@ export async function postTag(data: Partial<Tag>): Promise<Tag> {
 }
 
 export async function putTag(id: string, data: Tag): Promise<Tag> {
-    const res = await apiClient.post(tagNS, data);
+    const res = await apiClient.put(`${tagNS}/${id}`, data);
 
     return res.data;
 }

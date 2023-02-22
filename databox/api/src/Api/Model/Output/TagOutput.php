@@ -13,6 +13,11 @@ class TagOutput extends AbstractUuidOutput
      */
     private string $name;
 
+    /**
+     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
+     */
+    private ?string $color = null;
+
     public function getName(): string
     {
         return $this->name;
@@ -21,5 +26,15 @@ class TagOutput extends AbstractUuidOutput
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(?string $color): void
+    {
+        $this->color = $color;
     }
 }

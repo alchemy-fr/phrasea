@@ -11,9 +11,18 @@ use Elastica\Aggregation;
 
 abstract class AbstractDateTimeFacet extends AbstractFacet
 {
-    public function normalizeBucket(array $bucket): ?array
+    protected function resolveLabel($value): string
     {
-        return $bucket;
+        return $this->resolveKey($value);
+    }
+
+    protected function resolveKey($value): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        return $value;
     }
 
     public function buildFacet(Query $query): void

@@ -10,10 +10,10 @@ import DeleteAssetsConfirm from "./Actions/DeleteAssetsConfirm";
 import {ResultContext} from "../Search/ResultContext";
 import ExportAssetsDialog from "./Actions/ExportAssetsDialog";
 import {getPath} from "../../../routes";
-import {useNavigate} from "react-router-dom";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {useModals} from "../../../hooks/useModalStack";
 import SaveAsButton from "./Actions/SaveAsButton";
+import {useNavigateToModal} from "../../Routing/ModalLink";
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -35,7 +35,7 @@ export default function AssetContextMenu({
     onClose,
 }: Props) {
     const {openModal} = useModals();
-    const navigate = useNavigate();
+    const navigateToModal = useNavigateToModal();
     const resultContext = useContext(ResultContext);
     const {
         id,
@@ -61,7 +61,7 @@ export default function AssetContextMenu({
     }
 
     const onOpen = (renditionId: string) => {
-        navigate(getPath('app_asset_view', {
+        navigateToModal(getPath('app_asset_view', {
             assetId: asset.id,
             renditionId
         }));
@@ -69,7 +69,7 @@ export default function AssetContextMenu({
     }
 
     const onEdit = () => {
-        navigate(getPath('app_asset_manage', {
+        navigateToModal(getPath('app_asset_manage', {
             tab: 'edit',
             id: asset.id,
         }));
@@ -77,7 +77,7 @@ export default function AssetContextMenu({
     }
 
     const onEditAttr = () => {
-        navigate(getPath('app_asset_manage', {
+        navigateToModal(getPath('app_asset_manage', {
             tab: 'attributes',
             id: asset.id,
         }));

@@ -1,13 +1,14 @@
 import React from 'react';
 import {Tag, Workspace} from "../../../types";
-import {ListItemText, TextField} from "@mui/material";
+import {Box, ListItemText, TextField} from "@mui/material";
 import FormRow from "../../Form/FormRow";
 import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
 import {useTranslation} from 'react-i18next';
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import FormFieldErrors from "../../Form/FormFieldErrors";
 import {deleteTag, getTags, postTag, putTag} from "../../../api/tag";
 import {useDirtyFormPrompt} from "../Tabbed/FormTab";
+import ColorPicker from "../../Form/ColorPicker";
 
 function Item({
     data,
@@ -19,6 +20,7 @@ function Item({
 
     const {
         register,
+        control,
         handleSubmit,
         setError,
         formState: {errors, isDirty}
@@ -41,13 +43,44 @@ function Item({
                 errors={errors}
             />
         </FormRow>
+        <FormRow>
+            <Controller
+                control={control}
+                render={({field: {onChange, value, ref}}) => {
+                    return <ColorPicker
+                        color={value}
+                        onChange={onChange}
+                        disabled={submitting}
+                        label={t('form.tag.color.label', 'Color')}
+                        readOnly={submitting}
+                    />
+                }}
+                name={'color'}
+            />
+            <FormFieldErrors
+                field={'color'}
+                errors={errors}
+            />
+        </FormRow>
     </form>
 }
 
 function ListItem({data}: DefinitionItemProps<Tag>) {
-    return <ListItemText
+    return <>
+        <Box
+            sx={theme => ({
+                width: theme.spacing(2),
+                height: theme.spacing(2),
+                borderRadius: theme.shape.borderRadius,
+                border: `1px solid #000`,
+                backgroundColor: data.color,
+                mr: 2,
+            })}
+        />
+        <ListItemText
         primary={data.name}
     />
+        </>
 }
 
 type Props = {
