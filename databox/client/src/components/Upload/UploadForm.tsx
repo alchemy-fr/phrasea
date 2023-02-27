@@ -11,7 +11,7 @@ import {FormGroup, InputLabel} from "@mui/material";
 import TagSelect from "../Form/TagSelect";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 import UploadAttributes from "./UploadAttributes";
-import {OnAttributesChange} from "../Media/Asset/Attribute/useAttributeEditor";
+import {OnAttributesChange, useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 import {Collection} from "../Media/Collection/CollectionsTreeView";
 
 export type UploadData = {
@@ -23,18 +23,19 @@ export type UploadData = {
 export const UploadForm: FC<{
     workspaceId?: string | undefined;
     noDestination?: boolean | undefined;
-    onAttributesChange: OnAttributesChange;
+    usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    onChangeWorkspace: (wsId: string | undefined) => void;
 } & FormProps<UploadData>> = function ({
     formId,
     onSubmit,
     submitting,
     submitted,
-    workspaceId: initWsId,
+    workspaceId,
     noDestination,
-    onAttributesChange,
+    usedAttributeEditor,
+    onChangeWorkspace,
 }) {
     const {t} = useTranslation();
-    const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(initWsId);
 
     const {
         handleSubmit,
@@ -51,11 +52,6 @@ export const UploadForm: FC<{
     });
     useNavigationPrompt('Are you sure you want to dismiss upload?', !submitting && !submitted && isDirty);
 
-    React.useEffect(() => {
-        setValue('tags', []);
-        onAttributesChange(undefined);
-    }, [workspaceId, setValue]);
-
     return <>
         <form
             id={formId}
@@ -68,7 +64,7 @@ export const UploadForm: FC<{
                         required: true,
                     }}
                     name={'destination'}
-                    onChange={(s, wsId) => setWorkspaceId(wsId)}
+                    onChange={(s, wsId) => onChangeWorkspace(wsId)}
                     label={t('form.upload.destination.label', 'Destination')}
                     required={true}
                     allowNew={true}
@@ -104,8 +100,7 @@ export const UploadForm: FC<{
         </form>
 
         {workspaceId && <UploadAttributes
-            workspaceId={workspaceId}
-            onAttributesChange={onAttributesChange}
+            usedAttributeEditor={usedAttributeEditor}
         />}
     </>
 }
