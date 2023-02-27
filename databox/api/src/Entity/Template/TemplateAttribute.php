@@ -4,27 +4,35 @@ declare(strict_types=1);
 
 namespace App\Entity\Template;
 
-use App\Entity\Core\AbstractBaseAttribute;
+use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
  */
-class TemplateAttribute extends AbstractBaseAttribute
+class TemplateAttribute extends AbstractUuidEntity
 {
     /**
-     * @ORM\ManyToOne(targetEntity=AssetDataTemplate::class, inversedBy="attributes")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
      */
     private ?AssetDataTemplate $template = null;
 
     /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private ?string $locale = null;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $position = 0;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"asset-data-template:read"})
      */
     protected ?AttributeDefinition $definition = null;
 
@@ -51,10 +59,15 @@ class TemplateAttribute extends AbstractBaseAttribute
     private ?string $translationOriginHash = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Template\TemplateAttribute", mappedBy="translationOrigin", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Template\TemplatesAttribute", mappedBy="translationOrigin", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $translations = null;
+
+    /**
+     * @ORM\Column(type="text", nullable=false)
+     */
+    private ?string $value = null;
 
     public function getDefinition(): ?AttributeDefinition
     {
@@ -76,6 +89,31 @@ class TemplateAttribute extends AbstractBaseAttribute
         $this->translationId = $translationId;
     }
 
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setValue(?string $value): void
+    {
+        $this->value = $value;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->locale;
+    }
+
+    public function hasLocale(): bool
+    {
+        return null !== $this->locale;
+    }
+
+    public function setLocale(?string $locale): void
+    {
+        $this->locale = $locale;
+    }
+
     public function getTranslationOrigin(): ?TemplateAttribute
     {
         return $this->translationOrigin;
@@ -89,6 +127,16 @@ class TemplateAttribute extends AbstractBaseAttribute
     public function setTranslationOriginHash(?string $translationOriginHash): void
     {
         $this->translationOriginHash = $translationOriginHash;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getTemplate(): ?AssetDataTemplate

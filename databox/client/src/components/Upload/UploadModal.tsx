@@ -16,6 +16,7 @@ import UploadDropzone from "./UploadDropzone";
 import {CollectionChip, WorkspaceChip} from "../Ui/Chips";
 import {CollectionId} from "../Media/Collection/CollectionsTreeView";
 import {AttributeIndex} from "../Media/Asset/Attribute/AttributesEditor";
+import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 
 type FileWrapper = {
     id: string;
@@ -34,20 +35,24 @@ type Props = {
 export default function UploadModal({
     files: initFiles,
     userId,
-    workspaceId,
+    workspaceId: initWsId,
     open,
     workspaceTitle,
     collectionId,
     titlePath,
 }: Props) {
     const {t} = useTranslation();
+    const [workspaceId, setWorkspaceId] = React.useState(initWsId);
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
         file: f,
         id: uuidv4().toString(),
     })));
     const {closeModal} = useModals();
     useNavigationPrompt('Are you sure you want to dismiss upload?', files.length > 0);
-    const [attributes, setAttributes] = React.useState<AttributeIndex<string | number> | undefined>();
+
+    const usedAttributeEditor = useAttributeEditor({
+        workspaceId,
+    });
 
     const {
         submitting,
@@ -67,7 +72,7 @@ export default function UploadModal({
                     title: f.file.name === 'image.png' ? createPastedImageTitle() : f.file.name,
                     destination: collectionId ? `/collections/${collectionId}` : (data.destination as CollectionId),
                     privacy: data.privacy,
-                    attributes,
+                    attributes: usedAttributeEditor.attributes,
                 })),
             });
         },
@@ -148,10 +153,11 @@ export default function UploadModal({
             formId={formId}
             workspaceId={workspaceId}
             onSubmit={handleSubmit}
+            onChangeWorkspace={setWorkspaceId}
             submitting={submitting}
             submitted={submitted}
             noDestination={Boolean(workspaceTitle)}
-            onAttributesChange={setAttributes}
+            usedAttributeEditor={usedAttributeEditor}
         />
     </FormDialog>
 }
