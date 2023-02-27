@@ -22,6 +22,12 @@ class AssetCrudController extends AbstractAdminCrudController
         return Asset::class;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::NEW);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
