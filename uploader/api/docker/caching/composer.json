@@ -3,8 +3,75 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
             "type": "git",
             "url": "https://github.com/4rthem/psr-http-message-bridge.git"
+        },
+        {
+            "type": "path",
+            "url": "./__lib/admin-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/storage-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/oauth-server-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/notify-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/api-test",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-sdk",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -13,9 +80,17 @@
         "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^2.6",
+        "alchemy/acl-bundle": "dev-main",
+        "alchemy/admin-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
+        "alchemy/notify-bundle": "@dev",
+        "alchemy/oauth-server-bundle": "@dev",
+        "alchemy/remote-auth-bundle": "@dev",
+        "alchemy/report-bundle": "@dev",
+        "alchemy/storage-bundle": "@dev",
+        "api-platform/core": "^2.6,<=2.6.8",
         "arthem/rabbit-bundle": "dev-master",
-        "arthem/request-signer-bundle": "^1.0",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",
         "doctrine/common": "^2.8",
@@ -31,10 +106,11 @@
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ralouphie/mimey": "^2.1",
-        "ramsey/uuid": "^3.8",
+        "ramsey/uuid": "^4.2.3",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^5.1",
         "snc/redis-bundle": "^3.2",
+        "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/asset": "^4.4",
         "symfony/console": "^4.4",
         "symfony/dotenv": "^4.4",
@@ -57,6 +133,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "alchemy/api-test": "@dev",
         "friendsofphp/php-cs-fixer": "^2.16",
         "hautelook/alice-bundle": "^2.5",
         "phpunit/phpunit": "^9.5",
@@ -75,7 +152,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {

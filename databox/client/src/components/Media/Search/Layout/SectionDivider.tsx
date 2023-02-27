@@ -1,11 +1,7 @@
 import React, {CSSProperties, PropsWithChildren} from 'react';
 import {Divider, Theme, useTheme} from "@mui/material";
 import {zIndex} from "../../../../themes/zIndex";
-
-type Props = PropsWithChildren<{
-    textStyle?: (theme: Theme) => CSSProperties;
-    rootStyle?: (theme: Theme) => CSSProperties;
-}>;
+import {SxProps} from "@mui/system";
 
 function applyStyle(
     theme: Theme,
@@ -24,25 +20,34 @@ function applyStyle(
 
 export const sectionDividerClassname = 'section-divider';
 
+type Props = PropsWithChildren<{
+    textStyle?: (theme: Theme) => CSSProperties;
+    rootStyle?: (theme: Theme) => CSSProperties;
+    dividerSx?: SxProps;
+    top: number;
+}>;
+
 export default function SectionDivider({
+    top,
     children,
     rootStyle,
     textStyle,
+    dividerSx,
 }: Props) {
-
     const theme = useTheme();
 
     return <div
         style={applyStyle(theme, {
             zIndex: zIndex.sectionDivider,
             position: 'sticky',
-            top: 55,
+            top,
             backgroundColor: theme.palette.common.white,
         }, rootStyle)}
         className={sectionDividerClassname}
     >
         <Divider
             textAlign={'left'}
+            sx={dividerSx}
         >
             <div
                 style={applyStyle(theme, {

@@ -9,12 +9,14 @@ import BooleanType from "./BooleanType";
 import HtmlType from "./HtmlType";
 import ColorType from "./ColorType";
 import GeoPointType from "./GeoPointType";
+import DateTimeType from "./DateTimeType";
+import TagType from "./TagType";
 
 export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.Boolean]: BooleanType,
     [AttributeType.Code]: CodeType,
     [AttributeType.Color]: ColorType,
-    [AttributeType.DateTime]: DateType,
+    [AttributeType.DateTime]: DateTimeType,
     [AttributeType.Date]: DateType,
     [AttributeType.Html]: HtmlType,
     [AttributeType.Json]: JsonType,
@@ -22,6 +24,7 @@ export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.Textarea]: TextareaType,
     [AttributeType.GeoPoint]: GeoPointType,
     [AttributeType.WebVtt]: CodeType,
+    [AttributeType.Tag]: TagType,
 }
 
 export function getAttributeType(type: string): AttributeTypeInstance {

@@ -16,8 +16,8 @@ export interface File {
 }
 
 type GroupValue = {
-    value: any;
-    label: string;
+    key: string;
+    values: any[];
     type: AttributeType;
 }
 
@@ -44,6 +44,7 @@ export interface Asset extends IPermissions<{
     updatedAt: string;
     editedAt: string;
     pendingSourceFile: boolean;
+    pendingUploadToken?: string;
     attributesEditedAt: string;
     groupValue?: GroupValue | undefined;
 }
@@ -161,6 +162,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 export interface Tag extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    color: string | null;
     workspace: Workspace | string;
 }
 
@@ -194,6 +196,7 @@ export interface Workspace extends IPermissions {
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     createdAt: string;
+    public: boolean;
 }
 
 export type IntegrationData = {

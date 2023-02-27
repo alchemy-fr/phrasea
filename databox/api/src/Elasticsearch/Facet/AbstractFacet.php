@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use App\Api\Filter\Group\GroupValue;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\ESFacetInterface;
+use Doctrine\Common\Collections\Collection;
 use Elastica\Query;
 use Elastica\Aggregation;
 
@@ -16,14 +18,54 @@ abstract class AbstractFacet implements FacetInterface
         return TextAttributeType::NAME;
     }
 
-    public function resolveValue($value)
+    public function resolveGroupValue($value): GroupValue
+    {
+        if ($value instanceof Collection) {
+            $keys = [];
+            $values = [];
+
+            foreach ($value as $item) {
+                $item = $this->resolveCollectionItem($item);
+                $keys[] = $this->resolveKey($item);
+                $values[] = $this->resolveItem($item);
+            }
+
+            return new GroupValue($this->getType(), implode(',', $keys), $values);
+        }
+
+        return new GroupValue($this->getType(), $this->resolveKey($value), [$this->resolveItem($value) ?? $this->resolveLabel($value)]);
+    }
+
+    public function normalizeBucket(array $bucket): ?array
+    {
+        return $bucket;
+    }
+
+    protected function resolveCollectionItem($item)
+    {
+        return $item;
+    }
+
+    /**
+     * Returns the object containing necessary properties for client display.
+     *
+     * @param mixed $value
+     *
+     * @return object|null
+     */
+    protected function resolveItem($value)
+    {
+        return null;
+    }
+
+    protected function resolveLabel($value): string
     {
         return $value;
     }
 
-    public function isValueAccessibleFromDatabase(): bool
+    protected function resolveKey($value): string
     {
-        return true;
+        return $value;
     }
 
     public function isSortable(): bool

@@ -16,18 +16,18 @@ class GroupValue
     /**
      * @Groups({"_"})
      */
-    private string $label;
+    private string $key;
 
     /**
      * @Groups({"_"})
      */
-    private $value;
+    private array $values;
 
-    public function __construct(string $type, string $label, $value)
+    public function __construct(string $type, string $key, array $values)
     {
-        $this->label = $label;
-        $this->value = $value;
         $this->type = $type;
+        $this->key = $key;
+        $this->values = $values;
     }
 
     public function getType(): string
@@ -35,13 +35,13 @@ class GroupValue
         return $this->type;
     }
 
-    public function getLabel(): string
+    public function getKey(): string
     {
-        return $this->label;
+        return $this->key;
     }
 
-    public function getValue()
+    public function getValues(): array
     {
-        return $this->value;
+        return $this->values;
     }
 }

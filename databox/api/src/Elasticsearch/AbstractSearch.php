@@ -16,20 +16,25 @@ abstract class AbstractSearch
     private EntityManagerInterface $em;
     protected Security $security;
 
-    public function createACLBoolQuery(?string $userId, array $groupIds): Query\BoolQuery
+    public function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
-        $aclBoolQuery = new Query\BoolQuery();
-
-        $shoulds = [];
-
         if ($this->security->isGranted(ChuckNorrisVoter::ROLE)) {
-            return $aclBoolQuery;
+            return null;
         }
 
+        $aclBoolQuery = new Query\BoolQuery();
+        $shoulds = [];
+
+        $publicWorkspaceIds = $this->getPublicWorkspaceIds();
         if (null !== $userId) {
-            $shoulds[] = new Query\Range('privacy', [
-                'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
-            ]);
+            if (!empty($publicWorkspaceIds)) {
+                $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
+                    'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
+                ]));
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $shoulds[] = $publicWorkspaceBoolQuery;
+            }
 
             $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
             if (!empty($allowedWorkspaceIds)) {
@@ -49,13 +54,22 @@ abstract class AbstractSearch
                 $shoulds[] = new Query\Terms('groups', $groupIds);
             }
         } else {
-            $shoulds[] = new Query\Range('privacy', [
-                'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
-            ]);
+            if (!empty($publicWorkspaceIds)) {
+                $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
+                    'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
+                ]));
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $shoulds[] = $publicWorkspaceBoolQuery;
+            }
         }
 
-        foreach ($shoulds as $query) {
-            $aclBoolQuery->addShould($query);
+        if (!empty($shoulds)) {
+            foreach ($shoulds as $query) {
+                $aclBoolQuery->addShould($query);
+            }
+        } else {
+            $aclBoolQuery->addShould(new Query\Term(['workspaceId' => 'PUBLIC_WS']));
         }
 
         return $aclBoolQuery;
@@ -64,6 +78,11 @@ abstract class AbstractSearch
     private function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
         return $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+    }
+
+    private function getPublicWorkspaceIds(): array
+    {
+        return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
     /**

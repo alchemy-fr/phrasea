@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Repository;
 
+use Alchemy\AclBundle\Model\AclUserInterface;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+
 class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements UserRepositoryInterface
 {
     public function getUsers(?int $limit = null, ?int $offset = null): array
@@ -11,5 +14,18 @@ class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements U
         return $this->executeWithAccessToken(function (string $accessToken) use ($limit, $offset): array {
             return $this->serviceClient->getUsers($accessToken, $limit, $offset);
         });
+    }
+
+    public function getAclUsers(?int $limit = null, int $offset = 0): array
+    {
+        return $this->getUsers($limit, $offset);
+    }
+
+    /**
+     * @param RemoteUser $user
+     */
+    public function getAclGroupsId(AclUserInterface $user): array
+    {
+        return $user->getGroupIds();
     }
 }

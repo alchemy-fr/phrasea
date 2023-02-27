@@ -15,6 +15,7 @@ class AssetInput extends AbstractOwnerIdInput
     public ?string $key = null;
 
     public ?int $privacy = null;
+    public ?int $sequence = null;
 
     public ?string $privacyLabel = null;
 
@@ -41,6 +42,7 @@ class AssetInput extends AbstractOwnerIdInput
 
     /**
      * @var AssetSourceInput|null
+     * @Assert\Valid()
      */
     public $sourceFile = null;
 

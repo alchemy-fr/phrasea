@@ -20,7 +20,6 @@
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.3",
     "@types/react-pdf": "^5.7.2",
-    "@types/react-router-dom": "^5.3.3",
     "@types/react-select": "^5.0.1",
     "@types/uuid": "^9.0.0",
     "ace-builds": "^1.14.0",

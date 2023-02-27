@@ -15,15 +15,14 @@ uploader/client
 "
 
 PHP_LIBS="
-lib/acl-bundle
-lib/admin-bundle
-lib/api-test
-lib/core-bundle
-lib/notify-bundle
-lib/remote-auth-bundle
-lib/oauth-server-bundle
-lib/test-bundle
-lib/report-bundle
-lib/report-sdk
-lib/metadata-manipulator-bundle
+lib/php/admin-bundle
+lib/php/api-test
+lib/php/core-bundle
+lib/php/notify-bundle
+lib/php/remote-auth-bundle
+lib/php/oauth-server-bundle
+lib/php/test-bundle
+lib/php/report-bundle
+lib/php/report-sdk
+lib/php/metadata-manipulator-bundle
 "

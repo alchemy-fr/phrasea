@@ -1,0 +1,4 @@
+
+services:
+    Alchemy\AclBundle\Repository\AclUserRepositoryInterface: '@Alchemy\RemoteAuthBundle\Repository\RemoteAuthUserRepository'
+    Alchemy\AclBundle\Repository\GroupRepositoryInterface: '@Alchemy\RemoteAuthBundle\Repository\RemoteAuthGroupRepository'

@@ -77,12 +77,16 @@ class DateTimeAttributeType extends AbstractAttributeType
                 return null;
             }
 
-            if (empty(trim($value))) {
+            $value = trim($value);
+            if (empty($value)) {
                 return null;
             }
 
-            if (10 === strlen($value)) {
+            $datePattern = '\d{4}-\d{2}-\d{2}';
+            if (1 === preg_match('#^'.$datePattern.'$#', $value)) {
                 $value .= 'T00:00:00Z';
+            } elseif (1 === preg_match('#^'.$datePattern.'T\d{2}:\d{2}$#', $value)) {
+                $value .= ':00Z';
             }
 
             if (false === $value = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value)) {
@@ -122,5 +126,12 @@ class DateTimeAttributeType extends AbstractAttributeType
 
             return;
         }
+    }
+
+    public function normalizeBucket(array $bucket): ?array
+    {
+        $bucket['key'] = $bucket['key'] / 1000;
+
+        return $bucket;
     }
 }

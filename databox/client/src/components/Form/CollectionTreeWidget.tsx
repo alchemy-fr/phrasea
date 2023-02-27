@@ -3,7 +3,7 @@ import {Controller} from "react-hook-form";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import {Control} from "react-hook-form/dist/types/form";
 import {FieldPath} from "react-hook-form/dist/types";
-import {CollectionsTreeView} from "../Media/Collection/CollectionsTreeView";
+import {CollectionsTreeView, CollectionTreeViewProps} from "../Media/Collection/CollectionsTreeView";
 import {FormControl, FormLabel} from "@mui/material";
 import {RegisterOptions} from "react-hook-form/dist/types/validator";
 
@@ -14,10 +14,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     name: FieldPath<TFieldValues>;
     multiple?: IsMulti;
     rules?: Omit<RegisterOptions<TFieldValues, FieldPath<TFieldValues>>, 'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'>;
-    onChange?: (
-        selection: IsMulti extends true ? string[] : string,
-        workspaceId?: IsMulti extends true ? string : never
-    ) => void;
+    onChange?: CollectionTreeViewProps<IsMulti>['onChange'];
     workspaceId?: string;
     allowNew?: boolean | undefined;
     disabled?: boolean | undefined;
@@ -51,7 +48,7 @@ export default function CollectionTreeWidget<TFieldValues extends FieldValues,
             name={name}
             rules={rules}
             render={({field: {onChange, value, ref}}) => {
-                return <CollectionsTreeView
+                return <CollectionsTreeView<IsMulti>
                     workspaceId={workspaceId}
                     disabled={disabled}
                     value={value}

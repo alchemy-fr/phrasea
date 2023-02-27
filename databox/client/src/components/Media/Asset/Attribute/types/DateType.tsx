@@ -11,6 +11,8 @@ enum Formats {
     Long = 'long',
 }
 
+export {Formats as DateFormats};
+
 export default class DateType extends TextType {
     formatValue(props: AttributeFormatterProps): React.ReactNode {
         return <>{this.format(props)}</>
@@ -18,6 +20,14 @@ export default class DateType extends TextType {
 
     formatValueAsString(props: AttributeFormatterProps): string | undefined {
         return this.format(props);
+    }
+
+    denormalize(value: string | undefined): string | undefined {
+        if (value) {
+            return value.replace(/(Z|[+-]\d{2}:\d{2})$/, '');
+        }
+
+        return value;
     }
 
     getAvailableFormats(): AvailableFormat[] {
@@ -41,7 +51,7 @@ export default class DateType extends TextType {
         ];
     }
 
-    protected getFieldProps(): TextFieldProps {
+    public getFieldProps(): TextFieldProps {
         return {
             type: 'date',
             InputLabelProps: {
@@ -50,21 +60,23 @@ export default class DateType extends TextType {
         };
     }
 
-    private format({value, format}: AttributeFormatterProps): string {
+    protected format({value, format}: AttributeFormatterProps): string {
         if (!value) {
             return '';
         }
 
+        const m = moment(typeof value === 'number' ? value * 1000 : value);
+
         switch (format ?? this.getAvailableFormats()[0].name) {
             case Formats.Short:
-                return moment(value).format('ll');
+                return m.format('ll');
             default:
             case Formats.Medium:
-                return moment(value).format('L');
+                return m.format('L');
             case Formats.Relative:
-                return moment(value).fromNow();
+                return m.fromNow();
             case Formats.Long:
-                return moment(value).format('LLLL');
+                return m.format('LLLL');
         }
     }
 }

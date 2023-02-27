@@ -16,4 +16,8 @@ export default abstract class BaseType {
     supportsMultiple() {
         return false;
     }
+
+    denormalize(value: any): any {
+        return value;
+    }
 }

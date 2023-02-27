@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Model;
 
+use Alchemy\AclBundle\Model\AclUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class RemoteUser implements UserInterface
+class RemoteUser implements UserInterface, AclUserInterface
 {
     private string $username;
     private string $id;

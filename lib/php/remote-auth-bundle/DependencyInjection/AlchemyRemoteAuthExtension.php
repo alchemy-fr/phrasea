@@ -7,6 +7,7 @@ use Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -44,5 +45,10 @@ class AlchemyRemoteAuthExtension extends Extension
         $mapperDef = $container->findDefinition(AdminClient::class);
         $mapperDef->setArgument('$clientId', $config['admin_auth']['client_id']);
         $mapperDef->setArgument('$clientSecret', $config['admin_auth']['client_secret']);
+
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['AlchemyAclBundle'])) {
+            $loader->load('bridge/acl_bundle.yaml');
+        }
     }
 }

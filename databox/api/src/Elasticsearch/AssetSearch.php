@@ -52,7 +52,9 @@ class AssetSearch extends AbstractSearch
         $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        $filterQueries[] = $aclBoolQuery;
+        if (null !== $aclBoolQuery) {
+            $filterQueries[] = $aclBoolQuery;
+        }
 
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
@@ -100,7 +102,7 @@ class AssetSearch extends AbstractSearch
             }
         }
 
-        $maxLimit = 30;
+        $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
@@ -258,6 +260,9 @@ class AssetSearch extends AbstractSearch
         } else {
             $sort[] = ['createdAt' => 'DESC'];
         }
+
+        $sort[] = ['microseconds' => 'DESC'];
+        $sort[] = ['sequence' => 'ASC'];
 
         $query->setSort($sort);
     }

@@ -75,7 +75,7 @@ class CollectionSearch extends AbstractSearch
 
         $aggregation->addAggregation($termAgg);
 
-        $maxLimit = 30;
+        $maxLimit = 50;
         $limit = (int) ($options['limit'] ?? $maxLimit);
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
@@ -111,10 +111,9 @@ class CollectionSearch extends AbstractSearch
         array $options = []): void
     {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        $mustQueries = [$aclBoolQuery];
 
-        foreach ($mustQueries as $query) {
-            $boolQuery->addFilter($query);
+        if (null !== $aclBoolQuery) {
+            $boolQuery->addFilter($aclBoolQuery);
         }
 
         if (isset($options['parent'])) {

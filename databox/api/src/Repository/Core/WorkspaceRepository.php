@@ -6,37 +6,25 @@ namespace App\Repository\Core;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class WorkspaceRepository extends EntityRepository
 {
-    private array $workspacesCache = [];
-
-    public function getUserWorkspaces(?string $userId, array $groupIds, ?array $ids = null): array
+    /**
+     * @return string[]
+     */
+    public function getPublicWorkspaceIds(): array
     {
-        $k = $userId ?? 'anon.';
-        if (isset($this->workspacesCache[$k])) {
-            return $this->workspacesCache[$k];
-        }
-
-        if (null !== $userId) {
-            $workspaces = $this->getAllowedWorkspaces($userId, $groupIds, $ids);
-        } else {
-            // TODO fix this point
-            if (null !== $ids) {
-                $workspaces = $this->createQueryBuilder('w')
-                    ->andWhere('w.id IN (:wIds)')
-                    ->setParameter('wIds', $ids)
-                    ->getQuery()
-                    ->getResult()
-                ;
-            } else {
-                $workspaces = $this->findAll();
-            }
-        }
-
-        return $this->workspacesCache[$k] = $workspaces;
+        return array_map(function (array $row): string {
+            return (string) $row['id'];
+        }, $this
+            ->createQueryBuilder('w')
+            ->select('w.id')
+            ->andWhere('w.public = true')
+            ->getQuery()
+            ->getResult()
+        );
     }
 
     /**
@@ -44,44 +32,19 @@ class WorkspaceRepository extends EntityRepository
      */
     public function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('w')
-            ->select('w.id')
-        ;
-
-        AccessControlEntryRepository::joinAcl(
-            $queryBuilder,
-            $userId,
-            $groupIds,
-            'workspace',
-            'w',
-            PermissionInterface::VIEW
-        );
-
         return array_map(function (array $row): string {
             return (string) $row['id'];
-        }, $queryBuilder
+        }, $this
+            ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)
+            ->select('w.id')
             ->getQuery()
             ->getResult()
         );
     }
 
-    /**
-     * @return Workspace[]
-     */
-    public function getAllowedWorkspaces(string $userId, array $groupIds, ?array $ids = []): array
+    private function createAllowedWorkspacesQueryBuilder(string $userId, ?array $groupIds = null): QueryBuilder
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('w')
-            ->select('w')
-        ;
-
-        if (null !== $ids) {
-            $queryBuilder
-                ->andWhere('w.id IN (:wIds)')
-                ->setParameter('wIds', $ids)
-            ;
-        }
+        $queryBuilder = $this->createQueryBuilder('w');
 
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
@@ -92,8 +55,6 @@ class WorkspaceRepository extends EntityRepository
             PermissionInterface::VIEW
         );
 
-        return $queryBuilder
-            ->getQuery()
-            ->getResult();
+        return $queryBuilder;
     }
 }

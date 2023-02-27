@@ -81,6 +81,11 @@ class AssetOutput extends AbstractUuidOutput
     private bool $pendingSourceFile = false;
 
     /**
+     * @Groups({"asset:read"})
+     */
+    private ?string $pendingUploadToken = null;
+
+    /**
      * @Groups({"asset:index", "asset:read", "Webhook"})
      */
     private $workspace;
@@ -315,5 +320,15 @@ class AssetOutput extends AbstractUuidOutput
     public function setPendingSourceFile(bool $pendingSourceFile): void
     {
         $this->pendingSourceFile = $pendingSourceFile;
+    }
+
+    public function getPendingUploadToken(): ?string
+    {
+        return $this->pendingUploadToken;
+    }
+
+    public function setPendingUploadToken(?string $pendingUploadToken): void
+    {
+        $this->pendingUploadToken = $pendingUploadToken;
     }
 }

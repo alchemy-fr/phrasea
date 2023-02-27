@@ -1,12 +1,12 @@
 import React, {useContext} from 'react';
 import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
-import {extractLabelValueFromKey, FacetRowProps} from "../Facets";
+import {extractLabelValueFromKey, FacetGroupProps} from "../Facets";
 import {SearchContext} from "../../Search/SearchContext";
 
 export default function TextFacet({
     facet,
     name,
-}: FacetRowProps) {
+}: FacetGroupProps) {
     const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
     const {type} = facet.meta;

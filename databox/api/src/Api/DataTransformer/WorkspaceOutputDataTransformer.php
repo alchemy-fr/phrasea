@@ -23,6 +23,7 @@ class WorkspaceOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setSlug($object->getSlug());
         $output->setEnabledLocales($object->getEnabledLocales());
         $output->setLocaleFallbacks($object->getLocaleFallbacks());
+        $output->setPublic($object->isPublic());
         $output->setCreatedAt($object->getCreatedAt());
 
         $k = $object->getId().$this->getTokenId();

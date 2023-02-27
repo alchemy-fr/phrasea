@@ -40,6 +40,16 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use WorkspacePrivacyTrait;
 
     /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $microseconds = 0;
+
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private int $sequence = 0;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $title = null;
@@ -121,7 +131,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      */
     protected ?DateTimeImmutable $attributesEditedAt = null;
 
-    public function __construct()
+    /**
+     * @param float $now got from microtime(true)
+     */
+    public function __construct(?float $now = null, ?int $sequence = null)
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
@@ -129,6 +142,16 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
         $this->attributesEditedAt = new DateTimeImmutable();
+
+        /** @var $now float */
+        $now ??= microtime(true);
+        $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
+        $this->updatedAt = $this->createdAt;
+        $this->microseconds = ($now * 1000000) % 1000000;
+
+        if (null !== $sequence) {
+            $this->sequence = $sequence;
+        }
     }
 
     public function getOwnerId(): ?string
@@ -374,5 +397,15 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function setPendingUploadToken(?string $pendingUploadToken): void
     {
         $this->pendingUploadToken = $pendingUploadToken;
+    }
+
+    public function getSequence(): int
+    {
+        return $this->sequence;
+    }
+
+    public function getMicroseconds(): int
+    {
+        return $this->microseconds;
     }
 }

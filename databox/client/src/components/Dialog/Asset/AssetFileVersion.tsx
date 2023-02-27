@@ -7,7 +7,7 @@ import byteSize from "byte-size";
 import {useTranslation} from 'react-i18next';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
-import Date from "../../Ui/Date";
+import DateTime from "../../Ui/DateTime";
 
 const cardProps = {
     elevation: 2,
@@ -54,7 +54,7 @@ export function AssetFileVersionCard({
                 {file.type}
             </div>}
             <div>
-                <Date date={createdAt}/>
+                <DateTime datetime={createdAt}/>
             </div>
         </div>}
         actions={<>

@@ -5,6 +5,7 @@ import {Breakpoint} from "@mui/system";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {getPath, RouteParams} from "../../../routes";
 import RouteDialog from "../RouteDialog";
+import {useNavigateToModal} from "../../Routing/ModalLink";
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
     title: ReactNode;
@@ -38,23 +39,16 @@ export default function TabbedDialog<P extends {}>({
     ...rest
 }: Props<P>) {
     const {tab} = useParams();
-    const {state} = useLocation() as {
-        state?: {
-            background?: string;
-        }
-    };
-    const navigate = useNavigate();
+    const navigateToModal = useNavigateToModal();
     const tabs = configTabs.filter(t => t.enabled);
     const tabIndex = tabs.findIndex(t => t.id === tab);
     const currentTab = tabs[tabIndex];
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        navigate(getPath(routeName, {
+        navigateToModal(getPath(routeName, {
             ...routeParams,
             tab: tabs[newValue].id,
-        }), {
-            state,
-        });
+        }));
     };
 
     return <RouteDialog>

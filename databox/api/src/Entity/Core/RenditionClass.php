@@ -42,7 +42,7 @@ class RenditionClass extends AbstractUuidEntity
      * @Groups({"rendclass:index", "rendclass:read"})
      * @ORM\Column(type="boolean", nullable=false)
      */
-    private ?bool $public = null;
+    private bool $public = false;
 
     /**
      * @var RenditionDefinition[]

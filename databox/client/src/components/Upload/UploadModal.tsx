@@ -9,11 +9,12 @@ import FormDialog from "../Dialog/FormDialog";
 import {UploadData, UploadForm} from "./UploadForm";
 import {StackedModalProps, useModals} from "../../hooks/useModalStack";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
-import {submitFiles} from "../../lib/upload/uploader";
+import {createCollection, submitFiles} from "../../lib/upload/uploader";
 import moment from "moment";
 import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from "./UploadDropzone";
 import {CollectionChip, WorkspaceChip} from "../Ui/Chips";
+import {CollectionId} from "../Media/Collection/CollectionsTreeView";
 
 type FileWrapper = {
     id: string;
@@ -53,12 +54,16 @@ export default function UploadModal({
         errors
     } = useFormSubmit({
         onSubmit: async (data: UploadData) => {
+            if (typeof data.destination === 'object') {
+                data.destination = await createCollection(data.destination);
+            }
+
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
                     tags: data.tags,
                     title: f.file.name === 'image.png' ? createPastedImageTitle() : f.file.name,
-                    destination: collectionId ? `/collections/${collectionId}` : data.destination,
+                    destination: collectionId ? `/collections/${collectionId}` : (data.destination as CollectionId),
                     privacy: data.privacy,
                 })),
             });

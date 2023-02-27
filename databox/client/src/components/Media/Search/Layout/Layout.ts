@@ -11,6 +11,7 @@ export type TOnContextMenuOpen = (e: MouseEvent<HTMLElement>, asset: Asset, anch
 
 export type LayoutProps = {
     page: number;
+    searchMenuHeight: number;
     assets: Asset[];
     onSelect: OnSelectAsset;
     onOpen?: OnOpen;

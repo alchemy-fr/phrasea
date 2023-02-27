@@ -13,10 +13,4 @@ export default class HtmlType extends CodeType {
     protected getAceMode(): string {
         return 'html';
     }
-
-    protected getFieldProps(): TextFieldProps {
-        return {
-            type: 'html',
-        };
-    }
 }

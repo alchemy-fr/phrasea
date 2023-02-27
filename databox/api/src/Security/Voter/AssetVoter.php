@@ -30,8 +30,6 @@ class AssetVoter extends AbstractVoter
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
 
-        $workspaceIds = $userId ? $this->getAllowedWorkspaceIds($userId, $user->getGroupIds()) : [];
-
         switch ($attribute) {
             case self::CREATE:
                 if (null !== $collection = $subject->getReferenceCollection()) {
@@ -43,7 +41,7 @@ class AssetVoter extends AbstractVoter
                 return $isOwner
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || (in_array($subject->getWorkspaceId(), $workspaceIds, true) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                    || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || $this->collectionGrantsAccess($subject)
                     ;

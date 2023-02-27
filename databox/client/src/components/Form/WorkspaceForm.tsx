@@ -15,6 +15,7 @@ import SortableCollectionWidget, {
 } from "./SortableCollectionWidget";
 import Flag from "../Ui/Flag";
 import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
+import CheckboxWidget from "./CheckboxWidget";
 
 const emptyLocaleItem = {
     value: '',
@@ -81,6 +82,18 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                 />
                 <FormFieldErrors
                     field={'name'}
+                    errors={errors}
+                />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t('form.workspace.public.label', 'Public')}
+                    control={control}
+                    name={'public'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors
+                    field={'public'}
                     errors={errors}
                 />
             </FormRow>

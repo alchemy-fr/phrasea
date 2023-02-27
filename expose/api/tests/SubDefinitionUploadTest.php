@@ -26,7 +26,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
 
@@ -37,7 +37,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
 
-        $this->assertEquals(1, count($json));
+        $this->assertCount(1, $json);
         $this->assertEquals('thumb', $json[0]['name']);
     }
 }

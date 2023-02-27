@@ -17,13 +17,12 @@ class CollectionSearchTest extends AbstractSearchTest
         self::waitForESIndex('collection');
     }
 
-    public function testSearchPublicCollectionsAsAnonymousUser(): void
+    public function testSearchPublicCollectionsInPrivateWorkspaceAsAnonymousUser(): void
     {
-        $collection = $this->createCollection([
+        $this->createCollection([
             'title' => 'Foo',
             'public' => true,
         ]);
-
         self::releaseIndex();
 
         $response = $this->request(
@@ -33,7 +32,30 @@ class CollectionSearchTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertCount(0, $data);
+    }
+
+    public function testSearchPublicCollectionsInPublicWorkspaceAsAnonymousUser(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $collection = $this->createCollection([
+            'workspace' => $workspace,
+            'title' => 'Foo',
+            'public' => true,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/collections'
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -74,7 +96,7 @@ class CollectionSearchTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -121,7 +143,7 @@ class CollectionSearchTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -135,7 +157,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         self::getPermissionManager()->updateOrCreateAce(
-            AccessControlEntryInterface::TYPE_USER,
+            AccessControlEntryInterface::TYPE_USER_VALUE,
             AuthServiceClientTestMock::USER_UID,
             'collection',
             null,
@@ -150,7 +172,7 @@ class CollectionSearchTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }

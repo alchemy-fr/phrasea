@@ -1,20 +1,21 @@
 import React, {ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {FacetRowProps} from "../Facets";
+import {FacetGroupProps, FacetType} from "../Facets";
 import {Box, Button, ListItem, ListItemSecondaryAction, ListItemText, Slider, useTheme} from "@mui/material";
 import moment from "moment";
 import {SearchContext} from "../../Search/SearchContext";
+import {AttributeType} from "../../../../api/attributes";
 
 
 export default function DateHistogramFacet({
     facet,
     name,
-}: FacetRowProps) {
+}: FacetGroupProps) {
     const {attrFilters, setAttrFilter, removeAttrFilter} = useContext(SearchContext);
     const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
     const attrFilter = attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;
     const theme = useTheme();
     const histogramHeight = 50;
-    const displayTime = /^\d+[hms]$/.test(facet.interval ?? '') ?? false;
+    const displayTime = Boolean(facet.meta.type === AttributeType.DateTime && /^\d+[hms]$/.test(facet.interval ?? ''));
 
     const min = facet.buckets[0].key as number;
     const max = facet.buckets[facet.buckets.length - 1].key as number;

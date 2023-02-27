@@ -3,6 +3,7 @@ import {Box, Chip} from "@mui/material";
 import {FilterEntry, Filters, FilterType} from "./Filter";
 import {extractLabelValueFromKey, FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {AttributeType} from "../../../api/attributes";
+import {DateFormats} from "../Asset/Attribute/types/DateType";
 
 type FilterProps = {
     onInvert: () => void;
@@ -33,7 +34,7 @@ function formatFilterTitle(
         case FacetType.Text:
             return `${title} = "${value.map(v => extractLabelValueFromKey(v, type).label).join('" or "')}"`;
         case FacetType.DateRange:
-            return `${title} between ${extractLabelValueFromKey(value[0], type).label} and ${extractLabelValueFromKey(value[1], type).label}`;
+            return `${title} between ${extractLabelValueFromKey(value[0], type, DateFormats.Long).label} and ${extractLabelValueFromKey(value[1], type, DateFormats.Long).label}`;
     }
 }
 
@@ -53,10 +54,9 @@ function formatFilterLabel(
 
     switch (widget) {
         default:
-        case FacetType.Text:
             return value.map(s => truncate(extractLabelValueFromKey(s, type).label, 15)).join(', ');
         case FacetType.DateRange:
-            return `${extractLabelValueFromKey(value[0], type).label} - ${extractLabelValueFromKey(value[1], type).label}`;
+            return `${extractLabelValueFromKey(value[0], type, DateFormats.Short).label} - ${extractLabelValueFromKey(value[1], type, DateFormats.Short).label}`;
     }
 }
 
@@ -94,7 +94,6 @@ export default function SearchFilters({
     onInvert,
 }: Props) {
     return <Box sx={{
-        mb: -1,
         mr: -1,
     }}>
         {filters.map((f, i) => {

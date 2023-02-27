@@ -31,7 +31,7 @@ export default class TextType extends BaseType implements AttributeTypeInstance 
             disabled={readOnly || disabled}
             label={name}
             onChange={(e) => onChange(e.target.value)}
-            value={value}
+            value={value ?? ''}
             required={required}
             autoFocus={autoFocus}
             style={{
@@ -76,7 +76,7 @@ export default class TextType extends BaseType implements AttributeTypeInstance 
         return true;
     }
 
-    protected getFieldProps(): TextFieldProps {
+    public getFieldProps(): TextFieldProps {
         return {
             type: 'text',
         };

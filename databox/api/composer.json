@@ -42,13 +42,6 @@
         },
         {
             "type": "path",
-            "url": "./__lib/acl-bundle",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
             "url": "./__lib/webhook-bundle",
             "options": {
                 "symlink": true
@@ -102,7 +95,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "alchemy/acl-bundle": "@dev",
+        "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",

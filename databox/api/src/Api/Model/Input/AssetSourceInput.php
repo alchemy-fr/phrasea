@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AssetSourceInput
 {
     /**
-     * @Assert\NotNull()
+     * @Assert\NotBlank()
      */
     public ?string $url = null;
 

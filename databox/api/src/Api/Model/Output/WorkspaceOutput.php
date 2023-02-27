@@ -37,6 +37,11 @@ class WorkspaceOutput extends AbstractUuidOutput
     private string $slug;
 
     /**
+     * @Groups({"workspace:index", "workspace:read"})
+     */
+    private bool $public;
+
+    /**
      * @Groups({"workspace:read"})
      */
     private ?array $enabledLocales = null;
@@ -84,5 +89,15 @@ class WorkspaceOutput extends AbstractUuidOutput
     public function setLocaleFallbacks(?array $localeFallbacks): void
     {
         $this->localeFallbacks = $localeFallbacks;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): void
+    {
+        $this->public = $public;
     }
 }

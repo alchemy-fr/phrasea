@@ -1,3 +1,0 @@
-alchemy_acl_permissions:
-  name_prefix: alchemy_acl_admin_
-  resource: 'Alchemy\AclBundle\Controller\PermissionController'

@@ -8,7 +8,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Attributes, {replaceHighlight} from "../../Asset/Attribute/Attributes";
 import assetClasses from "./classes";
 import AssetTagList from "../../Asset/Widgets/AssetTagList";
-import AssetCollectionList from "../../Asset/Widgets/CollectionList";
+import AssetCollectionList from "../../Asset/Widgets/AssetCollectionList";
 import {stopPropagation} from "../../../../lib/stdFuncs";
 import PrivacyChip from "../../../Ui/PrivacyChip";
 import {hasContextMenu} from "../../Asset/AssetContextMenu";
@@ -112,6 +112,7 @@ export default function ListLayout({
     selectedAssets,
     onPreviewToggle,
     onOpen,
+    searchMenuHeight,
 }: LayoutProps) {
     const {thumbSize, displayAttributes} = useContext(DisplayContext)!;
 
@@ -156,6 +157,7 @@ export default function ListLayout({
             return <GroupRow
                 key={a.id}
                 asset={a}
+                searchMenuHeight={searchMenuHeight}
             >
                 <div
                     key={a.id}

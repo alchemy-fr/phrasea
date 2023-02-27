@@ -27,6 +27,7 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {getPath} from "../../../routes";
 import {useNavigate} from "react-router-dom";
 import {useModals} from "../../../hooks/useModalStack";
+import {useNavigateToModal} from "../../Routing/ModalLink";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -70,7 +71,7 @@ export default function SelectionActions({
     onLayoutChange,
 }: Props) {
     const {t} = useTranslation();
-    const navigate = useNavigate();
+    const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
@@ -186,7 +187,7 @@ export default function SelectionActions({
 
     const onEdit = () => {
         if (selectionContext.selectedAssets.length === 1) {
-            navigate(getPath('app_asset_manage', {
+            navigateToModal(getPath('app_asset_manage', {
                 tab: 'edit',
                 id: selectionContext.selectedAssets[0],
             }));
@@ -198,7 +199,7 @@ export default function SelectionActions({
     const onEditAttributes = () => {
         const assets = getSelectedAssets(selectionContext, resultContext);
         if (assets.length === 1) {
-            navigate(getPath('app_asset_manage', {
+            navigateToModal(getPath('app_asset_manage', {
                 tab: 'attributes',
                 id: selectionContext.selectedAssets[0],
             }));

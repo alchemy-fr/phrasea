@@ -92,5 +92,6 @@ export enum AttributeType {
     Text = 'text',
     Textarea = 'textarea',
     WebVtt = 'web_vtt',
+    Tag = 'tag',
 }
 

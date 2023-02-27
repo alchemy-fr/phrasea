@@ -3,12 +3,11 @@ import {FacetType, ResolvedBucketValue} from "../Asset/Facets";
 import {Filters, FilterType, SortBy} from "./Filter";
 
 export type TSearchContext = {
-    collectionId?: string;
     workspaceId?: string;
-    selectCollection: (absolutePath: string | undefined, forceReload?: boolean) => void;
-    selectWorkspace: (id: string | undefined, forceReload?: boolean) => void;
-    collections?: string[];
-    workspaces?: string[];
+    selectCollection: (absolutePath: string | undefined, title: string | undefined, forceReload?: boolean) => void;
+    selectWorkspace: (id: string | undefined, title: string | undefined, forceReload?: boolean) => void;
+    collections: string[];
+    workspaces: string[];
     query: string;
     setQuery: (query: string, force?: boolean) => void;
     geolocation?: string | undefined;
@@ -39,6 +38,8 @@ export const SearchContext = React.createContext<TSearchContext>({
     query: '',
     attrFilters: [],
     sortBy: [],
+    collections: [],
+    workspaces: [],
     selectCollection: () => {
     },
     selectWorkspace: () => {

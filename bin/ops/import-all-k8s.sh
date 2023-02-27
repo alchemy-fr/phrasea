@@ -54,12 +54,6 @@ mkdir -p "${DIR}"
 
 tar -C ${DIR} -xf ${PACKAGE}
 
-CONFIG_FILE="${DIR}/config.json"
-if [ ! -f "${CONFIG_FILE}" ]; then
-  echo "File ${CONFIG_FILE} does not exist"
-  exit 2
-fi
-
 . "bin/ops/db/db.sh"
 
 
@@ -114,8 +108,8 @@ for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
 
   if [ ! -f "${DUMP_FILE}" ]; then
-    echo "File ${DUMP_FILE} does not exist"
-    exit 2
+    echo "File ${DUMP_FILE} does not exist, skipping..."
+    continue
   fi
 
   APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}")

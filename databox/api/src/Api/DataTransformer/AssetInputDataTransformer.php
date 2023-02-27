@@ -19,12 +19,13 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use InvalidArgumentException;
-use LogicException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 {
     use WithOwnerIdDataTransformerTrait;
+
+    public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     private OriginalRenditionManager $originalRenditionManager;
     private AttributeInputDataTransformer $attributeInputDataTransformer;
@@ -53,7 +54,10 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Asset $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
+        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset(
+            $context[self::CONTEXT_CREATION_MICRO_TIME] ?? null,
+            $data->sequence
+        );
 
         if ($isNew) {
             if ($workspace instanceof Workspace && $data->key) {

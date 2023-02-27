@@ -29,13 +29,17 @@ export default function AttributeWidget({
     indeterminate,
     readOnly,
 }: Props) {
+    const denormalizeInputValue = (initialValue: AttrValue<string | number> | undefined) => initialValue ? {
+        ...initialValue,
+        value: widget.denormalize(initialValue.value),
+    } : initialValue
 
-
-    const [value, setValue] = useState<AttrValue<string | number> | undefined>(initialValue);
+    const widget = getAttributeType(type);
+    const [value, setValue] = useState<AttrValue<string | number> | undefined>(denormalizeInputValue(initialValue));
     const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
-        setValue(initialValue);
+        setValue(denormalizeInputValue(initialValue));
         // eslint-disable-next-line
     }, [initialValue?.id]);
 
@@ -52,8 +56,6 @@ export default function AttributeWidget({
 
         // eslint-disable-next-line
     }, [onChange, setValue, value]);
-
-    const widget = getAttributeType(type);
 
     return <>
         {widget.renderWidget({

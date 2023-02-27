@@ -17,8 +17,6 @@ async function search(
     query: string,
     sortBy: SortBy[],
     url?: string,
-    collectionIds?: string[],
-    workspaceIds?: string[],
     attrFilters?: Filters,
     userContext?: UserSearchContext
 ): Promise<{
@@ -44,14 +42,12 @@ async function search(
 
     const options: GetAssetOptions = {
         query,
-        parents: collectionIds,
-        workspaces: workspaceIds,
         url,
-        filters: attrFilters?.map((f) => ({
+        filters: JSON.stringify(attrFilters?.map((f) => ({
             ...f,
             v: f.v.map(v => extractLabelValueFromKey(v, f.x).value),
             t: undefined,
-        })),
+        }))),
         group: groupBy.length > 0 ? groupBy.slice(0, 1) : undefined,
         order,
     };
@@ -108,15 +104,10 @@ export default function ResultProvider({children}: Props) {
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
 
-        const collectionIds = searchContext.collectionId ? [extractCollectionIdFromPath(searchContext.collectionId)] : undefined;
-        const workspaceIds = searchContext.workspaceId ? [searchContext.workspaceId] : undefined;
-
         search(
             searchContext.query,
             searchContext.sortBy,
             nextUrl,
-            collectionIds,
-            workspaceIds,
             searchContext.attrFilters,
             {
                 position: searchContext.geolocation,

@@ -47,7 +47,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
         $asset = new Asset();
         $asset->setTitle($options['title'] ?? null);
-        $workspace = $options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace();
+        $workspace = $options['workspace'] ?? $this->getOrCreateDefaultWorkspace();
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
@@ -112,7 +112,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $em = self::getEntityManager();
 
         $collection = new Collection();
-        $collection->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $collection->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setTitle($options['title'] ?? null);
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
@@ -136,7 +136,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $definition->setClass($options['class'] ?? $this->getOrCreateDefaultAttributeClass([
             'no_flush' => $options['no_flush'] ?? null,
         ]));
-        $definition->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $definition->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
@@ -170,13 +170,16 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return $attributeClass;
     }
 
-    protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission, array $options = []): void
+    protected function grantUserOnObject(string $userId, AclObjectInterface $object, int $permission): void
     {
         self::getPermissionManager()->grantUserOnObject($userId, $object, $permission);
     }
 
     protected function getDataFromResponse($response, ?int $expectedCode)
     {
+        if ($response->getStatusCode() !== $expectedCode) {
+            dump($response->getContent());
+        }
         $this->assertEquals($expectedCode, $response->getStatusCode());
 
         return \GuzzleHttp\json_decode($response->getContent(), true);
@@ -192,10 +195,15 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $workspace->setOwnerId($ownerId);
         $workspace->setEnabledLocales(['fr', 'en', 'de']);
         $workspace->setSlug('my-workspace');
+        if ($options['public'] ?? false) {
+            $workspace->setPublic(true);
+        }
 
         $em->persist($workspace);
 
-        $this->addUserOnWorkspace($ownerId, $workspace->getId());
+        if (!($options['no_acl'] ?? false)) {
+            $this->addUserOnWorkspace($ownerId, $workspace->getId());
+        }
 
         if (!($options['no_flush'] ?? false)) {
             $em->flush();
@@ -206,9 +214,8 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
     protected function addUserOnWorkspace(string $ownerId, string $workspaceId): void
     {
-        $permissionManager = self::getContainer()->get(PermissionManager::class);
-        $permissionManager->updateOrCreateAce(
-            AccessControlEntryInterface::TYPE_USER,
+        self::getPermissionManager()->updateOrCreateAce(
+            AccessControlEntryInterface::TYPE_USER_VALUE,
             $ownerId,
             'workspace',
             $workspaceId,
@@ -218,7 +225,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
 
     protected static function getPermissionManager(): PermissionManager
     {
-        return self::getContainer()->get(PermissionManager::class);
+        return self::getService(PermissionManager::class);
     }
 
     protected static function getTagFilterManager(): TagFilterManager
@@ -251,18 +258,18 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         return $asset;
     }
 
-    protected function findOrCreateTagByName(string $name): ?Tag
+    protected function findOrCreateTagByName(string $name, ?Workspace $workspace): ?Tag
     {
         $em = self::getEntityManager();
         /** @var Tag $tag */
         $tag = $em->getRepository(Tag::class)->findOneBy([
-            'workspace' => $this->defaultWorkspace,
+            'workspace' => $workspace ?? $this->getOrCreateDefaultWorkspace(),
             'name' => $name,
         ]);
 
         if (null === $tag) {
             $tag = new Tag();
-            $tag->setWorkspace($this->defaultWorkspace);
+            $tag->setWorkspace($workspace ?? $this->getOrCreateDefaultWorkspace());
             $tag->setName($name);
 
             $em->persist($tag);

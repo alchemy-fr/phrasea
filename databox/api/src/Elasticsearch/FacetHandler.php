@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\DateTimeAttributeType;
+use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
@@ -13,10 +16,15 @@ final class FacetHandler
     public const MISSING_SUFFIX = '::missing';
 
     private FacetRegistry $facetRegistry;
+    private AttributeTypeRegistry $attributeTypeRegistry;
 
-    public function __construct(FacetRegistry $facetRegistry)
+    public function __construct(
+        FacetRegistry $facetRegistry,
+        AttributeTypeRegistry $attributeTypeRegistry
+    )
     {
         $this->facetRegistry = $facetRegistry;
+        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     public function addBuiltInFacets(Query $query): void
@@ -46,18 +54,30 @@ final class FacetHandler
             $facet = $this->facetRegistry->getFacet($k);
 
             if ($facet) {
-                $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): ?array {
-                    return $facet->normalizeBucket($bucket);
+                try {
+                    $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): ?array {
+                        return $facet->normalizeBucket($bucket);
+                    }, $f['buckets']), function ($value): bool {
+                        return null !== $value;
+                    }));
+                } catch (\Throwable $e) {
+                    throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $facet::getKey(), $e->getMessage()), 0, $e);
+                }
+            }
+
+            $type = $this->attributeTypeRegistry->getStrictType($f['meta']['type'] ?? TextAttributeType::NAME);
+            try {
+                $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($type): ?array {
+                    return $type->normalizeBucket($bucket);
                 }, $f['buckets']), function ($value): bool {
                     return null !== $value;
                 }));
+            } catch (\Throwable $e) {
+                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $facet::getKey(), $e->getMessage()), 0, $e);
             }
 
-            $facetWidget = $f['meta']['widget'] ?? ESFacetInterface::TYPE_TEXT;
-            if (ESFacetInterface::TYPE_DATE_RANGE === $facetWidget) {
-                foreach ($f['buckets'] as &$bucket) {
-                    $bucket['key'] = $bucket['key'] / 1000;
-                }
+            if ($type instanceof DateTimeAttributeType) {
+                $f['meta']['widget'] = ESFacetInterface::TYPE_DATE_RANGE;
             }
 
             $mergedFacets[$k] = $f;

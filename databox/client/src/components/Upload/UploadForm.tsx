@@ -10,9 +10,10 @@ import {Privacy} from "../../api/privacy";
 import {FormGroup, InputLabel} from "@mui/material";
 import TagSelect from "../Form/TagSelect";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
+import {Collection} from "../Media/Collection/CollectionsTreeView";
 
 export type UploadData = {
-    destination: string;
+    destination: Collection;
     privacy: Privacy;
     tags: string[];
 };

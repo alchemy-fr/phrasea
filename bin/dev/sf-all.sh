@@ -1,14 +1,8 @@
 #!/bin/bash
 
-apps=(
-  auth/api
-  expose/api
-  notify/api
-  uploader/api
-  databox/api
-)
+. bin/vars.sh
 
-for a in "${apps[@]}"; do
+for a in ${SYMFONY_PROJECTS}; do
   echo " $a:$ $@"
   (cd "$a" && $@)
 done

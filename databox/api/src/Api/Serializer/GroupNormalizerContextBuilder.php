@@ -32,6 +32,10 @@ class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
             $context['groups'] = array_unique($context['groups']);
         }
 
+        if ('post_multiple' === ($context['collection_operation_name'] ?? null)) {
+            $context['api_sub_level'] = true; // prevent Hydra collection in MultipleAssetOutput
+        }
+
         return $this->decorated->buildContext($context);
     }
 }

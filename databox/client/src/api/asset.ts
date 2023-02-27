@@ -9,7 +9,7 @@ export interface GetAssetOptions {
     query?: string;
     workspaces?: string[];
     parents?: string[];
-    filters?: any[];
+    filters?: any;
     order: Record<string, 'asc' | 'desc'>;
     group?: string[] | undefined;
     context?: {
@@ -153,6 +153,7 @@ export type AssetApiInput = {
     workspace?: string;
     sourceFileId?: string;
     pendingUploadToken?: string;
+    sequence?: number;
 }
 
 export type NewAssetPostType = {
@@ -168,4 +169,12 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     const res = await apiClient.post(`/assets`, data);
 
     return res.data;
+}
+
+export async function postMultipleAssets(assets: NewAssetPostType[]): Promise<Asset[]> {
+    const res = await apiClient.post(`/assets/multiple`, {
+        assets,
+    });
+
+    return res.data.assets;
 }
