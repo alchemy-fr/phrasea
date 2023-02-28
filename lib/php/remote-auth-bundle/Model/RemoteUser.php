@@ -7,7 +7,17 @@ namespace Alchemy\RemoteAuthBundle\Model;
 use Alchemy\AclBundle\Model\AclUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class RemoteUser implements UserInterface, AclUserInterface
+if (interface_exists(AclUserInterface::class)) {
+    interface RemoteUserInterface extends AclUserInterface
+    {
+    }
+} else {
+    interface RemoteUserInterface
+    {
+    }
+}
+
+class RemoteUser implements UserInterface, RemoteUserInterface
 {
     private string $username;
     private string $id;

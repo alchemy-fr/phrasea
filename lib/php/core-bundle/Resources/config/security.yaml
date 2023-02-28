@@ -11,7 +11,7 @@ parameters:
       - ROLE_USER
       - ROLE_ADMIN
     ROLE_SUPER_ADMIN:
-      - ROLE_OAUTH_CLIENTS
+      - ROLE_ADMIN_OAUTH_CLIENTS
       - ROLE_ADMIN
       - ROLE_ALLOWED_TO_SWITCH
       - ROLE_TECH

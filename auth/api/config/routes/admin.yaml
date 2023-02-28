@@ -1,12 +1,6 @@
-
-alchemy_admin_bundle:
+alchemy_admin:
     resource: '@AlchemyAdminBundle/Resources/config/routes.yaml'
     prefix: /admin
-
-easy_admin_bundle:
-    resource: 'App\Admin\AdminController'
-    prefix: /admin
-    type: annotation
 
 alchemy_admin_login:
     name_prefix: alchemy_admin_

@@ -1,0 +1,7 @@
+{% set payload = entity.fields.getByProperty('payloadAsJson').value %}
+<span style="cursor:pointer"
+      title="{{ field.value }}"
+      onClick="navigator.clipboard.writeText('bin/console {{ constant('Arthem\\Bundle\\RabbitBundle\\Command\\DirectConsumerCommand::COMMAND_NAME') }} \'{{ payload }}\'');var a=this;a.innerHTML = 'Command copied!';setTimeout(function(){a.innerHTML='{{ field.value }}'}, 1000)"
+>
+    {{ field.value }}
+</span>

@@ -24,7 +24,7 @@ class AuthServiceClientTestMock extends Client
     public function request($method, $uri = '', array $options = [])
     {
         if ('oauth/v2/token' === $uri) {
-            if ($options['json']['grant_type'] === 'client_credentials') {
+            if ('client_credentials' === $options['json']['grant_type']) {
                 return $this->createResponse(200, [
                     'access_token' => self::ADMIN_TOKEN,
                     'expires_in' => time() + 3600,

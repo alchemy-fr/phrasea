@@ -10,7 +10,6 @@ use App\Api\Model\Output\AssetOutput;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -22,7 +21,6 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
-use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 

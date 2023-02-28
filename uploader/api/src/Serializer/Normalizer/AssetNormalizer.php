@@ -11,7 +11,8 @@ class AssetNormalizer implements EntityNormalizerInterface
 {
     private UrlSigner $urlSigner;
 
-    public function __construct(UrlSigner $urlSigner) {
+    public function __construct(UrlSigner $urlSigner)
+    {
         $this->urlSigner = $urlSigner;
     }
 

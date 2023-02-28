@@ -42,6 +42,7 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
      * @template T
      *
      * @param T $class
+     *
      * @return T
      */
     protected function getEntity(string $class, string $id): object

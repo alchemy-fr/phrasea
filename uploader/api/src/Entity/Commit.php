@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
 use DateTime;
@@ -17,7 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *             "method"="POST",
  *             "path"="/commits/{id}/ack",
  *             "controller"=CommitAckAction::class,
-*              "defaults"={
+ *              "defaults"={
  *                  "_api_receive"=false,
  *                  "_api_respond"=true,
  *             },
@@ -151,6 +151,7 @@ class Commit
 
     /**
      * Not mapped.
+     *
      * @Groups({"commit:write"})
      */
     private array $files = [];
@@ -187,12 +188,13 @@ class Commit
      */
     public function getFormDataJson(): string
     {
-        return \GuzzleHttp\json_encode($this->formData);
+        return \GuzzleHttp\json_encode($this->formData, JSON_PRETTY_PRINT);
     }
 
-    public function setFormDataJson(string $data): void
+    public function setFormDataJson(?string $json): void
     {
-        $this->formData = \GuzzleHttp\json_decode($data);
+        $json ??= '{}';
+        $this->formData = \GuzzleHttp\json_decode($json, true);
     }
 
     /**
@@ -200,12 +202,14 @@ class Commit
      */
     public function getOptionsJson(): string
     {
-        return \GuzzleHttp\json_encode($this->options);
+        return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
     }
 
-    public function setOptionsJson(string $options): void
+    public function setOptionsJson(?string $json): void
     {
-        $this->options = \GuzzleHttp\json_decode($options);
+        $json ??= '{}';
+
+        $this->options = \GuzzleHttp\json_decode($json, true);
     }
 
     public function setFormData(array $formData): void

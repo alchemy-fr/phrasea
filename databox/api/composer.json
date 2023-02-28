@@ -200,6 +200,7 @@
             "@cache-clear",
             "@auto-scripts"
         ],
+        "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
     },
     "minimum-stability": "dev",

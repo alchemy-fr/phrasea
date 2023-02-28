@@ -6,8 +6,8 @@ namespace App\Elasticsearch\Facet;
 
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Elasticsearch\ESFacetInterface;
-use Elastica\Query;
 use Elastica\Aggregation;
+use Elastica\Query;
 
 abstract class AbstractDateTimeFacet extends AbstractFacet
 {

@@ -8,7 +8,6 @@ use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeClassInput;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\Workspace;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeClassInputDataTransformer extends AbstractInputDataTransformer

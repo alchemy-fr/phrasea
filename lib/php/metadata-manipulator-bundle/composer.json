@@ -41,6 +41,9 @@
             "/tests/"
         ]
     },
+    "scripts": {
+        "cs": "vendor/bin/php-cs-fixer fix"
+    },
     "autoload-dev": {
         "psr-4": {
             "Alchemy\\MetadataManipulatorBundle\\tests\\": "tests/"

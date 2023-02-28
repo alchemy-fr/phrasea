@@ -31,8 +31,7 @@ class SecurityController extends AbstractController
         array $identityProviders,
         array $loginFormLayout,
         Request $request
-    ): Response
-    {
+    ): Response {
         $session = $request->getSession();
 
         $redirectUri = $request->get('r');

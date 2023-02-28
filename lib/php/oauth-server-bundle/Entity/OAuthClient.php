@@ -29,8 +29,6 @@ class OAuthClient extends BaseClient
     private $createdAt;
 
     /**
-     * @var array
-     *
      * @ORM\Column(type="json")
      */
     private array $allowedScopes = [];

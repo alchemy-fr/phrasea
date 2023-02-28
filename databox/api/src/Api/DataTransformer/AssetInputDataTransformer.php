@@ -10,7 +10,6 @@ use App\Api\Model\Input\AssetRelationshipInput;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
-use App\Consumer\Handler\File\ImportFileHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\Attribute;
@@ -189,6 +188,7 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
             return $file;
         } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
             $this->postFlushStackListener->addEvent(CopyFileToAssetHandler::createEvent($asset->getId(), $file->getId()));
+
             return $file;
         } elseif (null !== $file = $this->handleUpload($asset->getWorkspace())) {
             return $file;

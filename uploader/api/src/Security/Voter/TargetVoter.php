@@ -27,7 +27,7 @@ class TargetVoter extends Voter
     }
 
     /**
-     * @param Target      $subject
+     * @param Target $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {

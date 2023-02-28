@@ -18,8 +18,7 @@ class FieldNameResolver
     public function __construct(
         AttributeTypeRegistry $attributeTypeRegistry,
         FacetRegistry $facetRegistry
-    )
-    {
+    ) {
         $this->attributeTypeRegistry = $attributeTypeRegistry;
         $this->facetRegistry = $facetRegistry;
     }
@@ -60,8 +59,6 @@ class FieldNameResolver
     }
 
     /**
-     * @param string $fieldName
-     *
      * @return array{name: string, field: string, type: AttributeTypeInterface, multiple: bool}
      */
     private function extractField(string $fieldName): array

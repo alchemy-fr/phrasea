@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 abstract class AbstractAdminTest extends WebTestCase
@@ -26,6 +27,9 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->request('GET', '/admin');
         $this->client->followRedirects();
         $response = $this->client->getResponse();
+        if (302 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
@@ -33,13 +37,16 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->logIn();
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertRegexp('#^http\://localhost/admin/\?action=list\&entity=.+$#', $this->client->getHistory()->current()->getUri());
 
         $crawler
-            ->filter('ul.treeview-menu a')
+            ->filter('nav#main-menu ul.submenu a')
             ->each(function ($node, $i) {
                 if ('#' !== $href = $node->attr('href')) {
+                    $this->assertMatchesRegularExpression('#^http://localhost/admin\?.+$#', $href);
                     $this->explore($href);
                 }
             });
@@ -56,12 +63,23 @@ abstract class AbstractAdminTest extends WebTestCase
                     $this->loadPage($href);
                 }
             });
+
+        $crawler
+            ->filter('a.action-permissions')
+            ->each(function ($node, $i) {
+                if ('#' !== $href = $node->attr('href')) {
+                    $this->loadPage($href);
+                }
+            });
     }
 
     private function loadPage(string $path): Crawler
     {
         $crawler = $this->client->request('GET', $path);
         $response = $this->client->getResponse();
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode(), 'On page: '.$path);
 
         return $crawler;
@@ -71,9 +89,7 @@ abstract class AbstractAdminTest extends WebTestCase
     {
         $session = self::$container->get('session');
 
-        $user = new RemoteUser('123', 'admin', [
-            'ROLE_SUPER_ADMIN',
-        ]);
+        $user = $this->getAuthAdminUser();
 
         $firewallName = 'admin';
         $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
@@ -82,5 +98,12 @@ abstract class AbstractAdminTest extends WebTestCase
 
         $cookie = new Cookie($session->getName(), $session->getId());
         $this->client->getCookieJar()->set($cookie);
+    }
+
+    protected function getAuthAdminUser(): UserInterface
+    {
+        return new RemoteUser('123', 'admin', [
+            'ROLE_SUPER_ADMIN',
+        ]);
     }
 }

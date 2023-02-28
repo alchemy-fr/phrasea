@@ -11,11 +11,8 @@ services:
     autoconfigure: true
 
   Alchemy\AdminBundle\Controller\:
-    resource: '../../Controller'
-    arguments:
-      $siteTitle: '%alchemy_admin.site_title%'
-      $siteLogo: '%alchemy_admin.site_logo%'
-    tags: ['controller.service_arguments']
+    resource: '../../Controller/*.php'
+    tags: [ 'controller.service_arguments' ]
 
   Alchemy\AdminBundle\Twig\AdminExtension:
     tags:
@@ -50,3 +47,10 @@ services:
 
   Alchemy\AdminBundle\Form\UserChoiceType: ~
   Alchemy\AdminBundle\Form\GroupChoiceType: ~
+
+  Alchemy\AdminBundle\Field\UserChoiceField:
+
+  Alchemy\AdminBundle\AdminConfigRegistry:
+    arguments:
+      $siteTitle: '%alchemy_admin.site_title%'
+      $siteLogo: '%alchemy_admin.site_logo%'

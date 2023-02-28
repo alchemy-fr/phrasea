@@ -1,6 +1,4 @@
-<a
-        target="_blank"
-        href="{{ generate_publication_url(item) }}">
-    {{ value }}
+<a target="_blank" href="{{ generate_publication_url(entity.instance) }}">
+    {{ field.value }}
     <img style="width: 15px" src="/images/external-link.svg" alt="External link">
 </a>

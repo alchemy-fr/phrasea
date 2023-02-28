@@ -55,7 +55,7 @@ class ImportFileHandler extends AbstractEntityManagerHandler
             throw new InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
         }
 
-        if ($file->getStorage() !== File::STORAGE_URL) {
+        if (File::STORAGE_URL !== $file->getStorage()) {
             throw new InvalidArgumentException(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
         }
 

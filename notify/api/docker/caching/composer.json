@@ -1,13 +1,43 @@
 {
     "type": "project",
     "license": "proprietary",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
+            "type": "path",
+            "url": "./__lib/admin-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "alchemy/admin-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
         "arthem/rabbit-bundle": "dev-master",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^2",
         "doctrine/doctrine-bundle": "^2",
@@ -42,7 +72,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {

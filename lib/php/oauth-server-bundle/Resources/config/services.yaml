@@ -14,3 +14,6 @@ services:
   Alchemy\OAuthServerBundle\Command\CreateClientCommand:
     tags:
       - { name: console.command }
+
+  Alchemy\OAuthServerBundle\Controller\OAuthClientCrudController:
+

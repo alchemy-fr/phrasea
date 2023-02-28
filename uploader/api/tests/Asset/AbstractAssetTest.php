@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
-use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Entity\Target;
 use App\Storage\AssetManager;
 use App\Tests\AbstractUploaderTestCase;
 use Doctrine\ORM\EntityManagerInterface;

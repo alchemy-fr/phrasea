@@ -23,8 +23,7 @@ class AdminController extends EasyAdminController
         TopicManager $topicManager,
         EventProducer $eventProducer,
         FailedEventManager $failedEventManager
-    )
-    {
+    ) {
         $this->topicManager = $topicManager;
         $this->eventProducer = $eventProducer;
         $this->failedEventManager = $failedEventManager;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Entity\Asset;
-use App\Entity\TargetParams;
 use App\Entity\Commit;
+use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;

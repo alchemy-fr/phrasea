@@ -6,13 +6,13 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity()
@@ -81,7 +81,7 @@ class TargetParams implements AclObjectInterface
         return \GuzzleHttp\json_encode($this->data, JSON_PRETTY_PRINT);
     }
 
-    public function setJsonData(string $jsonData): void
+    public function setJsonData(?string $jsonData): void
     {
         $jsonData ??= '{}';
 

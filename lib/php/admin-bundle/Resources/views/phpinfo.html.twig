@@ -1,0 +1,114 @@
+{% extends '@AlchemyAdmin/layout.html.twig' %}
+
+{% block content_title 'PhpInfo' %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <style>
+        #PHPINFO {
+            background-color: #fff;
+            color: #222;
+            font-family: sans-serif;
+        }
+
+        #PHPINFO pre {
+            margin: 0;
+            font-family: monospace;
+        }
+
+        #PHPINFO a:link {
+            color: #009;
+            text-decoration: none;
+            background-color: #fff;
+        }
+
+        #PHPINFO a:hover {
+            text-decoration: underline;
+        }
+
+        #PHPINFO table {
+            border-collapse: collapse;
+            border: 0;
+            width: 934px;
+            box-shadow: 1px 2px 3px #ccc;
+        }
+
+        #PHPINFO .center {
+            text-align: center;
+        }
+
+        #PHPINFO .center table {
+            margin: 1em auto;
+            text-align: left;
+        }
+
+        #PHPINFO .center th {
+            text-align: center !important;
+        }
+
+        #PHPINFO td, th {
+            border: 1px solid #666;
+            font-size: 75%;
+            vertical-align: baseline;
+            padding: 4px 5px;
+        }
+
+        #PHPINFO th {
+            position: sticky;
+            top: 0;
+            background: inherit;
+        }
+
+        #PHPINFO h1 {
+            font-size: 150%;
+        }
+
+        #PHPINFO h2 {
+            font-size: 125%;
+        }
+
+        #PHPINFO .p {
+            text-align: left;
+        }
+
+        #PHPINFO .e {
+            background-color: #ccf;
+            width: 300px;
+            font-weight: bold;
+        }
+
+        #PHPINFO .h {
+            background-color: #99c;
+            font-weight: bold;
+        }
+
+        #PHPINFO .v {
+            background-color: #ddd;
+            max-width: 300px;
+            overflow-x: auto;
+            word-wrap: break-word;
+        }
+
+        #PHPINFO .v i {
+            color: #999;
+        }
+
+        #PHPINFO img {
+            float: right;
+            border: 0;
+        }
+
+        #PHPINFO hr {
+            width: 934px;
+            background-color: #ccc;
+            border: 0;
+            height: 1px;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div id="PHPINFO">
+        {{ data|raw }}
+    </div>
+{% endblock %}

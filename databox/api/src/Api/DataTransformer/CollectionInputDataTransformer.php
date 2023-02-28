@@ -8,7 +8,6 @@ use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CollectionInputDataTransformer extends AbstractInputDataTransformer

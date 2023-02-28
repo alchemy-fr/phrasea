@@ -41,7 +41,7 @@ class GroupMapperTest extends TestCase
                 '1B' => 'B',
                 '1C' => 'C',
                 '1D' => 'D',
-            ]
+            ],
         ]);
 
         $user = new User();

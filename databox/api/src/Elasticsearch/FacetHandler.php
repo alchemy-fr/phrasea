@@ -21,8 +21,7 @@ final class FacetHandler
     public function __construct(
         FacetRegistry $facetRegistry,
         AttributeTypeRegistry $attributeTypeRegistry
-    )
-    {
+    ) {
         $this->facetRegistry = $facetRegistry;
         $this->attributeTypeRegistry = $attributeTypeRegistry;
     }

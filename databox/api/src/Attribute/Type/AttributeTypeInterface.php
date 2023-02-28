@@ -62,5 +62,6 @@ interface AttributeTypeInterface
     public function validate($value, ExecutionContextInterface $context): void;
 
     public function getAggregationField(): ?string;
+
     public function normalizeBucket(array $bucket): ?array;
 }
