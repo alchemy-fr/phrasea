@@ -103,7 +103,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $maxLimit = 50;
-        $limit = (int) ($options['limit'] ?? $maxLimit);
+        $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
         }
@@ -159,7 +159,7 @@ class AssetSearch extends AbstractSearch
         $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
             return $this->security->isGranted(AssetVoter::READ, $asset);
         }, $adapter));
-        $result->setMaxPerPage($limit);
+        $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage((int) $options['page']);
         }

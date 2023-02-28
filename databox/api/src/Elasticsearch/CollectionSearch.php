@@ -47,8 +47,8 @@ class CollectionSearch extends AbstractSearch
         ]);
 
         $data = $this->finder->findPaginated($query);
-        $data->setMaxPerPage($limit);
-        $data->setCurrentPage($options['page'] ?? 1);
+        $data->setMaxPerPage((int) $limit);
+        $data->setCurrentPage((int) ($options['page'] ?? 1));
 
         return $data;
     }
