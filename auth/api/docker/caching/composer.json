@@ -4,6 +4,66 @@
     "repositories": [
         {
             "type": "vcs",
+            "url": "https://github.com/4rthem/RabbitMqBundle.git"
+        },
+        {
+            "type": "path",
+            "url": "./__lib/notify-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/oauth-server-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/core-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/remote-auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/admin-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/report-sdk",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/api-test",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "vcs",
             "url": "https://github.com/4rthem/OneloginSamlBundle.git"
         }
     ],
@@ -13,8 +73,17 @@
         "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-jq": "*",
+        "ext-json": "*",
+        "alchemy/admin-bundle": "@dev",
+        "alchemy/api-test": "@dev",
+        "alchemy/core-bundle": "@dev",
+        "alchemy/notify-bundle": "@dev",
+        "alchemy/oauth-server-bundle": "@dev",
+        "alchemy/report-bundle": "@dev",
         "arthem/locale-bundle": "^0.0.4",
         "arthem/rabbit-bundle": "dev-master",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^2",
         "doctrine/doctrine-bundle": "^2",
@@ -23,7 +92,7 @@
         "friendsofsymfony/oauth-server-bundle": "^1.6",
         "hautelook/alice-bundle": "^2.9",
         "hslavich/oneloginsaml-bundle": "dev-attributes-mapping",
-        "hwi/oauth-bundle": "^0.6.3",
+        "hwi/oauth-bundle": "^1.4.5",
         "nelmio/cors-bundle": "1.5.6",
         "php-http/guzzle6-adapter": "^2|^1",
         "php-http/httplug": "^2|^1",
@@ -59,10 +128,15 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true,
+            "php-http/discovery": true
+        }
     },
     "autoload": {
         "psr-4": {
+            "Jq\\": "src/stub/jq.stub.php",
             "App\\": "src/"
         }
     },
