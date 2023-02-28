@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\TopicSubscriber;
 use App\Topic\TopicManager;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -10,7 +11,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -58,7 +58,7 @@ class TopicSubscriberCrudController extends AbstractAdminCrudController
     {
         $topic = TextField::new('topic');
         $contact = AssociationField::new('contact');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
         $contactEmail = TextareaField::new('contact.email');
         $contactPhone = TextareaField::new('contact.phone');

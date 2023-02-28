@@ -3,12 +3,12 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\AlternateUrl;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -38,7 +38,7 @@ class AlternateUrlCrudController extends AbstractAdminCrudController
         $workspace = AssociationField::new('workspace');
         $type = TextField::new('type');
         $label = TextField::new('label');
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
 
         if (Crud::PAGE_INDEX === $pageName) {

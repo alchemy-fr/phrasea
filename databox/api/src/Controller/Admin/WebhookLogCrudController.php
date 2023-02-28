@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -34,7 +34,7 @@ class WebhookLogCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $event = TextField::new('event');
         $response = TextareaField::new('response');
         $createdAt = DateTimeField::new('createdAt');

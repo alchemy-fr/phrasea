@@ -3,12 +3,12 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\Tag;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -36,7 +36,7 @@ class TagCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
         $createdAt = DateTimeField::new('createdAt');

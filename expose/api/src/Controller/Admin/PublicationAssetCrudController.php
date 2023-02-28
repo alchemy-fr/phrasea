@@ -3,11 +3,11 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\PublicationAsset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -33,7 +33,7 @@ class PublicationAssetCrudController extends AbstractAdminCrudController
         $slug = TextField::new('slug');
         $position = IntegerField::new('position');
         $clientAnnotations = TextareaField::new('clientAnnotations');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
         $publicationTitle = TextareaField::new('publication.title');
         $publicationId = TextareaField::new('publication.id', 'Publication ID');

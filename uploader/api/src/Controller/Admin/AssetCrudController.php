@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -10,7 +11,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -44,10 +44,10 @@ class AssetCrudController extends AbstractAdminCrudController
         $mimeType = TextField::new('mimeType');
         $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
         $createdAt = DateTimeField::new('createdAt');
-        $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $userId = IdField::new('userId');
         $target = AssociationField::new('target');
         $commit = AssociationField::new('commit');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $committed = BooleanField::new('committed')->renderAsSwitch(false);
 
         if (Crud::PAGE_INDEX === $pageName) {

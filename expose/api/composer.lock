@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "338c7f3341dcce80d23c4a135958a59df61c6fb8"
+                "reference": "46c223cb1c88f8dc1671133b404c44df66e8a745"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/338c7f3341dcce80d23c4a135958a59df61c6fb8",
-                "reference": "338c7f3341dcce80d23c4a135958a59df61c6fb8",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/46c223cb1c88f8dc1671133b404c44df66e8a745",
+                "reference": "46c223cb1c88f8dc1671133b404c44df66e8a745",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +54,7 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-02-21T11:56:21+00:00"
+            "time": "2023-02-28T13:03:39+00:00"
         },
         {
             "name": "alchemy/admin-bundle",

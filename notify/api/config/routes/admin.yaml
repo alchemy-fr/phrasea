@@ -1,3 +1,3 @@
-alchemy_admin_bundle:
+alchemy_admin:
   resource: '@AlchemyAdminBundle/Resources/config/routes.yaml'
   prefix: /admin

@@ -3,11 +3,11 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -26,7 +26,7 @@ class WebhookCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $url = TextField::new('url', 'URL');
         $events = TextField::new('events');
         $verifySSL = Field::new('verifySSL', 'Verify SSL');

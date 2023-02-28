@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Admin\ESIndexState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ESIndexStateCrudController extends AbstractAdminCrudController
@@ -41,7 +41,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         $indexName = TextField::new('indexName');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $mapping = JsonField::new('mapping');
 
         if (Crud::PAGE_INDEX === $pageName) {

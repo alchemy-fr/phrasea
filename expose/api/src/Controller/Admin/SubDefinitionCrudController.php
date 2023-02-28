@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\SubDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -41,7 +41,7 @@ class SubDefinitionCrudController extends AbstractAdminCrudController
         $mimeType = TextField::new('mimeType');
         $createdAt = DateTimeField::new('createdAt');
         $asset = AssociationField::new('asset');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $asset, $size, $path, $createdAt];

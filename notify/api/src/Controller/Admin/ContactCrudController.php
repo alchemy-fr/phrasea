@@ -3,10 +3,10 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Contact;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ContactCrudController extends AbstractAdminCrudController
@@ -26,10 +26,10 @@ class ContactCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $userId = IdField::new('userId');
         $email = TextField::new('email');
         $phone = TextField::new('phone');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $locale = TextField::new('locale');
         $createdAt = DateTimeField::new('createdAt');
 

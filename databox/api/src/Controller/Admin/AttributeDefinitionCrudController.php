@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,7 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -73,7 +73,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackFR = TextareaField::new('fallbackFR', 'Fallback value template FR')->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $slug = TextField::new('slug');
         $facetEnabled = Field::new('facetEnabled');
         $fallback = ArrayField::new('fallback');

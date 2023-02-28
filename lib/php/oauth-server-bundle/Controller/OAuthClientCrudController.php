@@ -3,13 +3,13 @@
 namespace Alchemy\OAuthServerBundle\Controller;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\OAuthServerBundle\Field\AllowedScopesChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -47,7 +47,7 @@ class OAuthClientCrudController extends AbstractAdminCrudController
             $allowedGrantTypesChoices[$scope] = $scope;
         }
 
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $randomId = TextField::new('randomId');
         $secret = TextField::new('secret')->setTemplatePath('@AlchemyAdmin/list/secret.html.twig');
         $allowedGrantTypes = ChoiceField::new('allowedGrantTypes')

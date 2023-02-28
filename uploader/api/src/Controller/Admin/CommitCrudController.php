@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
@@ -16,7 +17,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -59,14 +59,14 @@ class CommitCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $userId = TextField::new('userId')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $userId = IdField::new('userId');
         $user = $this->userChoiceField->create('userId', 'User');
         $token = TextField::new('token');
         $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
         $formDataJson = TextAreaField::new('formDataJson');
         $optionsJson = TextAreaField::new('optionsJson');
         $notifyEmail = TextField::new('notifyEmail');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $totalSize = IntegerField::new('totalSize')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
         $formData = JsonField::new('formData');
         $options = JsonField::new('options');

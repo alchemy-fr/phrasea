@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -11,7 +12,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -53,8 +53,8 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         $definition = AssociationField::new('definition');
         $asset = AssociationField::new('asset');
         $file = AssociationField::new('file');
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
-        $fileId = TextareaField::new('file.id')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
+        $fileId = IdField::new('file.id');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $definition, $asset, $fileId, $updatedAt, $createdAt];

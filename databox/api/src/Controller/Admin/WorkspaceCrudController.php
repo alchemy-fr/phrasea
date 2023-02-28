@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
@@ -37,7 +37,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $name = TextField::new('name');
         $slug = TextField::new('slug');
         $ownerId = TextField::new('ownerId');

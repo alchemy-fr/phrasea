@@ -3,11 +3,11 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -28,7 +28,7 @@ class OAuthClientCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $randomId = TextField::new('randomId');
         $secret = TextField::new('secret')->setTemplatePath('@AlchemyAdmin/list/secret.html.twig');
         $allowedGrantTypes = ArrayField::new('allowedGrantTypes');

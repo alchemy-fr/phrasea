@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulateHandler;
 use App\Entity\Admin\PopulatePass;
@@ -12,7 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -65,7 +65,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         $indexName = TextField::new('indexName');
         $error = TextField::new('error');
         $createdAt = DateTimeField::new('createdAt');
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $mapping = JsonField::new('mapping');
         $progressString = TextareaField::new('progressString');
         $timeTakenUnit = TextareaField::new('timeTakenUnit');

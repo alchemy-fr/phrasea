@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -43,7 +43,7 @@ class AccessTokenCrudController extends AbstractAdminCrudController
         $scope = TextField::new('scope');
         $createdAt = DateTimeField::new('createdAt');
         $client = AssociationField::new('client');
-        $id = \Alchemy\AdminBundle\Field\IdField::new();
+        $id = IdField::new();
         $user = TextareaField::new('user');
 
         if (Crud::PAGE_INDEX === $pageName) {
