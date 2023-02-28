@@ -38,10 +38,10 @@ class RenditionClassCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
         $public = Field::new('public');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');
         $definitions = AssociationField::new('definitions');
 

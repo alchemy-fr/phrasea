@@ -103,7 +103,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $maxLimit = 50;
-        $limit = $options['limit'] ?? $maxLimit;
+        $limit = (int) $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
         }

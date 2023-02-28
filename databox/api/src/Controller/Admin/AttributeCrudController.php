@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\Attribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -10,14 +11,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 
-class AttributeCrudController extends AbstractAdminCrudController //  implements EventSubscriberInterface
+class AttributeCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -48,7 +48,7 @@ class AttributeCrudController extends AbstractAdminCrudController //  implements
         $origin = IntegerField::new('origin');
         $originVendor = TextField::new('originVendor');
         $originVendorContext = TextareaField::new('originVendorContext');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $position = IntegerField::new('position');
         $translationId = Field::new('translationId');
         $translationOriginHash = TextField::new('translationOriginHash');

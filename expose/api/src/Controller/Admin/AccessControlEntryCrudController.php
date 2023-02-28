@@ -39,12 +39,12 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $userType = $this->userTypeChoiceField->create('userType');
         $userId = TextField::new('userId', 'ID');
         $objectType = $this->objectTypeChoiceField->create('objectType');
         $objectId = TextField::new('objectId');
         $permissions = $this->permissionsChoiceField->create('permissions');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $mask = IntegerField::new('mask');
         $createdAt = DateTimeField::new('createdAt');
         $userTypeString = TextareaField::new('userTypeString');

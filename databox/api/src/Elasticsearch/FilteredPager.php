@@ -18,12 +18,12 @@ class FilteredPager implements AdapterInterface
         $this->decorated = $decorated;
     }
 
-    public function getNbResults()
+    public function getNbResults(): int
     {
         return $this->decorated->getNbResults();
     }
 
-    public function getSlice($offset, $length)
+    public function getSlice($offset, $length): iterable
     {
         $arr = $this->decorated->getSlice($offset, $length);
         if (!is_array($arr)) {

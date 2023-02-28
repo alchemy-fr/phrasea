@@ -38,7 +38,7 @@ class AlternateUrlCrudController extends AbstractAdminCrudController
         $workspace = AssociationField::new('workspace');
         $type = TextField::new('type');
         $label = TextField::new('label');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $createdAt = DateTimeField::new('createdAt');
 
         if (Crud::PAGE_INDEX === $pageName) {

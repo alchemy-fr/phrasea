@@ -28,7 +28,7 @@ class EnvVarCrudController extends AbstractAdminCrudController
     {
         $name = TextField::new('name');
         $value = TextareaField::new('value');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
 

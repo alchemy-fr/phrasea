@@ -1,0 +1,13 @@
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Alchemy\AdminBundle\Field\Acl\ObjectTypeChoiceField: ~
+  Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField: ~
+  Alchemy\AdminBundle\Field\Acl\PermissionsChoiceField: ~
+
+  Alchemy\AdminBundle\Controller\Acl\:
+    resource: '../../Controller/Acl'
+    tags: [ 'controller.service_arguments' ]

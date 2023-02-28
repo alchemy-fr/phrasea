@@ -36,9 +36,9 @@ class TagCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $locale = TextField::new('locale');

@@ -23,9 +23,9 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            // ->remove(Crud::PAGE_INDEX, Action::NEW)    // todo ea3 : check if adding a indexstate is possible
-            ;
+        ;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -41,7 +41,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         $indexName = TextField::new('indexName');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $mapping = JsonField::new('mapping');
 
         if (Crud::PAGE_INDEX === $pageName) {

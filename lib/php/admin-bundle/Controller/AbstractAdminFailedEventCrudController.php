@@ -2,47 +2,25 @@
 
 namespace Alchemy\AdminBundle\Controller;
 
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\FailedEvent;
-use Arthem\Bundle\RabbitBundle\Controller\AdminReplayControllerTrait;
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Model\FailedEventManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudController
 {
-    /*
-     * ======================================================
-     * code copied from former AdminController on each app
-     */
-
-    use AdminReplayControllerTrait;
-
     private EventProducer $eventProducer;
     private FailedEventManager $failedEventManager;
-
-    public function __construct(
-        EventProducer $eventProducer,
-        FailedEventManager $failedEventManager
-    )
-    {
-        $this->eventProducer = $eventProducer;
-        $this->failedEventManager = $failedEventManager;
-    }
-
-    /*
-     * end of code copied from former AdminController on each app
-     * ======================================================
-     */
-
+    private EntityManagerInterface $em;
 
     public static function getEntityFqcn(): string
     {
@@ -68,12 +46,10 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
     public function configureFields(string $pageName): iterable
     {
         $createdAt = DateTimeField::new('createdAt');
-        $type = TextField::new('type')->setTemplatePath('@AlchemyAdmin/rabbit/type.html.twig');
-        // todo EA3 : bump ArthemRabbit or set a AlchemyAdmin errortype
-        $error = TextareaField::new('error'); //->setTemplatePath('@ArthemRabbit/admin/error.html.twig');
-        // todo EA3 : restore copy payload
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig'); //->setTemplatePath('@ArthemRabbit/admin/id.html.twig');
-        $payload = JsonField::new('payloadAsJson', 'Payload'); //->setTemplatePath('@ArthemRabbit/admin/payload.html.twig');
+        $type = TextField::new('type')->setTemplatePath('@AlchemyAdmin/list/event_type.html.twig');
+        $error = TextareaField::new('error')->setTemplatePath('@AlchemyAdmin/list/error.html.twig');
+        $id = IdField::new();
+        $payload = JsonField::new('payloadAsJson', 'Payload');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $type, $payload, $error, $createdAt];
@@ -91,26 +67,57 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
         return [];
     }
 
-
-
-    /*
-     * ======================================================
-     * code copied from former AdminController on each app
-     * todo EA3 : check how this code is called (by a ArthemRabbit field ?)
-     */
-
-    protected function getFailedEventManager(): FailedEventManager
+    protected function replayAction()
     {
-        return $this->failedEventManager;
+        $id = $this->request->query->get('id');
+        /** @var \Arthem\Bundle\RabbitBundle\Model\FailedEvent $failedEvent */
+        $failedEvent = $this->getFailedEventRepository()->find($id);
+
+        $this->getEventProducer()->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
+
+        $this->addFlash('success', 'Message has been requeued');
+
+        $this->em->remove($failedEvent);
+        $this->em->flush();
+
+        return $this->redirectToRoute('easyadmin',
+            [
+                'action' => 'list',
+                'entity' => $this->request->query->get('entity'),
+            ]);
     }
 
-    protected function getEventProducer(): EventProducer
+    protected function replayBatchAction(array $ids)
     {
-        return $this->eventProducer;
+        foreach ($ids as $id) {
+            /** @var FailedEvent $failedEvent */
+            $failedEvent = $this->failedEventManager->getRepository()->find($id);
+            if ($failedEvent instanceof FailedEvent) {
+                $this->eventProducer->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
+                $this->em->remove($failedEvent);
+            }
+        }
+
+        $this->em->flush();
+
+        $this->addFlash('success', 'Messages have been requeued');
     }
 
-    /*
-     * end of code copied from former AdminController on each app
-     * ======================================================
-     */
+    /** @required */
+    public function setEventProducer(EventProducer $eventProducer): void
+    {
+        $this->eventProducer = $eventProducer;
+    }
+
+    /** @required */
+    public function setFailedEventManager(FailedEventManager $failedEventManager): void
+    {
+        $this->failedEventManager = $failedEventManager;
+    }
+
+    /** @required */
+    public function setEm(EntityManagerInterface $em): void
+    {
+        $this->em = $em;
+    }
 }

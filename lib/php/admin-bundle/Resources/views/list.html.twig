@@ -1,4 +1,5 @@
 {% extends '@EasyAdmin/crud/index.html.twig' %}
+{% trans_default_domain ea.i18n.translationDomain %}
 
 {% block head_javascript %}
     {{ parent() }}
@@ -74,4 +75,15 @@
             });
         });
     </script>
+{% endblock %}
+
+{% block content_title %}
+    {%- apply spaceless -%}
+        {% set custom_page_title = ea.crud.customPageTitle('index') %}
+        {{ custom_page_title is null
+        ? (ea.crud.defaultPageTitle('index')|trans(ea.i18n.translationParameters, 'EasyAdminBundle'))|raw
+        : (custom_page_title|trans(ea.i18n.translationParameters))|raw }}
+    {%- endapply -%}
+    {{ ' ' }}
+    <small>({{ paginator.numResults }})</small>
 {% endblock %}

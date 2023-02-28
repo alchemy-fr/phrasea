@@ -45,22 +45,12 @@ class DashboardController extends AbstractAdminDashboardController
         return $this->redirect($adminUrlGenerator->setController(WebhookCrudController::class)->generateUrl());
     }
 
-    public function configureCrud(): Crud
-    {
-        return Crud::new()
-            ->setDateFormat('dd/MM/yyyy')
-            ->setDateTimeFormat('dd/MM/yyyy HH:mm:ss')
-            ->setTimeFormat('HH:mm')
-            ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
-    }
-
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToRoute('Asset permissions', '', 'admin_global_permissions', ['type' => 'asset']),
-            MenuItem::linkToRoute('Collection permissions', '', 'admin_global_permissions', ['type' => 'collection']),
-            MenuItem::linkToRoute('Workspace permissions', '', 'admin_global_permissions', ['type' => 'workspace']),
+            MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'asset']),
+            MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
+            MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
             MenuItem::linkToCrud('Access tokens', '', AccessToken::class),
         ];
@@ -93,11 +83,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];
 
-        $submenu5 = [
-            MenuItem::linkToCrud('FailedEvent', '', FailedEvent::class),
-            MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo'),
-        ];
-
         $submenu6 = [
             MenuItem::linkToCrud('Webhooks', '', Webhook::class),
             MenuItem::linkToCrud('Webhook errors', '', WebhookLog::class),
@@ -108,7 +93,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::linkToCrud('OAuthClient', 'fas fa-folder-open', OAuthClient::class);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
-        yield MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu5);
+        yield $this->createDevMenu(FailedEvent::class);
         yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);
     }
 }

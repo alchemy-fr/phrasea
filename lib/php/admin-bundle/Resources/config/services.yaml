@@ -11,7 +11,7 @@ services:
     autoconfigure: true
 
   Alchemy\AdminBundle\Controller\:
-    resource: '../../Controller'
+    resource: '../../Controller/*.php'
     tags: [ 'controller.service_arguments' ]
 
   Alchemy\AdminBundle\Twig\AdminExtension:

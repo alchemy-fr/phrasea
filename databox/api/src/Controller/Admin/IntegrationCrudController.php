@@ -34,7 +34,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
         $integration = TextField::new('integration');
         $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');
-        $id = IdField::new('id', 'ID');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $config = JsonField::new('config');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');

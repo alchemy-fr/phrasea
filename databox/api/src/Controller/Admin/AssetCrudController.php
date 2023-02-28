@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AclBundle\Admin\PermissionTrait;
 use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Asset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
@@ -24,10 +25,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 
-class AssetCrudController extends AbstractAdminCrudController
+class AssetCrudController extends AbstractAclAdminCrudController
 {
-    use PermissionTrait;
-
     private UserChoiceField $userChoiceField;
 
     public static function getEntityFqcn(): string
@@ -35,30 +34,9 @@ class AssetCrudController extends AbstractAdminCrudController
         return Asset::class;
     }
 
-    public function __construct(PermissionView $permissionView, UserChoiceField $userChoiceField)
+    public function __construct(UserChoiceField $userChoiceField)
     {
-        $this->setPermissionView($permissionView);
         $this->userChoiceField = $userChoiceField;;
-    }
-
-    public function configureActions(Actions $actions): Actions
-    {
-        $globalPermissionsAction = Action::new('globalPermissions')
-            ->linkToRoute(
-                'admin_global_permissions',
-                [
-                    'type' => 'asset',
-                ]
-            )
-            ->createAsGlobalAction();
-
-        $permissionsAction = Action::new('permissions')
-            ->linkToCrudAction('permissions')
-        ;
-
-        return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $globalPermissionsAction)
-            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -85,16 +63,14 @@ class AssetCrudController extends AbstractAdminCrudController
 
         /** @var Asset $asset */
         $asset = $this->getContext()->getEntity()->getInstance();
-        // $startingCollections = $asset->getStartingCollections();
 
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
-        $startingCollections = Field::new('startingCollections');
         $tags = AssociationField::new('tags');
         $privacy = ChoiceField::new('privacy')->setChoices($privacyChoices);
         $ownerId = TextField::new('ownerId');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $key = TextField::new('key');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
@@ -122,20 +98,5 @@ class AssetCrudController extends AbstractAdminCrudController
         }
 
         return [];
-    }
-
-    public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
-    {
-        /** @var Asset $asset */
-        $asset = $adminContext->getEntity()->getInstance();
-        $id = $asset->getId();
-
-        $twigParameters = $this->permissionView->getViewParameters(
-            $this->permissionView->getObjectKey(Asset::class),
-            $id
-        );
-        $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
-
-        return $this->render('@AlchemyAcl/permissions/entity/acl.html.twig', $twigParameters);
     }
 }

@@ -33,6 +33,9 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->logIn();
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
+        if ($response->getStatusCode() !== 200) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
 
         $crawler
@@ -71,6 +74,9 @@ abstract class AbstractAdminTest extends WebTestCase
     {
         $crawler = $this->client->request('GET', $path);
         $response = $this->client->getResponse();
+        if ($response->getStatusCode() !== 200) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode(), 'On page: '.$path);
 
         return $crawler;

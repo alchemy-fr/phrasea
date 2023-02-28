@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Admin\PermissionTrait;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Collection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -22,40 +23,18 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 
-class CollectionCrudController extends AbstractAdminCrudController
+class CollectionCrudController extends AbstractAclAdminCrudController
 {
-    use PermissionTrait;
-
     private UserChoiceField $userChoiceField;
-
-    public static function getEntityFqcn(): string
-    {
-        return Collection::class;
-    }
 
     public function __construct(UserChoiceField $userChoiceField)
     {
         $this->userChoiceField = $userChoiceField;
     }
 
-    public function configureActions(Actions $actions): Actions
+    public static function getEntityFqcn(): string
     {
-        $globalPermissionsAction = Action::new('globalPermissions')
-            ->linkToRoute(
-                'admin_global_permissions',
-                [
-                    'type' => 'collection',
-                ]
-            )
-            ->createAsGlobalAction();
-
-        $permissionsAction = Action::new('permissions')
-            ->linkToCrudAction('permissions')
-        ;
-
-        return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $globalPermissionsAction)
-            ->add(Crud::PAGE_INDEX, $permissionsAction);
+        return Collection::class;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -87,7 +66,7 @@ class CollectionCrudController extends AbstractAdminCrudController
         $privacy = ChoiceField::new('privacy')->setChoices($privacyChoices);
         $ownerId = TextField::new('ownerId');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $key = TextField::new('key');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
@@ -111,20 +90,5 @@ class CollectionCrudController extends AbstractAdminCrudController
         }
 
         return [];
-    }
-
-    public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
-    {
-        /** @var Collection $collection */
-        $collection = $adminContext->getEntity()->getInstance();
-        $id = $collection->getId();
-
-        $twigParameters = $this->permissionView->getViewParameters(
-            $this->permissionView->getObjectKey(Collection::class),
-            $id
-        );
-        $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
-
-        return $this->render('@AlchemyAcl/permissions/entity/acl.html.twig', $twigParameters);
     }
 }

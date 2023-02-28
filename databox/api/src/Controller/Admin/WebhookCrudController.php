@@ -26,13 +26,13 @@ class WebhookCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $url = TextField::new('url', 'URL');
         $events = TextField::new('events');
-        $verifySSL = Field::new('verifySSL');
+        $verifySSL = Field::new('verifySSL', 'Verify SSL');
         $secret = TextField::new('secret');
         $timeout = Field::new('timeout');
         $active = Field::new('active');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $options = TextField::new('options');
         $createdAt = DateTimeField::new('createdAt');
         $eventsLabel = TextareaField::new('eventsLabel');

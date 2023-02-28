@@ -65,7 +65,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         $indexName = TextField::new('indexName');
         $error = TextField::new('error');
         $createdAt = DateTimeField::new('createdAt');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $mapping = JsonField::new('mapping');
         $progressString = TextareaField::new('progressString');
         $timeTakenUnit = TextareaField::new('timeTakenUnit');

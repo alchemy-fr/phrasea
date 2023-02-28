@@ -1,0 +1,2 @@
+alchemy_admin_acl_global_permissions:
+  resource: 'Alchemy\AdminBundle\Controller\Acl\GlobalPermissionsController'

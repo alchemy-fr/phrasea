@@ -1,6 +1,6 @@
 <?php
 
-namespace Alchemy\AclBundle\Field;
+namespace Alchemy\AdminBundle\Field\Acl;
 
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;

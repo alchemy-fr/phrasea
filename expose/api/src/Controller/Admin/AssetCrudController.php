@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -37,6 +37,7 @@ class AssetCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = IdField::new();
         $originalName = TextField::new('originalName');
         $description = TextareaField::new('description');
         $lat = NumberField::new('lat');
@@ -44,7 +45,6 @@ class AssetCrudController extends AbstractAdminCrudController
         $altitude = NumberField::new('altitude');
         $webVTT = TextareaField::new('webVTT');
         $clientAnnotations = TextareaField::new('clientAnnotations');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $assetId = IdField::new('assetId');
         $path = TextField::new('path');
         $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');

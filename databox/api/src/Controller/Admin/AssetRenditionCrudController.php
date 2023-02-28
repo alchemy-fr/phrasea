@@ -53,7 +53,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         $definition = AssociationField::new('definition');
         $asset = AssociationField::new('asset');
         $file = AssociationField::new('file');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $fileId = TextareaField::new('file.id')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {

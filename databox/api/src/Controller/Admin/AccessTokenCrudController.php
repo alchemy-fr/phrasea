@@ -43,7 +43,7 @@ class AccessTokenCrudController extends AbstractAdminCrudController
         $scope = TextField::new('scope');
         $createdAt = DateTimeField::new('createdAt');
         $client = AssociationField::new('client');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $user = TextareaField::new('user');
 
         if (Crud::PAGE_INDEX === $pageName) {

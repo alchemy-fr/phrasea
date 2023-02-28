@@ -28,7 +28,7 @@ class OAuthClientCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $randomId = TextField::new('randomId');
         $secret = TextField::new('secret')->setTemplatePath('@AlchemyAdmin/list/secret.html.twig');
         $allowedGrantTypes = ArrayField::new('allowedGrantTypes');

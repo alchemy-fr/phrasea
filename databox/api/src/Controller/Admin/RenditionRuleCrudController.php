@@ -2,9 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Field\ObjectTypeChoiceField;
-use Alchemy\AclBundle\Field\UserTypeChoiceField;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\Acl\ObjectTypeChoiceField;
+use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
 use App\Entity\Core\RenditionRule;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -28,7 +28,6 @@ class RenditionRuleCrudController extends AbstractAdminCrudController
         $this->objectTypeChoiceField = $objectTypeChoiceField;
     }
 
-
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -40,12 +39,12 @@ class RenditionRuleCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $userType = $this->userTypeChoiceField->create('userType');
         $userId = TextField::new('userId');
         $objectType = $this->objectTypeChoiceField->create('objectType');
         $objectId = TextField::new('objectId');
         $allowed = AssociationField::new('allowed');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
 

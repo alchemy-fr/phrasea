@@ -34,11 +34,11 @@ class WebhookLogCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $event = TextField::new('event');
         $response = TextareaField::new('response');
         $createdAt = DateTimeField::new('createdAt');
         $webhook = AssociationField::new('webhook');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $payload = TextField::new('payload');
         $webhookUrl = TextareaField::new('webhook.url', 'URL');
 

@@ -37,6 +37,7 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $userType = IntegerField::new('userType');
         $userId = TextField::new('userId');
         $objectType = IntegerField::new('objectType');
@@ -45,7 +46,6 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
         $updatedAt = DateTimeField::new('updatedAt');
         $include = AssociationField::new('include');
         $exclude = AssociationField::new('exclude');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $userType, $userId, $objectType, $objectId, $include, $exclude, $createdAt];

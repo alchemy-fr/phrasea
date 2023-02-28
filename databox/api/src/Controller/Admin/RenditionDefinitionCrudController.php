@@ -40,6 +40,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
         $class = AssociationField::new('class');
@@ -49,7 +50,6 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         $useAsThumbnail = Field::new('useAsThumbnail');
         $useAsThumbnailActive = Field::new('useAsThumbnailActive', 'Thumb Active');
         $priority = IntegerField::new('priority');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $download = Field::new('download');
         $definition = TextareaField::new('definition');
         $createdAt = DateTimeField::new('createdAt');

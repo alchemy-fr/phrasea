@@ -3,17 +3,17 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AccessTokenCrudController extends AbstractAdminCrudController  // AbstractAdminController
+class AccessTokenCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -36,16 +36,13 @@ class AccessTokenCrudController extends AbstractAdminCrudController  // Abstract
         $createdAt = DateTimeField::new('createdAt');
         $client = AssociationField::new('client');
         $user = AssociationField::new('user');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = IdField::new();
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $user, $token, $scope, $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$token, $expiresAt, $scope, $id, $createdAt, $client, $user];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
-            return [$token, $expiresAt, $scope, $createdAt, $client, $user];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
             return [$token, $expiresAt, $scope, $createdAt, $client, $user];

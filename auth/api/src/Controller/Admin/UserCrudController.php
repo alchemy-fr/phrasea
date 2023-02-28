@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\IdField;
 use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use App\Consumer\Handler\UserInviteHandler;
 use App\Entity\User;
@@ -24,7 +25,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\FormError;
@@ -102,10 +102,10 @@ class UserCrudController extends AbstractAdminCrudController
             ->allowMultipleChoices()
             ->renderExpanded()
         ;
+        $id = IdField::new();
         $enabled = BooleanField::new('enabled');
         $groups = AssociationField::new('groups');
         $inviteByEmail = BooleanField::new('inviteByEmail');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
         $emailVerified = Field::new('emailVerified');
         $securityToken = TextField::new('securityToken');
         $salt = TextField::new('salt');

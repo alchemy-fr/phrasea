@@ -28,7 +28,11 @@ final class UserChoiceField
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];
         }
+
+        if (empty($choices)) {
+            $choices = ['' => ''];
+        }
+
         return ChoiceField::new($propertyName, $label)->setChoices($choices);
     }
-
 }

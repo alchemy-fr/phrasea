@@ -21,14 +21,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
-    public static function getEntityFqcn(): string
-    {
-        return AttributeDefinition::class;
-    }
+    private AttributeTypeRegistry $typeRegistry;
 
     public function __construct(AttributeTypeRegistry $typeRegistry)
     {
         $this->typeRegistry = $typeRegistry;
+    }
+
+    public static function getEntityFqcn(): string
+    {
+        return AttributeDefinition::class;
     }
 
     public function configureCrud(Crud $crud): Crud

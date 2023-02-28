@@ -41,7 +41,7 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
         $definition = AssociationField::new('definition');
         $priority = IntegerField::new('priority');
         $overrides = Field::new('overrides');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $definition, $priority, $overrides];

@@ -125,7 +125,7 @@ class PopulatePass extends AbstractUuidEntity
 
     public function getProgressString(): ?string
     {
-        if (null !== $this->progress) {
+        if (null !== $this->progress && $this->documentCount > 0) {
             return sprintf('%d/%d (%d%%)', $this->progress, $this->documentCount, round($this->progress / $this->documentCount * 100));
         }
 

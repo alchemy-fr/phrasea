@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Admin\PermissionTrait;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use App\Entity\Core\AttributeClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -19,33 +20,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 
-class AttributeClassCrudController extends AbstractAdminCrudController
+class AttributeClassCrudController extends AbstractAclAdminCrudController
 {
-    use PermissionTrait;
-
     public static function getEntityFqcn(): string
     {
         return AttributeClass::class;
-    }
-
-    public function configureActions(Actions $actions): Actions
-    {
-        $globalPermissionsAction = Action::new('globalPermissions')
-            ->linkToRoute(
-                'admin_global_permissions',
-                [
-                    'type' => 'attributeClass',
-                ]
-            )
-            ->createAsGlobalAction();
-
-        $permissionsAction = Action::new('permissions')
-            ->linkToCrudAction('permissions')
-        ;
-
-        return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $globalPermissionsAction)
-            ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -72,7 +51,7 @@ class AttributeClassCrudController extends AbstractAdminCrudController
         $name = TextField::new('name');
         $public = Field::new('public');
         $editable = Field::new('editable');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $key = TextField::new('key');
         $createdAt = DateTimeField::new('createdAt');
         $definitions = AssociationField::new('definitions');
@@ -91,20 +70,5 @@ class AttributeClassCrudController extends AbstractAdminCrudController
         }
 
         return [];
-    }
-
-    public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
-    {
-        /** @var AttributeClass $attributeClass */
-        $attributeClass = $adminContext->getEntity()->getInstance();
-        $id = $attributeClass->getId();
-
-        $twigParameters = $this->permissionView->getViewParameters(
-            $this->permissionView->getObjectKey(AttributeClass::class),
-            $id
-        );
-        $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
-
-        return $this->render('@AlchemyAcl/permissions/entity/acl.html.twig', $twigParameters);
     }
 }

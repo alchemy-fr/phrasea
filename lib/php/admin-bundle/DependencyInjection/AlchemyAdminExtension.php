@@ -22,6 +22,12 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (isset($bundles['AlchemyAclBundle'])) {
+            $loader->load('acl.yaml');
+        }
     }
 
     private function loadExternalConfig(ContainerBuilder $container, array $serviceConfig): void

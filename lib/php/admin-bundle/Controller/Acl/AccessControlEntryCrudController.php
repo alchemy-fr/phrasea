@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Controller\Admin;
+declare(strict_types=1);
+
+namespace Alchemy\AdminBundle\Controller\Acl;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
-use Alchemy\AclBundle\Field\ObjectTypeChoiceField;
-use Alchemy\AclBundle\Field\PermissionsChoiceField;
-use Alchemy\AclBundle\Field\UserTypeChoiceField;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\Acl\ObjectTypeChoiceField;
+use Alchemy\AdminBundle\Field\Acl\PermissionsChoiceField;
+use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;

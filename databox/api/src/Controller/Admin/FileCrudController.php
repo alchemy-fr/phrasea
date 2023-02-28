@@ -60,7 +60,7 @@ class FileCrudController extends AbstractAdminCrudController
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $workspace = AssociationField::new('workspace');
-        $id = IdField::new('id', 'ID')->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
+        $id = \Alchemy\AdminBundle\Field\IdField::new();
         $metadata = TextField::new('metadata');
 
         if (Crud::PAGE_INDEX === $pageName) {
