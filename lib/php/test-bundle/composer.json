@@ -13,6 +13,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "cs": "vendor/bin/php-cs-fixer fix",
     "test": "./vendor/bin/phpunit"
   },
   "autoload": {

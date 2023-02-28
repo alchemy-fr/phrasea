@@ -185,6 +185,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },
     "conflict": {

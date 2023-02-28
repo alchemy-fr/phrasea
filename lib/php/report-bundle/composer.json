@@ -24,6 +24,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "cs": "vendor/bin/php-cs-fixer fix",
     "test": "echo 'This project has no test...'"
   },
   "autoload": {
