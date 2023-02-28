@@ -59,7 +59,7 @@ class TemplateAttribute extends AbstractUuidEntity
     private ?string $translationOriginHash = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Template\TemplatesAttribute", mappedBy="translationOrigin", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Template\TemplateAttribute", mappedBy="translationOrigin", cascade={"remove"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $translations = null;
