@@ -161,7 +161,7 @@ class AssetSearch extends AbstractSearch
         }, $adapter));
         $result->setMaxPerPage($limit);
         if ($options['page'] ?? false) {
-            $result->setCurrentPage($options['page']);
+            $result->setCurrentPage((int) $options['page']);
         }
 
         $start = microtime(true);
