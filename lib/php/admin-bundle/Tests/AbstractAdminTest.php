@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 abstract class AbstractAdminTest extends WebTestCase
@@ -26,6 +27,9 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->request('GET', '/admin');
         $this->client->followRedirects();
         $response = $this->client->getResponse();
+        if ($response->getStatusCode() !== 302) {
+            dump($response->getContent());
+        }
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
@@ -42,8 +46,7 @@ abstract class AbstractAdminTest extends WebTestCase
             ->filter('nav#main-menu ul.submenu a')
             ->each(function ($node, $i) {
                 if ('#' !== $href = $node->attr('href')) {
-                    // todo EA3 : (re)do a better test on now more complex uri
-                    $this->assertMatchesRegularExpression('#^http\://localhost/admin\?.+$#', $href);
+                    $this->assertMatchesRegularExpression('#^http://localhost/admin\?.+$#', $href);
                     $this->explore($href);
                 }
             });
@@ -86,9 +89,7 @@ abstract class AbstractAdminTest extends WebTestCase
     {
         $session = self::$container->get('session');
 
-        $user = new RemoteUser('123', 'admin', [
-            'ROLE_SUPER_ADMIN',
-        ]);
+        $user = $this->getAuthAdminUser();
 
         $firewallName = 'admin';
         $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
@@ -97,5 +98,12 @@ abstract class AbstractAdminTest extends WebTestCase
 
         $cookie = new Cookie($session->getName(), $session->getId());
         $this->client->getCookieJar()->set($cookie);
+    }
+
+    protected function getAuthAdminUser(): UserInterface
+    {
+        return new RemoteUser('123', 'admin', [
+            'ROLE_SUPER_ADMIN',
+        ]);
     }
 }
