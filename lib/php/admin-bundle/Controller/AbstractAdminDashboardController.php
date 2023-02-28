@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Controller;
 
+use Alchemy\AdminBundle\AdminConfigRegistry;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
@@ -16,8 +17,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
 {
-    private string $siteTitle;
-    private ?string $siteLogo;
+    private AdminConfigRegistry $adminConfigRegistry;
 
     /**
      * @Route("/admin")
@@ -43,28 +43,10 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->displayUserAvatar(false);
     }
 
-    public function setSiteTitle(string $siteTitle): void
-    {
-        $this->siteTitle = $siteTitle;
-    }
-
-    public function setSiteLogo(?string $siteLogo): void
-    {
-        $this->siteLogo = $siteLogo;
-    }
-
-    protected function getLayoutParams(): array
-    {
-        return [
-            'site_title' => $this->siteTitle,
-            'site_logo' => $this->siteLogo,
-        ];
-    }
-
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<div>'.($this->siteLogo ?: '').'<div>'.$this->siteTitle.'</div></div>');
+            ->setTitle('<div>'.($this->adminConfigRegistry->getSiteLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>');
     }
 
     protected function createDevMenu(string $failedEventClass): SubMenuItem
@@ -75,5 +57,13 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
         ];
 
         return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission('ROLE_TECH');
+    }
+
+    /**
+     * @required
+     */
+    public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
+    {
+        $this->adminConfigRegistry = $adminConfigRegistry;
     }
 }

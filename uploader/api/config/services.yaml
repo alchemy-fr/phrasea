@@ -28,11 +28,6 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    App\Controller\Admin\DashboardController:
-      calls:
-        - setSiteTitle: ['%alchemy_admin.site_title%']
-        - setSiteLogo: ['%alchemy_admin.site_logo%']
-
     _instanceof:
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']

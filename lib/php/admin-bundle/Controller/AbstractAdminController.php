@@ -4,28 +4,18 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Controller;
 
+use Alchemy\AdminBundle\AdminConfigRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 abstract class AbstractAdminController extends AbstractController
 {
-    private string $siteTitle;
-    private ?string $siteLogo;
+    protected AdminConfigRegistry $adminConfigRegistry;
 
-    public function setSiteTitle(string $siteTitle): void
+    /**
+     * @required
+     */
+    public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
     {
-        $this->siteTitle = $siteTitle;
-    }
-
-    public function setSiteLogo(?string $siteLogo): void
-    {
-        $this->siteLogo = $siteLogo;
-    }
-
-    protected function getLayoutParams(): array
-    {
-        return [
-            'site_title' => $this->siteTitle,
-            'site_logo' => $this->siteLogo,
-        ];
+        $this->adminConfigRegistry = $adminConfigRegistry;
     }
 }

@@ -41,11 +41,11 @@ class ResetPasswordController extends AbstractAdminController
     /**
      * @Route("/requested", name="requested")
      */
-    public function requestedResetPassword(AuthServiceClient $authServiceClient): Response
+    public function requestedResetPassword(): Response
     {
         return $this->render(
             '@AlchemyAdmin/reset_password/requested.html.twig',
-            $this->getLayoutParams()
+            $this->adminConfigRegistry->getLayoutParams(),
         );
     }
 }

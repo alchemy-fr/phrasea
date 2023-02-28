@@ -35,14 +35,6 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    App\Controller\Admin\DashboardController:
-      calls:
-        - setSiteTitle: [ '%alchemy_admin.site_title%' ]
-        - setSiteLogo: [ '%alchemy_admin.site_logo%' ]
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-
     App\Fixture\Factory\UserPasswordFactory:
         public: true
 

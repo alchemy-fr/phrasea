@@ -49,3 +49,8 @@ services:
   Alchemy\AdminBundle\Form\GroupChoiceType: ~
 
   Alchemy\AdminBundle\Field\UserChoiceField:
+
+  Alchemy\AdminBundle\AdminConfigRegistry:
+    arguments:
+      $siteTitle: '%alchemy_admin.site_title%'
+      $siteLogo: '%alchemy_admin.site_logo%'
