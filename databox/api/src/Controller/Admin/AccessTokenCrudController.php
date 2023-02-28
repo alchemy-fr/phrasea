@@ -24,7 +24,7 @@ class AccessTokenCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-            // ->remove(Crud::PAGE_INDEX, Action::EDIT)     // todo ea3 : check if editing an access token is possible
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 

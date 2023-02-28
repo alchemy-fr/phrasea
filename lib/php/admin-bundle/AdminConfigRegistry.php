@@ -14,6 +14,7 @@ class AdminConfigRegistry
         $this->siteTitle = $siteTitle;
         $this->siteLogo = $siteLogo;
     }
+
     public function getLayoutParams(): array
     {
         return [

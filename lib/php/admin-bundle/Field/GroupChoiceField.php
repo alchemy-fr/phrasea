@@ -10,7 +10,7 @@ final class GroupChoiceField implements FieldInterface
 {
     use FieldTrait;
 
-    /**s
+    /**
      * @param string|false|null $label
      */
     public static function new(string $propertyName, $label = null): self
@@ -24,6 +24,6 @@ final class GroupChoiceField implements FieldInterface
             ->setLabel($label)
             ->setFormType(GroupChoiceType::class)
             ->setHelp('If no group is selected, the target will be allowed to any user.')
-            ;
+        ;
     }
 }

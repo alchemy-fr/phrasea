@@ -148,12 +148,6 @@ class UserCrudController extends AbstractAdminCrudController
         }
     }
 
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        $entityManager->remove($entityInstance);
-        $entityManager->flush();
-    }
-
     public function inviteAction(AdminContext $adminContext, InviteManager $inviteManager)
     {
         $user = $adminContext->getEntity()->getInstance();
@@ -211,8 +205,6 @@ class UserCrudController extends AbstractAdminCrudController
                 }
             } else {
                 $this->addFlash('success', sprintf('%d users have been imported', $count));
-
-                // return $this->redirectToReferrer();
 
                 $targetUrl = $this->adminUrlGenerator
                     ->setController(self::class)
