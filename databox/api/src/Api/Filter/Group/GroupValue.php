@@ -16,14 +16,14 @@ class GroupValue
     /**
      * @Groups({"_"})
      */
-    private string $key;
+    private ?string $key;
 
     /**
      * @Groups({"_"})
      */
     private array $values;
 
-    public function __construct(string $type, string $key, array $values)
+    public function __construct(string $type, ?string $key, array $values)
     {
         $this->type = $type;
         $this->key = $key;
@@ -35,7 +35,7 @@ class GroupValue
         return $this->type;
     }
 
-    public function getKey(): string
+    public function getKey(): ?string
     {
         return $this->key;
     }

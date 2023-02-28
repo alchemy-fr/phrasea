@@ -48,6 +48,9 @@ export default function GroupRow({
                 },
                 'span + span': {
                     ml: 1,
+                },
+                '.MuiChip-root': {
+                    my: -1,
                 }
             }}
             top={searchMenuHeight}
@@ -63,9 +66,9 @@ export default function GroupRow({
                     fontSize={'small'}
                 />
             </IconButton>}
-            {values.map((v, i) => <span key={i}>
+            {values.length > 0 ? values.map((v, i) => <span key={i}>
                 {formatAttribute(type, v, formatContext.formats[type])}
-            </span>)}
+            </span>) : 'None'}
         </SectionDivider>
         {children}
     </>
