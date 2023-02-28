@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use Alchemy\StorageBundle\Storage\PathGenerator;
-use App\Entity\Asset;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use App\Entity\Asset;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,7 +43,7 @@ final class CreateAssetAction extends AbstractController
     {
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
-                'slug' => $targetSlug
+                'slug' => $targetSlug,
             ]);
         } elseif (!empty($targetId = $request->request->get('targetId'))) {
             $target = $this->em->find(Target::class, $targetId);

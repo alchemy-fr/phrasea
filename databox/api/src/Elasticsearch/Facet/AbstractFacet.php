@@ -8,8 +8,8 @@ use App\Api\Filter\Group\GroupValue;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\ESFacetInterface;
 use Doctrine\Common\Collections\Collection;
-use Elastica\Query;
 use Elastica\Aggregation;
+use Elastica\Query;
 
 abstract class AbstractFacet implements FacetInterface
 {

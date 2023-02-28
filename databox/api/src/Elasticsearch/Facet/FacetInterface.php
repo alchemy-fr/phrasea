@@ -11,10 +11,15 @@ use Elastica\Query;
 interface FacetInterface
 {
     public function normalizeBucket(array $bucket): ?array;
+
     public function resolveGroupValue($value): GroupValue;
+
     public function getFieldName(): string;
+
     public static function getKey(): string;
+
     public function isSortable(): bool;
+
     public function getValueFromAsset(Asset $asset);
 
     public function buildFacet(Query $query): void;

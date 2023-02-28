@@ -29,8 +29,7 @@ class IntegrationManager
         IntegrationRegistry $integrationRegistry,
         EntityManagerInterface $em,
         EventProducer $eventProducer
-    )
-    {
+    ) {
         $this->integrationRegistry = $integrationRegistry;
         $this->em = $em;
         $this->eventProducer = $eventProducer;

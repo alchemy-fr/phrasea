@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
 use DateTime;
@@ -17,7 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *             "method"="POST",
  *             "path"="/commits/{id}/ack",
  *             "controller"=CommitAckAction::class,
-*              "defaults"={
+ *              "defaults"={
  *                  "_api_receive"=false,
  *                  "_api_respond"=true,
  *             },
@@ -151,6 +151,7 @@ class Commit
 
     /**
      * Not mapped.
+     *
      * @Groups({"commit:write"})
      */
     private array $files = [];

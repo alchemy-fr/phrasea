@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;

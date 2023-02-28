@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Api\Model\Input\AssetGenerateRenditionsInput;
 use App\Asset\AssetManager;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;

@@ -9,7 +9,6 @@ use App\Entity\TopicSubscriber;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 
-
 class DashboardController extends AbstractAdminDashboardController
 {
     public function configureCrud(): Crud

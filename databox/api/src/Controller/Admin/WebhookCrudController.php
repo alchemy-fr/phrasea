@@ -39,14 +39,11 @@ class WebhookCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$url, $active, $eventsLabel, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $url, $secret, $verifySSL, $active, $events, $options, $createdAt];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$url, $events, $verifySSL, $secret, $timeout, $active];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$url, $events, $verifySSL, $secret, $timeout, $active];
         }
 

@@ -5,9 +5,6 @@ namespace Alchemy\AdminBundle\Field;
 use Alchemy\AdminBundle\Form\GroupChoiceType;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 final class GroupChoiceField implements FieldInterface
 {
@@ -18,10 +15,10 @@ final class GroupChoiceField implements FieldInterface
      */
     public static function new(string $propertyName, $label = null): self
     {
-       return (new self())
+        return (new self())
             ->setFormTypeOptions([
                 'multiple' => true,
-                'expanded' => true
+                'expanded' => true,
             ])
             ->setProperty($propertyName)
             ->setLabel($label)

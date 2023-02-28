@@ -7,7 +7,6 @@ use Alchemy\AdminBundle\Field\GroupChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -48,11 +47,9 @@ class TargetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $slug, $name, $pullModeUrl, $targetUrl, $enabled, $createdAt];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
         }
 

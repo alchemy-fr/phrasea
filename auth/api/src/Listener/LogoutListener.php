@@ -18,8 +18,7 @@ class LogoutListener implements LogoutSuccessHandlerInterface
     public function __construct(
         UrlGeneratorInterface $urlGenerator,
         array $identityProviders
-    )
-    {
+    ) {
         $this->urlGenerator = $urlGenerator;
         $this->identityProviders = $identityProviders;
     }

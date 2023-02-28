@@ -50,7 +50,7 @@ final class CommitAction extends AbstractController
     {
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
-                'slug' => $targetSlug
+                'slug' => $targetSlug,
             ]);
             if (!$target instanceof Target) {
                 throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));

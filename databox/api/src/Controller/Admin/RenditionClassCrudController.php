@@ -47,14 +47,11 @@ class RenditionClassCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $name, $public, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $public, $createdAt, $workspace, $definitions];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $name, $public];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $name, $public];
         }
 

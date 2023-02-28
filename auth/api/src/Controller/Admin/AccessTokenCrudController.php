@@ -40,11 +40,9 @@ class AccessTokenCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $user, $token, $scope, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$token, $expiresAt, $scope, $id, $createdAt, $client, $user];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$token, $expiresAt, $scope, $createdAt, $client, $user];
         }
 
@@ -58,5 +56,4 @@ class AccessTokenCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
         ;
     }
-
 }

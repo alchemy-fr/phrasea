@@ -13,7 +13,7 @@ class AdminTest extends AbstractAdminTest
 {
     public function testAdmin()
     {
-         $this->doTestAllPages();
+        $this->doTestAllPages();
     }
 
     protected function getAuthAdminUser(): UserInterface

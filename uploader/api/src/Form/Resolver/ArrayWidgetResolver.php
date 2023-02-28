@@ -20,11 +20,11 @@ class ArrayWidgetResolver implements WidgetResolverInterface
             $items = $config['items'];
 
             if (isset($items['enum_titles'])) {
-                for ($i = 0; $i < count($items['enum_titles']); $i++) {
+                for ($i = 0; $i < count($items['enum_titles']); ++$i) {
                     $choices[$items['enum_titles'][$i]] = $items['enum'][$i];
                 }
             } else {
-                for ($i = 0; $i < count($items['enum']); $i++) {
+                for ($i = 0; $i < count($items['enum']); ++$i) {
                     $choices[$items['enum'][$i]] = $items['enum'][$i];
                 }
             }

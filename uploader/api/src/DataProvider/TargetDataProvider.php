@@ -32,7 +32,7 @@ class TargetDataProvider implements ContextAwareCollectionDataProviderInterface,
         $list = $this->inner->getCollection($resourceClass, $operationName);
 
         $items = [];
-        /** @var Target $item */
+        /* @var Target $item */
         foreach ($list as $target) {
             if ($this->security->isGranted(TargetVoter::READ, $target)) {
                 $items[] = $target;

@@ -13,11 +13,11 @@ class PermissionsChoiceField
         foreach (PermissionInterface::PERMISSIONS as $name => $permission) {
             $choices[$name] = $permission;
         }
+
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
             ->allowMultipleChoices()
             ->renderExpanded(true)
             ;
     }
-
 }

@@ -87,5 +87,4 @@ class AssetRendition extends AbstractUuidEntity
     {
         return null !== $this->file;
     }
-
 }

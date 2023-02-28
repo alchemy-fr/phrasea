@@ -46,14 +46,11 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $indexName, $createdAt, $updatedAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $indexName, $mapping, $createdAt, $updatedAt];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$indexName, $createdAt, $updatedAt];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$indexName, $createdAt, $updatedAt];
         }
 

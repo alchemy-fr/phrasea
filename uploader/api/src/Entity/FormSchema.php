@@ -7,7 +7,6 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
 use DateTimeInterface;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;

@@ -13,6 +13,7 @@ class UserTypeChoiceField
         foreach (AccessControlEntry::USER_TYPES as $name => $code) {
             $choices[$name] = $code;
         }
+
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
             ;

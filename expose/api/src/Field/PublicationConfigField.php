@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Field;
 
-use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use App\Form\PublicationConfigType;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 
 class PublicationConfigField implements FieldInterface
@@ -19,5 +19,4 @@ class PublicationConfigField implements FieldInterface
             ->setLabel($label)
             ->setFormType(PublicationConfigType::class);
     }
-
 }

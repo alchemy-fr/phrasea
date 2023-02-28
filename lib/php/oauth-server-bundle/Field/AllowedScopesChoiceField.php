@@ -6,7 +6,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class AllowedScopesChoiceField
 {
-
     private array $choices;
 
     public function __construct(array $scopes)
@@ -25,5 +24,4 @@ class AllowedScopesChoiceField
             ->renderExpanded(true)
             ;
     }
-
 }

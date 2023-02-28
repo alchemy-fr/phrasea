@@ -37,14 +37,11 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $createdAt, $updatedAt, $target, $data];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$target, $jsonData];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$target, $jsonData];
         }
 

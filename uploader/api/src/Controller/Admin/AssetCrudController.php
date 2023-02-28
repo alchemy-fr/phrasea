@@ -52,14 +52,11 @@ class AssetCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $originalName, $size, $userId, $committed, $acknowledged, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
         }
 

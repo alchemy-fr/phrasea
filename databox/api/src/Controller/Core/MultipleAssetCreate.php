@@ -23,8 +23,7 @@ class MultipleAssetCreate
         EntityManagerInterface $em,
         AssetOutputDataTransformer $assetOutputDataTransformer,
         Security $security
-    )
-    {
+    ) {
         $this->em = $em;
         $this->assetOutputDataTransformer = $assetOutputDataTransformer;
         $this->security = $security;
@@ -48,7 +47,7 @@ class MultipleAssetCreate
                 'groups' => [
                     '_',
                     'asset:read',
-                ]
+                ],
             ]);
         }, $data);
 

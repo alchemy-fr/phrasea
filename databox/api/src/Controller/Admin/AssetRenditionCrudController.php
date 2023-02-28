@@ -12,7 +12,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AssetRenditionCrudController extends AbstractAdminCrudController
@@ -29,6 +28,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, ACTION::NEW)
         ;
     }
+
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -58,14 +58,11 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $definition, $asset, $fileId, $updatedAt, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
         }
 

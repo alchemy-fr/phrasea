@@ -2,26 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Admin\PermissionTrait;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Collection;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\HttpFoundation\Response;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
 {
@@ -55,7 +48,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $privacyChoices = [];
-        foreach (WorkspaceItemPrivacyInterface::LABELS as $value=>$label) {
+        foreach (WorkspaceItemPrivacyInterface::LABELS as $value => $label) {
             $privacyChoices[$label] = $value;
         }
 
@@ -78,14 +71,11 @@ class CollectionCrudController extends AbstractAclAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $title, $parent, $workspace, $privacyTxt, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $deletedAt, $locale, $privacyTxt, $parent, $children, $assets, $referenceAssets, $workspace];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $parent, $privacy, $ownerUser];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$title, $workspace, $parent, $privacy, $ownerUser];
         }
 

@@ -27,7 +27,6 @@ use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
 use App\Entity\Integration\WorkspaceIntegration;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;

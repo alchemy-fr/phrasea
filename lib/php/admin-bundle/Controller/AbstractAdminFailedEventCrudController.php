@@ -53,14 +53,11 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $type, $payload, $error, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $createdAt, $type, $payload, $error];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$createdAt, $type, $error];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$createdAt, $type, $error];
         }
 

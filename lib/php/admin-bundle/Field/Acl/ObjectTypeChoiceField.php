@@ -20,6 +20,7 @@ class ObjectTypeChoiceField
         foreach ($this->objectMapping->getObjectTypes() as $name) {
             $choices[$name] = $name;
         }
+
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
             ;

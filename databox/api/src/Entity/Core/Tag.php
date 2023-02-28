@@ -80,7 +80,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
 
     public function setColor(?string $color): void
     {
-        if ($color && $color[0] === '#') {
+        if ($color && '#' === $color[0]) {
             $color = substr($color, 1);
         }
 

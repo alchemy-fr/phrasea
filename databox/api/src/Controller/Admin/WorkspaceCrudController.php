@@ -57,14 +57,11 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $updatedAt, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $slug, $ownerId, $config, $enabledLocales, $localeFallbacks, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks];
         }
 

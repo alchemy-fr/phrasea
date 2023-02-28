@@ -17,7 +17,6 @@ if (interface_exists(AclUserInterface::class)) {
     }
 }
 
-
 class RemoteUser implements UserInterface, RemoteUserInterface
 {
     private string $username;

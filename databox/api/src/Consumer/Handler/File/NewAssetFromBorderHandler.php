@@ -18,7 +18,8 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 
     private AssetManager $assetManager;
 
-    public function __construct(AssetManager $assetManager) {
+    public function __construct(AssetManager $assetManager)
+    {
         $this->assetManager = $assetManager;
     }
 

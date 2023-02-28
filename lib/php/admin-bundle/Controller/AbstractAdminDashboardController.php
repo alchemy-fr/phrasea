@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Controller;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
@@ -64,7 +64,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('<div>' . ($this->siteLogo ?: '') . '<div>' . $this->siteTitle. '</div></div>');
+            ->setTitle('<div>'.($this->siteLogo ?: '').'<div>'.$this->siteTitle.'</div></div>');
     }
 
     protected function createDevMenu(string $failedEventClass): SubMenuItem

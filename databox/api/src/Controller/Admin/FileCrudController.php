@@ -65,14 +65,11 @@ class FileCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $path, $storage, $workspace, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $metadata, $createdAt, $updatedAt, $workspace];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$type, $size, $checksum, $path, $pathPublic, $storage, $originalName, $extension, $alternateUrls, $createdAt, $updatedAt, $workspace];
         }
 

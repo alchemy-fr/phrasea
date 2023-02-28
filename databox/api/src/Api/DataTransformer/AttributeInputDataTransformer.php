@@ -9,7 +9,6 @@ use App\Api\Model\Input\AttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeInputDataTransformer extends AbstractInputDataTransformer

@@ -19,8 +19,7 @@ class OriginalRenditionManager
     public function __construct(
         EntityManagerInterface $em,
         RenditionManager $renditionManager
-    )
-    {
+    ) {
         $this->em = $em;
         $this->renditionManager = $renditionManager;
     }

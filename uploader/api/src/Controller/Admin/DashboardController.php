@@ -12,11 +12,9 @@ use App\Entity\FailedEvent;
 use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Entity\TargetParams;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 
-
-class DashboardController  extends AbstractAdminDashboardController
+class DashboardController extends AbstractAdminDashboardController
 {
     public function configureMenuItems(): iterable
     {

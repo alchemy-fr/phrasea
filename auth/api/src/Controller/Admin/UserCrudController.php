@@ -32,7 +32,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-
 class UserCrudController extends AbstractAdminCrudController
 {
     private AdminUrlGenerator $adminUrlGenerator;
@@ -40,7 +39,6 @@ class UserCrudController extends AbstractAdminCrudController
     private AuthorizationCheckerInterface $authorizationChecker;
     private UserManager $userManager;
     private EventProducer $eventProducer;
-
 
     public static function getEntityFqcn(): string
     {
@@ -62,6 +60,7 @@ class UserCrudController extends AbstractAdminCrudController
             ->createAsGlobalAction()
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
+
                 return $this->adminUrlGenerator->setAll($request->query->all())
                     ->setAction('importAction')
                     ->generateUrl();
@@ -74,7 +73,6 @@ class UserCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->add(Crud::PAGE_INDEX, $importAction)
             ->add(Crud::PAGE_INDEX, $inviteAction);
-        ;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -117,14 +115,11 @@ class UserCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $username, $enabled, $groups, $userRoles, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $username, $emailVerified, $enabled, $securityToken, $salt, $userRoles, $password, $locale, $createdAt, $lastInviteAt, $updatedAt, $groups];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$username, $userRoles, $enabled, $groups, $inviteByEmail];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$username, $userRoles, $enabled, $groups];
         }
 
@@ -232,5 +227,4 @@ class UserCrudController extends AbstractAdminCrudController
             'form' => $form->createView(),
         ]);
     }
-
 }

@@ -30,8 +30,7 @@ class OAuthController extends AbstractIdentityProviderController
     public function __construct(
         OAuthUserProvider $OAuthUserProvider,
         AuthStateEncoder $authStateEncoder
-    )
-    {
+    ) {
         $this->OAuthUserProvider = $OAuthUserProvider;
         $this->authStateEncoder = $authStateEncoder;
     }
@@ -53,7 +52,7 @@ class OAuthController extends AbstractIdentityProviderController
             $resourceOwner->getAuthorizationUrl(
                 $this->generateOAuthRedirectUri($provider),
                 [
-                    'state' => $this->authStateEncoder->encodeState($redirectUri, null, true)
+                    'state' => $this->authStateEncoder->encodeState($redirectUri, null, true),
                 ]
             )
         );

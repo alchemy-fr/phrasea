@@ -7,7 +7,6 @@ namespace App\Api\DataTransformer;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Entity\Core\RenditionRule;
-use Doctrine\ORM\EntityManagerInterface;
 
 class RenditionRuleInputDataTransformer extends AbstractInputDataTransformer
 {

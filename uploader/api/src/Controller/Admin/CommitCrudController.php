@@ -46,7 +46,6 @@ class CommitCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, $triggerAgainAction);
-
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -79,14 +78,11 @@ class CommitCrudController extends AbstractAdminCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $target, $userId, $assetCount, $token, $acknowledged, $totalSize, $notifyEmail, $createdAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $totalSize, $formData, $options, $userId, $token, $acknowledged, $notifyEmail, $locale, $acknowledgedAt, $createdAt, $assets, $target];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$user, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
         }
 
@@ -101,8 +97,7 @@ class CommitCrudController extends AbstractAdminCrudController
         }
         if ($commit->isAcknowledged()) {
             $this->addFlash('danger', 'Commit has been acknowledged');
-        }
-        else {
+        } else {
             $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
                 'id' => $commit->getId(),
             ]));

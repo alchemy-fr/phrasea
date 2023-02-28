@@ -170,8 +170,6 @@ class AttributeSearch
     }
 
     /**
-     * @param string $attr
-     *
      * @return array{name: string, type: AttributeTypeInterface}
      */
     public function getESFieldInfo(string $attr): array
@@ -243,7 +241,7 @@ class AttributeSearch
 
             $meta = [
                 'title' => $definition->getName(),
-                'sortable' => $definition->isSortable()
+                'sortable' => $definition->isSortable(),
             ];
             if (TextAttributeType::getName() !== $type::getName()) {
                 $meta['type'] = $type::getName();
@@ -292,10 +290,10 @@ class AttributeSearch
                         500,
                         1000,
                         5000,
-                        10000
+                        10000,
                     ];
                     $ranges = [];
-                    for ($i = 0; $i < count($distances) - 1; $i++) {
+                    for ($i = 0; $i < count($distances) - 1; ++$i) {
                         $r = ['key' => (string) $i];
                         if ($i > 0) {
                             $r['from'] = $distances[$i - 1] * 1000;
@@ -303,7 +301,7 @@ class AttributeSearch
                         if ($i < count($distances) - 1) {
                             $r['to'] = $distances[$i] * 1000;
                         }
-                        $ranges[] =  $r;
+                        $ranges[] = $r;
                     }
                     $agg->setParam('ranges', $ranges);
                     break;

@@ -8,6 +8,7 @@ class RenditionInput
 {
     /**
      * Rendition definition ID. Or provide name.
+     *
      * @var string|null
      */
     public $definitionId = null;
@@ -16,6 +17,7 @@ class RenditionInput
 
     /**
      * Rendition definition name. Or provide definitionId.
+     *
      * @var string|null
      */
     public $name = null;

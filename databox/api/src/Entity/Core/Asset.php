@@ -124,7 +124,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public ?MoveAssetInput $moveAction = null;
 
     /**
-     * Last update time of attribute
+     * Last update time of attribute.
      *
      * @ORM\Column(type="datetime_immutable")
      * @Groups({"dates"})
@@ -143,7 +143,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->attributes = new ArrayCollection();
         $this->attributesEditedAt = new DateTimeImmutable();
 
-        /** @var $now float */
+        /* @var $now float */
         $now ??= microtime(true);
         $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;

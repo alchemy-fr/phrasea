@@ -55,7 +55,6 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
         $container->setParameter('app.login_form_layout', $config['loginFormLayout'] ?? []);
 
-
         if (isset($config['admin']['logo']['src'])) {
             $siteName = sprintf(
                 '<img src="%s" width="%s" alt="Admin" />',

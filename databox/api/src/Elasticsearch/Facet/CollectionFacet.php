@@ -49,8 +49,6 @@ final class CollectionFacet extends AbstractFacet
 
     /**
      * @param CollectionAsset $value
-     *
-     * @return string
      */
     public function resolveLabel($value): string
     {

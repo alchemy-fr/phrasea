@@ -38,18 +38,15 @@ class IntegrationCrudController extends AbstractAdminCrudController
         $config = JsonField::new('config');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
-        $that = ArrayField::new('this', "Config info")->setTemplatePath('admin/integration_config_info.html.twig');
+        $that = ArrayField::new('this', 'Config info')->setTemplatePath('admin/integration_config_info.html.twig');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$enabled, $title, $integration, $workspace, $createdAt, $that, $updatedAt];
-        }
-        elseif (Crud::PAGE_DETAIL === $pageName) {
+        } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace];
-        }
-        elseif (Crud::PAGE_NEW === $pageName) {
+        } elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $integration, $optionsYaml, $enabled];
-        }
-        elseif (Crud::PAGE_EDIT === $pageName) {
+        } elseif (Crud::PAGE_EDIT === $pageName) {
             return [$title, $workspace, $integration, $optionsYaml, $enabled];
         }
 

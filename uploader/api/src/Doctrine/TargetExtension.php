@@ -37,8 +37,7 @@ final class TargetExtension implements QueryCollectionExtensionInterface, QueryI
     private function apply(
         QueryBuilder $queryBuilder,
         string $resourceClass
-    ): void
-    {
+    ): void {
         if (Target::class !== $resourceClass) {
             return;
         }

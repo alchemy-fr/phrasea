@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Consumer;
 
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;

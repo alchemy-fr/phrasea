@@ -32,8 +32,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         GroupMapper $groupMapper,
         GroupParser $groupParser,
         SessionInterface $session
-    )
-    {
+    ) {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->groupMapper = $groupMapper;

@@ -48,5 +48,4 @@ class FailedEvent extends BaseFailedEvent
     {
         return json_encode($this->getPayload());
     }
-
 }

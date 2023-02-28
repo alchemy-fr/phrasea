@@ -25,8 +25,7 @@ class AssetManager
         OriginalRenditionManager $originalRenditionManager,
         EntityManagerInterface $em,
         EventProducer $eventProducer
-    )
-    {
+    ) {
         $this->attributeDataExporter = $attributeDataExporter;
         $this->originalRenditionManager = $originalRenditionManager;
         $this->em = $em;

@@ -83,5 +83,4 @@ class MetadataManipulator
         $writer = $this->getWriter();
         $writer->write($file->getRealPath(), $bag);
     }
-
 }

@@ -27,6 +27,7 @@ class UpdateUserPreferenceAction extends AbstractController
 
         return $this->createResponse($pref);
     }
+
     /**
      * @Route(path="/preferences", methods={"PUT"})
      */

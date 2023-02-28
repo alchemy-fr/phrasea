@@ -10,7 +10,7 @@ final class IdField
 {
     public static function new(string $propertyName = 'id', $label = null): BaseIdField
     {
-        if (null === $label && $propertyName === 'id') {
+        if (null === $label && 'id' === $propertyName) {
             $label = 'ID';
         }
 
