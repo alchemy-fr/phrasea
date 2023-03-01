@@ -4,22 +4,28 @@ export async function promiseConcurrency<T>(promises: (() => Promise<T>)[], conc
     const results: T[] = [];
 
     return new Promise<T[]>((resolve, reject) => {
+        let stack = 0;
         const next = () => {
             const p = allPromises.shift();
 
-            if (p) {
-                p()
-                    .then(r => {
-                        results.push(r);
-                        next()
-                    })
-                    .catch(e => reject(e));
-            } else {
-                resolve(results);
-            }
+            ++stack;
+            p!()
+                .then(r => {
+                    results.push(r);
+                    --stack;
+
+                    if (allPromises.length > 0) {
+                        next();
+                    } else {
+                        if (stack === 0) {
+                            resolve(results);
+                        }
+                    }
+                })
+                .catch(e => reject(e));
         }
 
-        for (let i = 0; i < concurrency; i++) {
+        for (let i = 0; i < concurrency && allPromises.length > 0; i++) {
             next();
         }
     });
