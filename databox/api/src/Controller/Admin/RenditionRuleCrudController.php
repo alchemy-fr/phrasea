@@ -3,9 +3,9 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\Acl\ObjectTypeChoiceField;
 use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
+use App\Admin\Field\RenditionRuleObjectTypeChoiceField;
 use App\Entity\Core\RenditionRule;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -15,17 +15,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 class RenditionRuleCrudController extends AbstractAdminCrudController
 {
     private UserTypeChoiceField $userTypeChoiceField;
-    private ObjectTypeChoiceField $objectTypeChoiceField;
 
     public static function getEntityFqcn(): string
     {
         return RenditionRule::class;
     }
 
-    public function __construct(ObjectTypeChoiceField $objectTypeChoiceField, UserTypeChoiceField $userTypeChoiceField)
+    public function __construct(UserTypeChoiceField $userTypeChoiceField)
     {
         $this->userTypeChoiceField = $userTypeChoiceField;
-        $this->objectTypeChoiceField = $objectTypeChoiceField;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -42,7 +40,7 @@ class RenditionRuleCrudController extends AbstractAdminCrudController
         $id = IdField::new();
         $userType = $this->userTypeChoiceField->create('userType');
         $userId = TextField::new('userId');
-        $objectType = $this->objectTypeChoiceField->create('objectType');
+        $objectType = RenditionRuleObjectTypeChoiceField::new('objectType');
         $objectId = TextField::new('objectId');
         $allowed = AssociationField::new('allowed');
         $createdAt = DateTimeField::new('createdAt');

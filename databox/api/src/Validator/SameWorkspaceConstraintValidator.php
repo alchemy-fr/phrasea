@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
-use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Workspace;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
@@ -23,33 +22,69 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param CollectionAsset         $value
+     * @param $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint)
     {
         $workspaceId = null;
         foreach ($constraint->properties as $propertyPath) {
-            /* @var Workspace $workspace */
-            try {
-                $workspace = $this->getPropertyAccessor()->getValue($value, $propertyPath);
-            } catch (NoSuchPropertyException|UnexpectedTypeException $e) {
-                $workspace = null;
-            }
-            $wId = $workspace ? $workspace->getId() : null;
+            $workspaces = $this->getItems($value, $propertyPath);
 
-            if (null === $wId) {
+            foreach ($workspaces as $workspace) {
+                /* @var Workspace $workspace */
+                $wId = $workspace ? $workspace->getId() : null;
+
+                if (null === $wId) {
+                    return;
+                }
+
+                if (null === $workspaceId) {
+                    $workspaceId = $wId;
+                } elseif ($workspaceId !== $wId) {
+                    $this->context
+                        ->buildViolation(sprintf('Items are not in the same workspace [%s]', implode(', ', $constraint->properties)))
+                        ->addViolation();
+
+                    return;
+                }
+            }
+        }
+    }
+
+    private function getItems($value, string $propertyPath): iterable
+    {
+        $parts = explode('.', $propertyPath);
+
+        $pointer = $value;
+        while ($p = array_shift($parts)) {
+            try {
+                $pointer = $this->getPropertyAccessor()->getValue($pointer, $p);
+            } catch (NoSuchPropertyException|UnexpectedTypeException $e) {
                 return;
             }
 
-            if (null === $workspaceId) {
-                $workspaceId = $wId;
-            } elseif ($workspaceId !== $wId) {
-                $this->context
-                    ->buildViolation(sprintf('Items are not in the same workspace [%s]', implode(', ', $constraint->properties)))
-                    ->addViolation();
+            if (null === $pointer) {
+                return;
+            }
+
+            if (is_iterable($pointer)) {
+                foreach ($pointer as $item) {
+                    $sub = $this->getItems($item, implode('.', $parts));
+                    foreach ($sub as $s) {
+                        yield $s;
+                    }
+                }
+
+                return;
             }
         }
+
+        if (null === $pointer) {
+            return;
+        }
+
+        yield $pointer;
     }
 
     private function getPropertyAccessor(): PropertyAccessorInterface
