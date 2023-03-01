@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use App\Admin\Field\IntegrationChoiceField;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -16,6 +17,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class IntegrationCrudController extends AbstractAdminCrudController
 {
+    private IntegrationChoiceField $integrationChoiceField;
+
+    public function __construct(IntegrationChoiceField $integrationChoiceField)
+    {
+        $this->integrationChoiceField = $integrationChoiceField;
+    }
+
     public static function getEntityFqcn(): string
     {
         return WorkspaceIntegration::class;
@@ -31,7 +39,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
     {
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
-        $integration = TextField::new('integration');
+        $integration = $this->integrationChoiceField->create('integration');
         $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');
         $id = IdField::new();

@@ -23,6 +23,6 @@ class ObjectTypeChoiceField
 
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
-            ;
+        ;
     }
 }
