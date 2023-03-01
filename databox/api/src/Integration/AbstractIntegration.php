@@ -37,7 +37,11 @@ abstract class AbstractIntegration implements IntegrationInterface
         return [];
     }
 
-    protected function createBudgetLimitConfigNode(bool $defaultEnabled = false): NodeDefinition
+    protected function createBudgetLimitConfigNode(
+        bool $defaultEnabled = false,
+        int $limit = 1000,
+        string $interval = '1 year'
+    ): NodeDefinition
     {
         $treeBuilder = new TreeBuilder('budgetLimit');
 
@@ -56,10 +60,10 @@ abstract class AbstractIntegration implements IntegrationInterface
                     ->values(ApiBudgetLimiter::POLICIES)
                 ->end()
                 ->integerNode('limit')
-                    ->defaultValue(1000)
+                    ->defaultValue($limit)
                 ->end()
                 ->scalarNode('interval')
-                    ->defaultValue('1 year')
+                    ->defaultValue($interval)
                     ->example([
                         '12 hours',
                         '3 months',
