@@ -6,6 +6,7 @@ import {SearchContext} from "./SearchContext";
 import {extractLabelValueFromKey, TFacets} from "../Asset/Facets";
 import {Filters, SortBy} from "./Filter";
 import axios from "axios";
+import {getResolvedSortBy} from "./SearchProvider";
 
 type UserSearchContext = {
     position?: string | undefined;
@@ -71,11 +72,6 @@ async function search(
     };
 }
 
-function extractCollectionIdFromPath(path: string): string {
-    const p = path.split('/');
-    return p[p.length - 1];
-}
-
 type State = {
     pages: Asset[][];
     loading: boolean;
@@ -106,7 +102,7 @@ export default function ResultProvider({children}: Props) {
 
         search(
             searchContext.query,
-            searchContext.sortBy,
+            getResolvedSortBy(searchContext.sortBy),
             nextUrl,
             searchContext.attrFilters,
             {

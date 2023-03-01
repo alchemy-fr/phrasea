@@ -11,6 +11,11 @@ class GroupValue
     /**
      * @Groups({"_"})
      */
+    private string $name;
+
+    /**
+     * @Groups({"_"})
+     */
     private string $type;
 
     /**
@@ -23,8 +28,9 @@ class GroupValue
      */
     private array $values;
 
-    public function __construct(string $type, ?string $key, array $values)
+    public function __construct(string $name, string $type, ?string $key, array $values)
     {
+        $this->name = $name;
         $this->type = $type;
         $this->key = $key;
         $this->values = $values;
@@ -43,5 +49,10 @@ class GroupValue
     public function getValues(): array
     {
         return $this->values;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

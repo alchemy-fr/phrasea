@@ -107,7 +107,12 @@ class DateTimeAttributeType extends AbstractAttributeType
         }
 
         try {
-            return DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value);
+            $date = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value);
+            if (false === $date) {
+                return null;
+            }
+
+            return $date;
         } catch (Throwable $e) {
             return null;
         }

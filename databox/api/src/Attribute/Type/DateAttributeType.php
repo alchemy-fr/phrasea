@@ -31,4 +31,25 @@ class DateAttributeType extends DateTimeAttributeType
 
         return $value ?? '';
     }
+
+    /**
+     * @return DateTimeImmutable|null
+     */
+    public function denormalizeValue(?string $value)
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        try {
+            $date = DateTimeImmutable::createFromFormat('Y-m-d', $value);
+            if (false === $date) {
+                return parent::denormalizeValue($value);
+            }
+
+            return $date;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 }

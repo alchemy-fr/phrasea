@@ -9,12 +9,14 @@ import {AttributeType} from "../../../api/attributes";
 import {getAttributeType} from "./Attribute/types";
 import {FilterType} from "../Search/Filter";
 import {AttributeFormat} from "./Attribute/types/types";
+import TagsFacet from "./Facets/TagsFacet";
 
 export type BucketValue = string | number | boolean;
 
 export type LabelledBucketValue = {
     label: string;
     value: BucketValue;
+    item?: Record<string, any>;
 }
 
 export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
@@ -113,13 +115,17 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.GeoDistance]: GeoDistanceFacet,
 }
 
+const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
+    t: TagsFacet,
+}
+
 function FacetGroup({
     facet,
     name,
 }: FacetGroupProps) {
     const [open, setOpen] = useState(true);
 
-    const widget = facet.meta.widget ?? FacetType.Text;
+    const widget = facetWidgetsByKey[name] ?? facetWidgets[facet.meta.widget ?? FacetType.Text] ?? facetWidgets[FacetType.Text];
 
     return <>
         <ListItem
@@ -137,7 +143,7 @@ function FacetGroup({
             </ListItemButton>
         </ListItem>
         <Collapse in={open} timeout="auto" unmountOnExit>
-            {React.createElement(facetWidgets[widget] ?? facetWidgets[FacetType.Text], {
+            {React.createElement(widget, {
                 facet,
                 name,
             })}

@@ -217,7 +217,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
         if (null !== $facet) {
             $value = $facet->getValueFromAsset($object);
 
-            return $facet->resolveGroupValue($value);
+            return $facet->resolveGroupValue($groupBy, $value);
         } else {
             ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
             $key = $value = $indexValue ?? null;
@@ -226,7 +226,7 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             }
             $value = $type->getGroupValueLabel($type->denormalizeValue($value));
 
-            return new GroupValue($type::getName(), $key, null !== $value ? [$value] : []);
+            return new GroupValue($groupBy, $type::getName(), $key, null !== $value ? [$value] : []);
         }
     }
 }

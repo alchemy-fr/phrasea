@@ -16,6 +16,7 @@ export interface File {
 }
 
 type GroupValue = {
+    name: string;
     key: string | null;
     values: any[];
     type: AttributeType;

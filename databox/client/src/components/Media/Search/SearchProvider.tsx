@@ -197,8 +197,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             geolocation,
         }),
         reloadInc,
-        sortBy: resolvedSortBy,
-        setSortBy: setSortBy,
+        sortBy,
+        setSortBy,
         geolocation,
         setGeoLocation,
     }}>

@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {Box, Button, Typography} from "@mui/material";
+import {Box, Button, Checkbox, FormControlLabel, ListItem, ListItemText, Switch, Typography} from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from "../SearchContext";
@@ -17,6 +17,8 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import {arrayMove, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
+import CheckboxWidget from "../../../Form/CheckboxWidget";
+import {Controller} from "react-hook-form";
 
 type Props = {
     onClose: () => void;
@@ -33,7 +35,7 @@ export default function EditSortBy({
     const {sortBy, setSortBy} = useContext(SearchContext);
     const {facets} = useContext(ResultContext);
     const {t} = useTranslation();
-
+    const [grouped, setGrouped] = React.useState(sortBy.length === 0 ? true : sortBy.some(s => s.g));
 
     const list = useMemo<TogglableSortBy[]>(() => {
         const l: TogglableSortBy[] = [];
@@ -78,14 +80,19 @@ export default function EditSortBy({
     }, [list]);
 
     const apply = useCallback(() => {
-        setSortBy(orders.filter(s => s.enabled).map(s => ({
+        const newSortBy = orders.filter(s => s.enabled).map(s => ({
             t: s.t,
             w: s.w,
             a: s.a,
-            g: s.g,
-        })));
+            g: false,
+        }));
+        if (grouped && newSortBy.length > 0){
+            newSortBy[0].g = true;
+        }
+
+        setSortBy(newSortBy);
         onClose();
-    }, [orders]);
+    }, [orders, grouped]);
 
     const reset = useCallback(() => {
         setSortBy([]);
@@ -115,7 +122,12 @@ export default function EditSortBy({
             const indexA = orders.findIndex(f => f.a === active.id);
             const indexB = orders.findIndex(f => f.a === over.id);
 
-            setOrders(prev => arrayMove(prev, indexA, indexB));
+            setOrders(prev => {
+                const n = arrayMove(prev, indexA, indexB);
+                n[indexB].enabled = true;
+
+                return n;
+            });
         }
     }
 
@@ -164,6 +176,28 @@ export default function EditSortBy({
             p: 1,
             pb: 0,
         }}>
+            <Box
+                sx={{
+                    display: 'inline-block',
+                    mr: 2,
+                }}
+            >
+                <FormControlLabel
+                    control={<Checkbox
+                        checked={grouped}
+                        onChange={(e, value) => setGrouped(value)}
+                    />}
+                    label={<ListItem disableGutters={true}>
+                        <ListItemText
+                            primary={`Group by sections`}
+                            secondary={`Add group separators between results`}
+                        >
+
+                        </ListItemText>
+                    </ListItem>}
+                    labelPlacement="end"
+                />
+            </Box>
             <Button
                 onClick={reset}
                 color={'warning'}

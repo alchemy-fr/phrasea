@@ -17,6 +17,11 @@ final class PrivacyFacet extends AbstractLabelledFacet
         return WorkspaceItemPrivacyInterface::LABELS[$value];
     }
 
+    protected function resolveKey($value): string
+    {
+        return (string) $value;
+    }
+
     public function getFieldName(): string
     {
         return 'privacy';

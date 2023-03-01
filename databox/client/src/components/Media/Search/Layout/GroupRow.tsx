@@ -7,6 +7,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import {AttributeType} from "../../../../api/attributes";
 import {AttributeFormat} from "../../Asset/Attribute/types/types";
 import {getAttributeType} from "../../Asset/Attribute/types";
+import {groupValueTypes} from "./GroupValue/types";
 
 type Props = PropsWithChildren<{
     asset: Asset;
@@ -27,6 +28,7 @@ export default function GroupRow({
     const {
         values,
         type,
+        name,
     } = groupValue;
 
     const toggleFormatClass = 'toggle-format';
@@ -67,7 +69,7 @@ export default function GroupRow({
                 />
             </IconButton>}
             {values.length > 0 ? values.map((v, i) => <span key={i}>
-                {formatAttribute(type, v, formatContext.formats[type])}
+                {groupValueTypes[name] ? groupValueTypes[name](v) : formatAttribute(type, v, formatContext.formats[type])}
             </span>) : 'None'}
         </SectionDivider>
         {children}

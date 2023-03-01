@@ -48,11 +48,19 @@ final class CollectionFacet extends AbstractFacet
     }
 
     /**
-     * @param CollectionAsset $value
+     * @param Collection $value
      */
     public function resolveLabel($value): string
     {
-        return $value->getCollection()->getTitle();
+        return $value->getTitle();
+    }
+
+    /**
+     * @param Collection $value
+     */
+    protected function resolveKey($value): string
+    {
+        return $value->getId();
     }
 
     public function getFieldName(): string
@@ -68,6 +76,11 @@ final class CollectionFacet extends AbstractFacet
     public function getValueFromAsset(Asset $asset)
     {
         return $asset->getCollections();
+    }
+
+    protected function resolveItem($value)
+    {
+        return $value;
     }
 
     protected function getAggregationTitle(): string
