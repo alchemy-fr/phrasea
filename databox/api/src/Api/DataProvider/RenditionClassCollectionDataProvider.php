@@ -27,7 +27,11 @@ class RenditionClassCollectionDataProvider implements ContextAwareCollectionData
         $criteria = [];
         $filters = $context['filters'] ?? [];
 
-        $classes = $this->em->getRepository(RenditionClass::class)->findBy($filters);
+        if (isset($filters['workspaceId'])) {
+            $criteria['workspace'] = $filters['workspaceId'];
+        }
+
+        $classes = $this->em->getRepository(RenditionClass::class)->findBy($criteria);
 
         return array_filter($classes, function (RenditionClass $renditionClass): bool {
             return $this->security->isGranted(RenditionClassVoter::READ, $renditionClass);

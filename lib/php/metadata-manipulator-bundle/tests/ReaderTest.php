@@ -8,42 +8,20 @@ use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroup\IFD0\Artist;
-use PHPExiftool\Reader;
 use PHPUnit\Framework\TestCase;
 
 class ReaderTest extends TestCase
 {
+    const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+
     private ?MetadataManipulator $service = null;
-    private ?Reader $reader = null;
-
-    public static function setUpBeforeClass(): void
-    {
-        // _r will be used for read tests
-        copy(__DIR__.'/fixtures/Metadata_test_file.jpg', __DIR__.'/fixtures/Metadata_test_file_r.jpg');
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        unlink(__DIR__.'/fixtures/Metadata_test_file_r.jpg');
-    }
 
     /**
-     * @covers \MetadataManipulator::getReader
-     */
-    protected function setup(): void
-    {
-        $this->service = new MetadataManipulator();
-        $this->reader = $this->service->getReader();
-
-        $this->assertNotNull($this->reader);
-    }
-
-    /**
-     * @covers \MetadataManipulator::getAllMetadata
+     * @covers MetadataManipulator::getAllMetadata
      */
     public function testRead(): void
     {
-        $meta = $this->service->getAllMetadata(new \SplFileObject(__DIR__.'/fixtures/Metadata_test_file_r.jpg'));
+        $meta = $this->service->getAllMetadata(new \SplFileObject(self::TEST_IMAGE_FILE));
         self::assertInstanceOf(MetadataBag::class, $meta);
 
         $artist = $meta->get('IFD0:Artist');
@@ -56,13 +34,18 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers \MetadataManipulator::getAllMetadata
+     * @covers MetadataManipulator::getAllMetadata
      */
-    public function testGetUnknow(): void
+    public function testGetUnknown(): void
     {
-        $meta = $this->service->getAllMetadata(new \SplFileObject(__DIR__.'/fixtures/Metadata_test_file_r.jpg'));
+        $meta = $this->service->getAllMetadata(new \SplFileObject(self::TEST_IMAGE_FILE));
         self::assertInstanceOf(MetadataBag::class, $meta);
 
         $this->assertNull($meta->get('unknownTagGroup'));
+    }
+
+    protected function setup(): void
+    {
+        $this->service = new MetadataManipulator();
     }
 }

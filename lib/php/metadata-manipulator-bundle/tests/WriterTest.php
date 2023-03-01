@@ -12,36 +12,17 @@ use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase
 {
+    const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+    const TEST_IMAGE_WRITABLE_FILE = __DIR__.'/fixtures/image_w.jpg';
+
     private ?MetadataManipulator $service = null;
-    private ?Reader $reader = null;
-
-    public static function setUpBeforeClass(): void
-    {
-        // _w will be used for write tests
-        copy(__DIR__.'/fixtures/Metadata_test_file.jpg', __DIR__.'/fixtures/Metadata_test_file_w.jpg');
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        unlink(__DIR__.'/fixtures/Metadata_test_file_w.jpg');
-    }
 
     /**
-     * @covers \MetadataManipulator::getReader
-     */
-    protected function setup(): void
-    {
-        $this->service = new MetadataManipulator();
-        $this->reader = $this->service->getReader();
-        $this->assertNotNull($this->reader);
-    }
-
-    /**
-     * @covers \MetadataManipulator::createMetadata
+     * @covers MetadataManipulator::createMetadata
      */
     public function testWrite(): void
     {
-        $file = new \SplFileObject(__DIR__.'/fixtures/Metadata_test_file_w.jpg');
+        $file = new \SplFileObject(self::TEST_IMAGE_WRITABLE_FILE);
         $bag = new MetadataBag();
 
         $artist = $this->service->createMetadata('IFD0:Artist')->setValue('John Doe');
@@ -62,12 +43,30 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @covers \MetadataManipulator::createMetadata
+     * @covers MetadataManipulator::createMetadata
      */
-    public function testWriteUnknow(): void
+    public function testWriteUnknown(): void
     {
         $this->expectException(UnknownTagGroupNameException::class);
 
         $this->service->createMetadata('unknownTagGroup')->setValue('John Doe');
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+        copy(self::TEST_IMAGE_FILE, self::TEST_IMAGE_WRITABLE_FILE);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        unlink(self::TEST_IMAGE_WRITABLE_FILE);
+    }
+
+    /**
+     * @covers MetadataManipulator::getReader
+     */
+    protected function setup(): void
+    {
+        $this->service = new MetadataManipulator();
     }
 }
