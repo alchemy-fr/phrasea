@@ -7,7 +7,6 @@ namespace App\Tests\MetadataManipulator;
 use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupNameException;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\MetadataBag;
-use PHPExiftool\Reader;
 use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase

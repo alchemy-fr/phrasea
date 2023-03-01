@@ -28,7 +28,7 @@ class MetadataManipulator
 
     public static function getKnownTagGroups(): array
     {
-        if (null  === self::$knownTagGroups) {
+        if (null === self::$knownTagGroups) {
             self::$knownTagGroups = PHPExiftool::getKnownTagGroups();
         }
 
