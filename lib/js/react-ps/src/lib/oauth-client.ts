@@ -202,10 +202,12 @@ export default class OAuthClient {
 
     public createAuthorizeUrl({
                                   redirectPath = '/auth',
-                                  connectTo
+                                  connectTo,
+                                  state,
                               }: {
         redirectPath?: string;
         connectTo?: string | undefined;
+        state?: string | undefined;
     }): string {
         const baseUrl = [
             window.location.protocol,
@@ -214,7 +216,7 @@ export default class OAuthClient {
         ].join('');
 
         const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
-        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}`;
+        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
 
         return `${this.baseUrl}/oauth/v2/auth?${queryString}`;
     }

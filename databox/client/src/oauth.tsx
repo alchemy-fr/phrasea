@@ -18,6 +18,7 @@ export default function OAuthRedirect() {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
+        const state = params.get('state');
 
         oauthClient
             .getAccessTokenFromAuthCode(
@@ -25,6 +26,14 @@ export default function OAuthRedirect() {
                 window.location.href.split('?')[0]
             )
             .then(() => {
+                if (state) {
+                    const dState = JSON.parse(state);
+                    if (typeof dState === 'object' && dState.hasOwnProperty('r')) {
+                        navigate(dState.r);
+
+                        return;
+                    }
+                }
                 navigate(getPath('app'));
             }, (e: Error) => {
                 toast.error(e.toString());

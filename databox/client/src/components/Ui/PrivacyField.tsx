@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import MenuItem from '@mui/material/MenuItem';
-import {Checkbox, FormControl, FormControlLabel, InputLabel, Select} from "@mui/material";
+import {Checkbox, FormControl, FormControlLabel, InputLabel, ListItemText, Select} from "@mui/material";
 import {SelectChangeEvent} from "@mui/material/Select/SelectInput";
 import {useController} from "react-hook-form";
 import {Control} from "react-hook-form/dist/types/form";
@@ -8,10 +8,10 @@ import {FieldPath} from "react-hook-form/dist/types";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import {useTranslation} from "react-i18next";
 
-const choices: { [key: string]: string } = {
-    secret: 'Secret',
-    private: 'Private',
-    public: 'Public',
+const choices: { [key: string]: {label: string; helper?: string} } = {
+    secret: {label: 'Secret'},
+    private: {label: 'Private', helper: 'Users can request access'},
+    public: {label: 'Public'},
 }
 
 function getValue(value: string, workspace: boolean, auth: boolean): number {
@@ -56,7 +56,7 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
     const {
-        field: {onChange, onBlur, ref, value},
+        field: {onChange, value},
     } = useController<TFieldValues>({
         control,
         name,
@@ -95,7 +95,10 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                 key={k}
                 value={k}
             >
-                {choices[k]}
+                <ListItemText
+                    primary={choices[k].label}
+                    secondary={choices[k].helper}
+                />
             </MenuItem>)}
         </Select>
         {['private', 'public'].includes(privacy) && <FormControlLabel
