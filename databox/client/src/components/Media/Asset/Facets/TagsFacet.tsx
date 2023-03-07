@@ -1,63 +1,45 @@
-import React, {useContext} from 'react';
-import {Checkbox, List, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
-import {extractLabelValueFromKey, FacetGroupProps} from "../Facets";
-import {SearchContext} from "../../Search/SearchContext";
+import React from 'react';
+import {Box, Checkbox, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
+import {FacetGroupProps} from "../Facets";
+import {ListFacetItemProps} from "./TextFacetItem";
+import ListFacet from "./ListFacet";
 
-export default function TagsFacet({
-    facet,
-    name,
-}: FacetGroupProps) {
-    const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
-    const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
-    const {type} = facet.meta;
+function TagFacetItem({
+    onClick,
+    selected,
+    labelValue,
+    count,
+}: ListFacetItemProps) {
+    const {item, label, value} = labelValue;
 
-    const missingOnClick = () => {
-        toggleAttrFilter(name, 'missing', '', facet.meta.title);
-    };
-    const missingSelected = Boolean(attrFilter && attrFilter.v.some(v => extractLabelValueFromKey(v, type).value === ''));
-
-    return <>
-        <List component="div" disablePadding>
-            {facet.buckets.map(b => {
-                const {value: keyV, label} = extractLabelValueFromKey(b.key, type);
-
-                const selected = Boolean(attrFilter && attrFilter.v.some(v => extractLabelValueFromKey(v, type).value === keyV));
-
-                const onClick = () => toggleAttrFilter(name, facet.meta.type, b.key, facet.meta.title);
-
-                return <ListItemButton
-                    key={keyV.toString()}
-                    onClick={onClick}
-                >
-                    <ListItemText secondary={`${label} (${b.doc_count})`}/>
-                    <ListItemSecondaryAction>
-                        <Checkbox
-                            edge="end"
-                            onChange={onClick}
-                            checked={selected || false}
-                            inputProps={{'aria-labelledby': keyV as string}}
-                        />
-                    </ListItemSecondaryAction>
-                </ListItemButton>
+    return <ListItemButton
+        onClick={onClick}
+    >
+        <Box
+            sx={theme => ({
+                width: 30,
+                height: 22,
+                backgroundColor: item!.color,
+                border: `0.5px solid ${theme.palette.common.black}`,
+                mr: 1,
+                borderRadius: theme.shape.borderRadius,
             })}
-            {facet.missing_count ? <ListItemButton
-                onClick={missingOnClick}
-            >
-                <ListItemText
-                    secondary={`Missing (${facet.missing_count})`}
-                    secondaryTypographyProps={{
-                        color: 'info',
-                    }}
-                />
-                <ListItemSecondaryAction>
-                    <Checkbox
-                        edge="end"
-                        onChange={missingOnClick}
-                        checked={missingSelected}
-                        inputProps={{'aria-labelledby': 'Missing'}}
-                    />
-                </ListItemSecondaryAction>
-            </ListItemButton> : ''}
-        </List>
-    </>
+        />
+        <ListItemText secondary={`${label} (${count})`}/>
+        <ListItemSecondaryAction>
+            <Checkbox
+                edge="end"
+                onChange={onClick}
+                checked={selected}
+                inputProps={{'aria-labelledby': value.toString()}}
+            />
+        </ListItemSecondaryAction>
+    </ListItemButton>
+}
+
+export default function TagsFacet(props: FacetGroupProps) {
+    return <ListFacet
+        {...props}
+        itemComponent={TagFacetItem}
+    />
 }

@@ -334,7 +334,17 @@ App\Entity\Core\Attribute:
     asset: '@a_*'
 
 App\Entity\Core\Tag:
-  tag_{offline, online, embargo_it, embargo_fr}:
+  tag_offline:
+    name: offline
+    color: '#FF0000'
+    workspace: '@w_newspaper'
+
+  tag_online:
+    name: online
+    color: '#7EF284'
+    workspace: '@w_newspaper'
+
+  tag_{embargo_it, embargo_fr}:
     name: '<current()>'
     workspace: '@w_newspaper'
 

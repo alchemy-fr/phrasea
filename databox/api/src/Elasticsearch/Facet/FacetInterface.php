@@ -12,7 +12,7 @@ interface FacetInterface
 {
     public function normalizeBucket(array $bucket): ?array;
 
-    public function resolveGroupValue($value): GroupValue;
+    public function resolveGroupValue(string $name, $value): GroupValue;
 
     public function getFieldName(): string;
 

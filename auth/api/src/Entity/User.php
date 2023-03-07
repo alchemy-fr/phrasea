@@ -343,4 +343,9 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
 
         return count($this->getRoles()) === count($user->getRoles()) && empty(array_diff($this->getRoles(), $user->getRoles()));
     }
+
+    public function __toString()
+    {
+        return $this->getUsername() ?? $this->getId();
+    }
 }

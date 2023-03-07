@@ -29,6 +29,27 @@ class DateAttributeType extends DateTimeAttributeType
             return $date->format(DateTimeInterface::ATOM);
         }
 
-        return $value ?? '';
+        return parent::getGroupValueLabel($value);
+    }
+
+    /**
+     * @return DateTimeImmutable|null
+     */
+    public function denormalizeValue(?string $value)
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        try {
+            $date = DateTimeImmutable::createFromFormat('Y-m-d', $value);
+            if (false === $date) {
+                return parent::denormalizeValue($value);
+            }
+
+            return $date;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

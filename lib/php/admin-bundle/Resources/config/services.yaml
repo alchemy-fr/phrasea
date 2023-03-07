@@ -54,3 +54,5 @@ services:
     arguments:
       $siteTitle: '%alchemy_admin.site_title%'
       $siteLogo: '%alchemy_admin.site_logo%'
+
+  Alchemy\AdminBundle\Listener\EasyAdminListener: ~

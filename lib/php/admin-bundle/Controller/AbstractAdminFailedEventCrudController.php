@@ -6,12 +6,13 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\FailedEvent;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Model\FailedEventManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -19,7 +20,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudController
 {
     private EventProducer $eventProducer;
-    private FailedEventManager $failedEventManager;
     private EntityManagerInterface $em;
 
     public static function getEntityFqcn(): string
@@ -29,9 +29,17 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
 
     public function configureActions(Actions $actions): Actions
     {
+        $replayAction = Action::new('replay', 'Replay')
+            ->linkToCrudAction('replayEvent');
+
         return $actions
+            ->add(Crud::PAGE_INDEX, $replayAction)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::NEW);
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->addBatchAction(Action::new('replayAll', 'Replay all')
+                ->linkToCrudAction('replayEvents')
+                ->addCssClass('btn btn-primary')
+            );
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -64,52 +72,44 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
         return [];
     }
 
-    protected function replayAction()
+    public function replayEvent(AdminContext $context)
     {
-        $id = $this->request->query->get('id');
-        /** @var \Arthem\Bundle\RabbitBundle\Model\FailedEvent $failedEvent */
-        $failedEvent = $this->getFailedEventRepository()->find($id);
+        $failedEvent = $context->getEntity()->getInstance();
 
-        $this->getEventProducer()->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
+        $this->eventProducer->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
 
         $this->addFlash('success', 'Message has been requeued');
 
         $this->em->remove($failedEvent);
         $this->em->flush();
 
-        return $this->redirectToRoute('easyadmin',
-            [
-                'action' => 'list',
-                'entity' => $this->request->query->get('entity'),
-            ]);
+        return $this->redirect($context->getReferrer());
     }
 
-    protected function replayBatchAction(array $ids)
+    public function replayEvents(BatchActionDto $batchActionDto)
     {
-        foreach ($ids as $id) {
+        $repo = $this->em->getRepository($batchActionDto->getEntityFqcn());
+
+        foreach ($batchActionDto->getEntityIds() as $id) {
             /** @var FailedEvent $failedEvent */
-            $failedEvent = $this->failedEventManager->getRepository()->find($id);
-            if ($failedEvent instanceof FailedEvent) {
-                $this->eventProducer->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
-                $this->em->remove($failedEvent);
+            $failedEvent = $repo->find($id);
+            if (!$failedEvent instanceof FailedEvent) {
+                continue;
             }
+
+            $this->eventProducer->publish(new EventMessage($failedEvent->getType(), $failedEvent->getPayload()));
+            $this->em->remove($failedEvent);
         }
 
         $this->em->flush();
 
-        $this->addFlash('success', 'Messages have been requeued');
+        return $this->redirect($batchActionDto->getReferrerUrl());
     }
 
     /** @required */
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;
-    }
-
-    /** @required */
-    public function setFailedEventManager(FailedEventManager $failedEventManager): void
-    {
-        $this->failedEventManager = $failedEventManager;
     }
 
     /** @required */

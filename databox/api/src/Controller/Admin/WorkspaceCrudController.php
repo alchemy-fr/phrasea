@@ -9,6 +9,7 @@ use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -40,6 +41,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         $id = IdField::new();
         $name = TextField::new('name');
         $slug = TextField::new('slug');
+        $isPublic = BooleanField::new('public');
         $ownerId = TextField::new('ownerId');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $enabledLocales = ArrayField::new('enabledLocales');
@@ -56,13 +58,13 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         $files = AssociationField::new('files');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $updatedAt, $createdAt];
+            return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $isPublic, $updatedAt, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $ownerId, $config, $enabledLocales, $localeFallbacks, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
+            return [$id, $name, $slug, $ownerId, $config, $enabledLocales, $localeFallbacks, $isPublic, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks];
+            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks, $isPublic];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks];
+            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks, $isPublic];
         }
 
         return [];

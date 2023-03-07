@@ -8,11 +8,17 @@ import useHash from "../../../lib/useHash";
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     return sortBy.length > 0 ? sortBy : [
         {
+            a: BuiltInFilter.Score,
+            t: 'Relevance',
+            w: 1,
+            g: false,
+        },
+        {
             a: BuiltInFilter.CreatedAt,
             t: 'Creation date',
             w: 1,
             g: false,
-        }
+        },
     ];
 }
 
@@ -197,8 +203,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
             geolocation,
         }),
         reloadInc,
-        sortBy: resolvedSortBy,
-        setSortBy: setSortBy,
+        sortBy,
+        setSortBy,
         geolocation,
         setGeoLocation,
     }}>

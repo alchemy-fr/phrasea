@@ -243,9 +243,6 @@ class AssetSearch extends AbstractSearch
 
     private function applySort(Query $query, array $options): void
     {
-        $sort = [
-            '_score',
-        ];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
                 $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
@@ -258,7 +255,10 @@ class AssetSearch extends AbstractSearch
                 $sort[] = [$esFieldInfo['name'] => $w];
             }
         } else {
-            $sort[] = ['createdAt' => 'DESC'];
+            $sort[] = [
+                '_score' => 'DESC',
+                'createdAt' => 'DESC'
+            ];
         }
 
         $sort[] = ['microseconds' => 'DESC'];

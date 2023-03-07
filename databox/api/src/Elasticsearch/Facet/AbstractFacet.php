@@ -18,7 +18,7 @@ abstract class AbstractFacet implements FacetInterface
         return TextAttributeType::NAME;
     }
 
-    public function resolveGroupValue($value): GroupValue
+    public function resolveGroupValue(string $name, $value): GroupValue
     {
         if ($value instanceof Collection) {
             $keys = [];
@@ -27,13 +27,15 @@ abstract class AbstractFacet implements FacetInterface
             foreach ($value as $item) {
                 $item = $this->resolveCollectionItem($item);
                 $keys[] = $this->resolveKey($item);
-                $values[] = $this->resolveItem($item);
+                $values[] = $this->resolveItem($item) ?? $this->resolveLabel($item);
             }
 
-            return new GroupValue($this->getType(), implode(',', $keys), $values);
+            return new GroupValue($name, $this->getType(), implode(',', $keys), $values);
         }
 
-        return new GroupValue($this->getType(), $this->resolveKey($value), [$this->resolveItem($value) ?? $this->resolveLabel($value)]);
+        $item = $this->resolveCollectionItem($value);
+
+        return new GroupValue($name, $this->getType(), $this->resolveKey($item), [$this->resolveItem($item) ?? $this->resolveLabel($item)]);
     }
 
     public function normalizeBucket(array $bucket): ?array

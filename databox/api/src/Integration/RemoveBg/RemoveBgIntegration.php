@@ -8,6 +8,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
+use App\Integration\ApiBudgetLimiter;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
 use InvalidArgumentException;
@@ -21,10 +22,12 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
     private const ACTION_PROCESS = 'process';
 
     private RemoveBgClient $client;
+    private ApiBudgetLimiter $apiBudgetLimiter;
 
-    public function __construct(RemoveBgClient $client)
+    public function __construct(RemoveBgClient $client, ApiBudgetLimiter $apiBudgetLimiter)
     {
         $this->client = $client;
+        $this->apiBudgetLimiter = $apiBudgetLimiter;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -38,6 +41,12 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
                 ->defaultFalse()
             ->end()
         ;
+
+        $builder->append($this->createBudgetLimitConfigNode(
+            true,
+            5,
+            '1 day'
+        ));
     }
 
     public function handleAsset(Asset $asset, array $config): void
@@ -62,6 +71,8 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
 
     private function process(File $file, array $config): File
     {
+        $this->apiBudgetLimiter->acceptIntegrationApiCall($config, 1);
+
         $src = $this->client->getBgRemoved($file, $config['apiKey']);
 
         $bgRemFile = $this->fileManager->createFileFromPath(

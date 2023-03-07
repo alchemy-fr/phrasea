@@ -136,9 +136,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Jq\\": "src/stub/jq.stub.php",
             "App\\": "src/"
-        }
+        },
+        "Jq\\": "src/stub/jq.stub.php"
     },
     "autoload-dev": {
         "psr-4": {

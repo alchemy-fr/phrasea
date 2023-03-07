@@ -32,7 +32,7 @@ class DateTimeAttributeType extends AbstractAttributeType
             return $value->format(DateTimeInterface::ATOM);
         }
 
-        return $value ?? '';
+        return parent::getGroupValueLabel($value);
     }
 
     public function createFilterQuery(string $field, $value): AbstractQuery
@@ -107,7 +107,12 @@ class DateTimeAttributeType extends AbstractAttributeType
         }
 
         try {
-            return DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value);
+            $date = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value);
+            if (false === $date) {
+                return null;
+            }
+
+            return $date;
         } catch (Throwable $e) {
             return null;
         }
