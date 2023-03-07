@@ -1257,6 +1257,39 @@ services:
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
+  n8n:
+    image: n8nio/n8n:0.218.0
+    networks:
+      - internal
+    volumes:
+      - n8n:/home/node/.n8n
+    environment:
+      - EXECUTIONS_MODE=queue
+      - N8N_HOST=n8n.${PHRASEA_DOMAIN}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=development
+      - WEBHOOK_URL=https://n8n.${PHRASEA_DOMAIN}/
+      - N8N_LOG_LEVEL=debug
+      - WEBHOOK_TUNNEL_URL=https://n8n.${PHRASEA_DOMAIN}/
+    labels:
+      - "traefik.http.middlewares.n8n.headers.SSLRedirect=true"
+      - "traefik.http.middlewares.n8n.headers.STSSeconds=315360000"
+      - "traefik.http.middlewares.n8n.headers.browserXSSFilter=true"
+      - "traefik.http.middlewares.n8n.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.n8n.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.n8n.headers.SSLHost=${PHRASEA_DOMAIN}"
+      - "traefik.http.middlewares.n8n.headers.STSIncludeSubdomains=true"
+      - "traefik.http.middlewares.n8n.headers.STSPreload=true"
+      - "traefik.http.routers.n8n.middlewares=n8n@docker"
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+    extra_hosts:
+      - n8n.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
 volumes:
   db_vol:
   redis_vol:
@@ -1270,3 +1303,4 @@ volumes:
   expose_nginx_cache:
   zippy_vol:
   keycloak_vol:
+  n8n:
