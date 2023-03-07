@@ -53,7 +53,7 @@ export default class Root extends PureComponent<{}, State> {
     public logout = () => {
         oauthClient.logout();
         if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
+            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.href)}`;
         }
     }
 

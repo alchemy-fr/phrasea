@@ -15,7 +15,7 @@ export default function Login() {
             const from = state?.from;
             document.location.href = oauthClient.createAuthorizeUrl({
                 connectTo: config.get('autoConnectIdP') || undefined,
-                state: from ? JSON.stringify({r: from}) : undefined,
+                state: from ? btoa(JSON.stringify({r: from})) : undefined,
             });
         }
     }, []);

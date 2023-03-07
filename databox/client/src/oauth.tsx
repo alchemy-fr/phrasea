@@ -27,7 +27,7 @@ export default function OAuthRedirect() {
             )
             .then(() => {
                 if (state) {
-                    const dState = JSON.parse(state);
+                    const dState = JSON.parse(atob(state));
                     if (typeof dState === 'object' && dState.hasOwnProperty('r')) {
                         navigate(dState.r);
 

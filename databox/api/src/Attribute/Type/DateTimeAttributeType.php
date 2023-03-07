@@ -32,7 +32,7 @@ class DateTimeAttributeType extends AbstractAttributeType
             return $value->format(DateTimeInterface::ATOM);
         }
 
-        return $value ?? '';
+        return parent::getGroupValueLabel($value);
     }
 
     public function createFilterQuery(string $field, $value): AbstractQuery

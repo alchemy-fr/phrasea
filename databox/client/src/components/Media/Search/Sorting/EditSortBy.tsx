@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {Box, Button, Checkbox, FormControlLabel, ListItem, ListItemText, Switch, Typography} from "@mui/material";
+import {Box, Button, Checkbox, FormControlLabel, ListItem, ListItemText, Typography} from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from "../SearchContext";
@@ -17,8 +17,7 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import {arrayMove, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
-import CheckboxWidget from "../../../Form/CheckboxWidget";
-import {Controller} from "react-hook-form";
+import {BuiltInFilter} from "../search";
 
 type Props = {
     onClose: () => void;
@@ -75,6 +74,9 @@ export default function EditSortBy({
 
     const [orders, setOrders] = useState<TogglableSortBy[]>(list);
 
+    const enabledOrders = orders.filter(s => s.enabled);
+    const groupDisabled = enabledOrders.length > 0 && enabledOrders[0].a === BuiltInFilter.Score;
+
     useEffect(() => {
         setOrders(list);
     }, [list]);
@@ -86,7 +88,8 @@ export default function EditSortBy({
             a: s.a,
             g: false,
         }));
-        if (grouped && newSortBy.length > 0){
+
+        if (!groupDisabled && grouped && newSortBy.length > 0){
             newSortBy[0].g = true;
         }
 
@@ -186,6 +189,7 @@ export default function EditSortBy({
                     control={<Checkbox
                         checked={grouped}
                         onChange={(e, value) => setGrouped(value)}
+                        disabled={groupDisabled}
                     />}
                     label={<ListItem disableGutters={true}>
                         <ListItemText

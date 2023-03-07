@@ -29,7 +29,7 @@ class DateAttributeType extends DateTimeAttributeType
             return $date->format(DateTimeInterface::ATOM);
         }
 
-        return $value ?? '';
+        return parent::getGroupValueLabel($value);
     }
 
     /**

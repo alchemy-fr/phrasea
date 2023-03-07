@@ -32,9 +32,7 @@ class CollectionPostTransformListener implements EventSubscriberInterface
         $bestPrivacy = $collection->getBestPrivacyInParentHierarchy();
 
         if ($bestPrivacy < WorkspaceItemPrivacyInterface::PUBLIC) {
-            if (($descendantBestPrivacy = $collection->getBestPrivacyInDescendantHierarchy()) > $bestPrivacy) {
-                $bestPrivacy = $descendantBestPrivacy;
-            }
+            $bestPrivacy = max($bestPrivacy, $collection->getBestPrivacyInDescendantHierarchy());
         }
 
         [$users, $groups] = $this->discoverChildren($collection);
@@ -55,7 +53,7 @@ class CollectionPostTransformListener implements EventSubscriberInterface
         if (in_array(null, $users, true)) {
             $users = ['*'];
             $groups = [];
-            $bestPrivacy = WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS;
+            $bestPrivacy = max($bestPrivacy, WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
         }
 
         $document->set('hasChildren', !$collection->getChildren()->isEmpty());

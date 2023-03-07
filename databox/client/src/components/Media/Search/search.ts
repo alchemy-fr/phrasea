@@ -9,6 +9,7 @@ export enum BuiltInFilter {
     Collection = 'c',
     Workspace = 'w',
     CreatedAt = 'createdAt',
+    Score = 'score',
 }
 
 function encode(str: string): string {
