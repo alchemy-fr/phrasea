@@ -28,7 +28,7 @@ class MetadataManipulator
 
     public static function getKnownTagGroups(): array
     {
-        if (is_null(self::$knownTagGroups)) {
+        if (null === self::$knownTagGroups) {
             self::$knownTagGroups = PHPExiftool::getKnownTagGroups();
         }
 
@@ -42,12 +42,12 @@ class MetadataManipulator
 
     public function getReader(): Reader
     {
-        return Reader::create($this->logger ?: new NullLogger());
+        return Reader::create($this->logger ?? new NullLogger());
     }
 
     public function getWriter(): Writer
     {
-        return Writer::create($this->logger ?: new NullLogger());
+        return Writer::create($this->logger ?? new NullLogger());
     }
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface

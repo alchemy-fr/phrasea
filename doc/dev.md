@@ -57,7 +57,8 @@ bin/build.sh
 dc build dev
 
 # Install app dependencies
-bin/install-dev.sh
+dc run --rm dev bin/dev/composer-install.sh
+dc run --rm dev bin/dev/yarn-install.sh
 
 # Start the stack
 dc up -d

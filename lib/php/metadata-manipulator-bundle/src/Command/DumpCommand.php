@@ -6,7 +6,7 @@ namespace Alchemy\MetadataManipulatorBundle\Command;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\Metadata;
-use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,13 +15,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DumpCommand extends Command
 {
-    private LoggerInterface $logger;
     private MetadataManipulator $mm;
 
-    public function __construct(LoggerInterface $logger, MetadataManipulator $mm)
+    public function __construct(MetadataManipulator $mm)
     {
         parent::__construct();
-        $this->logger = $logger;
         $this->mm = $mm;
     }
 
@@ -45,25 +43,18 @@ class DumpCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->input = $input;
-        $this->output = $output;
-
-        if (is_null($filter = $input->getOption('filter'))) {
+        if (null === $filter = $input->getOption('filter')) {
             $filter = '';
         }
         $filter = '/'.$filter.'/';
-        /*
-         * dump the meta from a file
-         */
+
         if ($input->getArgument('file')) {
-            $logger = new \Symfony\Bridge\Monolog\Logger('PHPExiftool');
+            $logger = new Logger('PHPExiftool');
             $reader = $this->mm->getReader($logger);
             $reader->files($input->getArgument('file'));
             $metadataBag = $reader->first();
 
-            /**
-             * @var Metadata $meta
-             */
+            /** @var Metadata $meta */
             foreach ($metadataBag as $meta) {
                 $tagGroup = $meta->getTagGroup();
                 $id = $tagGroup->getId();
@@ -82,7 +73,7 @@ class DumpCommand extends Command
                 }
             }
         } else {
-            // no file arg ? dump the dictionnary
+            // no file arg: dump the dictionary
             foreach ($this->mm->getKnownTagGroups() as $tagGroup) {
                 if (preg_match($filter, $tagGroup)) {
                     $output->writeln($tagGroup);
