@@ -4,11 +4,11 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FormRow from "../Form/FormRow";
 import SwitchWidget from "../Form/SwitchWidget";
 import {useAssetDataTemplateOptions} from "../Media/Asset/Attribute/useAssetDataTemplateOptions";
-import FormFieldErrors from "../Form/FormFieldErrors";
 
 
 type Props = {
     usedAssetDataTemplateOptions: ReturnType<typeof useAssetDataTemplateOptions>;
+    formRef: React.MutableRefObject<HTMLFormElement | null>;
 };
 
 export default function SaveAsTemplateForm({
@@ -19,7 +19,6 @@ export default function SaveAsTemplateForm({
     const {
         control,
         register,
-        formState: {errors}
     } = usedForm;
 
     return <>
@@ -41,17 +40,12 @@ export default function SaveAsTemplateForm({
                 <AccordionDetails>
                     <FormRow>
                         <TextField
-                            error={Boolean(errors.name)}
                             label={'Template name'}
                             placeholder={`My template...`}
                             {...register('name', {
                                 required: true,
                             })}
                             required={true}
-                        />
-                        <FormFieldErrors
-                            field={'name'}
-                            errors={errors}
                         />
                     </FormRow>
                     <FormRow>

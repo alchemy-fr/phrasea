@@ -32,11 +32,6 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
      */
     private ?string $value = null;
 
-    /**
-     * Resolved by PHP.
-     */
-    private ?array $values = null;
-
     public function getValue(): ?string
     {
         return $this->value;
@@ -81,15 +76,5 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getValues(): ?array
-    {
-        return $this->values;
-    }
-
-    public function setValues(?array $values): void
-    {
-        $this->values = $values;
     }
 }

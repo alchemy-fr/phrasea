@@ -6,14 +6,8 @@ resources:
         groups:
           - asset-data-template:index
       input: App\Api\Model\Input\Template\AssetDataTemplateInput
-      output: App\Api\Model\Output\Template\AssetDataTemplateOutput
     itemOperations:
-      get:
-        security: 'is_granted("READ", object)'
-        normalization_context:
-          groups:
-            - asset-data-template:index
-            - asset-data-template:read
+      get: ~
       delete:
         security: 'is_granted("DELETE", object)'
       put:

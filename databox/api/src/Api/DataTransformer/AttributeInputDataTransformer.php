@@ -31,7 +31,7 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
 
         if ($isNew) {
             $object->setAsset($data->asset);
-            $object->setDefinition($this->getAttributeDefinitionFromInput($data, null, $context));
+            $object->setDefinition($this->getAttributeDefinitionFromInput($data, null));
         }
 
         $this->attributeAssigner->assignAttributeFromInput($object, $data);

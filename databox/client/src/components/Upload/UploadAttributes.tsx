@@ -11,7 +11,6 @@ type Props = {
 export default function UploadAttributes({
     usedAttributeEditor
 }: Props) {
-
     const {
         attributes,
         definitionIndex,
