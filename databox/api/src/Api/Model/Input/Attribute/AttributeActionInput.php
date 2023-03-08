@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-class AttributeActionInput extends AbstractAttributeInput
+class AttributeActionInput extends AbstractExtendedAttributeInput
 {
     /**
      * Attribute ID.
      */
     public ?string $id = null;
-
-    /**
-     * Attribute definition name.
-     */
-    public ?string $name = null;
-
-    public ?string $definitionId = null;
 
     /**
      * Available actions:

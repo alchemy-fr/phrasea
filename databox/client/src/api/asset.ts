@@ -163,6 +163,7 @@ export type NewAssetPostType = {
         sourceFile?: string | undefined;
         integration?: string | undefined;
     } | undefined;
+    attributes?: AttributeBatchAction[] | undefined;
 } & AssetApiInput;
 
 export async function postAsset(data: NewAssetPostType): Promise<Asset> {

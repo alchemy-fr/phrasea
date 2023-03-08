@@ -19,10 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
  * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
  */
-class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInterface
+class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
-    use CreatedAtTrait;
-    use UpdatedAtTrait;
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
     public const ORIGIN_FALLBACK = 2;
@@ -50,19 +48,9 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     private ?Asset $asset = null;
 
     /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
-    private ?string $locale = null;
-
-    /**
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $locked = false;
-
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private int $position = 0;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
@@ -97,11 +85,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
      * @ORM\JoinColumn(nullable=true)
      */
     private ?DoctrineCollection $translations = null;
-
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     */
-    private ?string $value = null;
 
     /**
      * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer.
@@ -185,16 +168,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setTranslationId(?string $translationId): void
     {
         $this->translationId = $translationId;
-    }
-
-    public function getValue(): ?string
-    {
-        return $this->value;
-    }
-
-    public function setValue(?string $value): void
-    {
-        $this->value = $value;
     }
 
     public function hasOrigin(): bool
@@ -282,21 +255,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         $this->confidence = $confidence;
     }
 
-    public function getLocale(): ?string
-    {
-        return $this->locale;
-    }
-
-    public function hasLocale(): bool
-    {
-        return null !== $this->locale;
-    }
-
-    public function setLocale(?string $locale): void
-    {
-        $this->locale = $locale;
-    }
-
     public function getSearchDeleteDependencies(): array
     {
         return [
@@ -334,16 +292,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
         $this->highlights = $highlights;
     }
 
-    public function setCreatedAt(DateTimeInterface $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function setUpdatedAt(DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
     public function getTranslationOrigin(): ?Attribute
     {
         return $this->translationOrigin;
@@ -357,16 +305,6 @@ class Attribute extends AbstractUuidEntity implements SearchDeleteDependencyInte
     public function setTranslationOriginHash(?string $translationOriginHash): void
     {
         $this->translationOriginHash = $translationOriginHash;
-    }
-
-    public function getPosition(): int
-    {
-        return $this->position;
-    }
-
-    public function setPosition(int $position): void
-    {
-        $this->position = $position;
     }
 
     public function isLocked(): bool

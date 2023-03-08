@@ -11,8 +11,10 @@ import {FormGroup, InputLabel} from "@mui/material";
 import TagSelect from "../Form/TagSelect";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 import UploadAttributes from "./UploadAttributes";
-import {OnAttributesChange, useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
+import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 import {Collection} from "../Media/Collection/CollectionsTreeView";
+import SaveAsTemplateForm from "./SaveAsTemplateForm";
+import {useAssetDataTemplateOptions} from "../Media/Asset/Attribute/useAssetDataTemplateOptions";
 
 export type UploadData = {
     destination: Collection;
@@ -24,6 +26,7 @@ export const UploadForm: FC<{
     workspaceId?: string | undefined;
     noDestination?: boolean | undefined;
     usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    usedAssetDataTemplateOptions: ReturnType<typeof useAssetDataTemplateOptions>;
     onChangeWorkspace: (wsId: string | undefined) => void;
 } & FormProps<UploadData>> = function ({
     formId,
@@ -33,6 +36,7 @@ export const UploadForm: FC<{
     workspaceId,
     noDestination,
     usedAttributeEditor,
+    usedAssetDataTemplateOptions,
     onChangeWorkspace,
 }) {
     const {t} = useTranslation();
@@ -41,7 +45,6 @@ export const UploadForm: FC<{
         handleSubmit,
         control,
         setError,
-        setValue,
         formState: {errors, isDirty}
     } = useForm<UploadData>({
         defaultValues: {
@@ -102,5 +105,9 @@ export const UploadForm: FC<{
         {workspaceId && <UploadAttributes
             usedAttributeEditor={usedAttributeEditor}
         />}
+
+        <SaveAsTemplateForm
+            usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
+        />
     </>
 }

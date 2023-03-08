@@ -48,9 +48,15 @@ App\Entity\Core\Attribute:
   properties:
     definition:
       - NotNull: ~
-    value:
-      - NotNull: ~
     origin:
+      - NotNull: ~
+
+App\Entity\Core\AbstractBaseAttribute:
+  constraints:
+    - App\Validator\UniqueAttributeConstraint: ~
+    - App\Validator\ValidAttributeConstraint: ~
+  properties:
+    value:
       - NotNull: ~
 
 App\Entity\Core\AttributeDefinition:

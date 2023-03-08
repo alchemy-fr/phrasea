@@ -1,0 +1,18 @@
+resources:
+  App\Entity\Template\AssetDataTemplate:
+    shortName: asset-data-template
+    attributes:
+      normalization_context:
+        groups:
+          - asset-data-template:index
+      input: App\Api\Model\Input\Template\AssetDataTemplateInput
+    itemOperations:
+      get: ~
+      delete:
+        security: 'is_granted("DELETE", object)'
+      put:
+        security: 'is_granted("EDIT", object)'
+    collectionOperations:
+      get: ~
+      post:
+        security_post_denormalize: 'is_granted("CREATE", object)'

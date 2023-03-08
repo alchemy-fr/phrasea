@@ -6,10 +6,14 @@ namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Entity\WithOwnerIdInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -18,7 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table()
  */
-class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
+class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -35,7 +39,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
      * @Groups({"data-tpl:index"})
      * @ORM\Column(type="boolean", nullable=false)
      */
-    private ?bool $public = null;
+    private bool $public = false;
 
     /**
      * @Groups({"data-tpl:index"})
@@ -56,7 +60,8 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     private ?DoctrineCollection $tags = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Template\TemplateAttribute", mappedBy="template", cascade={"persist", "remove"})
+     * @var TemplateAttribute[]
+     * @ORM\OneToMany(targetEntity=TemplateAttribute::class, mappedBy="template", cascade={"persist", "remove"})
      */
     private ?DoctrineCollection $attributes = null;
 
@@ -68,17 +73,29 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     private ?Collection $collection = null;
 
     /**
+     * @ORM\Column(type="smallint", nullable=true)
+     * @Groups({"data-tpl:index"})
+     */
+    private ?int $privacy = null;
+
+    /**
      * @Groups({"data-tpl:index"})
      * @ORM\Column(type="json")
      */
     private array $data = [];
 
-    public function getPublic(): ?bool
+    public function __construct()
+    {
+        parent::__construct();
+        $this->attributes = new ArrayCollection();
+    }
+
+    public function isPublic(): bool
     {
         return $this->public;
     }
 
-    public function setPublic(?bool $public): void
+    public function setPublic(bool $public): void
     {
         $this->public = $public;
     }
@@ -156,5 +173,25 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+    public function getPrivacy(): ?int
+    {
+        return $this->privacy;
+    }
+
+    public function setPrivacy(?int $privacy): void
+    {
+        $this->privacy = $privacy;
+    }
+
+    public function addAttribute(TemplateAttribute $attribute): void
+    {
+        $attribute->setTemplate($this);
+        $this->attributes->add($attribute);
+    }
+
+    public function __toString()
+    {
+        return $this->getName() ?? $this->getId();
     }
 }

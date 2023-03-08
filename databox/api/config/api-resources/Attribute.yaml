@@ -5,7 +5,7 @@ resources:
       normalization_context:
         groups:
           - attribute:index
-      input: App\Api\Model\Input\AttributeInput
+      input: App\Api\Model\Input\Attribute\AttributeInput
       output: App\Api\Model\Output\AttributeOutput
     itemOperations:
       get: ~

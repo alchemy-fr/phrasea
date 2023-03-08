@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Attribute\AttributeAssigner;
-use App\Entity\Core\Attribute;
+use App\Entity\Template\TemplateAttribute;
 
-class AttributeInputDataTransformer extends AbstractInputDataTransformer
+class TemplateAttributeInputDataTransformer extends AbstractInputDataTransformer
 {
     use AttributeInputTrait;
 
@@ -21,17 +21,19 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
     }
 
     /**
-     * @param AttributeInput $data
+     * @param TemplateAttributeInput $data
      */
     public function transform($data, string $to, array $context = [])
     {
+        $this->validator->validate($data);
+
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
-        /** @var Attribute $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Attribute();
+        /** @var TemplateAttribute $object */
+        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new TemplateAttribute();
 
         if ($isNew) {
-            $object->setAsset($data->asset);
-            $object->setDefinition($this->getAttributeDefinitionFromInput($data, null));
+            $object->setTemplate($data->template);
+            $object->setDefinition($this->getAttributeDefinitionFromInput($data, $object->getTemplate() ? $object->getTemplate()->getWorkspace() : null));
         }
 
         $this->attributeAssigner->assignAttributeFromInput($object, $data);
@@ -41,10 +43,10 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
 
     public function supportsTransformation($data, string $to, array $context = []): bool
     {
-        if ($data instanceof Attribute) {
+        if ($data instanceof TemplateAttribute) {
             return false;
         }
 
-        return Attribute::class === $to && AttributeInput::class === ($context['input']['class'] ?? null);
+        return TemplateAttribute::class === $to && TemplateAttributeInput::class === ($context['input']['class'] ?? null);
     }
 }
