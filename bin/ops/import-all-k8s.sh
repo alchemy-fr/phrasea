@@ -89,8 +89,13 @@ kubectl -n $NS wait --for=condition=Ready pod/${POD}
 TRUNC_SQL_FILE=/tmp/truncate-all-tables.sql
 
 cat <<'EOF' > ${TRUNC_SQL_FILE}
-SELECT 'DROP TABLE IF EXISTS "' || tablename || '" cascade;' FROM pg_tables;
-EOF
+DO $$ DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;EOF
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
