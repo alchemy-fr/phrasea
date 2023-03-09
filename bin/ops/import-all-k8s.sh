@@ -89,10 +89,7 @@ kubectl -n $NS wait --for=condition=Ready pod/${POD}
 TRUNC_SQL_FILE=/tmp/truncate-all-tables.sql
 
 cat <<'EOF' > ${TRUNC_SQL_FILE}
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO public;
+SELECT 'DROP TABLE IF EXISTS "' || tablename || '" cascade;' FROM pg_tables;
 EOF
 
 for d in ${DATABASES}; do
