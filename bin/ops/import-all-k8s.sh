@@ -89,19 +89,10 @@ kubectl -n $NS wait --for=condition=Ready pod/${POD}
 TRUNC_SQL_FILE=/tmp/truncate-all-tables.sql
 
 cat <<'EOF' > ${TRUNC_SQL_FILE}
-CREATE OR REPLACE FUNCTION truncate_tables() RETURNS void AS $$
-DECLARE
-statements CURSOR FOR
-SELECT tablename FROM pg_tables
-WHERE schemaname = 'public' AND tablename NOT IN('oauth_client');
-BEGIN
-FOR stmt IN statements LOOP
-        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
-END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-
-SELECT truncate_tables();
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
 EOF
 
 for d in ${DATABASES}; do

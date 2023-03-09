@@ -63,7 +63,7 @@ for d in ${DATABASES}; do
     DB_NAME="${d}"
   fi
 
-  kubectl -n $NS exec -i ${POD} -- pg_dump --data-only -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME} > ${DUMP_FILE} 2> /dev/null
+  kubectl -n $NS exec -i ${POD} -- pg_dump -U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME} > ${DUMP_FILE} 2> /dev/null
   EXPORTED="${EXPORTED} ${d}.sql"
   echo "[✓] ${d} database exported"
 done
