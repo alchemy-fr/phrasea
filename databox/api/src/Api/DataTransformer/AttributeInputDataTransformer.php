@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
-use App\Api\Model\Input\AttributeInput;
+use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeInputDataTransformer extends AbstractInputDataTransformer
 {
-    public const ATTRIBUTE_DEFINITION = '_ATTR_DEF';
+    use AttributeInputTrait;
 
     private AttributeAssigner $attributeAssigner;
 
@@ -33,24 +31,7 @@ class AttributeInputDataTransformer extends AbstractInputDataTransformer
 
         if ($isNew) {
             $object->setAsset($data->asset);
-
-            $definition = null;
-            if ($data->definition) {
-                $definition = $data->definition;
-            } elseif ($data->name && $object->getAsset()) {
-                $definition = $context[self::ATTRIBUTE_DEFINITION] ?? $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-                    'name' => $data->name,
-                    'workspace' => $object->getAsset()->getWorkspaceId(),
-                ]);
-
-                if (!$definition instanceof AttributeDefinition) {
-                    throw new BadRequestHttpException(sprintf('Attribute definition "%s" not found', $data->name));
-                }
-            }
-
-            if ($definition instanceof AttributeDefinition) {
-                $object->setDefinition($definition);
-            }
+            $object->setDefinition($this->getAttributeDefinitionFromInput($data, null, $context));
         }
 
         $this->attributeAssigner->assignAttributeFromInput($object, $data);

@@ -15,6 +15,10 @@ import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from "./UploadDropzone";
 import {CollectionChip, WorkspaceChip} from "../Ui/Chips";
 import {CollectionId} from "../Media/Collection/CollectionsTreeView";
+import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
+import {useAssetDataTemplateOptions} from "../Media/Asset/Attribute/useAssetDataTemplateOptions";
+import {AssetDataTemplate, postAssetDataTemplate} from "../../api/templates";
+import {getBatchActions} from "../Media/Asset/Attribute/BatchActions";
 
 type FileWrapper = {
     id: string;
@@ -33,19 +37,26 @@ type Props = {
 export default function UploadModal({
     files: initFiles,
     userId,
-    workspaceId,
+    workspaceId: initWsId,
     open,
     workspaceTitle,
     collectionId,
     titlePath,
 }: Props) {
     const {t} = useTranslation();
+    const [workspaceId, setWorkspaceId] = React.useState(initWsId);
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
         file: f,
         id: uuidv4().toString(),
     })));
     const {closeModal} = useModals();
     useNavigationPrompt('Are you sure you want to dismiss upload?', files.length > 0);
+
+    const usedAttributeEditor = useAttributeEditor({
+        workspaceId,
+    });
+
+    const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
     const {
         submitting,
@@ -58,6 +69,28 @@ export default function UploadModal({
                 data.destination = await createCollection(data.destination);
             }
 
+            const attributes = usedAttributeEditor.attributes ? getBatchActions(usedAttributeEditor.attributes, usedAttributeEditor.definitionIndex!) : undefined;
+
+            const {saveAsTemplate, usedForm} = usedAssetDataTemplateOptions;
+            if (saveAsTemplate) {
+                const options = usedForm.getValues();
+                const tplData: Partial<AssetDataTemplate> = {
+                    name: options.name,
+                    attributes,
+                    privacy: options.rememberPrivacy ? data.privacy : undefined,
+                    tags: options.rememberTags ? data.tags : undefined,
+                    workspace: `/workspaces/${workspaceId}`,
+                };
+
+                if (await usedForm.trigger(undefined, {
+                    shouldFocus: true,
+                })) {
+                    await postAssetDataTemplate(tplData);
+                } else {
+                    throw new Error('Form contains errors');
+                }
+            }
+
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
@@ -65,6 +98,7 @@ export default function UploadModal({
                     title: f.file.name === 'image.png' ? createPastedImageTitle() : f.file.name,
                     destination: collectionId ? `/collections/${collectionId}` : (data.destination as CollectionId),
                     privacy: data.privacy,
+                    attributes,
                 })),
             });
         },
@@ -145,9 +179,12 @@ export default function UploadModal({
             formId={formId}
             workspaceId={workspaceId}
             onSubmit={handleSubmit}
+            onChangeWorkspace={setWorkspaceId}
             submitting={submitting}
             submitted={submitted}
             noDestination={Boolean(workspaceTitle)}
+            usedAttributeEditor={usedAttributeEditor}
+            usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
         />
     </FormDialog>
 }

@@ -48,9 +48,15 @@ App\Entity\Core\Attribute:
   properties:
     definition:
       - NotNull: ~
-    value:
-      - NotNull: ~
     origin:
+      - NotNull: ~
+
+App\Entity\Core\AbstractBaseAttribute:
+  constraints:
+    - App\Validator\UniqueAttributeConstraint: ~
+    - App\Validator\ValidAttributeConstraint: ~
+  properties:
+    value:
       - NotNull: ~
 
 App\Entity\Core\AttributeDefinition:
@@ -181,6 +187,16 @@ App\Entity\Integration\IntegrationData:
       - NotNull: ~
     integration:
       - NotNull: ~
+    name:
+      - NotBlank: ~
+
+App\Entity\Template\AssetDataTemplate:
+  constraints:
+  - App\Validator\SameWorkspaceConstraint:
+      properties:
+        - workspace
+        - tags.workspace
+  properties:
     name:
       - NotBlank: ~
 

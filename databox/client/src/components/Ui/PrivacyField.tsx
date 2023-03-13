@@ -69,6 +69,13 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
     const [workspaceOnly, setWorkspaceOnly] = useState(w);
     const [auth, setAuth] = useState(a);
 
+    React.useEffect(() => {
+        const [p, w, a] = getFields(value);
+        setPrivacy(p);
+        setWorkspaceOnly(w);
+        setAuth(a);
+    }, [value]);
+
     const handlePChange = (e: SelectChangeEvent): void => {
         const v = e.target.value;
         setPrivacy(v);

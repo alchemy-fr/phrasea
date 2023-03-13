@@ -27,6 +27,8 @@ use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Template\AssetDataTemplate;
+use App\Entity\Template\TemplateAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,6 +74,11 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('AlternateUrl', '', AlternateUrl::class),
         ];
 
+        $submenuTemplates = [
+            MenuItem::linkToCrud('AssetDataTemplate', '', AssetDataTemplate::class),
+            MenuItem::linkToCrud('TemplateAttribute', '', TemplateAttribute::class),
+        ];
+
         $submenu3 = [
             MenuItem::linkToCrud('PopulatePass', '', PopulatePass::class),
             MenuItem::linkToCrud('ESIndexState', '', ESIndexState::class),
@@ -91,6 +98,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::linkToCrud('OAuthClient', 'fas fa-folder-open', OAuthClient::class);
+        yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield $this->createDevMenu(FailedEvent::class);
         yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);

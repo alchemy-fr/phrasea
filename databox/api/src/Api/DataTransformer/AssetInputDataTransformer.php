@@ -23,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class AssetInputDataTransformer extends AbstractFileInputDataTransformer
 {
     use WithOwnerIdDataTransformerTrait;
+    use AttributeInputTrait;
 
     public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
@@ -100,38 +101,7 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
             }
 
             if (!empty($data->attributes)) {
-                foreach ($data->attributes as $attribute) {
-                    $attribute->asset = $object;
-
-                    if (is_array($attribute->value)) {
-                        $definition = $attribute->definition;
-                        if (!$definition instanceof AttributeDefinition) {
-                            $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-                                'name' => $attribute->name,
-                                'workspace' => $object->getWorkspaceId(),
-                            ]);
-
-                            if (!$definition instanceof AttributeDefinition) {
-                                throw new InvalidArgumentException(sprintf('Attribute definition "%s" not found', $attribute->name));
-                            }
-                        }
-
-                        if ($definition->isMultiple()) {
-                            foreach ($attribute->value as $value) {
-                                $attr = clone $attribute;
-                                $attr->value = $value;
-                                $object->addAttribute($this->attributeInputDataTransformer->transform($attr, Attribute::class, array_merge([
-                                    AttributeInputDataTransformer::ATTRIBUTE_DEFINITION => $definition,
-                                ], $context)));
-                            }
-
-                            continue;
-                        }
-                        // else add single attr below
-                    }
-
-                    $object->addAttribute($this->attributeInputDataTransformer->transform($attribute, Attribute::class, $context));
-                }
+                $this->assignAttributes($this->attributeInputDataTransformer, $object, $data->attributes, Attribute::class, $context);
             }
 
             if ($data->relationship) {

@@ -23,7 +23,7 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
     {
         $globalPermissionsAction = Action::new('globalPermissions')
             ->linkToRoute(
-                'admin_global_permissions',
+                'alchemy_admin_acl_global_permissions',
                 [
                     'type' => $this->objectMapping->getObjectKey(static::getEntityFqcn()),
                 ]

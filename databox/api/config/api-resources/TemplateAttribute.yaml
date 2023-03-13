@@ -1,6 +1,6 @@
 resources:
-  App\Entity\Core\Attribute:
-    shortName: attribute
+  App\Entity\Template\TemplateAttribute:
+    shortName: template-attribute
     attributes:
       normalization_context:
         groups:
@@ -8,7 +8,8 @@ resources:
       input: App\Api\Model\Input\Attribute\AttributeInput
       output: App\Api\Model\Output\AttributeOutput
     itemOperations:
-      get: ~
+      get:
+        security: 'is_granted("READ", object)'
       delete:
         security: 'is_granted("DELETE", object)'
       put:
@@ -16,13 +17,3 @@ resources:
       patch:
         security: 'is_granted("EDIT", object)'
     collectionOperations:
-      get:
-      post:
-        security_post_denormalize: 'is_granted("CREATE", object)'
-      post_batch:
-        attributes:
-          receive: true
-        method: POST
-        path: /attributes/batch-update
-        input: App\Api\Model\Input\Attribute\AttributeBatchUpdateInput
-        controller: App\Controller\Core\AttributeBatchUpdateAction

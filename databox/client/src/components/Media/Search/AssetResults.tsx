@@ -281,7 +281,7 @@ export default function AssetResults() {
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={layout === LayoutEnum.Grid}
             />
-            <Fab
+            {userContext.user && <Fab
                 onClick={openUpload}
                 color="primary"
                 aria-label="add"
@@ -292,7 +292,7 @@ export default function AssetResults() {
                 })}
             >
                 <AddIcon/>
-            </Fab>
+            </Fab>}
         </div>
     </div>
 }
