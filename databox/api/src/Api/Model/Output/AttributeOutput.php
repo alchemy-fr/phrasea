@@ -26,7 +26,7 @@ class AttributeOutput extends AbstractUuidOutput
      * Target definition by IRI. Or use $name.
      *
      * @var AttributeDefinition|null
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $definition;
 
@@ -37,7 +37,7 @@ class AttributeOutput extends AbstractUuidOutput
      * })
      *
      * @var string|float|int|bool|array|null
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $value;
 
@@ -50,7 +50,7 @@ class AttributeOutput extends AbstractUuidOutput
     /**
      * Unique ID to group translations of the same attribute.
      *
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public ?string $translationId = null;
 
@@ -86,13 +86,13 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var string|null
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
+     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $locale;
 
     /**
      * @var int
-     * @Groups({"attribute:index", "attribute:read"})
+     * @Groups({"attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $position;
 

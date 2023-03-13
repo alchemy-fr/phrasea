@@ -11,10 +11,16 @@ import {FormGroup, InputLabel} from "@mui/material";
 import TagSelect from "../Form/TagSelect";
 import {useNavigationPrompt} from "../../hooks/useNavigationPrompt";
 import UploadAttributes from "./UploadAttributes";
-import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
+import {buildAttributeIndex, useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 import {Collection} from "../Media/Collection/CollectionsTreeView";
 import SaveAsTemplateForm from "./SaveAsTemplateForm";
 import {useAssetDataTemplateOptions} from "../Media/Asset/Attribute/useAssetDataTemplateOptions";
+import {getAssetDataTemplate} from "../../api/templates";
+import AssetDataTemplateSelect from "../Form/AssetDataTemplateSelect";
+import {OnChangeValue} from "react-select/dist/declarations/src/types";
+import {SelectOption} from "../Form/RSelect";
+import {Attribute, Tag} from "../../types";
+import {AttributeIndex} from "../Media/Asset/Attribute/AttributesEditor";
 
 export type UploadData = {
     destination: Collection;
@@ -45,6 +51,7 @@ export const UploadForm: FC<{
         handleSubmit,
         control,
         setError,
+        setValue,
         formState: {errors, isDirty}
     } = useForm<UploadData>({
         defaultValues: {
@@ -54,6 +61,34 @@ export const UploadForm: FC<{
         },
     });
     useNavigationPrompt('Are you sure you want to dismiss upload?', !submitting && !submitted && isDirty);
+
+    const onTemplateSelect = async (value: OnChangeValue<SelectOption, false>) => {
+        if (!value) {
+            return;
+        }
+        const t = await getAssetDataTemplate(value.value);
+
+        if (t.tags) {
+            setValue('tags', (t.tags as Tag[])!.map((t) => t['@id']) as any);
+        }
+        if (undefined !== t.privacy && null !== t.privacy) {
+            setValue('privacy', t.privacy);
+        }
+
+        if (t.attributes) {
+            const definitionIndex = usedAttributeEditor.definitionIndex;
+            if (definitionIndex) {
+                const attrIndex: AttributeIndex = buildAttributeIndex(definitionIndex, t.attributes as Attribute[]);
+                const setAttr = usedAttributeEditor.onChangeHandler;
+
+                Object.keys(attrIndex).map(defId => {
+                    Object.keys(attrIndex[defId]).map(locale => {
+                        setAttr(defId, locale, attrIndex[defId][locale]);
+                    });
+                });
+            }
+        }
+    }
 
     return <>
         <form
@@ -77,6 +112,17 @@ export const UploadForm: FC<{
                     field={'destination'}
                     errors={errors}
                 />
+            </FormRow>}
+            {workspaceId && <FormRow>
+                <FormGroup>
+                    <InputLabel>
+                        {t('form.asset.templates.label', 'Fill with template')}
+                    </InputLabel>
+                    <AssetDataTemplateSelect
+                        workspaceId={workspaceId}
+                        onChange={onTemplateSelect}
+                    />
+                </FormGroup>
             </FormRow>}
             {workspaceId && <FormRow>
                 <FormGroup>

@@ -117,6 +117,24 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
         return options;
     } : undefined;
 
+    const commonProps: AsyncProps<Option, any, GroupBase<Option>> = {
+        styles: {
+            menuPortal: base => ({
+                ...base,
+                zIndex: theme.zIndex.tooltip + 1,
+            })
+        },
+        menuPortalTarget: document.body,
+        isMulti,
+        loadOptions: loadOptionsWrapper,
+        defaultOptions: true,
+        cacheOptions,
+        components: componentsProp,
+        isOptionDisabled: disabledValues ? o => {
+            return disabledValues!.includes(o.value);
+        } : undefined,
+    }
+
     if (control) {
         return <Controller
             control={control}
@@ -125,27 +143,13 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
                 return <AsyncSelect<Option, any>
                     {...rest}
                     ref={ref}
-                    components={componentsProp}
                     value={valueToOption(isMulti || false, value as CompositeValue<IsMulti>, lastOptions)}
                     onChange={(newValue, meta) => {
                         const v = isMulti ? (newValue as Option[]).map(v => v.value) : (newValue as Option | null)?.value;
                         onChange(v);
                         onChangeProp && onChangeProp(newValue as any, meta);
                     }}
-                    isOptionDisabled={disabledValues ? o => {
-                        return disabledValues!.includes(o.value);
-                    } : undefined}
-                    cacheOptions={cacheOptions}
-                    defaultOptions
-                    loadOptions={loadOptionsWrapper}
-                    isMulti={isMulti}
-                    menuPortalTarget={document.body}
-                    styles={{
-                        menuPortal: base => ({
-                            ...base,
-                            zIndex: theme.zIndex.tooltip + 1,
-                        })
-                    }}
+                    {...commonProps}
                 />
             }}
         />
@@ -153,18 +157,11 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
 
     return <AsyncSelect<Option, IsMulti>
         {...rest}
-        components={componentsProp}
         onChange={(newValue, meta) => {
             onChangeProp && onChangeProp(newValue, meta);
             setValue(!clearOnSelect ? newValue : null);
         }}
         value={value}
-        isOptionDisabled={disabledValues ? o => {
-            return disabledValues!.includes(o.value);
-        } : undefined}
-        cacheOptions
-        defaultOptions
-        loadOptions={loadOptionsWrapper}
-        isMulti={isMulti}
+        {...commonProps}
     />
 }

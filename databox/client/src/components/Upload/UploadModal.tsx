@@ -74,7 +74,7 @@ export default function UploadModal({
             const {saveAsTemplate, usedForm} = usedAssetDataTemplateOptions;
             if (saveAsTemplate) {
                 const options = usedForm.getValues();
-                const tplData: AssetDataTemplate = {
+                const tplData: Partial<AssetDataTemplate> = {
                     name: options.name,
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
@@ -82,7 +82,9 @@ export default function UploadModal({
                     workspace: `/workspaces/${workspaceId}`,
                 };
 
-                if (await usedForm.trigger()) {
+                if (await usedForm.trigger(undefined, {
+                    shouldFocus: true,
+                })) {
                     await postAssetDataTemplate(tplData);
                 } else {
                     throw new Error('Form contains errors');

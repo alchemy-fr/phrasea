@@ -6,16 +6,12 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Admin\Field\PrivacyField;
-use App\Entity\Core\Asset;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Template\AssetDataTemplate;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
@@ -58,18 +54,19 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         $tags = AssociationField::new('tags');
         $privacy = PrivacyField::new('privacy');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
+        $public = BooleanField::new('public');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $title, $workspace, $privacy, $createdAt];
+            return [$id, $title, $public, $workspace, $privacy, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $ownerUser, $createdAt, $updatedAt, $privacy, $tags, $attributes, $workspace];
+            return [$id, $title, $public, $ownerUser, $createdAt, $updatedAt, $privacy, $tags, $attributes, $workspace];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $tags, $privacy, $ownerUser];
+            return [$title, $public, $workspace, $tags, $privacy, $ownerUser];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$title, $workspace, $tags, $privacy, $ownerUser];
+            return [$title, $public, $workspace, $tags, $privacy, $ownerUser];
         }
 
         return [];

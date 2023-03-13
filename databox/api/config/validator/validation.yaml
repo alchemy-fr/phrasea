@@ -190,6 +190,16 @@ App\Entity\Integration\IntegrationData:
     name:
       - NotBlank: ~
 
+App\Entity\Template\AssetDataTemplate:
+  constraints:
+  - App\Validator\SameWorkspaceConstraint:
+      properties:
+        - workspace
+        - tags.workspace
+  properties:
+    name:
+      - NotBlank: ~
+
 App\Model\Export:
   properties:
     assets:

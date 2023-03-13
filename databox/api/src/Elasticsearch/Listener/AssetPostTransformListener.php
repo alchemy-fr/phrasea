@@ -138,7 +138,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
     {
         $data = [];
 
-        $attributes = $this->attributesResolver->resolveAttributes($asset, false);
+        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         foreach ($attributes as $_attrs) {
             foreach ($_attrs as $l => $a) {

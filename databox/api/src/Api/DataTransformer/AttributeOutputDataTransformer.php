@@ -6,6 +6,7 @@ namespace App\Api\DataTransformer;
 
 use App\Api\Model\Output\AttributeOutput;
 use App\Attribute\AttributeTypeRegistry;
+use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 
 class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
@@ -18,7 +19,7 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
     }
 
     /**
-     * @param Attribute $object
+     * @param AbstractBaseAttribute $object
      */
     public function transform($object, string $to, array $context = [])
     {
@@ -28,29 +29,33 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setCreatedAt($object->getCreatedAt());
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
-        $output->asset = $object->getAsset();
         $values = $object->getValues();
         $output->value = $values ? array_map(function (?string $v) use ($type) {
             return $type->denormalizeValue($v);
         }, $object->getValues()) : $type->denormalizeValue($object->getValue());
         $output->multiple = null !== $values;
-        $output->highlight = $object->getHighlights() ?? $object->getHighlight();
-        $output->origin = $object->getOriginLabel();
-        $output->originUserId = $object->getOriginUserId();
-        $output->originVendor = $object->getOriginVendor();
-        $output->originVendorContext = $object->getOriginVendorContext();
-        $output->status = $object->getStatusLabel();
-        $output->confidence = $object->getConfidence();
-        $output->coordinates = $object->getCoordinates();
+
         $output->locale = $object->getLocale();
-        $output->definition = $object->getDefinition();
         $output->position = $object->getPosition();
+        $output->definition = $object->getDefinition();
+
+        if ($object instanceof Attribute) {
+            $output->asset = $object->getAsset();
+            $output->highlight = $object->getHighlights() ?? $object->getHighlight();
+            $output->origin = $object->getOriginLabel();
+            $output->originUserId = $object->getOriginUserId();
+            $output->originVendor = $object->getOriginVendor();
+            $output->originVendorContext = $object->getOriginVendorContext();
+            $output->status = $object->getStatusLabel();
+            $output->confidence = $object->getConfidence();
+            $output->coordinates = $object->getCoordinates();
+        }
 
         return $output;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool
     {
-        return AttributeOutput::class === $to && $data instanceof Attribute;
+        return AttributeOutput::class === $to && $data instanceof AbstractBaseAttribute;
     }
 }
