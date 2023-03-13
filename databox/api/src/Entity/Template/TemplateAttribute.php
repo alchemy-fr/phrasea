@@ -8,6 +8,7 @@ use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -23,6 +24,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"asset-data-template:read"})
      */
     protected ?AttributeDefinition $definition = null;
 

@@ -87,11 +87,6 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     private ?DoctrineCollection $translations = null;
 
     /**
-     * Resolved by \App\Api\DataTransformer\AssetOutputDataTransformer.
-     */
-    private ?array $values = null;
-
-    /**
      * Dynamically resolved.
      */
     private ?string $highlight = null;
@@ -260,16 +255,6 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         return [
             $this->getAsset(),
         ];
-    }
-
-    public function getValues(): ?array
-    {
-        return $this->values;
-    }
-
-    public function setValues(?array $values): void
-    {
-        $this->values = $values;
     }
 
     public function getHighlight(): ?string
