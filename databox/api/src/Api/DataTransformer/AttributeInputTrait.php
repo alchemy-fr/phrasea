@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\DataTransformer;
 
+use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
@@ -20,13 +21,15 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 trait AttributeInputTrait
 {
-    protected function getAttributeDefinitionFromInput(AbstractBaseAttributeInput $data, ?Workspace $workspace): AttributeDefinition
+    protected function getAttributeDefinitionFromInput(AbstractBaseAttributeInput $data, ?Workspace $workspace, array $context): AttributeDefinition
     {
         $definition = null;
-        if ($data->definitionId) {
+        if (isset($context[AttributeInputDataTransformerInterface::ATTRIBUTE_DEFINITION])) {
+            $definition = $context[AttributeInputDataTransformerInterface::ATTRIBUTE_DEFINITION];
+        } elseif ($data->definitionId) {
             $definition = $this->em->getRepository(AttributeDefinition::class)->find($data->definitionId);
         } elseif ($data->name && null !== $workspace) {
-            $definition = $context[AttributeInputDataTransformerInterface::ATTRIBUTE_DEFINITION] ?? $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+            $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
                 'name' => $data->name,
                 'workspace' => $workspace->getId(),
             ]);
@@ -50,6 +53,8 @@ trait AttributeInputTrait
      */
     protected function assignAttributes(AbstractInputDataTransformer $attributeInputDataTransformer, $object, iterable $attributes, string $to, array $context)
     {
+        unset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+
         foreach ($attributes as $attribute) {
             if ($attribute instanceof AttributeInput) {
                 $attribute->asset = $object;
@@ -57,17 +62,18 @@ trait AttributeInputTrait
                 $attribute->template = $object;
             }
 
-            if (is_array($attribute->value)) {
-                $definition = $this->getAttributeDefinitionFromInput($attribute, $object->getWorkspace());
+            $definition = $this->getAttributeDefinitionFromInput($attribute, $object->getWorkspace(), $context);
+            $subContext = array_merge($context, [
+                AttributeInputDataTransformerInterface::ATTRIBUTE_DEFINITION => $definition,
+            ]);
 
+            if (is_array($attribute->value)) {
                 if ($definition->isMultiple()) {
                     foreach ($attribute->value as $value) {
                         $attr = clone $attribute;
                         $attr->value = $value;
                         /** @var Attribute|TemplateAttribute $returnedAttribute */
-                        $returnedAttribute = $attributeInputDataTransformer->transform($attr, $to, array_merge([
-                            AttributeInputDataTransformerInterface::ATTRIBUTE_DEFINITION => $definition,
-                        ], $context));
+                        $returnedAttribute = $attributeInputDataTransformer->transform($attr, $to, $subContext);
                         $object->addAttribute($returnedAttribute);
                     }
 
@@ -77,7 +83,7 @@ trait AttributeInputTrait
             }
 
             /** @var Attribute|TemplateAttribute $returnedAttribute */
-            $returnedAttribute = $attributeInputDataTransformer->transform($attribute, $to, $context);
+            $returnedAttribute = $attributeInputDataTransformer->transform($attribute, $to, $subContext);
             $object->addAttribute($returnedAttribute);
         }
     }

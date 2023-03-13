@@ -33,7 +33,11 @@ class TemplateAttributeInputDataTransformer extends AbstractInputDataTransformer
 
         if ($isNew) {
             $object->setTemplate($data->template);
-            $object->setDefinition($this->getAttributeDefinitionFromInput($data, $object->getTemplate() ? $object->getTemplate()->getWorkspace() : null));
+            $object->setDefinition($this->getAttributeDefinitionFromInput(
+                $data,
+                $object->getTemplate() ? $object->getTemplate()->getWorkspace() : null,
+                $context
+            ));
         }
 
         $this->attributeAssigner->assignAttributeFromInput($object, $data);
