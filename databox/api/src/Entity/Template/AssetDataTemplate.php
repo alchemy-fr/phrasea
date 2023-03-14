@@ -33,7 +33,6 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
      * Template name.
      *
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"asset-data-template:index"})
      */
     private ?string $name = null;
 
@@ -71,20 +70,22 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     private ?DoctrineCollection $attributes = null;
 
     /**
-     * @Groups({"data-tpl:index"})
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Collection $collection = null;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $includeCollectionChildren = false;
+
+    /**
      * @ORM\Column(type="smallint", nullable=true)
-     * @Groups({"data-tpl:index"})
      */
     private ?int $privacy = null;
 
     /**
-     * @Groups({"data-tpl:index"})
      * @ORM\Column(type="json")
      */
     private array $data = [];
@@ -198,5 +199,15 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     public function __toString()
     {
         return $this->getName() ?? $this->getId();
+    }
+
+    public function isIncludeCollectionChildren(): bool
+    {
+        return $this->includeCollectionChildren;
+    }
+
+    public function setIncludeCollectionChildren(bool $includeCollectionChildren): void
+    {
+        $this->includeCollectionChildren = $includeCollectionChildren;
     }
 }

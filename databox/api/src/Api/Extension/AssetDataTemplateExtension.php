@@ -60,5 +60,15 @@ class AssetDataTemplateExtension implements ContextAwareQueryCollectionExtension
         } else {
             $queryBuilder->andWhere(sprintf('%1$s.public = true', $rootAlias));
         }
+
+        $filters = $context['filters'] ?? [];
+        if (isset($filters['collection'])) {
+            $queryBuilder
+                ->andWhere(sprintf('%1$s.collection = :colId OR %1$s.collection IS NULL', $rootAlias))
+                ->setParameter('colId', $filters['collection'])
+            ;
+        } else {
+            $queryBuilder->andWhere(sprintf('%1$s.collection IS NULL', $rootAlias));
+        }
     }
 }

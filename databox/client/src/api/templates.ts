@@ -7,8 +7,11 @@ export type AssetDataTemplate = {
     id: string;
     name: string;
     workspace: string;
+    collection: string;
+    includeCollectionChildren: boolean;
     attributes: Attribute[] | AttributeBatchAction[] | undefined;
-    privacy?: number | undefined;
+    privacy?: number | undefined | null;
+    public: boolean;
     tags?: Tag[] | string[] | undefined;
     title?: string | undefined;
 }
@@ -19,9 +22,14 @@ export async function postAssetDataTemplate(data: Partial<AssetDataTemplate>): P
     await apiClient.post(assetDataTemplateNS, data);
 }
 
+export async function putAssetDataTemplate(id: string, data: Partial<AssetDataTemplate>): Promise<void> {
+    await apiClient.put(`/${assetDataTemplateNS}/${id}`, data);
+}
+
 type GetAssetDataTemplatesOptions = {
     query?: string;
     workspace: string;
+    collection?: string | undefined;
 }
 
 export async function getAssetDataTemplates(options?: GetAssetDataTemplatesOptions): Promise<ApiCollectionResponse<AssetDataTemplate>> {

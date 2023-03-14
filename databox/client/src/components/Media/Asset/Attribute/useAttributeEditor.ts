@@ -90,6 +90,10 @@ export function useAttributeEditor({
         }))
     }, []);
 
+    const reset = React.useCallback(() => {
+        setAttributes(state?.remoteAttributes);
+    }, [state?.remoteAttributes]);
+
     return React.useMemo(() => {
         const reloadAssetAttributes = async (assetId: string) => {
             const res = await getAssetAttributes(assetId);
@@ -109,6 +113,7 @@ export function useAttributeEditor({
             attributes,
             onChangeHandler,
             getActions,
+            reset,
         }
     }, [state, workspaceId, attributes]);
 }

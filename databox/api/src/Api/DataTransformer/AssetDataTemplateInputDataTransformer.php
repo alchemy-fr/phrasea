@@ -44,23 +44,10 @@ class AssetDataTemplateInputDataTransformer extends AbstractInputDataTransformer
                 throw new BadRequestHttpException('Missing workspace');
             }
             $object->setWorkspace($workspace);
-
-            if ($data->name) {
-                $assetDataTemplate = $this->em->getRepository(AssetDataTemplate::class)
-                    ->findOneBy([
-                        'name' => $data->name,
-                        'workspace' => $workspace->getId(),
-                        'ownerId' => $this->getUser()->getId(),
-                    ]);
-
-                if ($assetDataTemplate) {
-                    $isNew = false;
-                    $object = $assetDataTemplate;
-                }
-            }
         }
 
-        if ($isNew && !empty($data->attributes)) {
+        if (!empty($data->attributes)) {
+            $object->getAttributes()->clear();
             $this->assignAttributes($this->templateAttributeInputDataTransformer, $object, $data->attributes, TemplateAttribute::class, $context);
         }
 
@@ -76,6 +63,10 @@ class AssetDataTemplateInputDataTransformer extends AbstractInputDataTransformer
         if (null !== $data->tags) {
             $object->setTags(new ArrayCollection($data->tags));
         }
+        if (null !== $data->collection) {
+            $object->setCollection($data->collection);
+        }
+        $object->setIncludeCollectionChildren($data->includeCollectionChildren);
 
         return $this->transformOwnerId($object, $to, $context);
     }
