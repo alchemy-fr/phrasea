@@ -151,7 +151,7 @@ type SetNewCollectionPath = (nodes: NewCollectionNodeState[], rootId?: string) =
 
 type Props<IsMulti extends boolean = false> = {
     onChange?: (
-        selection: IsMulti extends true ? Collection[] : Collection,
+        selection: IsMulti extends true ? string[] : string,
         workspaceId?: IsMulti extends true ? string : never
     ) => void;
     value?: IsMulti extends true ? Collection[] : Collection;

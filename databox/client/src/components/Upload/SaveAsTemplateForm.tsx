@@ -9,18 +9,25 @@ import FormFieldErrors from "../Form/FormFieldErrors";
 
 type Props = {
     usedAssetDataTemplateOptions: ReturnType<typeof useAssetDataTemplateOptions>;
+    templateId?: string | undefined;
 };
 
 export default function SaveAsTemplateForm({
     usedAssetDataTemplateOptions,
+    templateId,
 }: Props) {
     const {saveAsTemplate, setSaveAsTemplate, usedForm} = usedAssetDataTemplateOptions;
 
     const {
         control,
         register,
-        formState: {errors}
+        formState: {errors},
+        setValue,
     } = usedForm;
+
+    React.useEffect(() => {
+        setValue('id', templateId);
+    }, [templateId]);
 
     return <>
         <FormRow>
@@ -43,22 +50,37 @@ export default function SaveAsTemplateForm({
                         <TextField
                             error={Boolean(errors.name)}
                             label={'Template name'}
+                            InputLabelProps={{ shrink: true }}
                             placeholder={`My template...`}
+                            required={true}
                             {...register('name', {
                                 required: true,
                             })}
-                            required={true}
                         />
                         <FormFieldErrors
                             field={'name'}
                             errors={errors}
                         />
                     </FormRow>
+                    {templateId && <FormRow>
+                        <SwitchWidget
+                            control={control}
+                            name={'override'}
+                            label={`Replace applied template`}
+                        />
+                    </FormRow>}
                     <FormRow>
                         <SwitchWidget
                             control={control}
-                            name={'public'}
-                            label={`Public`}
+                            name={'rememberCollection'}
+                            label={`Apply to collection`}
+                        />
+                    </FormRow>
+                    <FormRow>
+                        <SwitchWidget
+                            control={control}
+                            name={'includeCollectionChildren'}
+                            label={`Include collection children`}
                         />
                     </FormRow>
                     <FormRow>
@@ -80,6 +102,13 @@ export default function SaveAsTemplateForm({
                             control={control}
                             name={'rememberTags'}
                             label={`Remember Tags`}
+                        />
+                    </FormRow>
+                    <FormRow>
+                        <SwitchWidget
+                            control={control}
+                            name={'public'}
+                            label={`Public`}
                         />
                     </FormRow>
                 </AccordionDetails>

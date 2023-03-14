@@ -43,7 +43,7 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
      *     }
      * }
      * })
-     * @Groups({"asset-data-template:index", "asset-data-template:read"})
+     * @Groups({"asset-data-template:index"})
      */
     protected array $capabilities = [];
 
@@ -56,7 +56,7 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     /**
      * Template name.
      *
-     * @Groups({"asset-data-template:index", "asset-data-template:read"})
+     * @Groups({"asset-data-template:index"})
      */
     public ?string $name = null;
 
@@ -83,12 +83,17 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     public ?array $tags = null;
 
     /**
-     * @Groups({"asset-data-template:index", "asset-data-template:read"})
+     * @Groups({"asset-data-template:index"})
      */
     public $collection = null;
 
     /**
-     * @Groups({"asset-data-template:index", "asset-data-template:read"})
+     * @Groups({"asset-data-template:index"})
      */
     public ?int $privacy = null;
+
+    /**
+     * @Groups({"asset-data-template:read"})
+     */
+    public bool $includeCollectionChildren = false;
 }

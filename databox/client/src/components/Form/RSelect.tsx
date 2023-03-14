@@ -73,8 +73,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = ({
     cacheOptions?: any;
 } & AsyncProps<Option, IsMulti, GroupBase<Option>>;
 
-export default function RSelectWidget<TFieldValues extends FieldValues,
-    IsMulti extends boolean = false>({
+export default function RSelectWidget<TFieldValues extends FieldValues, IsMulti extends boolean = false>({
     cacheId,
     control,
     name,
@@ -129,7 +128,7 @@ export default function RSelectWidget<TFieldValues extends FieldValues,
         loadOptions: loadOptionsWrapper,
         defaultOptions: true,
         cacheOptions,
-        components: componentsProp,
+        components: rest.components ?? componentsProp,
         isOptionDisabled: disabledValues ? o => {
             return disabledValues!.includes(o.value);
         } : undefined,

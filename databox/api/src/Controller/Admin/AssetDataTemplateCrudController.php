@@ -51,22 +51,24 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         $id = IdField::new();
         $title = TextField::new('name');
         $workspace = AssociationField::new('workspace');
+        $collection = AssociationField::new('collection');
         $tags = AssociationField::new('tags');
         $privacy = PrivacyField::new('privacy');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $public = BooleanField::new('public');
+        $includeCollectionChildren = BooleanField::new('includeCollectionChildren', 'Include children');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $title, $public, $workspace, $privacy, $createdAt];
+            return [$id, $title, $public, $collection, $includeCollectionChildren, $workspace, $privacy, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $public, $ownerUser, $createdAt, $updatedAt, $privacy, $tags, $attributes, $workspace];
+            return [$id, $title, $public, $collection, $includeCollectionChildren, $ownerUser, $createdAt, $updatedAt, $privacy, $tags, $attributes, $workspace];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $public, $workspace, $tags, $privacy, $ownerUser];
+            return [$title, $public, $collection, $includeCollectionChildren, $workspace, $tags, $privacy, $ownerUser];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$title, $public, $workspace, $tags, $privacy, $ownerUser];
+            return [$title, $public, $collection, $includeCollectionChildren, $workspace, $tags, $privacy, $ownerUser];
         }
 
         return [];

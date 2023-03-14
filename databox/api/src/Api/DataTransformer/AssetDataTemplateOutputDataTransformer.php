@@ -39,6 +39,7 @@ class AssetDataTemplateOutputDataTransformer extends AbstractSecurityDataTransfo
         $output->public = $object->isPublic();
         $output->ownerId = $object->getOwnerId();
         $output->collection = $object->getCollection();
+        $output->includeCollectionChildren = $object->isIncludeCollectionChildren();
 
         if (isset($context['groups']) && in_array('asset-data-template:read', $context['groups'], true)) {
             $output->attributes = array_filter($object->getAttributes()->getValues(), function (TemplateAttribute $attribute): bool {

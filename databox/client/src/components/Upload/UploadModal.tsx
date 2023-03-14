@@ -17,7 +17,7 @@ import {CollectionChip, WorkspaceChip} from "../Ui/Chips";
 import {CollectionId} from "../Media/Collection/CollectionsTreeView";
 import {useAttributeEditor} from "../Media/Asset/Attribute/useAttributeEditor";
 import {useAssetDataTemplateOptions} from "../Media/Asset/Attribute/useAssetDataTemplateOptions";
-import {AssetDataTemplate, postAssetDataTemplate} from "../../api/templates";
+import {AssetDataTemplate, postAssetDataTemplate, putAssetDataTemplate} from "../../api/templates";
 import {getBatchActions} from "../Media/Asset/Attribute/BatchActions";
 
 type FileWrapper = {
@@ -40,11 +40,12 @@ export default function UploadModal({
     workspaceId: initWsId,
     open,
     workspaceTitle,
-    collectionId,
+    collectionId: initCollectionId,
     titlePath,
 }: Props) {
     const {t} = useTranslation();
-    const [workspaceId, setWorkspaceId] = React.useState(initWsId);
+    const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(initWsId);
+    const [collectionId, setCollectionId] = React.useState<string | undefined>(initCollectionId);
     const [files, setFiles] = useState<FileWrapper[]>(initFiles.map((f, i) => ({
         file: f,
         id: uuidv4().toString(),
@@ -78,14 +79,21 @@ export default function UploadModal({
                     name: options.name,
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
+                    collection: options.rememberCollection ? data.destination : undefined,
+                    includeCollectionChildren: options.includeCollectionChildren,
                     tags: options.rememberTags ? data.tags : undefined,
                     workspace: `/workspaces/${workspaceId}`,
+                    public: options.public,
                 };
 
                 if (await usedForm.trigger(undefined, {
                     shouldFocus: true,
                 })) {
-                    await postAssetDataTemplate(tplData);
+                    if (options.id && options.override) {
+                        await putAssetDataTemplate(options.id, tplData);
+                    } else {
+                        await postAssetDataTemplate(tplData);
+                    }
                 } else {
                     throw new Error('Form contains errors');
                 }
@@ -178,8 +186,10 @@ export default function UploadModal({
         <UploadForm
             formId={formId}
             workspaceId={workspaceId}
+            collectionId={collectionId}
             onSubmit={handleSubmit}
             onChangeWorkspace={setWorkspaceId}
+            onChangeCollection={setCollectionId}
             submitting={submitting}
             submitted={submitted}
             noDestination={Boolean(workspaceTitle)}

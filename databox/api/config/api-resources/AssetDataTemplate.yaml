@@ -18,6 +18,10 @@ resources:
         security: 'is_granted("DELETE", object)'
       put:
         security: 'is_granted("EDIT", object)'
+        normalization_context:
+          groups:
+            - asset-data-template:index
+            - asset-data-template:read
     collectionOperations:
       get: ~
       post:
