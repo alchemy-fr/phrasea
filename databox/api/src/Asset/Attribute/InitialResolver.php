@@ -57,7 +57,7 @@ class InitialResolver
                     $initialValue = $this->resolveInitial(
                         $initializeFormula,
                         [
-                            'file' =>  new FileMetadataAccessorWrapper($asset->getFile(), $this->logger), //$asset->getFile(),
+                            'file' =>  new FileMetadataAccessorWrapper($asset->getSource(), $this->logger), //$asset->getFile(),
                             'asset' => $asset
                         ],
                         $definition
@@ -112,16 +112,27 @@ class InitialResolver
 
     private function resolveInitial(string $initializeFormula, array $twigContext, AttributeDefinition $definition): string
     {
-        $initializeFormula = json_decode($initializeFormula, true);
-        if($initializeFormula['type'] == "metadata") {
-            // the "source" is a simple metadata tagname, convert it to twig
-            $templateFormula = sprintf("{%% for v in file.metadata('%s').values %%}{{v}}\n{%% endfor %%}", $initializeFormula['value']);
+        $templateFormula = false;
+        try {
+            $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
         }
-        else if ($initializeFormula['type'] == "template") {
-            $templateFormula = $initializeFormula['template'];
+        catch (\Exception $e) {
+            // not json ? assume this is plain twig template
+            $templateFormula = $initializeFormula;
         }
-        else {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid template type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
+
+        if($templateFormula === false) {
+            // assume this is json formula
+            if($initializeFormula['type'] == "metadata") {
+                // the "source" is a simple metadata tagname, convert it to twig
+                $templateFormula = sprintf("{%% for v in file.metadata('%s').values %%}{{v}}\n{%% endfor %%}", $initializeFormula['value']);
+            }
+            else if ($initializeFormula['type'] == "template") {
+                $templateFormula = $initializeFormula['template'];
+            }
+            else {
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid template type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
+            }
         }
 
         $this->logger->debug(sprintf("FORMULA = \"%s\"", $templateFormula));

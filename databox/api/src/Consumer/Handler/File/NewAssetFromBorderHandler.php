@@ -21,19 +21,9 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
     const EVENT = 'new_asset_from_border';
 
     private AssetManager $assetManager;
-    private OriginalRenditionManager $originalRenditionManager;
-    private AttributeDataExporter $attributeDataExporter;
-    private EventProducer $eventProducer;
 
-    public function __construct(AssetManager $assetManager,
-        OriginalRenditionManager $originalRenditionManager,
-        AttributeDataExporter $attributeDataExporter,
-        EventProducer $eventProducer
-    ) {
+    public function __construct(AssetManager $assetManager) {
         $this->assetManager = $assetManager;
-        $this->originalRenditionManager = $originalRenditionManager;
-        $this->attributeDataExporter = $attributeDataExporter;
-        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void
@@ -53,36 +43,19 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
 
         $asset = new Asset();
-        // $asset->setFile($file);
+
         $asset->setSource($file);
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
         $workspace = $file->getWorkspace();
         $asset->setWorkspace($workspace);
-/*
-        if (!empty($formData)) {
-            $this->attributeDataExporter->importAttributes($asset, $formData, $locale);
-        }
 
-        $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
-*/
-/*
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);
             $em->persist($assetCollection);
         }
 
-        $em = $this->getEntityManager();
-        $em->persist($asset);
-        $em->flush();
-*/
         $this->assetManager->assignNewAssetSourceFile($asset, $file, $formData, $locale);
-
-        $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-            $file->getId()
-        ));
-
-        $this->eventProducer->publish(NewAssetIntegrationsHandler::createEvent($asset->getId()));
     }
 
     public static function createEvent(

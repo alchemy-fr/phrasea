@@ -40,9 +40,9 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
         }
 
-        $file = $asset->getFile();
+        $file = $asset->getSource();
         if (!$file instanceof File) {
-            $this->logger->debug(sprintf("Asset id=%s has no file", $assetId));
+            $this->logger->debug(sprintf("Asset id=%s has no source file", $assetId));
             return;
             // throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
