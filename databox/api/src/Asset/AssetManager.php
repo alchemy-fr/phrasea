@@ -57,7 +57,7 @@ class AssetManager
     {
         if ($asset->getSource()) {
             $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-                $asset->getSource()->getId()
+                $asset->getId()
             ));
 
             $this->eventProducer->publish(NewAssetIntegrationCollectionHandler::createEvent($asset->getId()));

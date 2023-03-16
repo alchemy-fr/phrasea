@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Asset\AssetManager;
+use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -18,8 +19,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 
     private AssetManager $assetManager;
 
-    public function __construct(AssetManager $assetManager)
-    {
+    public function __construct(AssetManager $assetManager) {
         $this->assetManager = $assetManager;
     }
 
@@ -40,6 +40,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
 
         $asset = new Asset();
+
         $asset->setSource($file);
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
