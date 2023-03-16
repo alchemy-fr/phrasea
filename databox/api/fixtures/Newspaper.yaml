@@ -289,7 +289,6 @@ App\Entity\Core\File:
 
 App\Entity\Core\AssetRendition:
   asset_rendition (template):
-#    ready: true
 
   ar_img_o{1..50} (extends asset_rendition):
     definition: '@n_rd_original'

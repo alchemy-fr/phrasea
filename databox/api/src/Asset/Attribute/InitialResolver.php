@@ -57,7 +57,7 @@ class InitialResolver
                     $initialValue = $this->resolveInitial(
                         $initializeFormula,
                         [
-                            'file' =>  new FileMetadataAccessorWrapper($asset->getSource(), $this->logger), //$asset->getFile(),
+                            'file' =>  new FileMetadataAccessorWrapper($asset->getSource(), $this->logger),
                             'asset' => $asset
                         ],
                         $definition

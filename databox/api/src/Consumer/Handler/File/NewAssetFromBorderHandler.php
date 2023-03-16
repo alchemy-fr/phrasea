@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use App\Asset\AssetManager;
-use App\Asset\OriginalRenditionManager;
-use App\Attribute\AttributeDataExporter;
 use App\Consumer\Handler\Asset\NewAssetIntegrationsHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -14,7 +12,6 @@ use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 {
