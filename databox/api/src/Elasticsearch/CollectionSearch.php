@@ -6,7 +6,6 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
-use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
@@ -15,14 +14,10 @@ use Pagerfanta\Pagerfanta;
 class CollectionSearch extends AbstractSearch
 {
     private PaginatedFinderInterface $finder;
-    private EntityManagerInterface $em;
 
-    public function __construct(
-        PaginatedFinderInterface $finder,
-        EntityManagerInterface $em
-    ) {
+    public function __construct(PaginatedFinderInterface $finder)
+    {
         $this->finder = $finder;
-        $this->em = $em;
     }
 
     public function search(

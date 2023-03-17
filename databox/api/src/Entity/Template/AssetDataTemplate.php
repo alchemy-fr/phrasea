@@ -206,6 +206,16 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
         return $this->includeCollectionChildren;
     }
 
+    public function getCollectionDepth(): int
+    {
+        return $this->collection ? $this->collection->getPathDepth() + 1 : 0;
+    }
+
+    public function getCollectionId(): ?string
+    {
+        return $this->collection ? $this->collection->getId() : null;
+    }
+
     public function setIncludeCollectionChildren(bool $includeCollectionChildren): void
     {
         $this->includeCollectionChildren = $includeCollectionChildren;

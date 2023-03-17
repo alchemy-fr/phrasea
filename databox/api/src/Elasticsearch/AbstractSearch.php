@@ -13,10 +13,10 @@ use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractSearch
 {
-    private EntityManagerInterface $em;
+    protected EntityManagerInterface $em;
     protected Security $security;
 
-    public function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
+    protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         if ($this->security->isGranted(ChuckNorrisVoter::ROLE)) {
             return null;
