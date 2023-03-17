@@ -9,7 +9,6 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AssetVoter;
-use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
@@ -21,7 +20,6 @@ class AssetSearch extends AbstractSearch
 {
     private PaginatedFinderInterface $finder;
     private TagFilterManager $tagFilterManager;
-    private EntityManagerInterface $em;
     private AttributeSearch $attributeSearch;
     private QueryStringParser $queryStringParser;
     private FacetHandler $facetHandler;
@@ -29,7 +27,6 @@ class AssetSearch extends AbstractSearch
     public function __construct(
         PaginatedFinderInterface $finder,
         TagFilterManager $tagFilterManager,
-        EntityManagerInterface $em,
         AttributeSearch $attributeSearch,
         Security $security,
         QueryStringParser $queryStringParser,
@@ -37,7 +34,6 @@ class AssetSearch extends AbstractSearch
     ) {
         $this->finder = $finder;
         $this->tagFilterManager = $tagFilterManager;
-        $this->em = $em;
         $this->attributeSearch = $attributeSearch;
         $this->security = $security;
         $this->queryStringParser = $queryStringParser;

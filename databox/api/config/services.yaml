@@ -62,6 +62,10 @@ services:
         arguments:
             - '@fos_elastica.finder.collection'
 
+    App\Elasticsearch\AssetDataTemplateSearch:
+        arguments:
+            - '@fos_elastica.finder.asset_data_template'
+
     App\Elasticsearch\Listener\DeferredIndexListener:
         tags:
             - { name: kernel.event_listener, event: kernel.terminate, method: flush }

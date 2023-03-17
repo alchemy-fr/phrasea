@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "51a77b34d81fb16df28643fdffa8f3c1847ef4ca"
+                "reference": "d479c82ec3aa52432eb167387db5b8a1cbe39f59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/51a77b34d81fb16df28643fdffa8f3c1847ef4ca",
-                "reference": "51a77b34d81fb16df28643fdffa8f3c1847ef4ca",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/d479c82ec3aa52432eb167387db5b8a1cbe39f59",
+                "reference": "d479c82ec3aa52432eb167387db5b8a1cbe39f59",
                 "shasum": ""
             },
             "require": {
@@ -54,15 +54,15 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-02-28T13:36:09+00:00"
+            "time": "2023-03-15T16:36:29+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "8c83090d1a18171b84901359d0f9f89de6cd9ca6"
+                "reference": "f1c688c434c9a21af43ff012ea05fca425233e08"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -90,6 +90,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "./vendor/bin/phpunit"
                 ]
@@ -109,11 +112,11 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "64209ececa613ce570fa263534501494676a0a19"
+                "reference": "ad791bc3312880afeebf0780d8a1c1b85f38ebb3"
             },
             "require": {
                 "php": "^7.4",
@@ -140,6 +143,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]
@@ -156,11 +162,11 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
-                "reference": "360e447a59ed82cb3b0df135ec84649da6e14348"
+                "reference": "845caaef856cb430305d5f1dd2989b58a3a47a84"
             },
             "require": {
                 "alchemy/phpexiftool": "2.1.x-dev",
@@ -187,6 +193,14 @@
                     "Alchemy\\MetadataManipulatorBundle\\tests\\": "tests/"
                 }
             },
+            "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
+                "test": [
+                    "./vendor/bin/phpunit"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -199,11 +213,11 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
-                "reference": "d5951268306ec67f3e900845152261c1b2306580"
+                "reference": "e77b90f3222242fdb64460fdb80a2936ce64a215"
             },
             "require": {
                 "friendsofsymfony/oauth-server-bundle": "^1.6",
@@ -229,6 +243,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]
@@ -306,11 +323,11 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
-                "reference": "5d4e95e9ec7827f1ac228f7de61ae5da5a824e08"
+                "reference": "aec34d7a237d138d07a0908eea022fa959b0ca88"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -336,6 +353,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]
@@ -355,11 +375,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "d1061e58a0a31021efa4164ae34b4fa324e9c0ac"
+                "reference": "a18ed3f007aec32f246410b07102f29a47e47e7d"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -387,6 +407,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]
@@ -403,11 +426,11 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/test-bundle",
-                "reference": "1300f2ae63c09a5ecc0f9d1de1db35f9106b1a21"
+                "reference": "a1e7a00bc54bd1162e0ed35fa125eca205a7c53a"
             },
             "require": {
                 "php": "^7.4",
@@ -432,6 +455,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "./vendor/bin/phpunit"
                 ]
@@ -448,11 +474,11 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/webhook-bundle",
-                "reference": "f9e6984fe91edd115e74686911ee7be880d8b7c5"
+                "reference": "71d6f743626b172f528b36f13d9436292654e0e1"
             },
             "require": {
                 "arthem/rabbit-bundle": "@dev",
@@ -479,6 +505,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]
@@ -12763,11 +12792,11 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-518_easyadmin-bump-v3",
+            "version": "dev-PS-536-include-sub-collections",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "9c6101e0625335df21ef24f0926284ce524ecc19"
+                "reference": "d4b24348473c100be06b631c00ae90405d0bda75"
             },
             "require": {
                 "php": "^7.4",
@@ -12789,6 +12818,9 @@
                 }
             },
             "scripts": {
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
                 "test": [
                     "echo 'This project has no test...'"
                 ]

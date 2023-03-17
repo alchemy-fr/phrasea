@@ -127,3 +127,35 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Core\Collection
                 listener: { enabled: false }
+
+        asset_data_template:
+            use_alias: true
+            index_name: "%es_index_prefix%asset_data_template_%kernel.environment%"
+            properties:
+                name:
+                    type: text
+                    fields:
+                        raw:
+                            type: keyword
+                collectionDepth:
+                    type: integer
+                collectionId:
+                    type: keyword
+                includeCollectionChildren:
+                    type: boolean
+                workspaceId:
+                    type: keyword
+                public:
+                    type: boolean
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Template\AssetDataTemplate
+                listener: { enabled: false }

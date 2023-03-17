@@ -46,7 +46,6 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $enabledLocales = ArrayField::new('enabledLocales');
         $localeFallbacks = ArrayField::new('localeFallbacks');
-        $config = TextField::new('config');
         $createdAt = DateTimeField::new('createdAt');
         $updatedAt = DateTimeField::new('updatedAt');
         $deletedAt = DateTimeField::new('deletedAt');
@@ -60,7 +59,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $isPublic, $updatedAt, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $ownerId, $config, $enabledLocales, $localeFallbacks, $isPublic, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
+            return [$id, $name, $slug, $ownerId, $enabledLocales, $localeFallbacks, $isPublic, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
         } elseif (Crud::PAGE_NEW === $pageName) {
             return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks, $isPublic];
         } elseif (Crud::PAGE_EDIT === $pageName) {
