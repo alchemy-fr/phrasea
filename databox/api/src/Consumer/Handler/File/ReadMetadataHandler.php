@@ -50,20 +50,47 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
             $mm = new MetadataManipulator();
-            $meta = $mm->getAllMetadata(new \SplFileObject($fetchedFilePath));
+            $this->logger->debug(sprintf("new MetadataManipulator() OK"));
+
+            $fo = new \SplFileObject($fetchedFilePath);
+            $this->logger->debug(sprintf("new SplFileObject(\"%s\") OK", $fetchedFilePath));
+
+            $meta = $mm->getAllMetadata($fo);
+            if(!is_null($meta)) {
+                $this->logger->debug(sprintf("getAllMetadata() returned class \"%s\"", get_class($meta)));
+            }
+            else {
+                $this->logger->debug(sprintf("getAllMetadata() returned null ???"));
+            }
+
+            $norm = $this->metadataNormalizer->normalize($meta);
+            if(is_array($norm)) {
+                $this->logger->debug(sprintf("metadataNormalizer returned array[%d]", count($norm)));
+            }
+            else if (is_null($norm)) {
+                $this->logger->debug(sprintf("metadataNormalizer returned null ???"));
+            }
+            else {
+                $this->logger->debug(sprintf("metadataNormalizer did not return an array ???"));
+            }
 
             $file->setMetadata(
-                $this->metadataNormalizer->normalize($meta)
+                $norm
             );
-            unset($meta, $mm);
+            unset($norm, $meta, $mm);
 
             $em = $this->getEntityManager();
             $em->persist($file);
             $em->flush();
 
-            $this->eventProducer->publish(InitializeAttributes::createEvent($assetId));
+            $this->logger->debug(sprintf("metadata persisted in file entity OK"));
 
-        } finally {
+            $this->eventProducer->publish(InitializeAttributes::createEvent($assetId));
+        }
+        catch (\Exception $e) {
+            $this->logger->debug(sprintf("Exception \"%s\" occured on %s[%d]???", $e->getMessage(), $e->getFile(), $e->getLine()));
+        }
+        finally {
             @unlink($fetchedFilePath);
         }
     }
