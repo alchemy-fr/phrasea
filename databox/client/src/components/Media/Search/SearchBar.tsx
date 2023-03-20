@@ -21,7 +21,6 @@ const Search = styled('div')(({theme}) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    width: '100%',
     margin: theme.spacing(1),
     [theme.breakpoints.up('sm')]: {
         width: 'fit-content',

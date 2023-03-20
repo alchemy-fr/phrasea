@@ -8,7 +8,7 @@ import SearchProvider from "./Media/Search/SearchProvider";
 import AssetDropzone from "./Media/Asset/AssetDropzone";
 import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import {Box} from "@mui/material";
+import {Box, Theme, useMediaQuery} from "@mui/material";
 import axios, {AxiosError} from "axios";
 import {UserContext} from "./Security/UserContext";
 import {useTranslation} from "react-i18next";
@@ -21,19 +21,32 @@ import {zIndex} from "../themes/zIndex";
 import AttributeFormatProvider from "./Media/Asset/Attribute/Format/AttributeFormatProvider";
 
 const AppProxy = React.memo(() => {
+    const isSmallView = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+    const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
+    const toggleLeftPanel = React.useCallback(() => {
+        setLeftPanelOpen(p => !p);
+    }, []);
+
+    useEffect(() => {
+        setLeftPanelOpen(!isSmallView);
+    }, [isSmallView]);
+
     return <SearchProvider>
         <ResultProvider>
             <AssetDropzone>
-                <MainAppBar/>
+                <MainAppBar
+                    leftPanelOpen={leftPanelOpen}
+                    onToggleLeftPanel={toggleLeftPanel}
+                />
                 <AttributeFormatProvider>
                     <AssetSelectionProvider>
                         <DisplayProvider>
-                            <Box style={{
+                            <div style={{
                                 display: 'flex',
                                 flexDirection: 'row',
                                 height: `calc(100vh - ${menuHeight}px)`,
                             }}>
-                                <Box sx={(theme) => ({
+                                {leftPanelOpen && <Box sx={(theme) => ({
                                     width: 360,
                                     flexGrow: 0,
                                     flexShrink: 0,
@@ -43,13 +56,13 @@ const AppProxy = React.memo(() => {
                                     zIndex: zIndex.leftPanel,
                                 })}>
                                     <LeftPanel/>
-                                </Box>
-                                <Box sx={{
+                                </Box>}
+                                <div style={{
                                     flexGrow: 1,
                                 }}>
                                     <AssetResults/>
-                                </Box>
-                            </Box>
+                                </div>
+                            </div>
                         </DisplayProvider>
                     </AssetSelectionProvider>
                 </AttributeFormatProvider>

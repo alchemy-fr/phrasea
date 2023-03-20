@@ -29,6 +29,7 @@ export default function GeoPointFilter({}: Props) {
 
     return <>
         <IconButton
+            sx={{mr: 1}}
             onClick={toggleEnabled}
             disabled={resultContext.loading}
         >

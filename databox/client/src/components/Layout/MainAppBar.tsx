@@ -24,26 +24,25 @@ import {zIndex} from "../../themes/zIndex";
 
 export const menuHeight = 42;
 
-export default function MainAppBar() {
+type Props = {
+    leftPanelOpen: boolean;
+    onToggleLeftPanel: () => void;
+}
+
+export default function MainAppBar({
+    onToggleLeftPanel,
+}: Props) {
     const {t} = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const [changeTheme, setChangeTheme] = useState(false);
     const userContext = useContext(UserContext);
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const searchContext = useContext(SearchContext);
     const onTitleClick = () => searchContext.selectWorkspace(undefined, undefined, true);
 
-    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElNav(event.currentTarget);
-    };
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
     };
 
     const handleCloseUserMenu = () => {
@@ -94,7 +93,7 @@ export default function MainAppBar() {
                             aria-label="account of current user"
                             aria-controls="menu-appbar"
                             aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
+                            onClick={onToggleLeftPanel}
                             color="inherit"
                         >
                             <MenuIcon/>

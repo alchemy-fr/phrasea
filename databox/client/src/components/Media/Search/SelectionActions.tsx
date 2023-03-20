@@ -218,16 +218,23 @@ export default function SelectionActions({
 
     return <Box
         sx={(theme) => ({
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            [theme.breakpoints.up('md')]: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            }
         })}
     >
         <Box
             sx={(theme) => ({
                 '> .MuiButtonBase-root, > .MuiButtonGroup-root': {
                     m: 1,
-                }
+                },
+                [theme.breakpoints.down('md')]: {
+                    '.MuiButton-startIcon': {
+                        display: 'none',
+                    }
+                },
             })}
         >
             <Tooltip

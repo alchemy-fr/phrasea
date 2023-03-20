@@ -38,6 +38,9 @@ export default function SortBy({}: Props) {
                     />)}
                 </>
             </>}
+            sx={{
+                mr: 1,
+            }}
         />
         <Menu
             anchorEl={anchorEl}
