@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Model;
+namespace Alchemy\Workflow\Planner;
+
 
 /**
  * Plan contains a list of stages to run in series.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Model;
+namespace Alchemy\Workflow\Planner;
 
 final class StageList extends \ArrayObject
 {
@@ -21,7 +21,7 @@ final class StageList extends \ArrayObject
     /**
      * @param Stage[] $list
      */
-    public function mergeWith(self $list): self
+    public function mergeWithCopy(self $list): self
     {
         /** @var Stage[]|self $new */
         $new = new self();
@@ -31,17 +31,18 @@ final class StageList extends \ArrayObject
 
         for ($i = 0; $i < $maxCount; $i++) {
             $stage = new Stage();
-            $new->append($stage);
-            $runList = $stage->getRuns();
+            $runs = $stage->getRuns();
 
             if ($i >= $selfCount) {
-                $runList->mergeWith($list[$i]->getRuns());
+                $runs->mergeWith($list[$i]->getRuns());
             } elseif ($i >= $listCount) {
-                $runList->mergeWith($this[$i]->getRuns());
+                $runs->mergeWith($this[$i]->getRuns());
             } else {
-                $runList->mergeWith($this[$i]->getRuns());
-                $runList->mergeWith($list[$i]->getRuns());
+                $runs->mergeWith($this[$i]->getRuns());
+                $runs->mergeWith($list[$i]->getRuns());
             }
+
+            $new->append($stage);
         }
 
         return $new;

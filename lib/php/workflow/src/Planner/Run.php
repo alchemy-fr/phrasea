@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Model;
+namespace Alchemy\Workflow\Planner;
+
+use Alchemy\Workflow\Model\Job;
+use Alchemy\Workflow\Model\Workflow;
 
 /**
  * Run represents a job from a workflow that needs to be run.

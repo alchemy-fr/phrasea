@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Model;
+namespace Alchemy\Workflow\Planner;
 
 /**
  * Stage contains a list of runs to execute in parallel.

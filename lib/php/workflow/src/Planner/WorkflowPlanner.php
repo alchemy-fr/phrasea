@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Planner;
 
-use Alchemy\Workflow\Model\Plan;
-use Alchemy\Workflow\Model\Run;
-use Alchemy\Workflow\Model\Stage;
-use Alchemy\Workflow\Model\StageList;
+use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Model\Workflow;
 
 final class WorkflowPlanner
@@ -25,18 +22,30 @@ final class WorkflowPlanner
         $this->workflows = $workflows;
     }
 
+    public function planEvent(WorkflowEvent $event): Plan
+    {
+        $stages = new StageList();
+        foreach ($this->workflows as $workflow) {
+            if ($workflow->getOn()->hasEventName($event->getName())) {
+                $stages = $stages->mergeWithCopy(
+                    $this->createStages($workflow, $workflow->getJobIds())
+                );
+            }
+        }
+
+        return new Plan($stages);
+    }
+
     public function planAll(): Plan
     {
         $stages = new StageList();
         foreach ($this->workflows as $workflow) {
-            $stages = $stages->mergeWith(
+            $stages = $stages->mergeWithCopy(
                 $this->createStages($workflow, $workflow->getJobIds())
             );
         }
 
-        $plan = new Plan($stages);
-
-        return $plan;
+        return new Plan($stages);
     }
 
     private function createStages(Workflow $workflow, array $jobIds): StageList

@@ -32,9 +32,16 @@ class YamlLoader
         $workflow = new Workflow($data['name']);
 
         if (isset($data['jobs'])) {
-            $jobList = $workflow->getJobs();
+            $onList = $workflow->getJobs();
             foreach ($data['jobs'] as $jobId => $job) {
-                $jobList->offsetSet($jobId, $this->parseJob($job, $jobId));
+                $onList->offsetSet($jobId, $this->parseJob($job, $jobId));
+            }
+        }
+
+        if (isset($data['on'])) {
+            $onList = $workflow->getOn();
+            foreach ($data['on'] as $eventName => $spec) {
+                $onList->offsetSet($eventName, $spec);
             }
         }
 

@@ -10,12 +10,14 @@ final class Workflow
 
     private EnvVars $env;
     private JobList $jobs;
+    private OnEventList $on;
 
     public function __construct(string $name)
     {
         $this->name = $name;
         $this->env = new EnvVars();
         $this->jobs = new JobList();
+        $this->on = new OnEventList();
     }
 
     public function getName(): string
@@ -47,5 +49,13 @@ final class Workflow
     public function getJobIds(): array
     {
         return array_keys($this->jobs->getArrayCopy());
+    }
+
+    /**
+     * @return OnEventList|OnEvent[]
+     */
+    public function getOn(): OnEventList
+    {
+        return $this->on;
     }
 }

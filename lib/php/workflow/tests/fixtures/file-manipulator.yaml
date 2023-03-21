@@ -1,15 +1,11 @@
 name: Manipulate file
 
 on:
-  workflow_call:
+  my_event:
     inputs:
-      images:
+      my_var:
         required: true
         type: string
-      withLibs:
-        required: false
-        default: false
-        type: boolean
 
 env:
   FOO: bar
