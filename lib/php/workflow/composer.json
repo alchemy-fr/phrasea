@@ -1,0 +1,42 @@
+{
+    "name": "alchemy/workflow",
+    "description": "Workflow engine",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "workflow",
+        "engine",
+        "parallelism",
+        "async"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\Workflow\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\Workflow\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Arthur de Moulins",
+            "email": "arthurdemoulins@gmail.com"
+        }
+    ],
+    "scripts": {
+        "test": "./vendor/bin/phpunit"
+    },
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-json": "*",
+        "symfony/console": "^5.4",
+        "symfony/yaml": "^5.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.15",
+        "phpunit/phpunit": "^9.6",
+        "symfony/var-dumper": "^5.4"
+    }
+}

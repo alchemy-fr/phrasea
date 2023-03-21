@@ -1,0 +1,38 @@
+name: Echo something
+
+jobs:
+  intro:
+    steps:
+      - run: |
+          echo "intro"
+
+  content:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content"
+
+  content-bis:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content-bis"
+
+  outro:
+    if: ${{ globals.foo == 'bar' }}
+    needs:
+      - content
+      - content-bis
+    steps:
+      - run: |
+          "echo "outro"
+
+  never-called:
+    if: ${{ globals.foo == 'another value' }}
+    steps:
+      - name: Dummy run
+        executor: bash
+        run: |
+          exit 1
