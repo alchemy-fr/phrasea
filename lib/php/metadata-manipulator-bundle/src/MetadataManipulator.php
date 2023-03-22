@@ -70,7 +70,15 @@ class MetadataManipulator
     public function getAllMetadata(\SplFileObject $file): MetadataBag
     {
         $reader = $this->getReader();
+        assert(get_class($reader) === "PHPExiftool\\Reader");
+
         $reader->files($file->getRealPath());
+
+        $fe = $reader->first();
+        assert(get_class($fe) === "PHPExiftool\\FileEntity");
+
+        $md = $fe->getMetadatas();
+        assert(get_class($fe) === "PHPExiftool\\MetadataBag");
 
         return $reader->first()->getMetadatas();
     }

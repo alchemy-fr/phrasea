@@ -52,6 +52,9 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             $mm = new MetadataManipulator();
             $this->logger->debug(sprintf("new MetadataManipulator() OK"));
 
+            $mm->setLogger($this->logger);
+            $this->logger->debug(sprintf("mm->setLoger() OK"));
+
             $fo = new \SplFileObject($fetchedFilePath);
             $this->logger->debug(sprintf("new SplFileObject(\"%s\") OK", $fetchedFilePath));
 
@@ -87,8 +90,9 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
 
             $this->eventProducer->publish(InitializeAttributes::createEvent($assetId));
         }
-        catch (\Exception $e) {
+        catch (\Throwable $e) {
             $this->logger->debug(sprintf("Exception \"%s\" occured on %s[%d]???", $e->getMessage(), $e->getFile(), $e->getLine()));
+            throw($e);
         }
         finally {
             @unlink($fetchedFilePath);

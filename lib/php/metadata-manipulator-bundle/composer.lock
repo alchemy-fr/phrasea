@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0012df94a28ac33402e22dc2055628fa",
+    "content-hash": "575321d3e7e4b6a8bf0b84d8d4d4b91d",
     "packages": [
         {
             "name": "alchemy/phpexiftool",
-            "version": "2.1.x-dev",
+            "version": "2.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "3b3e5b60871b3c9249bb2b7f019b47ee60917634"
+                "reference": "44dec78345460824c234dbdfd156839ec4695412"
             },
             "require": {
                 "cache/array-adapter": "^1.2",
@@ -65,7 +65,7 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2022-08-02T17:32:18+00:00"
+            "time": "2023-03-22T19:10:56+00:00"
         },
         {
             "name": "cache/adapter-common",
