@@ -23,9 +23,10 @@ class Stage
     {
         return $this->runs;
     }
+
     public function containsJobId(string $jobId): bool
     {
-        /** @var Stage $stage */
+        /* @var Stage $stage */
         foreach ($this->getRuns() as $run) {
             if ($run->getJob()->getId() === $jobId) {
                 return true;

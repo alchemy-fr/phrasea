@@ -21,13 +21,14 @@ jobs:
           echo "content-bis"
 
   outro:
-    if: ${{ globals.foo == 'bar' }}
+#    if: ${{ globals.foo == 'bar' }}
     needs:
       - content
       - content-bis
     steps:
-      - run: |
-          "echo "outro"
+      - executor: php
+        run: |
+          echo "outro".str_repeat('!', 2);
 
   never-called:
     if: ${{ globals.foo == 'another value' }}

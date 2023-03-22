@@ -10,5 +10,5 @@ interface ExecutorInterface
 {
     public function support(string $name): bool;
 
-    public function execute(Step $step, RunContext $context, ExecutionOutput $output): void;
+    public function execute(Step $step, RunContext $context): void;
 }

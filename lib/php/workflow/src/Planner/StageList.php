@@ -29,7 +29,7 @@ final class StageList extends \ArrayObject
         $listCount = $list->count();
         $maxCount = max($selfCount, $listCount);
 
-        for ($i = 0; $i < $maxCount; $i++) {
+        for ($i = 0; $i < $maxCount; ++$i) {
             $stage = new Stage();
             $runs = $stage->getRuns();
 

@@ -6,7 +6,6 @@ namespace Alchemy\Workflow\Executor;
 
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\State\JobState;
-use Throwable;
 
 final class PlanExecutor
 {
@@ -27,6 +26,8 @@ final class PlanExecutor
                 if (null === $triggerJobId || $job->getId() === $triggerJobId) {
                     $this->executeJob($workflowContext, $job);
 
+                    $workflowContext->continueWorkflow();
+
                     return;
                 }
             }
@@ -40,7 +41,7 @@ final class PlanExecutor
 
         $jobResultList = $workflowState->getJobResults();
 
-        if ($job->getIf()) {
+        if (null !== $job->getIf()) {
             $jobResultList->setJobState($job->getId(), JobState::STATE_SKIPPED);
 
             return;
@@ -51,8 +52,10 @@ final class PlanExecutor
         try {
             $this->jobExecutor->executeJob($jobContext, $job);
             $jobResultList->setJobState($job->getId(), JobState::STATE_SUCCESS);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $jobResultList->setJobState($job->getId(), JobState::STATE_FAILURE);
+
+            throw $e;
         }
     }
 }

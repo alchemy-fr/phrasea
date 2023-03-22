@@ -6,10 +6,10 @@ namespace Alchemy\Workflow\State;
 
 class JobState
 {
-    const STATE_TRIGGERED = 0;
-    const STATE_SUCCESS = 1;
-    const STATE_FAILURE = 2;
-    const STATE_SKIPPED = 3;
+    public const STATE_TRIGGERED = 0;
+    public const STATE_SUCCESS = 1;
+    public const STATE_FAILURE = 2;
+    public const STATE_SKIPPED = 3;
     private int $state;
 
     private ?array $outputs;

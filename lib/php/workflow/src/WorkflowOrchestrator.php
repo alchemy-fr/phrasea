@@ -10,9 +10,10 @@ use Alchemy\Workflow\Model\WorkflowList;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Runner\RunnerInterface;
-use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Provider\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class WorkflowOrchestrator
 {
@@ -27,19 +28,20 @@ class WorkflowOrchestrator
         $this->runner = $runner;
     }
 
-    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
+    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, OutputInterface $output = null): WorkflowState
     {
         $workflowState = new WorkflowState($workflowName, $event);
 
         $this->stateRepository->persistWorkflow($workflowState);
 
-        $this->continueWorkflow($workflowState->getId());
+        $this->continueWorkflow($workflowState->getId(), $output);
 
         return $workflowState;
     }
 
-    public function continueWorkflow(string $workflowId): void
+    public function continueWorkflow(string $workflowId, OutputInterface $output = null): void
     {
+        $output ??= new ConsoleOutput();
         $workflowState = $this->stateRepository->getWorkflow($workflowId);
         $event = $workflowState->getEvent();
         $planner = new WorkflowPlanner([$this->workflows->getByName($workflowState->getWorkflowName())]);
@@ -47,8 +49,7 @@ class WorkflowOrchestrator
 
         $nextJobId = $this->getNextJob($plan, $workflowState);
         do {
-            $continue = $this->runWorkflow($workflowState, $plan, $nextJobId);
-
+            $continue = $this->runWorkflow($workflowState, $plan, $output, $nextJobId);
             $this->stateRepository->persistWorkflow($workflowState);
 
             if ($continue) {
@@ -56,7 +57,6 @@ class WorkflowOrchestrator
                     $continue = false;
                 }
             }
-
         } while ($continue);
     }
 
@@ -76,11 +76,11 @@ class WorkflowOrchestrator
         return null;
     }
 
-    private function runWorkflow(WorkflowState $workflowState, Plan $plan, string $jobId): bool
+    private function runWorkflow(WorkflowState $workflowState, Plan $plan, OutputInterface $output, string $jobId): bool
     {
         $continue = false;
 
-        $workflowContext = new WorkflowExecutionContext($workflowState, $plan, function () use (&$continue): void {
+        $workflowContext = new WorkflowExecutionContext($workflowState, $plan, $output, function () use (&$continue): void {
             $continue = true;
         });
 

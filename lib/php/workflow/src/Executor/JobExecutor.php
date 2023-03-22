@@ -20,21 +20,22 @@ class JobExecutor
 
     public function executeJob(JobExecutionContext $context, Job $job): void
     {
+        $output = $context->getOutput();
+        $output->writeln(sprintf('Running job <info>%s</info>', $job->getId()));
+
         foreach ($job->getSteps() as $step) {
             $executorName = $step->getExecutor();
+            $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
 
-            $output = new ExecutionOutput();
-            $runContext = new RunContext();
+            $runContext = new RunContext($output);
 
             foreach ($this->executors as $executor) {
                 if ($executor->support($executorName)) {
-                    $executor->execute($step, $runContext, $output);
+                    $executor->execute($step, $runContext);
 
                     break;
                 }
             }
-
-            $context->getWorkflowContext()->continueWorkflow();
         }
     }
 }

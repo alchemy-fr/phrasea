@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor\Executors;
 
-use Alchemy\Workflow\Executor\RunContext;
-use Alchemy\Workflow\Executor\ExecutionOutput;
 use Alchemy\Workflow\Executor\ExecutorInterface;
+use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\Model\Step;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class BashExecutor implements ExecutorInterface
 {
@@ -16,13 +17,21 @@ class BashExecutor implements ExecutorInterface
         return 'bash' === $name;
     }
 
-    public function execute(Step $step, RunContext $context, ExecutionOutput $output): void
+    public function execute(Step $step, RunContext $context): void
     {
-        $cmdOutput = [];
-        exec($step->getRun(), $cmdOutput);
+        $output = $context->getOutput();
 
-        foreach ($cmdOutput as $line) {
-            $output->write($line);
+        if ($output->isVerbose()) {
+            $output->writeln(sprintf('+ %s', trim($step->getRun())));
         }
+
+        $process = Process::fromShellCommandline($step->getRun(), null, ['ENV_VAR_NAME' => 'value']);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output->write($process->getOutput());
     }
 }

@@ -64,7 +64,6 @@ final class WorkflowPlanner
             $jobIds = $discoveredJobs;
         }
 
-
         $stages = new StageList();
         $i = 0;
         while (!empty($jobDependencies)) {

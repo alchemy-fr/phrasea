@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 class JobExecutionContext
 {
     private WorkflowExecutionContext $workflowContext;
@@ -13,8 +15,8 @@ class JobExecutionContext
         $this->workflowContext = $workflowContext;
     }
 
-    public function getWorkflowContext(): WorkflowExecutionContext
+    public function getOutput(): OutputInterface
     {
-        return $this->workflowContext;
+        return $this->workflowContext->getOutput();
     }
 }

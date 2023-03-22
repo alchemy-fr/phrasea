@@ -73,9 +73,12 @@ class YamlLoader
         $id = $data['id'] ?? (string) $i;
 
         $step = new Step($id, $data['name'] ?? $id);
-
         $step->setRun($data['run'] ?? null);
         $step->setIf($data['if'] ?? null);
+
+        if (isset($data['executor'])) {
+            $step->setExecutor($data['executor']);
+        }
 
         return $step;
     }

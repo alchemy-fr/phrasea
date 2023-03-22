@@ -31,6 +31,5 @@ class PlannerTest extends TestCase
         $this->assertCount(2, $stage->getRuns());
         $stage = array_shift($stages);
         $this->assertCount(1, $stage->getRuns());
-
     }
 }
