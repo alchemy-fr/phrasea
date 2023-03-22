@@ -6,32 +6,53 @@ namespace Alchemy\Workflow\State;
 
 class JobState
 {
-    public const STATE_TRIGGERED = 0;
-    public const STATE_SUCCESS = 1;
-    public const STATE_FAILURE = 2;
-    public const STATE_SKIPPED = 3;
-    private int $state;
+    public const STATUS_TRIGGERED = 0;
+    public const STATUS_SUCCESS = 1;
+    public const STATUS_FAILURE = 2;
+    public const STATUS_SKIPPED = 3;
+    public const STATUS_RUNNING = 4;
 
+    private string $workflowId;
+    private string $jobId;
+
+    private int $status;
     private ?array $outputs;
 
-    public function __construct(int $state, ?array $outputs = null)
+    public function __construct(string $workflowId, string $jobId, int $status, ?array $outputs = null)
     {
-        $this->state = $state;
+        $this->workflowId = $workflowId;
+        $this->jobId = $jobId;
+        $this->status = $status;
         $this->outputs = $outputs;
     }
 
-    public function getState(): int
+    public function getStatus(): int
     {
-        return $this->state;
+        return $this->status;
     }
 
-    public function setState(int $state): void
+    public function setStatus(int $status): void
     {
-        $this->state = $state;
+        $this->status = $status;
     }
 
     public function getOutputs(): array
     {
         return $this->outputs;
+    }
+
+    public function getJobId(): string
+    {
+        return $this->jobId;
+    }
+
+    public function getWorkflowId(): string
+    {
+        return $this->workflowId;
+    }
+
+    public function setOutputs(array $outputs): void
+    {
+        $this->outputs = $outputs;
     }
 }

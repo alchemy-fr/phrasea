@@ -6,9 +6,22 @@ namespace Alchemy\Workflow\State;
 
 class JobResultList extends \ArrayObject
 {
-    public function setJobResult(string $jobId, JobState $result): void
+    /**
+     * @param JobState[] $array
+     */
+    public function __construct(array $array)
     {
-        $this->offsetSet($jobId, $result);
+        $jobs = [];
+        foreach ($array as $job) {
+            $jobs[$job->getJobId()] = $job;
+        }
+
+        parent::__construct($jobs);
+    }
+
+    public function setJobResult(JobState $result): void
+    {
+        $this->offsetSet($result->getJobId(), $result);
     }
 
     public function getJobResult(string $jobId): JobState
@@ -23,14 +36,5 @@ class JobResultList extends \ArrayObject
     public function hasJobResult(string $jobId): bool
     {
         return $this->offsetExists($jobId);
-    }
-
-    public function setJobState(string $jobId, int $state): void
-    {
-        if (!isset($this[$jobId])) {
-            $this[$jobId] = new JobState($state);
-        } else {
-            $this[$jobId]->setState($state);
-        }
     }
 }

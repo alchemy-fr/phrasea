@@ -10,7 +10,7 @@ use Alchemy\Workflow\Model\WorkflowList;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Runner\RunnerInterface;
-use Alchemy\Workflow\State\Provider\StateRepositoryInterface;
+use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,25 +32,28 @@ class WorkflowOrchestrator
     {
         $workflowState = new WorkflowState($workflowName, $event);
 
-        $this->stateRepository->persistWorkflow($workflowState);
+        $this->stateRepository->persistWorkflowState($workflowState);
 
-        $this->continueWorkflow($workflowState->getId(), $output);
+        $this->continueWorkflow($workflowState->getId(), $workflowState, $output);
 
         return $workflowState;
     }
 
-    public function continueWorkflow(string $workflowId, OutputInterface $output = null): void
+    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null, OutputInterface $output = null): void
     {
         $output ??= new ConsoleOutput();
-        $workflowState = $this->stateRepository->getWorkflow($workflowId);
+
+        if (null === $workflowState) {
+            $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+        }
+
         $event = $workflowState->getEvent();
         $planner = new WorkflowPlanner([$this->workflows->getByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         $nextJobId = $this->getNextJob($plan, $workflowState);
         do {
-            $continue = $this->runWorkflow($workflowState, $plan, $output, $nextJobId);
-            $this->stateRepository->persistWorkflow($workflowState);
+            $continue = $this->runJob($workflowState, $plan, $output, $nextJobId);
 
             if ($continue) {
                 if (null === $nextJobId = $this->getNextJob($plan, $workflowState)) {
@@ -58,11 +61,13 @@ class WorkflowOrchestrator
                 }
             }
         } while ($continue);
+
+        $this->stateRepository->persistWorkflowState($workflowState);
     }
 
     private function getNextJob(Plan $plan, WorkflowState $state): ?string
     {
-        $resultList = $state->getJobResults();
+        $resultList = $this->stateRepository->getJobResultList($state->getId());
 
         foreach ($plan->getStages() as $stage) {
             foreach ($stage->getRuns() as $run) {
@@ -76,16 +81,37 @@ class WorkflowOrchestrator
         return null;
     }
 
-    private function runWorkflow(WorkflowState $workflowState, Plan $plan, OutputInterface $output, string $jobId): bool
+    private function runJob(WorkflowState $state, Plan $plan, OutputInterface $output, string $jobId): bool
     {
         $continue = false;
 
-        $workflowContext = new WorkflowExecutionContext($workflowState, $plan, $output, function () use (&$continue): void {
-            $continue = true;
-        });
+        $workflowContext = new WorkflowExecutionContext(
+            $state,
+            $plan,
+            $this->stateRepository,
+            $output,
+            function () use (&$continue): void {
+                $continue = true;
+            }
+        );
+
+        $job = $plan->getJob($jobId);
+
+        if (null !== $job->getIf()) {
+            $workflowContext->setJobSkipped($jobId);
+
+            return true;
+        }
+
+        $workflowContext->setJobTriggered($jobId);
 
         $this->runner->run($workflowContext, $jobId);
 
         return $continue;
+    }
+
+    public function setStateRepository(StateRepositoryInterface $stateRepository): void
+    {
+        $this->stateRepository = $stateRepository;
     }
 }

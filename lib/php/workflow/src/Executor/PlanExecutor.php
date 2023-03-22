@@ -16,44 +16,26 @@ final class PlanExecutor
         $this->jobExecutor = $jobExecutor;
     }
 
-    public function executePlan(WorkflowExecutionContext $workflowContext, ?string $triggerJobId = null): void
+    public function executePlan(WorkflowExecutionContext $workflowContext, string $jobId): void
     {
         $plan = $workflowContext->getPlan();
 
-        foreach ($plan->getStages() as $stage) {
-            foreach ($stage->getRuns() as $run) {
-                $job = $run->getJob();
-                if (null === $triggerJobId || $job->getId() === $triggerJobId) {
-                    $this->executeJob($workflowContext, $job);
+        $job = $plan->getJob($jobId);
+        $this->executeJob($workflowContext, $job);
 
-                    $workflowContext->continueWorkflow();
-
-                    return;
-                }
-            }
-        }
+        $workflowContext->continueWorkflow();
     }
 
     private function executeJob(WorkflowExecutionContext $workflowContext, Job $job): void
     {
-        $workflowContext->setJobTriggered($job->getId());
-        $workflowState = $workflowContext->getState();
-
-        $jobResultList = $workflowState->getJobResults();
-
-        if (null !== $job->getIf()) {
-            $jobResultList->setJobState($job->getId(), JobState::STATE_SKIPPED);
-
-            return;
-        }
-
         $jobContext = new JobExecutionContext($workflowContext);
 
         try {
+            $workflowContext->updateJobState($job->getId(), JobState::STATUS_RUNNING);
             $this->jobExecutor->executeJob($jobContext, $job);
-            $jobResultList->setJobState($job->getId(), JobState::STATE_SUCCESS);
+            $workflowContext->updateJobState($job->getId(), JobState::STATUS_SUCCESS);
         } catch (\Throwable $e) {
-            $jobResultList->setJobState($job->getId(), JobState::STATE_FAILURE);
+            $workflowContext->updateJobState($job->getId(), JobState::STATUS_FAILURE);
 
             throw $e;
         }
