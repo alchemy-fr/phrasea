@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "6bbecc93e0abc3de3bb6a7165cc6a64652ead21b"
+                "reference": "4e42676e656bb8dddb018e68ae1799e11cd5e4ae"
             },
             "require": {
                 "cache/array-adapter": "^1.2",
@@ -65,7 +65,7 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2023-03-23T10:32:55+00:00"
+            "time": "2023-03-23T14:11:14+00:00"
         },
         {
             "name": "cache/adapter-common",
