@@ -6,6 +6,7 @@ namespace App\Consumer\Handler\File;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use App\Asset\FileFetcher;
+use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Metadata\MetadataNormalizer;
@@ -97,6 +98,8 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
         finally {
             @unlink($fetchedFilePath);
         }
+
+        $this->eventProducer->publish(NewAssetIntegrationCollectionHandler::createEvent($asset->getId()));
     }
 
     public static function getHandledEvents(): array

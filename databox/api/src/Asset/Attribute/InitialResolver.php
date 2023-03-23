@@ -57,7 +57,7 @@ class InitialResolver
                     $initialValue = $this->resolveInitial(
                         $initializeFormula,
                         [
-                            'file' =>  new FileMetadataAccessorWrapper($asset->getSource(), $this->logger),
+                            'file' =>  new FileMetadataAccessorWrapper($asset->getSource()),
                             'asset' => $asset
                         ],
                         $definition
@@ -89,16 +89,15 @@ class InitialResolver
                     $position = 0;
                     foreach($initialValues as $initialValue) {
                         $attribute = new Attribute();
-                        $attribute->setCreatedAt(new DateTimeImmutable());
-                        $attribute->setUpdatedAt(new DateTimeImmutable());
+                        $now = new DateTimeImmutable();
+                        $attribute->setCreatedAt($now);
+                        $attribute->setUpdatedAt($now);
                         $attribute->setDefinition($definition);
                         $attribute->setAsset($asset);
                         $attribute->setOrigin(Attribute::ORIGIN_INITIAL);
                         $attribute->setValue($initialValue);
                         $attribute->setPosition($position++);
-                        if($locale !== IndexMappingUpdater::NO_LOCALE) {
-                            $attribute->setLocale(IndexMappingUpdater::NO_LOCALE);
-                        }
+                        $attribute->setLocale($locale);
 
                         $attributes[] = $attribute;
                     }
