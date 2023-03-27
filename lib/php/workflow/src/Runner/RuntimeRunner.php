@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Runner;
 
 use Alchemy\Workflow\Executor\PlanExecutor;
-use Alchemy\Workflow\Executor\WorkflowExecutionContext;
 
 class RuntimeRunner implements RunnerInterface
 {
@@ -16,8 +15,8 @@ class RuntimeRunner implements RunnerInterface
         $this->planExecutor = $planExecutor;
     }
 
-    public function run(WorkflowExecutionContext $workflowContext, string $jobId): void
+    public function run(string $workflowId, string $jobId): void
     {
-        $this->planExecutor->executePlan($workflowContext, $jobId);
+        $this->planExecutor->executePlan($workflowId, $jobId);
     }
 }

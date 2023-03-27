@@ -47,45 +47,59 @@ class FileSystemRepository implements StateRepositoryInterface
 
     public function getJobState(string $workflowId, string $jobId): ?JobState
     {
-        $path = $this->getJobPath($workflowId, $jobId);
-        if (!file_exists($path)) {
+        $fd = $this->fileDescriptors[$workflowId][$jobId] ?? null;
+        if (null === $fd) {
+            throw new \InvalidArgumentException(sprintf('Missing file descriptor for reading job "%s"', $jobId));
+        }
+
+        fseek($fd, 0);
+        $content = '';
+        while (!feof($fd)) {
+            $content .= fgets($fd, 4096);
+        }
+
+        if (empty($content)) {
             return null;
         }
 
-        return unserialize(file_get_contents($path));
+        return unserialize($content);
     }
 
     public function acquireJobLock(string $workflowId, string $jobId): void
     {
         $path = $this->getJobPath($workflowId, $jobId);
-        $this->fileDescriptors[$workflowId][$jobId] = $fd = fopen($path, 'r+');
+        $fd = fopen($path, 'c+');
 
         if (!flock($fd, LOCK_EX)) {
             throw new LockException('Cannot acquire lock on "%s"', $path);
         }
+
+        $this->fileDescriptors[$workflowId][$jobId] = $fd;
     }
 
-    private function getLock(string $workflowId, string $jobId)
+    public function releaseJobLock(string $workflowId, string $jobId): void
     {
-        $this->acquireJobLock($workflowId, $jobId);
+        $fd = $this->fileDescriptors[$workflowId][$jobId] ?? null;
+        if ($fd) {
+            flock($fd, LOCK_UN);
+            fclose($fd);
+        }
 
-        return $this->fileDescriptors[$workflowId][$jobId];
+        unset($this->fileDescriptors[$workflowId][$jobId]);
     }
 
     public function persistJobState(JobState $state): void
     {
         $fd = $this->fileDescriptors[$state->getWorkflowId()][$state->getJobId()] ?? null;
-
         if (null === $fd) {
-            $fd = $this->getLock($state->getWorkflowId(), $state->getJobId());
+            throw new \InvalidArgumentException(sprintf('Missing file descriptor for writing job "%s"', $state->getJobId()));
         }
 
         ftruncate($fd, 0);
+        fseek($fd, 0);
         fwrite($fd, serialize($state));
         fflush($fd);
         flock($fd, LOCK_UN);
-
-        fclose($fd);
     }
 
     public function getJobResultList(string $workflowId): JobResultList

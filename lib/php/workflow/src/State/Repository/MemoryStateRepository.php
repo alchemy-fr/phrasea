@@ -64,6 +64,10 @@ class MemoryStateRepository implements StateRepositoryInterface
     {
     }
 
+    public function releaseJobLock(string $workflowId, string $jobId): void
+    {
+    }
+
     private function ensureWorkflowExists(string $workflowId): void
     {
         if (!isset($this->jobs[$workflowId])) {

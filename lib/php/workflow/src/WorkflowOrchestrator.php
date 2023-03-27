@@ -5,55 +5,55 @@ declare(strict_types=1);
 namespace Alchemy\Workflow;
 
 use Alchemy\Workflow\Event\WorkflowEvent;
-use Alchemy\Workflow\Executor\WorkflowExecutionContext;
-use Alchemy\Workflow\Model\WorkflowList;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
-use Alchemy\Workflow\Runner\RunnerInterface;
+use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
+use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\OutputInterface;
+use Alchemy\Workflow\Trigger\JobTriggerInterface;
 
 class WorkflowOrchestrator
 {
-    private WorkflowList $workflows;
+    private WorkflowRepositoryInterface $workflowRepository;
     private StateRepositoryInterface $stateRepository;
-    private RunnerInterface $runner;
+    private JobTriggerInterface $trigger;
 
-    public function __construct(array $workflows, StateRepositoryInterface $stateRepository, RunnerInterface $runner)
+    public function __construct(
+        WorkflowRepositoryInterface $workflowRepository,
+        StateRepositoryInterface $stateRepository,
+        JobTriggerInterface $trigger
+    )
     {
-        $this->workflows = new WorkflowList($workflows);
+        $this->workflowRepository = $workflowRepository;
         $this->stateRepository = $stateRepository;
-        $this->runner = $runner;
+        $this->trigger = $trigger;
     }
 
-    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, OutputInterface $output = null): WorkflowState
+    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
     {
         $workflowState = new WorkflowState($workflowName, $event);
 
         $this->stateRepository->persistWorkflowState($workflowState);
 
-        $this->continueWorkflow($workflowState->getId(), $workflowState, $output);
+        $this->continueWorkflow($workflowState->getId(), $workflowState);
 
         return $workflowState;
     }
 
-    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null, OutputInterface $output = null): void
+    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null): void
     {
-        $output ??= new ConsoleOutput();
-
         if (null === $workflowState) {
             $workflowState = $this->stateRepository->getWorkflowState($workflowId);
         }
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflows->getByName($workflowState->getWorkflowName())]);
+        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         $nextJobId = $this->getNextJob($plan, $workflowState);
         do {
-            $continue = $this->runJob($workflowState, $plan, $output, $nextJobId);
+            $continue = $this->triggerJob($workflowState, $plan, $nextJobId);
 
             if ($continue) {
                 if (null === $nextJobId = $this->getNextJob($plan, $workflowState)) {
@@ -81,37 +81,27 @@ class WorkflowOrchestrator
         return null;
     }
 
-    private function runJob(WorkflowState $state, Plan $plan, OutputInterface $output, string $jobId): bool
+    private function triggerJob(WorkflowState $state, Plan $plan, string $jobId): bool
     {
-        $continue = false;
-
-        $workflowContext = new WorkflowExecutionContext(
-            $state,
-            $plan,
-            $this->stateRepository,
-            $output,
-            function () use (&$continue): void {
-                $continue = true;
-            }
-        );
-
+        $workflowId = $state->getId();
         $job = $plan->getJob($jobId);
 
         if (null !== $job->getIf()) {
-            $workflowContext->setJobSkipped($jobId);
+            $this->createJobState($workflowId, $jobId, JobState::STATUS_SKIPPED);
 
             return true;
         }
 
-        $workflowContext->setJobTriggered($jobId);
+        $this->createJobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
 
-        $this->runner->run($workflowContext, $jobId);
-
-        return $continue;
+        return $this->trigger->triggerJob($state->getId(), $jobId);
     }
 
-    public function setStateRepository(StateRepositoryInterface $stateRepository): void
+    private function createJobState(string $workflowId, string $jobId, int $status): void
     {
-        $this->stateRepository = $stateRepository;
+        $this->stateRepository->acquireJobLock($workflowId, $jobId);
+        $jobState = new JobState($workflowId, $jobId, $status);
+        $this->stateRepository->persistJobState($jobState);
+        $this->stateRepository->releaseJobLock($workflowId, $jobId);
     }
 }

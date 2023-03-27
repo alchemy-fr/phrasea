@@ -12,13 +12,13 @@ class OrchestratorTest extends AbstractWorkflowTest
 {
     public function testEndToEndWorkflow(): void
     {
+        $output = new BufferedOutput();
         [$orchestrator, $stateRepository] = $this->createOrchestrator([
             'echoer.yaml',
-        ]);
+        ], null, $output);
 
-        $output = new BufferedOutput();
         $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-        $workflowState = $orchestrator->startWorkflow('Echo something', null, $output);
+        $workflowState = $orchestrator->startWorkflow('Echo something');
 
         $this->assertNull($workflowState->getEvent());
         $this->assertEquals(<<<'EOF'
