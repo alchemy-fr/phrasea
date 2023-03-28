@@ -28,7 +28,7 @@
         "symfony/process": "^5",
         "symfony/framework-bundle": "^4.4 || ^5.0 || ^5",
         "symfony/templating": "^4.4 || ^5.0",
-        "alchemy/phpexiftool": "2.2.x-dev"
+        "alchemy/phpexiftool": "3.0.x-dev"
     },
     "config": {
         "sort-packages": true
