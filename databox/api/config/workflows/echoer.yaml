@@ -1,0 +1,45 @@
+name: Echo something
+
+jobs:
+  intro:
+    steps:
+      - name: Generate Intro
+        run: |
+          echo "intro"
+      - name: Second step in Intro
+        run: ''
+
+  content:
+    needs:
+      - intro
+    steps:
+      - name: Generate Content
+        run: |
+          echo "content"
+
+  content-bis:
+    needs:
+      - intro
+    steps:
+      - name: Generate Content Bis
+        run: |
+          echo "content-bis"
+
+  outro:
+    #    if: ${{ globals.foo == 'bar' }}
+    needs:
+      - content
+      - content-bis
+    steps:
+      - executor: php
+        name: Generate Outro
+        run: |
+          echo "outro".str_repeat('!', 2);
+
+  never-called:
+    if: ${{ globals.foo == 'another value' }}
+    steps:
+      - name: Dummy run
+        executor: bash
+        run: |
+          exit 1

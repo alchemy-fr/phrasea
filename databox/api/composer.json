@@ -88,6 +88,20 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/workflow-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/workflow",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
@@ -96,6 +110,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "alchemy/acl-bundle": "dev-main",
+        "alchemy/workflow-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "dev-PS-478-3_attribute-initializers",

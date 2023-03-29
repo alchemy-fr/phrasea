@@ -20,5 +20,4 @@ class MemoryWorkflowRepository implements WorkflowRepositoryInterface
     {
         return $this->workflows->getByName($name);
     }
-
 }

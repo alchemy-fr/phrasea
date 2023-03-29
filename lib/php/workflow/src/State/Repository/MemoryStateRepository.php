@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State\Repository;
 
-use Alchemy\Workflow\State\JobResultList;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use InvalidArgumentException;
@@ -51,21 +50,6 @@ class MemoryStateRepository implements StateRepositoryInterface
         $this->ensureWorkflowExists($workflowId);
 
         $this->jobs[$workflowId][$state->getJobId()] = $state;
-    }
-
-    public function getJobResultList(string $workflowId): JobResultList
-    {
-        $this->ensureWorkflowExists($workflowId);
-
-        return new JobResultList(array_values($this->jobs[$workflowId]));
-    }
-
-    public function acquireJobLock(string $workflowId, string $jobId): void
-    {
-    }
-
-    public function releaseJobLock(string $workflowId, string $jobId): void
-    {
     }
 
     private function ensureWorkflowExists(string $workflowId): void

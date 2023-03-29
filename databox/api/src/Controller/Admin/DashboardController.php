@@ -8,6 +8,8 @@ use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
+use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
 use App\Entity\Core\AlternateUrl;
@@ -94,12 +96,18 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Webhook errors', '', WebhookLog::class),
         ];
 
+        $workflows = [
+            MenuItem::linkToCrud('Workflows states', '', WorkflowState::class),
+            MenuItem::linkToCrud('Job states', '', JobState::class),
+        ];
+
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::linkToCrud('OAuthClient', 'fas fa-folder-open', OAuthClient::class);
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
+        yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);
         yield $this->createDevMenu(FailedEvent::class);
         yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);
     }

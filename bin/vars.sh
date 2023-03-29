@@ -27,4 +27,5 @@ lib/php/report-sdk
 lib/php/test-bundle
 lib/php/webhook-bundle
 lib/php/workflow
+lib/php/workflow-bundle
 "

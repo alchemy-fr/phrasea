@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
+use Alchemy\Workflow\Exception\ConcurrencyException;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,8 +42,15 @@ final class PlanExecutor
         $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        $this->stateRepository->acquireJobLock($workflowId, $jobId);
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->acquireJobLock($workflowId, $jobId);
+        }
+
         $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+
+        if (JobState::STATUS_TRIGGERED !== $jobState->getStatus()) {
+            throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s"', $jobId, $workflowId));
+        }
 
         $context = new JobExecutionContext(
             $workflowState,
@@ -58,7 +67,9 @@ final class PlanExecutor
         try {
             $this->executeJob($context, $job);
         } finally {
-            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->releaseJobLock($workflowId, $jobId);
+            }
         }
     }
 

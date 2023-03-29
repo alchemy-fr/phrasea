@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\State\Repository;
 
 use Alchemy\Workflow\Exception\LockException;
-use Alchemy\Workflow\State\JobResultList;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 
-class FileSystemRepository implements StateRepositoryInterface
+class FileSystemStateRepository implements LockAwareStateRepositoryInterface
 {
     const WORKFLOW_FILENAME = '__workflow';
     const JOB_PREFIX = 'job::';
@@ -20,7 +19,9 @@ class FileSystemRepository implements StateRepositoryInterface
     public function __construct(string $path)
     {
         if (!is_dir($path)) {
-            throw new \Exception(sprintf('Directory "%s" does not exist', $path));
+            if (!mkdir($path, 0755)) {
+                throw new \Exception(sprintf('Cannot create directory "%s"', $path));
+            }
         }
         if (!is_writable($path)) {
             throw new \Exception(sprintf('Directory "%s" is not writable', $path));
@@ -35,12 +36,21 @@ class FileSystemRepository implements StateRepositoryInterface
             throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
         }
 
-        return unserialize(file_get_contents($path));
+        /** @var WorkflowState $state */
+        $state = unserialize(file_get_contents($path));
+        $state->setStateRepository($this);
+
+        return $state;
     }
 
     public function persistWorkflowState(WorkflowState $state): void
     {
         $path = $this->getWorkflowPath($state->getId(), self::WORKFLOW_FILENAME);
+
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755);
+        }
 
         file_put_contents($path, serialize($state));
     }
@@ -49,7 +59,7 @@ class FileSystemRepository implements StateRepositoryInterface
     {
         $fd = $this->fileDescriptors[$workflowId][$jobId] ?? null;
         if (null === $fd) {
-            throw new \InvalidArgumentException(sprintf('Missing file descriptor for reading job "%s"', $jobId));
+            return $this->readJobState($workflowId, $jobId);
         }
 
         fseek($fd, 0);
@@ -63,6 +73,16 @@ class FileSystemRepository implements StateRepositoryInterface
         }
 
         return unserialize($content);
+    }
+
+    private function readJobState(string $workflowId, string $jobId): ?JobState
+    {
+        $path = $this->getJobPath($workflowId, $jobId);
+        if (file_exists($path)) {
+            return unserialize(file_get_contents($path));
+        }
+
+        return null;
     }
 
     public function acquireJobLock(string $workflowId, string $jobId): void
@@ -102,28 +122,8 @@ class FileSystemRepository implements StateRepositoryInterface
         flock($fd, LOCK_UN);
     }
 
-    public function getJobResultList(string $workflowId): JobResultList
-    {
-        $dir = dirname($this->getWorkflowPath($workflowId, ''));
-        $files = scandir($dir);
-
-        /** @var JobState[] $jobs */
-        $jobs = [];
-        foreach ($files as $file) {
-            if (0 === strpos($file, self::JOB_PREFIX)) {
-                $jobs[] = unserialize(file_get_contents($dir.DIRECTORY_SEPARATOR.$file));
-            }
-        }
-
-        return new JobResultList($jobs);
-    }
-
     private function getWorkflowPath(string $id, string $filename): string
     {
-        if (!is_dir($this->path.DIRECTORY_SEPARATOR.$id)) {
-            mkdir($this->path.DIRECTORY_SEPARATOR.$id, 0755);
-        }
-
         return $this->path.DIRECTORY_SEPARATOR.$id.DIRECTORY_SEPARATOR.$filename.'.state';
     }
 

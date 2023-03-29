@@ -1,0 +1,48 @@
+{
+  "name": "alchemy/workflow-bundle",
+  "type": "symfony-bundle",
+  "description": "Alchemy Workflow bundle",
+  "keywords": [],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../workflow",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
+  "require": {
+    "php": "^7.4",
+    "symfony/framework-bundle": "^4.0||^5",
+    "symfony/monolog-bundle": "^3.5",
+    "ramsey/uuid": "^4.2",
+    "alchemy/workflow": "@dev"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "cs": "vendor/bin/php-cs-fixer fix",
+    "test": "echo 'This project has no test...'"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\WorkflowBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\WorkflowBundle\\Tests\\": "/Tests/"
+    }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpunit/phpunit": "^8.4"
+  }
+}

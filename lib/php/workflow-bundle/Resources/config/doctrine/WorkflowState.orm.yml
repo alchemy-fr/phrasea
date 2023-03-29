@@ -1,0 +1,13 @@
+Alchemy\Workflow\Doctrine\Entity\WorkflowState:
+  type: entity
+  table: workflow_state
+  id:
+    id:
+      type: string
+      length: 36
+      unique: true
+  fields:
+    state:
+      name: state
+      type: text
+      nullable: false

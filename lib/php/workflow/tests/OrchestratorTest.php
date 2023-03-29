@@ -40,15 +40,12 @@ Running step 0
 outro!!
 EOF, $output->fetch());
 
-        $jobResult = $stateRepository->getJobResultList($workflowState->getId());
-        $this->assertCount(5, $jobResult);
-
         $this->assertJobResultsStates([
             'intro' => JobState::STATUS_SUCCESS,
             'never-called' => JobState::STATUS_SKIPPED,
             'content' => JobState::STATUS_SUCCESS,
             'content-bis' => JobState::STATUS_SUCCESS,
             'outro' => JobState::STATUS_SUCCESS,
-        ], $jobResult);
+        ], $stateRepository, $workflowState->getId());
     }
 }

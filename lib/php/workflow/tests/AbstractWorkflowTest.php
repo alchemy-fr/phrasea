@@ -13,10 +13,9 @@ use Alchemy\Workflow\Model\WorkflowList;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\MemoryWorkflowRepository;
 use Alchemy\Workflow\Runner\RuntimeRunner;
-use Alchemy\Workflow\State\JobResultList;
 use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
-use Alchemy\Workflow\Tests\State\TestStateRepository;
+use Alchemy\Workflow\Tests\State\TestStateStateRepository;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +26,7 @@ abstract class AbstractWorkflowTest extends TestCase
     /**
      * @param array $workflowFiles
      *
-     * @return array{WorkflowOrchestrator, TestStateRepository}
+     * @return array{WorkflowOrchestrator, TestStateStateRepository}
      */
     protected function createOrchestrator(array $workflowFiles, ?StateRepositoryInterface $stateRepository, ?OutputInterface $output = null): array
     {
@@ -41,7 +40,7 @@ abstract class AbstractWorkflowTest extends TestCase
             array_map(fn (string $src) => $loader->load(__DIR__.'/fixtures/'.$src), $workflowFiles)
         ));
 
-        $stateRepository = new TestStateRepository($stateRepository ?? new MemoryStateRepository());
+        $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
 
         $planExecutor = new PlanExecutor(
             $workflowRepository,
@@ -65,10 +64,10 @@ abstract class AbstractWorkflowTest extends TestCase
         return new WorkflowPlanner(array_map(fn (string $src) => $loader->load(__DIR__.'/fixtures/'.$src), $workflowFiles));
     }
 
-    protected function assertJobResultsStates(array $expected, JobResultList $jobResults): void
+    protected function assertJobResultsStates(array $expected, StateRepositoryInterface $repository, string $workflowId): void
     {
         foreach ($expected as $jobId => $result) {
-            $this->assertEquals($result, $jobResults->getJobResult($jobId)->getStatus());
+            $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus());
         }
     }
 }

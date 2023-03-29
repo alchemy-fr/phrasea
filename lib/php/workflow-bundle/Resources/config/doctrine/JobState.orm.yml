@@ -1,0 +1,31 @@
+Alchemy\Workflow\Doctrine\Entity\JobState:
+  type: entity
+  table: job_state
+  indexes:
+    workflow_job:
+      columns:
+        - workflow_id
+        - job_id
+  id:
+    id:
+      type: string
+      length: 36
+      unique: true
+  fields:
+    state:
+      name: state
+      type: text
+      nullable: false
+    jobId:
+      name: job_id
+      type: string
+      length: 100
+      nullable: false
+  manyToOne:
+    workflow:
+      targetEntity: Alchemy\Workflow\Doctrine\Entity\WorkflowState
+      inversedBy: jobs
+      joinColumn:
+        name: workflow_id
+        referencedColumnName: id
+        onDelete: CASCADE

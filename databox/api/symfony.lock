@@ -29,6 +29,9 @@
     "alchemy/webhook-bundle": {
         "version": "dev-master"
     },
+    "alchemy/workflow-bundle": {
+        "version": "dev-PS-531-workflow"
+    },
     "api-platform/core": {
         "version": "2.5",
         "recipe": {

@@ -1,0 +1,47 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Alchemy\Workflow\Command\DumpWorkflowCommand:
+    tags:
+      - { name: 'console.command', command: 'alchemy:workflow:dump-workflow' }
+
+  Alchemy\Workflow\Command\RunCommand:
+    tags:
+      - { name: 'console.command', command: 'alchemy:workflow:run' }
+
+  Alchemy\Workflow\Loader\YamlLoader: ~
+
+  alchemy.workflow.workflow_repository:
+    class: Alchemy\Workflow\Repository\FileWorkflowRepository
+
+  alchemy.workflow.state_repository:
+    class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
+
+  alchemy.workflow.job_trigger:
+    class: Alchemy\Workflow\Trigger\RuntimeJobTrigger
+
+  alchemy.workflow.job_runner:
+    class: Alchemy\Workflow\Runner\RuntimeRunner
+
+  Alchemy\Workflow\Executor\PlanExecutor: ~
+
+  Alchemy\Workflow\Executor\Executors\BashExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+  Alchemy\Workflow\Executor\Executors\PhpExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+
+  Alchemy\Workflow\Executor\JobExecutor:
+    arguments:
+      - !tagged_iterator alchemy_workflow.executor
+
+  Alchemy\Workflow\Runner\RunnerInterface: '@alchemy.workflow.job_runner'
+  Alchemy\Workflow\Trigger\JobTriggerInterface: '@alchemy.workflow.job_trigger'
+  Alchemy\Workflow\State\Repository\StateRepositoryInterface: '@alchemy.workflow.state_repository'
+  Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository'
+
+  Alchemy\Workflow\WorkflowOrchestrator: ~
+  alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'

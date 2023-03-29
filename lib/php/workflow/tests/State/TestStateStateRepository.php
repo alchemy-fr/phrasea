@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Tests\State;
 
-use Alchemy\Workflow\State\JobResultList;
 use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 
-class TestStateRepository implements StateRepositoryInterface
+class TestStateStateRepository implements LockAwareStateRepositoryInterface
 {
     private StateRepositoryInterface $inner;
 
@@ -48,25 +48,22 @@ class TestStateRepository implements StateRepositoryInterface
         $this->inner->persistJobState($state);
     }
 
-    public function getJobResultList(string $workflowId): JobResultList
-    {
-        $this->logs[] = ['getJobResultList', $workflowId];
-
-        return $this->inner->getJobResultList($workflowId);
-    }
-
     public function acquireJobLock(string $workflowId, string $jobId): void
     {
         $this->logs[] = ['acquireJobLock', $workflowId, $jobId];
 
-        $this->inner->acquireJobLock($workflowId, $jobId);
+        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
+            $this->inner->acquireJobLock($workflowId, $jobId);
+        }
     }
 
     public function releaseJobLock(string $workflowId, string $jobId): void
     {
         $this->logs[] = ['releaseJobLock', $workflowId, $jobId];
 
-        $this->inner->releaseJobLock($workflowId, $jobId);
+        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
+            $this->inner->releaseJobLock($workflowId, $jobId);
+        }
     }
 
     public function getLogs(): array

@@ -32,7 +32,7 @@ class WorkflowOrchestrator
 
     public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
     {
-        $workflowState = new WorkflowState($workflowName, $event);
+        $workflowState = new WorkflowState($this->stateRepository, $workflowName, $event);
 
         $this->stateRepository->persistWorkflowState($workflowState);
 
@@ -67,14 +67,28 @@ class WorkflowOrchestrator
 
     private function getNextJob(Plan $plan, WorkflowState $state): ?string
     {
-        $resultList = $this->stateRepository->getJobResultList($state->getId());
-
         foreach ($plan->getStages() as $stage) {
+            $stageComplete = true;
+
             foreach ($stage->getRuns() as $run) {
                 $jobId = $run->getJob()->getId();
-                if (!$resultList->hasJobResult($jobId)) {
+
+                $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
+                if (null === $jobState) {
                     return $jobId;
                 }
+
+                if (!in_array($jobState->getStatus(), [
+                    JobState::STATUS_SUCCESS,
+                    JobState::STATUS_SKIPPED,
+                    JobState::STATUS_FAILURE,
+                ], true)) {
+                    $stageComplete = false;
+                }
+            }
+
+            if (!$stageComplete) {
+                break;
             }
         }
 

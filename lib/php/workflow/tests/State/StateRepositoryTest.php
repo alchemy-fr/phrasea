@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Tests\State;
 
 use Alchemy\Workflow\State\JobState;
-use Alchemy\Workflow\State\Repository\FileSystemRepository;
+use Alchemy\Workflow\State\Repository\FileSystemStateRepository;
 use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\Tests\AbstractWorkflowTest;
@@ -17,7 +17,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
      */
     public function testStateAreCorrectlyPersisted(StateRepositoryInterface $stateRepository): void
     {
-        $testStateRepositoryDecorator = new TestStateRepository($stateRepository);
+        $testStateRepositoryDecorator = new TestStateStateRepository($stateRepository);
         [$orchestrator] = $this->createOrchestrator([
             'echoer.yaml',
         ], $testStateRepositoryDecorator);
@@ -28,7 +28,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
 
         $this->assertEquals([
             ['persistWorkflowState', $workflowId],
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
             ['acquireJobLock', $workflowId, 'intro'],
             ['persistJobState', $workflowId, 'intro', JobState::STATUS_TRIGGERED],
             ['releaseJobLock', $workflowId, 'intro'],
@@ -39,13 +39,16 @@ class StateRepositoryTest extends AbstractWorkflowTest
             ['persistJobState', $workflowId, 'intro', JobState::STATUS_SUCCESS],
             ['releaseJobLock', $workflowId, 'intro'],
 
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
 
             ['acquireJobLock', $workflowId, 'never-called'],
             ['persistJobState', $workflowId, 'never-called', JobState::STATUS_SKIPPED],
             ['releaseJobLock', $workflowId, 'never-called'],
 
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
 
             ['acquireJobLock', $workflowId, 'content'],
             ['persistJobState', $workflowId, 'content', JobState::STATUS_TRIGGERED],
@@ -57,7 +60,10 @@ class StateRepositoryTest extends AbstractWorkflowTest
             ['persistJobState', $workflowId, 'content', JobState::STATUS_SUCCESS],
             ['releaseJobLock', $workflowId, 'content'],
 
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
+            ['getJobState', $workflowId, 'content-bis'],
 
             ['acquireJobLock', $workflowId, 'content-bis'],
             ['persistJobState', $workflowId, 'content-bis', JobState::STATUS_TRIGGERED],
@@ -69,7 +75,11 @@ class StateRepositoryTest extends AbstractWorkflowTest
             ['persistJobState', $workflowId, 'content-bis', JobState::STATUS_SUCCESS],
             ['releaseJobLock', $workflowId, 'content-bis'],
 
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
+            ['getJobState', $workflowId, 'content-bis'],
+            ['getJobState', $workflowId, 'outro'],
 
             ['acquireJobLock', $workflowId, 'outro'],
             ['persistJobState', $workflowId, 'outro', JobState::STATUS_TRIGGERED],
@@ -81,7 +91,11 @@ class StateRepositoryTest extends AbstractWorkflowTest
             ['persistJobState', $workflowId, 'outro', JobState::STATUS_SUCCESS],
             ['releaseJobLock', $workflowId, 'outro'],
 
-            ['getJobResultList', $workflowId],
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
+            ['getJobState', $workflowId, 'content-bis'],
+            ['getJobState', $workflowId, 'outro'],
 
             ['persistWorkflowState', $workflowId],
         ], $testStateRepositoryDecorator->getLogs());
@@ -91,7 +105,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
     {
         return [
             [new MemoryStateRepository()],
-            [new FileSystemRepository(__DIR__.'/../var/state')],
+            [new FileSystemStateRepository(__DIR__.'/../var/state')],
         ];
     }
 }
