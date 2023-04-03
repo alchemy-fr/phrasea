@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22e6b75cefdc67e8a180ed9d4830d81a",
+    "content-hash": "c6ecf70e3b48426e465b3ad3abc34361",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -112,7 +112,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -162,14 +162,14 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
-                "reference": "845caaef856cb430305d5f1dd2989b58a3a47a84"
+                "reference": "3c96faec6e9df6ae4c6d8a664259429377904f89"
             },
             "require": {
-                "alchemy/phpexiftool": "2.1.x-dev",
+                "alchemy/phpexiftool": "3.1.x-dev",
                 "php": "^7.4",
                 "symfony/framework-bundle": "^4.4 || ^5.0 || ^5",
                 "symfony/process": "^5",
@@ -213,7 +213,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -262,11 +262,11 @@
         },
         {
             "name": "alchemy/phpexiftool",
-            "version": "2.1.x-dev",
+            "version": "3.1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "3b3e5b60871b3c9249bb2b7f019b47ee60917634"
+                "reference": "4a34309b82e7c938137365cddd5e7d044595c2a2"
             },
             "require": {
                 "cache/array-adapter": "^1.2",
@@ -299,6 +299,9 @@
                     "PHPExiftool\\": "lib/PHPExiftool/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": []
+            },
             "license": [
                 "MIT"
             ],
@@ -319,11 +322,11 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2022-08-02T17:32:18+00:00"
+            "time": "2023-04-03T14:37:59+00:00"
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -375,7 +378,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -426,7 +429,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/test-bundle",
@@ -474,7 +477,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/webhook-bundle",
@@ -12792,7 +12795,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-536-include-sub-collections",
+            "version": "dev-PS-478-3_attribute-initializers",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
