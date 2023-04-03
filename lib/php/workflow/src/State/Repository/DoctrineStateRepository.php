@@ -44,7 +44,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             $entity = new WorkflowStateEntity($state->getId());
         }
 
-        $entity->setState(serialize($state));
+        $entity->setState($state);
 
         $this->em->persist($entity);
         $this->em->flush($entity);
@@ -101,7 +101,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             );
         }
 
-        $entity->setState(serialize($state));
+        $entity->setState($state);
 
         $this->em->persist($entity);
         $this->em->flush($entity);

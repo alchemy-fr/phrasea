@@ -64,36 +64,31 @@ final class PlanExecutor
             throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
         }
 
-        try {
-            $this->executeJob($context, $job);
-        } finally {
-            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                $this->stateRepository->releaseJobLock($workflowId, $jobId);
-            }
+        $this->executeJob($context, $job);
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->releaseJobLock($workflowId, $jobId);
         }
     }
 
     public function executeJob(JobExecutionContext $jobExecutionContext, Job $job): void
     {
+        $jobState = $jobExecutionContext->getJobState();
+
         try {
-            $this->updateJobState($jobExecutionContext, JobState::STATUS_RUNNING);
+            $jobState->setStatus(JobState::STATUS_RUNNING);
+            $jobState->setStartedAt(new \DateTimeImmutable());
+            $this->stateRepository->persistJobState($jobState);
+
             $this->jobExecutor->executeJob($jobExecutionContext, $job);
-            $this->updateJobState($jobExecutionContext, JobState::STATUS_SUCCESS);
+
+            $jobState->setEndedAt(new \DateTimeImmutable());
+            $jobState->setStatus(JobState::STATUS_SUCCESS);
+            $this->stateRepository->persistJobState($jobState);
         } catch (\Throwable $e) {
-            $this->updateJobState($jobExecutionContext, JobState::STATUS_FAILURE);
-
-            throw $e;
+            $jobState->setEndedAt(new \DateTimeImmutable());
+            $jobState->setStatus(JobState::STATUS_FAILURE);
+            $this->stateRepository->persistJobState($jobState);
         }
-    }
-
-    private function updateJobState(JobExecutionContext $context, int $status, ?array $outputs = null): void
-    {
-        $jobState = $context->getJobState();
-        $jobState->setStatus($status);
-        if (null !== $outputs) {
-            $jobState->setOutputs($outputs);
-        }
-
-        $this->stateRepository->persistJobState($jobState);
     }
 }

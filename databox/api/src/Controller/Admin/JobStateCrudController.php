@@ -40,22 +40,31 @@ class JobStateCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
 
-        $workflowName = TextField::new('workflow.workflowState.workflowName', 'Workflow Name');
-        $job = TextField::new('jobState.jobId', 'Job ID');
-        $status = ChoiceField::new('jobState.status', 'Started At')
+        $workflowName = TextField::new('workflow.name', 'Workflow Name');
+        $job = TextField::new('jobId', 'Job ID');
+        $status = ChoiceField::new('status', 'Status')
             ->setChoices([
                 'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
                 'SUCCESS' => ModelJobState::STATUS_SUCCESS,
                 'FAILURE' => ModelJobState::STATUS_FAILURE,
                 'SKIPPED' => ModelJobState::STATUS_SKIPPED,
                 'RUNNING' => ModelJobState::STATUS_RUNNING,
+            ])
+            ->renderAsBadges([
+                ModelJobState::STATUS_TRIGGERED => 'secondary',
+                ModelJobState::STATUS_SUCCESS => 'success',
+                ModelJobState::STATUS_FAILURE => 'danger',
+                ModelJobState::STATUS_SKIPPED => 'info',
+                ModelJobState::STATUS_RUNNING => 'warning',
             ]);
-        $createdAt = DateTimeField::new('createdAt', 'Created At');
+        $triggeredAt = DateTimeField::new('triggeredAt', 'Triggered At');
+        $startedAt = DateTimeField::new('startedAt', 'Started At');
+        $endedAt = DateTimeField::new('endedAt', 'Ended At');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workflowName, $job, $status, $createdAt];
+            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $workflowName, $job, $status, $createdAt];
+            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt];
         }
 
         return [];

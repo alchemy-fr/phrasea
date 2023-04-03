@@ -8,8 +8,10 @@ use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
@@ -38,15 +40,25 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $id = IdField::new();
-        $name = TextField::new('workflowState.workflowName', 'Name');
+        $name = TextField::new('name', 'Name');
         $event = TextField::new('workflowState.event.name', 'Event');
-        $startedAt = DateTimeField::new('workflowState.startedAt', 'Started At');
-        $createdAt = DateTimeField::new('createdAt', 'Created At');
+        $startedAt = DateTimeField::new('startedAt', 'Started At');
+        $endedAt = DateTimeField::new('endedAt', 'Ended At');
+        $status = ChoiceField::new('status', 'Status')
+            ->setChoices([
+                'STARTED' => ModelWorkflowState::STATUS_STARTED,
+                'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
+                'FAILURE' => ModelWorkflowState::STATUS_FAILURE,
+            ])->renderAsBadges([
+                ModelWorkflowState::STATUS_STARTED => 'warning',
+                ModelWorkflowState::STATUS_SUCCESS => 'success',
+                ModelWorkflowState::STATUS_FAILURE => 'danger',
+            ]);
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $startedAt, $event, $createdAt];
+            return [$id, $name, $startedAt, $status, $endedAt, $event];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $startedAt, $event];
+            return [$id, $name, $startedAt, $status, $endedAt, $event];
         }
 
         return [];

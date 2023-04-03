@@ -10,11 +10,17 @@ use Ramsey\Uuid\Uuid;
 
 class WorkflowState
 {
+    public const STATUS_STARTED = 0;
+    public const STATUS_SUCCESS = 1;
+    public const STATUS_FAILURE = 2;
+
     private string $id;
     private StateRepositoryInterface $stateRepository;
-    private \DateTimeImmutable $startedAt;
+    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $endedAt = null;
     private ?WorkflowEvent $event;
     private string $workflowName;
+    private int $status = self::STATUS_STARTED;
 
     public function __construct(
         StateRepositoryInterface $stateRepository,
@@ -25,8 +31,8 @@ class WorkflowState
     {
         $this->stateRepository = $stateRepository;
         $this->id = $id ?? Uuid::uuid4()->toString();
-        $this->event = $event;
         $this->startedAt = new \DateTimeImmutable();
+        $this->event = $event;
         $this->workflowName = $workflowName;
     }
 
@@ -59,9 +65,11 @@ class WorkflowState
     {
         return [
             'startedAt' => $this->startedAt,
+            'endedAt' => $this->endedAt,
             'event' => $this->event,
             'workflowName' => $this->workflowName,
             'id' => $this->id,
+            'status' => $this->status,
         ];
     }
 
@@ -71,10 +79,27 @@ class WorkflowState
         $this->event = $data['event'];
         $this->workflowName = $data['workflowName'];
         $this->id = $data['id'];
+        $this->status = $data['status'];
+        $this->endedAt = $data['endedAt'];
     }
 
     public function setStateRepository(StateRepositoryInterface $stateRepository): void
     {
         $this->stateRepository = $stateRepository;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    public function getEndedAt(): ?\DateTimeImmutable
+    {
+        return $this->endedAt;
+    }
+
+    public function setEndedAt(\DateTimeImmutable $endedAt): void
+    {
+        $this->endedAt = $endedAt;
     }
 }

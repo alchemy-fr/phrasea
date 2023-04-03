@@ -16,6 +16,7 @@ jobs:
       - name: Generate Content
         run: |
           echo "content"
+          exit 1
 
   content-bis:
     needs:

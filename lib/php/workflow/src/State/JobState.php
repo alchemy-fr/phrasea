@@ -17,6 +17,9 @@ class JobState
 
     private int $status;
     private ?array $outputs;
+    private ?\DateTimeImmutable $triggeredAt = null;
+    private ?\DateTimeImmutable $startedAt = null;
+    private ?\DateTimeImmutable $endedAt = null;
 
     public function __construct(string $workflowId, string $jobId, int $status, ?array $outputs = null)
     {
@@ -24,6 +27,7 @@ class JobState
         $this->jobId = $jobId;
         $this->status = $status;
         $this->outputs = $outputs;
+        $this->triggeredAt = new \DateTimeImmutable();
     }
 
     public function getStatus(): int
@@ -56,6 +60,31 @@ class JobState
         $this->outputs = $outputs;
     }
 
+    public function getTriggeredAt(): \DateTimeImmutable
+    {
+        return $this->triggeredAt;
+    }
+
+    public function getStartedAt(): ?\DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
+
+    public function setStartedAt(?\DateTimeImmutable $startedAt): void
+    {
+        $this->startedAt = $startedAt;
+    }
+
+    public function getEndedAt(): ?\DateTimeImmutable
+    {
+        return $this->endedAt;
+    }
+
+    public function setEndedAt(?\DateTimeImmutable $endedAt): void
+    {
+        $this->endedAt = $endedAt;
+    }
+
     public function __serialize(): array
     {
         return [
@@ -63,6 +92,9 @@ class JobState
             'jobId' => $this->jobId,
             'status' => $this->status,
             'outputs' => $this->outputs,
+            'triggeredAt' => $this->triggeredAt,
+            'startedAt' => $this->startedAt,
+            'endedAt' => $this->endedAt,
         ];
     }
 
@@ -72,5 +104,8 @@ class JobState
         $this->jobId = $data['jobId'];
         $this->status = $data['status'];
         $this->outputs = $data['outputs'];
+        $this->triggeredAt = $data['triggeredAt'];
+        $this->startedAt = $data['startedAt'];
+        $this->endedAt = $data['endedAt'];
     }
 }

@@ -11,7 +11,20 @@ Alchemy\Workflow\Doctrine\Entity\WorkflowState:
       name: state
       type: text
       nullable: false
-    createdAt:
-      name: created_at
+    startedAt:
+      name: started_at
       type: datetime_immutable
+      nullable: false
+    endedAt:
+      name: ended_at
+      type: datetime_immutable
+      nullable: true
+    status:
+      name: status
+      type: smallint
+      nullable: false
+    name:
+      name: name
+      type: string
+      length: 255
       nullable: false

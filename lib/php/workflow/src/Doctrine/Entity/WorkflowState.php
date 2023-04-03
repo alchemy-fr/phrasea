@@ -25,6 +25,16 @@ class WorkflowState
      */
     protected ?string $state = null;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     */
+    protected string $name;
+
+    /**
+     * @ORM\Column(type="smallint", nullable=false)
+     */
+    protected int $status;
+
     protected ?ModelWorkflowState $workflowState = null;
 
     /**
@@ -35,13 +45,17 @@ class WorkflowState
     /**
      * @ORM\Column(type="date_immutable", nullable=false)
      */
-    protected ?\DateTimeImmutable $createdAt = null;
+    protected \DateTimeImmutable $startedAt;
+
+    /**
+     * @ORM\Column(type="date_immutable", nullable=true)
+     */
+    protected ?\DateTimeImmutable $endedAt = null;
 
     public function __construct(string $id)
     {
         $this->id = $id;
         $this->jobs = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): string
@@ -54,9 +68,13 @@ class WorkflowState
         return $this->state;
     }
 
-    public function setState(string $state): void
+    public function setState(ModelWorkflowState $state): void
     {
-        $this->state = $state;
+        $this->state = serialize($state);
+        $this->name = $state->getWorkflowName();
+        $this->status = $state->getStatus();
+        $this->startedAt = $state->getStartedAt();
+        $this->endedAt = $state->getEndedAt();
     }
 
     public function getWorkflowState(): ModelWorkflowState
@@ -68,8 +86,23 @@ class WorkflowState
         return $this->workflowState;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getStartedAt(): \DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->startedAt;
+    }
+
+    public function getEndedAt(): ?\DateTimeImmutable
+    {
+        return $this->endedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->status;
     }
 }

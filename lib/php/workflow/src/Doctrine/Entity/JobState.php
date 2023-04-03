@@ -30,9 +30,24 @@ class JobState
     protected ?string $state = null;
 
     /**
+     * @ORM\Column(type="smallint", nullable=false)
+     */
+    protected int $status;
+
+    /**
      * @ORM\Column(type="date_immutable", nullable=false)
      */
-    protected ?\DateTimeImmutable $createdAt = null;
+    protected \DateTimeImmutable $triggeredAt;
+
+    /**
+     * @ORM\Column(type="date_immutable", nullable=true)
+     */
+    protected ?\DateTimeImmutable $startedAt = null;
+
+    /**
+     * @ORM\Column(type="date_immutable", nullable=true)
+     */
+    protected ?\DateTimeImmutable $endedAt = null;
 
     protected ?ModelJobState $jobState = null;
 
@@ -41,7 +56,6 @@ class JobState
         $this->id = Uuid::uuid4()->toString();
         $this->workflow = $workflow;
         $this->jobId = $jobId;
-        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): string
@@ -54,9 +68,19 @@ class JobState
         return $this->state;
     }
 
-    public function setState(string $state): void
+    public function setState(ModelJobState $state): void
     {
-        $this->state = $state;
+        $this->state = serialize($state);
+        $this->triggeredAt = $state->getTriggeredAt();
+
+        if ($state->getEndedAt()) {
+            $this->endedAt = $state->getEndedAt();
+        }
+        if ($state->getStartedAt()) {
+            $this->startedAt = $state->getStartedAt();
+        }
+
+        $this->status = $state->getStatus();
     }
 
     public function getJobState(): ModelJobState
@@ -73,8 +97,28 @@ class JobState
         return $this->workflow;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getStatus(): int
     {
-        return $this->createdAt;
+        return $this->status;
+    }
+
+    public function getTriggeredAt(): \DateTimeImmutable
+    {
+        return $this->triggeredAt;
+    }
+
+    public function getStartedAt(): ?\DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
+
+    public function getEndedAt(): ?\DateTimeImmutable
+    {
+        return $this->endedAt;
+    }
+
+    public function getJobId(): string
+    {
+        return $this->jobId;
     }
 }
