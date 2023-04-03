@@ -93,6 +93,11 @@ class WorkflowState
         return $this->status;
     }
 
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
     public function getEndedAt(): ?\DateTimeImmutable
     {
         return $this->endedAt;

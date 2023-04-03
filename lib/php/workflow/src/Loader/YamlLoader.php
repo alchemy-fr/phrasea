@@ -52,6 +52,7 @@ class YamlLoader
     {
         $job = new Job($jobId);
         $job->setIf($data['if'] ?? null);
+        $job->setContinueOnError($data['continue-on-error'] ?? false);
 
         if (isset($data['steps'])) {
             foreach ($data['steps'] as $i => $step) {
@@ -75,6 +76,7 @@ class YamlLoader
         $step = new Step($id, $data['name'] ?? $id);
         $step->setRun($data['run'] ?? null);
         $step->setIf($data['if'] ?? null);
+        $step->setContinueOnError($data['continue-on-error'] ?? false);
 
         if (isset($data['executor'])) {
             $step->setExecutor($data['executor']);

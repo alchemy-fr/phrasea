@@ -86,6 +86,36 @@ class WorkflowState
         return $this->workflowState;
     }
 
+    public function getDuration(): ?int
+    {
+        if (null !== $this->endedAt) {
+            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
+        }
+
+        return null;
+    }
+
+    public function getDurationString(): string
+    {
+        $duration = $this->getDuration();
+        if (null === $duration) {
+            return '-';
+        }
+
+        $h = floor($duration / 3600);
+        $m = floor(($duration / 60) % 60);
+        $s = $duration % 60;
+
+        if ($h > 0) {
+            return sprintf('%02dh%02dm%02ds', $h, $m, $s);
+        }
+        if ($m > 0) {
+            return sprintf('%02dh%02dm%02ds', $h, $m, $s);
+        }
+
+        return sprintf('%ds', $s);
+    }
+
     public function getStartedAt(): \DateTimeImmutable
     {
         return $this->startedAt;

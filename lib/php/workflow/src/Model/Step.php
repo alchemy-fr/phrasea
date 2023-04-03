@@ -13,6 +13,7 @@ class Step
     private ?string $if = null;
     private string $executor = 'bash';
     private ?string $run = null;
+    private bool $continueOnError = false;
 
     public function __construct(string $id, ?string $name)
     {
@@ -64,5 +65,15 @@ class Step
     public function setRun(?string $run): void
     {
         $this->run = $run;
+    }
+
+    public function isContinueOnError(): bool
+    {
+        return $this->continueOnError;
+    }
+
+    public function setContinueOnError(bool $continueOnError): void
+    {
+        $this->continueOnError = $continueOnError;
     }
 }

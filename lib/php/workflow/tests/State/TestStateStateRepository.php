@@ -29,7 +29,7 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
 
     public function persistWorkflowState(WorkflowState $state): void
     {
-        $this->logs[] = ['persistWorkflowState', $state->getId()];
+        $this->logs[] = ['persistWorkflowState', $state->getId(), $state->getStatus()];
 
         $this->inner->persistWorkflowState($state);
     }

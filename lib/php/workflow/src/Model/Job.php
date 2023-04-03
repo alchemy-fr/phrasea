@@ -15,6 +15,7 @@ class Job
 
     private StepList $steps;
     private ?string $result = null;
+    private bool $continueOnError = false;
 
     public function __construct(string $id)
     {
@@ -60,5 +61,15 @@ class Job
     public function setIf(?string $if): void
     {
         $this->if = $if;
+    }
+
+    public function isContinueOnError(): bool
+    {
+        return $this->continueOnError;
+    }
+
+    public function setContinueOnError(bool $continueOnError): void
+    {
+        $this->continueOnError = $continueOnError;
     }
 }

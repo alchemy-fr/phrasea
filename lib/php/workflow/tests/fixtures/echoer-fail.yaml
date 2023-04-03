@@ -1,38 +1,33 @@
-name: Echo something
+name: Echo something fail
 
 jobs:
   intro:
     steps:
-      - name: Generate Intro
-        run: |
+      - run: |
           echo "intro"
-      - name: Second step in Intro
-        run: ''
 
   content:
     needs:
       - intro
     steps:
-      - name: Generate Content
-        run: |
+      - run: |
           echo "content"
+          exit 1
 
   content-bis:
     needs:
       - intro
     steps:
-      - name: Generate Content Bis
-        run: |
+      - run: |
           echo "content-bis"
 
   outro:
-    #    if: ${{ globals.foo == 'bar' }}
+#    if: ${{ globals.foo == 'bar' }}
     needs:
       - content
       - content-bis
     steps:
       - executor: php
-        name: Generate Outro
         run: |
           echo "outro".str_repeat('!', 2);
 

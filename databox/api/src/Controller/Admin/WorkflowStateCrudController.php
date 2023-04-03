@@ -42,6 +42,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         $id = IdField::new();
         $name = TextField::new('name', 'Name');
         $event = TextField::new('workflowState.event.name', 'Event');
+        $duration = TextField::new('durationString', 'Duration');
         $startedAt = DateTimeField::new('startedAt', 'Started At');
         $endedAt = DateTimeField::new('endedAt', 'Ended At');
         $status = ChoiceField::new('status', 'Status')
@@ -56,9 +57,9 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ]);
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $event];
+            return [$id, $name, $startedAt, $status, $endedAt, $duration, $event];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $event];
+            return [$id, $name, $startedAt, $status, $endedAt, $duration, $event];
         }
 
         return [];

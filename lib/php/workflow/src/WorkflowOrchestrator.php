@@ -51,33 +51,46 @@ class WorkflowOrchestrator
         $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        $nextJobId = $this->getNextJob($plan, $workflowState);
+        [$nextJobId, $completeStatus] = $this->getNextJob($plan, $workflowState);
         if (null !== $nextJobId) {
             do {
                 $continue = $this->triggerJob($workflowState, $plan, $nextJobId);
 
                 if ($continue) {
-                    if (null === $nextJobId = $this->getNextJob($plan, $workflowState)) {
+                    [$nextJobId, $completeStatus] = $this->getNextJob($plan, $workflowState);
+                    if (null === $nextJobId) {
                         $continue = false;
                     }
                 }
             } while ($continue);
+        }
 
+        if (null !== $completeStatus) {
+            $workflowState->setEndedAt(new \DateTimeImmutable());
+            $workflowState->setStatus($completeStatus ? WorkflowState::STATUS_SUCCESS : WorkflowState::STATUS_FAILURE);
             $this->stateRepository->persistWorkflowState($workflowState);
         }
     }
 
-    private function getNextJob(Plan $plan, WorkflowState $state): ?string
+    /**
+     * @return [?string, ?bool] [the next job ID, isWorkflowComplete]
+     */
+    private function getNextJob(Plan $plan, WorkflowState $state): array
     {
         foreach ($plan->getStages() as $stage) {
             $stageComplete = true;
 
             foreach ($stage->getRuns() as $run) {
-                $jobId = $run->getJob()->getId();
+                $job = $run->getJob();
+                $jobId = $job->getId();
 
                 $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
                 if (null === $jobState) {
-                    return $jobId;
+                    return [$jobId, null];
+                }
+
+                if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
+                    return [null, false];
                 }
 
                 if (!in_array($jobState->getStatus(), [
@@ -90,11 +103,11 @@ class WorkflowOrchestrator
             }
 
             if (!$stageComplete) {
-                break;
+                return [null, null];
             }
         }
 
-        return null;
+        return [null, true];
     }
 
     private function triggerJob(WorkflowState $state, Plan $plan, string $jobId): bool

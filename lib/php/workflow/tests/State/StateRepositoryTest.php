@@ -8,6 +8,7 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\FileSystemStateRepository;
 use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Tests\AbstractWorkflowTest;
 
 class StateRepositoryTest extends AbstractWorkflowTest
@@ -15,7 +16,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
     /**
      * @dataProvider getCases
      */
-    public function testStateAreCorrectlyPersisted(StateRepositoryInterface $stateRepository): void
+    public function testStateAreCorrectlyPersistedForSuccessWorkflow(StateRepositoryInterface $stateRepository): void
     {
         $testStateRepositoryDecorator = new TestStateStateRepository($stateRepository);
         [$orchestrator] = $this->createOrchestrator([
@@ -24,10 +25,14 @@ class StateRepositoryTest extends AbstractWorkflowTest
 
         $workflowState = $orchestrator->startWorkflow('Echo something');
 
+        $this->assertEquals(WorkflowState::STATUS_SUCCESS, $workflowState->getStatus());
+        $this->assertNotNull($workflowState->getStartedAt());
+        $this->assertNotNull($workflowState->getEndedAt());
+
         $workflowId = $workflowState->getId();
 
         $this->assertEquals([
-            ['persistWorkflowState', $workflowId],
+            ['persistWorkflowState', $workflowId, WorkflowState::STATUS_STARTED],
             ['getJobState', $workflowId, 'intro'],
             ['acquireJobLock', $workflowId, 'intro'],
             ['persistJobState', $workflowId, 'intro', JobState::STATUS_TRIGGERED],
@@ -97,7 +102,66 @@ class StateRepositoryTest extends AbstractWorkflowTest
             ['getJobState', $workflowId, 'content-bis'],
             ['getJobState', $workflowId, 'outro'],
 
-            ['persistWorkflowState', $workflowId],
+            ['persistWorkflowState', $workflowId, WorkflowState::STATUS_SUCCESS],
+        ], $testStateRepositoryDecorator->getLogs());
+    }
+    /**
+     * @dataProvider getCases
+     */
+    public function testStateAreCorrectlyPersistedForFailJob(StateRepositoryInterface $stateRepository): void
+    {
+        $testStateRepositoryDecorator = new TestStateStateRepository($stateRepository);
+        [$orchestrator] = $this->createOrchestrator([
+            'echoer-fail.yaml',
+        ], $testStateRepositoryDecorator);
+
+        $workflowState = $orchestrator->startWorkflow('Echo something fail');
+
+        $this->assertEquals(WorkflowState::STATUS_FAILURE, $workflowState->getStatus());
+        $this->assertNotNull($workflowState->getStartedAt());
+        $this->assertNotNull($workflowState->getEndedAt());
+
+        $workflowId = $workflowState->getId();
+
+        $this->assertEquals([
+            ['persistWorkflowState', $workflowId, WorkflowState::STATUS_STARTED],
+            ['getJobState', $workflowId, 'intro'],
+            ['acquireJobLock', $workflowId, 'intro'],
+            ['persistJobState', $workflowId, 'intro', JobState::STATUS_TRIGGERED],
+            ['releaseJobLock', $workflowId, 'intro'],
+            ['getWorkflowState', $workflowId],
+            ['acquireJobLock', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'intro'],
+            ['persistJobState', $workflowId, 'intro', JobState::STATUS_RUNNING],
+            ['persistJobState', $workflowId, 'intro', JobState::STATUS_SUCCESS],
+            ['releaseJobLock', $workflowId, 'intro'],
+
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+
+            ['acquireJobLock', $workflowId, 'never-called'],
+            ['persistJobState', $workflowId, 'never-called', JobState::STATUS_SKIPPED],
+            ['releaseJobLock', $workflowId, 'never-called'],
+
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
+
+            ['acquireJobLock', $workflowId, 'content'],
+            ['persistJobState', $workflowId, 'content', JobState::STATUS_TRIGGERED],
+            ['releaseJobLock', $workflowId, 'content'],
+            ['getWorkflowState', $workflowId],
+            ['acquireJobLock', $workflowId, 'content'],
+            ['getJobState', $workflowId, 'content'],
+            ['persistJobState', $workflowId, 'content', JobState::STATUS_RUNNING],
+            ['persistJobState', $workflowId, 'content', JobState::STATUS_FAILURE],
+            ['releaseJobLock', $workflowId, 'content'],
+
+            ['getJobState', $workflowId, 'intro'],
+            ['getJobState', $workflowId, 'never-called'],
+            ['getJobState', $workflowId, 'content'],
+
+            ['persistWorkflowState', $workflowId, WorkflowState::STATUS_FAILURE],
         ], $testStateRepositoryDecorator->getLogs());
     }
 
