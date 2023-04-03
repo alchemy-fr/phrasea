@@ -52,17 +52,19 @@ class WorkflowOrchestrator
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         $nextJobId = $this->getNextJob($plan, $workflowState);
-        do {
-            $continue = $this->triggerJob($workflowState, $plan, $nextJobId);
+        if (null !== $nextJobId) {
+            do {
+                $continue = $this->triggerJob($workflowState, $plan, $nextJobId);
 
-            if ($continue) {
-                if (null === $nextJobId = $this->getNextJob($plan, $workflowState)) {
-                    $continue = false;
+                if ($continue) {
+                    if (null === $nextJobId = $this->getNextJob($plan, $workflowState)) {
+                        $continue = false;
+                    }
                 }
-            }
-        } while ($continue);
+            } while ($continue);
 
-        $this->stateRepository->persistWorkflowState($workflowState);
+            $this->stateRepository->persistWorkflowState($workflowState);
+        }
     }
 
     private function getNextJob(Plan $plan, WorkflowState $state): ?string

@@ -21,6 +21,10 @@ Alchemy\Workflow\Doctrine\Entity\JobState:
       type: string
       length: 100
       nullable: false
+    createdAt:
+      name: created_at
+      type: datetime_immutable
+      nullable: false
   manyToOne:
     workflow:
       targetEntity: Alchemy\Workflow\Doctrine\Entity\WorkflowState

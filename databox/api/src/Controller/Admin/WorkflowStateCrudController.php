@@ -8,6 +8,7 @@ use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
@@ -36,13 +37,16 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $state = TextField::new('state');
         $id = IdField::new();
+        $name = TextField::new('workflowState.workflowName', 'Name');
+        $event = TextField::new('workflowState.event.name', 'Event');
+        $startedAt = DateTimeField::new('workflowState.startedAt', 'Started At');
+        $createdAt = DateTimeField::new('createdAt', 'Created At');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $state];
+            return [$id, $name, $startedAt, $event, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $state];
+            return [$id, $name, $startedAt, $event];
         }
 
         return [];

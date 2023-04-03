@@ -50,6 +50,11 @@ class WorkflowState
         return $this->startedAt;
     }
 
+    public function getJobState(string $jobId): ?JobState
+    {
+        return $this->stateRepository->getJobState($this->id, $jobId);
+    }
+
     public function __serialize(): array
     {
         return [
@@ -58,11 +63,6 @@ class WorkflowState
             'workflowName' => $this->workflowName,
             'id' => $this->id,
         ];
-    }
-
-    public function getJobState(string $jobId): ?JobState
-    {
-        return $this->stateRepository->getJobState($this->id, $jobId);
     }
 
     public function __unserialize(array $data): void

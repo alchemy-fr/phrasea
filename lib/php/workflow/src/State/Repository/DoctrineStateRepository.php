@@ -31,8 +31,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             throw new InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
         }
 
-        /** @var WorkflowState $state */
-        $state = unserialize($entity->getState());
+        $state = $entity->getWorkflowState();
         $state->setStateRepository($this);
 
         return $state;
@@ -58,10 +57,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             return null;
         }
 
-        /** @var JobState $state */
-        $state = unserialize($entity->getState());
-
-        return $state;
+        return $entity->getJobState();
     }
 
     public function acquireJobLock(string $workflowId, string $jobId): void

@@ -55,4 +55,22 @@ class JobState
     {
         $this->outputs = $outputs;
     }
+
+    public function __serialize(): array
+    {
+        return [
+            'workflowId' => $this->workflowId,
+            'jobId' => $this->jobId,
+            'status' => $this->status,
+            'outputs' => $this->outputs,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->workflowId = $data['workflowId'];
+        $this->jobId = $data['jobId'];
+        $this->status = $data['status'];
+        $this->outputs = $data['outputs'];
+    }
 }

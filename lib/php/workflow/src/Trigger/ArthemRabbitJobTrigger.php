@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Trigger;
 
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Alchemy\Workflow\Consumer\JobConsumer;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class ArthemRabbitJobTrigger implements JobTriggerInterface
@@ -18,7 +18,7 @@ class ArthemRabbitJobTrigger implements JobTriggerInterface
 
     public function triggerJob(string $workflowId, string $jobId): bool
     {
-        $this->producer->publish(new ());
+        $this->producer->publish(JobConsumer::createEvent($workflowId, $jobId));
 
         return true;
     }

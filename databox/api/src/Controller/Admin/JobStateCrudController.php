@@ -5,10 +5,12 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\Workflow\State\JobState as ModelJobState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class JobStateCrudController extends AbstractAdminCrudController
@@ -36,14 +38,24 @@ class JobStateCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $state = TextField::new('state');
-        $workflow = AssociationField::new('workflow');
         $id = IdField::new();
 
+        $workflowName = TextField::new('workflow.workflowState.workflowName', 'Workflow Name');
+        $job = TextField::new('jobState.jobId', 'Job ID');
+        $status = ChoiceField::new('jobState.status', 'Started At')
+            ->setChoices([
+                'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
+                'SUCCESS' => ModelJobState::STATUS_SUCCESS,
+                'FAILURE' => ModelJobState::STATUS_FAILURE,
+                'SKIPPED' => ModelJobState::STATUS_SKIPPED,
+                'RUNNING' => ModelJobState::STATUS_RUNNING,
+            ]);
+        $createdAt = DateTimeField::new('createdAt', 'Created At');
+
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workflow, $state];
+            return [$id, $workflowName, $job, $status, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $workflow, $state];
+            return [$id, $workflowName, $job, $status, $createdAt];
         }
 
         return [];
