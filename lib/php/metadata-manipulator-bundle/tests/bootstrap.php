@@ -6,6 +6,7 @@ use PHPExiftool\PHPExiftool;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 // build the phpexiftool classes (taggroups)
-if (!PHPExiftool::isClassesGenerated()) {
-    PHPExiftool::generateClasses([InformationDumper::LISTOPTION_MWG], ['en']);
+$x = new PHPExiftool("/tmp");
+if (!$x->isClassesGenerated()) {
+    $x->generateClasses([InformationDumper::LISTOPTION_MWG], ['en']);
 }

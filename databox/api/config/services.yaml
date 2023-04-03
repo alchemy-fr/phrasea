@@ -204,3 +204,5 @@ services:
     App\Integration\ApiBudgetLimiter:
         arguments:
             $storage: '@app.budget_limit.cache_storage'
+
+    Alchemy\MetadataManipulatorBundle\MetadataManipulator: '@alchemy.metadatamanipulator'

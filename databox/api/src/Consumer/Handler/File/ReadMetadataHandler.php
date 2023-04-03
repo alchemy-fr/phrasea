@@ -21,12 +21,14 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
     private MetadataNormalizer $metadataNormalizer;
     private FileFetcher $fileFetcher;
     private EventProducer $eventProducer;
+    private MetadataManipulator $metadataManipulator;
 
-    public function __construct(MetadataNormalizer $metadataNormalizer, FileFetcher $fileFetcher, EventProducer $eventProducer)
+    public function __construct(MetadataManipulator $metadataManipulator, MetadataNormalizer $metadataNormalizer, FileFetcher $fileFetcher, EventProducer $eventProducer)
     {
         $this->metadataNormalizer = $metadataNormalizer;
         $this->fileFetcher = $fileFetcher;
         $this->eventProducer = $eventProducer;
+        $this->metadataManipulator = $metadataManipulator;
     }
 
     public function handle(EventMessage $message): void
@@ -50,8 +52,8 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
 
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
-            $mm = new MetadataManipulator();
-            $this->logger->debug(sprintf("new MetadataManipulator() OK"));
+            $mm = $this->metadataManipulator;
+            $this->logger->debug(sprintf("MetadataManipulator service OK"));
 
             $mm->setLogger($this->logger);
             $this->logger->debug(sprintf("mm->setLoger() OK"));

@@ -46,6 +46,6 @@ class ReaderTest extends TestCase
 
     protected function setup(): void
     {
-        $this->service = new MetadataManipulator();
+        $this->service = new MetadataManipulator(['classes_directory' => '/tmp']);
     }
 }

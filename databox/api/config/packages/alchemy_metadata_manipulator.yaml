@@ -1,0 +1,2 @@
+alchemy_metadata_manipulator:
+  classes_directory: 'var/cache/phpexiftool'

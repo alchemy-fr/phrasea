@@ -17,6 +17,21 @@ class MetadataManipulator
 {
     private ?LoggerInterface $logger = null;
     private static ?array $knownTagGroups = null;  // cache
+    private ?array $config;
+    private string $classesDirectory;
+    private PHPExiftool $phpExifTool;
+
+    public function __construct(?array $config)
+    {
+        $this->config = $config;
+        $cdir = $this->config['classes_directory'];
+        if(substr($cdir, 0, 1) !== '/') {
+            $cdir = realpath(__DIR__ . '/../../../' . $cdir);
+        }
+        $this->classesDirectory = $cdir;
+
+        $this->phpExifTool = new PHPExiftool($this->classesDirectory);
+    }
 
     /**
      * @required
@@ -24,8 +39,9 @@ class MetadataManipulator
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->phpExifTool->setLogger($logger);
     }
-
+/*
     public static function getKnownTagGroups(): array
     {
         if (null === self::$knownTagGroups) {
@@ -34,51 +50,23 @@ class MetadataManipulator
 
         return self::$knownTagGroups;
     }
-
-    public function getClassnameFromTagGroupName(string $tagGroupName)
-    {
-        return PHPExiftool::tagGroupIdToClassname($tagGroupName);
-    }
-
-    public function getReader(): Reader
-    {
-        return Reader::create($this->logger ?? new NullLogger());
-    }
-
-    public function getWriter(): Writer
-    {
-        return Writer::create($this->logger ?? new NullLogger());
-    }
+*/
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface
     {
-        $className = $this->getClassnameFromTagGroupName($tagGroupName);
-
-        return new $className();
+        return $this->phpExifTool->getFactory()->createTagGroup($tagGroupName);
     }
 
     public function createMetadata(string $tagGroupName): Metadata
     {
-        $className = $this->getClassnameFromTagGroupName($tagGroupName);
-        if (class_exists($className)) {
-            return new Metadata(new $className());
-        } else {
-            throw new UnknownTagGroupNameException(sprintf('Unknown tagGroupName "%s"', $tagGroupName));
-        }
+        return new Metadata($this->createTagGroup($tagGroupName));
     }
 
     public function getAllMetadata(\SplFileObject $file): MetadataBag
     {
-        $reader = $this->getReader();
-        assert(get_class($reader) === "PHPExiftool\\Reader");
+        $reader = $this->phpExifTool->getFactory()->createReader();
 
         $reader->files($file->getRealPath());
-
-        $fe = $reader->first();
-        assert(get_class($fe) === "PHPExiftool\\FileEntity");
-
-        $md = $fe->getMetadatas();
-        assert(get_class($fe) === "PHPExiftool\\MetadataBag");
 
         return $reader->first()->getMetadatas();
     }
@@ -88,7 +76,23 @@ class MetadataManipulator
      */
     public function setMetadata(\SplFileObject $file, MetadataBag $bag): void
     {
-        $writer = $this->getWriter();
+        $writer = $this->phpExifTool->getFactory()->createWriter();
         $writer->write($file->getRealPath(), $bag);
+    }
+
+    /**
+     * @return string
+     */
+    public function getClassesDirectory(): string
+    {
+        return $this->classesDirectory;
+    }
+
+    /**
+     * @return PHPExiftool
+     */
+    public function getPhpExifTool(): PHPExiftool
+    {
+        return $this->phpExifTool;
     }
 }
