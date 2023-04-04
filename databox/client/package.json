@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@alchemy/visual-workflow": "link:./__lib/visual-workflow",
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
     "@dnd-kit/utilities": "^3.2.0",
@@ -61,7 +62,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "postinstall": "cd ./__lib/react-ps && yarn install && yarn build && rm -rf node_modules",
+    "postinstall": "yarn install-react-ps; yarn install-visual-workflow",
+    "install-react-ps": "cd ./__lib/react-ps && yarn install && yarn build && rm -rf node_modules",
+    "install-visual-workflow": "cd ./__lib/visual-workflow && yarn install && yarn build && rm -rf node_modules",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

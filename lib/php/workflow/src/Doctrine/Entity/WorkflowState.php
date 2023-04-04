@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Doctrine\Entity;
 
+use Alchemy\Workflow\State\StateUtil;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -97,23 +98,7 @@ class WorkflowState
 
     public function getDurationString(): string
     {
-        $duration = $this->getDuration();
-        if (null === $duration) {
-            return '-';
-        }
-
-        $h = floor($duration / 3600);
-        $m = floor(($duration / 60) % 60);
-        $s = $duration % 60;
-
-        if ($h > 0) {
-            return sprintf('%02dh%02dm%02ds', $h, $m, $s);
-        }
-        if ($m > 0) {
-            return sprintf('%02dh%02dm%02ds', $h, $m, $s);
-        }
-
-        return sprintf('%ds', $s);
+        return StateUtil::getFormattedDuration($this->getDuration());
     }
 
     public function getStartedAt(): \DateTimeImmutable

@@ -40,7 +40,7 @@ class JobState
         $this->status = $status;
     }
 
-    public function getOutputs(): array
+    public function getOutputs(): ?array
     {
         return $this->outputs;
     }
@@ -83,6 +83,20 @@ class JobState
     public function setEndedAt(?\DateTimeImmutable $endedAt): void
     {
         $this->endedAt = $endedAt;
+    }
+
+    public function getDuration(): ?int
+    {
+        if (null !== $this->endedAt) {
+            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
+        }
+
+        return null;
+    }
+
+    public function getDurationString(): string
+    {
+        return StateUtil::getFormattedDuration($this->getDuration());
     }
 
     public function __serialize(): array

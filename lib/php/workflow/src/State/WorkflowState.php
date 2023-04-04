@@ -61,6 +61,20 @@ class WorkflowState
         return $this->stateRepository->getJobState($this->id, $jobId);
     }
 
+    public function getDuration(): ?int
+    {
+        if (null !== $this->endedAt) {
+            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
+        }
+
+        return null;
+    }
+
+    public function getDurationString(): string
+    {
+        return StateUtil::getFormattedDuration($this->getDuration());
+    }
+
     public function __serialize(): array
     {
         return [
