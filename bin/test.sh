@@ -24,7 +24,7 @@ notify-api-php
 "
 
 for s in ${SF_SERVICES}; do
-    docker-compose run -T --rm ${s} su app -c "composer install --no-interaction && composer test"
+    docker-compose run -T --rm ${s} su app -c "composer install --ignore-platform-req=php --no-interaction && composer test"
 done
 
 
@@ -41,11 +41,4 @@ for lib in ${LIBS}; do
     docker-compose run -T --rm auth-api-php su app -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
 done
 
-# TODO make this work in CircleCI (which has no mounted volumes)
-#REACT_SERVICES="
-#expose-client-dev
-#"
-#for s in ${REACT_SERVICES}; do
-#    # No use of $FILE because we need to load _dev containers (defined in docker-compose.override.yml)
-#    docker-compose run -T --rm ${s} /bin/sh -c "CI=1 yarn test"
-#done
+docker-compose run -T --rm auth-api-php su app -c "cd vendor/alchemy/workflow && composer install --no-interaction && composer test"
