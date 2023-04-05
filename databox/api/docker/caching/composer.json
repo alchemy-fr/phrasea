@@ -88,6 +88,20 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/workflow-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "./__lib/workflow",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
@@ -96,6 +110,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "alchemy/acl-bundle": "dev-main",
+        "alchemy/workflow-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
@@ -200,6 +215,7 @@
             "@cache-clear",
             "@auto-scripts"
         ],
+        "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
     },
     "minimum-stability": "dev",

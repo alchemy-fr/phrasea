@@ -39,8 +39,6 @@ RUN cd /usr/src \
     && sh -c "./configure --with-compat $CONFARGS --add-dynamic-module=$PURGE_CACHEDIR" \
     && make modules
 
-RUN ls -la /usr/src/nginx-$NGINX_VERSION
-
 FROM nginx:${NGINX_VERSION}-alpine as nginx
 
 COPY --from=builder /usr/src/nginx-${NGINX_VERSION}/objs/*_module.so /etc/nginx/modules/

@@ -8,6 +8,8 @@ use App\Entity\PublicationAsset;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\ObjectManager;
 
@@ -15,7 +17,7 @@ class PublicationAssetListener implements EventSubscriber
 {
     private array $positionCache = [];
 
-    public function preRemove(LifecycleEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof PublicationAsset) {
@@ -26,7 +28,7 @@ class PublicationAssetListener implements EventSubscriber
         }
     }
 
-    public function prePersist(LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof PublicationAsset) {

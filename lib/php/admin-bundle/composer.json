@@ -17,7 +17,7 @@
     }
   ],
   "require": {
-    "php": "^7.4",
+    "php": "^7.4 || ^8.0",
     "alchemy/remote-auth-bundle": "@dev",
     "easycorp/easyadmin-bundle": "^3.0",
     "guzzlehttp/guzzle": "^6.3",

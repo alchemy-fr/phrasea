@@ -1,4 +1,4 @@
-FROM php:7.4.4-fpm-alpine3.11
+FROM php:8.2.4-cli-alpine3.17
 
 RUN apk add --no-cache \
 		autoconf \
@@ -10,15 +10,17 @@ RUN apk add --no-cache \
 		mysql-dev \
 		postgresql-dev \
 		zlib \
+    	rabbitmq-c-dev \
         bash \
         g++ \
         gettext \
         jq-dev \
+        linux-headers \
         make \
         nano \
         openssh-client \
         perl \
-        python \
+        python3 \
         vim \
         zsh \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
@@ -35,35 +37,57 @@ RUN apk add --no-cache \
     && make install) \
     && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini
 
-ENV APCU_VERSION=5.1.18 \
-    XDEBUG_VERSION=2.9.4 \
+ENV APCU_VERSION=5.1.22 \
+    AMQP_VERSION=1.11.0 \
+    XDEBUG_VERSION=3.1.5 \
+    REDIS_VERSION=5.3.7 \
     APP_ENV=dev
 
-RUN set -eux \
-	&& apk add --no-cache --virtual .build-deps \
+RUN set -eux; \
+	apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
 		icu-dev \
-		zlib-dev \
 		libzip-dev \
-	&& docker-php-ext-install \
+		zlib-dev \
+	; \
+	\
+	docker-php-ext-install \
 		intl \
 		zip \
 		sockets \
 		bcmath \
 		pdo \
 		pdo_pgsql \
-		pdo_mysql \
-	&& pecl install \
+	; \
+	pecl install \
 		apcu-${APCU_VERSION} \
+		amqp-${AMQP_VERSION} \
+		redis-${REDIS_VERSION} \
 		xdebug-${XDEBUG_VERSION} \
-	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
-	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
-	&& apk del .build-deps \
-	&& adduser -D -u 1000 app
+	; \
+	pecl clear-cache; \
+	docker-php-ext-enable \
+		apcu \
+		amqp \
+		opcache \
+		redis \
+	; \
+	\
+	runDeps="$( \
+		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
+			| tr ',' '\n' \
+			| sort -u \
+			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+	)"; \
+	apk add --no-cache --virtual .api-phpexts-rundeps $runDeps; \
+	apk del .build-deps \
+    && adduser -D -u 1000 app
 
 COPY --from=composer:2.3.2 /usr/bin/composer /usr/bin/composer
 
-ENV NODE_VERSION 14.18.2
+ENV NODE_VERSION=18.8.0 \
+    YARN_VERSION=1.22.19 \
+    NODE_OPTIONS=--openssl-legacy-provider
 
 RUN apk add --no-cache \
         libstdc++ \
@@ -73,66 +97,67 @@ RUN apk add --no-cache \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="7a1a1a18e51ad20245fc366a0848cdb55e968094c807a094555ec2c214e8e9c6" \
+          CHECKSUM="0db707b81e1ff47347e4ad11ec60b6da17828d9b2d54f60d24af1caf9ef641e8" \
           ;; \
         *) ;; \
       esac \
-    && if [ -n "${CHECKSUM}" ]; then \
-      set -eu; \
-      curl -fsSLO --compressed "https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz"; \
-      echo "$CHECKSUM  node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" | sha256sum -c - \
-        && tar -xJf "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
-        && ln -s /usr/local/bin/node /usr/local/bin/nodejs; \
-    else \
-      echo "Building from source" \
-      # backup build
-      && apk add --no-cache --virtual .build-deps-full \
-          binutils-gold \
-          g++ \
-          gcc \
-          gnupg \
-          libgcc \
-          linux-headers \
-          make \
-      # gpg keys listed at https://github.com/nodejs/node#release-keys
-      && for key in \
-        94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-        FD3A5288F042B6850C66B31F09FE44734EB7990E \
-        71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-        DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-        C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-        B9AE9905FFD7803F25714661B63B535A4C206CA9 \
-        77984A986EBC2AA786BC0F66B01FBB92821C587A \
-        8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
-        4ED778F539E3634C779C87C6D7062848A1AB005C \
-        A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
-        B9E2F5981AA6E0CD28160D9FF13993A75599653C \
-      ; do \
-        gpg --batch --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" || \
-        gpg --batch --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys "$key" || \
-        gpg --batch --keyserver hkp://pgp.mit.edu:80 --recv-keys "$key" ; \
-      done \
-      && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz" \
-      && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
-      && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-      && grep " node-v$NODE_VERSION.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
-      && tar -xf "node-v$NODE_VERSION.tar.xz" \
-      && cd "node-v$NODE_VERSION" \
-      && ./configure \
-      && make -j$(getconf _NPROCESSORS_ONLN) V= \
-      && make install \
-      && apk del .build-deps-full \
-      && cd .. \
-      && rm -Rf "node-v$NODE_VERSION" \
-      && rm "node-v$NODE_VERSION.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt; \
-    fi \
-    && rm -f "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" \
-    && apk del .build-deps \
-    # smoke tests
-    && node --version \
-    && npm --version
-
-ENV YARN_VERSION 1.22.15
+  && if [ -n "${CHECKSUM}" ]; then \
+    set -eu; \
+    curl -fsSLO --compressed "https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz"; \
+    echo "$CHECKSUM  node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" | sha256sum -c - \
+      && tar -xJf "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
+      && ln -s /usr/local/bin/node /usr/local/bin/nodejs; \
+  else \
+    echo "Building from source" \
+    # backup build
+    && apk add --no-cache --virtual .build-deps-full \
+        binutils-gold \
+        g++ \
+        gcc \
+        gnupg \
+        libgcc \
+        linux-headers \
+        make \
+        python3 \
+    # gpg keys listed at https://github.com/nodejs/node#release-keys
+    && for key in \
+      4ED778F539E3634C779C87C6D7062848A1AB005C \
+      141F07595B7B3FFE74309A937405533BE57C7D57 \
+      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
+      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
+      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
+      61FC681DFB92A079F1685E77973F295594EC4689 \
+      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
+      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+      890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
+      C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
+      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
+      A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
+      108F52B48DB57BB0CC439B2997B01419BD92F80A \
+      B9E2F5981AA6E0CD28160D9FF13993A75599653C \
+    ; do \
+      gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+      gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
+    done \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz" \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
+    && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+    && grep " node-v$NODE_VERSION.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+    && tar -xf "node-v$NODE_VERSION.tar.xz" \
+    && cd "node-v$NODE_VERSION" \
+    && ./configure \
+    && make -j$(getconf _NPROCESSORS_ONLN) V= \
+    && make install \
+    && apk del .build-deps-full \
+    && cd .. \
+    && rm -Rf "node-v$NODE_VERSION" \
+    && rm "node-v$NODE_VERSION.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt; \
+  fi \
+  && rm -f "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" \
+  && apk del .build-deps \
+  # smoke tests
+  && node --version \
+  && npm --version
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl gnupg tar \
   && for key in \
