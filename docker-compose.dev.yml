@@ -26,7 +26,6 @@ services:
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
       - AUTO_CONNECT_IDP
-      - NODE_OPTIONS=
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
@@ -91,7 +90,6 @@ services:
       - WDS_SOCKET_PORT=443
       - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
       - AUTO_CONNECT_IDP
-      - NODE_OPTIONS=
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"

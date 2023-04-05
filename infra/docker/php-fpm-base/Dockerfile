@@ -60,7 +60,8 @@ RUN set -eux; \
 
 RUN export NR_INSTALL_USE_CP_NOT_LN=1 \
 	&& export NR_INSTALL_SILENT=1 \
-    && curl -L https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz | tar -C /tmp -zx \
+    && NR_FILE=$(curl --silent https://download.newrelic.com/php_agent/release/ | grep -o 'href=".\+newrelic-php5-.\+musl.\+">' | sed 's/href="\/php_agent\/release\///;s/">//') \
+    && curl -L https://download.newrelic.com/php_agent/release/${NR_FILE} | tar -C /tmp -zx \
     && /tmp/newrelic-*/newrelic-install install \
 	&& rm -rf /tmp/newrelic-* /tmp/nrinstall* \
 	&& rm $PHP_INI_DIR/conf.d/newrelic.ini
