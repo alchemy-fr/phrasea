@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Cache;
 
+use Doctrine\ORM\Mapping\Entity;
 use Doctrine\Persistence\ObjectRepository;
 
 trait CacheDecoratorTrait
@@ -43,5 +44,23 @@ trait CacheDecoratorTrait
     public function getClassName()
     {
         return $this->decorated->getClassName();
+    }
+
+    /**
+     * @param Entity|Entity[] $x
+     */
+    public function addToIdentityMap($x)
+    {
+        if(is_array($x)) {
+            /** @var Entity $entity */
+            foreach($x as $entity) {
+                $this->getEntityManager()->getUnitOfWork()->addToIdentityMap($entity);
+            }
+        }
+        else {
+            $this->getEntityManager()->getUnitOfWork()->addToIdentityMap($x);
+        }
+
+        return $x;
     }
 }

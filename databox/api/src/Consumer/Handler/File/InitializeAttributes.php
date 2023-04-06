@@ -43,7 +43,6 @@ class InitializeAttributes extends AbstractEntityManagerHandler
 
         /** @var Attribute $attribute */
         foreach ($attributes as $attribute) {
-            $em->persist($attribute->getDefinition());  // todo : used to fix random doctrine "A new entity... that was not configured to cascade" BUT WHY ?
             $em->persist($attribute);
         }
         $em->flush();

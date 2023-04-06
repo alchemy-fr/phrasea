@@ -44,29 +44,29 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepositor
 
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this->cache->get(sprintf('attr_def_fb_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+        return $this->addToIdentityMap($this->cache->get(sprintf('attr_def_fb_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
             $item->tag(self::LIST_TAG);
 
             return $this->decorated->getWorkspaceFallbackDefinitions($workspaceId);
-        });
+        }));
     }
 
     public function getWorkspaceInitializeDefinitions(string $workspaceId): array
     {
-        return $this->cache->get(sprintf('attr_def_ini_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+        return $this->addToIdentityMap($this->cache->get(sprintf('attr_def_ini_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
             $item->tag(self::LIST_TAG);
 
             return $this->decorated->getWorkspaceInitializeDefinitions($workspaceId);
-        });
+        }));
     }
 
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
-        return $this->cache->get(sprintf('attr_defs_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+        return $this->addToIdentityMap($this->cache->get(sprintf('attr_defs_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
             $item->tag(self::LIST_TAG);
 
             return $this->decorated->getWorkspaceDefinitions($workspaceId);
-        });
+        }));
     }
 
     public function invalidateEntity(string $id): void

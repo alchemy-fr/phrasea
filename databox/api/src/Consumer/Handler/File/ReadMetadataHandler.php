@@ -14,6 +14,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Psr\Log\NullLogger;
 
 class ReadMetadataHandler extends AbstractEntityManagerHandler
 {
@@ -56,6 +57,7 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             $this->logger->debug(sprintf("MetadataManipulator service OK"));
 
             $mm->setLogger($this->logger);
+            $mm->getPhpExifTool()->setLogger(new NullLogger());
             $this->logger->debug(sprintf("mm->setLoger() OK"));
 
             $fo = new \SplFileObject($fetchedFilePath);
