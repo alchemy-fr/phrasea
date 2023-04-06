@@ -82,13 +82,19 @@ class DateTimeAttributeType extends AbstractAttributeType
                 return null;
             }
 
-            $datePattern = '\d{4}-\d{2}-\d{2}';
-            if (1 === preg_match('#^'.$datePattern.'$#', $value)) {
-                $value .= 'T00:00:00Z';
-            } elseif (1 === preg_match('#^'.$datePattern.'T\d{2}:\d{2}$#', $value)) {
-                $value .= ':00Z';
+            foreach ([
+                         ['p'=>'#^(\d{4})\D(\d{2})\D(\d{2})$#', 'f'=>'%04d-%02d-%02dT00:00:00Z', 'm'=>[1, 2, 3]],
+                         ['p'=>'#^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$#', 'f'=>'%04d-%02d-%02dT%02d:%02d:%02dZ', 'm'=>[1, 2, 3, 4, 5, 6]],
+                         ['p'=>'#^(\d{4})\D(\d{2})\D(\d{2})T(\d{2})\D(\d{2})$#', 'f'=>'%04d-%02d-%02dT%02d:%02d:00Z', 'r'=>[1, 2, 3, 4, 5]],
+                     ] as $tryout) {
+                $matches = [];
+                if(preg_match($tryout['p'], $value, $matches) === 1) {
+                    // m is the mapping from matches[x] to arg[i] for vsprintf(f, args)
+                    $args = array_map(function($a) use($matches) {return (int)($matches[$a]);}, $tryout['m']);
+                    $value = vsprintf($tryout['f'], $args);
+                    break;
+                }
             }
-
             if (false === $value = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value)) {
                 return null;
             }

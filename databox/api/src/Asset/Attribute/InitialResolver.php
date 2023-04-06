@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Asset\Attribute;
 
+use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Attribute\AttributeAssigner;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -21,14 +23,16 @@ class InitialResolver
     private Environment $twig;
     private EntityManagerInterface $em;
     private LoggerInterface $logger;
+    private AttributeAssigner $attributeAssigner;
 
-    public function __construct(EntityManagerInterface $em, loggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, loggerInterface $logger, AttributeAssigner $attributeAssigner)
     {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
         ]);
         $this->em = $em;
         $this->logger = $logger;
+        $this->attributeAssigner = $attributeAssigner;
     }
 
     /**
@@ -87,17 +91,28 @@ class InitialResolver
                     }
 
                     $position = 0;
+                    $now = new DateTimeImmutable();
                     foreach($initialValues as $initialValue) {
+                        $input = new AttributeInput();
+                        $input->value = $initialValue;
+                        $input->locale = $locale;
+                        $input->asset = $asset;
+                        $input->origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_INITIAL];
+                        $input->definitionId = $definition->getId();
+                        $input->position = $position++;
+                        $input->status = Attribute::STATUS_VALID;   // todo: or STATUS_PENDING ?
+
                         $attribute = new Attribute();
-                        $now = new DateTimeImmutable();
+                        $attribute->setDefinition($definition);     // must be set to assign
                         $attribute->setCreatedAt($now);
                         $attribute->setUpdatedAt($now);
-                        $attribute->setDefinition($definition);
                         $attribute->setAsset($asset);
-                        $attribute->setOrigin(Attribute::ORIGIN_INITIAL);
-                        $attribute->setValue($initialValue);
-                        $attribute->setPosition($position++);
-                        $attribute->setLocale($locale);
+
+                        $this->attributeAssigner->assignAttributeFromInput($attribute, $input);
+                        if($attribute->getValue() === null) {
+                            // this can happen for e.g. if a date is invalid and cannot be normalized
+                            continue;
+                        }
 
                         $attributes[] = $attribute;
                     }

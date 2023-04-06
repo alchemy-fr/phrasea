@@ -6,6 +6,7 @@ namespace App\Consumer\Handler\File;
 
 use App\Asset\Attribute\InitialResolver;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -40,7 +41,9 @@ class InitializeAttributes extends AbstractEntityManagerHandler
 
         $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);
 
+        /** @var Attribute $attribute */
         foreach ($attributes as $attribute) {
+            $em->persist($attribute->getDefinition());  // todo : used to fix random doctrine "A new entity... that was not configured to cascade" BUT WHY ?
             $em->persist($attribute);
         }
         $em->flush();
