@@ -37,17 +37,23 @@ class JsonDumperTest extends AbstractDumperTest
                     'jobs' => [
                         [
                             'id' => 'intro',
+                            'name' => 'intro',
                             'status' => JobState::STATUS_SUCCESS,
                             'startedAt' => '2000-05-12T12:12:42+00:00',
                             'endedAt' => '2000-05-12T12:12:43+00:00',
                             'outputs' => null,
+                            'duration' => '1s',
+                            'needs' => [],
                         ],
                         [
                             'id' => 'never-called',
+                            'name' => 'never-called',
                             'status' => JobState::STATUS_SKIPPED,
                             'startedAt' => null,
                             'endedAt' => null,
                             'outputs' => null,
+                            'duration' => '-',
+                            'needs' => [],
                         ],
                     ],
                 ],
@@ -56,17 +62,27 @@ class JsonDumperTest extends AbstractDumperTest
                     'jobs' => [
                         [
                             'id' => 'content',
+                            'name' => 'content',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44+00:00',
                             'endedAt' => null,
                             'outputs' => null,
+                            'duration' => '-',
+                            'needs' => [
+                                'intro'
+                            ],
                         ],
                         [
                             'id' => 'content-bis',
+                            'name' => 'content-bis',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44+00:00',
                             'endedAt' => null,
                             'outputs' => null,
+                            'duration' => '-',
+                            'needs' => [
+                                'intro'
+                            ],
                         ],
                     ],
                 ],
@@ -75,10 +91,16 @@ class JsonDumperTest extends AbstractDumperTest
                     'jobs' => [
                         [
                             'id' => 'outro',
+                            'name' => 'outro',
+                            'needs' => [
+                                'content',
+                                'content-bis',
+                            ],
                         ],
                     ],
                 ],
             ],
+            'duration' => '-',
         ], $out);
     }
 }

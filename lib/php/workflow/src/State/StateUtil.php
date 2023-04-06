@@ -13,7 +13,7 @@ class StateUtil
         }
 
         $h = floor($duration / 3600);
-        $m = floor(($duration / 60) % 60);
+        $m = floor(($duration / 60)) % 60;
         $s = $duration % 60;
 
         if ($h > 0) {
