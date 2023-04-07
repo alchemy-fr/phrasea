@@ -24,13 +24,14 @@ function export_env_from_file {
 }
 
 # Export env vars from defaults
-# Defined env vars take precedence, then env.local, then .env
+# Defined env vars take precedence, then .env.local, then env.local, then .env
 # Usage: load-env
 function load-env {
     if [ ! -f ".env" ]; then
       >&2 echo ".env file not found at $(pwd)"
       exit 1
     fi
+    export_env_from_file ".env.local"
     export_env_from_file "env.local"
     export_env_from_file ".env"
 }

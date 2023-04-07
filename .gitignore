@@ -1,3 +1,4 @@
 .idea
 /env.local
+/.env.local
 /tmp
