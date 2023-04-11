@@ -1,0 +1,22 @@
+name: asset-ingest
+
+on:
+  workflow_call:
+    inputs:
+      assetId:
+        required: true
+  asset_ingest:
+    inputs:
+      assetId:
+        required: true
+      fileId:
+        required: true
+
+jobs:
+  read_metadata:
+    steps:
+      - uses: App\Workflow\JobHandler\UploaderAckAssetJob
+
+  integrations:
+    steps:
+      - uses: App\Workflow\JobHandler\UploaderAckAssetJob

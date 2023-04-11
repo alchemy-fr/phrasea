@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  uploader-client-dev:
+  uploader-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./uploader/client
@@ -14,7 +14,7 @@ services:
     environment:
       - WDS_SOCKET_PORT=443
 
-  expose-client-dev:
+  expose-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./expose/client
@@ -27,7 +27,7 @@ services:
     environment:
       - WDS_SOCKET_PORT=443
 
-  databox-client-dev:
+  databox-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./databox/client

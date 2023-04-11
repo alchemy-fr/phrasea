@@ -3,11 +3,13 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -41,7 +43,8 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
         $name = TextField::new('name', 'Name');
-        $event = TextField::new('workflowState.event.name', 'Event');
+        $eventName = TextField::new('workflowState.event.name', 'Event');
+        $eventInputs = ArrayObjectField::new('workflowState.event.inputs', 'Event inputs');
         $duration = TextField::new('durationString', 'Duration');
         $startedAt = DateTimeField::new('startedAt', 'Started At');
         $endedAt = DateTimeField::new('endedAt', 'Ended At');
@@ -57,9 +60,9 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ]);
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $duration, $event];
+            return [$id, $name, $startedAt, $status, $endedAt, $duration, $eventName];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $duration, $event];
+            return [$id, $name, $startedAt, $status, $endedAt, $duration, $eventName, $eventInputs];
         }
 
         return [];

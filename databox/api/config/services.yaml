@@ -21,6 +21,8 @@ services:
             $integrationClient: '@app.integrations.http_client'
 
     _instanceof:
+        Alchemy\Workflow\Executor\Action\ActionInterface:
+            tags: ['alchemy_workflow.action']
         Doctrine\Common\EventSubscriber:
             tags: ['doctrine.event_subscriber']
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:

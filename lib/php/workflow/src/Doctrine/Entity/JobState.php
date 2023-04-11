@@ -92,6 +92,16 @@ class JobState
         return $this->jobState;
     }
 
+    public function getOutputs(): array
+    {
+        return $this->getJobState()->getOutputs();
+    }
+
+    public function getError(): ?string
+    {
+        return $this->getJobState()->getError();
+    }
+
     public function getWorkflow(): ?WorkflowState
     {
         return $this->workflow;

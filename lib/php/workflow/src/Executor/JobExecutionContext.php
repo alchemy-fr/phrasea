@@ -13,16 +13,20 @@ class JobExecutionContext
     private WorkflowState $workflowState;
     private OutputInterface $output;
     private JobState $jobState;
+    private array $inputs;
+    private array $outputs = [];
 
     public function __construct(
         WorkflowState $workflowState,
         JobState $jobState,
-        OutputInterface $output
+        OutputInterface $output,
+        array $inputs
     )
     {
         $this->workflowState = $workflowState;
         $this->output = $output;
         $this->jobState = $jobState;
+        $this->inputs = $inputs;
     }
 
     public function getWorkflowId(): string
@@ -44,5 +48,20 @@ class JobExecutionContext
     public function getJobState(): JobState
     {
         return $this->jobState;
+    }
+
+    public function getOutputs(): array
+    {
+        return $this->outputs;
+    }
+
+    public function setOutputs(array $outputs): void
+    {
+        $this->outputs = $outputs;
+    }
+
+    public function getInputs(): array
+    {
+        return $this->inputs;
     }
 }

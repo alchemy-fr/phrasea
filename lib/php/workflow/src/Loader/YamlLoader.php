@@ -10,7 +10,7 @@ use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use Symfony\Component\Yaml\Yaml;
 
-class YamlLoader
+class YamlLoader implements FileLoaderInterface
 {
     public function load(string $file): Workflow
     {
@@ -76,6 +76,7 @@ class YamlLoader
         $step = new Step($id, $data['name'] ?? $id);
         $step->setRun($data['run'] ?? null);
         $step->setIf($data['if'] ?? null);
+        $step->setUses($data['uses'] ?? null);
         $step->setContinueOnError($data['continue-on-error'] ?? false);
 
         if (isset($data['executor'])) {

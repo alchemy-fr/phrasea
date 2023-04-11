@@ -81,7 +81,11 @@ class WorkflowState
     public function getWorkflowState(): ModelWorkflowState
     {
         if (null === $this->workflowState) {
-            $this->workflowState = unserialize($this->getState());
+            try {
+                $this->workflowState = unserialize($this->getState());
+            } catch (\ErrorException $e) {
+                throw new \Exception(sprintf('Cannot read state: %s', $this->getState()), 0, $e);
+            }
         }
 
         return $this->workflowState;

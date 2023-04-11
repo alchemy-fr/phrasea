@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Tests;
 
-use Alchemy\Workflow\Executor\Executors\BashExecutor;
-use Alchemy\Workflow\Executor\Executors\PhpExecutor;
+use Alchemy\Workflow\Executor\Adapter\BashExecutor;
+use Alchemy\Workflow\Executor\Adapter\PhpExecutor;
 use Alchemy\Workflow\Executor\JobExecutor;
 use Alchemy\Workflow\Executor\PlanExecutor;
 use Alchemy\Workflow\Loader\YamlLoader;

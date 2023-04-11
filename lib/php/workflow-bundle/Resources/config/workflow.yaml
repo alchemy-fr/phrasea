@@ -13,6 +13,18 @@ services:
 
   Alchemy\Workflow\Loader\YamlLoader: ~
 
+  Alchemy\WorkflowBundle\Loader\KernelCacheLoader:
+    decorates: Alchemy\Workflow\Loader\YamlLoader
+    arguments:
+      $cacheDir: '%kernel.cache_dir%/workflows'
+      $debug: '%kernel.debug%'
+
+  Alchemy\Workflow\Loader\FileLoaderInterface: '@Alchemy\WorkflowBundle\Loader\KernelCacheLoader'
+
+  Alchemy\WorkflowBundle\Cache\WorkflowCacheWarmer:
+    tags:
+      - { name: kernel.cache_warmer, priority: 0 }
+
   alchemy.workflow.workflow_repository:
     class: Alchemy\Workflow\Repository\FileWorkflowRepository
 
@@ -31,10 +43,13 @@ services:
 
   Alchemy\Workflow\Executor\PlanExecutor: ~
 
-  Alchemy\Workflow\Executor\Executors\BashExecutor:
+  Alchemy\Workflow\Executor\Adapter\BashExecutor:
     tags:
       - { name: alchemy_workflow.executor }
-  Alchemy\Workflow\Executor\Executors\PhpExecutor:
+  Alchemy\Workflow\Executor\Adapter\PhpExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+  Alchemy\Workflow\Executor\Adapter\Service\ServiceExecutor:
     tags:
       - { name: alchemy_workflow.executor }
 
@@ -49,3 +64,6 @@ services:
 
   Alchemy\Workflow\WorkflowOrchestrator: ~
   alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'
+
+  Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry: ~
+  Alchemy\Workflow\Executor\Action\ActionRegistryInterface: '@Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry'

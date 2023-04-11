@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Executor\Executors;
+namespace Alchemy\Workflow\Executor\Adapter;
 
 use Alchemy\Workflow\Executor\ExecutorInterface;
 use Alchemy\Workflow\Executor\RunContext;
@@ -22,7 +22,7 @@ class BashExecutor implements ExecutorInterface
         $output = $context->getOutput();
 
         if ($output->isVerbose()) {
-            $output->writeln(sprintf('+ %s', trim($step->getRun())));
+            $output->writeln(sprintf('+ <info>%s</info>', trim($step->getRun())));
         }
 
         $process = Process::fromShellCommandline($step->getRun(), null, ['ENV_VAR_NAME' => 'value']);

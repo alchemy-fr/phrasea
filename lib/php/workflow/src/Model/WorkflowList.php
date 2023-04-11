@@ -17,4 +17,12 @@ class WorkflowList extends \ArrayObject
 
         throw new \InvalidArgumentException(sprintf('Workflow "%s" not found', $name));
     }
+
+    /**
+     * @return Workflow[]
+     */
+    public function getByEventName(string $eventName): array
+    {
+        return array_filter($this->getArrayCopy(), fn (Workflow $workflow) => $workflow->getOn()->hasEventName($eventName));
+    }
 }

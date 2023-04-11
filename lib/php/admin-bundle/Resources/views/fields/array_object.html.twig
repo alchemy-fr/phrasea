@@ -1,0 +1,15 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+<code>
+    <table>
+        <tbody>
+        {% for k,item in field.value %}
+        <tr>
+            <th>{{ k }}</th>
+            <td>{{ item }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</code>

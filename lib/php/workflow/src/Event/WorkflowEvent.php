@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Event;
 
-class WorkflowEvent
+final class WorkflowEvent
 {
     private string $name;
 
-    private array $args;
+    private array $inputs;
 
-    public function __construct(string $name, array $args = [])
+    public function __construct(string $name, array $inputs = [])
     {
         $this->name = $name;
-        $this->args = $args;
+        $this->inputs = $inputs;
     }
 
     public function getName(): string
@@ -21,8 +21,22 @@ class WorkflowEvent
         return $this->name;
     }
 
-    public function getArgs(): array
+    public function getInputs(): array
     {
-        return $this->args;
+        return $this->inputs;
+    }
+
+    public function __serialize(): array
+    {
+        return [
+            'name' => $this->name,
+            'inputs' => $this->inputs,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->name = $data['name'];
+        $this->inputs = $data['inputs'];
     }
 }

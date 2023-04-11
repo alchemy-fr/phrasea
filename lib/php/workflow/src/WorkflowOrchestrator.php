@@ -30,6 +30,21 @@ class WorkflowOrchestrator
         $this->trigger = $trigger;
     }
 
+    /**
+     * @return int The number of triggered workflows
+     */
+    public function dispatchEvent(WorkflowEvent $event): int
+    {
+        $workflows = $this->workflowRepository->getWorkflowsByEvent($event);
+        $i = 0;
+        foreach ($workflows as $workflow) {
+            $this->startWorkflow($workflow->getName(), $event);
+            ++$i;
+        }
+
+        return $i;
+    }
+
     public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
     {
         $workflowState = new WorkflowState($this->stateRepository, $workflowName, $event);

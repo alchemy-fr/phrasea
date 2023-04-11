@@ -16,6 +16,7 @@ class JobState
     private string $jobId;
 
     private int $status;
+    private ?string $error = null;
     private ?array $outputs;
     private ?\DateTimeImmutable $triggeredAt = null;
     private ?\DateTimeImmutable $startedAt = null;
@@ -99,6 +100,16 @@ class JobState
         return StateUtil::getFormattedDuration($this->getDuration());
     }
 
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(?string $error): void
+    {
+        $this->error = $error;
+    }
+
     public function __serialize(): array
     {
         return [
@@ -109,6 +120,7 @@ class JobState
             'triggeredAt' => $this->triggeredAt,
             'startedAt' => $this->startedAt,
             'endedAt' => $this->endedAt,
+            'error' => $this->error,
         ];
     }
 
@@ -121,5 +133,6 @@ class JobState
         $this->triggeredAt = $data['triggeredAt'];
         $this->startedAt = $data['startedAt'];
         $this->endedAt = $data['endedAt'];
+        $this->error = $data['error'] ?? null;
     }
 }

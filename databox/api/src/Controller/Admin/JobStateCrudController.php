@@ -3,12 +3,14 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -42,6 +44,8 @@ class JobStateCrudController extends AbstractAdminCrudController
 
         $workflowName = TextField::new('workflow.name', 'Workflow Name');
         $job = TextField::new('jobId', 'Job ID');
+        $error = TextField::new('error', 'Error');
+        $outputs = ArrayObjectField::new('outputs', 'Outputs');
         $status = ChoiceField::new('status', 'Status')
             ->setChoices([
                 'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
@@ -64,7 +68,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt];
+            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $outputs, $error, $endedAt];
         }
 
         return [];

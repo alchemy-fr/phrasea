@@ -20,7 +20,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_workflow');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('workflows_dir')->defaultValue('%kernel.project_dir%/config/workflows')
+                ->scalarNode('workflows_dirs')->defaultValue(['%kernel.project_dir%/config/workflows'])
             ->end()
         ;
 

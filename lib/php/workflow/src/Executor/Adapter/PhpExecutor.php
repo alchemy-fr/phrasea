@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\Workflow\Executor\Executors;
+namespace Alchemy\Workflow\Executor\Adapter;
 
 use Alchemy\Workflow\Executor\ExecutorInterface;
 use Alchemy\Workflow\Executor\RunContext;
@@ -21,7 +21,7 @@ class PhpExecutor implements ExecutorInterface
         $output = $context->getOutput();
 
         if ($output->isVerbose()) {
-            $output->writeln(sprintf('+ %s', trim($step->getRun())));
+            $output->writeln(sprintf('+ <info>%s</info>', trim($step->getRun())));
         }
 
         $process = new PhpProcess(sprintf('<?php

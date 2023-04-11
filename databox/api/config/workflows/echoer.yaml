@@ -1,4 +1,4 @@
-name: Echo something
+name: echoer
 
 jobs:
   intro:

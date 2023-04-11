@@ -48,6 +48,10 @@ final class PlanExecutor
 
         $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
 
+        if (null === $jobState) {
+            throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
+        }
+
         if (JobState::STATUS_TRIGGERED !== $jobState->getStatus()) {
             throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s"', $jobId, $workflowId));
         }
@@ -55,15 +59,11 @@ final class PlanExecutor
         $context = new JobExecutionContext(
             $workflowState,
             $jobState,
-            $this->output
+            $this->output,
+            null !== $event ? $event->getInputs() : []
         );
 
         $job = $plan->getJob($jobId);
-
-        if (null === $jobState) {
-            throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
-        }
-
         $this->executeJob($context, $job);
 
         if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
