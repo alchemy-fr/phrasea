@@ -198,6 +198,94 @@ services:
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
+  uploader-client:
+    image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
+    build:
+      context: ./uploader/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - uploader
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  expose-client:
+    image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
+    build:
+      context: ./expose/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - expose
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  databox-client:
+    image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
+    build:
+      context: ./databox/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - databox
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
   auth-worker:
     profiles:
       - auth

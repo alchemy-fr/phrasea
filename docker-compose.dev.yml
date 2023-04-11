@@ -2,98 +2,43 @@ version: '3.9'
 
 services:
   uploader-client-dev:
-    profiles:
-      - uploader
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./uploader/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./uploader/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - DEV_MODE
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - CLIENT_ID=${UPLOADER_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   expose-client-dev:
-    profiles:
-      - expose
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./expose/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./expose/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
-      - CLIENT_ID=${EXPOSE_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
-      - MATOMO_HOST
       - WDS_SOCKET_PORT=443
-      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   databox-client-dev:
-    profiles:
-      - databox
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./databox/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./databox/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - DEV_MODE
-      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - CLIENT_ID=${DATABOX_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
-      - MATOMO_HOST
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
-      - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   expose-api-php:
     environment:
