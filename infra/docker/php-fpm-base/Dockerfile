@@ -16,8 +16,7 @@ ENV APP_ENV=prod \
     APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
     XDEBUG_VERSION=3.1.5 \
-    REDIS_VERSION=5.3.7 \
-    NEWRELIC_VERSION=newrelic-php5-10.8.0.323-linux-musl
+    REDIS_VERSION=5.3.7
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
