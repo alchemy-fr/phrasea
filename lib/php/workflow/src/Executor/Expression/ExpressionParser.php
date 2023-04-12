@@ -4,21 +4,100 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor\Expression;
 
-use Alchemy\Workflow\State\JobState;
-use Psr\Cache\CacheItemPoolInterface;
+use Alchemy\Workflow\Executor\JobExecutionContext;
+use Alchemy\Workflow\Executor\RunContext;
+use Alchemy\Workflow\State\Inputs;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 class ExpressionParser extends ExpressionLanguage
 {
-    public function __construct(CacheItemPoolInterface $cache = null, array $providers = [])
+    private const DYNAMIC_PATTERN = '#\${{ +(.+?) +}}#';
+
+    public function evaluateJobExpression(
+        string $expression,
+        JobExecutionContext $context,
+        ?RunContext $runContext = null
+    ): mixed
     {
-        parent::__construct($cache, $providers);
+        $count = preg_match_all(self::DYNAMIC_PATTERN, $expression, $matches);
+
+        if (0 === $count) {
+            return $expression;
+        }
+
+        $variables = $this->createJobVariables($context, $runContext);
+        if (1 === $count) {
+            return $this->evaluate($matches[1][0], $variables);
+        }
+
+        return $this->replaceVars($expression, $variables);
     }
 
-    public function evaluateStepWith(string $expression, JobState $jobState): mixed
+    private function evaluateDynamicExpression(
+        mixed $expression,
+        array $variables
+    ): mixed
     {
-        return $this->evaluate($expression, [
-            'steps' =>
-        ]);
+        if (!is_string($expression)) {
+            return $expression;
+        }
+
+        $count = preg_match_all(self::DYNAMIC_PATTERN, $expression, $matches);
+
+        if (0 === $count) {
+            return $expression;
+        }
+
+        if (1 === $count) {
+            return $this->evaluate($matches[1][0], $variables);
+        }
+
+        return $this->replaceVars($expression, $variables);
+    }
+
+    public function evaluateIf(string $expression, JobExecutionContext $context): bool
+    {
+        return (bool) $this->evaluate($expression, $this->createJobVariables($context));
+    }
+
+    public function evaluateArray(array $array, JobExecutionContext $context): array
+    {
+        $variables = $this->createJobVariables($context);
+
+        return array_map(fn ($value) => $this->evaluateDynamicExpression($value, $variables), $array);
+    }
+
+    private function replaceVars(string $literal, array $variables): string
+    {
+        return preg_replace_callback(
+            self::DYNAMIC_PATTERN,
+            fn (array $matches): string => (string) $this->evaluate($matches[1], $variables),
+            $literal
+        );
+    }
+
+    public function evaluateRun(string $run, JobExecutionContext $context, RunContext $runContext): string
+    {
+        $variables = $this->createJobVariables($context, $runContext);
+
+        return $this->replaceVars($run, $variables);
+    }
+
+    private function createJobVariables(
+        JobExecutionContext $context,
+        ?RunContext $runContext = null
+    ): array
+    {
+        $workflowState = $context->getWorkflowState();
+        $jobState = $context->getJobState();
+        $inputs = $runContext?->getInputs()  ?? $workflowState->getEvent()?->getInputs() ?? new Inputs();
+        $envs = $runContext?->getEnvs() ?? $context->getEnvs();
+
+        return [
+            'steps' => new ObjectOrArrayAccessor($jobState->getSteps()),
+            'jobs' => new JobsAccessor($workflowState),
+            'inputs' => new ObjectOrArrayAccessor($inputs),
+            'env' => new ObjectOrArrayAccessor($envs),
+        ];
     }
 }

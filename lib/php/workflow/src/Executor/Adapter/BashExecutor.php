@@ -17,15 +17,15 @@ class BashExecutor implements ExecutorInterface
         return 'bash' === $name;
     }
 
-    public function execute(Step $step, RunContext $context): void
+    public function execute(string $run, RunContext $context): void
     {
         $output = $context->getOutput();
 
         if ($output->isVerbose()) {
-            $output->writeln(sprintf('+ <info>%s</info>', trim($step->getRun())));
+            $output->writeln(sprintf('+ <info>%s</info>', trim($run)));
         }
 
-        $process = Process::fromShellCommandline($step->getRun(), null, ['ENV_VAR_NAME' => 'value']);
+        $process = Process::fromShellCommandline($run, null, ['ENV_VAR_NAME' => 'value']);
         $process->run();
 
         if (!$process->isSuccessful()) {

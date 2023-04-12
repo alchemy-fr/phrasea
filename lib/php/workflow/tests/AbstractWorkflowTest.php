@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Tests;
 
+use Alchemy\Workflow\Executor\Action\ArrayActionRegistry;
 use Alchemy\Workflow\Executor\Adapter\BashExecutor;
 use Alchemy\Workflow\Executor\Adapter\PhpExecutor;
+use Alchemy\Workflow\Executor\EnvContainer;
+use Alchemy\Workflow\Executor\Expression\ExpressionParser;
 use Alchemy\Workflow\Executor\JobExecutor;
 use Alchemy\Workflow\Executor\PlanExecutor;
 use Alchemy\Workflow\Loader\YamlLoader;
@@ -19,6 +22,7 @@ use Alchemy\Workflow\Tests\State\TestStateStateRepository;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\Test\TestLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractWorkflowTest extends TestCase
@@ -26,27 +30,41 @@ abstract class AbstractWorkflowTest extends TestCase
     /**
      * @param array $workflowFiles
      *
-     * @return array{WorkflowOrchestrator, TestStateStateRepository}
+     * @return array{WorkflowOrchestrator, TestStateStateRepository, TestLogger}
      */
-    protected function createOrchestrator(array $workflowFiles, ?StateRepositoryInterface $stateRepository, ?OutputInterface $output = null): array
+    protected function createOrchestrator(
+        array $workflowFiles,
+        ?StateRepositoryInterface $stateRepository,
+        ?OutputInterface $output = null,
+        ?EnvContainer $envs = null,
+    ): array
     {
+        $actionRegistry = new ArrayActionRegistry();
+
+        $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
+        $logger = new TestLogger();
         $jobExecutor = new JobExecutor([
             new BashExecutor(),
             new PhpExecutor(),
-        ]);
+        ],
+            $actionRegistry,
+            new ExpressionParser(),
+            $stateRepository,
+            $output,
+            $logger,
+            $envs,
+        );
         $loader = new YamlLoader();
 
         $workflowRepository = new MemoryWorkflowRepository(new WorkflowList(
             array_map(fn (string $src) => $loader->load(__DIR__.'/fixtures/'.$src), $workflowFiles)
         ));
 
-        $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
 
         $planExecutor = new PlanExecutor(
             $workflowRepository,
-            $stateRepository,
             $jobExecutor,
-            $output,
+            $stateRepository,
         );
         $runner = new RuntimeRunner($planExecutor);
         $jobTrigger = new RuntimeJobTrigger($runner);
@@ -55,7 +73,7 @@ abstract class AbstractWorkflowTest extends TestCase
             $workflowRepository,
             $stateRepository,
             $jobTrigger
-        ), $stateRepository];
+        ), $stateRepository, $logger];
     }
     protected function createPlanner(array $workflowFiles): WorkflowPlanner
     {
@@ -67,7 +85,11 @@ abstract class AbstractWorkflowTest extends TestCase
     protected function assertJobResultsStates(array $expected, StateRepositoryInterface $repository, string $workflowId): void
     {
         foreach ($expected as $jobId => $result) {
-            $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus());
+            if (null === $result) {
+                $this->assertNull($repository->getJobState($workflowId, $jobId));
+            } else {
+                $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus());
+            }
         }
     }
 }

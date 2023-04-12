@@ -13,25 +13,24 @@ jobs:
       - run: |
           echo "content"
 
-  content-bis:
+  content_bis:
     needs:
       - intro
     steps:
       - run: |
-          echo "content-bis"
+          echo "content_bis"
 
   outro:
-#    if: ${{ globals.foo == 'bar' }}
     needs:
       - content
-      - content-bis
+      - content_bis
     steps:
       - executor: php
         run: |
           echo "outro".str_repeat('!', 2);
 
   never-called:
-    if: ${{ globals.foo == 'another value' }}
+    if: env.TEST == "bar"
     steps:
       - name: Dummy run
         executor: bash

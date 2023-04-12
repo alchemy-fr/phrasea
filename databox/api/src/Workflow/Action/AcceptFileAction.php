@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Workflow\JobHandler;
+namespace App\Workflow\Action;
 
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
@@ -14,12 +14,12 @@ use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AcceptFileJob implements ActionInterface
+readonly class AcceptFileAction implements ActionInterface
 {
     public function __construct(
-        private readonly BorderManager $borderManager,
-        private readonly UploaderClient $uploaderClient,
-        private readonly EntityManagerInterface $em,
+        private BorderManager $borderManager,
+        private UploaderClient $uploaderClient,
+        private EntityManagerInterface $em,
     ) {
     }
 
@@ -51,6 +51,7 @@ class AcceptFileJob implements ActionInterface
 
         if ($file instanceof File) {
             $context->setOutput('fileId', $file->getId());
+            $context->setOutput('assetId', $asset->getId());
         }
     }
 }

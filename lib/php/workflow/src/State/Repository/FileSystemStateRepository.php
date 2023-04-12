@@ -91,7 +91,7 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
         $fd = fopen($path, 'c+');
 
         if (!flock($fd, LOCK_EX)) {
-            throw new LockException('Cannot acquire lock on "%s"', $path);
+            throw new LockException(sprintf('Cannot acquire lock on "%s"', $path));
         }
 
         $this->fileDescriptors[$workflowId][$jobId] = $fd;
@@ -112,7 +112,8 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
     {
         $fd = $this->fileDescriptors[$state->getWorkflowId()][$state->getJobId()] ?? null;
         if (null === $fd) {
-            throw new \InvalidArgumentException(sprintf('Missing file descriptor for writing job "%s"', $state->getJobId()));
+            $path = $this->getJobPath($state->getWorkflowId(), $state->getJobId());
+            $fd = fopen($path, 'r+');
         }
 
         ftruncate($fd, 0);
@@ -120,6 +121,14 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
         fwrite($fd, serialize($state));
         fflush($fd);
         flock($fd, LOCK_UN);
+    }
+
+    public function removeJobState(string $workflowId, string $jobId): void
+    {
+        $path = $this->getJobPath($workflowId, $jobId);
+        if (file_exists($path)) {
+            unlink($path);
+        }
     }
 
     private function getWorkflowPath(string $id, string $filename): string

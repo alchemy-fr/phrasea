@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Consumer\Handler\File;
+namespace App\Workflow\Action;
 
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
@@ -12,18 +12,18 @@ use App\Entity\Core\File;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AssignSourceFileToAssetHandler implements ActionInterface
+readonly class AssignSourceFileToAssetAction implements ActionInterface
 {
     public function __construct(
-        private readonly AssetManager $assetManager,
-        private readonly EntityManagerInterface $em,
+        private AssetManager $assetManager,
+        private EntityManagerInterface $em,
     ) {
     }
 
     public function handle(RunContext $context): void
     {
         $inputs = $context->getInputs();
-        $fileId = $context->getOutputs()['fileId'];
+        $fileId = $inputs['fileId'];
         $assetId = $inputs['assetId'];
 
         $file = $this->em->find(File::class, $fileId);

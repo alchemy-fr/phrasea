@@ -48,6 +48,13 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
         $this->inner->persistJobState($state);
     }
 
+    public function removeJobState(string $workflowId, string $jobId): void
+    {
+        $this->logs[] = ['removeJobState', $workflowId, $jobId];
+
+        $this->inner->removeJobState($workflowId, $jobId);
+    }
+
     public function acquireJobLock(string $workflowId, string $jobId): void
     {
         $this->logs[] = ['acquireJobLock', $workflowId, $jobId];

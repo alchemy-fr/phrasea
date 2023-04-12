@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Doctrine\Entity;
 
+use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\StateUtil;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -74,8 +75,8 @@ class WorkflowState
         $this->state = serialize($state);
         $this->name = $state->getWorkflowName();
         $this->status = $state->getStatus();
-        $this->startedAt = $state->getStartedAt();
-        $this->endedAt = $state->getEndedAt();
+        $this->startedAt = $state->getStartedAt()->getDateTimeObject();
+        $this->endedAt = $state->getEndedAt()?->getDateTimeObject();
     }
 
     public function getWorkflowState(): ModelWorkflowState
@@ -83,7 +84,7 @@ class WorkflowState
         if (null === $this->workflowState) {
             try {
                 $this->workflowState = unserialize($this->getState());
-            } catch (\ErrorException $e) {
+            } catch (\Throwable $e) {
                 throw new \Exception(sprintf('Cannot read state: %s', $this->getState()), 0, $e);
             }
         }
@@ -91,13 +92,31 @@ class WorkflowState
         return $this->workflowState;
     }
 
-    public function getDuration(): ?int
+    public function getDuration(): ?float
     {
-        if (null !== $this->endedAt) {
-            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
+        try {
+            return $this->getWorkflowState()->getDuration();
+        } catch (\Exception $e) {
+            return null;
         }
+    }
 
-        return null;
+    public function getEventName(): ?string
+    {
+        try {
+            return $this->getWorkflowState()->getEvent()?->getName();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function getEventInputs(): ?Inputs
+    {
+        try {
+            return $this->getWorkflowState()->getEvent()?->getInputs();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function getDurationString(): string

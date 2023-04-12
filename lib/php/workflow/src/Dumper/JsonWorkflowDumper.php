@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\Dumper;
 
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\StateUtil;
 use Alchemy\Workflow\State\WorkflowState;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,10 +32,10 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                     $job = array_merge($job, [
                         'id' => $jobState->getJobId(),
                         'status' => $jobState->getStatus(),
-                        'outputs' => $jobState->getOutputs(),
-                        'startedAt' => $jobState->getStartedAt() ? $jobState->getStartedAt()->format(\DateTimeInterface::ATOM) : null,
-                        'endedAt' => $jobState->getEndedAt() ? $jobState->getEndedAt()->format(\DateTimeInterface::ATOM) : null,
-                        'duration' => $jobState->getDurationString(),
+                        'outputs' => $jobState->getOutputs()->getArrayCopy(),
+                        'startedAt' => $jobState->getStartedAt()?->formatAtom(),
+                        'endedAt' => $jobState->getEndedAt()?->formatAtom(),
+                        'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ]);
                 }
 
@@ -51,10 +52,10 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             'id' => $state->getId(),
             'name' => $state->getWorkflowName(),
             'status' => $state->getStatus(),
-            'startedAt' => $state->getStartedAt()->format(\DateTimeInterface::ATOM),
-            'endedAt' => $state->getEndedAt() ? $state->getEndedAt()->format(\DateTimeInterface::ATOM) : null,
+            'startedAt' => $state->getStartedAt()->formatAtom(),
+            'endedAt' => $state->getEndedAt()?->formatAtom(),
             'stages' => $stages,
-            'duration' => $state->getDurationString(),
+            'duration' => StateUtil::getFormattedDuration($state->getDuration()),
         ]));
     }
 }

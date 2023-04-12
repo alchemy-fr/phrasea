@@ -14,16 +14,20 @@ jobs:
   border:
     steps:
       - id: accept_file
-        uses: App\Workflow\JobHandler\AcceptFileJob
+        uses: App\Workflow\Action\AcceptFileAction
     outputs:
       fileId: ${{ steps.accept_file.outputs.fileId }}
+      assetId: ${{ steps.accept_file.outputs.assetId }}
 
   uploader_ack:
     needs: [border]
     steps:
-      - uses: App\Workflow\JobHandler\UploaderAckAssetJob
+      - uses: App\Workflow\Action\UploaderAckAssetAction
 
   assign_file_to_asset:
     needs: [border]
     steps:
-      - uses: App\Workflow\JobHandler\UploaderAckAssetJob
+      - uses: App\Workflow\Action\AssignSourceFileToAssetAction
+    with:
+      assetId: ${{ jobs.border.outputs.assetId }}
+      fileId: ${{ jobs.border.outputs.fileId }}

@@ -67,3 +67,5 @@ services:
 
   Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry: ~
   Alchemy\Workflow\Executor\Action\ActionRegistryInterface: '@Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry'
+
+  Alchemy\Workflow\Executor\Expression\ExpressionParser: ~

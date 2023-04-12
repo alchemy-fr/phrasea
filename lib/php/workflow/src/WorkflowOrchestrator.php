@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow;
 
+use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
@@ -66,13 +68,13 @@ class WorkflowOrchestrator
         $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        [$nextJobId, $completeStatus] = $this->getNextJob($plan, $workflowState);
+        [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
         if (null !== $nextJobId) {
             do {
-                $continue = $this->triggerJob($workflowState, $plan, $nextJobId);
+                $continue = $this->triggerJob($workflowState, $nextJobId);
 
                 if ($continue) {
-                    [$nextJobId, $completeStatus] = $this->getNextJob($plan, $workflowState);
+                    [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
                     if (null === $nextJobId) {
                         $continue = false;
                     }
@@ -80,15 +82,45 @@ class WorkflowOrchestrator
             } while ($continue);
         }
 
-        if (null !== $completeStatus) {
-            $workflowState->setEndedAt(new \DateTimeImmutable());
-            $workflowState->setStatus($completeStatus ? WorkflowState::STATUS_SUCCESS : WorkflowState::STATUS_FAILURE);
+        if (null !== $workflowEndStatus) {
+            $workflowState->setEndedAt(new MicroDateTime());
+            $workflowState->setStatus($workflowEndStatus);
             $this->stateRepository->persistWorkflowState($workflowState);
         }
     }
 
+    public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
+    {
+        $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+
+        $event = $workflowState->getEvent();
+        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+        $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
+
+        foreach ($plan->getStages() as $stage) {
+            foreach ($stage->getRuns() as $run) {
+                $jobId = $run->getJob()->getId();
+
+                if (null !== $jobIdFilter && $jobIdFilter !== $jobId) {
+                    continue;
+                }
+
+                $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+                if (null !== $jobState && $jobState->getStatus() === JobState::STATUS_FAILURE) {
+                    $this->stateRepository->removeJobState($workflowId, $jobId);
+
+                    $this->triggerJob($workflowState, $jobId);
+                }
+
+                if (null !== $jobIdFilter) {
+                    return;
+                }
+            }
+        }
+    }
+
     /**
-     * @return [?string, ?bool] [the next job ID, isWorkflowComplete]
+     * @return [?string, ?int] [the next job ID, The Workflow Status]
      */
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
@@ -105,7 +137,7 @@ class WorkflowOrchestrator
                 }
 
                 if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
-                    return [null, false];
+                    return [null, WorkflowState::STATUS_FAILURE];
                 }
 
                 if (!in_array($jobState->getStatus(), [
@@ -122,30 +154,24 @@ class WorkflowOrchestrator
             }
         }
 
-        return [null, true];
+        return [null, WorkflowState::STATUS_SUCCESS];
     }
 
-    private function triggerJob(WorkflowState $state, Plan $plan, string $jobId): bool
+    private function triggerJob(WorkflowState $state, string $jobId): bool
     {
         $workflowId = $state->getId();
-        $job = $plan->getJob($jobId);
 
-        if (null !== $job->getIf()) {
-            $this->createJobState($workflowId, $jobId, JobState::STATUS_SKIPPED);
-
-            return true;
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->acquireJobLock($workflowId, $jobId);
         }
 
-        $this->createJobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
+        $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
+        $this->stateRepository->persistJobState($jobState);
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        }
 
         return $this->trigger->triggerJob($state->getId(), $jobId);
-    }
-
-    private function createJobState(string $workflowId, string $jobId, int $status): void
-    {
-        $this->stateRepository->acquireJobLock($workflowId, $jobId);
-        $jobState = new JobState($workflowId, $jobId, $status);
-        $this->stateRepository->persistJobState($jobState);
-        $this->stateRepository->releaseJobLock($workflowId, $jobId);
     }
 }

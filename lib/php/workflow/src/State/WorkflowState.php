@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State;
 
+use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Ramsey\Uuid\Uuid;
@@ -16,8 +17,8 @@ class WorkflowState
 
     private string $id;
     private StateRepositoryInterface $stateRepository;
-    private ?\DateTimeImmutable $startedAt = null;
-    private ?\DateTimeImmutable $endedAt = null;
+    private ?MicroDateTime $startedAt = null;
+    private ?MicroDateTime $endedAt = null;
     private ?WorkflowEvent $event;
     private string $workflowName;
     private int $status = self::STATUS_STARTED;
@@ -31,7 +32,7 @@ class WorkflowState
     {
         $this->stateRepository = $stateRepository;
         $this->id = $id ?? Uuid::uuid4()->toString();
-        $this->startedAt = new \DateTimeImmutable();
+        $this->startedAt = new MicroDateTime();
         $this->event = $event;
         $this->workflowName = $workflowName;
     }
@@ -51,7 +52,7 @@ class WorkflowState
         return $this->event;
     }
 
-    public function getStartedAt(): \DateTimeImmutable
+    public function getStartedAt(): MicroDateTime
     {
         return $this->startedAt;
     }
@@ -61,18 +62,9 @@ class WorkflowState
         return $this->stateRepository->getJobState($this->id, $jobId);
     }
 
-    public function getDuration(): ?int
+    public function getDuration(): ?float
     {
-        if (null !== $this->endedAt) {
-            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
-        }
-
-        return null;
-    }
-
-    public function getDurationString(): string
-    {
-        return StateUtil::getFormattedDuration($this->getDuration());
+        return $this->endedAt?->getDiff($this->startedAt);
     }
 
     public function __serialize(): array
@@ -112,12 +104,12 @@ class WorkflowState
         $this->status = $status;
     }
 
-    public function getEndedAt(): ?\DateTimeImmutable
+    public function getEndedAt(): ?MicroDateTime
     {
         return $this->endedAt;
     }
 
-    public function setEndedAt(\DateTimeImmutable $endedAt): void
+    public function setEndedAt(MicroDateTime $endedAt): void
     {
         $this->endedAt = $endedAt;
     }

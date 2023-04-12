@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Workflow\JobHandler;
+namespace App\Workflow\Action;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\FileFetcher;
+use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Metadata\MetadataNormalizer;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ReadMetadataJob implements ActionInterface
+readonly class ReadMetadataAction implements ActionInterface
 {
     public function __construct(
-        private readonly MetadataNormalizer $metadataNormalizer,
-        private readonly FileFetcher $fileFetcher,
-        private readonly EntityManagerInterface $em,
+        private MetadataNormalizer $metadataNormalizer,
+        private FileFetcher $fileFetcher,
+        private EntityManagerInterface $em,
     )
     {
     }
@@ -26,12 +27,14 @@ class ReadMetadataJob implements ActionInterface
     public function handle(RunContext $context): void
     {
         $inputs = $context->getInputs();
-        $id = $inputs['fileId'];
+        $id = $inputs['assetId'];
 
-        $file = $this->em->find(File::class, $id);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
+        $asset = $this->em->find(Asset::class, $id);
+        if (!$asset instanceof Asset) {
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
         }
+
+        $file = $asset->getSource();
 
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {

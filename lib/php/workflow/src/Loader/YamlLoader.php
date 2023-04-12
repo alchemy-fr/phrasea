@@ -53,6 +53,8 @@ class YamlLoader implements FileLoaderInterface
         $job = new Job($jobId);
         $job->setIf($data['if'] ?? null);
         $job->setContinueOnError($data['continue-on-error'] ?? false);
+        $job->setOutputs($data['outputs'] ?? []);
+        $job->setWith($data['with'] ?? []);
 
         if (isset($data['steps'])) {
             foreach ($data['steps'] as $i => $step) {
@@ -77,6 +79,7 @@ class YamlLoader implements FileLoaderInterface
         $step->setRun($data['run'] ?? null);
         $step->setIf($data['if'] ?? null);
         $step->setUses($data['uses'] ?? null);
+        $step->setWith($data['with'] ?? []);
         $step->setContinueOnError($data['continue-on-error'] ?? false);
 
         if (isset($data['executor'])) {

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Workflow\JobHandler;
+namespace App\Workflow\Action;
 
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Border\UploaderClient;
 
-class UploaderAckAssetJob implements ActionInterface
+readonly class UploaderAckAssetAction implements ActionInterface
 {
-    public function __construct(private readonly UploaderClient $uploaderClient)
+    public function __construct(private UploaderClient $uploaderClient)
     {
     }
 

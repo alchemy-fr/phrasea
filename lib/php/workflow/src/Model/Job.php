@@ -14,6 +14,8 @@ class Job
     private ?string $if = null;
 
     private StepList $steps;
+    private array $with = [];
+    private array $outputs = [];
     private ?string $result = null;
     private bool $continueOnError = false;
 
@@ -30,6 +32,9 @@ class Job
         return $this->id;
     }
 
+    /**
+     * @return string[]
+     */
     public function getNeeds(): NeedList
     {
         return $this->needs;
@@ -38,11 +43,6 @@ class Job
     public function getEnv(): EnvVars
     {
         return $this->env;
-    }
-
-    public function getIf(): ?string
-    {
-        return $this->if;
     }
 
     /**
@@ -58,6 +58,11 @@ class Job
         return $this->result;
     }
 
+    public function getIf(): ?string
+    {
+        return $this->if;
+    }
+
     public function setIf(?string $if): void
     {
         $this->if = $if;
@@ -71,5 +76,25 @@ class Job
     public function setContinueOnError(bool $continueOnError): void
     {
         $this->continueOnError = $continueOnError;
+    }
+
+    public function getOutputs(): array
+    {
+        return $this->outputs;
+    }
+
+    public function setOutputs(array $outputs): void
+    {
+        $this->outputs = $outputs;
+    }
+
+    public function getWith(): array
+    {
+        return $this->with;
+    }
+
+    public function setWith(array $with): void
+    {
+        $this->with = $with;
     }
 }

@@ -43,8 +43,8 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
         $name = TextField::new('name', 'Name');
-        $eventName = TextField::new('workflowState.event.name', 'Event');
-        $eventInputs = ArrayObjectField::new('workflowState.event.inputs', 'Event inputs');
+        $eventName = TextField::new('eventName', 'Event');
+        $eventInputs = ArrayObjectField::new('eventInputs', 'Event inputs');
         $duration = TextField::new('durationString', 'Duration');
         $startedAt = DateTimeField::new('startedAt', 'Started At');
         $endedAt = DateTimeField::new('endedAt', 'Ended At');

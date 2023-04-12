@@ -14,6 +14,7 @@ class Step
     private string $executor = 'bash';
     private ?string $run = null;
     private ?string $uses = null;
+    private array $with = [];
     private bool $continueOnError = false;
 
     public function __construct(string $id, ?string $name)
@@ -86,5 +87,15 @@ class Step
     public function setUses(?string $uses): void
     {
         $this->uses = $uses;
+    }
+
+    public function getWith(): array
+    {
+        return $this->with;
+    }
+
+    public function setWith(array $with): void
+    {
+        $this->with = $with;
     }
 }

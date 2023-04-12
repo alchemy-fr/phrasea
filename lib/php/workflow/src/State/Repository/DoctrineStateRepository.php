@@ -60,6 +60,15 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         return $entity->getJobState();
     }
 
+    public function removeJobState(string $workflowId, string $jobId): void
+    {
+        $entity = $this->fetchJobEntity($workflowId, $jobId);
+        if ($entity instanceof JobStateEntity) {
+            $this->em->remove($entity);
+            $this->em->flush();
+        }
+    }
+
     public function acquireJobLock(string $workflowId, string $jobId): void
     {
         $this->em->beginTransaction();

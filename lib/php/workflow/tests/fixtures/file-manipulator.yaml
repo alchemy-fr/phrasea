@@ -12,7 +12,7 @@ env:
 
 jobs:
   copy-files:
-    if: ${{ globals.foo == 'bar' }}
+    if: env.foo == "bar"
     steps:
       - name: Check file exists
         executor: php
@@ -30,7 +30,7 @@ jobs:
           docker-compose build ${{ inputs.images }}
 
   never-called:
-    if: ${{ globals.foo == 'another value' }}
+    if: env.foo == "another value"
     steps:
       - name: Dummy run
         run: |

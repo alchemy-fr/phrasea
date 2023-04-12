@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State;
 
+use Alchemy\Workflow\Date\MicroDateTime;
+
 class JobState
 {
     public const STATUS_TRIGGERED = 0;
@@ -16,19 +18,24 @@ class JobState
     private string $jobId;
 
     private int $status;
-    private ?string $error = null;
-    private ?array $outputs;
-    private ?\DateTimeImmutable $triggeredAt = null;
-    private ?\DateTimeImmutable $startedAt = null;
-    private ?\DateTimeImmutable $endedAt = null;
+    private array $errors = [];
+    private Outputs $outputs;
 
-    public function __construct(string $workflowId, string $jobId, int $status, ?array $outputs = null)
+    /**
+     * @var array<string, StepState>
+     */
+    private array $steps = [];
+    private readonly MicroDateTime $triggeredAt;
+    private ?MicroDateTime $startedAt = null;
+    private ?MicroDateTime $endedAt = null;
+
+    public function __construct(string $workflowId, string $jobId, int $status)
     {
         $this->workflowId = $workflowId;
         $this->jobId = $jobId;
         $this->status = $status;
-        $this->outputs = $outputs;
-        $this->triggeredAt = new \DateTimeImmutable();
+        $this->triggeredAt = new MicroDateTime();
+        $this->outputs = new Outputs();
     }
 
     public function getStatus(): int
@@ -36,12 +43,20 @@ class JobState
         return $this->status;
     }
 
+    public function initStep(string $id): StepState
+    {
+        $stepState = new StepState($id);
+        $this->steps[$id] = $stepState;
+
+        return $stepState;
+    }
+
     public function setStatus(int $status): void
     {
         $this->status = $status;
     }
 
-    public function getOutputs(): ?array
+    public function getOutputs(): Outputs
     {
         return $this->outputs;
     }
@@ -56,58 +71,55 @@ class JobState
         return $this->workflowId;
     }
 
-    public function setOutputs(array $outputs): void
-    {
-        $this->outputs = $outputs;
-    }
-
-    public function getTriggeredAt(): \DateTimeImmutable
+    public function getTriggeredAt(): MicroDateTime
     {
         return $this->triggeredAt;
     }
 
-    public function getStartedAt(): ?\DateTimeImmutable
+    public function getStartedAt(): ?MicroDateTime
     {
         return $this->startedAt;
     }
 
-    public function setStartedAt(?\DateTimeImmutable $startedAt): void
+    public function setStartedAt(?MicroDateTime $startedAt): void
     {
         $this->startedAt = $startedAt;
     }
 
-    public function getEndedAt(): ?\DateTimeImmutable
+    public function getEndedAt(): ?MicroDateTime
     {
         return $this->endedAt;
     }
 
-    public function setEndedAt(?\DateTimeImmutable $endedAt): void
+    public function setEndedAt(?MicroDateTime $endedAt): void
     {
         $this->endedAt = $endedAt;
     }
 
-    public function getDuration(): ?int
+    public function getDuration(): ?float
     {
-        if (null !== $this->endedAt) {
-            return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
-        }
-
-        return null;
+        return $this->endedAt?->getDiff($this->startedAt);
     }
 
-    public function getDurationString(): string
+    public function getErrors(): array
     {
-        return StateUtil::getFormattedDuration($this->getDuration());
+        return $this->errors;
     }
 
-    public function getError(): ?string
+    public function addError(string $error): void
     {
-        return $this->error;
+        $this->errors[] = $error;
     }
 
-    public function setError(?string $error): void
+    public function addException(\Throwable $exception): void
     {
-        $this->error = $error;
+        $this->errors[] = sprintf('%s [%s:%d]
+%s',
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine(),
+            $exception->getTraceAsString(),
+        );
     }
 
     public function __serialize(): array
@@ -120,7 +132,7 @@ class JobState
             'triggeredAt' => $this->triggeredAt,
             'startedAt' => $this->startedAt,
             'endedAt' => $this->endedAt,
-            'error' => $this->error,
+            'errors' => $this->errors,
         ];
     }
 
@@ -133,6 +145,11 @@ class JobState
         $this->triggeredAt = $data['triggeredAt'];
         $this->startedAt = $data['startedAt'];
         $this->endedAt = $data['endedAt'];
-        $this->error = $data['error'] ?? null;
+        $this->errors = $data['errors'] ?? [];
+    }
+
+    public function getSteps(): array
+    {
+        return $this->steps;
     }
 }

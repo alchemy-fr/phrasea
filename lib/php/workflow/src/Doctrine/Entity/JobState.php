@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Doctrine\Entity;
 
 use Alchemy\Workflow\State\JobState as ModelJobState;
+use Alchemy\Workflow\State\StateUtil;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -68,18 +69,22 @@ class JobState
         return $this->state;
     }
 
+    public function getDuration(): ?float
+    {
+        return $this->getJobState()->getDuration();
+    }
+
+    public function getDurationString(): string
+    {
+        return StateUtil::getFormattedDuration($this->getDuration());
+    }
+
     public function setState(ModelJobState $state): void
     {
         $this->state = serialize($state);
-        $this->triggeredAt = $state->getTriggeredAt();
-
-        if ($state->getEndedAt()) {
-            $this->endedAt = $state->getEndedAt();
-        }
-        if ($state->getStartedAt()) {
-            $this->startedAt = $state->getStartedAt();
-        }
-
+        $this->triggeredAt = $state->getTriggeredAt()->getDateTimeObject();
+        $this->endedAt = $state->getEndedAt()?->getDateTimeObject();
+        $this->startedAt = $state->getStartedAt()?->getDateTimeObject();
         $this->status = $state->getStatus();
     }
 
@@ -94,12 +99,12 @@ class JobState
 
     public function getOutputs(): array
     {
-        return $this->getJobState()->getOutputs();
+        return $this->getJobState()->getOutputs()->getArrayCopy();
     }
 
-    public function getError(): ?string
+    public function getErrors(): array
     {
-        return $this->getJobState()->getError();
+        return $this->getJobState()->getErrors();
     }
 
     public function getWorkflow(): ?WorkflowState

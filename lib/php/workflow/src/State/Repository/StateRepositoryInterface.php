@@ -19,4 +19,6 @@ interface StateRepositoryInterface
     public function getJobState(string $workflowId, string $jobId): ?JobState;
 
     public function persistJobState(JobState $state): void;
+
+    public function removeJobState(string $workflowId, string $jobId): void;
 }

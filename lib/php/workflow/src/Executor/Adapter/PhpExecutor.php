@@ -16,17 +16,17 @@ class PhpExecutor implements ExecutorInterface
         return 'php' === $name;
     }
 
-    public function execute(Step $step, RunContext $context): void
+    public function execute(string $run, RunContext $context): void
     {
         $output = $context->getOutput();
 
         if ($output->isVerbose()) {
-            $output->writeln(sprintf('+ <info>%s</info>', trim($step->getRun())));
+            $output->writeln(sprintf('+ <info>%s</info>', trim($run)));
         }
 
         $process = new PhpProcess(sprintf('<?php
 %s
-?>', $step->getRun()));
+?>', $run));
         $process->run();
 
         $context->getOutput()->write($process->getOutput());

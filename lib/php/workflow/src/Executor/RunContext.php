@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
+use Alchemy\Workflow\State\Inputs;
+use Alchemy\Workflow\State\Outputs;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class RunContext
+readonly class RunContext
 {
-    private array $inputs;
-    private array $outputs = [];
-    private array $env;
-    private OutputInterface $output;
-
-    public function __construct(OutputInterface $output, array $inputs, array $env)
+    public function __construct(
+        private OutputInterface $output,
+        private Inputs $inputs,
+        private EnvContainer $envs,
+        private Outputs $outputs,
+    )
     {
-        $this->output = $output;
-        $this->inputs = $inputs;
-        $this->env = $env;
     }
 
-    public function getInputs(): array
+    public function getInputs(): Inputs
     {
         return $this->inputs;
-    }
-
-    public function getEnv(string $key)
-    {
-        return $this->env[$key] ?? null;
     }
 
     public function getOutput(): OutputInterface
@@ -35,17 +29,13 @@ class RunContext
         return $this->output;
     }
 
-    public function getOutputs(): array
-    {
-        return $this->outputs;
-    }
-
     public function setOutput(string $key, $value): void
     {
-        if (array_key_exists($key, $this->outputs)) {
-            throw new \LogicException(sprintf('Output "%s" is already defined', $key));
-        }
+        $this->outputs->set($key, $value);
+    }
 
-        $this->outputs[$key] = $value;
+    public function getEnvs(): EnvContainer
+    {
+        return $this->envs;
     }
 }

@@ -20,7 +20,7 @@ class YamlLoaderTest extends TestCase
         $copyFilesJob = $workflow->getJobs()['copy-files'];
         $this->assertCount(3, $copyFilesJob->getSteps());
         $this->assertCount(0, $copyFilesJob->getEnv());
-        $this->assertEquals('${{ globals.foo == \'bar\' }}', $copyFilesJob->getIf());
+        $this->assertEquals('env.foo == "bar"', $copyFilesJob->getIf());
         $this->assertNull($copyFilesJob->getSteps()[0]->getIf());
     }
 }

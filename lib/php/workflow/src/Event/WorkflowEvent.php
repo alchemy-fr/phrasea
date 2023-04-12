@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Event;
 
+use Alchemy\Workflow\State\Inputs;
+
 final class WorkflowEvent
 {
     private string $name;
 
-    private array $inputs;
+    private Inputs $inputs;
 
     public function __construct(string $name, array $inputs = [])
     {
         $this->name = $name;
-        $this->inputs = $inputs;
+        $this->inputs = new Inputs($inputs);
     }
 
     public function getName(): string
@@ -21,7 +23,7 @@ final class WorkflowEvent
         return $this->name;
     }
 
-    public function getInputs(): array
+    public function getInputs(): Inputs
     {
         return $this->inputs;
     }

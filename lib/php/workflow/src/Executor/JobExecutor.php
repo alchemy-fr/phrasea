@@ -4,65 +4,198 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
+use Alchemy\Workflow\Date\MicroDateTime;
+use Alchemy\Workflow\Exception\ConcurrencyException;
 use Alchemy\Workflow\Executor\Action\ActionRegistryInterface;
+use Alchemy\Workflow\Executor\Expression\ExpressionParser;
 use Alchemy\Workflow\Model\Job;
+use Alchemy\Workflow\Model\Step;
+use Alchemy\Workflow\State\Inputs;
+use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
+use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\WorkflowState;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class JobExecutor
 {
-    /**
-     * @var ExecutorInterface[]
-     */
-    private iterable $executors;
-    private ActionRegistryInterface $actionRegistry;
+    private LoggerInterface $logger;
+    private OutputInterface $output;
+    private EnvContainer $envs;
 
-    public function __construct(iterable $executors, ActionRegistryInterface $actionRegistry)
-    {
-        $this->executors = $executors;
-        $this->actionRegistry = $actionRegistry;
+    public function __construct(
+        private readonly iterable $executors,
+        private readonly ActionRegistryInterface $actionRegistry,
+        private readonly ExpressionParser $expressionParser,
+        private readonly StateRepositoryInterface $stateRepository,
+        ?OutputInterface $output = null,
+        ?LoggerInterface $logger = null,
+        ?EnvContainer $envs = null,
+    ) {
+        $this->logger = $logger ?? new NullLogger();
+        $this->output = $output ?? new NullOutput();
+        $this->envs = $envs ?? new EnvContainer();;
     }
 
-    public function executeJob(JobExecutionContext $context, Job $job): void
+    public function shouldBeSkipped(JobExecutionContext $context, Job $job): bool
     {
+        if (null !== $if = $job->getIf()) {
+            $evaluatedIf = $this->expressionParser->evaluateIf($if, $context);
+            if (!$evaluatedIf) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function executeJob(WorkflowState $workflowState, Job $job): void
+    {
+        $workflowId = $workflowState->getId();
+        $jobId = $job->getId();
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->acquireJobLock($workflowId, $jobId);
+        }
+
+        $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+
+        if (null === $jobState) {
+            throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
+        }
+
+        if (JobState::STATUS_TRIGGERED !== $jobState->getStatus()) {
+            throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s"', $jobId, $workflowId));
+        }
+
+        $context = new JobExecutionContext(
+            $workflowState,
+            $jobState,
+            $this->output,
+            $this->envs,
+            $workflowState->getEvent()?->getInputs() ?? new Inputs()
+        );
+
+        if ($this->shouldBeSkipped($context, $job)) {
+            $jobState->setStatus(JobState::STATUS_SKIPPED);
+            $this->stateRepository->persistJobState($jobState);
+
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->releaseJobLock($workflowId, $jobId);
+            }
+
+            return;
+        }
+
+        $jobState->setStatus(JobState::STATUS_RUNNING);
+        $jobState->setStartedAt(new MicroDateTime());
+        $this->stateRepository->persistJobState($jobState);
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        }
+
+        $this->runJob($context, $job);
+    }
+
+    private function runJob(JobExecutionContext $context, Job $job): void
+    {
+        $jobState = $context->getJobState();
+
+        $jobEnvContainer = $context->getEnvs()->mergeWith($this->expressionParser->evaluateArray(
+            $job->getEnv()->getArrayCopy(),
+            $context
+        ));
+
         $output = $context->getOutput();
         $output->writeln(sprintf('Running job <info>%s</info>', $job->getId()));
 
+        $endStatus = JobState::STATUS_SUCCESS;
+
+        $jobInputs = $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($job->getWith(), $context));
+
         foreach ($job->getSteps() as $step) {
-            $jobState = $context->getJobState();
+            $stepState = $jobState->initStep($step->getId());
+            $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
+
+            $runContext = new RunContext(
+                $output,
+                $jobInputs->mergeWith($this->expressionParser->evaluateArray($step->getWith(), $context)),
+                $jobEnvContainer->mergeWith($this->expressionParser->evaluateArray(
+                    $step->getEnv()->getArrayCopy(),
+                    $context
+                )),
+                $stepState->getOutputs()
+            );
+
+            $jobCallable = $this->getJobCallable($step, $context, $runContext);
+            $stepState->setStartedAt(new MicroDateTime());
 
             try {
-                $executorName = $step->getExecutor();
-                $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
+                $jobCallable($runContext);
+            } catch (Throwable $e) {
+                $this->logger->error($e->getMessage());
+                $jobState->addException($e);
+                $endStatus = JobState::STATUS_FAILURE;
 
-                $runContext = new RunContext($output, $context->getInputs(), []);
-
-                if (!empty($step->getUses())) {
-                    $action = $this->actionRegistry->getAction($step->getUses());
-                    $action->handle($runContext);
-                } else {
-                    foreach ($this->executors as $executor) {
-                        if ($executor->support($executorName)) {
-                            $executor->execute($step, $runContext);
-
-                            break;
-                        }
-                    }
-                }
-            } catch (\Throwable $e) {
-                $jobState->setError(sprintf('%s [%s:%d]
-%s',
-                    $e->getMessage(),
-                    $e->getFile(),
-                    $e->getLine(),
-                    $e->getTraceAsString(),
-                ));
                 if (!$step->isContinueOnError()) {
-                    throw $e;
+                    break;
                 }
+
                 $output->writeln(sprintf('<error>Step <info>%s</info> has failed but is set to continue on error</error>', $step->getId()));
             } finally {
-                if (isset($runContext)) {
-                    $jobState->setOutputs($runContext->getOutputs());
+                $stepState->setEndedAt(new MicroDateTime());
+            }
+        }
+
+        $this->extractOutputs($job, $context);
+
+        $jobState->setEndedAt(new MicroDateTime());
+        $jobState->setStatus($endStatus);
+        $this->stateRepository->persistJobState($jobState);
+    }
+
+    private function getJobCallable(Step $step, JobExecutionContext $context, RunContext $runContext): callable
+    {
+        $executorName = $step->getExecutor();
+
+        if (!empty($step->getUses())) {
+            $action = $this->actionRegistry->getAction($step->getUses());
+
+            return fn (RunContext $runContext) => $action->handle($runContext);
+        } else {
+            foreach ($this->executors as $executor) {
+                if ($executor->support($executorName)) {
+                    $run = $this->expressionParser->evaluateRun($step->getRun(), $context, $runContext);
+
+                    return fn (RunContext $runContext) => $executor->execute($run, $runContext);
                 }
+            }
+        }
+
+        throw new \InvalidArgumentException('Could not find executor');
+    }
+
+    private function getStepInputs(Step|Job $step, JobExecutionContext $context): array
+    {
+        return $this->expressionParser->evaluateArray($step->getWith(), $context);
+    }
+
+    private function extractOutputs(Job $job, JobExecutionContext $context): void
+    {
+        $outputs = $context->getJobState()->getOutputs();
+        foreach ($job->getOutputs() as $key => $value) {
+            try {
+                $resolved = $this->expressionParser->evaluateJobExpression($value, $context);
+                $outputs->set($key, $resolved);
+            } catch (Throwable $e) {
+                $this->logger->error($e->getMessage());
+
+                throw new \RuntimeException(sprintf('Error while evaluating expression "%s": %s', $value, $e->getMessage()), 0, $e);
             }
         }
     }

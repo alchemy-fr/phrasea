@@ -7,16 +7,23 @@ use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as ModelJobState;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
 {
+    public function __construct(private readonly WorkflowOrchestrator $workflowOrchestrator)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return JobState::class;
@@ -24,10 +31,24 @@ class JobStateCrudController extends AbstractAdminCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $retry = Action::new('retryJob', 'Retry job', 'fas fa-wrench')
+            ->displayIf(fn (JobState $entity) => $entity->getStatus() === \Alchemy\Workflow\State\JobState::STATUS_FAILURE)
+            ->linkToCrudAction('retryJob');
+
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $retry);
+    }
+
+    public function retryJob(AdminContext $context)
+    {
+        /** @var JobState $jobState */
+        $jobState = $context->getEntity()->getInstance();
+        $this->workflowOrchestrator->retryFailedJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
+
+        return new RedirectResponse($context->getReferrer());
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -43,8 +64,9 @@ class JobStateCrudController extends AbstractAdminCrudController
         $id = IdField::new();
 
         $workflowName = TextField::new('workflow.name', 'Workflow Name');
+        $duration = TextField::new('durationString', 'Duration');
         $job = TextField::new('jobId', 'Job ID');
-        $error = TextField::new('error', 'Error');
+        $errors = ArrayField::new('errors', 'Errors');
         $outputs = ArrayObjectField::new('outputs', 'Outputs');
         $status = ChoiceField::new('status', 'Status')
             ->setChoices([
@@ -66,9 +88,9 @@ class JobStateCrudController extends AbstractAdminCrudController
         $endedAt = DateTimeField::new('endedAt', 'Ended At');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt];
+            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt, $duration];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $outputs, $error, $endedAt];
+            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $outputs, $errors, $endedAt, $duration];
         }
 
         return [];

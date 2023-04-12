@@ -9,14 +9,12 @@ on:
     inputs:
       assetId:
         required: true
-      fileId:
-        required: true
 
 jobs:
   read_metadata:
     steps:
-      - uses: App\Workflow\JobHandler\UploaderAckAssetJob
+      - uses: App\Workflow\Action\ReadMetadataAction
 
-  integrations:
-    steps:
-      - uses: App\Workflow\JobHandler\UploaderAckAssetJob
+#  integrations:
+#    steps:
+#      - uses: App\Workflow\Action\UploaderAckAssetAction
