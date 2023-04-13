@@ -37,5 +37,6 @@ readonly class AssignSourceFileToAssetAction implements ActionInterface
         }
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file);
+        $this->em->flush();
     }
 }

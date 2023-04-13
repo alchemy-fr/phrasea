@@ -7,8 +7,8 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
+use Alchemy\Workflow\Consumer\JobConsumer;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Workspace;
@@ -100,7 +100,8 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationCollectionHandler::EVENT, $eventMessage->getType());
+        dump($eventMessage);
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();

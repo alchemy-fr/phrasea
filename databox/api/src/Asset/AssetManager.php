@@ -7,7 +7,7 @@ namespace App\Asset;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataExporter;
-use App\Consumer\Handler\File\ReadMetadataHandler;
+use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +20,7 @@ readonly class AssetManager
         private OriginalRenditionManager $originalRenditionManager,
         private EntityManagerInterface $em,
         private WorkflowOrchestrator $workflowOrchestrator,
+        private PostFlushStack $postFlushStack,
     ) {
     }
 
@@ -39,10 +40,11 @@ readonly class AssetManager
         $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
         $this->em->persist($asset);
-        $this->em->flush();
 
-        $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
-            'assetId' => $asset->getId(),
-        ]));
+        $this->postFlushStack->addCallback(function () use ($asset) {
+            $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
+                'assetId' => $asset->getId(),
+            ]));
+        });
     }
 }

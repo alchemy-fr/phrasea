@@ -16,7 +16,7 @@ class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAgg
         $this->pagerfanta = $pagerfanta;
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->pagerfanta->getIterator()->getArrayCopy());
     }
@@ -41,7 +41,7 @@ class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAgg
         return (float) $this->pagerfanta->getMaxPerPage();
     }
 
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return $this->pagerfanta;
     }

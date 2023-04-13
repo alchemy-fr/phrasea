@@ -53,6 +53,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         }
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file, $formData, $locale);
+        $em->flush();
     }
 
     public static function createEvent(
