@@ -53,7 +53,7 @@ class JobExecutor
         return false;
     }
 
-    public function executeJob(WorkflowState $workflowState, Job $job): void
+    public function executeJob(WorkflowState $workflowState, Job $job, array $env = []): void
     {
         $workflowId = $workflowState->getId();
         $jobId = $job->getId();
@@ -76,7 +76,7 @@ class JobExecutor
             $workflowState,
             $jobState,
             $this->output,
-            $this->envs,
+            $this->envs->mergeWith($env),
             $workflowState->getEvent()?->getInputs() ?? new Inputs()
         );
 

@@ -30,7 +30,7 @@ jobs:
           echo "outro".str_repeat('!', 2);
 
   never-called:
-    if: env.TEST == "bar"
+    if: env.WF_TEST == "bar"
     steps:
       - name: Dummy run
         executor: bash

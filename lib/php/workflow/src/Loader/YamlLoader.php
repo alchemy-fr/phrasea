@@ -38,6 +38,13 @@ class YamlLoader implements FileLoaderInterface
             }
         }
 
+        if (isset($data['env'])) {
+            $envs = $workflow->getEnv();
+            foreach ($data['env'] as $env => $value) {
+                $envs->offsetSet($env, $value);
+            }
+        }
+
         if (isset($data['on'])) {
             $onList = $workflow->getOn();
             foreach ($data['on'] as $eventName => $spec) {

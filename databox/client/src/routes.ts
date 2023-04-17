@@ -17,7 +17,7 @@ export type RouteDefinition = {
     public?: boolean;
 }
 
-export const appPathPrefix = '/app';
+export const appPathPrefix = '/';
 
 export const modalRoutes = [
     {

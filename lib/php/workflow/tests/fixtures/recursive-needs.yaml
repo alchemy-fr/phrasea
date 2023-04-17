@@ -1,0 +1,12 @@
+name: recursive-needs
+
+jobs:
+  a:
+    needs:
+      - c
+  b:
+    needs:
+      - a
+  c:
+    needs:
+      - b

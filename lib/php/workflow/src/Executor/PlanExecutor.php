@@ -23,9 +23,10 @@ final readonly class PlanExecutor
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+        $workflow = $this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName());
+        $planner = new WorkflowPlanner([$workflow]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobId));
+        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobId), $workflow->getEnv()->getArrayCopy());
     }
 }

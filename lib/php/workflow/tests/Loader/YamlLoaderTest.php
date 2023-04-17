@@ -16,6 +16,7 @@ class YamlLoaderTest extends TestCase
 
         $this->assertEquals('Manipulate file', $workflow->getName());
         $this->assertCount(2, $workflow->getJobs());
+        $this->assertEquals(['FOO' => 'bar'], $workflow->getEnv()->getArrayCopy());
         $this->assertArrayHasKey('copy-files', $workflow->getJobs());
         $copyFilesJob = $workflow->getJobs()['copy-files'];
         $this->assertCount(3, $copyFilesJob->getSteps());

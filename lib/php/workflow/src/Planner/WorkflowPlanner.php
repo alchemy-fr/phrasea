@@ -78,8 +78,8 @@ final class WorkflowPlanner
                 }
             }
 
-            if (empty($runs)) {
-                throw new \RuntimeException(sprintf('Unable to build stage %d: empty runs', $stages->count() + 1));
+            if (!$runs->count()) {
+                throw new \RuntimeException(sprintf('Unable to build stage %d: empty runs. Please check you don\'t have circular needs', $stages->count() + 1));
             }
             ++$i;
 

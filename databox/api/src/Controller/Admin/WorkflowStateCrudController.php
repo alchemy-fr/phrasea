@@ -9,7 +9,6 @@ use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -17,6 +16,10 @@ use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
+    public function __construct(private readonly string $databoxClientBaseUrl)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return WorkflowState::class;
@@ -24,10 +27,17 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
+            ->setHtmlAttributes(['target' => '_blank'])
+            ->linkToUrl(function (WorkflowState $entity): string {
+                return sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId());
+            });
+
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $viewWorkflow)
         ;
     }
 

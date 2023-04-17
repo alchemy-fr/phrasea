@@ -1,5 +1,8 @@
 name: Echo something complex
 
+env:
+  WF_OUTRO: 'outro'
+
 jobs:
   intro:
     steps:
@@ -37,7 +40,7 @@ jobs:
           n: 2
     with:
       n: 3
-      var: outro
+      var: ${{ env.WF_OUTRO }}
 
   never-called:
     if: env.WF_TEST != 'off'

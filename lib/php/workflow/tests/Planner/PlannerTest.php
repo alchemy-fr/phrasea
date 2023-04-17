@@ -28,4 +28,15 @@ class PlannerTest extends AbstractWorkflowTest
         $stage = array_shift($stages);
         $this->assertCount(1, $stage->getRuns());
     }
+
+    public function testRecursiveNeedsWillThrowError(): void
+    {
+        $planner = $this->createPlanner([
+            'recursive-needs.yaml',
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unable to build stage 1: empty runs. Please check you don\'t have circular needs');
+        $planner->planAll();
+    }
 }

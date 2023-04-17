@@ -18,6 +18,7 @@ services:
             $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
             $zippyClient: '@app.zippy_client'
             string $databoxBaseUrl: '%env(DATABOX_API_BASE_URL)%'
+            string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_BASE_URL)%'
             $integrationClient: '@app.integrations.http_client'
 
     _instanceof:

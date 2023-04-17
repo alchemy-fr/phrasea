@@ -1,0 +1,38 @@
+name: Manipulate file
+
+on:
+  my_event:
+    inputs:
+      my_var:
+        required: true
+        type: string
+
+env:
+  FOO: bar
+
+jobs:
+  copy-files:
+    if: env.foo == "bar"
+    steps:
+      - name: Check file exists
+        executor: php
+        run: |
+          $src = "${{ inputs.file }}";
+          if (!file_exists($src)) {
+            throw new \Exception(sprintf('File %s dos not exist', $src));
+          }
+      - name: Copy file
+        run: |
+          cp ${{ inputs.file }} foo
+      - name: Rename
+        shell: bash
+        run: |
+          docker-compose build ${{ inputs.images }}
+
+  never-called:
+    if: env.foo == "another value"
+    steps:
+      - name: Dummy run
+        run: |
+          echo Oops
+          exit 1
