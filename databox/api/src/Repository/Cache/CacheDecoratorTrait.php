@@ -47,20 +47,25 @@ trait CacheDecoratorTrait
     }
 
     /**
-     * @param Entity|Entity[] $x
+     * @param Entity $entity
+     * @return Entity
      */
-    public function addToIdentityMap($x)
+    public function mergeEntity(Entity $entity): Entity
     {
-        if(is_array($x)) {
-            /** @var Entity $entity */
-            foreach($x as $entity) {
-                $this->getEntityManager()->getUnitOfWork()->addToIdentityMap($entity);
-            }
-        }
-        else {
-            $this->getEntityManager()->getUnitOfWork()->addToIdentityMap($x);
-        }
+        $this->getEntityManager()->merge($entity);
 
-        return $x;
+        return $entity;
+    }
+
+    /**
+     * @param Entity[] $entities
+     * @return Entity[]
+     */
+    public function mergeEntities(array $entities): array
+    {
+        foreach($entities as $entity) {
+            $this->mergeEntity($entity);
+        }
+        return $entities;
     }
 }
