@@ -47,24 +47,14 @@ trait CacheDecoratorTrait
     }
 
     /**
-     * @param Entity $entity
-     * @return Entity
-     */
-    public function mergeEntity(Entity $entity): Entity
-    {
-        $this->getEntityManager()->merge($entity);
-
-        return $entity;
-    }
-
-    /**
      * @param Entity[] $entities
      * @return Entity[]
      */
     public function mergeEntities(array $entities): array
     {
         foreach($entities as $entity) {
-            $this->mergeEntity($entity);
+            $this->getEntityManager()->merge($entity);      // does not prevent "entity that was not configured to cascade persist..."
+            // $this->getEntityManager()->persist($entity);    // does the job but why ?
         }
         return $entities;
     }
