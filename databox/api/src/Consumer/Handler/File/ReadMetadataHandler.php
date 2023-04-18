@@ -60,7 +60,7 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
             $em->persist($file);
             $em->flush();
 
-            $this->eventProducer->publish(InitializeAttributes::createEvent($assetId));
+            $this->eventProducer->publish(InitializeAttributesHandler::createEvent($assetId));
         } finally {
             @unlink($fetchedFilePath);
         }

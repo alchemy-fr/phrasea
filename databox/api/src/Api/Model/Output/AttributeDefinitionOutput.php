@@ -88,11 +88,11 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $fallback = null;
 
     /**
-     * To create initial attribute value (tagname or twig template).
+     * To create initial attribute value(s) (tag name or twig template).
      *
      * @Groups({"attributedef:index"})
      */
-    public ?array $initializers = null;
+    public ?array $initialValues = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.

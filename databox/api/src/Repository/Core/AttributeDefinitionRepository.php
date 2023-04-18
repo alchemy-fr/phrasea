@@ -123,7 +123,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
     {
         return $this
             ->createQueryBuilder('d')
-            ->andWhere('d.initializers IS NOT NULL')
+            ->andWhere('d.initialValues IS NOT NULL')
             ->andWhere('d.workspace = :workspace')
             ->setParameter('workspace', $workspaceId)
             ->getQuery()

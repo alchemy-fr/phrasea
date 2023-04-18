@@ -135,7 +135,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * @Groups({"attributedef:index"})
      * @ORM\Column(type="json", nullable=true)
      */
-    private ?array $initializers = null;
+    private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
@@ -339,32 +339,32 @@ class AttributeDefinition extends AbstractUuidEntity
         $this->position = $position;
     }
 
-    public function getInitializers(): ?array
+    public function getInitialValues(): ?array
     {
-        return $this->initializers;
+        return $this->initialValues;
     }
 
-    public function setInitializers(?array $initializers): void
+    public function setInitialValues(?array $initialValues): void
     {
-        $this->initializers = $initializers;
-        $this->normalizeInitializers();
+        $this->initialValues = $initialValues;
+        $this->normalizeInitialValues();
     }
 
-    public function getInitializersAll(): ?string
+    public function getInitialValuesAll(): ?string
     {
-        return $this->initializers[IndexMappingUpdater::NO_LOCALE] ?? null;
+        return $this->initialValues[IndexMappingUpdater::NO_LOCALE] ?? null;
     }
 
-    public function setInitializersAll(?string $initializer): void
+    public function setInitialValuesAll(?string $initializer): void
     {
-        $this->initializers[IndexMappingUpdater::NO_LOCALE] = $initializer;
-        $this->normalizeInitializers();
+        $this->initialValues[IndexMappingUpdater::NO_LOCALE] = $initializer;
+        $this->normalizeInitialValues();
     }
 
-    private function normalizeInitializers(): void
+    private function normalizeInitialValues(): void
     {
-        if (empty(array_filter($this->initializers))) {
-            $this->initializers = null;
+        if (empty(array_filter($this->initialValues))) {
+            $this->initialValues = null;
         }
     }
 

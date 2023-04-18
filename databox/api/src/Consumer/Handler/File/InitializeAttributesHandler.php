@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
-use App\Asset\Attribute\InitialResolver;
+use App\Asset\Attribute\InitialAttributeValuesResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Workspace;
@@ -12,12 +12,12 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 
-class InitializeAttributes extends AbstractEntityManagerHandler
+class InitializeAttributesHandler extends AbstractEntityManagerHandler
 {
     const EVENT = 'initialize_attributes';
-    private InitialResolver $initialValueResolver;
+    private InitialAttributeValuesResolver $initialValueResolver;
 
-    public function __construct(InitialResolver $initialValueResolver)
+    public function __construct(InitialAttributeValuesResolver $initialValueResolver)
     {
         $this->initialValueResolver = $initialValueResolver;
     }

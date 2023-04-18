@@ -18,7 +18,7 @@ use InvalidArgumentException;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
-class InitialResolver
+class InitialAttributeValuesResolver
 {
     private Environment $twig;
     private EntityManagerInterface $em;
@@ -45,10 +45,9 @@ class InitialResolver
         /** @var AttributeDefinitionRepositoryInterface $repo */
         $repo = $this->em->getRepository(AttributeDefinition::class);
 
-        // only get attrDefs with initializers setting
         $definitions = $repo->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());
         foreach ($definitions as $definition) {
-            $initializers = $definition->getInitializers();
+            $initializers = $definition->getInitialValues();
 
             if (null !== $initializers) {
                 foreach ($initializers as $locale => $initializeFormula) {
