@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repository\Cache;
 
-use Doctrine\ORM\Mapping\Entity;
 use Doctrine\Persistence\ObjectRepository;
 
 trait CacheDecoratorTrait
@@ -44,18 +43,5 @@ trait CacheDecoratorTrait
     public function getClassName()
     {
         return $this->decorated->getClassName();
-    }
-
-    /**
-     * @param Entity[] $entities
-     * @return Entity[]
-     */
-    public function mergeEntities(array $entities): array
-    {
-        foreach($entities as $entity) {
-            $this->getEntityManager()->merge($entity);      // does not prevent "entity that was not configured to cascade persist..."
-            // $this->getEntityManager()->persist($entity);    // does the job but why ?
-        }
-        return $entities;
     }
 }

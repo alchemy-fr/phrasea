@@ -7,7 +7,4 @@ services:
     tags:
       - { name: console.command }
 
-  alchemy.metadatamanipulator:
-    class: Alchemy\MetadataManipulatorBundle\MetadataManipulator
-    arguments:
-      $config: '%alchemy_metadata_manipulator.config%'
+  Alchemy\MetadataManipulatorBundle\MetadataManipulator: ~

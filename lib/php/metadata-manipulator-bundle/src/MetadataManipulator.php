@@ -2,46 +2,32 @@
 
 namespace Alchemy\MetadataManipulatorBundle;
 
-use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupNameException;
 use Exception;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
 use PHPExiftool\PHPExiftool;
-use PHPExiftool\Reader;
-use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class MetadataManipulator
 {
-    private ?LoggerInterface $logger = null;
     private static ?array $knownTagGroups = null;  // cache
-    private ?array $config;
-    private string $classesDirectory;
     private PHPExiftool $phpExifTool;
+    private bool $debug;
+    private LoggerInterface $logger;
 
-    public function __construct(?array $config)
+    public function __construct(string $classesDirectory, ?LoggerInterface $logger = null, bool $debug = false)
     {
-        $this->config = $config;
-        $cdir = $this->config['classes_directory'];
-        if(substr($cdir, 0, 1) !== '/') {
-            $cdir = realpath(__DIR__ . '/../../../' . $cdir);
+        $this->phpExifTool = new PHPExiftool($classesDirectory);
+        $this->debug = $debug;
+        $this->logger = $logger ?? new NullLogger();
+
+        if ($debug) {
+            $this->phpExifTool->setLogger($this->logger);
         }
-        $this->classesDirectory = $cdir;
-
-        $this->phpExifTool = new PHPExiftool($this->classesDirectory);
     }
 
-    /**
-     * @required
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-        $this->phpExifTool->setLogger($logger);
-    }
-/*
     public static function getKnownTagGroups(): array
     {
         if (null === self::$knownTagGroups) {
@@ -50,7 +36,7 @@ class MetadataManipulator
 
         return self::$knownTagGroups;
     }
-*/
+
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface
     {
@@ -80,17 +66,11 @@ class MetadataManipulator
         $writer->write($file->getRealPath(), $bag);
     }
 
-    /**
-     * @return string
-     */
     public function getClassesDirectory(): string
     {
-        return $this->classesDirectory;
+        return $this->phpExifTool->getClassesRootDirectory();
     }
 
-    /**
-     * @return PHPExiftool
-     */
     public function getPhpExifTool(): PHPExiftool
     {
         return $this->phpExifTool;

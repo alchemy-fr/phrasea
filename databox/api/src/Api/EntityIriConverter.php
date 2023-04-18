@@ -16,8 +16,7 @@ class EntityIriConverter
     public function __construct(
         IriConverterInterface $iriConverter,
         EntityManagerInterface $em
-    )
-    {
+    ) {
         $this->iriConverter = $iriConverter;
         $this->em = $em;
     }
@@ -31,7 +30,7 @@ class EntityIriConverter
      */
     public function getItemFromIri(string $class, string $id): object
     {
-        if (strpos($id, '/') === 0) {
+        if (0 === strpos($id, '/')) {
             return $this->iriConverter->getItemFromIri($id);
         }
 

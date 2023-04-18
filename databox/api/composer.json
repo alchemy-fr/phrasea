@@ -170,8 +170,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/",
-            "PHPExiftool\\Driver\\TagGroup\\": "var/cache/phpexiftool/TagGroup/"
+            "App\\": "src/"
         }
     },
     "autoload-dev": {

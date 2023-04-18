@@ -14,7 +14,6 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Psr\Log\NullLogger;
 
 class ReadMetadataHandler extends AbstractEntityManagerHandler
 {
@@ -46,60 +45,23 @@ class ReadMetadataHandler extends AbstractEntityManagerHandler
 
         $file = $asset->getSource();
         if (!$file instanceof File) {
-            $this->logger->debug(sprintf("Asset id=%s has no source file", $assetId));
             return;
-            // throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
         }
 
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
-            $mm = $this->metadataManipulator;
-            $this->logger->debug(sprintf("MetadataManipulator service OK"));
-
-            $mm->setLogger($this->logger);
-            $mm->getPhpExifTool()->setLogger(new NullLogger());
-            $this->logger->debug(sprintf("mm->setLoger() OK"));
-
             $fo = new \SplFileObject($fetchedFilePath);
-            $this->logger->debug(sprintf("new SplFileObject(\"%s\") OK", $fetchedFilePath));
-
-            $meta = $mm->getAllMetadata($fo);
-            if(!is_null($meta)) {
-                $this->logger->debug(sprintf("getAllMetadata() returned class \"%s\"", get_class($meta)));
-            }
-            else {
-                $this->logger->debug(sprintf("getAllMetadata() returned null ???"));
-            }
-
+            $meta = $this->metadataManipulator->getAllMetadata($fo);
             $norm = $this->metadataNormalizer->normalize($meta);
-            if(is_array($norm)) {
-                $this->logger->debug(sprintf("metadataNormalizer returned array[%d]", count($norm)));
-            }
-            else if (is_null($norm)) {
-                $this->logger->debug(sprintf("metadataNormalizer returned null ???"));
-            }
-            else {
-                $this->logger->debug(sprintf("metadataNormalizer did not return an array ???"));
-            }
 
-            $file->setMetadata(
-                $norm
-            );
-            unset($norm, $meta, $mm);
+            $file->setMetadata($norm);
+            unset($norm, $meta);
 
-            $em = $this->getEntityManager();
             $em->persist($file);
             $em->flush();
 
-            $this->logger->debug(sprintf("metadata persisted in file entity OK"));
-
             $this->eventProducer->publish(InitializeAttributes::createEvent($assetId));
-        }
-        catch (\Throwable $e) {
-            $this->logger->debug(sprintf("Exception \"%s\" occured on %s[%d]???", $e->getMessage(), $e->getFile(), $e->getLine()));
-            throw($e);
-        }
-        finally {
+        } finally {
             @unlink($fetchedFilePath);
         }
 

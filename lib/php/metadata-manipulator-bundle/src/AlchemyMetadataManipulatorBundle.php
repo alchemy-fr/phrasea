@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\MetadataManipulatorBundle;
 
+use Alchemy\MetadataManipulatorBundle\DependencyInjection\Compiler\BuildPhpExiftoolClassesCompilerPass;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -18,6 +20,6 @@ class AlchemyMetadataManipulatorBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new BuildPhpExiftoolClassesCompilerPass());
+        $container->addCompilerPass(new BuildPhpExiftoolClassesCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 }

@@ -7,11 +7,7 @@ namespace App\Entity\Core;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
-use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
-use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\UpdatedAtTrait;
-use DateTimeInterface;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 

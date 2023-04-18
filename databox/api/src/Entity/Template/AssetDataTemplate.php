@@ -6,6 +6,7 @@ namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Traits\CreatedAtTrait;
@@ -16,7 +17,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity()
@@ -180,6 +180,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     {
         $this->name = $name;
     }
+
     public function getPrivacy(): ?int
     {
         return $this->privacy;

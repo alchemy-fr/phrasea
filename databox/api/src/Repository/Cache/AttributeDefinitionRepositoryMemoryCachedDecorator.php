@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Repository\Cache;
 
 use App\Entity\Core\AttributeDefinition;
-use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -32,10 +31,9 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepositor
 
     public function getSearchableAttributes(
         ?string $userId,
-        array   $groupIds,
-        array   $options = []
-    ): array
-    {
+        array $groupIds,
+        array $options = []
+    ): array {
         return $this->decorated->getSearchableAttributes($userId, $groupIds, $options);
     }
 
@@ -46,59 +44,29 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepositor
 
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        $wasCached = true;
-        $definitions = $this->cache->get(
-            sprintf('attr_def_fb_%s', $workspaceId),
-            function (ItemInterface $item) use ($workspaceId, &$wasCached) {
-                $wasCached = false;
-                $item->tag(self::LIST_TAG);
+        return $this->cache->get(sprintf('attr_def_fb_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+            $item->tag(self::LIST_TAG);
 
-                /** @var AttributeDefinitionRepository $decorated */
-                $decorated = $this->decorated;
-
-                return $decorated->getWorkspaceFallbackDefinitions($workspaceId);
-            }
-        );
-
-        return $wasCached ? $this->mergeEntities($definitions) : $definitions;
+            return $this->decorated->getWorkspaceFallbackDefinitions($workspaceId);
+        });
     }
 
     public function getWorkspaceInitializeDefinitions(string $workspaceId): array
     {
-        $wasCached = true;
-        $definitions = $this->cache->get(
-            sprintf('attr_def_ini_%s', $workspaceId),
-            function (ItemInterface $item) use ($workspaceId, &$wasCached) {
-                $wasCached = false;
-                $item->tag(self::LIST_TAG);
+        return $this->cache->get(sprintf('attr_def_ini_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+            $item->tag(self::LIST_TAG);
 
-                /** @var AttributeDefinitionRepository $decorated */
-                $decorated = $this->decorated;
-
-                return $decorated->getWorkspaceInitializeDefinitions($workspaceId);
-            }
-        );
-
-        return $wasCached ? $this->mergeEntities($definitions) : $definitions;
+            return $this->decorated->getWorkspaceInitializeDefinitions($workspaceId);
+        });
     }
 
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
-        $wasCached = true;
-        $definitions = $this->cache->get(
-            sprintf('attr_defs_%s', $workspaceId),
-            function (ItemInterface $item) use ($workspaceId, &$wasCached) {
-                $wasCached = false;
-                $item->tag(self::LIST_TAG);
+        return $this->cache->get(sprintf('attr_defs_%s', $workspaceId), function (ItemInterface $item) use ($workspaceId) {
+            $item->tag(self::LIST_TAG);
 
-                /** @var AttributeDefinitionRepository $decorated */
-                $decorated = $this->decorated;
-
-                return $decorated->getWorkspaceDefinitions($workspaceId);
-            }
-        );
-
-        return $wasCached ? $this->mergeEntities($definitions) : $definitions;
+            return $this->decorated->getWorkspaceDefinitions($workspaceId);
+        });
     }
 
     public function invalidateEntity(string $id): void

@@ -72,7 +72,6 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
         $this->position = $position;
     }
 
-
     public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;

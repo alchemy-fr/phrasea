@@ -20,8 +20,11 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_metadata_manipulator');
         $treeBuilder->getRootNode()
             ->children()
-            ->scalarNode('classes_directory')->cannotBeEmpty()->end()
-            ->end()
+                ->booleanNode('debug')->defaultFalse()->end()
+                ->scalarNode('classes_directory')
+                    ->defaultValue('%kernel.cache_dir%/phpexiftool')
+                    ->cannotBeEmpty()
+                ->end()
             ->end()
         ;
 

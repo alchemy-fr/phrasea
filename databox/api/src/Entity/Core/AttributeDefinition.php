@@ -130,10 +130,10 @@ class AttributeDefinition extends AbstractUuidEntity
     private ?int $searchBoost = null;
 
     /**
-     * Initialize attributes after asset creation; key=locale
+     * Initialize attributes after asset creation; key=locale.
      *
      * @Groups({"attributedef:index"})
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="json", nullable=true)
      */
     private ?array $initializers = null;
 
@@ -339,20 +339,15 @@ class AttributeDefinition extends AbstractUuidEntity
         $this->position = $position;
     }
 
-    /**
-     * @return array|null
-     */
     public function getInitializers(): ?array
     {
         return $this->initializers;
     }
 
-    /**
-     * @param array|null $initializers
-     */
     public function setInitializers(?array $initializers): void
     {
         $this->initializers = $initializers;
+        $this->normalizeInitializers();
     }
 
     public function getInitializersAll(): ?string
@@ -363,9 +358,15 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setInitializersAll(?string $initializer): void
     {
         $this->initializers[IndexMappingUpdater::NO_LOCALE] = $initializer;
+        $this->normalizeInitializers();
     }
 
-
+    private function normalizeInitializers(): void
+    {
+        if (empty(array_filter($this->initializers))) {
+            $this->initializers = null;
+        }
+    }
 
     public function isSortable(): bool
     {

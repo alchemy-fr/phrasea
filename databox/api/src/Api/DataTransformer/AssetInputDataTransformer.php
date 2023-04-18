@@ -13,11 +13,9 @@ use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
-use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetInputDataTransformer extends AbstractFileInputDataTransformer
