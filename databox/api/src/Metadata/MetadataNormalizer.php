@@ -47,6 +47,7 @@ class MetadataNormalizer
         return [
             'name' => null,
             'values' => [],
+            'value' => null,
         ];
     }
 }

@@ -34,7 +34,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          docker-compose build ${{ inputs.images }}
+          docker compose build ${{ inputs.images }}
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
@@ -44,4 +44,4 @@ jobs:
       - name: Push
         shell: bash
         run: |
-          docker-compose push ${{ inputs.images }}
+          docker compose push ${{ inputs.images }}

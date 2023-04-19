@@ -11,7 +11,7 @@ use App\Integration\IntegrationManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
-readonly class NewAssetIntegrationCollectionAction implements ActionInterface
+readonly class TriggerIntegrationsActions implements ActionInterface
 {
     public function __construct(
         private IntegrationManager $integrationManager,

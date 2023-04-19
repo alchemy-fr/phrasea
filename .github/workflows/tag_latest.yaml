@@ -27,6 +27,6 @@ jobs:
           DOCKER_TAG: ${{ github.event.inputs.from_tag || github.ref_name }}
         if: env.DOCKERHUB_USERNAME != null
         run: |
-          docker-compose pull --quiet
+          docker compose pull --quiet
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} docker tag {}:${{ github.ref_name }} {}:latest
-          DOCKER_TAG=latest docker-compose push
+          DOCKER_TAG=latest docker compose push

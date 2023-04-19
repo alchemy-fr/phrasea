@@ -7,14 +7,14 @@ RUN apk add --no-cache \
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
-RUN composer install --ignore-platform-req=php --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
+RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
     && rm -rf vendor composer.*
 # End warm up
 
 COPY . .
 
 RUN mkdir -p var/cache var/logs var/sessions \
-    && composer install --ignore-platform-req=php --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
+    && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && chown -R app: .
 

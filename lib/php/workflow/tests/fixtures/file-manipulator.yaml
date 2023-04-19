@@ -27,7 +27,7 @@ jobs:
       - name: Rename
         shell: bash
         run: |
-          docker-compose build ${{ inputs.images }}
+          mv foo foo-bis
 
   never-called:
     if: env.foo == "another value"

@@ -58,7 +58,7 @@ class FileMetadataAccessorWrapper
 
         // no file or no metadata ? be nice also
         $r = MetadataNormalizer::createBlankMeta();
-        $this->meta[$id]['value'] = null;
+        $this->meta[$id] = $r;
 
         return $r;
     }

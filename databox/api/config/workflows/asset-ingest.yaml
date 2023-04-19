@@ -15,6 +15,11 @@ jobs:
     steps:
       - uses: App\Workflow\Action\ReadMetadataAction
 
-#  integrations:
-#    steps:
-#      - uses: App\Workflow\Action\UploaderAckAssetAction
+  initialize_attributes:
+    needs: [read_metadata]
+    steps:
+      - uses: App\Workflow\Action\InitializeAttributesAction
+
+  integrations:
+    steps:
+      - uses: App\Workflow\Action\TriggerIntegrationsActions

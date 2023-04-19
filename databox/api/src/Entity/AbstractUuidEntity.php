@@ -29,4 +29,16 @@ abstract class AbstractUuidEntity
     {
         return $this->id;
     }
+
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+        ];
+    }
+
+    public function __unserialize($data)
+    {
+        $this->id = $data['id'];
+    }
 }

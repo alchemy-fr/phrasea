@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 readonly class ReadMetadataAction implements ActionInterface
 {
     public function __construct(
+        private MetadataManipulator $metadataManipulator,
         private MetadataNormalizer $metadataNormalizer,
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
@@ -35,16 +36,18 @@ readonly class ReadMetadataAction implements ActionInterface
         }
 
         $file = $asset->getSource();
+        if (!$file instanceof File) {
+            return;
+        }
 
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
-            $mm = new MetadataManipulator();
-            $meta = $mm->getAllMetadata(new \SplFileObject($fetchedFilePath));
+            $fo = new \SplFileObject($fetchedFilePath);
+            $meta = $this->metadataManipulator->getAllMetadata($fo);
+            $norm = $this->metadataNormalizer->normalize($meta);
 
-            $file->setMetadata(
-                $this->metadataNormalizer->normalize($meta)
-            );
-            unset($meta, $mm);
+            $file->setMetadata($norm);
+            unset($norm, $meta);
 
             $this->em->persist($file);
             $this->em->flush();
