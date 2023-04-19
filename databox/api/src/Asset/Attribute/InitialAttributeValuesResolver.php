@@ -46,34 +46,20 @@ class InitialAttributeValuesResolver
         $repo = $this->em->getRepository(AttributeDefinition::class);
 
         $definitions = $repo->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());
+        $fileMetadataAccessorWrapper = new FileMetadataAccessorWrapper($asset->getSource());
+
         foreach ($definitions as $definition) {
             $initializers = $definition->getInitialValues();
 
             if (null !== $initializers) {
                 foreach ($initializers as $locale => $initializeFormula) {
-                    $initialValue = $this->resolveInitial(
+                    // TODO : handle locales ? now multiple locales initializers will fetch the same data since metadata is not localized
+                    $initialValues = $this->resolveInitial(
+                        $asset,
+                        $fileMetadataAccessorWrapper,
                         $initializeFormula,
-                        [
-                            'file' => new FileMetadataAccessorWrapper($asset->getSource()),
-                            'asset' => $asset,
-                        ],
                         $definition
                     );
-
-                    $initialValues = [];
-                    if ($definition->isMultiple()) {
-                        // each line becomes a value
-                        $initialValues = array_filter(
-                            explode("\n", $initialValue),
-                            function (string $s): bool {
-                                return !empty(trim($s));
-                            }
-                        );
-                    } else {
-                        if (!empty($initialValue = trim($initialValue))) {
-                            $initialValues = [$initialValue];
-                        }
-                    }
 
                     $position = 0;
                     $now = new DateTimeImmutable();
@@ -109,35 +95,44 @@ class InitialAttributeValuesResolver
     }
 
     private function resolveInitial(
+        Asset $asset,
+        FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
         string $initializeFormula,
-        array $twigContext,
         AttributeDefinition $definition
-    ): string {
-        $templateFormula = false;
+    ): array {
 
-        try {
-            $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception $e) {
-            // not json ? assume this is plain twig template
-            $templateFormula = $initializeFormula;
+        $initialValues = [];
+        $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
+
+        switch ($initializeFormula['type']) {
+            case 'metadata':
+                // the value is a simple metadata tagname, fetch data directly
+                $m = $fileMetadataAccessorWrapper->getMetadata($initializeFormula['value']);
+                $initialValues = $definition->isMultiple() ? $m['values'] : [$m['value']];
+                break;
+
+            case 'template':
+                // the value is twig code
+                $template = $this->twig->createTemplate($initializeFormula['value']);
+                $context = [
+                    'file' => $fileMetadataAccessorWrapper,
+                    'asset' => $asset,
+                ];
+                $twigOutput = $this->twig->render($template, $context);
+
+                // to return multiple values via twig : one per line
+                $initialValues = $definition->isMultiple() ? explode("\n", $twigOutput) : [$twigOutput];
+                break;
+
+            default:
+                throw new InvalidArgumentException(sprintf('"%s" is not a valid initialization type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
         }
 
-        if (false === $templateFormula) {
-            // assume this is json formula
-            if ('metadata' == $initializeFormula['type']) {
-                // the "source" is a simple metadata tagname, convert it to twig
-                $templateFormula = sprintf("{%% for v in file.metadata('%s').values %%}{{v}}\n{%% endfor %%}", $initializeFormula['value']);
-            } else {
-                if ('template' == $initializeFormula['type']) {
-                    $templateFormula = $initializeFormula['value'];
-                } else {
-                    throw new InvalidArgumentException(sprintf('"%s" is not a valid template type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
-                }
-            }
-        }
-
-        $template = $this->twig->createTemplate($templateFormula);
-
-        return $this->twig->render($template, $twigContext);
+        // remove empty values
+        return array_filter(
+            $initialValues,
+            function (string $s): bool {
+                return !empty(trim($s));
+            });
     }
 }
