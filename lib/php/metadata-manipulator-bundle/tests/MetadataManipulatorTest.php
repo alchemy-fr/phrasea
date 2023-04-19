@@ -14,10 +14,11 @@ class MetadataManipulatorTest extends TestCase
     /**
      * @covers MetadataManipulator::getKnownTagGroups
      */
-//    public function testGetKnownTagGroups(): void
-//    {
-//        self::assertIsArray($this->service->getKnownTagGroups());
-//    }
+    public function testGetKnownTagGroups(): void
+    {
+        $this->markTestIncomplete("TODO: re-implement getKnownTagGroups()");
+        // self::assertIsArray($this->service->getKnownTagGroups());
+    }
 
     /**
      * @covers MetadataManipulator::createTagGroup

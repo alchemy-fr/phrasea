@@ -20,9 +20,7 @@ final class Version20230316093915 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE attribute_definition ADD initial_values TEXT DEFAULT NULL');
-        $this->addSql('ALTER TABLE attribute_definition ALTER initial_values TYPE JSON USING initial_values::json');
-        $this->addSql('COMMENT ON COLUMN attribute_definition.initial_values IS NULL');
+        $this->addSql('ALTER TABLE attribute_definition ADD initial_values JSON DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
