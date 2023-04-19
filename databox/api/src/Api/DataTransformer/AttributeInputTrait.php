@@ -46,7 +46,7 @@ trait AttributeInputTrait
     }
 
     /**
-     * @param Asset|AssetDataTemplate $object
+     * @param Asset|AssetDataTemplate      $object
      * @param AbstractBaseAttributeInput[] $attributes
      *
      * @return void

@@ -253,7 +253,7 @@ class AssetSearch extends AbstractSearch
         } else {
             $sort[] = [
                 '_score' => 'DESC',
-                'createdAt' => 'DESC'
+                'createdAt' => 'DESC',
             ];
         }
 

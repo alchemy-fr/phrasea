@@ -28,8 +28,8 @@ return [
     Alchemy\StorageBundle\AlchemyStorageBundle::class => ['all' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
     Alchemy\WebhookBundle\AlchemyWebhookBundle::class => ['all' => true],
-    Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
     Alchemy\TestBundle\AlchemyTestBundle::class => ['test' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
+    Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
 ];

@@ -119,6 +119,17 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->getResult();
     }
 
+    public function getWorkspaceInitializeDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.initialValues IS NOT NULL')
+            ->andWhere('d.workspace = :workspace')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
         return $this

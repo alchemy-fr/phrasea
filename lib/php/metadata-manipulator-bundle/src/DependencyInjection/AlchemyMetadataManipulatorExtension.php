@@ -2,6 +2,7 @@
 
 namespace Alchemy\MetadataManipulatorBundle\DependencyInjection;
 
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -19,7 +20,16 @@ class AlchemyMetadataManipulatorExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.yaml');
+
+        $container->setParameter('alchemy_mm.classes_directory', $config['classes_directory']);
+
+        $def = $container->getDefinition(MetadataManipulator::class);
+        $def->setArgument('$classesDirectory', $config['classes_directory']);
+        $def->setArgument('$debug', $config['debug']);
     }
 }

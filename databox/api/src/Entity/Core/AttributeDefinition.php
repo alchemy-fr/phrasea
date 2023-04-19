@@ -130,6 +130,14 @@ class AttributeDefinition extends AbstractUuidEntity
     private ?int $searchBoost = null;
 
     /**
+     * Initialize attributes after asset creation; key=locale.
+     *
+     * @Groups({"attributedef:index"})
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private ?array $initialValues = null;
+
+    /**
      * Resolve this template (TWIG syntax) if no user value provided.
      *
      * @Groups({"attributedef:index"})
@@ -329,6 +337,35 @@ class AttributeDefinition extends AbstractUuidEntity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getInitialValues(): ?array
+    {
+        return $this->initialValues;
+    }
+
+    public function setInitialValues(?array $initialValues): void
+    {
+        $this->initialValues = $initialValues;
+        $this->normalizeInitialValues();
+    }
+
+    public function getInitialValuesAll(): ?string
+    {
+        return $this->initialValues[IndexMappingUpdater::NO_LOCALE] ?? null;
+    }
+
+    public function setInitialValuesAll(?string $initializer): void
+    {
+        $this->initialValues[IndexMappingUpdater::NO_LOCALE] = $initializer;
+        $this->normalizeInitialValues();
+    }
+
+    private function normalizeInitialValues(): void
+    {
+        if (empty(array_filter($this->initialValues))) {
+            $this->initialValues = null;
+        }
     }
 
     public function isSortable(): bool

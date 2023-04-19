@@ -33,7 +33,7 @@ class AssetDataTemplateVoter extends AbstractVoter
             case self::DELETE:
                 return $isOwner || $this->security->isGranted(PermissionInterface::DELETE, $subject);
             case self::CREATE:
-                return !!$userId;
+                return (bool) $userId;
         }
 
         return false;

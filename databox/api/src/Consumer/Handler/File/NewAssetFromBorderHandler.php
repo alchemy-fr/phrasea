@@ -40,6 +40,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
 
         $asset = new Asset();
+
         $asset->setSource($file);
         $asset->setOwnerId($payload['userId']);
         $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());

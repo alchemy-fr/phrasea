@@ -46,6 +46,6 @@ class ReaderTest extends TestCase
 
     protected function setup(): void
     {
-        $this->service = new MetadataManipulator();
+        $this->service = new MetadataManipulator(sys_get_temp_dir());
     }
 }

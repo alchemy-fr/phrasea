@@ -70,6 +70,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
         $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
         $searchBoost = IntegerField::new('searchBoost');
+        $initialValuesAll = TextareaField::new('initialValuesAll');
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackFR = TextareaField::new('fallbackFR', 'Fallback value template FR')->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
@@ -88,9 +89,9 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
+            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $initialValuesAll, $fallbackAll, $fallbackEN, $fallbackFR];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $fallbackAll, $fallbackEN, $fallbackFR];
+            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $initialValuesAll, $fallbackAll, $fallbackEN, $fallbackFR];
         }
 
         return [];

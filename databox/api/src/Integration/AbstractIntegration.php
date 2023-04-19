@@ -41,8 +41,7 @@ abstract class AbstractIntegration implements IntegrationInterface
         bool $defaultEnabled = false,
         int $limit = 1000,
         string $interval = '1 year'
-    ): NodeDefinition
-    {
+    ): NodeDefinition {
         $treeBuilder = new TreeBuilder('budgetLimit');
 
         $root = $treeBuilder->getRootNode();

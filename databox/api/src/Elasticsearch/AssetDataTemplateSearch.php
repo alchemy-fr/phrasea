@@ -105,9 +105,9 @@ class AssetDataTemplateSearch
         $result = new Pagerfanta(new FilteredPager(function (AssetDataTemplate $template): bool {
             return $this->security->isGranted(AbstractVoter::READ, $template);
         }, $adapter));
-        $result->setMaxPerPage((int)$limit);
+        $result->setMaxPerPage((int) $limit);
         if ($filters['page'] ?? false) {
-            $result->setCurrentPage((int)$filters['page']);
+            $result->setCurrentPage((int) $filters['page']);
         }
 
         return $result;

@@ -32,6 +32,7 @@ class AttributeDefinitionOutputDataTransformer extends AbstractSecurityDataTrans
         $output->allowInvalid = $object->isAllowInvalid();
         $output->searchBoost = $object->getSearchBoost();
         $output->fallback = $object->getFallback();
+        $output->initialValues = $object->getInitialValues();
         $output->key = $object->getKey();
         $output->canEdit = $object->getClass()->isEditable()
             || $this->isGranted(PermissionInterface::EDIT, $object->getClass());

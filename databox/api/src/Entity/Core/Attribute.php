@@ -7,11 +7,7 @@ namespace App\Entity\Core;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
-use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDeleteDependencyInterface;
-use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\UpdatedAtTrait;
-use DateTimeInterface;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,11 +20,13 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     public const ORIGIN_MACHINE = 0;
     public const ORIGIN_HUMAN = 1;
     public const ORIGIN_FALLBACK = 2;
+    public const ORIGIN_INITIAL = 3;
 
     public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
+        self::ORIGIN_INITIAL => 'initial',
     ];
 
     const STATUS_VALID = 0;

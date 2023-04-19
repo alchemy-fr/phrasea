@@ -98,7 +98,7 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
-        "alchemy/metadata-manipulator-bundle": "@dev",
+        "alchemy/metadata-manipulator-bundle": "dev-PS-478-3_attribute-initializers",
         "alchemy/oauth-server-bundle": "@dev",
         "alchemy/remote-auth-bundle": "*",
         "alchemy/storage-bundle": "*",

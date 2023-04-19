@@ -52,7 +52,7 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
      * @Groups({"asset-data-template:read"})
      */
     public ?array $attributes;
-    
+
     /**
      * Template name.
      *
