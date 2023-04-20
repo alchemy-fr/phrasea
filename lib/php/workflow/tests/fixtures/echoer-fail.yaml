@@ -1,0 +1,39 @@
+name: Echo something fail
+
+jobs:
+  intro:
+    steps:
+      - run: |
+          echo "intro"
+
+  content:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content"
+          exit 1
+
+  content_bis:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content_bis"
+
+  outro:
+    needs:
+      - content
+      - content_bis
+    steps:
+      - executor: php
+        run: |
+          echo "outro".str_repeat('!', 2);
+
+  never-called:
+    if: env.WF_TEST == "another value"
+    steps:
+      - name: Dummy run
+        executor: bash
+        run: |
+          exit 1

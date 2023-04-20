@@ -29,6 +29,9 @@
     "alchemy/webhook-bundle": {
         "version": "dev-master"
     },
+    "alchemy/workflow-bundle": {
+        "version": "dev-PS-531-workflow"
+    },
     "api-platform/core": {
         "version": "2.5",
         "recipe": {
@@ -210,9 +213,6 @@
             ".php_cs.dist"
         ]
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.2"
-    },
     "friendsofsymfony/elastica-bundle": {
         "version": "5.0",
         "recipe": {
@@ -259,9 +259,6 @@
     },
     "justinrainbow/json-schema": {
         "version": "5.2.12"
-    },
-    "laminas/laminas-code": {
-        "version": "3.4.1"
     },
     "lcobucci/clock": {
         "version": "2.0.0"

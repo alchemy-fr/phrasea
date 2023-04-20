@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use FOS\OAuthServerBundle\Event\OAuthEvent;
+use FOS\OAuthServerBundle\Event\PreAuthorizationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OAuthEventListener implements EventSubscriberInterface
 {
-    public function onPreAuthorizationProcess(OAuthEvent $event)
+    public function onPreAuthorizationProcess(PreAuthorizationEvent $event)
     {
         $event->setAuthorizedClient(true);
     }
@@ -17,7 +17,7 @@ class OAuthEventListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            OAuthEvent::PRE_AUTHORIZATION_PROCESS => 'onPreAuthorizationProcess',
+            PreAuthorizationEvent::class => 'onPreAuthorizationProcess',
         ];
     }
 }

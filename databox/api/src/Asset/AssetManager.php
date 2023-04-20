@@ -4,31 +4,24 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
+use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataExporter;
-use App\Consumer\Handler\File\ReadMetadataHandler;
+use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
-class AssetManager
+readonly class AssetManager
 {
-    private AttributeDataExporter $attributeDataExporter;
-    private OriginalRenditionManager $originalRenditionManager;
-    private EntityManagerInterface $em;
-    private EventProducer $eventProducer;
-
     public function __construct(
-        AttributeDataExporter $attributeDataExporter,
-        OriginalRenditionManager $originalRenditionManager,
-        EntityManagerInterface $em,
-        EventProducer $eventProducer
+        private AttributeDataExporter $attributeDataExporter,
+        private OriginalRenditionManager $originalRenditionManager,
+        private EntityManagerInterface $em,
+        private WorkflowOrchestrator $workflowOrchestrator,
+        private PostFlushStack $postFlushStack,
     ) {
-        $this->attributeDataExporter = $attributeDataExporter;
-        $this->originalRenditionManager = $originalRenditionManager;
-        $this->em = $em;
-        $this->eventProducer = $eventProducer;
     }
 
     public function assignNewAssetSourceFile(Asset $asset, File $file, ?array $formData = [], ?string $locale = null): void
@@ -47,17 +40,11 @@ class AssetManager
         $this->originalRenditionManager->assignFileToOriginalRendition($asset, $file);
 
         $this->em->persist($asset);
-        $this->em->flush();
 
-        $this->triggerAssetWorkflow($asset);
-    }
-
-    public function triggerAssetWorkflow(Asset $asset): void
-    {
-        if ($asset->getSource()) {
-            $this->eventProducer->publish(ReadMetadataHandler::createEvent(
-                $asset->getId()
-            ));
-        }
+        $this->postFlushStack->addCallback(function () use ($asset) {
+            $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
+                'assetId' => $asset->getId(),
+            ]));
+        });
     }
 }

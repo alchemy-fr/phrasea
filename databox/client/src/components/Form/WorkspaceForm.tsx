@@ -122,7 +122,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                     />,
                                 }}
                                 label={t('form.workspace.locales.label', 'Locale')}
-                                placeholder={t('form.workspace.locales.placeholder', 'i.e. fr or fr-FR')}
+                                placeholder={t('form.workspace.locales.placeholder', 'e.g. fr or fr-FR')}
                                 {...register(`${path}.${index}.value` as any)}
                                 required={true}
                             />

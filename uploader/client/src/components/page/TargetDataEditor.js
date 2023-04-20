@@ -47,7 +47,7 @@ export default class TargetDataEditor extends Component {
         try {
             const object = JSON.parse(v);
             if (!this.isObject(object)) {
-                error = 'JSON should be a valid object (i.e. {"foo":"bar"})';
+                error = 'JSON should be a valid object (e.g. {"foo":"bar"})';
             }
         } catch (e) {
             error = e.toString();

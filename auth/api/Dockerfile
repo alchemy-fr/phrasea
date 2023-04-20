@@ -37,7 +37,7 @@ ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local
 RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \
     && update-ca-certificates
 
-ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
+ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
@@ -57,6 +57,4 @@ RUN apk add --no-cache \
 
 COPY docker/supervisor/* /etc/supervisor.d/
 
-ENTRYPOINT []
-
-CMD ["/bin/sh", "-c", "su app -c 'bin/console cache:clear' && /usr/bin/supervisord -n"]
+CMD ["/bin/sh", "-c", "su app -c '/usr/bin/supervisord -n"]

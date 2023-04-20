@@ -108,6 +108,6 @@ EXPOSE_CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
 
 Publications and assets can be accessed directly with slugs:
 
-i.e. `GET https://mygallery.com/publication-1/asset-1`
+e.g. `GET https://mygallery.com/publication-1/asset-1`
 
 In the above example, publication should have a `slug` property equal to `publication-1` and the asset having 

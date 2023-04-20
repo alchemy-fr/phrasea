@@ -1,0 +1,71 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Alchemy\Workflow\Command\DumpWorkflowCommand:
+    tags:
+      - { name: 'console.command', command: 'alchemy:workflow:dump-workflow' }
+
+  Alchemy\Workflow\Command\RunCommand:
+    tags:
+      - { name: 'console.command', command: 'alchemy:workflow:run' }
+
+  Alchemy\Workflow\Loader\YamlLoader: ~
+
+  Alchemy\WorkflowBundle\Loader\KernelCacheLoader:
+    decorates: Alchemy\Workflow\Loader\YamlLoader
+    arguments:
+      $cacheDir: '%kernel.cache_dir%/workflows'
+      $debug: '%kernel.debug%'
+
+  Alchemy\Workflow\Loader\FileLoaderInterface: '@Alchemy\WorkflowBundle\Loader\KernelCacheLoader'
+
+  Alchemy\WorkflowBundle\Cache\WorkflowCacheWarmer:
+    tags:
+      - { name: kernel.cache_warmer, priority: 0 }
+
+  alchemy.workflow.workflow_repository:
+    class: Alchemy\Workflow\Repository\FileWorkflowRepository
+
+  alchemy.workflow.state_repository:
+    class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
+
+  alchemy.workflow.job_trigger:
+    class: Alchemy\Workflow\Trigger\ArthemRabbitJobTrigger
+
+  Alchemy\Workflow\Consumer\JobConsumer:
+    tags:
+      - { name: arthem_rabbit.event_handler }
+
+  alchemy.workflow.job_runner:
+    class: Alchemy\Workflow\Runner\RuntimeRunner
+
+  Alchemy\Workflow\Executor\PlanExecutor: ~
+
+  Alchemy\Workflow\Executor\Adapter\BashExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+  Alchemy\Workflow\Executor\Adapter\PhpExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+  Alchemy\Workflow\Executor\Adapter\Service\ServiceExecutor:
+    tags:
+      - { name: alchemy_workflow.executor }
+
+  Alchemy\Workflow\Executor\JobExecutor:
+    arguments:
+      - !tagged_iterator alchemy_workflow.executor
+
+  Alchemy\Workflow\Runner\RunnerInterface: '@alchemy.workflow.job_runner'
+  Alchemy\Workflow\Trigger\JobTriggerInterface: '@alchemy.workflow.job_trigger'
+  Alchemy\Workflow\State\Repository\StateRepositoryInterface: '@alchemy.workflow.state_repository'
+  Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository'
+
+  Alchemy\Workflow\WorkflowOrchestrator: ~
+  alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'
+
+  Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry: ~
+  Alchemy\Workflow\Executor\Action\ActionRegistryInterface: '@Alchemy\WorkflowBundle\Executor\Adapter\Action\ServiceActionRegistry'
+
+  Alchemy\Workflow\Executor\Expression\ExpressionParser: ~

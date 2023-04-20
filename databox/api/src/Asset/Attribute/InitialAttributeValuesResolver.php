@@ -101,12 +101,11 @@ class InitialAttributeValuesResolver
         AttributeDefinition $definition
     ): array {
 
-        $initialValues = [];
         $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
 
         switch ($initializeFormula['type']) {
             case 'metadata':
-                // the value is a simple metadata tagname, fetch data directly
+                // the value is a simple metadata tag name, fetch data directly
                 $m = $fileMetadataAccessorWrapper->getMetadata($initializeFormula['value']);
                 $initialValues = $definition->isMultiple() ? $m['values'] : [$m['value']];
                 break;
@@ -131,7 +130,11 @@ class InitialAttributeValuesResolver
         // remove empty values
         return array_filter(
             $initialValues,
-            function (string $s): bool {
+            function (?string $s): bool {
+                if (null === $s) {
+                    return false;
+                }
+
                 return !empty(trim($s));
             });
     }

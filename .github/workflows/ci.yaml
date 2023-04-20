@@ -13,8 +13,6 @@ env:
   REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  REGISTRY_USER: ${{ github.actor }}
-  REGISTRY_PASSWORD: ${{ github.token }}
 
 jobs:
   build_php-fpm-base:
@@ -186,8 +184,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup
         run: |
-          docker-compose pull
-          docker-compose down --volumes
+          docker compose pull
+          docker compose down --volumes
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh
       - name: Test
@@ -195,7 +193,7 @@ jobs:
       - name: Clean containers
         if: ${{ always() }}
         run: |
-          docker-compose down --volumes
+          docker compose down --volumes
       - name: Login to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -210,7 +208,7 @@ jobs:
         if: env.DOCKERHUB_USERNAME != null && startsWith(github.ref, 'refs/tags/')
         run: |
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
-          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
           
           set -ex
           LATEST_TAG=$(curl \
@@ -221,7 +219,7 @@ jobs:
           
           if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
             docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:latest | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
-            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker-compose push
+            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
           fi
 
       - name: Configure AWS Credentials
@@ -246,4 +244,4 @@ jobs:
         run: |
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
-          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker-compose push
+          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push

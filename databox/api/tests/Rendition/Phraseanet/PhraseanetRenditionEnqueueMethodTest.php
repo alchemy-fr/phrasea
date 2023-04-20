@@ -7,6 +7,7 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
+use Alchemy\Workflow\Consumer\JobConsumer;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
@@ -104,11 +105,17 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationCollectionHandler::EVENT, $eventMessage->getType());
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+        $eventMessage = $eventProducer->shiftEvent();
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+        $eventMessage = $eventProducer->shiftEvent();
+        self::assertEquals(NewAssetIntegrationHandler::class::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();

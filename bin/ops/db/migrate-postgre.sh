@@ -20,13 +20,13 @@ for d in ${DATABASES}; do
 done
 
 echo "Delete DB volumes"
-docker-compose stop db
-docker-compose rm -f db
+docker compose stop db
+docker compose rm -f db
 docker volume rm ${COMPOSE_PROJECT_NAME}_db_vol
-docker-compose up -d db
+docker compose up -d db
 
 # Wait for services to be ready
-docker-compose run --rm dockerize
+docker compose run --rm dockerize
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"

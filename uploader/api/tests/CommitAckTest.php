@@ -28,7 +28,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         );
         $json = json_decode($response->getContent(), true);
 
-        $this->assertEquals(true, $json);
+        $this->assertTrue($json);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertAssetAcknowledgement($asset1->getId(), true);
         $this->assertAssetAcknowledgement($asset2->getId(), true);

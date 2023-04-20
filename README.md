@@ -36,6 +36,6 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 Install ELK stack to get report-api logs available in Kibana.
 
 ```bash
-# set COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.elk.yml
+# set COMPOSE_FILE=docker-compose.yml:docker-compose.elk.yml
 dc up -d
 ```

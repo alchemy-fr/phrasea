@@ -8,3 +8,5 @@ Dockerfile
 /yarn-debug.log*
 /yarn-error.log*
 /i18n-scan-tmp
+.idea
+

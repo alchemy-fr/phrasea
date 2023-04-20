@@ -6,7 +6,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.4",
+    "php": "^7.4 || ^8.0",
     "guzzlehttp/guzzle": "^6.3",
     "opis/json-schema": "^1.0"
   },
