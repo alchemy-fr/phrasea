@@ -12,16 +12,16 @@
             "dist": {
                 "type": "path",
                 "url": "../workflow",
-                "reference": "432a0593c069eb48fc90ef4d6cf262f5f8d078aa"
+                "reference": "959d89de3659c80a1b5b2831741c21762698199b"
             },
             "require": {
                 "ext-json": "*",
                 "php": "^8.2",
                 "ramsey/uuid": "^4.2",
                 "symfony/console": "^5.4",
-                "symfony/expression-language": "^6.2",
+                "symfony/expression-language": "^5.2 || ^6.2",
                 "symfony/process": "^5.4",
-                "symfony/property-access": "^6.2",
+                "symfony/property-access": "^5.2 || ^6.2",
                 "symfony/yaml": "^5.4"
             },
             "require-dev": {

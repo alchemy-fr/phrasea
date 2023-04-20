@@ -2,3 +2,5 @@ Dockerfile
 .dockerignore
 /var
 /vendor
+.idea
+

@@ -27,7 +27,6 @@ for s in ${SF_SERVICES}; do
     docker compose run -T --rm ${s} su app -c "composer install --no-interaction && composer test"
 done
 
-
 LIBS="
 admin-bundle
 api-test
@@ -40,11 +39,5 @@ report-sdk
 for lib in ${LIBS}; do
     docker compose run -T --rm auth-api-php su app -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
 done
-
-docker-compose exec --rm databox-api-php pwd
-docker-compose run -T --rm databox-api-php ls -la vendor/alchemy || echo bad
-docker compose exec --rm databox-api-php pwd
-docker compose run -T --rm databox-api-php pwd
-docker compose run -T --rm databox-api-php ls -la vendor/alchemy
 
 docker compose run -T --rm databox-api-php su app -c "cd vendor/alchemy/workflow && composer install --no-interaction && composer test"
