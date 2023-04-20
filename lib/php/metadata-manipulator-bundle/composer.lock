@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3707abd30042c059d8641f9dfa3cb03",
+    "content-hash": "1d30efeacb4a00fab6ccef6d0b9d4ee5",
     "packages": [
         {
             "name": "alchemy/phpexiftool",
@@ -5755,7 +5755,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.4 || ^8.2"
+        "php": "^7.4 || ^8.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
