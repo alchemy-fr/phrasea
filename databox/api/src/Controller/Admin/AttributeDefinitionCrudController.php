@@ -71,8 +71,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
         $searchBoost = IntegerField::new('searchBoost');
         $initialValuesAll = TextareaField::new('initialValuesAll');
-        $fallbackAll = TextareaField::new('fallbackAll')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
-        $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('i.e. Dimensions are: {{ file.width }}x{{ file.height }}');
+        $fallbackAll = TextareaField::new('fallbackAll')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
+        $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackFR = TextareaField::new('fallbackFR', 'Fallback value template FR')->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
         $id = IdField::new();
         $slug = TextField::new('slug');

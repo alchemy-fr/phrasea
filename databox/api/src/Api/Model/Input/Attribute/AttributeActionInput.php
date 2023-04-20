@@ -25,7 +25,7 @@ class AttributeActionInput extends AbstractExtendedAttributeInput
     public ?bool $regex = null;
 
     /**
-     * Regex flags (i.e. 'g').
+     * Regex flags (e.g. 'g').
      */
     public ?string $flags = null;
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Search;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Index;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -43,6 +44,8 @@ trait SearchTestTrait
         foreach ($indexes as $index) {
             static::waitForESIndex($index);
         }
+
+        $container->get(EntityManagerInterface::class)->clear();
     }
 
     protected static function forceNewEntitiesToBeIndexed(): void

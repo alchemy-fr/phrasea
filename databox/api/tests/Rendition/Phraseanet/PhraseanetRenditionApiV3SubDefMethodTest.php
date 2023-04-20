@@ -100,12 +100,19 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
-        dump($eventMessage);
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+
+        $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
+        $this->consumeEvent($eventMessage);
+
+        $eventMessage = $eventProducer->shiftEvent();
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
         $this->consumeEvent($eventMessage);
 
         $eventMessage = $eventProducer->shiftEvent();

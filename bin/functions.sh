@@ -34,6 +34,8 @@ function load-env {
       fi
     done < "${tmp}"
   )"
+
+  rm -f "${tmp}"
 }
 
 # execute a shell commmand in a container defined in docker-compose.yml

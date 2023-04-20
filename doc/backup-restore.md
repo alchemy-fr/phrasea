@@ -32,7 +32,7 @@ Then run:
 bin/ops/import-all-k8s.sh <see usage>
 ```
 
-### To a remote database (i.e. RDS)
+### To a remote database (e.g. RDS)
 
 Get the `*.tar.gz` backup file.
 Then run:
