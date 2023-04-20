@@ -1,25 +1,39 @@
 #!/bin/sh
 
 function export_env_from_file {
-    if [ ! -f "$1" ]; then
-        return
-    fi
+  if [ ! -f "$1" ]; then
+      return
+  fi
 
-    set -o allexport
-    source $1
-    set +o allexport
+  set -o allexport
+  source $1
+  set +o allexport
 }
 
 # Export env vars from defaults
 # Defined env vars take precedence, then .env.local, then .env
 # Usage: load-env
 function load-env {
-    if [ ! -f ".env" ]; then
-      >&2 echo ".env file not found at $(pwd)"
-      exit 1
-    fi
-    export_env_from_file ".env"
-    export_env_from_file ".env.local"
+  if [ ! -f ".env" ]; then
+    >&2 echo ".env file not found at $(pwd)"
+    exit 1
+  fi
+
+  tmp="/tmp/env-$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')"
+  env > "${tmp}"
+
+  export_env_from_file ".env"
+  export_env_from_file ".env.local"
+
+  eval "$(
+    while read -r LINE; do
+      if [[ $LINE == *'='* ]] && [[ $LINE != '#'* ]]; then
+        key=$(printf '%s\n' "$LINE"| sed 's/"/\\"/g' | cut -d '=' -f 1)
+        value=$(printf '%s\n' "$LINE" | cut -d '=' -f 2- | sed 's/"/\\\"/g')
+        printf '%s\n' "export $key=\"$value\""
+      fi
+    done < "${tmp}"
+  )"
 }
 
 # execute a shell commmand in a container defined in docker-compose.yml
