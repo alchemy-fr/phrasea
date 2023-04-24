@@ -43,7 +43,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Profile', '', PublicationProfile::class),
             MenuItem::linkToCrud('Asset', '', Asset::class),
             MenuItem::linkToCrud('SubDefinition', '', SubDefinition::class),
-            MenuItem::linkToCrud('PublicationAsset', '', PublicationAsset::class),
             MenuItem::linkToCrud('MultipartUpload', '', MultipartUpload::class),
         ];
 

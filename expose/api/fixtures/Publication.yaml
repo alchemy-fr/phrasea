@@ -22,19 +22,19 @@ App\Entity\PublicationProfile:
     config: '@config-1'
 
 App\Entity\Publication:
-  gallery:
+  pub_gallery:
     title: Gallery publication
     slug: gallery-pub
     profile: '@pr-1'
     config: '@config-gallery'
 
-  download:
+  pub_download:
     title: Download publication
     slug: download-pub
     profile: '@pr-1'
     config: '@config-download'
 
-  grid:
+  pub_grid:
     title: Grid publication
     slug: grid-pub
     profile: '@pr-1'
