@@ -133,7 +133,7 @@ XMP-xmp:Title
 for complete list, refer to: `databox/api/var/cache/phpexiftool/Helper.php`
 
 :warning: With `initial values` setting, attributes values are created only once, - when a file is added -.
-Changes from dynamic / editable sources (e.g. refering to `asset.title`) not update the related
+Changes from dynamic / editable sources (e.g. refering to `asset.title`) will **not** update the related
 attributes.
 
 ## Fallback attribute value(s) !! wip do not use !!
