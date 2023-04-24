@@ -49,7 +49,7 @@ class Layout extends PureComponent {
                     {this.props.menu}
                 </div>
             </nav>
-            <div className="main-content p-4 p-md-5 pt-5">
+            <div className={`main-content${this.state.displayMenu ? ' menu-open' : ''} p-4 p-md-5 pt-5`}>
                 {this.props.children}
             </div>
         </div>

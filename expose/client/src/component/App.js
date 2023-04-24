@@ -75,8 +75,14 @@ class App extends PureComponent {
                     {...props}
                     authenticated={this.state.authenticated}
                 />}/>
-                <Route path="/:publication/:asset" exact component={AssetRoute}/>
-                <Route path="/:publication/:asset/:subdef" exact component={AssetRoute}/>
+                <Route path="/:publication/:asset" exact render={props => <AssetRoute
+                    {...props}
+                    authenticated={this.state.authenticated}
+                />}/>
+                <Route path="/:publication/:asset/:subdef" exact render={props => <AssetRoute
+                    {...props}
+                    authenticated={this.state.authenticated}
+                />}/>
                 <Route path="/" exact render={() => <ErrorPage
                     title={'Not found'}
                     code={404}

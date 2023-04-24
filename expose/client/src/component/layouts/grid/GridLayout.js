@@ -51,6 +51,18 @@ class GridLayout extends React.Component {
         showVideo: {},
     };
 
+    static getDerivedStateFromProps(props, state = {}) {
+        if (props.assetId && !state.currentAssetAutoSet) {
+            return {
+                ...state,
+                currentAsset: props.data.assets.findIndex(pa => pa.asset.id === props.assetId),
+                currentAssetAutoSet: true,
+            };
+        }
+
+        return state;
+    }
+
     componentDidMount() {
         this.loadThumbs();
     }

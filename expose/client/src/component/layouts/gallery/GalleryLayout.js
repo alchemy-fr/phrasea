@@ -188,6 +188,8 @@ class GalleryLayout extends React.Component {
     }
 
     renderItem = ({asset, downloadEnabled}) => {
+        const isCurrent = (this.state.currentIndex || 0) === this.props.data.assets.findIndex(pa => pa.asset.id === asset.id);
+
         return <div className="image-gallery-image layout-asset-container">
             {downloadEnabled && asset.downloadUrl ? <div
                 className="download-btn">
@@ -196,7 +198,10 @@ class GalleryLayout extends React.Component {
                     onDownload={onDownload.bind(this)}
                 />
             </div> : ''}
-            <AssetProxy asset={asset}/>
+            <AssetProxy
+                isCurrent={isCurrent}
+                asset={asset}
+            />
             {asset.description ? <div
                 className="image-gallery-description">
                 <Description descriptionHtml={asset.description}/>
