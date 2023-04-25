@@ -17,7 +17,7 @@ class PublicationAssetListener implements EventSubscriber
 {
     private array $positionCache = [];
 
-    public function preRemove(PreRemoveEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs|LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof PublicationAsset) {
@@ -28,7 +28,7 @@ class PublicationAssetListener implements EventSubscriber
         }
     }
 
-    public function prePersist(PrePersistEventArgs $args): void
+    public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof PublicationAsset) {

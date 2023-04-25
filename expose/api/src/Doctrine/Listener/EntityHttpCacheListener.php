@@ -23,7 +23,7 @@ class EntityHttpCacheListener implements EventSubscriber
         $this->proxyCachePurger = $proxyCachePurger;
     }
 
-    private function handle(PostUpdateEventArgs|PostPersistEventArgs|PreRemoveEventArgs $args): void
+    private function handle(PostUpdateEventArgs|PostPersistEventArgs|PreRemoveEventArgs|LifecycleEventArgs $args): void
     {
         $entity = $args->getEntity();
 
@@ -41,17 +41,17 @@ class EntityHttpCacheListener implements EventSubscriber
         }
     }
 
-    public function postUpdate(PostUpdateEventArgs $args): void
+    public function postUpdate(PostUpdateEventArgs|LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function postPersist(PostPersistEventArgs $args): void
+    public function postPersist(PostPersistEventArgs|LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function preRemove(PreRemoveEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs|LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }

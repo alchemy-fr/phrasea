@@ -10,6 +10,7 @@ use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\TermsConfig;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -24,17 +25,17 @@ class DescriptionListener implements EventSubscriber
         $this->purifier = $purifier;
     }
 
-    public function prePersist(PrePersistEventArgs $args): void
+    public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function preUpdate(PreUpdateEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs|LifecycleEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    private function handle(PrePersistEventArgs|PreUpdateEventArgs $args): void
+    private function handle(PrePersistEventArgs|PreUpdateEventArgs|LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof Publication
