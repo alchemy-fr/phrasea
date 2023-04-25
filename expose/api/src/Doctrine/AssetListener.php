@@ -13,6 +13,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\ObjectManager;
 
@@ -30,7 +31,7 @@ class AssetListener implements EventSubscriber
         $this->eventProducer = $eventProducer;
     }
 
-    public function prePersist(LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof Asset) {
