@@ -24,9 +24,10 @@ final class Version20221207170541 extends AbstractMigration
 
         $this->addSql('ALTER TABLE asset ADD publication_id UUID DEFAULT NULL');
         $this->addSql('UPDATE asset a SET publication_id = (SELECT pa.publication_id FROM publication_asset pa WHERE pa.asset_id = a.id LIMIT 1)');
+        $this->addSql('ALTER TABLE asset ADD position SMALLINT DEFAULT 0 NOT NULL');
+        $this->addSql('UPDATE asset a SET position = (SELECT pa.position FROM publication_asset pa WHERE pa.asset_id = a.id LIMIT 1)');
         $this->addSql('DELETE FROM asset WHERE publication_id IS NULL');
         $this->addSql('ALTER TABLE asset ADD slug VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE asset ADD position SMALLINT DEFAULT 0 NOT NULL');
         $this->addSql('COMMENT ON COLUMN asset.publication_id IS \'(DC2Type:uuid)\'');
         $this->addSql('ALTER TABLE asset ADD CONSTRAINT FK_2AF5A5C38B217A7 FOREIGN KEY (publication_id) REFERENCES publication (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('CREATE INDEX IDX_2AF5A5C38B217A7 ON asset (publication_id)');
