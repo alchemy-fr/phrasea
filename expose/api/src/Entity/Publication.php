@@ -105,12 +105,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *                  "output"=false,
  *             },
  *         },
- *     },
- *     subresourceOperations={
- *         "api_publication_assets_get_subresource"={
- *             "method"="GET",
- *             "normalization_context"={"groups"={"foobar"}}
- *         }
  *     }
  * )
  */

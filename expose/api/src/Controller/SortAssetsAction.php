@@ -26,12 +26,13 @@ final class SortAssetsAction extends AbstractAssetAction
                 'UPDATE %s a SET a.position = :pos WHERE a.publication = :pubId AND a.id = :assetId',
                 Asset::class
             );
+            $publicationId = $publication->getId();
             foreach ($order as $i => $id) {
                 $this->em
                     ->createQuery($dql)
                     ->execute([
                         'pos' => $i,
-                        'pubId' => $publication->getId(),
+                        'pubId' => $publicationId,
                         'assetId' => $id,
                     ]);
             }

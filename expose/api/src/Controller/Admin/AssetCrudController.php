@@ -55,9 +55,10 @@ class AssetCrudController extends AbstractAdminCrudController
         $publication = AssociationField::new('publication');
         $subDefinitions = AssociationField::new('subDefinitions');
         $geoPoint = TextareaField::new('geoPoint');
+        $position = NumberField::new('position');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $publication, $originalName, $size, $geoPoint, $path, $createdAt];
+            return [$id, $publication, $originalName, $size, $geoPoint, $path, $position, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $assetId, $path, $size, $publication, $title, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $subDefinitions];
         } elseif (Crud::PAGE_NEW === $pageName) {
