@@ -34,7 +34,7 @@ class EntityHttpCacheListener implements EventSubscriber
         } elseif ($entity instanceof Publication) {
             $this->invalidatePublicationAndAssetsCache($entity);
         } elseif ($entity instanceof Asset) {
-            $this->invalidateAssetCache($entity->getPublication());
+            $this->invalidateAssetCache($entity);
             $this->invalidatePublicationCache($entity->getPublication());
         } elseif ($entity instanceof PublicationProfile) {
             foreach ($entity->getPublications() as $publication) {
