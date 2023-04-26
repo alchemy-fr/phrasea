@@ -141,21 +141,21 @@ class Publication extends PureComponent {
     renderLayout = (data) => {
         return <Layout
             authenticated={this.props.authenticated}
-            menu={
-                <>
-                    {data && <PublicationNavigation
-                        publication={data}
-                    />}
-                    <div className="p-3">
-                        {data && data.urls ? <Urls urls={data.urls}/> : ''}
-                        {data ? <Copyright text={data.copyrightText}/> : ''}
-                        {data && data.editor ? data.editor : ''}
-                    </div>
-                </>}
+            menu={<>
+                {data && <PublicationNavigation
+                    publication={data}
+                />}
+                <div className="p-3">
+                    {data && data.urls ? <Urls urls={data.urls}/> : ''}
+                    {data ? <Copyright text={data.copyrightText}/> : ''}
+                    {data && data.editor ? data.editor : ''}
+                </div>
+            </>}
         >
             <PublicationSecurityProxy
                 publication={data || undefined}
                 reload={this.onAuthorizationChange}
+                logPublicationView={true}
             >
                 {data && data.authorized ? this.renderContent(data) : ''}
             </PublicationSecurityProxy>
@@ -168,7 +168,6 @@ class Publication extends PureComponent {
     }
 
     renderContent(data) {
-        console.log('data', data);
         if (data && data.terms.enabled && !isTermsAccepted('p_' + data.id)) {
             return this.renderTerms();
         }

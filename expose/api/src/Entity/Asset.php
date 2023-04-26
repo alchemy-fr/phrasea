@@ -16,9 +16,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
+ * @ORM\Table(indexes={@ORM\Index(name="assetId", columns={"asset_id"})})
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
@@ -74,7 +76,7 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      *
-     * @Groups({"asset:read"})
+     * @Groups({"publication:read", "asset:read"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $assetId = null;

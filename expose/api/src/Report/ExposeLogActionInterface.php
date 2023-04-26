@@ -12,6 +12,5 @@ interface ExposeLogActionInterface
     const PUBLICATION_ARCHIVE_DOWNLOAD_REQUEST = 'pub_archive_download_request';
     const PUBLICATION_ARCHIVE_DOWNLOAD = 'pub_archive_download';
     const SUBDEF_DOWNLOAD = 'subdef_download';
-    const ASSET_PREVIEW = 'asset_preview';
     const PUBLICATION_VIEW = 'publication_view';
 }

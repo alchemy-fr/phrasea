@@ -11,13 +11,21 @@ import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
 import FullPageLoader from "../../FullPageLoader";
+import {logAssetView} from "../../../lib/log";
 
 const CustomView = ({data, carouselProps, currentView}) => {
+    const isCurrent = currentView === data;
+
+    React.useEffect(() => {
+        if (isCurrent) {
+            logAssetView(data.id)
+        }
+    }, [isCurrent]);
 
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
             <AssetProxy
-                isCurrent={currentView === data}
+                isCurrent={isCurrent}
                 magnifier={true}
                 asset={data}
             />
@@ -55,7 +63,7 @@ class GridLayout extends React.Component {
         if (props.assetId && !state.currentAssetAutoSet) {
             return {
                 ...state,
-                currentAsset: props.data.assets.findIndex(pa => pa.asset.id === props.assetId),
+                currentAsset: props.data.assets.findIndex(a => a.id === props.assetId),
                 currentAssetAutoSet: true,
             };
         }

@@ -5,6 +5,7 @@ import {Asset} from "../types";
 import AssetProxy from "./layouts/shared-components/AssetProxy";
 import {loadAsset} from "./api";
 import PublicationSecurityProxy from "./security/PublicationSecurityProxy";
+import {logAssetView} from "../lib/log";
 
 type Props = {
     authenticated: boolean;
@@ -27,6 +28,12 @@ export default function EmbeddedAsset({
     useEffect(() => {
         load();
     }, [load]);
+
+    useEffect(() => {
+        if (data && data.publication.authorized) {
+            logAssetView(data.id);
+        }
+    }, [data?.id]);
 
     if (!data) {
         return <FullPageLoader/>
