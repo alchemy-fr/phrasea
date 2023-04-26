@@ -4,36 +4,17 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Publication;
-use App\Entity\PublicationAsset;
+use App\Entity\Asset;
 use App\Security\Voter\PublicationVoter;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Security;
 use Throwable;
 
-final class SortAssetsAction extends AbstractController
+final class SortAssetsAction extends AbstractAssetAction
 {
-    private EntityManagerInterface $em;
-    private Security $security;
-
-    public function __construct(EntityManagerInterface $em, Security $security)
-    {
-        $this->em = $em;
-        $this->security = $security;
-    }
-
     public function __invoke(string $id, Request $request)
     {
-        /** @var Publication $publication */
-        $publication = $this->em->find(Publication::class, $id);
-        if (!$publication) {
-            throw new NotFoundHttpException();
-        }
-        $this->denyAccessUnlessGranted(PublicationVoter::EDIT, $publication);
+        $publication = $this->getPublication($id, PublicationVoter::EDIT);
 
         $order = $request->request->get('order', []);
         if (empty($order)) {
@@ -42,15 +23,16 @@ final class SortAssetsAction extends AbstractController
         $this->em->beginTransaction();
         try {
             $dql = sprintf(
-                'UPDATE %s pa SET pa.position = :pos WHERE pa.publication = :pubId AND pa.asset = :assetId',
-                PublicationAsset::class
+                'UPDATE %s a SET a.position = :pos WHERE a.publication = :pubId AND a.id = :assetId',
+                Asset::class
             );
+            $publicationId = $publication->getId();
             foreach ($order as $i => $id) {
                 $this->em
                     ->createQuery($dql)
                     ->execute([
                         'pos' => $i,
-                        'pubId' => $publication->getId(),
+                        'pubId' => $publicationId,
                         'assetId' => $id,
                     ]);
             }

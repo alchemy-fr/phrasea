@@ -28,7 +28,7 @@ class LayoutOptions extends AbstractOptions
      */
     private ?string $logoUrl = null;
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_filter([
             'displayMap' => $this->displayMap,

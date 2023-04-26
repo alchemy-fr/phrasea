@@ -12,7 +12,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
     {
         $id = $this->createPublication([
             'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
-        ]);
+        ])->getId();
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
             'POST',
@@ -33,10 +33,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Sub Foo', $json['title']);
-        $this->assertMatchesRegularExpression(
-            '#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#',
-            $json['id']
-        );
+        $this->assertMatchesUuid($json['id']);
         $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
 
         $this->assertArrayHasKey('parent', $json);
@@ -47,8 +44,8 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
     {
-        $parentId = $this->createPublication(['no_flush' => true]);
-        $childId = $this->createPublication(['parent_id' => $parentId]);
+        $parentId = $this->createPublication(['no_flush' => true])->getId();
+        $childId = $this->createPublication(['parent_id' => $parentId])->getId();
         $this->clearEmBeforeApiCall();
 
         foreach ([
@@ -82,16 +79,16 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $parentId = $this->createPublication([
             'title' => 'A',
             'no_flush' => true,
-        ]);
+        ])->getId();
         $childId2 = $this->createPublication([
             'title' => 'A.B',
             'parent_id' => $parentId,
             'no_flush' => true,
-        ]);
+        ])->getId();
         $childId = $this->createPublication([
             'title' => 'A.A',
             'parent_id' => $parentId,
-        ]);
+        ])->getId();
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(
@@ -105,7 +102,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertEquals($parentId, $json['id']);
         $this->assertArrayHasKey('title', $json);
         $this->assertArrayHasKey('children', $json);
-        $this->assertEquals(2, count($json['children']));
+        $this->assertCount(2, $json['children']);
         $this->assertEquals($childId, $json['children'][0]['id']);
         $this->assertArrayHasKey('title', $json['children'][0]);
         $this->assertEquals('A.A', $json['children'][0]['title']);
@@ -132,7 +129,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
     public function testGetPublicationWithDisabledChild(): void
     {
-        $parentId = $this->createPublication();
+        $parentId = $this->createPublication()->getId();
         $this->createPublication([
             'parent_id' => $parentId,
             'enabled' => false,
@@ -189,13 +186,13 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('p1', $json[0]['title']);
         $this->assertEquals('p2', $json[1]['title']);
     }
@@ -205,9 +202,9 @@ class NestedPublicationTest extends AbstractExposeTestCase
         foreach ($tree as $pubName => $children) {
             $options['title'] = $pubName;
             if ($parentName) {
-                $ids[$pubName] = $this->createPublication(array_merge($options, ['parent_id' => $ids[$parentName]]));
+                $ids[$pubName] = $this->createPublication(array_merge($options, ['parent_id' => $ids[$parentName]]))->getId();
             } else {
-                $ids[$pubName] = $this->createPublication($options);
+                $ids[$pubName] = $this->createPublication($options)->getId();
             }
 
             $this->createTree($children, $options, $ids, $pubName);

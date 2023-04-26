@@ -23,10 +23,8 @@ App\Entity\SubDefinition:
       - NotNull: ~
       - NotBlank: ~
 
-App\Entity\PublicationAsset:
+App\Entity\Asset:
   properties:
     publication:
-      - NotNull: ~
-    asset:
       - NotNull: ~
 

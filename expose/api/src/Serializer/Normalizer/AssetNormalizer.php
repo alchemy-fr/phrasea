@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
-use App\Entity\PublicationAsset;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AssetNormalizer extends AbstractRouterNormalizer
@@ -15,17 +14,13 @@ class AssetNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
-        /** @var PublicationAsset|null $publicationAsset */
-        $publicationAsset = $context['publication_asset'] ?? null;
         $downloadViaEmail = $context['download_via_email'] ?? false;
 
-        if ($publicationAsset instanceof PublicationAsset) {
-            if (!$downloadViaEmail) {
-                $object->setDownloadUrl($this
-                    ->generateDownloadAssetTrackerUrl($publicationAsset->getPublication(), $publicationAsset->getAsset()));
-            } else {
-                $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
-            }
+        if (!$downloadViaEmail) {
+            $object->setDownloadUrl($this
+                ->generateDownloadAssetTrackerUrl($object));
+        } else {
+            $object->setDownloadUrl($this->getDownloadViaEmailUrl($object));
         }
 
         $object->setUrl($this->generateAssetUrl($object));

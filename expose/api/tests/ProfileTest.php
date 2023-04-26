@@ -48,11 +48,11 @@ class ProfileTest extends AbstractExposeTestCase
             'mask' => PermissionInterface::VIEW,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('profile_1', $json[0]['name']);
         $this->assertEquals('profile_2', $json[1]['name']);
     }
@@ -66,11 +66,11 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertEquals(2, count($json));
+        $this->assertCount(2, $json);
         $this->assertEquals('profile_1', $json[0]['name']);
         $this->assertEquals('profile_2', $json[1]['name']);
     }
@@ -84,16 +84,16 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
         $json = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertEquals(0, count($json));
+        $this->assertCount(0, $json);
     }
 
     public function testCreateProfileWithoutNameWillGenerate400(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles', []);
+        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles');
         $this->assertEquals(400, $response->getStatusCode());
     }
 

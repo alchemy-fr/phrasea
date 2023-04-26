@@ -6,7 +6,6 @@ namespace App\Storage;
 
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +26,7 @@ class AssetManager
     }
 
     public function createAsset(
+        Publication $publication,
         string $path,
         string $mimeType,
         string $originalName,
@@ -38,6 +38,16 @@ class AssetManager
         $asset->setMimeType($mimeType);
         $asset->setOriginalName($originalName);
         $asset->setSize($size);
+
+        $asset->setPublication($publication);
+        if (isset($options['position'])) {
+            $asset->setPosition((int) $options['position']);
+        }
+
+        if (isset($options['slug'])) {
+            $asset->setSlug($options['slug']);
+        }
+
         if (isset($options['description'])) {
             $asset->setDescription($options['description']);
         }
@@ -45,33 +55,12 @@ class AssetManager
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }
-        if (isset($options['use_as_cover'])) {
-            $publication = $this->getPublication($options['use_as_cover']);
+        if ($options['use_as_cover'] ?? false) {
             $publication->setCover($asset);
-            $this->em->persist($publication);
         }
-        if (isset($options['use_as_package'])) {
-            $publication = $this->getPublication($options['use_as_package']);
+        if ($options['use_as_package'] ?? false) {
             $publication->setPackage($asset);
-            $this->em->persist($publication);
         }
-        if (isset($options['publication_id'])) {
-            $publication = $this->getPublication($options['publication_id']);
-            $publicationAsset = new PublicationAsset();
-            $publicationAsset->setPublication($publication);
-            $publicationAsset->setAsset($asset);
-            if (isset($options['position'])) {
-                $publicationAsset->setPosition((int) $options['position']);
-            }
-            $asset->addPublication($publicationAsset);
-
-            if (isset($options['slug'])) {
-                $publicationAsset->setSlug($options['slug']);
-            }
-
-            $this->em->persist($publicationAsset);
-        }
-
         if (isset($options['lat'])) {
             $asset->setLat((float) $options['lat']);
         }
@@ -85,6 +74,7 @@ class AssetManager
             $asset->setWebVTT($options['webVTT']);
         }
 
+        $this->em->persist($publication);
         $this->em->persist($asset);
         $this->em->flush();
 
@@ -105,27 +95,12 @@ class AssetManager
         $this->em->flush();
     }
 
-    public function deletePublicationAssetsByPublicationAndAsset(string $publicationId, string $assetId): void
-    {
-        $publicationAssets = $this->em->getRepository(PublicationAsset::class)
-            ->findBy([
-                'publication' => $publicationId,
-                'asset' => $assetId,
-            ]);
-
-        foreach ($publicationAssets as $publicationAsset) {
-            $this->em->remove($publicationAsset);
-        }
-
-        $this->em->flush();
-    }
-
     public function createSubDefinition(
+        Asset $asset,
         string $name,
         string $path,
         string $mimeType,
         int $size,
-        Asset $asset,
         array $options = []
     ): SubDefinition {
         $existingSubDef = $this
@@ -157,19 +132,15 @@ class AssetManager
         return $subDefinition;
     }
 
-    private function getPublication(string $id): Publication
+    public function getPublicationWithEditGrant(string $id): Publication
     {
-        /** @var Publication $publication */
         $publication = $this->em->find(Publication::class, $id);
         if (!$publication) {
             throw new NotFoundHttpException(sprintf('Publication %s not found', $id));
         }
 
-        if (
-            !$this->security->isGranted(PublicationVoter::EDIT, $publication)
-            && !$this->security->isGranted(PublicationVoter::CREATE, $publication)
-        ) {
-            throw new AccessDeniedHttpException();
+        if (!$this->security->isGranted(PublicationVoter::EDIT, $publication)) {
+            throw new AccessDeniedHttpException('Cannot add asset to publication (no edit permission)');
         }
 
         return $publication;
@@ -179,7 +150,7 @@ class AssetManager
     {
         $asset = $this->em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException('Asset '.$id.' not found');
+            throw new NotFoundHttpException(sprintf('Asset "%s" not found', $id));
         }
 
         return $asset;

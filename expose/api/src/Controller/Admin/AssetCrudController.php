@@ -52,18 +52,19 @@ class AssetCrudController extends AbstractAdminCrudController
         $mimeType = TextField::new('mimeType');
         $ownerId = IdField::new('ownerId');
         $createdAt = DateTimeField::new('createdAt');
-        $publications = AssociationField::new('publications');
+        $publication = AssociationField::new('publication');
         $subDefinitions = AssociationField::new('subDefinitions');
         $geoPoint = TextareaField::new('geoPoint');
+        $position = NumberField::new('position');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $originalName, $size, $geoPoint, $path, $createdAt];
+            return [$id, $publication, $originalName, $size, $geoPoint, $path, $position, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $assetId, $path, $size, $title, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $publications, $subDefinitions];
+            return [$id, $assetId, $path, $size, $publication, $title, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $subDefinitions];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
+            return [$publication, $originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
+            return [$publication, $originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
         }
 
         return [];

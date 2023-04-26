@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Asset;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -14,6 +13,8 @@ class AssetVoter extends Voter
 {
     const READ = 'READ';
     const EDIT = 'EDIT';
+    const DELETE = 'DELETE';
+    const CREATE = 'CREATE';
 
     private Security $security;
 
@@ -28,32 +29,19 @@ class AssetVoter extends Voter
     }
 
     /**
-     * @param Asset|null $subject
+     * @param Asset $subject
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if ($this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN')) {
-            return true;
+        switch ($attribute) {
+            case self::READ:
+                return $this->security->isGranted(PublicationVoter::READ_DETAILS, $subject->getPublication());
+            case self::CREATE:
+            case self::DELETE:
+            case self::EDIT:
+                return $this->security->isGranted(PublicationVoter::EDIT, $subject->getPublication());
+            default:
+                return false;
         }
-
-        $user = $token->getUser();
-        $isAuthenticated = $user instanceof RemoteUser;
-        if ($isAuthenticated && $subject->getOwnerId() === $user->getId()) {
-            return true;
-        }
-
-        if ($subject instanceof Asset) {
-            $user = $token->getUser();
-
-            if ($user instanceof RemoteUser) {
-                foreach ($subject->getPublications() as $publicationAsset) {
-                    if ($this->security->isGranted($attribute, $publicationAsset->getPublication())) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 }
