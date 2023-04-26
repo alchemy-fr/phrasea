@@ -32,13 +32,23 @@ class EntityHttpCacheListener implements EventSubscriber
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
         } elseif ($entity instanceof Publication) {
-            $this->invalidatePublicationCache($entity);
+            $this->invalidatePublicationAndAssetsCache($entity);
         } elseif ($entity instanceof Asset) {
+            $this->invalidateAssetCache($entity->getPublication());
             $this->invalidatePublicationCache($entity->getPublication());
         } elseif ($entity instanceof PublicationProfile) {
             foreach ($entity->getPublications() as $publication) {
-                $this->invalidatePublicationCache($publication);
+                $this->invalidatePublicationAndAssetsCache($publication);
             }
+        }
+    }
+
+    private function invalidatePublicationAndAssetsCache(Publication $publication): void
+    {
+        $this->invalidatePublicationCache($publication);
+
+        foreach ($publication->getAssets() as $asset) {
+            $this->invalidateAssetCache($asset);
         }
     }
 
@@ -52,6 +62,13 @@ class EntityHttpCacheListener implements EventSubscriber
                 'id' => $publication->getSlug(),
             ]);
         }
+    }
+
+    private function invalidateAssetCache(Asset $asset): void
+    {
+        $this->proxyCachePurger->purgeRoute('api_assets_get_item', [
+            'id' => $asset->getId(),
+        ]);
     }
 
     public function postUpdate(PostUpdateEventArgs|LifecycleEventArgs $args): void

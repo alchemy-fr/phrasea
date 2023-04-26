@@ -188,7 +188,7 @@ class GalleryLayout extends React.Component {
     }
 
     renderItem = ({asset, downloadEnabled}) => {
-        const isCurrent = (this.state.currentIndex || 0) === this.props.data.assets.findIndex(pa => pa.asset.id === asset.id);
+        const isCurrent = (this.state.currentIndex || 0) === this.props.data.assets.findIndex(a => a.id === asset.id);
 
         return <div className="image-gallery-image layout-asset-container">
             {downloadEnabled && asset.downloadUrl ? <div

@@ -13,12 +13,10 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
-    private Security $security;
     private bool $zippyEnabled;
 
-    public function __construct(Security $security, ?string $zippyBaseUrl)
+    public function __construct(private readonly Security $security, ?string $zippyBaseUrl)
     {
-        $this->security = $security;
         $this->zippyEnabled = !empty($zippyBaseUrl);
     }
 

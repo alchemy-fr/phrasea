@@ -1,35 +1,20 @@
 import React, {PureComponent} from 'react';
 import config from '../lib/config';
-import apiClient from '../lib/apiClient';
 import {PropTypes} from 'prop-types';
 import {layouts} from "./layouts";
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
 import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
-import {getPasswords, isTermsAccepted, setAcceptedTerms} from "../lib/credential";
+import {isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import TermsModal from "./layouts/shared-components/TermsModal";
 import {oauthClient} from "../lib/oauth";
 import ErrorPage from "./ErrorPage";
-import FullPageLoader from "./FullPageLoader";
+import {loadPublication} from "./api";
+import PublicationSecurityProxy from "./security/PublicationSecurityProxy";
 
-export async function loadPublication(id) {
-    const options = {};
-
-    const passwords = getPasswords();
-    if (passwords) {
-        options.headers = {'X-Passwords': passwords};
-    }
-
-    const accessToken = oauthClient.getAccessToken();
-    if (accessToken) {
-        options.headers = {'Authorization': `Bearer ${accessToken}`};
-    }
-
-    return await apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
-}
 
 class Publication extends PureComponent {
     static propTypes = {
@@ -77,6 +62,7 @@ class Publication extends PureComponent {
     onLogout = () => {
         this.setState({
             data: null,
+            error: null,
         }, this.load);
     }
 
@@ -84,6 +70,11 @@ class Publication extends PureComponent {
         const {id} = this.props;
 
         try {
+            const currentData = this.state.data;
+            if (currentData && (currentData.slug ? id !== currentData.slug : id !== currentData.id)) {
+                this.setState({data: null, error: null});
+            }
+
             const res = await loadPublication(id);
 
             if (res.slug && res.slug !== id) {
@@ -162,7 +153,12 @@ class Publication extends PureComponent {
                     </div>
                 </>}
         >
-            {this.renderContent(data)}
+            <PublicationSecurityProxy
+                publication={data || undefined}
+                reload={this.onAuthorizationChange}
+            >
+                {data && data.authorized ? this.renderContent(data) : ''}
+            </PublicationSecurityProxy>
         </Layout>
     }
 
@@ -172,14 +168,7 @@ class Publication extends PureComponent {
     }
 
     renderContent(data) {
-        if (null === data || (data.slug ? this.props.id !== data.slug : this.props.id !== data.id)) {
-            return <FullPageLoader/>
-        }
-
-        if (!data.authorized) {
-            return this.renderSecurityAccess();
-        }
-
+        console.log('data', data);
         if (data && data.terms.enabled && !isTermsAccepted('p_' + data.id)) {
             return this.renderTerms();
         }

@@ -236,7 +236,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private bool $authorized = false;
 
@@ -244,13 +244,13 @@ class Publication implements AclObjectInterface
      * Password identifier for the current publication branch.
      *
      * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private ?string $securityContainerId = null;
 
     /**
      * @ApiProperty()
-     * @Groups({"_", "publication:index"})
+     * @Groups({"_", "publication:index", "asset:read"})
      */
     private ?string $authorizationError = null;
 
@@ -332,7 +332,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "asset:read"})
      */
     private ?string $cssLink = null;
 
@@ -468,7 +468,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "asset:read"})
      */
     public function getTheme(): ?string
     {
@@ -476,7 +476,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     public function getSecurityMethod(): ?string
     {

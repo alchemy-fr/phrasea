@@ -62,7 +62,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"_", "asset:read", "publication:read"})
      *
      * @var Uuid
      *
@@ -145,7 +145,8 @@ class Asset implements MediaInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Publication::class, inversedBy="assets")
-     * TODO ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_", "asset:read"})
      */
     private ?Publication $publication = null;
 

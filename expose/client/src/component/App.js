@@ -8,6 +8,7 @@ import config from "../lib/config";
 import ErrorPage from "./ErrorPage";
 import OAuthRedirect from "./OAuthRedirect";
 import {DashboardMenu} from "react-ps";
+import EmbeddedAsset from "./EmbeddedAsset";
 
 class App extends PureComponent {
     state = {
@@ -71,15 +72,15 @@ class App extends PureComponent {
                     />
                 }}/>
                 {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
+                <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
+                    id={params.asset}
+                    authenticated={this.state.authenticated}
+                />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}
                     authenticated={this.state.authenticated}
                 />}/>
                 <Route path="/:publication/:asset" exact render={props => <AssetRoute
-                    {...props}
-                    authenticated={this.state.authenticated}
-                />}/>
-                <Route path="/:publication/:asset/:subdef" exact render={props => <AssetRoute
                     {...props}
                     authenticated={this.state.authenticated}
                 />}/>
