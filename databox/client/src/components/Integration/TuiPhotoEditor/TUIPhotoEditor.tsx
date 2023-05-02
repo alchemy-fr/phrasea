@@ -1,30 +1,19 @@
-import React, {MouseEvent as ReactMouseEvent, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from "../Common/IntegrationPanelContent";
 import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
 import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
 import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-ignore
 import ImageEditor from '@toast-ui/react-image-editor';
-import {
-    IconButton,
-    List,
-    ListItemButton,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    ListItemText,
-    ListSubheader,
-    TextField,
-    Typography
-} from "@mui/material";
+import {List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, TextField, Typography} from "@mui/material";
 import {runIntegrationFileAction} from "../../../api/integrations";
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from "../../../lib/file";
 import {LoadingButton} from "@mui/lab";
 import {toast} from "react-toastify";
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
 import {File} from "../../../types";
+import FileItem from "./FileItem";
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -97,14 +86,11 @@ export default function TUIPhotoEditor({
         }
     };
 
-    const deleteFile = async (e: ReactMouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
-        e.stopPropagation();
-        setDeleting(id);
+    const deleteFile = async (id: string) => {
         await runIntegrationFileAction('delete', integration.id, file.id, {
             id,
         });
         await refreshIntegrations();
-        setDeleting(undefined);
     }
 
     useEffect(() => {
@@ -123,10 +109,10 @@ export default function TUIPhotoEditor({
         }
     }, [selectedFile, enableInc]);
 
-    const onOpen = (file: File, name: string | null) => {
+    const onOpen = React.useCallback((file: File, name: string | null) => {
         setSelectedFile(file);
         setFileName(name || '');
-    }
+    }, [setSelectedFile, setFileName]);
 
     return <>
         <IntegrationPanelContent>
@@ -172,36 +158,15 @@ export default function TUIPhotoEditor({
             </ListItemButton>
 
             {integration.data.map(d => {
-                return <ListItemButton
+                return <FileItem
                     disabled={deleting === d.id}
                     selected={selectedFile?.id === d.value.id}
                     key={d.id}
-                    onClick={() => onOpen(d.value, d.keyId)}
-                >
-                    <ListItemIcon>
-                        <FileOpenIcon/>
-                    </ListItemIcon>
-                    <ListItemText>
-                        {d.keyId}
-                    </ListItemText>
-
-                    <ListItemSecondaryAction>
-                        <SaveAsButton
-                            asset={asset}
-                            file={d.value}
-                            suggestedTitle={asset.resolvedTitle + ' - ' + d.keyId}
-                        />
-                        <IconButton
-                            onMouseDown={e => e.stopPropagation()}
-                            onMouseUp={e => e.stopPropagation()}
-                            onClick={(e) => deleteFile(e, d.id)}
-                            disabled={deleting === d.id}
-                            color={'error'}
-                        >
-                            <DeleteIcon/>
-                        </IconButton>
-                    </ListItemSecondaryAction>
-                </ListItemButton>
+                    data={d}
+                    onOpen={onOpen}
+                    onDelete={deleteFile}
+                    asset={asset}
+                />
             })}
         </List>}
     </>
