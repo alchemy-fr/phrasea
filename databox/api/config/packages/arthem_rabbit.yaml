@@ -2,3 +2,6 @@
 arthem_rabbit:
   deffered: false
   failure: ~
+  queues:
+    event: ~
+    workflow: ~

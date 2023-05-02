@@ -38,4 +38,4 @@ RUN apk add --no-cache \
 
 COPY docker/supervisor/* /etc/supervisor.d/
 
-CMD ["/bin/sh", "-c", "su app -c '/usr/bin/supervisord -n"]
+CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]

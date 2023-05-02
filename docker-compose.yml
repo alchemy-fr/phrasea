@@ -130,7 +130,7 @@ services:
 
   uploader-worker:
     profiles:
-      - uploader
+      - uploader-worker
     image: ${REGISTRY_NAMESPACE}uploader-worker:${DOCKER_TAG}
     build:
       context: ./uploader/api
@@ -288,11 +288,7 @@ services:
 
   auth-worker:
     profiles:
-      - auth
-      - databox
-      - expose
-      - notify
-      - uploader
+      - auth-worker
     image: ${REGISTRY_NAMESPACE}auth-worker:${DOCKER_TAG}
     build:
       context: ./auth/api
@@ -475,7 +471,7 @@ services:
 
   expose-worker:
     profiles:
-      - expose
+      - expose-worker
     image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
     build:
       context: ./expose/api
@@ -597,7 +593,7 @@ services:
 
   notify-worker:
     profiles:
-      - notify
+      - notify-worker
     image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
     build:
       context: ./notify/api
@@ -1009,7 +1005,7 @@ services:
 
   databox-worker:
     profiles:
-      - databox
+      - databox-worker
     image: ${REGISTRY_NAMESPACE}databox-worker:${DOCKER_TAG}
     build:
       context: ./databox/api
