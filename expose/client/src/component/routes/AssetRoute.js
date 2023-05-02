@@ -6,6 +6,7 @@ class AssetRoute extends PureComponent {
         return <Publication
             id={this.props.match.params.publication}
             assetId={this.props.match.params.asset}
+            authenticated={this.props.authenticated}
         />
     }
 }

@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import {Link} from "react-router-dom";
-import {loadPublication} from "./Publication";
+import {loadPublication} from "./api";
 
 class PublicationNavigation extends PureComponent {
     static propTypes = {

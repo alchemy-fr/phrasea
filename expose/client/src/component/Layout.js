@@ -22,12 +22,15 @@ class Layout extends PureComponent {
     }
 
     render() {
+        const {menu, children} = this.props;
+        const {displayMenu} = this.state;
+
         return <div className={'wrapper d-flex align-items-stretch'}>
-            <nav id="sidebar" className={!this.state.displayMenu ? 'hidden' : ''}>
+            <nav id="sidebar" className={!displayMenu ? 'hidden' : ''}>
                 <div className="custom-menu">
                     <button
                         type="button"
-                        onClick={() => this.setState({displayMenu: !this.state.displayMenu})}
+                        onClick={() => this.setState(p => ({displayMenu: !p.displayMenu}))}
                         className="btn btn-primary"
                     >
                         <i className="fa fa-bars"/>
@@ -46,11 +49,11 @@ class Layout extends PureComponent {
                         </h1>
                     </div>
 
-                    {this.props.menu}
+                    {menu}
                 </div>
             </nav>
-            <div className="main-content p-4 p-md-5 pt-5">
-                {this.props.children}
+            <div className={`main-content${displayMenu ? ' menu-open' : ''} p-4 p-md-5 pt-5`}>
+                {children}
             </div>
         </div>
     }

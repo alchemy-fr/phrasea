@@ -1,6 +1,6 @@
 
 #sidebar {
-  $width: 290px;
+  $width: $sidebarWidth;
   min-width: $width;
   max-width: $width;
   background: $secondary;

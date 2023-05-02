@@ -8,6 +8,7 @@ import {getBrowserLanguage} from "./browserLang";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import AssetProxy from "../shared-components/AssetProxy";
 import {Trans} from "react-i18next";
+import {logAssetView} from "../../../lib/log";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -78,6 +79,12 @@ class MapboxLayout extends React.Component {
     componentDidMount() {
         this.initMap();
         window.addEventListener('resize', this.onResize);
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.assetId && prevState.assetId !== this.state.assetId) {
+            logAssetView(this.state.assetId);
+        }
     }
 
     componentWillUnmount() {

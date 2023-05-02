@@ -14,6 +14,7 @@ import {
 import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
+import {logAssetView} from "../../../lib/log";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -43,14 +44,40 @@ class GalleryLayout extends React.Component {
         if (this.props.options.displayMap) {
             this.initMap();
         }
+        this.logView();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevState.currentIndex !== this.state.currentIndex) {
+            this.logView();
+        }
+    }
+
+    logView() {
+        if (null !== this.state.currentIndex) {
+            logAssetView(this.props.data.assets[this.state.currentIndex].id);
+        }
     }
 
     static getDerivedStateFromProps(props, state = {}) {
-        const displayControls = shouldDisplayControl(props, state.currentIndex || 0);
+        let currentIndex = state.currentIndex;
+        const displayControls = shouldDisplayControl(props, currentIndex || 0);
+
+        const {assetId, data: {assets}} = props;
+        if (null === currentIndex && assetId) {
+            currentIndex = assets.findIndex(a => a.id === assetId);
+            if (currentIndex < 0) {
+                currentIndex = assets.findIndex(a => a.slug === assetId);
+                if (currentIndex < 0) {
+                    currentIndex = 0;
+                }
+            }
+        }
 
         return {
             showFullscreenButton: displayControls,
             showPlayButton: displayControls,
+            currentIndex,
         };
     }
 
@@ -137,19 +164,6 @@ class GalleryLayout extends React.Component {
             showPlayButton,
         } = this.state;
 
-        let startIndex = 0;
-        if (currentIndex) {
-            startIndex = currentIndex;
-        } else if (assetId) {
-            startIndex = assets.findIndex(a => a.id === assetId);
-            if (startIndex < 0) {
-                startIndex = assets.findIndex(a => a.slug === assetId);
-                if (startIndex < 0) {
-                    startIndex = 0;
-                }
-            }
-        }
-
         return <div className={`layout-gallery`}>
             {renderDownloadTermsModal.call(this)}
             {renderDownloadViaEmail.call(this)}
@@ -159,7 +173,7 @@ class GalleryLayout extends React.Component {
             {assets.length > 0 ?
                 <ImageGallery
                     ref={this.sliderRef}
-                    startIndex={startIndex}
+                    startIndex={currentIndex || 0}
                     onSlide={this.onSlide}
                     showFullscreenButton={showFullscreenButton}
                     showPlayButton={showPlayButton}
@@ -188,6 +202,8 @@ class GalleryLayout extends React.Component {
     }
 
     renderItem = ({asset, downloadEnabled}) => {
+        const isCurrent = (this.state.currentIndex || 0) === this.props.data.assets.findIndex(a => a.id === asset.id);
+
         return <div className="image-gallery-image layout-asset-container">
             {downloadEnabled && asset.downloadUrl ? <div
                 className="download-btn">
@@ -196,7 +212,10 @@ class GalleryLayout extends React.Component {
                     onDownload={onDownload.bind(this)}
                 />
             </div> : ''}
-            <AssetProxy asset={asset}/>
+            <AssetProxy
+                isCurrent={isCurrent}
+                asset={asset}
+            />
             {asset.description ? <div
                 className="image-gallery-description">
                 <Description descriptionHtml={asset.description}/>

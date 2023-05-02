@@ -9,6 +9,7 @@ export default class AssetProxy extends PureComponent {
         asset: PropTypes.object.isRequired,
         magnifier: PropTypes.bool,
         isCurrent: PropTypes.bool,
+        fluid: PropTypes.bool,
     }
 
     constructor(props) {
@@ -36,7 +37,7 @@ export default class AssetProxy extends PureComponent {
     }
 
     renderContent() {
-        const {asset} = this.props;
+        const {asset, fluid} = this.props;
         const type = asset.mimeType;
 
         switch (true) {
@@ -49,6 +50,7 @@ export default class AssetProxy extends PureComponent {
                     previewUrl={asset.previewUrl}
                     title={asset.title}
                     webVTTLink={asset.webVTTLink}
+                    fluid={fluid}
                 />
             case type.startsWith('image/'):
                 if (this.props.magnifier) {

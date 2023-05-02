@@ -13,4 +13,12 @@
 .main-content {
   flex-grow: 1;
   max-width: 100vw;
+  overflow: hidden;
+  -webkit-transition: all .3s;
+  -o-transition: all .3s;
+  transition: all .3s;
+
+  &.menu-open {
+    max-width: calc(100vw - $sidebarWidth);
+  }
 }

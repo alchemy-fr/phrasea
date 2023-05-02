@@ -12,6 +12,7 @@ export default class VideoPlayer extends PureComponent {
         alt: PropTypes.string,
         onPlay: PropTypes.func,
         webVTTLink: PropTypes.string,
+        fluid: PropTypes.bool,
     };
 
     state = {
@@ -49,11 +50,12 @@ export default class VideoPlayer extends PureComponent {
             return;
         }
 
-        const {url} = this.props;
+        const {url, fluid} = this.props;
 
         this.player = videojs(this.videoRef.current, {
             autoplay: true,
             controls: true,
+            fluid,
             sources: [{
                 src: url,
                 type: 'video/mp4'
@@ -99,7 +101,7 @@ export default class VideoPlayer extends PureComponent {
                                                   default/>}
                         </video>
                     </div>
-                    : <>
+                    : <div className={'video-preview-wrapper'}>
                         <div className='play-button'/>
                         <img src={previewUrl} alt={title}/>
                         {
@@ -110,7 +112,7 @@ export default class VideoPlayer extends PureComponent {
                             <Description descriptionHtml={description}/>
                           </span>
                         }
-                    </>
+                    </div>
             }
         </div>
     }

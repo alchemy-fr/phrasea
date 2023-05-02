@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Listener;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
+use App\Entity\Asset;
 use App\Entity\Publication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,14 +38,19 @@ final class CacheListener implements EventSubscriberInterface
         $request = $event->getRequest();
         $method = $request->getMethod();
 
-        if (!$object instanceof Publication || Request::METHOD_GET !== $method) {
+        if (Request::METHOD_GET !== $method) {
             return;
         }
 
-        if (
-            !$object->isVisible()
-            || Publication::SECURITY_METHOD_NONE !== $object->getSecurityContainer()->getSecurityMethod()
-        ) {
+        if ($object instanceof Publication) {
+            if (!$this->isPublicationCacheable($object)) {
+                return;
+            }
+        } elseif ($object instanceof Asset) {
+            if (!$this->isPublicationCacheable($object->getPublication())) {
+                return;
+            }
+        } else {
             return;
         }
 
@@ -61,6 +67,12 @@ final class CacheListener implements EventSubscriberInterface
             'max_age' => 600,
             'public' => true,
         ]);
+    }
+
+    private function isPublicationCacheable(Publication $publication): bool
+    {
+        return $publication->isVisible()
+            && Publication::SECURITY_METHOD_NONE === $publication->getSecurityContainer()->getSecurityMethod();
     }
 
     public function applyCache(ResponseEvent $event): void

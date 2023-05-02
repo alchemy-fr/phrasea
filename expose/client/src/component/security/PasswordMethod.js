@@ -40,7 +40,7 @@ class PasswordMethod extends PureComponent {
                         type="password"
                     />
                 </div>
-                {error !== 'missing_password' ? <ul className="errors">
+                {error && error !== 'missing_password' ? <ul className="errors">
                     <li>{error}</li>
                 </ul> : ''}
                 <button
