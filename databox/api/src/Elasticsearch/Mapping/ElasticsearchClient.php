@@ -6,7 +6,6 @@ namespace App\Elasticsearch\Mapping;
 
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Exception\AliasIsIndexException;
-use RuntimeException;
 
 class ElasticsearchClient
 {
@@ -48,7 +47,7 @@ class ElasticsearchClient
         }
 
         if (count($aliasedIndexes) > 1) {
-            throw new RuntimeException(sprintf('Alias "%s" is used for multiple indexes: ["%s"]. Make sure it\'s'.'either not used or is assigned to one index only', $aliasName, implode('", "', $aliasedIndexes)));
+            throw new \RuntimeException(sprintf('Alias "%s" is used for multiple indexes: ["%s"]. Make sure it\'seither not used or is assigned to one index only', $aliasName, implode('", "', $aliasedIndexes)));
         }
 
         return array_shift($aliasedIndexes);

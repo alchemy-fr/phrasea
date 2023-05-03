@@ -6,13 +6,13 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
@@ -29,7 +29,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
             ->setHtmlAttributes(['target' => '_blank'])
-            ->linkToUrl(fn(WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
+            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)

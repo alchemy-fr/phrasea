@@ -11,7 +11,6 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Psr7\Header;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 class ImportFileHandler extends AbstractEntityManagerHandler
@@ -47,11 +46,11 @@ class ImportFileHandler extends AbstractEntityManagerHandler
         }
 
         if (!$file->isPathPublic()) {
-            throw new InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
+            throw new \InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
         }
 
         if (File::STORAGE_URL !== $file->getStorage()) {
-            throw new InvalidArgumentException(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
+            throw new \InvalidArgumentException(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
         }
 
         $headers = [];
@@ -76,7 +75,7 @@ class ImportFileHandler extends AbstractEntityManagerHandler
             $src,
             $mimeType,
             $file->getExtension(),
-           null
+            null
         );
 
         $file->setPath($finalPath);

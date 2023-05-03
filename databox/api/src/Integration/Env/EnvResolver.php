@@ -13,8 +13,7 @@ final readonly class EnvResolver
     public function __construct(
         private SecretsManager $secretsManager,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function resolve(string $workspaceId, array $config): array

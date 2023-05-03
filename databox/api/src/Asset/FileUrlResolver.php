@@ -6,7 +6,6 @@ namespace App\Asset;
 
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Core\File;
-use RuntimeException;
 
 class FileUrlResolver
 {
@@ -19,7 +18,7 @@ class FileUrlResolver
         return match ($file->getStorage()) {
             File::STORAGE_S3_MAIN => $this->urlSigner->getSignedUrl($file->getPath()),
             File::STORAGE_URL => $file->getPath(),
-            default => throw new RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage())),
+            default => throw new \RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage())),
         };
     }
 }

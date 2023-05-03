@@ -11,7 +11,6 @@ use App\Integration\AbstractFileAction;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\AssetOperationIntegrationInterface;
 use App\Util\FileUtil;
-use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +59,7 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
                     'url' => $this->fileUrlResolver->resolveUrl($file),
                 ]);
             default:
-                throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
+                throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
     }
 

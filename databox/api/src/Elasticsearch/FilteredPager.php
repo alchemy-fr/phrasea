@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use Closure;
 use Pagerfanta\Adapter\AdapterInterface;
 
 class FilteredPager implements AdapterInterface
 {
-    public function __construct(private readonly Closure $filter, private readonly AdapterInterface $decorated)
+    public function __construct(private readonly \Closure $filter, private readonly AdapterInterface $decorated)
     {
     }
 

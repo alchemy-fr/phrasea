@@ -19,7 +19,6 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint)

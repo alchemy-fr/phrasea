@@ -24,6 +24,7 @@ class AttributeClassVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+
         return match ($attribute) {
             self::CREATE => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
             self::EDIT => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),

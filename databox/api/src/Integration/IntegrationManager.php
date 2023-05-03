@@ -11,7 +11,6 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\NodeInterface;
@@ -27,14 +26,13 @@ class IntegrationManager
         private readonly EntityManagerInterface $em,
         private readonly EventProducer $eventProducer,
         private readonly EnvResolver $envResolver,
-    )
-    {
+    ) {
     }
 
     public function handleAsset(Asset $asset): void
     {
         if (null === $asset->getSource()) {
-            throw new InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
+            throw new \InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
         }
 
         /** @var AssetOperationIntegrationInterface[] $integrations */
@@ -58,7 +56,7 @@ class IntegrationManager
     public function handleAssetIntegration(Asset $asset, WorkspaceIntegration $workspaceIntegration): void
     {
         if (null === $asset->getSource()) {
-            throw new InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
+            throw new \InvalidArgumentException(sprintf('Asset "%s" has no file', $asset->getId()));
         }
 
         $config = $this->getIntegrationConfiguration($workspaceIntegration);
@@ -82,7 +80,7 @@ class IntegrationManager
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
         if (!$integration instanceof FileActionsIntegrationInterface) {
-            throw new InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
+            throw new \InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
         $config = $this->getConfiguration($workspaceIntegration, $integration);
@@ -97,7 +95,7 @@ class IntegrationManager
     {
         $integration = $this->em->find(WorkspaceIntegration::class, $id);
         if (!$integration instanceof WorkspaceIntegration) {
-            throw new InvalidArgumentException(sprintf('Workspace integration "%s" not found', $id));
+            throw new \InvalidArgumentException(sprintf('Workspace integration "%s" not found', $id));
         }
 
         return $integration;

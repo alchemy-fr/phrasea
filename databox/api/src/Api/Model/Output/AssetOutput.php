@@ -11,7 +11,6 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
-use DateTimeImmutable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -45,12 +44,14 @@ class AssetOutput extends AbstractUuidOutput
      *     }
      * }
      * })
+     *
      * @Groups({"asset:index", "asset:read"})
      */
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
+     *
      * @Groups({"asset:index", "asset:read"})
      */
     protected ?array $attributes;
@@ -127,15 +128,17 @@ class AssetOutput extends AbstractUuidOutput
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"dates"})
      */
-    private DateTimeImmutable $editedAt;
+    private \DateTimeImmutable $editedAt;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"dates"})
      */
-    private DateTimeImmutable $attributesEditedAt;
+    private \DateTimeImmutable $attributesEditedAt;
 
     /**
      * Used for result grouping.
@@ -287,22 +290,22 @@ class AssetOutput extends AbstractUuidOutput
         $this->source = $source;
     }
 
-    public function getEditedAt(): DateTimeImmutable
+    public function getEditedAt(): \DateTimeImmutable
     {
         return $this->editedAt;
     }
 
-    public function setEditedAt(DateTimeImmutable $editedAt): void
+    public function setEditedAt(\DateTimeImmutable $editedAt): void
     {
         $this->editedAt = $editedAt;
     }
 
-    public function getAttributesEditedAt(): DateTimeImmutable
+    public function getAttributesEditedAt(): \DateTimeImmutable
     {
         return $this->attributesEditedAt;
     }
 
-    public function setAttributesEditedAt(DateTimeImmutable $attributesEditedAt): void
+    public function setAttributesEditedAt(\DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
     }

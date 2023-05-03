@@ -25,6 +25,7 @@ class AssetFileVersion extends AbstractUuidEntity
     /**
      * @ORM\ManyToOne(targetEntity=Asset::class)
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"assetfileversion:index"})
      */
     private ?Asset $asset = null;
@@ -32,6 +33,7 @@ class AssetFileVersion extends AbstractUuidEntity
     /**
      * @ORM\ManyToOne(targetEntity=File::class)
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"assetfileversion:index"})
      */
     private ?File $file = null;

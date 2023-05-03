@@ -75,7 +75,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = fn(RenditionClass $class): RenditionClass => $classMap[$class->getId()];
+        $replace = fn (RenditionClass $class): RenditionClass => $classMap[$class->getId()];
         foreach ($items as $item) {
             $i = new RenditionRule();
             $i->setObjectType(RenditionRule::TYPE_WORKSPACE);
@@ -109,7 +109,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = fn(Tag $t): Tag => $map[$t->getId()];
+        $replace = fn (Tag $t): Tag => $map[$t->getId()];
         foreach ($items as $item) {
             $i = new TagFilterRule();
             $i->setExclude($item->getExclude()->map($replace));

@@ -7,7 +7,6 @@ namespace App\Controller\Core;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -34,7 +33,7 @@ abstract class AbstractSortAction extends AbstractController
             throw new NotFoundHttpException(sprintf('%s %s not found', $class, $ids[0]));
         }
         if (!method_exists($firstItem, 'getWorkspace')) {
-            throw new RuntimeException(sprintf('Class %s must implement getWorkspace method to be sortable', $class));
+            throw new \RuntimeException(sprintf('Class %s must implement getWorkspace method to be sortable', $class));
         }
 
         /** @var Workspace $workspace */

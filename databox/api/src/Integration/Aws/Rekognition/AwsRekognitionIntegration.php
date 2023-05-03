@@ -18,7 +18,6 @@ use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Util\FileUtil;
-use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -114,16 +113,16 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
         $result = $this->analyze($asset->getSource(), $config, $categories);
 
         if (!empty($result['labels']) && !empty($config['labels']['attributes'] ?? [])) {
-            $this->saveTextsToAttributes($asset, array_map(fn(array $text): array => [
+            $this->saveTextsToAttributes($asset, array_map(fn (array $text): array => [
                 'value' => $text['Name'],
                 'confidence' => $text['Confidence'],
             ], $result['labels']['Labels']), $config['labels']['attributes']);
         }
         if (!empty($result['texts']) && !empty($config['texts']['attributes'] ?? [])) {
-            $this->saveTextsToAttributes($asset, array_map(fn(array $text): array => [
+            $this->saveTextsToAttributes($asset, array_map(fn (array $text): array => [
                 'value' => $text['DetectedText'],
                 'confidence' => $text['Confidence'],
-            ], array_filter($result['texts']['TextDetections'], fn(array $text): bool => 'LINE' === $text['Type'])), $config['texts']['attributes']);
+            ], array_filter($result['texts']['TextDetections'], fn (array $text): bool => 'LINE' === $text['Type'])), $config['texts']['attributes']);
         }
     }
 
@@ -133,7 +132,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
             $attrDef = $this->batchAttributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name']);
             $threshold = $attrConfig['threshold'] ?? null;
             if (!$attrDef->isMultiple()) {
-                throw new InvalidArgumentException(sprintf('Attribute "%s" must be multi-valued', $attrDef->getId()));
+                throw new \InvalidArgumentException(sprintf('Attribute "%s" must be multi-valued', $attrDef->getId()));
             }
 
             $input = new AssetAttributeBatchUpdateInput();
@@ -174,7 +173,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
 
                 return new JsonResponse($payload);
             default:
-                throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
+                throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
     }
 

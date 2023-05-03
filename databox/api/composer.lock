@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aad32a6a3940f0b1a702bf64c40cdcea",
+    "content-hash": "ed407c000c1814e62d921d1a29b7bbd8",
     "packages": [
         {
             "name": "alchemy/acl-bundle",

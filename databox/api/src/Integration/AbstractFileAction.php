@@ -11,7 +11,6 @@ use App\Entity\Integration\IntegrationData;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -45,7 +44,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
 
         $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
-            throw new InvalidArgumentException('Missing or invalid file');
+            throw new \InvalidArgumentException('Missing or invalid file');
         }
 
         return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);

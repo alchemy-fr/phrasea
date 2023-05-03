@@ -24,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\Core\TagFilterRuleRepository")
+ *
  * @ApiResource(
  *  shortName="tag-filter-rule",
  *  attributes={"security"="is_granted('ROLE_USER')"},

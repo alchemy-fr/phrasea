@@ -89,7 +89,7 @@ final class CollectionFacet extends AbstractFacet
         array_shift($ids);
 
         /** @var Collection[] $collections */
-        $collections = array_filter(array_map(fn(string $id): ?Collection => $this->em->find(Collection::class, $id), $ids));
+        $collections = array_filter(array_map(fn (string $id): ?Collection => $this->em->find(Collection::class, $id), $ids));
 
         if (empty($collections) || count($collections) < count($ids)) {
             return null;
@@ -99,6 +99,6 @@ final class CollectionFacet extends AbstractFacet
             return null;
         }
 
-        return implode(' / ', array_map(fn(Collection $c): ?string => $c->getTitle() ?? $c->getId(), $collections));
+        return implode(' / ', array_map(fn (Collection $c): ?string => $c->getTitle() ?? $c->getId(), $collections));
     }
 }

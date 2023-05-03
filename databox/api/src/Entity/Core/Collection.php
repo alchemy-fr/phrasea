@@ -30,8 +30,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
+ *
  * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
+ *
  * @ApiResource()
  */
 class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
@@ -56,6 +58,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
      * @ORM\JoinColumn(nullable=true)
+     *
      * @MaxDepth(1)
      */
     private ?self $parent = null;
@@ -65,6 +68,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
      *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent")
      * @ORM\JoinColumn(nullable=true)
+     *
      * @MaxDepth(1)
      */
     private ?DoctrineCollection $children = null;
@@ -87,6 +91,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;

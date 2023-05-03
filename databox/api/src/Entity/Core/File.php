@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ *
  * @ApiResource()
  */
 class File extends AbstractUuidEntity implements \Stringable
@@ -29,6 +30,7 @@ class File extends AbstractUuidEntity implements \Stringable
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;

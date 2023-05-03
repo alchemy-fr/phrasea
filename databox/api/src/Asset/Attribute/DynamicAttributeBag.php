@@ -6,14 +6,13 @@ namespace App\Asset\Attribute;
 
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 
 class DynamicAttributeBag
 {
     private $resolve;
 
     /**
-     * @param array<string, \App\Entity\Core\Attribute> $attributes
+     * @param array<string, \App\Entity\Core\Attribute>           $attributes
      * @param array<string, \App\Entity\Core\AttributeDefinition> $definitions
      */
     public function __construct(

@@ -18,7 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
-use InvalidArgumentException;
 
 class AttributeSearch
 {
@@ -201,7 +200,7 @@ class AttributeSearch
         $language = $options['locale'] ?? '*';
         $position = $options['context']['position'] ?? null;
 
-        $facetTypes = array_map(fn(AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn(AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
+        $facetTypes = array_map(fn (AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn (AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
 
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
@@ -258,7 +257,7 @@ class AttributeSearch
                     if (!$position) {
                         continue 2;
                     }
-                    $geoPoint = array_map(fn(string $c): float => (float) $c, explode(',', (string) $position));
+                    $geoPoint = array_map(fn (string $c): float => (float) $c, explode(',', (string) $position));
                     $agg = new Aggregation\GeoDistance(
                         $fieldName,
                         $fullFieldName,
@@ -287,7 +286,7 @@ class AttributeSearch
                     $agg->setParam('ranges', $ranges);
                     break;
                 default:
-                    throw new InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
+                    throw new \InvalidArgumentException(sprintf('Unsupported facet type "%s"', $type->getFacetType()));
             }
 
             $agg->setMeta($meta);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Search;
 
 use App\Attribute\Type\DateTimeAttributeType;
-use DateTimeImmutable;
 
 class AssetSearchTest extends AbstractSearchTest
 {
@@ -102,7 +101,7 @@ class AssetSearchTest extends AbstractSearchTest
                 ],
                 [
                     'definition' => $dateDefinition,
-                    'value' => new DateTimeImmutable('2021-11-29T13:15:19'),
+                    'value' => new \DateTimeImmutable('2021-11-29T13:15:19'),
                 ],
             ],
             'no_flush' => true,
@@ -130,7 +129,7 @@ class AssetSearchTest extends AbstractSearchTest
                 ],
                 [
                     'definition' => $dateDefinition,
-                    'value' => new DateTimeImmutable('2009-05-19T13:15:19'),
+                    'value' => new \DateTimeImmutable('2009-05-19T13:15:19'),
                 ],
             ],
             'no_flush' => true,
@@ -158,7 +157,7 @@ class AssetSearchTest extends AbstractSearchTest
                 ],
                 [
                     'definition' => $dateDefinition,
-                    'value' => new DateTimeImmutable('2008-07-12'),
+                    'value' => new \DateTimeImmutable('2008-07-12'),
                 ],
             ],
             'no_flush' => true,

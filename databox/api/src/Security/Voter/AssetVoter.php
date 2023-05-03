@@ -44,7 +44,7 @@ class AssetVoter extends AbstractVoter
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || $this->collectionGrantsAccess($subject)
-                    ;
+                ;
             case self::EDIT:
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)

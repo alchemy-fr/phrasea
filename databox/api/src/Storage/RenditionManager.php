@@ -11,7 +11,6 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
-use InvalidArgumentException;
 
 class RenditionManager
 {
@@ -109,7 +108,7 @@ class RenditionManager
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
-            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
         }
 
         return $definition;

@@ -16,7 +16,7 @@ class WorkspaceRepository extends EntityRepository
      */
     public function getPublicWorkspaceIds(): array
     {
-        return array_map(fn(array $row): string => (string) $row['id'], $this
+        return array_map(fn (array $row): string => (string) $row['id'], $this
             ->createQueryBuilder('w')
             ->select('w.id')
             ->andWhere('w.public = true')
@@ -30,7 +30,7 @@ class WorkspaceRepository extends EntityRepository
      */
     public function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
-        return array_map(fn(array $row): string => (string) $row['id'], $this
+        return array_map(fn (array $row): string => (string) $row['id'], $this
             ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)
             ->select('w.id')
             ->getQuery()

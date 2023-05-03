@@ -32,7 +32,7 @@ class JobStateCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         $retry = Action::new('retryJob', 'Retry job', 'fas fa-wrench')
-            ->displayIf(fn (JobState $entity) => $entity->getStatus() === \Alchemy\Workflow\State\JobState::STATUS_FAILURE)
+            ->displayIf(fn (JobState $entity) => \Alchemy\Workflow\State\JobState::STATUS_FAILURE === $entity->getStatus())
             ->linkToCrudAction('retryJob');
 
         return parent::configureActions($actions)

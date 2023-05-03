@@ -19,6 +19,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_integration_key",columns={"workspace_id", "title", "integration"})})
+ *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 class WorkspaceIntegration extends AbstractUuidEntity
@@ -29,18 +30,21 @@ class WorkspaceIntegration extends AbstractUuidEntity
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
+     *
      * @Groups({"integration:index"})
      */
     private ?string $title = null;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
+     *
      * @Groups({"integration:index"})
      */
     private ?string $integration = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
+     *
      * @Groups({"integration:index"})
      */
     private bool $enabled = true;

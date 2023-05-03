@@ -10,8 +10,7 @@ final readonly class SecretsManager
         private EncryptionManager $encryptionManager,
         private string $secretKey,
         private string $publicKey,
-    )
-    {
+    ) {
     }
 
     public function encryptSecret(string $secret): string

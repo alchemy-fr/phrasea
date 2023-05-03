@@ -47,7 +47,7 @@ final readonly class FacetHandler
 
             if ($facet) {
                 try {
-                    $f['buckets'] = array_values(array_filter(array_map(fn(array $bucket): ?array => $facet->normalizeBucket($bucket), $f['buckets']), fn($value): bool => null !== $value));
+                    $f['buckets'] = array_values(array_filter(array_map(fn (array $bucket): ?array => $facet->normalizeBucket($bucket), $f['buckets']), fn ($value): bool => null !== $value));
                 } catch (\Throwable $e) {
                     throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $facet::getKey(), $e->getMessage()), 0, $e);
                 }
@@ -55,7 +55,7 @@ final readonly class FacetHandler
 
             $type = $this->attributeTypeRegistry->getStrictType($f['meta']['type'] ?? TextAttributeType::NAME);
             try {
-                $f['buckets'] = array_values(array_filter(array_map(fn(array $bucket): ?array => $type->normalizeBucket($bucket), $f['buckets']), fn($value): bool => null !== $value));
+                $f['buckets'] = array_values(array_filter(array_map(fn (array $bucket): ?array => $type->normalizeBucket($bucket), $f['buckets']), fn ($value): bool => null !== $value));
             } catch (\Throwable $e) {
                 throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $facet::getKey(), $e->getMessage()), 0, $e);
             }

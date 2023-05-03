@@ -77,7 +77,7 @@ class AttributesResolver
         unset($attributes);
 
         if ($applyPermissions) {
-            $disallowedDefinitions = array_filter($disallowedDefinitions, fn(bool $v): bool => $v);
+            $disallowedDefinitions = array_filter($disallowedDefinitions, fn (bool $v): bool => $v);
             $groupedByDef = array_diff_key($groupedByDef, $disallowedDefinitions);
         }
 

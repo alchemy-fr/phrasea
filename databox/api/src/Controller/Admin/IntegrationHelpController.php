@@ -22,7 +22,7 @@ class IntegrationHelpController extends AbstractController
      */
     public function __invoke(): Response
     {
-        $integrations = array_map(fn(IntegrationInterface $integration): array => [
+        $integrations = array_map(fn (IntegrationInterface $integration): array => [
             'name' => $integration::getName(),
             'title' => $integration::getTitle(),
             'reference' => $this->integrationManager->getIntegrationReference($integration),

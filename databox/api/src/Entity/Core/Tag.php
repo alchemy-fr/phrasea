@@ -20,12 +20,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="ws_name_uniq",columns={"workspace_id", "name"})})
+ *
  * @ApiResource(
  *  shortName="tag",
  *  normalizationContext={"groups"={"_", "tag:index"}},
  *  output=TagOutput::class,
  *  input=false
  * )
+ *
  * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
  */
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
@@ -50,6 +52,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;

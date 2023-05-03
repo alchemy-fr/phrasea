@@ -26,8 +26,7 @@ class ExportAction extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly RenditionPermissionManager $renditionPermissionManager,
-    )
-    {
+    ) {
     }
 
     public function __invoke(Export $data, Request $request): Export

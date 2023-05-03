@@ -11,7 +11,6 @@ use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 
 readonly class AssetManager
 {
@@ -27,7 +26,7 @@ readonly class AssetManager
     public function assignNewAssetSourceFile(Asset $asset, File $file, ?array $formData = [], ?string $locale = null): void
     {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
-            throw new InvalidArgumentException('Asset and File are not in the same workspace');
+            throw new \InvalidArgumentException('Asset and File are not in the same workspace');
         }
 
         $asset->setSource($file);

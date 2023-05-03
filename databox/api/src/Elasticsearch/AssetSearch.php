@@ -46,7 +46,7 @@ class AssetSearch extends AbstractSearch
         }
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
-            $paths = array_map(fn(Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
+            $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
@@ -59,7 +59,7 @@ class AssetSearch extends AbstractSearch
             if (is_string($attrFilters)) {
                 $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
             } else {
-                $attrFilters = array_map(fn($f): array => is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f, $attrFilters);
+                $attrFilters = array_map(fn ($f): array => is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f, $attrFilters);
             }
             if (!empty($attrFilters)) {
                 $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
@@ -137,7 +137,7 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn(Asset $asset): bool => $this->security->isGranted(AssetVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AssetVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage((int) $options['page']);

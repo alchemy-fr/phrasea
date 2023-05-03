@@ -32,6 +32,7 @@ class RenditionVoter extends AbstractVoter
             $userId = $user->getId();
             $groupIds = $user->getGroupIds();
         }
+
         return match ($attribute) {
             self::READ => $this->renditionPermissionManager->isGranted(
                 $subject->getAsset(),

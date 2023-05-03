@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
+ *
  * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
  */
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface

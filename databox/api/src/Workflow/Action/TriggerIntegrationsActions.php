@@ -16,8 +16,7 @@ readonly class TriggerIntegrationsActions implements ActionInterface
     public function __construct(
         private IntegrationManager $integrationManager,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void

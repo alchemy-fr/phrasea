@@ -6,7 +6,6 @@ namespace App\External;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Middleware;
-use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 
 class PhraseanetApiClientFactory
@@ -18,7 +17,7 @@ class PhraseanetApiClientFactory
     public function create(string $baseUri, string $oauthToken): Client
     {
         if (empty($oauthToken)) {
-            throw new InvalidArgumentException('Phraseanet token is empty');
+            throw new \InvalidArgumentException('Phraseanet token is empty');
         }
 
         $options = array_merge($this->options, [
@@ -28,7 +27,7 @@ class PhraseanetApiClientFactory
         $client = new Client($options);
 
         $handler = $client->getConfig('handler');
-        $handler->unshift(Middleware::mapRequest(fn(RequestInterface $request): RequestInterface => $request
+        $handler->unshift(Middleware::mapRequest(fn (RequestInterface $request): RequestInterface => $request
             ->withAddedHeader('Authorization', 'OAuth '.$oauthToken)));
 
         return $client;

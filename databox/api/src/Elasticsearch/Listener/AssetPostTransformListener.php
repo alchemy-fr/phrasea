@@ -139,7 +139,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 if ($definition->isMultiple()) {
                     $v = $a->getValues();
                     if (!empty($v)) {
-                        $v = array_map(fn(string $v): string => $type->normalizeElasticsearchValue($v), $v);
+                        $v = array_map(fn (string $v): string => $type->normalizeElasticsearchValue($v), $v);
                     }
                 } else {
                     $v = $a->getValue();

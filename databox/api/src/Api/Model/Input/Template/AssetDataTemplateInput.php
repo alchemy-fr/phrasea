@@ -27,6 +27,7 @@ class AssetDataTemplateInput extends AbstractOwnerIdInput
 
     /**
      * @var Workspace
+     *
      * @Assert\NotNull()
      */
     public $workspace = null;

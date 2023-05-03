@@ -129,7 +129,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
-        // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
             static::getContainer()->get('doctrine')->getRepository(Asset::class)->findOneBy(['key' => 'foo'])
         );
     }

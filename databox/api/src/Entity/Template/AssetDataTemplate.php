@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity()
  * @ORM\Table()
+ *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
@@ -38,12 +39,14 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
+     *
      * @Groups({"asset-data-template:read"})
      */
     private bool $public = false;
 
     /**
      * @ORM\Column(type="string", length=36)
+     *
      * @Groups({"asset-data-template:read"})
      */
     private ?string $ownerId = null;
@@ -52,19 +55,23 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
      * Asset title.
      *
      * @ORM\Column(type="string", length=255, nullable=true)
+     *
      * @Groups({"asset-data-template:read"})
      */
     private ?string $title = null;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
+     *
      * @Groups({"asset-data-template:read"})
      */
     private ?DoctrineCollection $tags = null;
 
     /**
      * @var TemplateAttribute[]
+     *
      * @ORM\OneToMany(targetEntity=TemplateAttribute::class, mappedBy="template", cascade={"persist", "remove"})
+     *
      * @Groups({"asset-data-template:read"})
      */
     private ?DoctrineCollection $attributes = null;

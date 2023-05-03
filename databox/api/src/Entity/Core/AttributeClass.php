@@ -32,30 +32,35 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 
     /**
      * @Groups({"attributeclass:index", "attributedef:index", "attributedef:read"})
+     *
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
 
     /**
      * @Groups({"attributeclass:index"})
+     *
      * @ORM\Column(type="boolean")
      */
     private ?bool $editable = null;
 
     /**
      * @Groups({"attributeclass:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private ?bool $public = null;
 
     /**
      * @var AttributeDefinition[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="class", cascade={"remove"})
      */
     protected ?DoctrineCollection $definitions = null;

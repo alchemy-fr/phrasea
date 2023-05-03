@@ -21,8 +21,7 @@ class AlternateUrlOutput extends AbstractUuidOutput
          * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
          */
         private readonly ?string $label = null
-    )
-    {
+    ) {
     }
 
     public function getUrl(): string

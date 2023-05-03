@@ -14,11 +14,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AssetVoter;
-use DateTimeImmutable;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Security;
@@ -44,7 +42,7 @@ class BatchAttributeManager
         /** @var Asset $assetOne */
         $assetOne = $this->em->getRepository(Asset::class)->find($firstId);
         if (!$assetOne instanceof Asset) {
-            throw new InvalidArgumentException(sprintf('Asset "%s" not found', $firstId));
+            throw new \InvalidArgumentException(sprintf('Asset "%s" not found', $firstId));
         }
 
         $workspaceId = $assetOne->getWorkspaceId();
@@ -59,7 +57,7 @@ class BatchAttributeManager
             ->getResult();
 
         if ((is_countable($assets) ? count($assets) : 0) !== count($assetsId)) {
-            throw new InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
+            throw new \InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
         }
 
         foreach ($assets as $asset) {
@@ -231,7 +229,7 @@ class BatchAttributeManager
                         $qb->getQuery()->execute();
                         break;
                     default:
-                        throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action->action));
+                        throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action->action));
                 }
             }
 
@@ -240,7 +238,7 @@ class BatchAttributeManager
                 ->from(Asset::class, 't')
                 ->set('t.attributesEditedAt', ':now')
                 ->andWhere('t.id IN (:ids)')
-                ->setParameter('now', new DateTimeImmutable())
+                ->setParameter('now', new \DateTimeImmutable())
                 ->setParameter('ids', $assetsId)
                 ->getQuery()
                 ->execute()
@@ -262,7 +260,7 @@ class BatchAttributeManager
         AttributeActionInput $action
     ): void {
         if (null !== $attribute && count($assetsId) > 1) {
-            throw new InvalidArgumentException('Attribute update is provided with many assets ID');
+            throw new \InvalidArgumentException('Attribute update is provided with many assets ID');
         }
 
         foreach ($assetsId as $assetId) {

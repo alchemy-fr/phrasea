@@ -25,8 +25,7 @@ class GroupValue
          * @Groups({"_"})
          */
         private readonly array $values
-    )
-    {
+    ) {
     }
 
     public function getType(): string

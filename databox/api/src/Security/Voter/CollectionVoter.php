@@ -37,6 +37,7 @@ class CollectionVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
+
         return match ($attribute) {
             self::CREATE => $subject->getParent() ? $this->security->isGranted(CollectionVoter::EDIT, $subject->getParent())
                 : $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace()),

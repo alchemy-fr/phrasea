@@ -16,8 +16,6 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Throwable;
 
 class WorkspaceDelete
 {
@@ -29,10 +27,10 @@ class WorkspaceDelete
     {
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
         }
         if (null === $workspace->getDeletedAt()) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
         }
 
         $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
@@ -83,7 +81,7 @@ class WorkspaceDelete
             $this->em->remove($workspace);
             $this->em->flush();
             $this->em->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;
         } finally {

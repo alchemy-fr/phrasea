@@ -9,8 +9,7 @@ final class SodiumKeyPair
     public function __construct(
         private readonly string $public,
         private readonly string $secret,
-    )
-    {
+    ) {
     }
 
     public function getPublic(): string
@@ -22,5 +21,4 @@ final class SodiumKeyPair
     {
         return $this->secret;
     }
-
 }

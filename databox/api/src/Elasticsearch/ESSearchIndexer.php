@@ -17,7 +17,6 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 class ESSearchIndexer
 {
@@ -185,7 +184,7 @@ class ESSearchIndexer
             ++$i;
 
             if ($i++ > 100) {
-                throw new RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
+                throw new \RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
             }
         }
     }

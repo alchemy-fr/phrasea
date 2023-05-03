@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionAssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_asset",columns={"collection_id", "asset_id"})})
+ *
  * @ApiResource()
  */
 class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface, \Stringable

@@ -18,8 +18,7 @@ readonly class InitializeAttributesAction implements ActionInterface
     public function __construct(
         private InitialAttributeValuesResolver $initialValueResolver,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void

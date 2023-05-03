@@ -10,7 +10,6 @@ use App\Workspace\WorkspaceDuplicateManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 
 class FlushWorkspaceAction extends AbstractController
 {
@@ -40,7 +39,7 @@ class FlushWorkspaceAction extends AbstractController
             $this->em->remove($workspace);
             $this->em->flush();
             $this->em->commit();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->em->rollback();
             throw $exception;
         }

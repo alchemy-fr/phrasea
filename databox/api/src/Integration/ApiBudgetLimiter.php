@@ -19,7 +19,7 @@ class ApiBudgetLimiter
         'no_limit',
     ];
 
-    public function __construct(private readonly StorageInterface $storage, private readonly ?\Symfony\Component\Lock\LockFactory $lockFactory = null)
+    public function __construct(private readonly StorageInterface $storage, private readonly ?LockFactory $lockFactory = null)
     {
     }
 

@@ -6,7 +6,6 @@ namespace App\Elasticsearch\Facet;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
-use LogicException;
 
 final class RenditionFacet extends AbstractEntityFacet
 {
@@ -35,7 +34,7 @@ final class RenditionFacet extends AbstractEntityFacet
 
     public function getValueFromAsset(Asset $asset): never
     {
-        throw new LogicException('Should never be called');
+        throw new \LogicException('Should never be called');
     }
 
     protected function getAggregationTitle(): string

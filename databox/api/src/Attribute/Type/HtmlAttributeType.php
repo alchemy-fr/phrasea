@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use HTMLPurifier;
-
 class HtmlAttributeType extends CodeAttributeType
 {
-    public function __construct(private readonly HTMLPurifier $HTMLPurifier)
+    public function __construct(private readonly \HTMLPurifier $HTMLPurifier)
     {
     }
 

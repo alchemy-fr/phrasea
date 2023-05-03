@@ -36,6 +36,7 @@ class WorkspaceVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $subject->getOwnerId() === $userId;
+
         return match ($attribute) {
             self::READ => $isOwner
                 || $subject->isPublic()

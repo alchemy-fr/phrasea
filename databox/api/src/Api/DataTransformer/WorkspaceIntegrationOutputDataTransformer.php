@@ -13,7 +13,6 @@ use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
-use InvalidArgumentException;
 
 class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -43,7 +42,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         if (null !== $fileId) {
             $file = $this->em->getRepository(File::class)->find($fileId);
             if (!$file instanceof File) {
-                throw new InvalidArgumentException(sprintf('File "%s" not found', $fileId));
+                throw new \InvalidArgumentException(sprintf('File "%s" not found', $fileId));
             }
         }
 

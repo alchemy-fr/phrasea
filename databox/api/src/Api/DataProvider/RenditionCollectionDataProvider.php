@@ -22,7 +22,7 @@ class RenditionCollectionDataProvider extends AbstractAssetFilteredCollectionDat
             ->getQuery()
             ->getResult();
 
-        return array_filter($renditions, fn(AssetRendition $rendition): bool => $this->security->isGranted(RenditionVoter::READ, $rendition));
+        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(RenditionVoter::READ, $rendition));
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

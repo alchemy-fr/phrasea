@@ -19,6 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
+ *
  * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
@@ -64,36 +65,42 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     /**
      * @var Collection[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      */
     protected ?DoctrineCollection $collections = null;
 
     /**
      * @var Tag[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace")
      */
     protected ?DoctrineCollection $tags = null;
 
     /**
      * @var RenditionClass[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace")
      */
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
      * @var RenditionDefinition[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace")
      */
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace")
      */
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace")
      */
     protected ?DoctrineCollection $files = null;

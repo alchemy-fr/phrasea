@@ -15,6 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRenditionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_representation",columns={"definition_id", "asset_id"})})
+ *
  * @ApiResource()
  */
 class AssetRendition extends AbstractUuidEntity
@@ -24,6 +25,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @Groups({"rendition:index", "rendition:read"})
+     *
      * @ORM\ManyToOne(targetEntity="RenditionDefinition", inversedBy="renditions")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -31,6 +33,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @Groups({"rendition:index", "rendition:read"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="renditions")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -38,6 +41,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
      * @ORM\JoinColumn(nullable=true)
      */
@@ -76,6 +80,7 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
      */
     public function getName(): string

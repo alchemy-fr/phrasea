@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
-use App\Entity\Core\Asset;
-use App\Entity\Core\AssetFileVersion;
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Security\Secrets\SecretsManager;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
@@ -19,8 +15,7 @@ final readonly class SecretListener implements EventSubscriber
 {
     public function __construct(
         private SecretsManager $secretsManager
-    )
-    {
+    ) {
     }
 
     public function prePersist(PrePersistEventArgs $args): void

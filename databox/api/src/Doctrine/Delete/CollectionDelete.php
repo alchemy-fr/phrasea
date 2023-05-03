@@ -11,8 +11,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Throwable;
 
 class CollectionDelete
 {
@@ -25,10 +23,10 @@ class CollectionDelete
         if (!$isChildProcess) {
             $collection = $this->em->find(Collection::class, $collectionId);
             if (!$collection instanceof Collection) {
-                throw new InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+                throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
             }
             if (null === $collection->getDeletedAt()) {
-                throw new InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
+                throw new \InvalidArgumentException(sprintf('Collection "%s" is not marked as deleted', $collection->getId()));
             }
 
             $this->indexCleaner->removeCollectionFromIndex($collectionId);
@@ -45,7 +43,7 @@ class CollectionDelete
             try {
                 $this->doDelete($collectionId);
                 $this->em->commit();
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->em->rollback();
                 throw $e;
             } finally {

@@ -163,7 +163,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
             $config['workspaceId'],
             [$assetId],
             $input,
-        null
+            null
         );
     }
 

@@ -8,7 +8,6 @@ use App\External\PhraseanetApiClientFactory;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use InvalidArgumentException;
 
 class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
 {
@@ -30,7 +29,7 @@ class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
     public function shiftHistory(): array
     {
         if (empty($this->container)) {
-            throw new InvalidArgumentException('History is empty');
+            throw new \InvalidArgumentException('History is empty');
         }
 
         return array_shift($this->container);

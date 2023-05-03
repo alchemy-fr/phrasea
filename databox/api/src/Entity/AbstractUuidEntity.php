@@ -15,6 +15,7 @@ abstract class AbstractUuidEntity
 {
     /**
      * @Groups({"_"})
+     *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */

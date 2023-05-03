@@ -51,7 +51,6 @@ abstract class AbstractFacet implements FacetInterface
     /**
      * Returns the object containing necessary properties for client display.
      *
-     *
      * @return object|null
      */
     protected function resolveItem(mixed $value)

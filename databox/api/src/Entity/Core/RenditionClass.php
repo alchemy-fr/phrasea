@@ -28,24 +28,28 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionClasses")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 
     /**
      * @Groups({"rendclass:index", "rendclass:read"})
+     *
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
 
     /**
      * @Groups({"rendclass:index", "rendclass:read"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $public = false;
 
     /**
      * @var RenditionDefinition[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="class", cascade={"remove"})
      */
     protected ?DoctrineCollection $definitions = null;

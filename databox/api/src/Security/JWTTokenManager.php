@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use DateInterval;
-use DateTimeImmutable;
-use DateTimeZone;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -26,8 +23,8 @@ class JWTTokenManager
         $config = $this->getConfig();
         $token = $config->builder()
             ->identifiedBy($string)
-            ->issuedAt(new DateTimeImmutable())
-            ->expiresAt((new DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
+            ->issuedAt(new \DateTimeImmutable())
+            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
             ->getToken($config->signer(), $config->signingKey());
 
         return $token->toString();
@@ -41,8 +38,8 @@ class JWTTokenManager
 
         $config->setValidationConstraints(
             new Constraint\LooseValidAt(
-                new SystemClock(new DateTimeZone('UTC')),
-                new DateInterval('PT30S')
+                new SystemClock(new \DateTimeZone('UTC')),
+                new \DateInterval('PT30S')
             ),
             new Constraint\IdentifiedBy($string),
         );

@@ -6,13 +6,12 @@ namespace App\Tests\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\HtmlAttributeType;
-use HTMLPurifier;
 
 class HtmlAttributeTypeTest extends AbstractAttributeTypeTest
 {
     protected function getType(): AttributeTypeInterface
     {
-        return new HtmlAttributeType(new HTMLPurifier());
+        return new HtmlAttributeType(new \HTMLPurifier());
     }
 
     public function getNormalizationCases(): array

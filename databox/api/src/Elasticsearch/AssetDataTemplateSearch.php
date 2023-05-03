@@ -92,7 +92,7 @@ class AssetDataTemplateSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn(AssetDataTemplate $template): bool => $this->security->isGranted(AbstractVoter::READ, $template), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (AssetDataTemplate $template): bool => $this->security->isGranted(AbstractVoter::READ, $template), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($filters['page'] ?? false) {
             $result->setCurrentPage((int) $filters['page']);

@@ -42,8 +42,8 @@ class TagFilterManager
         $filter->setObjectType($objectType);
         $filter->setObjectId($objectId);
 
-        $filter->setInclude(array_map(fn(string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $include));
-        $filter->setExclude(array_map(fn(string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $exclude));
+        $filter->setInclude(array_map(fn (string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $include));
+        $filter->setExclude(array_map(fn (string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $exclude));
 
         $this->em->persist($filter);
         $this->em->flush();
@@ -93,8 +93,8 @@ class TagFilterManager
         $exclude = [];
 
         foreach ($rules as $rule) {
-            $include = [...$include, ...$rule->getInclude()->map(fn(Tag $tag): string => $tag->getId())->getValues()];
-            $exclude = [...$exclude, ...$rule->getExclude()->map(fn(Tag $tag): string => $tag->getId())->getValues()];
+            $include = [...$include, ...$rule->getInclude()->map(fn (Tag $tag): string => $tag->getId())->getValues()];
+            $exclude = [...$exclude, ...$rule->getExclude()->map(fn (Tag $tag): string => $tag->getId())->getValues()];
         }
 
         return [

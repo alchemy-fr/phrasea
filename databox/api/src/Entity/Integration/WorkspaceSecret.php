@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Entity\Integration;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_key",columns={"workspace_id", "name"})})
+ *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 class WorkspaceSecret extends AbstractUuidEntity
@@ -26,6 +27,7 @@ class WorkspaceSecret extends AbstractUuidEntity
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
+     *
      * @Groups({"secret:index"})
      */
     private ?string $name = null;

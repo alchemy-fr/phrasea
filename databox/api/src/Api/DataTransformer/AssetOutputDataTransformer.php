@@ -135,8 +135,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             }
         }
 
-        $output->setCollections($object->getCollections()->map(fn(CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection())
-            ->filter(fn(Collection $collection): bool => $this->isGranted(CollectionVoter::LIST, $collection))
+        $output->setCollections($object->getCollections()->map(fn (CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection())
+            ->filter(fn (Collection $collection): bool => $this->isGranted(CollectionVoter::LIST, $collection))
             ->getValues());
 
         if (null !== $object->getPendingUploadToken()) {

@@ -7,7 +7,6 @@ namespace App\Asset\Attribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -72,8 +71,8 @@ class FallbackResolver
                 ]);
 
                 $attribute = new Attribute();
-                $attribute->setCreatedAt(new DateTimeImmutable());
-                $attribute->setUpdatedAt(new DateTimeImmutable());
+                $attribute->setCreatedAt(new \DateTimeImmutable());
+                $attribute->setUpdatedAt(new \DateTimeImmutable());
                 $attribute->setLocale($locale);
                 $attribute->setDefinition($definition);
                 $attribute->setAsset($asset);

@@ -15,7 +15,6 @@ use App\Storage\FileManager;
 use App\Storage\RenditionManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -89,7 +88,7 @@ class PhraseanetIntegrationController extends AbstractController
 
         try {
             $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspace(), $name);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 

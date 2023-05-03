@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Yaml;
 class YamlConstraintValidator extends ConstraintValidator
 {
     /**
-     * @param string $value
+     * @param string         $value
      * @param YamlConstraint $constraint
      */
     public function validate($value, Constraint $constraint)

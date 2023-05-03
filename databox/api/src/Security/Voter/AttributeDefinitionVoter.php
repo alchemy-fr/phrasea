@@ -20,6 +20,7 @@ class AttributeDefinitionVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
         $workspace = $subject->getWorkspace();
+
         return match ($attribute) {
             self::READ, self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $workspace),
             default => false,

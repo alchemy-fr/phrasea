@@ -7,7 +7,6 @@ namespace App\Command\Attribute;
 use App\Attribute\AttributeSplitter;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,7 +45,7 @@ class SplitAttributesCommand extends Command
         $delimiter = $input->getOption('delimiter') ?? ';';
 
         if (!$attributeDefinition instanceof AttributeDefinition) {
-            throw new InvalidArgumentException('AttributeDefinition '.$attrDefId.' not found');
+            throw new \InvalidArgumentException('AttributeDefinition '.$attrDefId.' not found');
         }
 
         $this->em->getConfiguration()->setSQLLogger(null);

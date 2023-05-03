@@ -28,7 +28,7 @@ class FieldTypeDataProvider implements ContextAwareCollectionDataProviderInterfa
             return $t;
         }, $this->attributeTypeRegistry->getTypes());
 
-        usort($results, fn(FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
+        usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
         return $results;
     }

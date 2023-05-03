@@ -21,8 +21,7 @@ readonly class ReadMetadataAction implements ActionInterface
         private MetadataNormalizer $metadataNormalizer,
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void

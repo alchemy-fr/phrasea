@@ -7,7 +7,6 @@ namespace App\Command;
 use App\Entity\Core\Workspace;
 use App\Workspace\WorkspaceDuplicateManager;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,7 +44,7 @@ class DuplicateWorkspaceCommand extends Command
         $workspace = $this->em->find(Workspace::class, $workspaceId);
 
         if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException('Workspace '.$workspaceId.' not found');
+            throw new \InvalidArgumentException('Workspace '.$workspaceId.' not found');
         }
 
         $this->workspaceDuplicateManager->duplicateWorkspace($workspace, $newSlug);

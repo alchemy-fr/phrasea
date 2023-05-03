@@ -8,7 +8,6 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Entity\Core\AttributeDefinition;
-use InvalidArgumentException;
 
 class FieldNameResolver
 {
@@ -65,6 +64,6 @@ class FieldNameResolver
             ];
         }
 
-        throw new InvalidArgumentException(sprintf('Cannot parse field "%s"', $fieldName));
+        throw new \InvalidArgumentException(sprintf('Cannot parse field "%s"', $fieldName));
     }
 }
