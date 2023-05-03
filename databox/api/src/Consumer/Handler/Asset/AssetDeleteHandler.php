@@ -11,7 +11,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class AssetDeleteHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'asset_delete';
+    final public const EVENT = 'asset_delete';
 
     public function handle(EventMessage $message): void
     {
@@ -21,7 +21,7 @@ class AssetDeleteHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         $em->remove($asset);

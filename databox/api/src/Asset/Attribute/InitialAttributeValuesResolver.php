@@ -20,19 +20,15 @@ use Twig\Loader\ArrayLoader;
 
 class InitialAttributeValuesResolver
 {
-    private Environment $twig;
-    private EntityManagerInterface $em;
-    private AttributeAssigner $attributeAssigner;
+    private readonly Environment $twig;
 
     public function __construct(
-        EntityManagerInterface $em,
-        AttributeAssigner $attributeAssigner
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeAssigner $attributeAssigner
     ) {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
         ]);
-        $this->em = $em;
-        $this->attributeAssigner = $attributeAssigner;
     }
 
     /**

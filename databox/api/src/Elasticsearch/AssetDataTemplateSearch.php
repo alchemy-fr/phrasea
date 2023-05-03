@@ -19,18 +19,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetDataTemplateSearch
 {
-    private PaginatedFinderInterface $finder;
-    private EntityIriConverter $iriConverter;
-    private Security $security;
-
-    public function __construct(
-        PaginatedFinderInterface $finder,
-        Security $security,
-        EntityIriConverter $iriConverter
-    ) {
-        $this->finder = $finder;
-        $this->security = $security;
-        $this->iriConverter = $iriConverter;
+    public function __construct(private readonly PaginatedFinderInterface $finder, private readonly Security $security, private readonly EntityIriConverter $iriConverter)
+    {
     }
 
     public function search(
@@ -102,9 +92,7 @@ class AssetDataTemplateSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(function (AssetDataTemplate $template): bool {
-            return $this->security->isGranted(AbstractVoter::READ, $template);
-        }, $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn(AssetDataTemplate $template): bool => $this->security->isGranted(AbstractVoter::READ, $template), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($filters['page'] ?? false) {
             $result->setCurrentPage((int) $filters['page']);

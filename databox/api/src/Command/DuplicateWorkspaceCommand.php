@@ -15,15 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DuplicateWorkspaceCommand extends Command
 {
-    private WorkspaceDuplicateManager $workspaceDuplicateManager;
-    private EntityManagerInterface $em;
-
-    public function __construct(WorkspaceDuplicateManager $workspaceDuplicateManager, EntityManagerInterface $em)
+    public function __construct(private readonly WorkspaceDuplicateManager $workspaceDuplicateManager, private readonly EntityManagerInterface $em)
     {
         parent::__construct();
-
-        $this->workspaceDuplicateManager = $workspaceDuplicateManager;
-        $this->em = $em;
     }
 
     /**

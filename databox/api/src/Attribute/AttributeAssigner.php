@@ -13,11 +13,8 @@ use InvalidArgumentException;
 
 class AttributeAssigner
 {
-    private AttributeTypeRegistry $attributeTypeRegistry;
-
-    public function __construct(AttributeTypeRegistry $attributeTypeRegistry)
+    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
     {
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): AbstractBaseAttribute

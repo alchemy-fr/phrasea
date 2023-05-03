@@ -112,6 +112,7 @@ services:
 
   databox-api-php:
     environment:
+      - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
       - XDEBUG_ENABLED
       - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
@@ -172,6 +173,8 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
       - VERIFY_SSL
       - CLARIFAI_API_KEY
+      - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
+      - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_class_uniq",columns={"workspace_id", "name"})}
  * )
  */
-class RenditionClass extends AbstractUuidEntity
+class RenditionClass extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;

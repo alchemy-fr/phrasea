@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_asset",columns={"collection_id", "asset_id"})})
  * @ApiResource()
  */
-class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface
+class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
 
@@ -51,7 +51,7 @@ class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInte
         $this->asset = $asset;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('C(%s) <> A(%s)', $this->collection->getId(), $this->asset->getId());
     }

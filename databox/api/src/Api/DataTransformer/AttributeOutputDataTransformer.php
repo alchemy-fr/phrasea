@@ -11,11 +11,8 @@ use App\Entity\Core\Attribute;
 
 class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private AttributeTypeRegistry $attributeTypeRegistry;
-
-    public function __construct(AttributeTypeRegistry $attributeTypeRegistry)
+    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
     {
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     /**
@@ -30,9 +27,7 @@ class AttributeOutputDataTransformer extends AbstractSecurityDataTransformer
         $output->setUpdatedAt($object->getUpdatedAt());
         $output->setId($object->getId());
         $values = $object->getValues();
-        $output->value = $values ? array_map(function (?string $v) use ($type) {
-            return $type->denormalizeValue($v);
-        }, $object->getValues()) : $type->denormalizeValue($object->getValue());
+        $output->value = $values ? array_map(fn(?string $v) => $type->denormalizeValue($v), $object->getValues()) : $type->denormalizeValue($object->getValue());
         $output->multiple = null !== $values;
 
         $output->locale = $object->getLocale();

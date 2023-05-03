@@ -12,7 +12,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class UploaderNewCommitHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'uploader_new_commit';
+    final public const EVENT = 'uploader_new_commit';
 
     public function __construct(private readonly WorkflowOrchestrator $workflowOrchestrator)
     {

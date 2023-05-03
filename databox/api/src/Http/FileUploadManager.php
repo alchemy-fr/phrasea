@@ -12,12 +12,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class FileUploadManager
 {
-    private FileManager $fileManager;
-
-    public function __construct(
-        FileManager $fileManager
-    ) {
-        $this->fileManager = $fileManager;
+    public function __construct(private readonly FileManager $fileManager)
+    {
     }
 
     public function storeFileUploadFromRequest(Workspace $workspace, UploadedFile $uploadedFile): File

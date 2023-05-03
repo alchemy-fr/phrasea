@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class AttributeDefinition extends AbstractUuidEntity
+class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -234,7 +234,7 @@ class AttributeDefinition extends AbstractUuidEntity
         return $this->getId();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
     }

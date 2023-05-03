@@ -13,15 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class OriginalRenditionManager
 {
-    private EntityManagerInterface $em;
-    private RenditionManager $renditionManager;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        RenditionManager $renditionManager
-    ) {
-        $this->em = $em;
-        $this->renditionManager = $renditionManager;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionManager $renditionManager)
+    {
     }
 
     /**

@@ -11,21 +11,8 @@ use FOS\ElasticaBundle\Index\MappingBuilder;
 
 class IndexSyncState
 {
-    private EntityManagerInterface $em;
-    private ManagerInterface $configManager;
-    private MappingBuilder $mappingBuilder;
-    private IndexMappingDiff $mappingDiff;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        ManagerInterface $configManager,
-        MappingBuilder $mappingBuilder,
-        IndexMappingDiff $mappingDiff
-    ) {
-        $this->em = $em;
-        $this->configManager = $configManager;
-        $this->mappingBuilder = $mappingBuilder;
-        $this->mappingDiff = $mappingDiff;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ManagerInterface $configManager, private readonly MappingBuilder $mappingBuilder, private readonly IndexMappingDiff $mappingDiff)
+    {
     }
 
     public function snapshotStateMapping(string $indexName): void

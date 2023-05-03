@@ -10,12 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteCollectionHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_collection';
-    private CollectionDelete $collectionDelete;
+    final public const EVENT = 'delete_collection';
 
-    public function __construct(CollectionDelete $collectionDelete)
+    public function __construct(private readonly CollectionDelete $collectionDelete)
     {
-        $this->collectionDelete = $collectionDelete;
     }
 
     public function handle(EventMessage $message): void

@@ -25,26 +25,13 @@ use Symfony\Component\Security\Core\Security;
 
 class BatchAttributeManager
 {
-    public const ACTION_SET = 'set';
-    public const ACTION_DELETE = 'delete';
-    public const ACTION_REPLACE = 'replace';
-    public const ACTION_ADD = 'add';
+    final public const ACTION_SET = 'set';
+    final public const ACTION_DELETE = 'delete';
+    final public const ACTION_REPLACE = 'replace';
+    final public const ACTION_ADD = 'add';
 
-    private EntityManagerInterface $em;
-    private AttributeAssigner $attributeAssigner;
-    private Security $security;
-    private DeferredIndexListener $deferredIndexListener;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        AttributeAssigner $attributeAssigner,
-        Security $security,
-        DeferredIndexListener $deferredIndexListener
-    ) {
-        $this->em = $em;
-        $this->attributeAssigner = $attributeAssigner;
-        $this->security = $security;
-        $this->deferredIndexListener = $deferredIndexListener;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly AttributeAssigner $attributeAssigner, private readonly Security $security, private readonly DeferredIndexListener $deferredIndexListener)
+    {
     }
 
     public function validate(array $assetsId, AssetAttributeBatchUpdateInput $input): ?string
@@ -71,7 +58,7 @@ class BatchAttributeManager
             ->getQuery()
             ->getResult();
 
-        if (count($assets) !== count($assetsId)) {
+        if ((is_countable($assets) ? count($assets) : 0) !== count($assetsId)) {
             throw new InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
         }
 

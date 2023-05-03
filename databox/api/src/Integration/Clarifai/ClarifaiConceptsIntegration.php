@@ -15,13 +15,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
-    private BatchAttributeManager $batchAttributeManager;
-    private ClarifaiClient $client;
-
-    public function __construct(BatchAttributeManager $batchAttributeManager, ClarifaiClient $client)
+    public function __construct(private readonly BatchAttributeManager $batchAttributeManager, private readonly ClarifaiClient $client)
     {
-        $this->batchAttributeManager = $batchAttributeManager;
-        $this->client = $client;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

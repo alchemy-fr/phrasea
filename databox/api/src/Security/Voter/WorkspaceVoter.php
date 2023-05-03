@@ -36,23 +36,17 @@ class WorkspaceVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $subject->getOwnerId() === $userId;
-
-        switch ($attribute) {
-            case self::READ:
-                return $isOwner
-                    || $subject->isPublic()
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject);
-            case self::EDIT:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
-            case self::DELETE:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject);
-            case self::EDIT_PERMISSIONS:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::OWNER, $subject);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $isOwner
+                || $subject->isPublic()
+                || $this->security->isGranted(PermissionInterface::VIEW, $subject),
+            self::EDIT => $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            self::DELETE => $isOwner
+                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::EDIT_PERMISSIONS => $isOwner
+                || $this->security->isGranted(PermissionInterface::OWNER, $subject),
+            default => false,
+        };
     }
 }

@@ -21,13 +21,8 @@ class RemoveBgIntegration extends AbstractFileAction implements AssetOperationIn
 {
     private const ACTION_PROCESS = 'process';
 
-    private RemoveBgClient $client;
-    private ApiBudgetLimiter $apiBudgetLimiter;
-
-    public function __construct(RemoveBgClient $client, ApiBudgetLimiter $apiBudgetLimiter)
+    public function __construct(private readonly RemoveBgClient $client, private readonly ApiBudgetLimiter $apiBudgetLimiter)
     {
-        $this->client = $client;
-        $this->apiBudgetLimiter = $apiBudgetLimiter;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

@@ -15,18 +15,13 @@ use Psr\Log\LoggerInterface;
 
 class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'phraseanet_download_subdef';
-
-    private RenditionManager $renditionManager;
-    private EventProducer $eventProducer;
+    final public const EVENT = 'phraseanet_download_subdef';
 
     public function __construct(
-        RenditionManager $renditionManager,
-        EventProducer $eventProducer,
+        private readonly RenditionManager $renditionManager,
+        private readonly EventProducer $eventProducer,
         LoggerInterface $logger
     ) {
-        $this->renditionManager = $renditionManager;
-        $this->eventProducer = $eventProducer;
         $this->logger = $logger;
     }
 
@@ -67,7 +62,7 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
         $workspace = $asset->getWorkspace();
         $url = $payload['permalink'];
 
-        [$urlPart] = explode('?', $url, 2);
+        [$urlPart] = explode('?', (string) $url, 2);
 
         $rendition = $this->renditionManager->createOrReplaceRenditionByPath(
             $asset,

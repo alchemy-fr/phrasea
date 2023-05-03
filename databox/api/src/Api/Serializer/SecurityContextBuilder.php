@@ -12,18 +12,8 @@ use Symfony\Component\Security\Core\Security;
 
 class SecurityContextBuilder implements SerializerContextBuilderInterface
 {
-    private Security $security;
-    private SerializerContextBuilderInterface $decorated;
-    private NormalizerContextBuilderInterface $normalizerContextBuilder;
-
-    public function __construct(
-        SerializerContextBuilderInterface $decorated,
-        Security $security,
-        NormalizerContextBuilderInterface $normalizerContextBuilder
-    ) {
-        $this->decorated = $decorated;
-        $this->security = $security;
-        $this->normalizerContextBuilder = $normalizerContextBuilder;
+    public function __construct(private readonly SerializerContextBuilderInterface $decorated, private readonly Security $security, private readonly NormalizerContextBuilderInterface $normalizerContextBuilder)
+    {
     }
 
     public function createFromRequest(Request $request, bool $normalization, ?array $extractedAttributes = null): array

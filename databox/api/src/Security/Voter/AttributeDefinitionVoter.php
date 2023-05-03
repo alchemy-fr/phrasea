@@ -20,15 +20,9 @@ class AttributeDefinitionVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
         $workspace = $subject->getWorkspace();
-
-        switch ($attribute) {
-            case self::READ:
-            case self::CREATE:
-            case self::EDIT:
-            case self::DELETE:
-                return $this->security->isGranted(self::EDIT, $workspace);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ, self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $workspace),
+            default => false,
+        };
     }
 }

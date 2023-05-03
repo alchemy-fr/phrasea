@@ -34,7 +34,7 @@ readonly class AcceptFileAction implements ActionInterface
 
         $asset = $this->em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
         }
         if ($uploadToken !== $asset->getPendingUploadToken()) {
             throw new \InvalidArgumentException('Unexpected upload token');

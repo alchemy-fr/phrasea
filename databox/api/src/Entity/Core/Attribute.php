@@ -17,23 +17,23 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
-    public const ORIGIN_MACHINE = 0;
-    public const ORIGIN_HUMAN = 1;
-    public const ORIGIN_FALLBACK = 2;
-    public const ORIGIN_INITIAL = 3;
+    final public const ORIGIN_MACHINE = 0;
+    final public const ORIGIN_HUMAN = 1;
+    final public const ORIGIN_FALLBACK = 2;
+    final public const ORIGIN_INITIAL = 3;
 
-    public const ORIGIN_LABELS = [
+    final public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
         self::ORIGIN_HUMAN => 'human',
         self::ORIGIN_FALLBACK => 'fallback',
         self::ORIGIN_INITIAL => 'initial',
     ];
 
-    const STATUS_VALID = 0;
-    const STATUS_REVIEW_PENDING = 1;
-    const STATUS_DECLINED = 2;
+    final public const STATUS_VALID = 0;
+    final public const STATUS_REVIEW_PENDING = 1;
+    final public const STATUS_DECLINED = 2;
 
-    public const STATUS_LABELS = [
+    final public const STATUS_LABELS = [
         self::STATUS_VALID => 'valid',
         self::STATUS_REVIEW_PENDING => 'review_pending',
         self::STATUS_DECLINED => 'declined',

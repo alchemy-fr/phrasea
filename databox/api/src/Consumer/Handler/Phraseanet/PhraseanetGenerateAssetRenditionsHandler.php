@@ -19,28 +19,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'phraseanet_generate_renditions';
-
-    private PhraseanetApiClientFactory $clientFactory;
-    private UrlGeneratorInterface $urlGenerator;
-    private JWTTokenManager $JWTTokenManager;
-    private FileUrlResolver $fileUrlResolver;
-    private IntegrationManager $integrationManager;
+    final public const EVENT = 'phraseanet_generate_renditions';
 
     public function __construct(
-        IntegrationManager $integrationManager,
-        PhraseanetApiClientFactory $clientFactory,
-        FileUrlResolver $fileUrlResolver,
-        UrlGeneratorInterface $urlGenerator,
-        JWTTokenManager $JWTTokenManager,
+        private readonly IntegrationManager $integrationManager,
+        private readonly PhraseanetApiClientFactory $clientFactory,
+        private readonly FileUrlResolver $fileUrlResolver,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly JWTTokenManager $JWTTokenManager,
         LoggerInterface $logger
     ) {
-        $this->clientFactory = $clientFactory;
-        $this->urlGenerator = $urlGenerator;
-        $this->JWTTokenManager = $JWTTokenManager;
         $this->logger = $logger;
-        $this->fileUrlResolver = $fileUrlResolver;
-        $this->integrationManager = $integrationManager;
     }
 
     public static function createEvent(string $id, string $integrationId, ?array $renditions = null): EventMessage
@@ -70,13 +59,13 @@ class PhraseanetGenerateAssetRenditionsHandler extends AbstractEntityManagerHand
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         $file = $asset->getSource();
 
         if (!$file instanceof File) {
-            $this->logger->warning(sprintf('%s error: Asset %s has no file', __CLASS__, $asset->getId()));
+            $this->logger->warning(sprintf('%s error: Asset %s has no file', self::class, $asset->getId()));
 
             return;
         }

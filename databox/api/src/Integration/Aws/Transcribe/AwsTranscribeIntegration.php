@@ -22,26 +22,10 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOperationIntegrationInterface
 {
     private const VERSION = '1.0';
-    public const SNS_PREFIX = 'databox:integration:transcribe:';
+    final public const SNS_PREFIX = 'databox:integration:transcribe:';
 
-    private AwsTranscribeClient $client;
-    private ApiBudgetLimiter $apiBudgetLimiter;
-    private S3Copier $s3Copier;
-    private BatchAttributeManager $batchAttributeManager;
-    private UriDownloader $fileDownloader;
-
-    public function __construct(
-        AwsTranscribeClient $client,
-        S3Copier $s3Copier,
-        ApiBudgetLimiter $apiBudgetLimiter,
-        BatchAttributeManager $batchAttributeManager,
-        UriDownloader $fileDownloader
-    ) {
-        $this->client = $client;
-        $this->apiBudgetLimiter = $apiBudgetLimiter;
-        $this->batchAttributeManager = $batchAttributeManager;
-        $this->s3Copier = $s3Copier;
-        $this->fileDownloader = $fileDownloader;
+    public function __construct(private readonly AwsTranscribeClient $client, private readonly S3Copier $s3Copier, private readonly ApiBudgetLimiter $apiBudgetLimiter, private readonly BatchAttributeManager $batchAttributeManager, private readonly UriDownloader $fileDownloader)
+    {
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

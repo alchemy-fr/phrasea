@@ -32,10 +32,7 @@ class DateAttributeType extends DateTimeAttributeType
         return parent::getGroupValueLabel($value);
     }
 
-    /**
-     * @return DateTimeImmutable|null
-     */
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): ?\DateTimeImmutable
     {
         if (null === $value) {
             return null;
@@ -48,7 +45,7 @@ class DateAttributeType extends DateTimeAttributeType
             }
 
             return $date;
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return null;
         }
     }

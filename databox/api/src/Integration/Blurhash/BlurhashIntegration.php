@@ -19,13 +19,9 @@ use kornrunner\Blurhash\Blurhash;
 class BlurhashIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     private const VERSION = '1.0';
-    private FileFetcher $fileFetcher;
-    private BatchAttributeManager $batchAttributeManager;
 
-    public function __construct(FileFetcher $fileFetcher, BatchAttributeManager $batchAttributeManager)
+    public function __construct(private readonly FileFetcher $fileFetcher, private readonly BatchAttributeManager $batchAttributeManager)
     {
-        $this->fileFetcher = $fileFetcher;
-        $this->batchAttributeManager = $batchAttributeManager;
     }
 
     public function handleAsset(Asset $asset, array $config): void

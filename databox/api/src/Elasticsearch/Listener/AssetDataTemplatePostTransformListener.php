@@ -12,11 +12,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AssetDataTemplatePostTransformListener implements EventSubscriberInterface
 {
-    private PermissionManager $permissionManager;
-
-    public function __construct(PermissionManager $permissionManager)
+    public function __construct(private readonly PermissionManager $permissionManager)
     {
-        $this->permissionManager = $permissionManager;
     }
 
     public function hydrateDocument(PostTransformEvent $event): void

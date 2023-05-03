@@ -33,7 +33,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PhraseanetIntegrationController extends AbstractController
 {
-    public const ASSET_NAME_PREFIX = 'gen-sub-def-';
+    final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
     /**
      * @Route(path="/{integrationId}/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
@@ -125,13 +125,13 @@ class PhraseanetIntegrationController extends AbstractController
         switch ($json['event']) {
             case 'record.subdef.created':
                 $data = $json['data'];
-                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', $data['original_name'], $groups)) {
+                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', (string) $data['original_name'], $groups)) {
                     $assetId = $groups[1];
 
                     $logger->debug(sprintf('Received webhook "%s" for asset "%s"', $json['event'], $assetId));
 
                     // TODO Temporary hack
-                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', $data['permalink']);
+                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));
                     $eventProducer->publish(PhraseanetDownloadSubdefHandler::createEvent(

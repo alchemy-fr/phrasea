@@ -14,15 +14,8 @@ use Throwable;
 
 class FlushWorkspaceAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private WorkspaceDuplicateManager $workspaceManager;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        WorkspaceDuplicateManager $workspaceManager
-    ) {
-        $this->em = $em;
-        $this->workspaceManager = $workspaceManager;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly WorkspaceDuplicateManager $workspaceManager)
+    {
     }
 
     public function __invoke(string $id)

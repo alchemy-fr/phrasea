@@ -10,22 +10,16 @@ use RuntimeException;
 
 class FileUrlResolver
 {
-    private UrlSigner $urlSigner;
-
-    public function __construct(UrlSigner $urlSigner)
+    public function __construct(private readonly UrlSigner $urlSigner)
     {
-        $this->urlSigner = $urlSigner;
     }
 
     public function resolveUrl(File $file): string
     {
-        switch ($file->getStorage()) {
-            case File::STORAGE_S3_MAIN:
-                return $this->urlSigner->getSignedUrl($file->getPath());
-            case File::STORAGE_URL:
-                return $file->getPath();
-            default:
-                throw new RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage()));
-        }
+        return match ($file->getStorage()) {
+            File::STORAGE_S3_MAIN => $this->urlSigner->getSignedUrl($file->getPath()),
+            File::STORAGE_URL => $file->getPath(),
+            default => throw new RuntimeException(sprintf('Unsupported storage "%s"', $file->getStorage())),
+        };
     }
 }

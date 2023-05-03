@@ -22,23 +22,10 @@ use InvalidArgumentException;
 
 class AttributeSearch
 {
-    public const OPT_STRICT_PHRASE = 'strict';
+    final public const OPT_STRICT_PHRASE = 'strict';
 
-    private FieldNameResolver $fieldNameResolver;
-    private EntityManagerInterface $em;
-    private AttributeTypeRegistry $typeRegistry;
-    private AssetTitleResolver $assetTitleResolver;
-
-    public function __construct(
-        FieldNameResolver $fieldNameResolver,
-        EntityManagerInterface $em,
-        AttributeTypeRegistry $typeRegistry,
-        AssetTitleResolver $assetTitleResolver
-    ) {
-        $this->fieldNameResolver = $fieldNameResolver;
-        $this->em = $em;
-        $this->typeRegistry = $typeRegistry;
-        $this->assetTitleResolver = $assetTitleResolver;
+    public function __construct(private readonly FieldNameResolver $fieldNameResolver, private readonly EntityManagerInterface $em, private readonly AttributeTypeRegistry $typeRegistry, private readonly AssetTitleResolver $assetTitleResolver)
+    {
     }
 
     public function buildAttributeQuery(
@@ -214,11 +201,7 @@ class AttributeSearch
         $language = $options['locale'] ?? '*';
         $position = $options['context']['position'] ?? null;
 
-        $facetTypes = array_map(function (AttributeTypeInterface $attributeType): string {
-            return $attributeType::getName();
-        }, array_filter($this->typeRegistry->getTypes(), function (AttributeTypeInterface $attributeType): bool {
-            return $attributeType->supportsAggregation();
-        }));
+        $facetTypes = array_map(fn(AttributeTypeInterface $attributeType): string => $attributeType::getName(), array_filter($this->typeRegistry->getTypes(), fn(AttributeTypeInterface $attributeType): bool => $attributeType->supportsAggregation()));
 
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
@@ -275,9 +258,7 @@ class AttributeSearch
                     if (!$position) {
                         continue 2;
                     }
-                    $geoPoint = array_map(function (string $c): float {
-                        return (float) $c;
-                    }, explode(',', $position));
+                    $geoPoint = array_map(fn(string $c): float => (float) $c, explode(',', (string) $position));
                     $agg = new Aggregation\GeoDistance(
                         $fieldName,
                         $fullFieldName,

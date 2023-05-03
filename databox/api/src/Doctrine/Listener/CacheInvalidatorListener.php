@@ -12,11 +12,8 @@ use Doctrine\ORM\Events;
 
 class CacheInvalidatorListener implements EventSubscriber
 {
-    private PostFlushStack $postFlushStack;
-
-    public function __construct(PostFlushStack $postFlushStack)
+    public function __construct(private readonly PostFlushStack $postFlushStack)
     {
-        $this->postFlushStack = $postFlushStack;
     }
 
     private function invalidateEntity(LifecycleEventArgs $args): void
@@ -26,7 +23,7 @@ class CacheInvalidatorListener implements EventSubscriber
         $entity = $args->getEntity();
 
         if ($entity instanceof AbstractUuidEntity) {
-            $repo = $em->getRepository(get_class($entity));
+            $repo = $em->getRepository($entity::class);
             if ($repo instanceof CacheRepositoryInterface) {
                 $id = $entity->getId();
                 $this->postFlushStack->addCallback(function () use ($repo, $id): void {

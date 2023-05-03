@@ -97,7 +97,7 @@ class WorkspaceIntegration extends AbstractUuidEntity
         $this->optionsJson = $options;
         try {
             $this->config = \GuzzleHttp\json_decode($options, true);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
         }
     }
 
@@ -115,7 +115,7 @@ class WorkspaceIntegration extends AbstractUuidEntity
         $this->optionsYaml = $options;
         try {
             $this->config = Yaml::parse($options);
-        } catch (ParseException $e) {
+        } catch (ParseException) {
         }
     }
 

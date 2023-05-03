@@ -17,13 +17,8 @@ use InvalidArgumentException;
 
 class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private EntityManagerInterface $em;
-    private IntegrationManager $integrationManager;
-
-    public function __construct(EntityManagerInterface $em, IntegrationManager $integrationManager)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IntegrationManager $integrationManager)
     {
-        $this->em = $em;
-        $this->integrationManager = $integrationManager;
     }
 
     /**
@@ -40,7 +35,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         $output->setIntegration($object->getIntegration());
 
         $uri = $context['request_uri'];
-        $qs = parse_url($uri, PHP_URL_QUERY);
+        $qs = parse_url((string) $uri, PHP_URL_QUERY);
         $filters = Query::parse($qs);
 
         $file = null;

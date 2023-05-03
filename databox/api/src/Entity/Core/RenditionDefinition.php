@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table(indexes={@ORM\Index(name="rend_def_ws_name", columns={"workspace_id", "name"})})
  */
-class RenditionDefinition extends AbstractUuidEntity
+class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -194,7 +194,7 @@ class RenditionDefinition extends AbstractUuidEntity
         $this->priority = $priority;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName();
     }

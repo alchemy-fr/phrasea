@@ -17,11 +17,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class IntegrationCrudController extends AbstractAdminCrudController
 {
-    private IntegrationChoiceField $integrationChoiceField;
-
-    public function __construct(IntegrationChoiceField $integrationChoiceField)
+    public function __construct(private readonly IntegrationChoiceField $integrationChoiceField)
     {
-        $this->integrationChoiceField = $integrationChoiceField;
     }
 
     public static function getEntityFqcn(): string

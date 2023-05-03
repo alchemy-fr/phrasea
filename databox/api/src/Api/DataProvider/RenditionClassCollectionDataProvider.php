@@ -13,13 +13,8 @@ use Symfony\Component\Security\Core\Security;
 
 class RenditionClassCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private EntityManagerInterface $em;
-    private Security $security;
-
-    public function __construct(EntityManagerInterface $em, Security $security)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Security $security)
     {
-        $this->em = $em;
-        $this->security = $security;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -33,9 +28,7 @@ class RenditionClassCollectionDataProvider implements ContextAwareCollectionData
 
         $classes = $this->em->getRepository(RenditionClass::class)->findBy($criteria);
 
-        return array_filter($classes, function (RenditionClass $renditionClass): bool {
-            return $this->security->isGranted(RenditionClassVoter::READ, $renditionClass);
-        });
+        return array_filter($classes, fn(RenditionClass $renditionClass): bool => $this->security->isGranted(RenditionClassVoter::READ, $renditionClass));
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool

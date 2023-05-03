@@ -28,7 +28,7 @@ class AssetListener implements EventSubscriber
 
                     $uow->persist($assetFileVersion);
 
-                    $metadata = $em->getClassMetadata(get_class($assetFileVersion));
+                    $metadata = $em->getClassMetadata($assetFileVersion::class);
                     $uow->computeChangeSet($metadata, $assetFileVersion);
                 }
             }

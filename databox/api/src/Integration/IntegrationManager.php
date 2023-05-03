@@ -8,6 +8,7 @@ use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Env\EnvResolver;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -21,18 +22,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class IntegrationManager
 {
-    private IntegrationRegistry $integrationRegistry;
-    private EntityManagerInterface $em;
-    private EventProducer $eventProducer;
-
     public function __construct(
-        IntegrationRegistry $integrationRegistry,
-        EntityManagerInterface $em,
-        EventProducer $eventProducer
-    ) {
-        $this->integrationRegistry = $integrationRegistry;
-        $this->em = $em;
-        $this->eventProducer = $eventProducer;
+        private readonly IntegrationRegistry $integrationRegistry,
+        private readonly EntityManagerInterface $em,
+        private readonly EventProducer $eventProducer,
+        private readonly EnvResolver $envResolver,
+    )
+    {
     }
 
     public function handleAsset(Asset $asset): void
@@ -152,7 +148,7 @@ class IntegrationManager
         $dumper = new YamlReferenceDumper();
 
         $output = $dumper->dumpNode($node);
-        $output = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', $output);
+        $output = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', (string) $output);
         $output = preg_replace("#\n {4}#", "\n", $output);
         $output = preg_replace("#\n\n#", "\n", $output);
 
@@ -164,7 +160,13 @@ class IntegrationManager
         $node = $this->buildConfiguration($integration);
         $processor = new Processor();
 
-        $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
+        $integrationConfig = $workspaceIntegration->getConfig();
+        $integrationConfig = $this->envResolver->resolve(
+            $workspaceIntegration->getWorkspaceId(),
+            $integrationConfig
+        );
+
+        $config = $processor->process($node, ['root' => $integrationConfig]);
 
         $config['integration'] = $integration;
         $config['workspaceIntegration'] = $workspaceIntegration;

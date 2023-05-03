@@ -20,24 +20,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ExportAction extends AbstractController
 {
-    private Client $client;
-    private ValidatorInterface $validator;
-    private EntityManagerInterface $em;
-    private FileUrlResolver $fileUrlResolver;
-    private RenditionPermissionManager $renditionPermissionManager;
-
     public function __construct(
-        Client $zippyClient,
-        ValidatorInterface $validator,
-        EntityManagerInterface $em,
-        FileUrlResolver $fileUrlResolver,
-        RenditionPermissionManager $renditionPermissionManager
-    ) {
-        $this->client = $zippyClient;
-        $this->validator = $validator;
-        $this->em = $em;
-        $this->fileUrlResolver = $fileUrlResolver;
-        $this->renditionPermissionManager = $renditionPermissionManager;
+        private readonly Client $zippyClient,
+        private readonly ValidatorInterface $validator,
+        private readonly EntityManagerInterface $em,
+        private readonly FileUrlResolver $fileUrlResolver,
+        private readonly RenditionPermissionManager $renditionPermissionManager,
+    )
+    {
     }
 
     public function __invoke(Export $data, Request $request): Export
@@ -79,7 +69,7 @@ class ExportAction extends AbstractController
             }
         }
 
-        $response = $this->client->request('POST', '/archives', [
+        $response = $this->zippyClient->request('POST', '/archives', [
             'json' => [
                 'downloadFilename' => 'Databox-export',
                 'files' => $files,

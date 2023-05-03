@@ -207,3 +207,7 @@ services:
     App\Integration\ApiBudgetLimiter:
         arguments:
             $storage: '@app.budget_limit.cache_storage'
+
+    App\Security\Secrets\SecretsManager:
+        $publicKey: '%env(SECRETS_PUBLIC_KEY)%'
+        $secretKey: '%env(SECRETS_SECRET_KEY)%'

@@ -33,7 +33,7 @@ final class RenditionFacet extends AbstractEntityFacet
         return 'r';
     }
 
-    public function getValueFromAsset(Asset $asset)
+    public function getValueFromAsset(Asset $asset): never
     {
         throw new LogicException('Should never be called');
     }

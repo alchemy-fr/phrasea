@@ -37,39 +37,31 @@ class CollectionVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
-
-        switch ($attribute) {
-            case self::CREATE:
-                return $subject->getParent() ? $this->security->isGranted(CollectionVoter::EDIT, $subject->getParent())
-                    : $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
-            case self::LIST:
-                return $isOwner
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
-                    || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject)
-                    || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
-            case self::READ:
-                return $isOwner
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject)
-                    || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
-            case self::EDIT:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                    || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
-            case self::DELETE:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                    || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
-            case self::EDIT_PERMISSIONS:
-                return $isOwner
-                    || $this->security->isGranted(PermissionInterface::OWNER, $subject)
-                    || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent()));
-        }
-
-        return false;
+        return match ($attribute) {
+            self::CREATE => $subject->getParent() ? $this->security->isGranted(CollectionVoter::EDIT, $subject->getParent())
+                : $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace()),
+            self::LIST => $isOwner
+                || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
+                || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                || $this->security->isGranted(PermissionInterface::VIEW, $subject)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::READ => $isOwner
+                || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
+                || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                || $this->security->isGranted(PermissionInterface::VIEW, $subject)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::EDIT => $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject)
+                || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::DELETE => $isOwner
+                || $this->security->isGranted(PermissionInterface::DELETE, $subject)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::EDIT_PERMISSIONS => $isOwner
+                || $this->security->isGranted(PermissionInterface::OWNER, $subject)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            default => false,
+        };
     }
 }

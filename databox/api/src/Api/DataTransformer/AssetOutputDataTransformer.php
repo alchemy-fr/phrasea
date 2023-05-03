@@ -26,34 +26,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private EntityManagerInterface $em;
-    private RenditionPermissionManager $renditionPermissionManager;
-    private AttributesResolver $attributesResolver;
-    private AssetTitleResolver $assetTitleResolver;
-    private RequestStack $requestStack;
-    private FieldNameResolver $fieldNameResolver;
     private ?string $lastGroupKey = null;
-    private FacetRegistry $facetRegistry;
-    private AttributeTypeRegistry $attributeTypeRegistry;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        RenditionPermissionManager $renditionPermissionManager,
-        AttributesResolver $attributesResolver,
-        AssetTitleResolver $assetTitleResolver,
-        RequestStack $requestStack,
-        FieldNameResolver $fieldNameResolver,
-        FacetRegistry $facetRegistry,
-        AttributeTypeRegistry $attributeTypeRegistry
-    ) {
-        $this->em = $em;
-        $this->renditionPermissionManager = $renditionPermissionManager;
-        $this->attributesResolver = $attributesResolver;
-        $this->assetTitleResolver = $assetTitleResolver;
-        $this->requestStack = $requestStack;
-        $this->fieldNameResolver = $fieldNameResolver;
-        $this->facetRegistry = $facetRegistry;
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly AttributesResolver $attributesResolver, private readonly AssetTitleResolver $assetTitleResolver, private readonly RequestStack $requestStack, private readonly FieldNameResolver $fieldNameResolver, private readonly FacetRegistry $facetRegistry, private readonly AttributeTypeRegistry $attributeTypeRegistry)
+    {
     }
 
     private function getUserLocales(): array
@@ -159,12 +135,8 @@ class AssetOutputDataTransformer extends AbstractSecurityDataTransformer
             }
         }
 
-        $output->setCollections($object->getCollections()->map(function (CollectionAsset $collectionAsset): Collection {
-            return $collectionAsset->getCollection();
-        })
-            ->filter(function (Collection $collection): bool {
-                return $this->isGranted(CollectionVoter::LIST, $collection);
-            })
+        $output->setCollections($object->getCollections()->map(fn(CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection())
+            ->filter(fn(Collection $collection): bool => $this->isGranted(CollectionVoter::LIST, $collection))
             ->getValues());
 
         if (null !== $object->getPendingUploadToken()) {

@@ -27,7 +27,7 @@ readonly class TriggerIntegrationsActions implements ActionInterface
 
         $asset = $this->em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         $this->integrationManager->handleAsset($asset);

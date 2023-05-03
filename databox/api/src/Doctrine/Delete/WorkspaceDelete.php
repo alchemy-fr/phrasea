@@ -21,21 +21,8 @@ use Throwable;
 
 class WorkspaceDelete
 {
-    private EntityManagerInterface $em;
-    private CollectionDelete $collectionDelete;
-    private IndexCleaner $indexCleaner;
-    private SoftDeleteToggler $softDeleteToggler;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        CollectionDelete $collectionDelete,
-        IndexCleaner $indexCleaner,
-        SoftDeleteToggler $softDeleteToggler
-    ) {
-        $this->em = $em;
-        $this->collectionDelete = $collectionDelete;
-        $this->indexCleaner = $indexCleaner;
-        $this->softDeleteToggler = $softDeleteToggler;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly CollectionDelete $collectionDelete, private readonly IndexCleaner $indexCleaner, private readonly SoftDeleteToggler $softDeleteToggler)
+    {
     }
 
     public function deleteWorkspace(string $workspaceId): void

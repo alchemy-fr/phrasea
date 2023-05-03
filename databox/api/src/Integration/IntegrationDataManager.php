@@ -12,11 +12,8 @@ use InvalidArgumentException;
 
 class IntegrationDataManager
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function getWorkspaceIntegration(string $id): WorkspaceIntegration
@@ -71,7 +68,7 @@ class IntegrationDataManager
     /**
      * @return IntegrationData|IntegrationData[]|null
      */
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false)
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): \App\Entity\Integration\IntegrationData|array|null
     {
         $repository = $this->em->getRepository(IntegrationData::class);
 

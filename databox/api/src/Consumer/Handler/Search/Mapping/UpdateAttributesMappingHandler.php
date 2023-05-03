@@ -11,13 +11,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class UpdateAttributesMappingHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'update_attr_mapping';
+    final public const EVENT = 'update_attr_mapping';
 
-    private IndexMappingUpdater $indexMappingUpdater;
-
-    public function __construct(IndexMappingUpdater $indexMappingUpdater)
+    public function __construct(private readonly IndexMappingUpdater $indexMappingUpdater)
     {
-        $this->indexMappingUpdater = $indexMappingUpdater;
     }
 
     public function handle(EventMessage $message): void

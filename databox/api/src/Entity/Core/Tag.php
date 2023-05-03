@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
  */
-class Tag extends AbstractUuidEntity implements TranslatableInterface
+class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -64,7 +64,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface
         $this->name = $name;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
     }

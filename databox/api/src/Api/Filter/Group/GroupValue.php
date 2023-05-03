@@ -8,32 +8,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class GroupValue
 {
-    /**
-     * @Groups({"_"})
-     */
-    private string $name;
-
-    /**
-     * @Groups({"_"})
-     */
-    private string $type;
-
-    /**
-     * @Groups({"_"})
-     */
-    private ?string $key;
-
-    /**
-     * @Groups({"_"})
-     */
-    private array $values;
-
-    public function __construct(string $name, string $type, ?string $key, array $values)
+    public function __construct(
+        /**
+         * @Groups({"_"})
+         */
+        private readonly string $name,
+        /**
+         * @Groups({"_"})
+         */
+        private readonly string $type,
+        /**
+         * @Groups({"_"})
+         */
+        private readonly ?string $key,
+        /**
+         * @Groups({"_"})
+         */
+        private readonly array $values
+    )
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->key = $key;
-        $this->values = $values;
     }
 
     public function getType(): string

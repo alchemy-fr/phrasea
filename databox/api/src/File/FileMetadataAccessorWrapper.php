@@ -13,14 +13,11 @@ use Twig\Error\SyntaxError;
  */
 class FileMetadataAccessorWrapper
 {
-    private ?File $file;
-
     /** @var false|array|null */
     private $meta = false;      // false = initially unknown
 
-    public function __construct(?File $file)
+    public function __construct(private readonly ?\App\Entity\Core\File $file)
     {
-        $this->file = $file;
     }
 
     /**

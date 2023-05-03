@@ -29,6 +29,7 @@ use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -88,6 +89,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $submenu4 = [
             MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
+            MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];
 

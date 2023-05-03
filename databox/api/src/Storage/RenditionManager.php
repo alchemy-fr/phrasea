@@ -15,17 +15,10 @@ use InvalidArgumentException;
 
 class RenditionManager
 {
-    private EntityManagerInterface $em;
-    private FileManager $fileManager;
-
     private array $renditionsToDelete = [];
 
-    public function __construct(
-        EntityManagerInterface $em,
-        FileManager $fileManager
-    ) {
-        $this->em = $em;
-        $this->fileManager = $fileManager;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly FileManager $fileManager)
+    {
     }
 
     public function createOrReplaceRenditionByPath(

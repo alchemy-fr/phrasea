@@ -19,7 +19,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(InlineConstructorDefaultToPropertyRector::class);
 
     // define sets of rules
-    //    $rectorConfig->sets([
-    //        LevelSetList::UP_TO_PHP_82
-    //    ]);
+        $rectorConfig->sets([
+            LevelSetList::UP_TO_PHP_82
+        ]);
 };

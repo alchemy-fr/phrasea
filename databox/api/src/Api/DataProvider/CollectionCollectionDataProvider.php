@@ -11,11 +11,8 @@ use App\Entity\Core\Collection;
 
 class CollectionCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private CollectionSearch $search;
-
-    public function __construct(CollectionSearch $search)
+    public function __construct(private readonly CollectionSearch $search)
     {
-        $this->search = $search;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])

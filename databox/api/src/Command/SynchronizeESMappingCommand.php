@@ -15,15 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SynchronizeESMappingCommand extends Command
 {
-    private IndexMappingUpdater $indexMappingUpdater;
-    private EntityManagerInterface $em;
-
-    public function __construct(IndexMappingUpdater $indexMappingUpdater, EntityManagerInterface $em)
+    public function __construct(private readonly IndexMappingUpdater $indexMappingUpdater, private readonly EntityManagerInterface $em)
     {
         parent::__construct();
-
-        $this->indexMappingUpdater = $indexMappingUpdater;
-        $this->em = $em;
     }
 
     /**

@@ -16,11 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AwsTranscribeIntegrationController extends AbstractController
 {
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     /**

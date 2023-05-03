@@ -13,13 +13,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class NewAssetIntegrationHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'asset_integration';
+    final public const EVENT = 'asset_integration';
 
-    private IntegrationManager $integrationManager;
-
-    public function __construct(IntegrationManager $integrationManager)
+    public function __construct(private readonly IntegrationManager $integrationManager)
     {
-        $this->integrationManager = $integrationManager;
     }
 
     public function handle(EventMessage $message): void
@@ -31,12 +28,12 @@ class NewAssetIntegrationHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         $workspaceIntegration = $em->find(WorkspaceIntegration::class, $workspaceIntegrationId);
         if (!$workspaceIntegration instanceof WorkspaceIntegration) {
-            throw new ObjectNotFoundForHandlerException(WorkspaceIntegration::class, $workspaceIntegrationId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(WorkspaceIntegration::class, $workspaceIntegrationId, self::class);
         }
 
         $this->integrationManager->handleAssetIntegration($asset, $workspaceIntegration);

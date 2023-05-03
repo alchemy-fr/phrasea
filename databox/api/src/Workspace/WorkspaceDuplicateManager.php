@@ -15,11 +15,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class WorkspaceDuplicateManager
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function duplicateWorkspace(Workspace $workspace, string $newSlug): Workspace
@@ -78,9 +75,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = function (RenditionClass $class) use ($classMap): RenditionClass {
-            return $classMap[$class->getId()];
-        };
+        $replace = fn(RenditionClass $class): RenditionClass => $classMap[$class->getId()];
         foreach ($items as $item) {
             $i = new RenditionRule();
             $i->setObjectType(RenditionRule::TYPE_WORKSPACE);
@@ -114,9 +109,7 @@ class WorkspaceDuplicateManager
             'objectId' => $from->getId(),
         ]);
 
-        $replace = function (Tag $t) use ($map): Tag {
-            return $map[$t->getId()];
-        };
+        $replace = fn(Tag $t): Tag => $map[$t->getId()];
         foreach ($items as $item) {
             $i = new TagFilterRule();
             $i->setExclude($item->getExclude()->map($replace));

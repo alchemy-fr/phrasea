@@ -29,9 +29,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
             ->setHtmlAttributes(['target' => '_blank'])
-            ->linkToUrl(function (WorkflowState $entity): string {
-                return sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId());
-            });
+            ->linkToUrl(fn(WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)

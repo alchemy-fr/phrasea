@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table()
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
-class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface
+class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -197,7 +197,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
         $this->attributes->add($attribute);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
     }

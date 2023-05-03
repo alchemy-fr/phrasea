@@ -16,15 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SplitAttributesCommand extends Command
 {
-    private AttributeSplitter $attributeSplitter;
-    private EntityManagerInterface $em;
-
-    public function __construct(AttributeSplitter $attributeSplitter, EntityManagerInterface $em)
+    public function __construct(private readonly AttributeSplitter $attributeSplitter, private readonly EntityManagerInterface $em)
     {
         parent::__construct();
-
-        $this->attributeSplitter = $attributeSplitter;
-        $this->em = $em;
     }
 
     /**

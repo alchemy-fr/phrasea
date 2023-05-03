@@ -34,7 +34,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  * @ApiResource()
  */
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -251,7 +251,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         return $this->getOwnerId() ?? '';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getAbsoluteTitle() ?? $this->getId();
     }

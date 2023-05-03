@@ -36,24 +36,8 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
         'faces',
     ];
 
-    private AwsRekognitionClient $client;
-    private ApiBudgetLimiter $apiBudgetLimiter;
-    private IntegrationDataManager $dataManager;
-    private FileFetcher $fileFetcher;
-    private BatchAttributeManager $batchAttributeManager;
-
-    public function __construct(
-        AwsRekognitionClient $client,
-        IntegrationDataManager $dataManager,
-        FileFetcher $fileFetcher,
-        ApiBudgetLimiter $apiBudgetLimiter,
-        BatchAttributeManager $batchAttributeManager
-    ) {
-        $this->client = $client;
-        $this->dataManager = $dataManager;
-        $this->fileFetcher = $fileFetcher;
-        $this->apiBudgetLimiter = $apiBudgetLimiter;
-        $this->batchAttributeManager = $batchAttributeManager;
+    public function __construct(private readonly AwsRekognitionClient $client, private readonly IntegrationDataManager $dataManager, private readonly FileFetcher $fileFetcher, private readonly ApiBudgetLimiter $apiBudgetLimiter, private readonly BatchAttributeManager $batchAttributeManager)
+    {
     }
 
     protected function getSupportedRegions(): array
@@ -130,22 +114,16 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements AssetO
         $result = $this->analyze($asset->getSource(), $config, $categories);
 
         if (!empty($result['labels']) && !empty($config['labels']['attributes'] ?? [])) {
-            $this->saveTextsToAttributes($asset, array_map(function (array $text): array {
-                return [
-                    'value' => $text['Name'],
-                    'confidence' => $text['Confidence'],
-                ];
-            }, $result['labels']['Labels']), $config['labels']['attributes']);
+            $this->saveTextsToAttributes($asset, array_map(fn(array $text): array => [
+                'value' => $text['Name'],
+                'confidence' => $text['Confidence'],
+            ], $result['labels']['Labels']), $config['labels']['attributes']);
         }
         if (!empty($result['texts']) && !empty($config['texts']['attributes'] ?? [])) {
-            $this->saveTextsToAttributes($asset, array_map(function (array $text): array {
-                return [
-                    'value' => $text['DetectedText'],
-                    'confidence' => $text['Confidence'],
-                ];
-            }, array_filter($result['texts']['TextDetections'], function (array $text): bool {
-                return 'LINE' === $text['Type'];
-            })), $config['texts']['attributes']);
+            $this->saveTextsToAttributes($asset, array_map(fn(array $text): array => [
+                'value' => $text['DetectedText'],
+                'confidence' => $text['Confidence'],
+            ], array_filter($result['texts']['TextDetections'], fn(array $text): bool => 'LINE' === $text['Type'])), $config['texts']['attributes']);
         }
     }
 

@@ -17,13 +17,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class WorkspaceIntegrationExtension implements ContextAwareQueryCollectionExtensionInterface
 {
-    private IntegrationRegistry $integrationRegistry;
-    private EntityManagerInterface $em;
-
-    public function __construct(IntegrationRegistry $integrationRegistry, EntityManagerInterface $em)
+    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly EntityManagerInterface $em)
     {
-        $this->integrationRegistry = $integrationRegistry;
-        $this->em = $em;
     }
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null, array $context = []): void
@@ -52,9 +47,7 @@ class WorkspaceIntegrationExtension implements ContextAwareQueryCollectionExtens
             $filters['workspace'] = $file->getWorkspaceId();
 
             $supportedIntegrations = array_map(
-                function (FileActionsIntegrationInterface $integration): string {
-                    return $integration::getName();
-                },
+                fn(FileActionsIntegrationInterface $integration): string => $integration::getName(),
                 $this->integrationRegistry->getIntegrationsOfType(FileActionsIntegrationInterface::class)
             );
 

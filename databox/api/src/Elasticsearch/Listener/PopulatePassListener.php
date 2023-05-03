@@ -18,15 +18,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class PopulatePassListener implements EventSubscriberInterface
 {
     private array $pendingPasses = [];
-    private EntityManagerInterface $em;
-    private IndexSyncState $indexSyncState;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        IndexSyncState $indexSyncState
-    ) {
-        $this->em = $em;
-        $this->indexSyncState = $indexSyncState;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexSyncState $indexSyncState)
+    {
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void

@@ -17,13 +17,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class JWTTokenManager
 {
-    private string $signingKey;
-    private int $ttl;
-
-    public function __construct(string $signingKey, int $ttl)
+    public function __construct(private readonly string $signingKey, private readonly int $ttl)
     {
-        $this->signingKey = $signingKey;
-        $this->ttl = $ttl;
     }
 
     public function createToken(string $string, ?int $ttl = null): string

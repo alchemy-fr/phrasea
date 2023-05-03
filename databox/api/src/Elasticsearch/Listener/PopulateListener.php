@@ -14,15 +14,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class PopulateListener implements EventSubscriberInterface
 {
-    private IndexManager $indexManager;
-    private CacheInterface $cache;
-    private AssetPostTransformListener $assetPostTransformListener;
-
-    public function __construct(IndexManager $indexManager, CacheInterface $fosPopulateCache, AssetPostTransformListener $assetPostTransformListener)
+    public function __construct(private readonly IndexManager $indexManager, private readonly CacheInterface $cache, private readonly AssetPostTransformListener $assetPostTransformListener)
     {
-        $this->indexManager = $indexManager;
-        $this->cache = $fosPopulateCache;
-        $this->assetPostTransformListener = $assetPostTransformListener;
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event)

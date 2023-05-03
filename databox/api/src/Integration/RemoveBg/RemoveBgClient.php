@@ -10,13 +10,8 @@ use GuzzleHttp\Client;
 
 class RemoveBgClient
 {
-    private FileFetcher $fileFetcher;
-    private string $cacheDir;
-
-    public function __construct(FileFetcher $fileFetcher, string $cacheDir)
+    public function __construct(private readonly FileFetcher $fileFetcher, private readonly string $cacheDir)
     {
-        $this->fileFetcher = $fileFetcher;
-        $this->cacheDir = $cacheDir;
     }
 
     private function createClient(string $apiKey): Client

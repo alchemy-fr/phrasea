@@ -9,11 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserPreferencesManager
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function updatePreferences(string $userId, string $name, $value): UserPreference

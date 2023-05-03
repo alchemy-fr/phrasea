@@ -18,26 +18,15 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetSearch extends AbstractSearch
 {
-    private PaginatedFinderInterface $finder;
-    private TagFilterManager $tagFilterManager;
-    private AttributeSearch $attributeSearch;
-    private QueryStringParser $queryStringParser;
-    private FacetHandler $facetHandler;
-
     public function __construct(
-        PaginatedFinderInterface $finder,
-        TagFilterManager $tagFilterManager,
-        AttributeSearch $attributeSearch,
+        private readonly PaginatedFinderInterface $finder,
+        private readonly TagFilterManager $tagFilterManager,
+        private readonly AttributeSearch $attributeSearch,
         Security $security,
-        QueryStringParser $queryStringParser,
-        FacetHandler $facetHandler
+        private readonly QueryStringParser $queryStringParser,
+        private readonly FacetHandler $facetHandler
     ) {
-        $this->finder = $finder;
-        $this->tagFilterManager = $tagFilterManager;
-        $this->attributeSearch = $attributeSearch;
         $this->security = $security;
-        $this->queryStringParser = $queryStringParser;
-        $this->facetHandler = $facetHandler;
     }
 
     public function search(
@@ -57,9 +46,7 @@ class AssetSearch extends AbstractSearch
         }
         if (isset($options['parents'])) {
             $parentCollections = $this->findCollections($options['parents']);
-            $paths = array_map(function (Collection $parentCollection): string {
-                return $parentCollection->getAbsolutePath();
-            }, $parentCollections);
+            $paths = array_map(fn(Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
@@ -72,9 +59,7 @@ class AssetSearch extends AbstractSearch
             if (is_string($attrFilters)) {
                 $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
             } else {
-                $attrFilters = array_map(function ($f): array {
-                    return is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f;
-                }, $attrFilters);
+                $attrFilters = array_map(fn($f): array => is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f, $attrFilters);
             }
             if (!empty($attrFilters)) {
                 $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
@@ -152,9 +137,7 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(function (Asset $asset): bool {
-            return $this->security->isGranted(AssetVoter::READ, $asset);
-        }, $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn(Asset $asset): bool => $this->security->isGranted(AssetVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage((int) $options['page']);
@@ -239,11 +222,12 @@ class AssetSearch extends AbstractSearch
 
     private function applySort(Query $query, array $options): void
     {
+        $sort = [];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
                 $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
 
-                $w = strtoupper($way);
+                $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }

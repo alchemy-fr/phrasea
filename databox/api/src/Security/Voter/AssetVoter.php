@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
-    public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
-    public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
-    public const SHARE = 'SHARE';
+    final public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
+    final public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
+    final public const SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject)
     {

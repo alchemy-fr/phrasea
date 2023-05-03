@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class BooleanAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'boolean';
+    final public const NAME = 'boolean';
 
     public static function getName(): string
     {

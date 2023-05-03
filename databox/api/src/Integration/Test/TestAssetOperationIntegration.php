@@ -16,11 +16,9 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 class TestAssetOperationIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
     private const VERSION = '1.0';
-    private BatchAttributeManager $batchAttributeManager;
 
-    public function __construct(BatchAttributeManager $batchAttributeManager)
+    public function __construct(private readonly BatchAttributeManager $batchAttributeManager)
     {
-        $this->batchAttributeManager = $batchAttributeManager;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

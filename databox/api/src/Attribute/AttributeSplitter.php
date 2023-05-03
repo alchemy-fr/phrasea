@@ -10,11 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AttributeSplitter
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function splitAttributes(AttributeDefinition $attributeDefinition, string $delimiter): void
@@ -35,7 +32,7 @@ class AttributeSplitter
 
         foreach ($attributes as $attr) {
             $value = $attr['value'];
-            if (false !== strpos($value, $delimiter)) {
+            if (str_contains((string) $value, $delimiter)) {
                 $attribute = $this->em->find(Attribute::class, $attr['id']);
 
                 $parts = explode($delimiter, $attribute->getValue());

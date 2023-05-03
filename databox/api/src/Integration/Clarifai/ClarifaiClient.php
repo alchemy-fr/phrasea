@@ -13,11 +13,8 @@ use Clarifai\DTOs\Predictions\Concept;
 
 class ClarifaiClient
 {
-    private FileUrlResolver $fileUrlResolver;
-
-    public function __construct(FileUrlResolver $fileUrlResolver)
+    public function __construct(private readonly FileUrlResolver $fileUrlResolver)
     {
-        $this->fileUrlResolver = $fileUrlResolver;
     }
 
     public function getImageConcepts(File $file, string $apiKey): array

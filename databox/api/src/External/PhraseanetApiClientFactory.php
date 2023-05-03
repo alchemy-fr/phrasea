@@ -11,11 +11,8 @@ use Psr\Http\Message\RequestInterface;
 
 class PhraseanetApiClientFactory
 {
-    private array $options;
-
-    public function __construct(array $options = [])
+    public function __construct(private readonly array $options = [])
     {
-        $this->options = $options;
     }
 
     public function create(string $baseUri, string $oauthToken): Client
@@ -31,10 +28,8 @@ class PhraseanetApiClientFactory
         $client = new Client($options);
 
         $handler = $client->getConfig('handler');
-        $handler->unshift(Middleware::mapRequest(function (RequestInterface $request) use ($oauthToken): RequestInterface {
-            return $request
-                ->withAddedHeader('Authorization', 'OAuth '.$oauthToken);
-        }));
+        $handler->unshift(Middleware::mapRequest(fn(RequestInterface $request): RequestInterface => $request
+            ->withAddedHeader('Authorization', 'OAuth '.$oauthToken)));
 
         return $client;
     }

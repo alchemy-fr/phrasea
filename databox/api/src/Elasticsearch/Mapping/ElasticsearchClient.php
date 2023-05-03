@@ -10,11 +10,8 @@ use RuntimeException;
 
 class ElasticsearchClient
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function updateMapping(string $indexName, array $mapping): void

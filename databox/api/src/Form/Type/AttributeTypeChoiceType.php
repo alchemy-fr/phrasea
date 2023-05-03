@@ -11,11 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AttributeTypeChoiceType extends AbstractType
 {
-    private AttributeTypeRegistry $typeRegistry;
-
-    public function __construct(AttributeTypeRegistry $typeRegistry)
+    public function __construct(private readonly AttributeTypeRegistry $typeRegistry)
     {
-        $this->typeRegistry = $typeRegistry;
     }
 
     public function configureOptions(OptionsResolver $resolver)

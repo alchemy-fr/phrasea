@@ -17,16 +17,11 @@ use Symfony\Component\Validator\Constraints\Url;
 
 class PhraseanetRenditionIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
 {
-    public const METHOD_ENQUEUE = 'enqueue';
-    public const METHOD_API = 'api';
+    final public const METHOD_ENQUEUE = 'enqueue';
+    final public const METHOD_API = 'api';
 
-    private EventProducer $eventProducer;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(EventProducer $eventProducer, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly UrlGeneratorInterface $urlGenerator)
     {
-        $this->eventProducer = $eventProducer;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

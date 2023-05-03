@@ -22,26 +22,16 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AssetPostTransformListener implements EventSubscriberInterface
 {
-    private PermissionManager $permissionManager;
-    private AttributeTypeRegistry $attributeTypeRegistry;
-    private FieldNameResolver $fieldNameResolver;
     private CacheInterface $cache;
-    private AttributesResolver $attributesResolver;
-    private EntityManagerInterface $em;
 
     public function __construct(
-        PermissionManager $permissionManager,
-        AttributeTypeRegistry $attributeTypeRegistry,
-        FieldNameResolver $fieldNameResolver,
-        AttributesResolver $attributesResolver,
-        EntityManagerInterface $em
+        private readonly PermissionManager $permissionManager,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly AttributesResolver $attributesResolver,
+        private readonly EntityManagerInterface $em
     ) {
-        $this->permissionManager = $permissionManager;
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->fieldNameResolver = $fieldNameResolver;
         $this->disableCache();
-        $this->attributesResolver = $attributesResolver;
-        $this->em = $em;
     }
 
     public function setCache(CacheInterface $cache): void
@@ -149,9 +139,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
                 if ($definition->isMultiple()) {
                     $v = $a->getValues();
                     if (!empty($v)) {
-                        $v = array_map(function (string $v) use ($type): string {
-                            return $type->normalizeElasticsearchValue($v);
-                        }, $v);
+                        $v = array_map(fn(string $v): string => $type->normalizeElasticsearchValue($v), $v);
                     }
                 } else {
                     $v = $a->getValue();

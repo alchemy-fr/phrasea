@@ -32,9 +32,10 @@ class WorkspaceSecret extends AbstractUuidEntity
 
     /**
      * @ORM\Column(type="text", nullable=false)
-     * @Groups({"secret:index"})
      */
     private ?string $value = null;
+
+    private ?string $plainValue = null;
 
     public function getName(): ?string
     {
@@ -54,5 +55,15 @@ class WorkspaceSecret extends AbstractUuidEntity
     public function setValue(?string $value): void
     {
         $this->value = $value;
+    }
+
+    public function getPlainValue(): ?string
+    {
+        return $this->plainValue;
+    }
+
+    public function setPlainValue(?string $plainValue): void
+    {
+        $this->plainValue = $plainValue;
     }
 }

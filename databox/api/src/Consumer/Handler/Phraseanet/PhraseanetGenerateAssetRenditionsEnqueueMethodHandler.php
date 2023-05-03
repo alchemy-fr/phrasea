@@ -16,22 +16,15 @@ use Psr\Log\LoggerInterface;
 
 class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'phraseanet_generate_renditions_enqueue_method';
-
-    private PhraseanetApiClientFactory $clientFactory;
-    private string $databoxBaseUrl;
-    private IntegrationManager $integrationManager;
+    final public const EVENT = 'phraseanet_generate_renditions_enqueue_method';
 
     public function __construct(
-        IntegrationManager $integrationManager,
-        PhraseanetApiClientFactory $clientFactory,
+        private readonly IntegrationManager $integrationManager,
+        private readonly PhraseanetApiClientFactory $clientFactory,
         LoggerInterface $logger,
-        string $databoxBaseUrl
+        private readonly string $databoxBaseUrl
     ) {
-        $this->clientFactory = $clientFactory;
         $this->logger = $logger;
-        $this->databoxBaseUrl = $databoxBaseUrl;
-        $this->integrationManager = $integrationManager;
     }
 
     public static function createEvent(string $id, string $integrationId): EventMessage
@@ -55,11 +48,11 @@ class PhraseanetGenerateAssetRenditionsEnqueueMethodHandler extends AbstractEnti
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         if (!$asset->getSource() instanceof File) {
-            $this->logger->warning(sprintf('%s error: Asset %s has no file', __CLASS__, $asset->getId()));
+            $this->logger->warning(sprintf('%s error: Asset %s has no file', self::class, $asset->getId()));
 
             return;
         }

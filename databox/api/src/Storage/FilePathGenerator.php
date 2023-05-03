@@ -9,11 +9,8 @@ use InvalidArgumentException;
 
 class FilePathGenerator
 {
-    private PathGenerator $pathGenerator;
-
-    public function __construct(PathGenerator $pathGenerator)
+    public function __construct(private readonly PathGenerator $pathGenerator)
     {
-        $this->pathGenerator = $pathGenerator;
     }
 
     public function generatePath(string $workspaceId, ?string $extension): string

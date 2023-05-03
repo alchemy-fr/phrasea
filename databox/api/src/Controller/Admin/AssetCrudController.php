@@ -18,16 +18,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AssetCrudController extends AbstractAclAdminCrudController
 {
-    private UserChoiceField $userChoiceField;
-
     public static function getEntityFqcn(): string
     {
         return Asset::class;
     }
 
-    public function __construct(UserChoiceField $userChoiceField)
+    public function __construct(private readonly UserChoiceField $userChoiceField)
     {
-        $this->userChoiceField = $userChoiceField;
     }
 
     public function configureCrud(Crud $crud): Crud

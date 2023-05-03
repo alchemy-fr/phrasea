@@ -14,16 +14,14 @@ use Twig\Loader\ArrayLoader;
 
 class FallbackResolver
 {
-    private Environment $twig;
-    private EntityManagerInterface $em;
+    private readonly Environment $twig;
     private ?array $indexByName = null;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
         ]);
-        $this->em = $em;
     }
 
     private function getDefinitionIndexByName(string $workspaceId): array

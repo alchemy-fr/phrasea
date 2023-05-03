@@ -13,11 +13,8 @@ use Pagerfanta\Pagerfanta;
 
 class CollectionSearch extends AbstractSearch
 {
-    private PaginatedFinderInterface $finder;
-
-    public function __construct(PaginatedFinderInterface $finder)
+    public function __construct(private readonly PaginatedFinderInterface $finder)
     {
-        $this->finder = $finder;
     }
 
     public function search(

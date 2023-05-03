@@ -14,11 +14,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class SameWorkspaceConstraintValidator extends ConstraintValidator
 {
-    private PropertyAccessorInterface $propertyAccessor;
-
-    public function __construct(PropertyAccessorInterface $propertyAccessor = null)
+    public function __construct(private readonly PropertyAccessorInterface $propertyAccessor)
     {
-        $this->propertyAccessor = $propertyAccessor;
     }
 
     /**
@@ -60,7 +57,7 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
         while ($p = array_shift($parts)) {
             try {
                 $pointer = $this->getPropertyAccessor()->getValue($pointer, $p);
-            } catch (NoSuchPropertyException|UnexpectedTypeException $e) {
+            } catch (NoSuchPropertyException|UnexpectedTypeException) {
                 return;
             }
 

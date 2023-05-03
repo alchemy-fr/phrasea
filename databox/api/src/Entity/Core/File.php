@@ -16,13 +16,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ApiResource()
  */
-class File extends AbstractUuidEntity
+class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    public const STORAGE_S3_MAIN = 's3_main';
-    public const STORAGE_URL = 'url';
+    final public const STORAGE_S3_MAIN = 's3_main';
+    final public const STORAGE_URL = 'url';
 
     /**
      * Override trait for annotation.
@@ -123,7 +123,7 @@ class File extends AbstractUuidEntity
         $this->size = $size;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getId();
     }

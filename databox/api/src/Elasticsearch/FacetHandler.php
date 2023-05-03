@@ -11,19 +11,12 @@ use App\Elasticsearch\Facet\FacetRegistry;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 
-final class FacetHandler
+final readonly class FacetHandler
 {
     public const MISSING_SUFFIX = '::missing';
 
-    private FacetRegistry $facetRegistry;
-    private AttributeTypeRegistry $attributeTypeRegistry;
-
-    public function __construct(
-        FacetRegistry $facetRegistry,
-        AttributeTypeRegistry $attributeTypeRegistry
-    ) {
-        $this->facetRegistry = $facetRegistry;
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
+    public function __construct(private FacetRegistry $facetRegistry, private AttributeTypeRegistry $attributeTypeRegistry)
+    {
     }
 
     public function addBuiltInFacets(Query $query): void
@@ -54,11 +47,7 @@ final class FacetHandler
 
             if ($facet) {
                 try {
-                    $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($facet): ?array {
-                        return $facet->normalizeBucket($bucket);
-                    }, $f['buckets']), function ($value): bool {
-                        return null !== $value;
-                    }));
+                    $f['buckets'] = array_values(array_filter(array_map(fn(array $bucket): ?array => $facet->normalizeBucket($bucket), $f['buckets']), fn($value): bool => null !== $value));
                 } catch (\Throwable $e) {
                     throw new \Exception(sprintf('Error normalizing buckets with "%s" facet: %s', $facet::getKey(), $e->getMessage()), 0, $e);
                 }
@@ -66,11 +55,7 @@ final class FacetHandler
 
             $type = $this->attributeTypeRegistry->getStrictType($f['meta']['type'] ?? TextAttributeType::NAME);
             try {
-                $f['buckets'] = array_values(array_filter(array_map(function (array $bucket) use ($type): ?array {
-                    return $type->normalizeBucket($bucket);
-                }, $f['buckets']), function ($value): bool {
-                    return null !== $value;
-                }));
+                $f['buckets'] = array_values(array_filter(array_map(fn(array $bucket): ?array => $type->normalizeBucket($bucket), $f['buckets']), fn($value): bool => null !== $value));
             } catch (\Throwable $e) {
                 throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $facet::getKey(), $e->getMessage()), 0, $e);
             }

@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -147,7 +147,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $now ??= microtime(true);
         $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;
-        $this->microseconds = ($now * 1000000) % 1000000;
+        $this->microseconds = ($now * 1_000_000) % 1_000_000;
 
         if (null !== $sequence) {
             $this->sequence = $sequence;
@@ -218,9 +218,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         }
 
         if ($checkUnique) {
-            $duplicates = $this->collections->filter(function (CollectionAsset $ca) use ($collection): bool {
-                return $ca->getCollection() === $collection;
-            });
+            $duplicates = $this->collections->filter(fn(CollectionAsset $ca): bool => $ca->getCollection() === $collection);
 
             if (!$duplicates->isEmpty()) {
                 return $duplicates->first();
@@ -249,9 +247,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getStartingCollections(): DoctrineCollection
     {
-        return $this->collections->map(function (CollectionAsset $collectionAsset): Collection {
-            return $collectionAsset->getCollection();
-        });
+        return $this->collections->map(fn(CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection());
     }
 
     /**
@@ -275,9 +271,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getTagIds(): array
     {
-        return $this->tags->map(function (Tag $tag): string {
-            return $tag->getId();
-        })->getValues();
+        return $this->tags->map(fn(Tag $tag): string => $tag->getId())->getValues();
     }
 
     public function getReferenceCollectionId(): ?string
@@ -304,7 +298,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         return $this->getOwnerId() ?? '';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getTitle() ?? $this->getId();
     }

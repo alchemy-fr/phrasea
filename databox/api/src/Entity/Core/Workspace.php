@@ -21,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
-class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface
+class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -128,7 +128,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         return $this->collections;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName();
     }

@@ -24,18 +24,12 @@ class AssetDataTemplateVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
-
-        switch ($attribute) {
-            case self::READ:
-                return $subject->isPublic() || $isOwner || $this->security->isGranted(PermissionInterface::VIEW, $subject);
-            case self::EDIT:
-                return $isOwner || $this->security->isGranted(PermissionInterface::EDIT, $subject);
-            case self::DELETE:
-                return $isOwner || $this->security->isGranted(PermissionInterface::DELETE, $subject);
-            case self::CREATE:
-                return (bool) $userId;
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $subject->isPublic() || $isOwner || $this->security->isGranted(PermissionInterface::VIEW, $subject),
+            self::EDIT => $isOwner || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            self::DELETE => $isOwner || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::CREATE => (bool) $userId,
+            default => false,
+        };
     }
 }

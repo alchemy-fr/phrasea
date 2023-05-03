@@ -29,12 +29,12 @@ readonly class InitializeAttributesAction implements ActionInterface
 
         $asset = $this->em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
         }
 
         $workspace = $asset->getWorkspace();
         if (!$workspace instanceof Workspace) {
-            throw new ObjectNotFoundForHandlerException(Workspace::class, $asset->getWorkspaceId(), __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Workspace::class, $asset->getWorkspaceId(), self::class);
         }
 
         $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);

@@ -13,15 +13,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetDataTemplateOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private AttributesResolver $attributesResolver;
-    private Security $security;
-
-    public function __construct(
-        AttributesResolver $attributesResolver,
-        Security $security
-    ) {
-        $this->attributesResolver = $attributesResolver;
-        $this->security = $security;
+    public function __construct(private readonly AttributesResolver $attributesResolver, private readonly Security $security)
+    {
     }
 
     /**
@@ -42,9 +35,7 @@ class AssetDataTemplateOutputDataTransformer extends AbstractSecurityDataTransfo
         $output->includeCollectionChildren = $object->isIncludeCollectionChildren();
 
         if (isset($context['groups']) && in_array('asset-data-template:read', $context['groups'], true)) {
-            $output->attributes = array_filter($object->getAttributes()->getValues(), function (TemplateAttribute $attribute): bool {
-                return $this->security->isGranted(AbstractVoter::READ, $attribute);
-            });
+            $output->attributes = array_filter($object->getAttributes()->getValues(), fn(TemplateAttribute $attribute): bool => $this->security->isGranted(AbstractVoter::READ, $attribute));
         }
 
         $output->setCapabilities([

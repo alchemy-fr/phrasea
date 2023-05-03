@@ -16,19 +16,14 @@ use Psr\Log\LoggerInterface;
 
 class ImportFileHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'import_file';
-
-    private FileFetcher $fileFetcher;
-    private FileManager $fileManager;
+    final public const EVENT = 'import_file';
 
     public function __construct(
-        FileManager $fileManager,
-        FileFetcher $fileFetcher,
+        private readonly FileManager $fileManager,
+        private readonly FileFetcher $fileFetcher,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
-        $this->fileFetcher = $fileFetcher;
-        $this->fileManager = $fileManager;
     }
 
     public static function createEvent(string $fileId): EventMessage
@@ -48,7 +43,7 @@ class ImportFileHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $file = $em->find(File::class, $id);
         if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(File::class, $id, self::class);
         }
 
         if (!$file->isPathPublic()) {

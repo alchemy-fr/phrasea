@@ -14,16 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class WorkflowController
 {
-    private StateRepositoryInterface $stateRepository;
-    private WorkflowRepositoryInterface $workflowRepository;
-
-    public function __construct(
-        StateRepositoryInterface $stateRepository,
-        WorkflowRepositoryInterface $workflowRepository
-    )
+    public function __construct(private readonly StateRepositoryInterface $stateRepository, private readonly WorkflowRepositoryInterface $workflowRepository)
     {
-        $this->stateRepository = $stateRepository;
-        $this->workflowRepository = $workflowRepository;
     }
 
     /**

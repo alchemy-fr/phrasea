@@ -8,12 +8,10 @@ use Traversable;
 
 class ApiMetaWrapperOutput implements \IteratorAggregate
 {
-    private Traversable $result;
     private array $meta = [];
 
-    public function __construct(Traversable $result)
+    public function __construct(private readonly Traversable $result)
     {
-        $this->result = $result;
     }
 
     public function getResult(): iterable

@@ -14,16 +14,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class RenditionRuleCrudController extends AbstractAdminCrudController
 {
-    private UserTypeChoiceField $userTypeChoiceField;
-
     public static function getEntityFqcn(): string
     {
         return RenditionRule::class;
     }
 
-    public function __construct(UserTypeChoiceField $userTypeChoiceField)
+    public function __construct(private readonly UserTypeChoiceField $userTypeChoiceField)
     {
-        $this->userTypeChoiceField = $userTypeChoiceField;
     }
 
     public function configureCrud(Crud $crud): Crud

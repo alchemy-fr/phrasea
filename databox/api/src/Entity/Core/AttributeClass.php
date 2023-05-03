@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class AttributeClass extends AbstractUuidEntity implements AclObjectInterface
+class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;

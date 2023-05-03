@@ -352,9 +352,6 @@
             "src/Consumer/.gitignore"
         ]
     },
-    "php-cs-fixer/diff": {
-        "version": "v1.3.0"
-    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },

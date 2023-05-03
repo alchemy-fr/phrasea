@@ -14,12 +14,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class CopyFileToAssetHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'copy_file_to_asset';
-    private FileCopier $fileCopier;
+    final public const EVENT = 'copy_file_to_asset';
 
-    public function __construct(FileCopier $fileCopier)
+    public function __construct(private readonly FileCopier $fileCopier)
     {
-        $this->fileCopier = $fileCopier;
     }
 
     public static function createEvent(string $assetId, string $fileId): EventMessage
@@ -41,12 +39,12 @@ class CopyFileToAssetHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(AssetRendition::class, $assetId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(AssetRendition::class, $assetId, self::class);
         }
 
         $file = $em->find(File::class, $fileId);
         if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $fileId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(File::class, $fileId, self::class);
         }
 
         $copy = $this->fileCopier->copyFile($file, $asset->getWorkspace());

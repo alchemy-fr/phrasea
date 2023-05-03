@@ -9,11 +9,8 @@ use Pagerfanta\Pagerfanta;
 
 class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAggregate
 {
-    private Pagerfanta $pagerfanta;
-
-    public function __construct(Pagerfanta $pagerfanta)
+    public function __construct(private readonly Pagerfanta $pagerfanta)
     {
-        $this->pagerfanta = $pagerfanta;
     }
 
     public function count(): int

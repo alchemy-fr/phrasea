@@ -77,7 +77,7 @@ class DateTimeAttributeType extends AbstractAttributeType
                 return null;
             }
 
-            $value = trim($value);
+            $value = trim((string) $value);
             if (empty($value)) {
                 return null;
             }
@@ -90,7 +90,7 @@ class DateTimeAttributeType extends AbstractAttributeType
                 $matches = [];
                 if (1 === preg_match($tryout['p'], $value, $matches)) {
                     // m is the mapping from matches[x] to arg[i] for vsprintf(f, args)
-                    $args = array_map(function ($a) use ($matches) {return (int) ($matches[$a]); }, $tryout['m']);
+                    $args = array_map(fn($a) => (int) ($matches[$a]), $tryout['m']);
                     $value = vsprintf($tryout['f'], $args);
                     break;
                 }
@@ -119,7 +119,7 @@ class DateTimeAttributeType extends AbstractAttributeType
             }
 
             return $date;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -132,7 +132,7 @@ class DateTimeAttributeType extends AbstractAttributeType
 
         try {
             new DateTimeImmutable($value);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $context->addViolation('Invalid date');
 
             return;

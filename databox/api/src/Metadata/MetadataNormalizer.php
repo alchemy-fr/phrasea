@@ -26,10 +26,10 @@ class MetadataNormalizer
                 continue;
             }
             try {
-                if (!json_encode($vMeta->asString())) {
+                if (!json_encode($vMeta->asString(), JSON_THROW_ON_ERROR)) {
                     continue;
                 }
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 continue;
             }
 

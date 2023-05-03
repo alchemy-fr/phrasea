@@ -12,20 +12,15 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 class ApiBudgetLimiter
 {
-    public const POLICIES = [
+    final public const POLICIES = [
         'token_bucket',
         'fixed_window',
         'sliding_window',
         'no_limit',
     ];
 
-    private StorageInterface $storage;
-    private ?LockFactory $lockFactory;
-
-    public function __construct(StorageInterface $storage, LockFactory $lockFactory = null)
+    public function __construct(private readonly StorageInterface $storage, private readonly ?\Symfony\Component\Lock\LockFactory $lockFactory = null)
     {
-        $this->storage = $storage;
-        $this->lockFactory = $lockFactory;
     }
 
     public function createLimiter(int $limit, string $policy, string $interval, string $key): LimiterInterface

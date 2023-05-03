@@ -16,15 +16,8 @@ use Throwable;
 
 class CollectionDelete
 {
-    private EntityManagerInterface $em;
-    private IndexCleaner $indexCleaner;
-    private SoftDeleteToggler $softDeleteToggler;
-
-    public function __construct(EntityManagerInterface $em, IndexCleaner $indexCleaner, SoftDeleteToggler $softDeleteToggler)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexCleaner $indexCleaner, private readonly SoftDeleteToggler $softDeleteToggler)
     {
-        $this->em = $em;
-        $this->indexCleaner = $indexCleaner;
-        $this->softDeleteToggler = $softDeleteToggler;
     }
 
     public function deleteCollection(string $collectionId, bool $isChildProcess = false): void

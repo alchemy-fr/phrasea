@@ -13,13 +13,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetDataTemplateCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private AssetDataTemplateSearch $search;
-    private Security $security;
-
-    public function __construct(AssetDataTemplateSearch $search, Security $security)
+    public function __construct(private readonly AssetDataTemplateSearch $search, private readonly Security $security)
     {
-        $this->search = $search;
-        $this->security = $security;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])

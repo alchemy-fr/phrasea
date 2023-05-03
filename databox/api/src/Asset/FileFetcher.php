@@ -10,13 +10,8 @@ use InvalidArgumentException;
 
 class FileFetcher
 {
-    private FileUrlResolver $fileUrlResolver;
-    private UriDownloader $fileDownloader;
-
-    public function __construct(FileUrlResolver $fileUrlResolver, UriDownloader $fileDownloader)
+    public function __construct(private readonly FileUrlResolver $fileUrlResolver, private readonly UriDownloader $fileDownloader)
     {
-        $this->fileUrlResolver = $fileUrlResolver;
-        $this->fileDownloader = $fileDownloader;
     }
 
     public function getFile(File $file, array &$headers = []): string
