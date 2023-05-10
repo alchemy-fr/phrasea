@@ -28,6 +28,7 @@ class SubDefinition implements MediaInterface
 {
     const THUMBNAIL = 'thumbnail';
     const PREVIEW = 'preview';
+    const POSTER = 'poster';
 
     const API_READ = [
         'groups' => ['subdef:read'],
