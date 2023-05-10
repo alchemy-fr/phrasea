@@ -1,4 +1,5 @@
 import axios, {AxiosError} from "axios";
+import CookieStorage from "./cookieStorage";
 
 const accessTokenStorageKey = 'accessToken';
 const usernameStorageKey = 'username';
@@ -36,8 +37,14 @@ export const authenticationEventType = 'authentication';
 export const loginEventType = 'login';
 export const logoutEventType = 'logout';
 
+export interface IStorage {
+    getItem(key: string): string | null;
+    removeItem(key: string): void;
+    setItem(key: string, value: string): void;
+}
+
 type Options = {
-    storage?: Storage;
+    storage?: IStorage;
     clientId: string;
     clientSecret: string;
     baseUrl: string;
@@ -49,13 +56,13 @@ export default class OAuthClient {
     private clientId: string;
     private clientSecret: string;
     private baseUrl: string;
-    private storage: Storage;
+    private storage: IStorage;
 
     constructor({
                     clientId,
                     clientSecret,
                     baseUrl,
-                    storage = sessionStorage
+                    storage = new CookieStorage()
                 }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;

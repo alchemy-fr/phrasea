@@ -42,15 +42,17 @@ export default class AssetProxy extends PureComponent {
 
         switch (true) {
             case 'application/pdf' === type:
-                return <PDFViewer file={asset.url}/>
+                return <PDFViewer file={asset.previewUrl}/>
             case type.startsWith('video/'):
+            case type.startsWith('audio/'):
                 return <VideoPlayer
                     ref={this.videoRef}
-                    url={asset.url}
-                    previewUrl={asset.previewUrl}
+                    url={asset.previewUrl}
+                    posterUrl={asset.posterUrl}
                     title={asset.title}
                     webVTTLink={asset.webVTTLink}
                     fluid={fluid}
+                    mimeType={type}
                 />
             case type.startsWith('image/'):
                 if (this.props.magnifier) {

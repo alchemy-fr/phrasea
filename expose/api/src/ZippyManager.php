@@ -80,10 +80,9 @@ class ZippyManager
             $publication->getTitle(),
         ];
 
-        foreach ($publication->getAssets() as $publicationAsset) {
-            $asset = $publicationAsset->getAsset();
+        foreach ($publication->getAssets() as $asset) {
             $parts[] = sprintf('%s-%s-%s',
-                $publicationAsset->getSlug(),
+                $asset->getSlug(),
                 $asset->getOriginalName(),
                 $asset->getSize()
             );

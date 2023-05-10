@@ -6,18 +6,15 @@ namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
 use App\Entity\MediaInterface;
-use App\Entity\Publication;
 use App\Entity\SubDefinition;
 use App\Security\AssetUrlGenerator;
 use App\Security\Authentication\JWTManager;
-use Symfony\Component\Asset\Packages;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 {
     private AssetUrlGenerator $assetUrlGenerator;
     protected UrlGeneratorInterface $urlGenerator;
-    private Packages $packages;
     protected JWTManager $JWTManager;
 
     /**
@@ -26,14 +23,6 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;
-    }
-
-    /**
-     * @required
-     */
-    public function setPackages(Packages $packages): void
-    {
-        $this->packages = $packages;
     }
 
     /**
@@ -50,19 +39,6 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     public function setJWTManager(JWTManager $JWTManager): void
     {
         $this->JWTManager = $JWTManager;
-    }
-
-    protected function generateAssetUrlOrVideoPreviewUrl(MediaInterface $media): string
-    {
-        if (0 === strpos($media->getMimeType(), 'video/')) {
-            return $this->packages->getUrl('/images/player.webp', 'assets');
-        } elseif (0 === strpos($media->getMimeType(), 'application/pdf')) {
-            return $this->packages->getUrl('/images/pdf-icon.jpg', 'assets');
-        } elseif (0 === strpos($media->getMimeType(), 'image/')) {
-            return $this->generateAssetUrl($media);
-        }
-
-        return $this->packages->getUrl('/images/asset.jpg', 'assets');
     }
 
     protected function generateDownloadAssetTrackerUrl(Asset $asset): string

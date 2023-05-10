@@ -66,8 +66,22 @@ class App extends PureComponent {
                         {...props}
                         oauthClient={oauthClient}
                         successHandler={(history) => {
-                            history.replace(getAuthRedirect());
+                            const redirectUri = getAuthRedirect() || '/';
                             unsetAuthRedirect();
+                            if (window.opener) {
+                                try {
+                                    if (window.opener.isPhraseaApp) {
+                                        window.opener.document.location.href = redirectUri;
+                                        window.close();
+                                    }
+
+                                    return;
+                                } catch (err) {
+                                    console.error(err);
+                                }
+                            }
+
+                            history.replace(redirectUri);
                         }}
                     />
                 }}/>

@@ -18,11 +18,15 @@ export default function EmbeddedAsset({
 }: Props) {
 
     const [data, setData] = React.useState<Asset | undefined>();
+    const [error, setError] = React.useState<string | undefined>();
 
     const load = React.useCallback(async () => {
-        const asset = await loadAsset(id);
-
-        setData(asset);
+        try {
+            const asset = await loadAsset(id);
+            setData(asset);
+        } catch (e) {
+            setError(e.toString());
+        }
     }, [id]);
 
     useEffect(() => {
@@ -35,6 +39,12 @@ export default function EmbeddedAsset({
         }
     }, [data?.id]);
 
+    if (error) {
+        return <div>
+            {error}
+        </div>
+    }
+
     if (!data) {
         return <FullPageLoader/>
     }
@@ -42,7 +52,7 @@ export default function EmbeddedAsset({
     const {publication} = data;
 
     return <>
-        <style>
+        {publication && publication.authorized && <style>
             {`
                 html {
                     height: 100%;
@@ -52,13 +62,13 @@ export default function EmbeddedAsset({
                     overflow: hidden;
                 }
             `}
-        </style>
+        </style>}
         {publication && publication.cssLink ? <link rel="stylesheet" type="text/css" href={publication.cssLink}/> : ''}
         <PublicationSecurityProxy
             publication={publication}
             reload={load}
         >
-            {data.publication.authorized && <div
+            {publication.authorized && <div
                 className={'embedded-asset'}
             >
                 <AssetProxy

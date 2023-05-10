@@ -2,17 +2,19 @@ import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import Description from "./Description";
 import videojs from 'video.js'
+import {getPosterPlaceholder} from "./placeholders";
 
 export default class VideoPlayer extends PureComponent {
     static propTypes = {
         title: PropTypes.string,
         description: PropTypes.string,
         url: PropTypes.string.isRequired,
-        previewUrl: PropTypes.string.isRequired,
+        posterUrl: PropTypes.string,
         alt: PropTypes.string,
         onPlay: PropTypes.func,
         webVTTLink: PropTypes.string,
         fluid: PropTypes.bool,
+        mimeType: PropTypes.string.isRequired,
     };
 
     state = {
@@ -79,10 +81,11 @@ export default class VideoPlayer extends PureComponent {
 
     render() {
         const {
-            previewUrl,
+            posterUrl,
             title,
             description,
             webVTTLink,
+            mimeType,
         } = this.props;
 
         return <div
@@ -103,7 +106,7 @@ export default class VideoPlayer extends PureComponent {
                     </div>
                     : <div className={'video-preview-wrapper'}>
                         <div className='play-button'/>
-                        <img src={previewUrl} alt={title}/>
+                        <img src={posterUrl || getPosterPlaceholder(mimeType)} alt={title}/>
                         {
                             description &&
                             <span

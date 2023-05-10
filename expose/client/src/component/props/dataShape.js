@@ -11,7 +11,9 @@ export const dataShape = PropTypes.shape({
 
 export const assetShape = PropTypes.shape({
     downloadUrl: PropTypes.string.isRequired,
-    thumbUrl: PropTypes.string.isRequired,
+    posterUrl: PropTypes.string,
+    thumbUrl: PropTypes.string,
+    previewUrl: PropTypes.string.isRequired,
     originalName: PropTypes.string,
     mimeType: PropTypes.string.isRequired,
     subDefinitions: PropTypes.array.isRequired,

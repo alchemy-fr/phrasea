@@ -15,6 +15,7 @@ import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
 import {logAssetView} from "../../../lib/log";
+import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 class GalleryLayout extends React.Component {
     static propTypes = {
@@ -179,7 +180,7 @@ class GalleryLayout extends React.Component {
                     showPlayButton={showPlayButton}
                     items={assets.map(a => ({
                         original: a.previewUrl,
-                        thumbnail: a.thumbUrl,
+                        thumbnail: a.thumbUrl || getThumbPlaceholder(a.mimeType),
                         description: a.description,
                         asset: a,
                         downloadEnabled,

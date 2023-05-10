@@ -4,22 +4,41 @@ App\Entity\Asset:
     title: '<name()>'
     publication: '@pub_*'
 
-  a_gallery_audio{1..10} (extends asset):
+  a_audio{1..10} (extends asset):
     mimeType: audio/mp3
+    title: 'Audio <current()>'
     path: '<randomMedia("assets", "mp3", <current()>)>'
     originalName: '<current()>.mp3'
 
-  a_gallery_video{1..10} (extends asset):
+  a_video{1..10} (extends asset):
+    title: 'Video <current()>'
     mimeType: video/mp4
     path: '<randomMedia("assets", "mp4", <current()>)>'
     originalName: '<current()>.mp4'
 
-  a_gallery_img{1..10} (extends asset):
+  a_pdf{1..10} (extends asset):
+    title: 'PDF <current()>'
+    mimeType: application/pdf
+    path: '<randomMedia("assets", "pdf", <current()>)>'
+    originalName: '<current()>.pdf'
+
+  a_img{1..10} (extends asset):
+    title: 'Image <current()>'
     mimeType: image/jpeg
     path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
     originalName: '<current()>.jpg'
 
-  a_grid_img{1..30} (extends asset):
+App\Entity\SubDefinition:
+  sd_video_poster{1..10}:
+    asset: '@a_video<current()>'
     mimeType: image/jpeg
+    size: 42
+    name: poster
     path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
-    originalName: '<current()>.jpg'
+
+  sd_video_thumb{1..10}:
+    asset: '@a_video<current()>'
+    mimeType: image/jpeg
+    size: 42
+    name: thumb
+    path: '<imageUrlRandomRatio("assets", <current()>, 300)>'

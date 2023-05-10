@@ -3,6 +3,8 @@ import {Publication} from "../../types";
 import {securityMethods} from "./methods";
 import FullPageLoader from "../FullPageLoader";
 import {logPublicationView} from "../../lib/log";
+import {oauthClient} from "../../lib/oauth";
+import config from "../../lib/config";
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -22,6 +24,11 @@ export default function PublicationSecurityProxy({
         }
     }, [publication?.id, log]);
 
+    const logout = () => {
+        oauthClient.logout();
+        document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.href)}`;
+    };
+
     if (!publication) {
         return <FullPageLoader/>
     }
@@ -33,8 +40,19 @@ export default function PublicationSecurityProxy({
     }
 
     if (authorizationError === 'not_allowed') {
-        return <div>
-            Sorry! You are not allowed to access this publication.
+        return <div style={{
+            padding: 10,
+        }}>
+            <p>
+                Sorry! You are not allowed to access this publication.
+            </p>
+
+            <button
+                onClick={logout}
+                className={'btn btn-sm btn-logout'}
+            >
+                Logout
+            </button>
         </div>
     }
 
