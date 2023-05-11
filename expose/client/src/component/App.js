@@ -66,15 +66,28 @@ class App extends PureComponent {
                         {...props}
                         oauthClient={oauthClient}
                         successHandler={(history) => {
-                            history.replace(getAuthRedirect());
+                            const redirectUri = getAuthRedirect() || '/';
                             unsetAuthRedirect();
+                            if (window.opener) {
+                                try {
+                                    if (window.opener.isPhraseaApp) {
+                                        window.opener.document.location.href = redirectUri;
+                                        window.close();
+                                    }
+
+                                    return;
+                                } catch (err) {
+                                    console.error(err);
+                                }
+                            }
+
+                            history.replace(redirectUri);
                         }}
                     />
                 }}/>
                 {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
                 <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
                     id={params.asset}
-                    authenticated={this.state.authenticated}
                 />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}

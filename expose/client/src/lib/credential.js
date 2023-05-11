@@ -29,7 +29,12 @@ export function setPassword(securityContainerId, password) {
     const passwords = decodePassword();
 
     passwords[securityContainerId] = password;
-    cookies.set(passwordCookieName, btoa(JSON.stringify(passwords)), {path: '/'});
+
+    cookies.set(passwordCookieName, btoa(JSON.stringify(passwords)), {
+        path: '/',
+        sameSite: 'none',
+        secure: true,
+    });
 }
 
 function decodePassword() {

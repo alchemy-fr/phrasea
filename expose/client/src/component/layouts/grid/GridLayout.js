@@ -12,6 +12,7 @@ import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
 import FullPageLoader from "../../FullPageLoader";
 import {logAssetView} from "../../../lib/log";
+import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 const CustomView = ({data, carouselProps, currentView}) => {
     const isCurrent = currentView === data;
@@ -125,15 +126,13 @@ class GridLayout extends React.Component {
                 enableLightbox={false}
                 enableImageSelection={false}
                 onClickThumbnail={this.openAsset}
-                images={this.props.data.assets.map(a => {
-                    return {
-                        src: a.previewUrl,
-                        thumbnail: a.thumbUrl,
-                        thumbnailWidth: a.thumbWidth,
-                        thumbnailHeight: a.thumbHeight,
-                        caption: a.title,
-                    };
-                })}/>
+                images={this.props.data.assets.map(a => ({
+                    src: a.previewUrl,
+                    thumbnail: a.thumbUrl || getThumbPlaceholder(a.mimeType),
+                    thumbnailWidth: a.thumbWidth,
+                    thumbnailHeight: a.thumbHeight,
+                    caption: a.title,
+                }))}/>
             <ModalGateway>
                 {null !== currentAsset ? (
                     <Modal
@@ -185,12 +184,11 @@ class GridLayout extends React.Component {
                 img.onerror = e => {
                     console.error(e);
                     a.thumbUrl = squareImg;
-                    a.previewUrl = squareImg;
                     a.thumbWidth = 100;
                     a.thumbHeight = 100;
                     resolve();
                 };
-                img.src = a.thumbUrl;
+                img.src = a.thumbUrl || getThumbPlaceholder(a.mimeType);
             });
         }));
 

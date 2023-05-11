@@ -122,6 +122,9 @@ class AssetManager
         if ($options['use_as_preview'] ?? false) {
             $asset->setPreviewDefinition($subDefinition);
         }
+        if ($options['use_as_poster'] ?? false) {
+            $asset->setPosterDefinition($subDefinition);
+        }
         if ($options['use_as_thumbnail'] ?? false) {
             $asset->setThumbnailDefinition($subDefinition);
         }

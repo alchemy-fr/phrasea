@@ -9,6 +9,7 @@ import PublicationHeader from "../shared-components/PublicationHeader";
 import AssetProxy from "../shared-components/AssetProxy";
 import {Trans} from "react-i18next";
 import {logAssetView} from "../../../lib/log";
+import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.get('mapBoxToken');
@@ -136,7 +137,7 @@ class MapboxLayout extends React.Component {
         const images = await Promise.all(this.state.assets.map(a => {
             return new Promise(resolve => {
                 this.map.loadImage(
-                    a.thumbUrl,
+                    a.thumbUrl || getThumbPlaceholder(a.mimeType),
                     async (err, img) => {
                         if (err) {
                             console.error('err', err);

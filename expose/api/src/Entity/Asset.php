@@ -234,6 +234,12 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(writable=false)
+     * @Groups({"asset:read", "publication:read", "publication:index"})
+     */
+    private ?string $posterUrl = null;
+
+    /**
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?string $uploadURL = null;
@@ -365,6 +371,16 @@ class Asset implements MediaInterface
         $this->previewUrl = $previewUrl;
     }
 
+    public function getPosterUrl(): ?string
+    {
+        return $this->posterUrl;
+    }
+
+    public function setPosterUrl(?string $posterUrl): void
+    {
+        $this->posterUrl = $posterUrl;
+    }
+
     public function getDownloadUrl(): ?string
     {
         return $this->downloadUrl;
@@ -394,10 +410,27 @@ class Asset implements MediaInterface
         return null;
     }
 
+    public function getPosterDefinition(): ?SubDefinition
+    {
+        foreach ($this->getSubDefinitions() as $subDefinition) {
+            if (SubDefinition::POSTER === $subDefinition->getName()) {
+                return $subDefinition;
+            }
+        }
+
+        return null;
+    }
+
     public function setPreviewDefinition(?SubDefinition $previewDefinition): void
     {
         $previewDefinition->setName(SubDefinition::PREVIEW);
         $previewDefinition->setAsset($this);
+    }
+
+    public function setPosterDefinition(?SubDefinition $posterDefinition): void
+    {
+        $posterDefinition->setName(SubDefinition::POSTER);
+        $posterDefinition->setAsset($this);
     }
 
     public function getThumbnailDefinition(): ?SubDefinition
