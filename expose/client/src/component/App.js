@@ -88,7 +88,6 @@ class App extends PureComponent {
                 {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
                 <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
                     id={params.asset}
-                    authenticated={this.state.authenticated}
                 />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}

@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react';
-import Layout from "./Layout";
 import FullPageLoader from "./FullPageLoader";
 import {Asset} from "../types";
 import AssetProxy from "./layouts/shared-components/AssetProxy";
@@ -8,12 +7,10 @@ import PublicationSecurityProxy from "./security/PublicationSecurityProxy";
 import {logAssetView} from "../lib/log";
 
 type Props = {
-    authenticated: boolean;
     id: string;
 };
 
 export default function EmbeddedAsset({
-    authenticated,
     id,
 }: Props) {
 
