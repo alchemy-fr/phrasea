@@ -24,6 +24,10 @@ final readonly class PlanExecutor
 
         $event = $workflowState->getEvent();
         $workflow = $this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName());
+        if (null === $workflow) {
+            throw new \RuntimeException(sprintf('Workflow "%s" not found', $workflowState->getWorkflowName()));
+        }
+
         $planner = new WorkflowPlanner([$workflow]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 

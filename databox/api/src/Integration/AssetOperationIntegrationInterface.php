@@ -6,6 +6,10 @@ namespace App\Integration;
 
 use App\Entity\Core\Asset;
 
+/**
+ * @deprecated You should use WorkflowIntegrationInterface.
+ * @see        WorkflowIntegrationInterface
+ */
 interface AssetOperationIntegrationInterface extends IntegrationInterface
 {
     public function handleAsset(Asset $asset, array $config): void;

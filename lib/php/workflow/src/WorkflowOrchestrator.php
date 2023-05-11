@@ -6,6 +6,7 @@ namespace Alchemy\Workflow;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
@@ -65,7 +66,7 @@ class WorkflowOrchestrator
         }
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+        $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
@@ -94,7 +95,8 @@ class WorkflowOrchestrator
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+
+        $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         foreach ($plan->getStages() as $stage) {
@@ -117,6 +119,16 @@ class WorkflowOrchestrator
                 }
             }
         }
+    }
+
+    private function loadWorkflowByName(string $name): Workflow
+    {
+        $workflow = $this->workflowRepository->loadWorkflowByName($name);
+        if (null === $workflow) {
+            throw new \RuntimeException(sprintf('Workflow "%s" not found', $name));
+        }
+
+        return $workflow;
     }
 
     /**

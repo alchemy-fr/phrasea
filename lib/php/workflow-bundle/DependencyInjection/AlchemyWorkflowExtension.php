@@ -35,11 +35,8 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         $loader->load('workflow.yaml');
 
-        $def = $container->getDefinition('alchemy.workflow.workflow_repository');
+        $def = $container->getDefinition('alchemy.workflow.workflow_repository.file');
         $def->setArgument('$dirs', $config['workflows_dirs']);
-
-        $def = $container->getDefinition('alchemy.workflow.state_repository');
-//        $def->setArgument('$path', '%kernel.cache_dir%/workflows');
     }
 
     public function prepend(ContainerBuilder $container)

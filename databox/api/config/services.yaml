@@ -211,3 +211,8 @@ services:
     App\Security\Secrets\SecretsManager:
         $publicKey: '%env(SECRETS_PUBLIC_KEY)%'
         $secretKey: '%env(SECRETS_SECRET_KEY)%'
+
+    App\Workflow\IntegrationWorkflowRepository:
+        decorates: 'alchemy.workflow.workflow_repository.default'
+        arguments:
+            $decorated: '@.inner'

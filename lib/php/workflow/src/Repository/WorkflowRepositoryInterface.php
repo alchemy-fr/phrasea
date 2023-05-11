@@ -9,7 +9,7 @@ use Alchemy\Workflow\Model\Workflow;
 
 interface WorkflowRepositoryInterface
 {
-    public function loadWorkflowByName(string $name): Workflow;
+    public function loadWorkflowByName(string $name): ?Workflow;
 
     /**
      * @return Workflow[]

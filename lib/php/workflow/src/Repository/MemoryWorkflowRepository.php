@@ -17,7 +17,7 @@ class MemoryWorkflowRepository implements WorkflowRepositoryInterface
         $this->workflows = $workflows;
     }
 
-    public function loadWorkflowByName(string $name): Workflow
+    public function loadWorkflowByName(string $name): ?Workflow
     {
         return $this->workflows->getByName($name);
     }

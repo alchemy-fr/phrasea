@@ -43,6 +43,7 @@ readonly class AssetManager
         $this->postFlushStack->addCallback(function () use ($asset) {
             $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
                 'assetId' => $asset->getId(),
+                'workspaceId' => $asset->getWorkspaceId(),
             ]));
         });
     }

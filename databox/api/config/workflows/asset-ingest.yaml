@@ -9,6 +9,8 @@ on:
     inputs:
       assetId:
         required: true
+      workspaceId:
+        required: true
 
 jobs:
   read_metadata:

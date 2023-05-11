@@ -25,8 +25,10 @@ services:
     tags:
       - { name: kernel.cache_warmer, priority: 0 }
 
-  alchemy.workflow.workflow_repository:
+  alchemy.workflow.workflow_repository.file:
     class: Alchemy\Workflow\Repository\FileWorkflowRepository
+
+  alchemy.workflow.workflow_repository.default: '@alchemy.workflow.workflow_repository.file'
 
   alchemy.workflow.state_repository:
     class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
@@ -60,7 +62,7 @@ services:
   Alchemy\Workflow\Runner\RunnerInterface: '@alchemy.workflow.job_runner'
   Alchemy\Workflow\Trigger\JobTriggerInterface: '@alchemy.workflow.job_trigger'
   Alchemy\Workflow\State\Repository\StateRepositoryInterface: '@alchemy.workflow.state_repository'
-  Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository'
+  Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository.default'
 
   Alchemy\Workflow\WorkflowOrchestrator: ~
   alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'

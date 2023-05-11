@@ -101,6 +101,9 @@ class IntegrationManager
         return $integration;
     }
 
+    /**
+     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
+     */
     public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): array
     {
         return $this->getConfiguration(
@@ -153,6 +156,9 @@ class IntegrationManager
         return trim(preg_replace("#^\n+#", '', $output));
     }
 
+    /**
+     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
+     */
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
     {
         $node = $this->buildConfiguration($integration);
