@@ -7,7 +7,8 @@ namespace App\Integration;
 use App\Entity\Core\Asset;
 
 /**
- * @deprecated You should use WorkflowIntegrationInterface.
+ * @deprecated you should use WorkflowIntegrationInterface
+ *
  * @see        WorkflowIntegrationInterface
  */
 interface AssetOperationIntegrationInterface extends IntegrationInterface

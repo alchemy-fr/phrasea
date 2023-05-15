@@ -3,3 +3,4 @@ Dockerfile
 /var
 /vendor
 .idea
+/.php-cs-fixer.cache

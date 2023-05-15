@@ -20,8 +20,7 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
         private readonly EntityManagerInterface $em,
         private readonly IntegrationManager $integrationManager,
         private readonly WorkflowRepositoryInterface $decorated,
-    )
-    {
+    ) {
     }
 
     public function loadWorkflowByName(string $name): ?Workflow
