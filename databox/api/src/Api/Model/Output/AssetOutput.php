@@ -104,27 +104,27 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?\App\Entity\Core\File $source = null;
+    private ?File $source = null;
 
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?\App\Entity\Core\AssetRendition $original = null;
+    private ?AssetRendition $original = null;
 
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?\App\Entity\Core\AssetRendition $preview = null;
+    private ?AssetRendition $preview = null;
 
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?\App\Entity\Core\AssetRendition $thumbnail = null;
+    private ?AssetRendition $thumbnail = null;
 
     /**
      * @Groups({"asset:index", "asset:read"})
      */
-    private ?\App\Entity\Core\AssetRendition $thumbnailActive = null;
+    private ?AssetRendition $thumbnailActive = null;
 
     /**
      * @ApiProperty()

@@ -7,6 +7,7 @@ namespace App\Integration\Moderation;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use App\Integration\AbstractIntegration;
+use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Validator\Constraints\All;
@@ -40,6 +41,13 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
 
     public function getWorkflowJobDefinitions(array $config): iterable
     {
+        yield WorkflowHelper::createIntegrationJob(
+            self::getName(),
+            self::getTitle(),
+            $config,
+            ModerationAction::class,
+        );
+
         $job = new Job(self::getName());
 
         $step = new Step('human-moderation', 'Human Moderation');

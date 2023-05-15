@@ -15,6 +15,6 @@ final class ModerationAction implements ActionInterface
 
     public function handle(RunContext $context): void
     {
-        throw new \Exception('Refused ^^');
+        $context->retainJob();
     }
 }

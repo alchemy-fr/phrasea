@@ -21,7 +21,7 @@ type Props = {
 
 export default function VisualWorkflow({
     workflow,
-    nodeWith = 220,
+    nodeWith = 300,
     nodeHeight = 55,
     stageXPadding = 30,
     nodeYPadding = 15,

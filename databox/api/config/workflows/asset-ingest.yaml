@@ -1,10 +1,6 @@
 name: asset-ingest
 
 on:
-  workflow_call:
-    inputs:
-      assetId:
-        required: true
   asset_ingest:
     inputs:
       assetId:

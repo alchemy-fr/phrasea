@@ -84,7 +84,6 @@ class YamlLoader implements FileLoaderInterface
 
         $step = new Step($id, $data['name'] ?? $id);
         $step->setRun($data['run'] ?? null);
-        $step->setIf($data['if'] ?? null);
         $step->setUses($data['uses'] ?? null);
         $step->setWith($data['with'] ?? []);
         $step->setContinueOnError($data['continue-on-error'] ?? false);

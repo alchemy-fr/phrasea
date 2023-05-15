@@ -22,6 +22,5 @@ class YamlLoaderTest extends TestCase
         $this->assertCount(3, $copyFilesJob->getSteps());
         $this->assertCount(0, $copyFilesJob->getEnv());
         $this->assertEquals('env.foo == "bar"', $copyFilesJob->getIf());
-        $this->assertNull($copyFilesJob->getSteps()[0]->getIf());
     }
 }

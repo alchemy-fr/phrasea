@@ -6,10 +6,10 @@ import JobStatusIndicator from "./JobStatusIndicator";
 
 export default React.memo(({data}: NodeProps<Job>) => {
     return <>
-        {data.needs?.length && <Handle
+        {data.needs?.length ? <Handle
             type="target"
             position={Position.Left}
-        />}
+        /> : ''}
         <div className={'job-content'}>
             <div className={'job-status'}>
                 <JobStatusIndicator

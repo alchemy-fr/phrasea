@@ -6,6 +6,7 @@ namespace Alchemy\Workflow;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
@@ -136,6 +137,9 @@ class WorkflowOrchestrator
      */
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
+        $statuses = [];
+
+        $workflowComplete = true;
         foreach ($plan->getStages() as $stage) {
             $stageComplete = true;
 
@@ -145,8 +149,14 @@ class WorkflowOrchestrator
 
                 $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
                 if (null === $jobState) {
-                    return [$jobId, null];
+                    if ($this->satisfiesAllNeeds($statuses, $job)) {
+                        return [$jobId, null];
+                    } else {
+                        continue;
+                    }
                 }
+
+                $statuses[$jobId] = $jobState->getStatus();
 
                 if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
                     return [null, WorkflowState::STATUS_FAILURE];
@@ -162,11 +172,22 @@ class WorkflowOrchestrator
             }
 
             if (!$stageComplete) {
-                return [null, null];
+                $workflowComplete = false;
             }
         }
 
-        return [null, WorkflowState::STATUS_SUCCESS];
+        return $workflowComplete ? [null, WorkflowState::STATUS_SUCCESS] : [null, null];
+    }
+
+    private function satisfiesAllNeeds(array $states, Job $job): bool
+    {
+        foreach ($job->getNeeds() as $need) {
+            if (!isset($states[$need]) || $states[$need] !== JobState::STATUS_SUCCESS) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function triggerJob(WorkflowState $state, string $jobId): bool

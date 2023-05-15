@@ -46,6 +46,7 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
         $workspaceIntegrations = $this->em->getRepository(WorkspaceIntegration::class)
             ->findBy([
                 'workspace' => $workspaceId,
+                'enabled' => true,
             ]);
 
         foreach ($workspaceIntegrations as $workspaceIntegration) {
