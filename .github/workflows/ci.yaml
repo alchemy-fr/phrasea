@@ -20,6 +20,7 @@ jobs:
     uses: ./.github/workflows/build_base.yaml
     with:
       images: php-fpm-base
+      context: ./infra/docker/php-fpm-base
     secrets: inherit
 
   build_nginx-fpm-base:
@@ -27,6 +28,7 @@ jobs:
     uses: ./.github/workflows/build_base.yaml
     with:
       images: nginx-fpm-base
+      context: ./infra/docker/nginx-fpm-base
     secrets: inherit
 
   build_nodejs-base:
@@ -34,6 +36,7 @@ jobs:
     uses: ./.github/workflows/build_base.yaml
     with:
       images: nodejs-base
+      context: ./infra/docker/nodejs-base
     secrets: inherit
 
   build_nginx-cache-purge:
@@ -41,42 +44,59 @@ jobs:
     uses: ./.github/workflows/build_base.yaml
     with:
       images: nginx-cache-purge
+      context: ./infra/docker/nginx-cache-purge
     secrets: inherit
 
   build_auth_api:
     name: 'Build Auth API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: auth-api-php auth-api-nginx auth-worker
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
+    strategy:
+      matrix:
+        images: [api-php, api-nginx, worker]
+    steps:
+      - name: 'build auth-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: auth-${{ matrix.images }}
+          context: ./auth/api
+          target: ${{ matrix.images }}
+          withLibs: true
+        secrets: inherit
+        needs:
+          - build_php-fpm-base
+          - build_nginx-fpm-base
 
   build_dashboard:
     name: 'Build Dashboard'
     uses: ./.github/workflows/build.yaml
     with:
       images: dashboard
+      context: ./dashboard
     secrets: inherit
 
   build_databox_api:
     name: 'Build Databox API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: databox-api-php databox-api-nginx databox-worker
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
+    strategy:
+      matrix:
+        images: [api-php, api-nginx, worker]
+    steps:
+      - name: 'build databox-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: databox-${{ matrix.images }}
+          context: ./databox/api
+          target: ${{ matrix.images }}
+          withLibs: true
+        secrets: inherit
+        needs:
+          - build_php-fpm-base
+          - build_nginx-fpm-base
 
   build_databox_client:
     name: 'Build Databox Client'
     uses: ./.github/workflows/build.yaml
     with:
       images: databox-client
+      context: ./databox/client
       withLibs: true
     secrets: inherit
     needs:
@@ -87,24 +107,33 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       images: databox-indexer
+      context: ./databox/indexer
     secrets: inherit
 
   build_expose_api:
     name: 'Build Expose API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: expose-api-php expose-api-nginx expose-worker
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-cache-purge
+    strategy:
+      matrix:
+        images: [api-php, api-nginx, worker]
+    steps:
+      - name: 'build expose-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: expose-${{ matrix.images }}
+          context: ./expose/api
+          target: ${{ matrix.images }}
+          withLibs: true
+        secrets: inherit
+        needs:
+          - build_php-fpm-base
+          - build_nginx-cache-purge
 
   build_expose_client:
     name: 'Build Expose Client'
     uses: ./.github/workflows/build.yaml
     with:
       images: expose-client
+      context: ./expose/client
       withLibs: true
     secrets: inherit
     needs:
@@ -112,45 +141,67 @@ jobs:
 
   build_matomo:
     name: 'Build Matomo'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: matomo-php matomo-nginx
-    secrets: inherit
+    strategy:
+      matrix:
+        images: [php, nginx]
+    steps:
+      - name: 'build matomo-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: matomo-${{ matrix.images }}
+          context: ./infra/docker/matomo-${{ matrix.images }}
+        secrets: inherit
 
   build_notify_api:
     name: 'Build Notify API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: notify-api-php notify-api-nginx notify-worker
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
+    strategy:
+      matrix:
+        images: [api-php, api-nginx, worker]
+    steps:
+      - name : 'build notify-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: notify-${{ matrix.images }}
+          context: ./notify/api
+          target: ${{ matrix.images }}
+          withLibs: true
+        secrets: inherit
+        needs:
+          - build_php-fpm-base
+          - build_nginx-fpm-base
 
   build_report_api:
     name: 'Build Report API'
     uses: ./.github/workflows/build.yaml
     with:
       images: report-api
+      context: report
     secrets: inherit
 
   build_uploader_api:
     name: 'Build Uploader API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      images: uploader-api-php uploader-api-nginx uploader-worker
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
+    strategy:
+      matrix:
+        images: [api-php, api-nginx, worker]
+    steps:
+      - name: 'build uploader-' ${{ matrix.images }}
+        uses: ./.github/workflows/build.yaml
+        with:
+          images: uploader-${{ matrix.images }}
+          context: ./uploader/api
+          target: ${{ matrix.images }}
+          withLibs: true
+        secrets: inherit
+        needs:
+          - build_php-fpm-base
+          - build_nginx-fpm-base
 
   build_uploader_client:
     name: 'Build Uploader Client'
     uses: ./.github/workflows/build.yaml
     with:
       images: uploader-client
+      context: ./uploader/client
       withLibs: true
     secrets: inherit
     needs:
@@ -175,9 +226,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ github.actor }}
@@ -226,7 +277,7 @@ jobs:
         env:
           AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
         if: env.AWS_ECR_ACCESS_KEY_ID != null
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
