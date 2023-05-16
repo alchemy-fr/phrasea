@@ -12,14 +12,14 @@ use App\Integration\IntegrationDataManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class RemoveBgProcessor
+final readonly class RemoveBgProcessor
 {
     public function __construct(
-        private readonly RemoveBgClient $client,
-        private readonly ApiBudgetLimiter $apiBudgetLimiter,
-        private readonly IntegrationDataManager $integrationDataManager,
-        private readonly FileManager $fileManager,
-        private readonly EntityManagerInterface $em,
+        private RemoveBgClient $client,
+        private ApiBudgetLimiter $apiBudgetLimiter,
+        private IntegrationDataManager $integrationDataManager,
+        private FileManager $fileManager,
+        private EntityManagerInterface $em,
     ) {
     }
 
