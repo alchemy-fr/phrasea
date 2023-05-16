@@ -43,4 +43,4 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:build-cache
           tags: |
-            ${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:${{ env.DOCKER_TAG }}
+            ${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:latest
