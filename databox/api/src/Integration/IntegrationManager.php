@@ -162,15 +162,14 @@ class IntegrationManager
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
     {
         $node = $this->buildConfiguration($integration);
+
         $processor = new Processor();
+        $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
-        $integrationConfig = $workspaceIntegration->getConfig();
-        $integrationConfig = $this->envResolver->resolve(
+        $config = $this->envResolver->resolve(
             $workspaceIntegration->getWorkspaceId(),
-            $integrationConfig
+            $config
         );
-
-        $config = $processor->process($node, ['root' => $integrationConfig]);
 
         $config['integration'] = $integration;
         $config['workspaceIntegration'] = $workspaceIntegration;

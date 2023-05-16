@@ -7,6 +7,7 @@ namespace App\Integration\ToastUi;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
+use App\Integration\FileActionsIntegrationInterface;
 use App\Util\FileUtil;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,7 +31,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 $data = $this->integrationDataManager->storeData(
                     $wsIntegration,
                     $file,
-                    self::DATA_FILE_ID,
+                    FileActionsIntegrationInterface::DATA_FILE_ID,
                     $newFile->getId(),
                     $request->request->get('name', self::getName()),
                     true

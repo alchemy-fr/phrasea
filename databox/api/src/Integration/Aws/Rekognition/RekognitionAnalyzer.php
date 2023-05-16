@@ -17,8 +17,7 @@ final class RekognitionAnalyzer
         private readonly IntegrationDataManager $dataManager,
         private readonly FileFetcher $fileFetcher,
         private readonly ApiBudgetLimiter $apiBudgetLimiter,
-    )
-    {
+    ) {
     }
 
     public function analyze(File $file, string $category, array $config): array

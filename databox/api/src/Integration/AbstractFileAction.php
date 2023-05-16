@@ -18,8 +18,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 abstract class AbstractFileAction extends AbstractIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
-    protected const DATA_FILE_ID = 'file_id';
-    protected const DATA_FILE = 'file';
     protected FileManager $fileManager;
     protected FileUploadManager $fileUploadManager;
     protected EntityManagerInterface $em;
@@ -64,12 +62,12 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
             'id' => $file->getId(),
             'url' => $this->fileUrlResolver->resolveUrl($file),
         ]);
-        $data->setName(self::DATA_FILE);
+        $data->setName(FileActionsIntegrationInterface::DATA_FILE);
     }
 
     public function supportData(string $integrationName, string $dataKey): bool
     {
-        return $integrationName === static::getName() && self::DATA_FILE_ID === $dataKey;
+        return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataKey;
     }
 
     /**

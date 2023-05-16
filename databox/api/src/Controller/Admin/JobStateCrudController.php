@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -32,14 +33,20 @@ class JobStateCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         $retry = Action::new('retryJob', 'Retry job', 'fas fa-wrench')
-            ->displayIf(fn (JobState $entity) => \Alchemy\Workflow\State\JobState::STATUS_FAILURE === $entity->getStatus())
+            ->displayIf(fn (JobState $entity) => JobStateModel::STATUS_FAILURE === $entity->getStatus())
             ->linkToCrudAction('retryJob');
+
+        $rerun = Action::new('rerunJob', 'Rerun job', 'fas fa-wrench')
+            ->displayIf(fn (JobState $entity) => JobStateModel::STATUS_FAILURE !== $entity->getStatus())
+            ->linkToCrudAction('rerunJob');
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $retry);
+            ->add(Crud::PAGE_INDEX, $retry)
+            ->add(Crud::PAGE_INDEX, $rerun)
+        ;
     }
 
     public function retryJob(AdminContext $context)
@@ -47,6 +54,15 @@ class JobStateCrudController extends AbstractAdminCrudController
         /** @var JobState $jobState */
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->retryFailedJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
+
+        return new RedirectResponse($context->getReferrer());
+    }
+
+    public function rerunJob(AdminContext $context)
+    {
+        /** @var JobState $jobState */
+        $jobState = $context->getEntity()->getInstance();
+        $this->workflowOrchestrator->rerunJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
 
         return new RedirectResponse($context->getReferrer());
     }

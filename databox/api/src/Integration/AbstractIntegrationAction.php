@@ -42,7 +42,6 @@ abstract class AbstractIntegrationAction implements ActionInterface
     }
 
     #[Required]
-
     public function setEntityManager(EntityManagerInterface $em): void
     {
         $this->em = $em;

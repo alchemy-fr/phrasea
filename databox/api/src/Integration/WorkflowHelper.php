@@ -14,8 +14,7 @@ abstract class WorkflowHelper
         string $title,
         array $config,
         string $action,
-    ): Job
-    {
+    ): Job {
         $job = new Job($name);
         if (is_subclass_of($action, IfActionInterface::class)) {
             $job->setIf($action.'::shouldRun');

@@ -25,8 +25,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         private readonly AwsTranscribeClient $client,
         private readonly BatchAttributeManager $batchAttributeManager,
         private readonly UriDownloader $fileDownloader
-    )
-    {
+    ) {
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

@@ -34,8 +34,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
     public function __construct(
         private readonly RekognitionAnalyzer $rekognitionAnalyzer,
-    )
-    {
+    ) {
     }
 
     protected function getSupportedRegions(): array

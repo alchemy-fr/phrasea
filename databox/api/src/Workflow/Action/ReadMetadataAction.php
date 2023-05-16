@@ -5,39 +5,28 @@ declare(strict_types=1);
 namespace App\Workflow\Action;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
-use Alchemy\Workflow\Executor\Action\ActionInterface;
+use Alchemy\Workflow\Executor\JobContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\FileFetcher;
-use App\Entity\Core\Asset;
-use App\Entity\Core\File;
+use App\Integration\AbstractIntegrationAction;
+use App\Integration\IfActionInterface;
 use App\Metadata\MetadataNormalizer;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
-readonly class ReadMetadataAction implements ActionInterface
+class ReadMetadataAction extends AbstractIntegrationAction implements IfActionInterface
 {
     public function __construct(
-        private MetadataManipulator $metadataManipulator,
-        private MetadataNormalizer $metadataNormalizer,
-        private FileFetcher $fileFetcher,
-        private EntityManagerInterface $em,
+        private readonly MetadataManipulator $metadataManipulator,
+        private readonly MetadataNormalizer $metadataNormalizer,
+        private readonly FileFetcher $fileFetcher,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
     public function handle(RunContext $context): void
     {
-        $inputs = $context->getInputs();
-        $id = $inputs['assetId'];
-
-        $asset = $this->em->find(Asset::class, $id);
-        if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
-        }
-
+        $asset = $this->getAsset($context);
         $file = $asset->getSource();
-        if (!$file instanceof File) {
-            return;
-        }
 
         $fetchedFilePath = $this->fileFetcher->getFile($file);
         try {
@@ -53,5 +42,15 @@ readonly class ReadMetadataAction implements ActionInterface
         } finally {
             @unlink($fetchedFilePath);
         }
+    }
+
+    public function shouldRun(JobContext $context): bool
+    {
+        $asset = $this->getAsset($context);
+        if (null === $asset->getSource()) {
+            return false;
+        }
+
+        return true;
     }
 }

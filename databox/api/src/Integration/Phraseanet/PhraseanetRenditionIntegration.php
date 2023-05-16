@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace App\Integration\Phraseanet;
 
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
-use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegration;
-use App\Integration\AssetOperationIntegrationInterface;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use App\Integration\WorkflowHelper;
+use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-class PhraseanetRenditionIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
+class PhraseanetRenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     final public const METHOD_ENQUEUE = 'enqueue';
     final public const METHOD_API = 'api';
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {
     }
 
@@ -48,7 +45,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Asse
                 ->info(sprintf('Required for the "%s" method', self::METHOD_API))
             ->end()
             ->scalarNode('token')
-                ->isRequired()
+                ->defaultValue('${PHRASEANET_API_TOKEN}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet API key')
             ->end()
@@ -83,19 +80,21 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Asse
         return $info;
     }
 
-    public function handleAsset(Asset $asset, array $config): void
+    public function getWorkflowJobDefinitions(array $config): iterable
     {
-        $integrationId = $config['integrationId'];
-        if (self::METHOD_API === $config['method']) {
-            $this->eventProducer->publish(PhraseanetGenerateAssetRenditionsHandler::createEvent($asset->getId(), $integrationId));
-        } elseif (self::METHOD_ENQUEUE === $config['method']) {
-            $this->eventProducer->publish(PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::createEvent($asset->getId(), $integrationId));
-        }
-    }
+        $actions = [
+            self::METHOD_API => PhraseanetGenerateAssetRenditionsAction::class,
+            self::METHOD_ENQUEUE => PhraseanetGenerateAssetRenditionsEnqueueMethodAction::class,
+        ];
 
-    public function supportsAsset(Asset $asset, array $config): bool
-    {
-        return null !== $asset->getSource();
+        $method = $config['method'];
+
+        yield WorkflowHelper::createIntegrationJob(
+            self::getName().'.'.$method,
+            self::getTitle().' '.ucfirst($method),
+            $config,
+            $actions[$method],
+        );
     }
 
     public static function getTitle(): string

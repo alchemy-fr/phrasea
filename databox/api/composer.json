@@ -107,6 +107,7 @@
     "require": {
         "php": "^8.2",
         "ext-ctype": "*",
+        "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-sodium": "*",

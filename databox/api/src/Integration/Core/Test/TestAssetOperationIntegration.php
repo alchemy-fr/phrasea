@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Clarifai;
+namespace App\Integration\Core\Test;
 
 use App\Integration\AbstractIntegration;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-class ClarifaiConceptsIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
+class TestAssetOperationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    final public const VERSION = '1.0';
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
-            ->scalarNode('apiKey')
-                ->isRequired()
+            ->scalarNode('attribute')
+                ->defaultValue('test')
                 ->cannotBeEmpty()
             ->end()
         ;
@@ -27,17 +29,17 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements Workflo
             self::getName(),
             self::getTitle(),
             $config,
-            ClarifaiConceptsAction::class,
+            TestAction::class,
         );
     }
 
     public static function getName(): string
     {
-        return 'clarify.concepts';
+        return 'test.asset_operation';
     }
 
     public static function getTitle(): string
     {
-        return 'Clarify concepts';
+        return 'Test asset operation';
     }
 }

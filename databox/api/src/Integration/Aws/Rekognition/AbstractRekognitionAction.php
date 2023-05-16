@@ -20,8 +20,7 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
     public function __construct(
         private readonly RekognitionAnalyzer $analyzer,
         protected readonly BatchAttributeManager $batchAttributeManager,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void
@@ -36,6 +35,7 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
     }
 
     abstract protected function getCategory(): string;
+
     abstract protected function handleResult(Asset $asset, array $result, array $config): void;
 
     public function shouldRun(JobContext $context): bool

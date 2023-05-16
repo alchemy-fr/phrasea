@@ -18,8 +18,7 @@ final class TranscribeAction extends AbstractIntegrationAction implements IfActi
         private readonly AwsTranscribeClient $client,
         private readonly S3Copier $s3Copier,
         private readonly ApiBudgetLimiter $apiBudgetLimiter,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void

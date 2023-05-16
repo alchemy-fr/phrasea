@@ -9,15 +9,3 @@ on:
         required: true
 
 jobs:
-  read_metadata:
-    steps:
-      - uses: App\Workflow\Action\ReadMetadataAction
-
-  initialize_attributes:
-    needs: [read_metadata]
-    steps:
-      - uses: App\Workflow\Action\InitializeAttributesAction
-
-  integrations:
-    steps:
-      - uses: App\Workflow\Action\TriggerIntegrationsActions

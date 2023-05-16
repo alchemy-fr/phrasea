@@ -93,12 +93,19 @@ class WorkflowOrchestrator
 
     public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
     {
+        $this->rerunJobs($workflowId, $jobIdFilter, JobState::STATUS_FAILURE);
+    }
+
+    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?int $expectedStatus = null): void
+    {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
         $event = $workflowState->getEvent();
 
         $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
+
+        $jobsToTrigger = [];
 
         foreach ($plan->getStages() as $stage) {
             foreach ($stage->getRuns() as $run) {
@@ -109,15 +116,24 @@ class WorkflowOrchestrator
                 }
 
                 $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null !== $jobState && $jobState->getStatus() === JobState::STATUS_FAILURE) {
+                if (null === $expectedStatus || null !== $jobState && $jobState->getStatus() === $expectedStatus) {
                     $this->stateRepository->removeJobState($workflowId, $jobId);
 
-                    $this->triggerJob($workflowState, $jobId);
+                    $jobsToTrigger[] = $jobId;
                 }
 
                 if (null !== $jobIdFilter) {
-                    return;
+                    break 2;
                 }
+            }
+        }
+
+        if (!empty($jobsToTrigger)) {
+            $workflowState->setStatus(WorkflowState::STATUS_STARTED);
+            $this->stateRepository->persistWorkflowState($workflowState);
+
+            foreach ($jobsToTrigger as $jobId) {
+                $this->triggerJob($workflowState, $jobId);
             }
         }
     }
