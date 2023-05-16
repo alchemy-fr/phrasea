@@ -138,13 +138,11 @@ jobs:
     strategy:
       matrix:
         images: [php, nginx]
-    steps:
-      - name: 'build matomo-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: matomo-${{ matrix.images }}
-          context: ./infra/docker/matomo-${{ matrix.images }}
-        secrets: inherit
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: matomo-${{ matrix.images }}
+      context: ./infra/docker/matomo-${{ matrix.images }}
+    secrets: inherit
 
   build_notify_api:
     name: 'Build Notify API'
