@@ -52,18 +52,16 @@ jobs:
     strategy:
       matrix:
         images: [api-php, api-nginx, worker]
-    steps:
-      - name: 'build auth-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: auth-${{ matrix.images }}
-          context: ./auth/api
-          target: ${{ matrix.images }}
-          withLibs: true
-        secrets: inherit
-        needs:
-          - build_php-fpm-base
-          - build_nginx-fpm-base
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: auth-${{ matrix.images }}
+      context: ./auth/api
+      target: ${{ matrix.images }}
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
 
   build_dashboard:
     name: 'Build Dashboard'
@@ -78,18 +76,16 @@ jobs:
     strategy:
       matrix:
         images: [api-php, api-nginx, worker]
-    steps:
-      - name: 'build databox-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: databox-${{ matrix.images }}
-          context: ./databox/api
-          target: ${{ matrix.images }}
-          withLibs: true
-        secrets: inherit
-        needs:
-          - build_php-fpm-base
-          - build_nginx-fpm-base
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: databox-${{ matrix.images }}
+      context: ./databox/api
+      target: ${{ matrix.images }}
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
 
   build_databox_client:
     name: 'Build Databox Client'
@@ -115,18 +111,16 @@ jobs:
     strategy:
       matrix:
         images: [api-php, api-nginx, worker]
-    steps:
-      - name: 'build expose-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: expose-${{ matrix.images }}
-          context: ./expose/api
-          target: ${{ matrix.images }}
-          withLibs: true
-        secrets: inherit
-        needs:
-          - build_php-fpm-base
-          - build_nginx-cache-purge
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: expose-${{ matrix.images }}
+      context: ./expose/api
+      target: ${{ matrix.images }}
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
+      - build_nginx-cache-purge
 
   build_expose_client:
     name: 'Build Expose Client'
@@ -157,18 +151,16 @@ jobs:
     strategy:
       matrix:
         images: [api-php, api-nginx, worker]
-    steps:
-      - name : 'build notify-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: notify-${{ matrix.images }}
-          context: ./notify/api
-          target: ${{ matrix.images }}
-          withLibs: true
-        secrets: inherit
-        needs:
-          - build_php-fpm-base
-          - build_nginx-fpm-base
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: notify-${{ matrix.images }}
+      context: ./notify/api
+      target: ${{ matrix.images }}
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
 
   build_report_api:
     name: 'Build Report API'
@@ -183,18 +175,16 @@ jobs:
     strategy:
       matrix:
         images: [api-php, api-nginx, worker]
-    steps:
-      - name: 'build uploader-${{ matrix.images }}'
-        uses: ./.github/workflows/build.yaml
-        with:
-          images: uploader-${{ matrix.images }}
-          context: ./uploader/api
-          target: ${{ matrix.images }}
-          withLibs: true
-        secrets: inherit
-        needs:
-          - build_php-fpm-base
-          - build_nginx-fpm-base
+    uses: ./.github/workflows/build.yaml
+    with:
+      images: uploader-${{ matrix.images }}
+      context: ./uploader/api
+      target: ${{ matrix.images }}
+      withLibs: true
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
+      - build_nginx-fpm-base
 
   build_uploader_client:
     name: 'Build Uploader Client'
