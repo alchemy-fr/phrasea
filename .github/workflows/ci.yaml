@@ -53,7 +53,7 @@ jobs:
       matrix:
         images: [api-php, api-nginx, worker]
     steps:
-      - name: 'build auth-' ${{ matrix.images }}
+      - name: 'build auth-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: auth-${{ matrix.images }}
@@ -79,7 +79,7 @@ jobs:
       matrix:
         images: [api-php, api-nginx, worker]
     steps:
-      - name: 'build databox-' ${{ matrix.images }}
+      - name: 'build databox-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: databox-${{ matrix.images }}
@@ -116,7 +116,7 @@ jobs:
       matrix:
         images: [api-php, api-nginx, worker]
     steps:
-      - name: 'build expose-' ${{ matrix.images }}
+      - name: 'build expose-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: expose-${{ matrix.images }}
@@ -145,7 +145,7 @@ jobs:
       matrix:
         images: [php, nginx]
     steps:
-      - name: 'build matomo-' ${{ matrix.images }}
+      - name: 'build matomo-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: matomo-${{ matrix.images }}
@@ -158,7 +158,7 @@ jobs:
       matrix:
         images: [api-php, api-nginx, worker]
     steps:
-      - name : 'build notify-' ${{ matrix.images }}
+      - name : 'build notify-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: notify-${{ matrix.images }}
@@ -184,7 +184,7 @@ jobs:
       matrix:
         images: [api-php, api-nginx, worker]
     steps:
-      - name: 'build uploader-' ${{ matrix.images }}
+      - name: 'build uploader-${{ matrix.images }}'
         uses: ./.github/workflows/build.yaml
         with:
           images: uploader-${{ matrix.images }}
