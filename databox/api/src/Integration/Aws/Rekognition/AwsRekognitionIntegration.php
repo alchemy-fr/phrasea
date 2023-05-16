@@ -28,7 +28,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
     private const CATEGORIES = [
         self::LABELS => RekognitionLabelsAction::class,
-        self::TEXTS => RekognitionLabelsAction::class,
+        self::TEXTS => RekognitionTextsAction::class,
         self::FACES => RekognitionFacesAction::class,
     ];
 
@@ -114,7 +114,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         switch ($action) {
             case self::ACTION_ANALYZE:
                 $category = $request->request->get('category');
-                $payload = $this->rekognitionAnalyzer->analyze($file, $category, $config);
+                $payload = $this->rekognitionAnalyzer->analyze(null, $file, $category, $config);
 
                 return new JsonResponse([
                     $category => $payload,
