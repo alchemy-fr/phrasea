@@ -19,7 +19,7 @@ jobs:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml
     with:
-      images: php-fpm-base
+      image: php-fpm-base
       context: ./infra/docker/php-fpm-base
     secrets: inherit
 
@@ -27,7 +27,7 @@ jobs:
     name: 'Build nginx-fpm-base'
     uses: ./.github/workflows/build_base.yaml
     with:
-      images: nginx-fpm-base
+      image: nginx-fpm-base
       context: ./infra/docker/nginx-fpm-base
     secrets: inherit
 
@@ -35,7 +35,7 @@ jobs:
     name: 'Build nodejs-base'
     uses: ./.github/workflows/build_base.yaml
     with:
-      images: nodejs-base
+      image: nodejs-base
       context: ./infra/docker/nodejs-base
     secrets: inherit
 
@@ -43,7 +43,7 @@ jobs:
     name: 'Build nginx-cache-purge'
     uses: ./.github/workflows/build_base.yaml
     with:
-      images: nginx-cache-purge
+      image: nginx-cache-purge
       context: ./infra/docker/nginx-cache-purge
     secrets: inherit
 
@@ -54,7 +54,7 @@ jobs:
         images: [api-php, api-nginx, worker]
     uses: ./.github/workflows/build.yaml
     with:
-      images: auth-${{ matrix.images }}
+      image: auth-${{ matrix.images }}
       context: ./auth/api
       target: ${{ matrix.images }}
       withLibs: true
@@ -67,7 +67,7 @@ jobs:
     name: 'Build Dashboard'
     uses: ./.github/workflows/build.yaml
     with:
-      images: dashboard
+      image: dashboard
       context: ./dashboard
     secrets: inherit
 
@@ -78,7 +78,7 @@ jobs:
         images: [api-php, api-nginx, worker]
     uses: ./.github/workflows/build.yaml
     with:
-      images: databox-${{ matrix.images }}
+      image: databox-${{ matrix.images }}
       context: ./databox/api
       target: ${{ matrix.images }}
       withLibs: true
@@ -91,7 +91,7 @@ jobs:
     name: 'Build Databox Client'
     uses: ./.github/workflows/build.yaml
     with:
-      images: databox-client
+      image: databox-client
       context: ./databox/client
       withLibs: true
     secrets: inherit
@@ -102,7 +102,7 @@ jobs:
     name: 'Build Databox Indexer'
     uses: ./.github/workflows/build.yaml
     with:
-      images: databox-indexer
+      image: databox-indexer
       context: ./databox/indexer
     secrets: inherit
 
@@ -113,7 +113,7 @@ jobs:
         images: [api-php, api-nginx, worker]
     uses: ./.github/workflows/build.yaml
     with:
-      images: expose-${{ matrix.images }}
+      image: expose-${{ matrix.images }}
       context: ./expose/api
       target: ${{ matrix.images }}
       withLibs: true
@@ -126,7 +126,7 @@ jobs:
     name: 'Build Expose Client'
     uses: ./.github/workflows/build.yaml
     with:
-      images: expose-client
+      image: expose-client
       context: ./expose/client
       withLibs: true
     secrets: inherit
@@ -140,7 +140,7 @@ jobs:
         images: [php, nginx]
     uses: ./.github/workflows/build.yaml
     with:
-      images: matomo-${{ matrix.images }}
+      image: matomo-${{ matrix.images }}
       context: ./infra/docker/matomo-${{ matrix.images }}
     secrets: inherit
 
@@ -151,7 +151,7 @@ jobs:
         images: [api-php, api-nginx, worker]
     uses: ./.github/workflows/build.yaml
     with:
-      images: notify-${{ matrix.images }}
+      image: notify-${{ matrix.images }}
       context: ./notify/api
       target: ${{ matrix.images }}
       withLibs: true
@@ -164,7 +164,7 @@ jobs:
     name: 'Build Report API'
     uses: ./.github/workflows/build.yaml
     with:
-      images: report-api
+      image: report-api
       context: report
     secrets: inherit
 
@@ -175,7 +175,7 @@ jobs:
         images: [api-php, api-nginx, worker]
     uses: ./.github/workflows/build.yaml
     with:
-      images: uploader-${{ matrix.images }}
+      image: uploader-${{ matrix.images }}
       context: ./uploader/api
       target: ${{ matrix.images }}
       withLibs: true
@@ -188,7 +188,7 @@ jobs:
     name: 'Build Uploader Client'
     uses: ./.github/workflows/build.yaml
     with:
-      images: uploader-client
+      image: uploader-client
       context: ./uploader/client
       withLibs: true
     secrets: inherit

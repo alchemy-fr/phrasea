@@ -3,7 +3,7 @@ name: Build and push image
 on:
   workflow_call:
     inputs:
-      images:
+      image:
         required: true
         type: string
       context:
@@ -40,7 +40,7 @@ jobs:
           context: ${{ inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           push: true
-          cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:build-cache
-          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:build-cache
+          cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
+          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
           tags: |
-            ${{ env.REGISTRY_NAMESPACE }}${{ inputs.images }}:${{ env.DOCKER_TAG }}
+            ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}
