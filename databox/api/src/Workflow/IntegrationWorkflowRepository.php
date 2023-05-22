@@ -50,7 +50,7 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
                 'enabled' => true,
             ]);
 
-        /** @var Job[] $jobMap */
+        /* @var array<string, Job[]> $jobMap */
         $jobMap = [];
         foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
@@ -74,6 +74,13 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
                 foreach ($workspaceIntegration->getNeeds() as $need) {
                     foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
                         $needList = $job->getNeeds();
+
+                        foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
+                            if ($needList->has($j->getId())) {
+                                continue 2;
+                            }
+                        }
+
                         foreach ($jobMap[$need->getId()] as $neededJob) {
                             $needList->append($neededJob->getId());
                         }

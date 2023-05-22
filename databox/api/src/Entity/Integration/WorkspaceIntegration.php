@@ -10,11 +10,14 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -157,6 +160,42 @@ class WorkspaceIntegration extends AbstractUuidEntity
     public function getNeeds(): Collection
     {
         return $this->needs;
+    }
+
+    #[Assert\Callback]
+    public function validateNeeds(ExecutionContextInterface $context, $payload): void
+    {
+        foreach ($this->needs as $need) {
+            if ($need === $this) {
+                $context
+                    ->buildViolation('Cannot reference itself')
+                    ->atPath('needs')
+                    ->addViolation();
+
+                return;
+            }
+        }
+
+        try {
+            $this->detectCircularNeed([]);
+        } catch (CircularReferenceException) {
+            $context
+                ->buildViolation('Circular Needs detected')
+                ->atPath('needs')
+                ->addViolation();
+        }
+    }
+
+    public function detectCircularNeed(array $branch): void
+    {
+        foreach ($this->needs as $need) {
+            if (in_array($need->getId(), $branch, true)) {
+                throw new CircularReferenceException();
+            }
+            $b = $branch;
+            $b[] = $need->getId();
+            $need->detectCircularNeed($b);
+        }
     }
 
     public function __toString(): string
