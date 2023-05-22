@@ -43,7 +43,7 @@ services:
   expose-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
@@ -62,7 +62,7 @@ services:
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
@@ -84,7 +84,7 @@ services:
   auth-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
@@ -96,7 +96,7 @@ services:
   notify-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
@@ -114,7 +114,7 @@ services:
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
@@ -168,8 +168,7 @@ services:
       - REPORT_API_BASE_URL
       - MAPBOX_TOKEN
       - XDEBUG_ENABLED
-      - IDE_KEY
-      - XDEBUG_REMOTE_HOST=${PS_GATEWAY_IP}
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
       - VERIFY_SSL
       - CLARIFAI_API_KEY
