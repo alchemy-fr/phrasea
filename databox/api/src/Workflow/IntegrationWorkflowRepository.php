@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Workflow;
 
 use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -49,13 +50,34 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
                 'enabled' => true,
             ]);
 
+        /** @var Job[] $jobMap */
+        $jobMap = [];
         foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
             $integration = $config['integration'];
 
             if ($integration instanceof WorkflowIntegrationInterface) {
+                $jobs = [];
                 foreach ($integration->getWorkflowJobDefinitions($config) as $jobDefinition) {
                     $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
+                    $jobs[] = $jobDefinition;
+                }
+                $jobMap[$workspaceIntegration->getId()] = $jobs;
+            }
+        }
+
+        foreach ($workspaceIntegrations as $workspaceIntegration) {
+            $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
+            $integration = $config['integration'];
+
+            if ($integration instanceof WorkflowIntegrationInterface) {
+                foreach ($workspaceIntegration->getNeeds() as $need) {
+                    foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
+                        $needList = $job->getNeeds();
+                        foreach ($jobMap[$need->getId()] as $neededJob) {
+                            $needList->append($neededJob->getId());
+                        }
+                    }
                 }
             }
         }

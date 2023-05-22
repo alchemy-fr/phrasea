@@ -9,8 +9,6 @@ use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;

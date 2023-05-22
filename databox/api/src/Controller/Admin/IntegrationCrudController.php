@@ -36,6 +36,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
     {
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
+        $needs = AssociationField::new('needs');
         $integration = $this->integrationChoiceField->create('integration');
         $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');
@@ -48,11 +49,11 @@ class IntegrationCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$enabled, $title, $integration, $workspace, $createdAt, $that, $updatedAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace];
+            return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace, $needs];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $integration, $optionsYaml, $enabled];
+            return [$title, $workspace, $integration, $optionsYaml, $enabled, $needs];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$title, $workspace, $integration, $optionsYaml, $enabled];
+            return [$title, $workspace, $integration, $optionsYaml, $enabled, $needs];
         }
 
         return [];

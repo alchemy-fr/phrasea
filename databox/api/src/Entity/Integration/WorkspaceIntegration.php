@@ -10,6 +10,8 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -43,6 +45,11 @@ class WorkspaceIntegration extends AbstractUuidEntity
     private ?string $integration = null;
 
     /**
+     * @ORM\ManyToMany(targetEntity=WorkspaceIntegration::class)
+     */
+    private ?Collection $needs = null;
+
+    /**
      * @ORM\Column(type="boolean", nullable=false)
      *
      * @Groups({"integration:index"})
@@ -56,6 +63,12 @@ class WorkspaceIntegration extends AbstractUuidEntity
 
     private ?string $optionsJson = null;
     private ?string $optionsYaml = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->needs = new ArrayCollection();
+    }
 
     public function getTitle(): ?string
     {
@@ -136,5 +149,18 @@ class WorkspaceIntegration extends AbstractUuidEntity
     public function getThis(): self
     {
         return $this;
+    }
+
+    /**
+     * @return WorkspaceIntegration[]
+     */
+    public function getNeeds(): Collection
+    {
+        return $this->needs;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
     }
 }
