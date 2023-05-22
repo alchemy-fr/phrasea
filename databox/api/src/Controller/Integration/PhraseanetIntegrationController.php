@@ -7,9 +7,9 @@ namespace App\Controller\Integration;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
+use App\Integration\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodAction;
 use App\Security\JWTTokenManager;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
@@ -179,7 +179,7 @@ class PhraseanetIntegrationController extends AbstractController
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset "%s" not found for Phraseanet enqueue', $id));
         }
-        if ($assetToken !== PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::generateAssetToken($asset)) {
+        if ($assetToken !== PhraseanetGenerateAssetRenditionsEnqueueMethodAction::generateAssetToken($asset)) {
             throw new AccessDeniedHttpException('Invalid Asset token');
         }
 

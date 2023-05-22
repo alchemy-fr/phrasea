@@ -101,22 +101,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(PhraseanetGenerateAssetRenditionsHandler::EVENT, $eventMessage->getType());
+        self::assertEquals(PhraseanetRenditionIntegration::getName().'.api', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
         $transaction = $clientFactory->shiftHistory();
