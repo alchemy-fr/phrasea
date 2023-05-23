@@ -38,7 +38,6 @@ class AssetCrudController extends AbstractAclAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         $viewWorkflow = Action::new('triggerIngest', 'Trigger Ingest', 'fa fa-gear')
-            ->setHtmlAttributes(['target' => '_blank'])
             ->linkToCrudAction('triggerIngest');
 
         return parent::configureActions($actions)

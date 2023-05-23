@@ -34,7 +34,7 @@ class WorkspaceIntegration extends AbstractUuidEntity
     use WorkspaceTrait;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
+     * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @Groups({"integration:index"})
      */

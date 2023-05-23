@@ -216,3 +216,7 @@ services:
         decorates: 'alchemy.workflow.workflow_repository.default'
         arguments:
             $decorated: '@.inner'
+
+    App\Integration\Core\Webhook\WebhookAction:
+        arguments:
+            $client: '@app.integrations.http_client'

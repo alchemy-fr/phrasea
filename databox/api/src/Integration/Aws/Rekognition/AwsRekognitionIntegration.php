@@ -100,10 +100,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         foreach (self::CATEGORIES as $category => $action) {
             if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {
                 yield WorkflowHelper::createIntegrationJob(
-                    self::getName().'.'.$category,
-                    self::getTitle().' '.$category,
                     $config,
                     $action,
+                    $category,
+                    ucfirst($category),
                 );
             }
         }

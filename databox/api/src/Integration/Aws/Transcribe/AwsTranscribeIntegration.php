@@ -81,8 +81,6 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
     public function getWorkflowJobDefinitions(array $config): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
-            self::getName(),
-            self::getTitle(),
             $config,
             TranscribeAction::class,
         );

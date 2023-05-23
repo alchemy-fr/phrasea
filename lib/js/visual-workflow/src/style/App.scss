@@ -1,7 +1,7 @@
 
 .job-node {
   border: 1px solid #777;
-  padding: 10px;
+  padding: 8px;
   background-color: #FFF;
   display: flex;
   flex-direction: row;
@@ -21,7 +21,19 @@
 }
 
 .job-name {
-  flex-grow: 1;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+
+.job-duration {
+  white-space: nowrap;
+  font-size: 12px;
+  color: #7e7e7e;
+  padding-left: 5px;
+  padding-right: 3px;
 }
 
 .react-flow__handle.connectionindicator {

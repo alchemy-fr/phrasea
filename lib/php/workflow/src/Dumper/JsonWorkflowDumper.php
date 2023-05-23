@@ -18,13 +18,13 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
         foreach ($plan->getStages() as $stageIndex => $stage) {
             $jobs = [];
 
-            foreach ($stage->getRuns() as $runIndex => $run) {
+            foreach ($stage->getRuns() as $run) {
                 $jobId = $run->getJob()->getId();
                 $jobState = $state->getJobState($jobId);
 
                 $job = [
                     'id' => $jobId,
-                    'name' => $jobId,
+                    'name' => $run->getJob()->getName(),
                     'needs' => array_values($run->getJob()->getNeeds()->getArrayCopy()),
                 ];
 

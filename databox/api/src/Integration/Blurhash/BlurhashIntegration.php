@@ -20,8 +20,6 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
     public function getWorkflowJobDefinitions(array $config): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
-            self::getName(),
-            self::getTitle(),
             $config,
             BlurhashAction::class,
         );

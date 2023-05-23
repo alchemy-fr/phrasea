@@ -16,22 +16,26 @@ use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
+use Alchemy\Workflow\Validator\EventValidatorInterface;
 
 class WorkflowOrchestrator
 {
     private WorkflowRepositoryInterface $workflowRepository;
     private StateRepositoryInterface $stateRepository;
     private JobTriggerInterface $trigger;
+    private EventValidatorInterface $eventValidator;
 
     public function __construct(
         WorkflowRepositoryInterface $workflowRepository,
         StateRepositoryInterface $stateRepository,
-        JobTriggerInterface $trigger
+        JobTriggerInterface $trigger,
+        EventValidatorInterface $eventValidator,
     )
     {
         $this->workflowRepository = $workflowRepository;
         $this->stateRepository = $stateRepository;
         $this->trigger = $trigger;
+        $this->eventValidator = $eventValidator;
     }
 
     /**
@@ -40,6 +44,10 @@ class WorkflowOrchestrator
     public function dispatchEvent(WorkflowEvent $event): int
     {
         $workflows = $this->workflowRepository->getWorkflowsByEvent($event);
+        foreach ($workflows as $workflow) {
+            $this->validateEvent($event, $workflow);
+        }
+
         $i = 0;
         foreach ($workflows as $workflow) {
             $this->startWorkflow($workflow->getName(), $event);
@@ -47,6 +55,17 @@ class WorkflowOrchestrator
         }
 
         return $i;
+    }
+
+    private function validateEvent(WorkflowEvent $event, Workflow $workflow): void
+    {
+        foreach ($workflow->getOn() as $e => $on) {
+            if ($e === $event->getName()) {
+                $this->eventValidator->validateEvent($on, $event);
+
+                return;
+            }
+        }
     }
 
     public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState

@@ -7,6 +7,7 @@ namespace Alchemy\Workflow\Model;
 class Job
 {
     private string $id;
+    private string $name;
 
     private NeedList $needs;
 
@@ -96,5 +97,15 @@ class Job
     public function setWith(array $with): void
     {
         $this->with = $with;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

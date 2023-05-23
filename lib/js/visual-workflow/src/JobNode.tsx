@@ -10,7 +10,10 @@ export default React.memo(({data}: NodeProps<Job>) => {
             type="target"
             position={Position.Left}
         /> : ''}
-        <div className={'job-content'}>
+        <div
+            className={'job-content'}
+            title={data.name}
+        >
             <div className={'job-status'}>
                 <JobStatusIndicator
                     status={data.status}
@@ -19,7 +22,7 @@ export default React.memo(({data}: NodeProps<Job>) => {
             <div className={'job-name'}>
                 {data.name}
             </div>
-            {data.duration && <small>{data.duration}</small>}
+            {data.duration && <div className={'job-duration'}>{data.duration}</div>}
         </div>
         {data.isDependency && <Handle
             type="source"

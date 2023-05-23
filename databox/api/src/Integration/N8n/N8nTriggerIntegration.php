@@ -2,20 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Clarifai;
+namespace App\Integration\N8n;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\Core\Test\TestAction;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-class ClarifaiConceptsIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
+class N8nTriggerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    final public const VERSION = '1.0';
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
-            ->scalarNode('apiKey')
-                ->isRequired()
+            ->scalarNode('url')
+                ->defaultValue('https://n8n.phrasea.local')
                 ->cannotBeEmpty()
             ->end()
         ;
@@ -25,17 +28,17 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements Workflo
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,
-            ClarifaiConceptsAction::class,
+            TestAction::class,
         );
     }
 
     public static function getName(): string
     {
-        return 'clarify.concepts';
+        return 'n8n.trigger';
     }
 
     public static function getTitle(): string
     {
-        return 'Clarify concepts';
+        return 'N8N Trigger';
     }
 }

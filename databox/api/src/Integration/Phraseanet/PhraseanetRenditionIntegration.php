@@ -90,10 +90,10 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         $method = $config['method'];
 
         yield WorkflowHelper::createIntegrationJob(
-            self::getName().'.'.$method,
-            self::getTitle().' '.ucfirst($method),
             $config,
             $actions[$method],
+            $method,
+            ucfirst($method),
         );
     }
 

@@ -46,8 +46,6 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
     {
         if ($config['processIncoming']) {
             yield WorkflowHelper::createIntegrationJob(
-                self::getName(),
-                self::getTitle(),
                 $config,
                 RemoveBgAction::class,
             );

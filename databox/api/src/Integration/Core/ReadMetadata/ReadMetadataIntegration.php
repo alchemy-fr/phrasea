@@ -15,17 +15,17 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
     public function getWorkflowJobDefinitions(array $config): iterable
     {
         $readMetadataJob = WorkflowHelper::createIntegrationJob(
-            self::getName(),
-            self::getTitle(),
             $config,
             ReadMetadataAction::class,
+            'extract',
+            'Extract file metadata',
         );
 
         $initializeAttributesJob = WorkflowHelper::createIntegrationJob(
-            'core.initialize_attributes',
-            'Initialize Attributes',
             $config,
             InitializeAttributesAction::class,
+            'initialize_attributes',
+            'Initialize Attributes',
         );
         $initializeAttributesJob->getNeeds()->append($readMetadataJob->getId());
 
