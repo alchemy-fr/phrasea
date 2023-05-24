@@ -9,6 +9,7 @@ use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Asset;
+use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -56,7 +57,9 @@ class AssetCrudController extends AbstractAclAdminCrudController
         $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
             'assetId' => $asset->getId(),
             'workspaceId' => $asset->getWorkspaceId(),
-        ]));
+        ]), [
+            WorkflowState::INITIATOR_ID => $context->getUser()->getId(),
+        ]);
 
         return $this->redirect($context->getReferrer());
     }
@@ -67,7 +70,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(200);
+            ->setPaginatorPageSize(30);
     }
 
     public function configureFilters(Filters $filters): Filters

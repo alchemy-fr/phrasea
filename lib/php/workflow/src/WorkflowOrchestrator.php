@@ -41,7 +41,7 @@ class WorkflowOrchestrator
     /**
      * @return int The number of triggered workflows
      */
-    public function dispatchEvent(WorkflowEvent $event): int
+    public function dispatchEvent(WorkflowEvent $event, array $context = []): int
     {
         $workflows = $this->workflowRepository->getWorkflowsByEvent($event);
         foreach ($workflows as $workflow) {
@@ -50,7 +50,7 @@ class WorkflowOrchestrator
 
         $i = 0;
         foreach ($workflows as $workflow) {
-            $this->startWorkflow($workflow->getName(), $event);
+            $this->startWorkflow($workflow->getName(), $event, $context);
             ++$i;
         }
 
@@ -68,9 +68,15 @@ class WorkflowOrchestrator
         }
     }
 
-    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
+    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, array $context = []): WorkflowState
     {
-        $workflowState = new WorkflowState($this->stateRepository, $workflowName, $event);
+        $workflowState = new WorkflowState(
+            $this->stateRepository,
+            $workflowName,
+            $event,
+            null,
+            $context
+        );
 
         $this->stateRepository->persistWorkflowState($workflowState);
 

@@ -16,6 +16,7 @@ class WorkflowState
     public const STATUS_FAILURE = 2;
 
     private string $id;
+    private array $context;
     private StateRepositoryInterface $stateRepository;
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
@@ -27,7 +28,8 @@ class WorkflowState
         StateRepositoryInterface $stateRepository,
         string $workflowName,
         ?WorkflowEvent $event,
-        ?string $id = null
+        ?string $id = null,
+        array $context = []
     )
     {
         $this->stateRepository = $stateRepository;
@@ -35,6 +37,7 @@ class WorkflowState
         $this->startedAt = new MicroDateTime();
         $this->event = $event;
         $this->workflowName = $workflowName;
+        $this->context = $context;
     }
 
     public function getId(): string
@@ -76,6 +79,7 @@ class WorkflowState
             'workflowName' => $this->workflowName,
             'id' => $this->id,
             'status' => $this->status,
+            'context' => $this->context,
         ];
     }
 
@@ -87,6 +91,7 @@ class WorkflowState
         $this->id = $data['id'];
         $this->status = $data['status'];
         $this->endedAt = $data['endedAt'];
+        $this->context = $data['context'];
     }
 
     public function setStateRepository(StateRepositoryInterface $stateRepository): void
@@ -112,5 +117,10 @@ class WorkflowState
     public function setEndedAt(MicroDateTime $endedAt): void
     {
         $this->endedAt = $endedAt;
+    }
+
+    public function getContext(): array
+    {
+        return $this->context;
     }
 }

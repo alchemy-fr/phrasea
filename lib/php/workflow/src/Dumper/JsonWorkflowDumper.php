@@ -56,6 +56,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             'endedAt' => $state->getEndedAt()?->formatAtom(),
             'stages' => $stages,
             'duration' => StateUtil::getFormattedDuration($state->getDuration()),
+            'context' => $state->getContext(),
         ]));
     }
 }

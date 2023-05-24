@@ -10,6 +10,7 @@ use App\Attribute\AttributeDataExporter;
 use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Entity\Workflow\WorkflowState;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AssetManager
@@ -44,7 +45,9 @@ readonly class AssetManager
             $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
                 'assetId' => $asset->getId(),
                 'workspaceId' => $asset->getWorkspaceId(),
-            ]));
+            ]), [
+                WorkflowState::INITIATOR_ID => $asset->getOwnerId(),
+            ]);
         });
     }
 }

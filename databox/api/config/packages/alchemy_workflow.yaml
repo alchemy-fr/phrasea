@@ -1,0 +1,3 @@
+alchemy_workflow:
+  doctrine:
+    workflow_state_entity: App\Entity\Workflow\WorkflowState

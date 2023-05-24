@@ -28,6 +28,21 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Workflow <info>%s</info>', $state->getId()));
 
+        if (!empty($state->getContext())) {
+            $io->section('Context');
+            $table = $io->createTable();
+            $table->setHeaders([
+                'Key', 'Value',
+            ]);
+            foreach ($state->getContext() as $key => $value) {
+                $table->addRow([$key, $value]);
+            }
+            $table->render();
+            $io->newLine();
+        }
+
+        $io->section('Steps');
+
         $table = $io->createTable();
         $table->setHeaders([
             'Stage', 'Job', 'Step', 'Status',
@@ -47,7 +62,7 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
                         $runIndex === 0 ? $stageIndex + 1 : '',
                         $stepIndex === 0 ? $jobId : '',
                         $step->getName(),
-                        $jobState->getStatus() ? self::STATUSES[$jobState->getStatus()] : '-',
+                        $jobState && $jobState->getStatus() ? self::STATUSES[$jobState->getStatus()] : '-',
                     ]);
                 }
             }

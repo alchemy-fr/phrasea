@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\Doctrine\Entity;
 
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\State\StateUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -79,7 +80,7 @@ class JobState
         return StateUtil::getFormattedDuration($this->getDuration());
     }
 
-    public function setState(ModelJobState $state): void
+    public function setState(ModelJobState $state, EntityManagerInterface $em): void
     {
         $this->state = serialize($state);
         $this->triggeredAt = $state->getTriggeredAt()->getDateTimeObject();

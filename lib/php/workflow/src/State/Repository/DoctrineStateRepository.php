@@ -18,15 +18,23 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     private EntityManagerInterface $em;
 
     private array $jobs = [];
+    private string $workflowStateEntity;
+    private string $jobStateEntity;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(
+        EntityManagerInterface $em,
+        string $workflowStateEntity = null,
+        string $jobStateEntity = null,
+    )
     {
         $this->em = $em;
+        $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
+        $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;
     }
 
     public function getWorkflowState(string $id): WorkflowState
     {
-        $entity = $this->em->getRepository(WorkflowStateEntity::class)->find($id);
+        $entity = $this->em->getRepository($this->workflowStateEntity)->find($id);
         if (!$entity instanceof WorkflowStateEntity) {
             throw new InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
         }
@@ -39,12 +47,13 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
     public function persistWorkflowState(WorkflowState $state): void
     {
-        $entity = $this->em->getRepository(WorkflowStateEntity::class)->find($state->getId());
+        $workflowStateEntity = $this->workflowStateEntity;
+        $entity = $this->em->getRepository($workflowStateEntity)->find($state->getId());
         if (!$entity instanceof WorkflowStateEntity) {
-            $entity = new WorkflowStateEntity($state->getId());
+            $entity = new $workflowStateEntity($state->getId());
         }
 
-        $entity->setState($state);
+        $entity->setState($state, $this->em);
 
         $this->em->persist($entity);
         $this->em->flush($entity);
@@ -73,7 +82,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     {
         $this->em->beginTransaction();
         try {
-            $entity = $this->em->getRepository(JobStateEntity::class)
+            $entity = $this->em->getRepository($this->jobStateEntity)
                 ->createQueryBuilder('t')
                 ->select('t')
                 ->andWhere('t.workflow = :w')
@@ -104,13 +113,14 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     {
         $entity = $this->fetchJobEntity($state->getWorkflowId(), $state->getJobId());
         if (!$entity instanceof JobStateEntity) {
-            $entity = new JobStateEntity(
-                $this->em->getReference(WorkflowStateEntity::class, $state->getWorkflowId()),
+            $jobStateEntity = $this->jobStateEntity;
+            $entity = new $jobStateEntity(
+                $this->em->getReference($this->workflowStateEntity, $state->getWorkflowId()),
                 $state->getJobId()
             );
         }
 
-        $entity->setState($state);
+        $entity->setState($state, $this->em);
 
         $this->em->persist($entity);
         $this->em->flush($entity);
@@ -122,7 +132,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             return $this->jobs[$workflowId][$jobId];
         }
 
-        $entity = $this->em->getRepository(JobStateEntity::class)->findOneBy([
+        $entity = $this->em->getRepository($this->jobStateEntity)->findOneBy([
             'workflow' => $workflowId,
             'jobId' => $jobId,
         ]);

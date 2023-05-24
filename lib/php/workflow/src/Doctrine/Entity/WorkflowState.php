@@ -8,50 +8,25 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\StateUtil;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\EntityManagerInterface;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
-/**
- * @ORM\Entity()
- */
 class WorkflowState
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=36, unique=true)
-     */
     protected string $id;
 
-    /**
-     * @ORM\Column(type="text")
-     */
     protected ?string $state = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
     protected string $name;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=false)
-     */
     protected int $status;
 
     protected ?ModelWorkflowState $workflowState = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=JobState::class, mappedBy="wokflow", cascade={"remove"})
-     */
     protected ?Collection $jobs = null;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=false)
-     */
     protected \DateTimeImmutable $startedAt;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=true)
-     */
     protected ?\DateTimeImmutable $endedAt = null;
 
     public function __construct(string $id)
@@ -70,7 +45,7 @@ class WorkflowState
         return $this->state;
     }
 
-    public function setState(ModelWorkflowState $state): void
+    public function setState(ModelWorkflowState $state, EntityManagerInterface $em): void
     {
         $this->state = serialize($state);
         $this->name = $state->getWorkflowName();
@@ -114,6 +89,15 @@ class WorkflowState
     {
         try {
             return $this->getWorkflowState()->getEvent()?->getInputs();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function getContext(): ?array
+    {
+        try {
+            return $this->getWorkflowState()->getContext();
         } catch (\Exception $e) {
             return null;
         }

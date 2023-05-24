@@ -30,6 +30,9 @@ services:
 
   alchemy.workflow.workflow_repository.default: '@alchemy.workflow.workflow_repository.file'
 
+  alchemy.workflow.event_validator:
+    class: Alchemy\Workflow\Validator\EventValidator
+
   alchemy.workflow.state_repository:
     class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
 
@@ -63,6 +66,7 @@ services:
   Alchemy\Workflow\Trigger\JobTriggerInterface: '@alchemy.workflow.job_trigger'
   Alchemy\Workflow\State\Repository\StateRepositoryInterface: '@alchemy.workflow.state_repository'
   Alchemy\Workflow\Repository\WorkflowRepositoryInterface: '@alchemy.workflow.workflow_repository.default'
+  Alchemy\Workflow\Validator\EventValidatorInterface: '@alchemy.workflow.event_validator'
 
   Alchemy\Workflow\WorkflowOrchestrator: ~
   alchemy.workflow.orchestrator: '@Alchemy\Workflow\WorkflowOrchestrator'
