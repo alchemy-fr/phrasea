@@ -33,10 +33,14 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                         'id' => $jobState->getJobId(),
                         'status' => $jobState->getStatus(),
                         'outputs' => $jobState->getOutputs()->getArrayCopy(),
+                        'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
                         'startedAt' => $jobState->getStartedAt()?->formatAtom(),
                         'endedAt' => $jobState->getEndedAt()?->formatAtom(),
                         'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ]);
+                    if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                        $job['errors'] = $jobState->getErrors();
+                    }
                 }
 
                 $jobs[] = $job;

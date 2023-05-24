@@ -1,10 +1,11 @@
 import React from "react";
 import {Handle, Position} from "reactflow";
 import {NodeProps} from "@reactflow/core/dist/esm/types/nodes";
-import {Job} from "./types";
-import JobStatusIndicator from "./JobStatusIndicator";
+import {NodeData} from "../types";
+import JobStatusIndicator from "../JobStatusIndicator";
+import JobDetail from "./JobDetail";
 
-export default React.memo(({data}: NodeProps<Job>) => {
+export default React.memo(({data, selected}: NodeProps<NodeData>) => {
     return <>
         {data.needs?.length ? <Handle
             type="target"
@@ -27,6 +28,9 @@ export default React.memo(({data}: NodeProps<Job>) => {
         {data.isDependency && <Handle
             type="source"
             position={Position.Right}
+        />}
+        {selected && <JobDetail
+            job={data}
         />}
     </>
 });

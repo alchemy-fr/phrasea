@@ -48,6 +48,9 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
             ->findBy([
                 'workspace' => $workspaceId,
                 'enabled' => true,
+            ], [
+                'createdAt' => 'ASC',
+                'id' => 'ASC',
             ]);
 
         /* @var array<string, Job[]> $jobMap */
