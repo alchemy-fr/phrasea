@@ -58,4 +58,9 @@ final class Workflow
     {
         return $this->on;
     }
+
+    public function rename(string $newName): void
+    {
+        $this->name = $newName;
+    }
 }

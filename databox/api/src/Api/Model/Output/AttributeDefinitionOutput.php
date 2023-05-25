@@ -26,6 +26,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
 
     /**
      * @Groups({"attributedef:index", "attributedef:read", "attributedef:write"})
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     public ?AttributeClass $class = null;

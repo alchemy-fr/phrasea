@@ -11,21 +11,13 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
-use InvalidArgumentException;
 
 class RenditionManager
 {
-    private EntityManagerInterface $em;
-    private FileManager $fileManager;
-
     private array $renditionsToDelete = [];
 
-    public function __construct(
-        EntityManagerInterface $em,
-        FileManager $fileManager
-    ) {
-        $this->em = $em;
-        $this->fileManager = $fileManager;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly FileManager $fileManager)
+    {
     }
 
     public function createOrReplaceRenditionByPath(
@@ -116,7 +108,7 @@ class RenditionManager
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
-            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
         }
 
         return $definition;

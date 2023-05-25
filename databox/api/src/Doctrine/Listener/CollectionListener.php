@@ -15,11 +15,8 @@ class CollectionListener implements EventSubscriber
 {
     use ChangeFieldListenerTrait;
 
-    private PostFlushStack $postFlushStack;
-
-    public function __construct(PostFlushStack $postFlushStack)
+    public function __construct(private readonly PostFlushStack $postFlushStack)
     {
-        $this->postFlushStack = $postFlushStack;
     }
 
     public function postUpdate(LifecycleEventArgs $args): void

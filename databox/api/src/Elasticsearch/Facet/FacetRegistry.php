@@ -9,7 +9,7 @@ class FacetRegistry
     /**
      * @var FacetInterface[]
      */
-    private array $facets;
+    private readonly array $facets;
 
     public function __construct(iterable $facets)
     {

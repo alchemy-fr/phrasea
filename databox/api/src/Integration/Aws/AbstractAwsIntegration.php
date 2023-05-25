@@ -32,12 +32,12 @@ abstract class AbstractAwsIntegration extends AbstractIntegration
     {
         $builder
             ->scalarNode('accessKeyId')
-                ->isRequired()
+                ->defaultValue('${AWS_ACCESS_KEY_ID}')
                 ->cannotBeEmpty()
                 ->info('The AWS IAM Access Key ID')
             ->end()
             ->scalarNode('accessKeySecret')
-                ->isRequired()
+                ->defaultValue('${AWS_ACCESS_KEY_SECRET}')
                 ->cannotBeEmpty()
                 ->info('The AWS IAM Access Key Secret')
             ->end();

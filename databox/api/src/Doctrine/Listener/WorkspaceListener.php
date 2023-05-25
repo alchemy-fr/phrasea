@@ -12,11 +12,8 @@ use Doctrine\ORM\Events;
 
 class WorkspaceListener implements EventSubscriber
 {
-    private PostFlushStack $postFlushStack;
-
-    public function __construct(PostFlushStack $postFlushStack)
+    public function __construct(private readonly PostFlushStack $postFlushStack)
     {
-        $this->postFlushStack = $postFlushStack;
     }
 
     public function preRemove(LifecycleEventArgs $args): void

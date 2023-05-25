@@ -17,9 +17,7 @@ class QueryStringParser
 
         $should = $this->normalizeString($should);
 
-        $must = array_map(function (string $str): string {
-            return $this->normalizeString($str);
-        }, $must);
+        $must = array_map(fn (string $str): string => $this->normalizeString($str), $must);
 
         return [
             'must' => $must,

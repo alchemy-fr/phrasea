@@ -1,11 +1,13 @@
 import React from 'react';
-import ReactFlow, {Background, Controls, Edge, MiniMap} from 'reactflow';
-import './style/App.scss';
+import ReactFlow, {Background, Controls, Edge, MiniMap, useEdgesState, useNodesState,} from 'reactflow';
 import 'reactflow/dist/style.css';
+import './style/index.scss';
+import './style/VisualWorkflow.scss';
 import {Node} from "@reactflow/core/dist/esm/types/nodes";
-import {Job, Workflow} from "./types";
-import JobNode from "./JobNode";
+import {Job, NodeData, OnRerun, Workflow} from "./types";
+import JobNode from "./Job/JobNode";
 import {NodeTypes} from "@reactflow/core/dist/esm/types/general";
+import FlowEvents from "./FlowEvents";
 
 const nodeTypes: NodeTypes = {
     jobNode: JobNode,
@@ -17,17 +19,22 @@ type Props = {
     nodeHeight?: number;
     stageXPadding?: number;
     nodeYPadding?: number;
+    onRerunJob?: OnRerun;
 };
 
 export default function VisualWorkflow({
     workflow,
-    nodeWith = 220,
+    nodeWith = 300,
     nodeHeight = 55,
     stageXPadding = 30,
     nodeYPadding = 15,
+    onRerunJob,
 }: Props) {
-    const {nodes, edges} = React.useMemo(() => {
-        const nodes: Node<Job>[] = [];
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+    React.useEffect(() => {
+        const nodes: Node<NodeData>[] = [];
         const edges: Edge[] = [];
 
         let left = 0;
@@ -36,7 +43,11 @@ export default function VisualWorkflow({
         workflow.stages.forEach((s, sIndex) => {
             let top = 0;
             s.jobs.forEach((j, jIndex) => {
-                jobIndex[j.id] = j;
+                const nodeData: NodeData = {
+                    ...j,
+                    onRerun: onRerunJob,
+                };
+                jobIndex[j.id] = nodeData;
 
                 nodes.push({
                     type: 'jobNode',
@@ -45,12 +56,14 @@ export default function VisualWorkflow({
                         x: stageXPadding * (1 + sIndex * 2) + nodeWith * sIndex,
                         y: nodeYPadding * (1 + jIndex * 2) + nodeHeight * jIndex,
                     },
-                    data: j,
+                    data: nodeData,
                     className: 'job-node',
                     style: {
                         height: nodeHeight,
                         width: nodeWith,
                     },
+                    selectable: true,
+                    draggable: false,
                 });
 
                 j.needs?.forEach(n => {
@@ -60,6 +73,7 @@ export default function VisualWorkflow({
                         id: `${j.id}-${n}`,
                         source: n,
                         target: j.id,
+                        className: 'job-edge',
                     })
                 })
 
@@ -69,26 +83,35 @@ export default function VisualWorkflow({
             left += 200;
         });
 
-        return {nodes, edges};
+        setNodes(nodes);
+        setEdges(edges);
     }, [workflow]);
 
-    return <div style={{width: '100%', height: '100%'}}>
+    return <div
+        className={'visual-workflow'}
+    >
         <ReactFlow
             fitView={true}
             edgesUpdatable={false}
             nodeTypes={nodeTypes}
             nodes={nodes}
             edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
         >
-            <Controls/>
-            <MiniMap/>
-            <Background
-                gap={12}
-                size={1}
-                style={{
-                    backgroundColor: '#eeeeee',
-                }}
-            />
+            <FlowEvents
+                setEdges={setEdges}
+            >
+                <Controls/>
+                <MiniMap/>
+                <Background
+                    gap={12}
+                    size={1}
+                    style={{
+                        backgroundColor: '#eeeeee',
+                    }}
+                />
+            </FlowEvents>
         </ReactFlow>
     </div>
 }

@@ -18,20 +18,17 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
-use InvalidArgumentException;
-use LogicException;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
  */
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -127,9 +124,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      * Last update time of attribute.
      *
      * @ORM\Column(type="datetime_immutable")
+     *
      * @Groups({"dates"})
      */
-    protected ?DateTimeImmutable $attributesEditedAt = null;
+    protected ?\DateTimeImmutable $attributesEditedAt = null;
 
     /**
      * @param float $now got from microtime(true)
@@ -141,13 +139,13 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
-        $this->attributesEditedAt = new DateTimeImmutable();
+        $this->attributesEditedAt = new \DateTimeImmutable();
 
         /* @var $now float */
         $now ??= microtime(true);
         $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;
-        $this->microseconds = ($now * 1000000) % 1000000;
+        $this->microseconds = ($now * 1_000_000) % 1_000_000;
 
         if (null !== $sequence) {
             $this->sequence = $sequence;
@@ -210,7 +208,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function addToCollection(Collection $collection, bool $checkUnique = false): CollectionAsset
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
-            throw new InvalidArgumentException('Cannot add to a collection from a different workspace');
+            throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
         }
 
         if (null === $this->referenceCollection) {
@@ -218,9 +216,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         }
 
         if ($checkUnique) {
-            $duplicates = $this->collections->filter(function (CollectionAsset $ca) use ($collection): bool {
-                return $ca->getCollection() === $collection;
-            });
+            $duplicates = $this->collections->filter(fn (CollectionAsset $ca): bool => $ca->getCollection() === $collection);
 
             if (!$duplicates->isEmpty()) {
                 return $duplicates->first();
@@ -249,9 +245,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getStartingCollections(): DoctrineCollection
     {
-        return $this->collections->map(function (CollectionAsset $collectionAsset): Collection {
-            return $collectionAsset->getCollection();
-        });
+        return $this->collections->map(fn (CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection());
     }
 
     /**
@@ -265,7 +259,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function addTag(Tag $tag): void
     {
         if ($tag->getWorkspace() !== $this->workspace) {
-            throw new LogicException('Cannot add a tag that comes from a different workspace');
+            throw new \LogicException('Cannot add a tag that comes from a different workspace');
         }
 
         if (!$this->tags->contains($tag)) {
@@ -275,9 +269,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getTagIds(): array
     {
-        return $this->tags->map(function (Tag $tag): string {
-            return $tag->getId();
-        })->getValues();
+        return $this->tags->map(fn (Tag $tag): string => $tag->getId())->getValues();
     }
 
     public function getReferenceCollectionId(): ?string
@@ -304,7 +296,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         return $this->getOwnerId() ?? '';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getTitle() ?? $this->getId();
     }
@@ -365,26 +357,26 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      *
      * @Groups({"dates"})
      */
-    public function getEditedAt(): ?DateTimeImmutable
+    public function getEditedAt(): ?\DateTimeImmutable
     {
         $date = max(
             $this->attributesEditedAt,
             $this->updatedAt,
         );
 
-        if (!$date instanceof DateTimeImmutable) {
-            return DateTimeImmutable::createFromMutable($date);
+        if (!$date instanceof \DateTimeImmutable) {
+            return \DateTimeImmutable::createFromMutable($date);
         }
 
         return $date;
     }
 
-    public function getAttributesEditedAt(): ?DateTimeImmutable
+    public function getAttributesEditedAt(): ?\DateTimeImmutable
     {
         return $this->attributesEditedAt;
     }
 
-    public function setAttributesEditedAt(?DateTimeImmutable $attributesEditedAt): void
+    public function setAttributesEditedAt(?\DateTimeImmutable $attributesEditedAt): void
     {
         $this->attributesEditedAt = $attributesEditedAt;
     }

@@ -5,29 +5,63 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Asset;
+use App\Entity\Workflow\WorkflowState;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use Symfony\Component\HttpFoundation\Response;
 
 class AssetCrudController extends AbstractAclAdminCrudController
 {
-    private UserChoiceField $userChoiceField;
-
     public static function getEntityFqcn(): string
     {
         return Asset::class;
     }
 
-    public function __construct(UserChoiceField $userChoiceField)
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly WorkflowOrchestrator $workflowOrchestrator,
+    ) {
+    }
+
+    public function configureActions(Actions $actions): Actions
     {
-        $this->userChoiceField = $userChoiceField;
+        $viewWorkflow = Action::new('triggerIngest', 'Trigger Ingest', 'fa fa-gear')
+            ->linkToCrudAction('triggerIngest');
+
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $viewWorkflow)
+        ;
+    }
+
+    public function triggerIngest(AdminContext $context): Response
+    {
+        /** @var Asset $asset */
+        $asset = $context->getEntity()->getInstance();
+
+        $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
+            'assetId' => $asset->getId(),
+            'workspaceId' => $asset->getWorkspaceId(),
+        ]), [
+            WorkflowState::INITIATOR_ID => $context->getUser()->getId(),
+        ]);
+
+        return $this->redirect($context->getReferrer());
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -36,7 +70,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(200);
+            ->setPaginatorPageSize(30);
     }
 
     public function configureFilters(Filters $filters): Filters

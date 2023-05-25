@@ -2,19 +2,14 @@
 
 namespace Alchemy\WorkflowBundle\DependencyInjection;
 
-use Alchemy\WorkflowBundle\DependencyInjection\Compiler\HealthCheckerPass;
-use Alchemy\WorkflowBundle\Health\Checker\DoctrineConnectionChecker;
-use Alchemy\WorkflowBundle\Health\Checker\RabbitMQConnectionChecker;
+use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
+use Alchemy\WorkflowBundle\WorkflowStateEntityLoadListener;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -35,11 +30,18 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         $loader->load('workflow.yaml');
 
-        $def = $container->getDefinition('alchemy.workflow.workflow_repository');
-        $def->setArgument('$dirs', $config['workflows_dirs']);
+        if ($config['doctrine']['workflow_state_entity'] !== WorkflowState::class) {
+            $def = new Definition(WorkflowStateEntityLoadListener::class);
+            $def->addTag('doctrine.event_subscriber');
+            $container->setDefinition(WorkflowStateEntityLoadListener::class, $def);
+        }
 
         $def = $container->getDefinition('alchemy.workflow.state_repository');
-//        $def->setArgument('$path', '%kernel.cache_dir%/workflows');
+        $def->setArgument('$workflowStateEntity', $config['doctrine']['workflow_state_entity']);
+        $def->setArgument('$jobStateEntity', $config['doctrine']['job_state_entity']);
+
+        $def = $container->getDefinition('alchemy.workflow.workflow_repository.file');
+        $def->setArgument('$dirs', $config['workflows_dirs']);
     }
 
     public function prepend(ContainerBuilder $container)

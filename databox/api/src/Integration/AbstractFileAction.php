@@ -11,7 +11,6 @@ use App\Entity\Integration\IntegrationData;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -19,8 +18,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 abstract class AbstractFileAction extends AbstractIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
-    protected const DATA_FILE_ID = 'file_id';
-    protected const DATA_FILE = 'file';
     protected FileManager $fileManager;
     protected FileUploadManager $fileUploadManager;
     protected EntityManagerInterface $em;
@@ -45,7 +42,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
 
         $file = $request->files->get('file');
         if (!$file instanceof UploadedFile) {
-            throw new InvalidArgumentException('Missing or invalid file');
+            throw new \InvalidArgumentException('Missing or invalid file');
         }
 
         return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);
@@ -65,12 +62,12 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
             'id' => $file->getId(),
             'url' => $this->fileUrlResolver->resolveUrl($file),
         ]);
-        $data->setName(self::DATA_FILE);
+        $data->setName(FileActionsIntegrationInterface::DATA_FILE);
     }
 
     public function supportData(string $integrationName, string $dataKey): bool
     {
-        return $integrationName === static::getName() && self::DATA_FILE_ID === $dataKey;
+        return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataKey;
     }
 
     /**

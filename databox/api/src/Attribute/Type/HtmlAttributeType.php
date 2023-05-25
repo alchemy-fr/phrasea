@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use HTMLPurifier;
-
 class HtmlAttributeType extends CodeAttributeType
 {
-    private HTMLPurifier $HTMLPurifier;
-
-    public function __construct(HTMLPurifier $HTMLPurifier)
+    public function __construct(private readonly \HTMLPurifier $HTMLPurifier)
     {
-        $this->HTMLPurifier = $HTMLPurifier;
     }
 
     public static function getName(): string

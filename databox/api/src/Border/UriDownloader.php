@@ -8,11 +8,8 @@ use GuzzleHttp\Client;
 
 class UriDownloader
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     /**

@@ -11,11 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class IntegrationChoiceType extends AbstractType
 {
-    private IntegrationRegistry $integrationRegistry;
-
-    public function __construct(IntegrationRegistry $integrationRegistry)
+    public function __construct(private readonly IntegrationRegistry $integrationRegistry)
     {
-        $this->integrationRegistry = $integrationRegistry;
     }
 
     public function configureOptions(OptionsResolver $resolver)

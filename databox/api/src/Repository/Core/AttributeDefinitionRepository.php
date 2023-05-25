@@ -14,12 +14,9 @@ use Symfony\Component\Security\Core\Security;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
 {
-    private Security $security;
-
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(ManagerRegistry $registry, private readonly Security $security)
     {
         parent::__construct($registry, AttributeDefinition::class);
-        $this->security = $security;
     }
 
     /**

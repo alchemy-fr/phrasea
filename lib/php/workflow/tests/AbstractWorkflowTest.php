@@ -20,6 +20,7 @@ use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\Tests\State\TestStateStateRepository;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
+use Alchemy\Workflow\Validator\EventValidator;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
@@ -72,7 +73,8 @@ abstract class AbstractWorkflowTest extends TestCase
         return [new WorkflowOrchestrator(
             $workflowRepository,
             $stateRepository,
-            $jobTrigger
+            $jobTrigger,
+            new EventValidator(),
         ), $stateRepository, $logger];
     }
     protected function createPlanner(array $workflowFiles): WorkflowPlanner

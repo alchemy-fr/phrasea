@@ -14,11 +14,8 @@ use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 class SoftDeleteListener implements EventSubscriber
 {
-    private PostFlushStack $postFlushStack;
-
-    public function __construct(PostFlushStack $postFlushStack)
+    public function __construct(private readonly PostFlushStack $postFlushStack)
     {
-        $this->postFlushStack = $postFlushStack;
     }
 
     public function preSoftDelete(LifecycleEventArgs $args): void

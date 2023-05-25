@@ -15,13 +15,10 @@ class RenditionPermissionManager
 {
     private const IS_EMPTY = 0;
     private const ANONYMOUS = '~';
-
-    private EntityManagerInterface $em;
     private array $cache = [];
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function isGranted(Asset $asset, RenditionClass $class, ?string $userId, array $groupIds = []): bool

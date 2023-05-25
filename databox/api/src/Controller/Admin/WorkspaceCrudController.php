@@ -15,11 +15,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
-    private UserChoiceField $userChoiceField;
-
-    public function __construct(UserChoiceField $userChoiceField)
+    public function __construct(private readonly UserChoiceField $userChoiceField)
     {
-        $this->userChoiceField = $userChoiceField;
     }
 
     public static function getEntityFqcn(): string

@@ -13,15 +13,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FileOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private FileUrlResolver $fileUrlResolver;
-    private EntityManagerInterface $em;
-
     private array $cache = [];
 
-    public function __construct(FileUrlResolver $fileUrlResolver, EntityManagerInterface $em)
+    public function __construct(private readonly FileUrlResolver $fileUrlResolver, private readonly EntityManagerInterface $em)
     {
-        $this->fileUrlResolver = $fileUrlResolver;
-        $this->em = $em;
     }
 
     /**

@@ -23,12 +23,12 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
     use WithOwnerIdDataTransformerTrait;
     use AttributeInputTrait;
 
-    public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
+    final public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
-        private OriginalRenditionManager $originalRenditionManager,
-        private AttributeInputDataTransformer $attributeInputDataTransformer,
-        private AssetManager $assetManager,
+        private readonly OriginalRenditionManager $originalRenditionManager,
+        private readonly AttributeInputDataTransformer $attributeInputDataTransformer,
+        private readonly AssetManager $assetManager,
     ) {
     }
 

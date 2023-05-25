@@ -18,8 +18,7 @@ readonly class InitializeAttributesAction implements ActionInterface
     public function __construct(
         private InitialAttributeValuesResolver $initialValueResolver,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void
@@ -29,12 +28,12 @@ readonly class InitializeAttributesAction implements ActionInterface
 
         $asset = $this->em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
         }
 
         $workspace = $asset->getWorkspace();
         if (!$workspace instanceof Workspace) {
-            throw new ObjectNotFoundForHandlerException(Workspace::class, $asset->getWorkspaceId(), __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Workspace::class, $asset->getWorkspaceId(), self::class);
         }
 
         $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);

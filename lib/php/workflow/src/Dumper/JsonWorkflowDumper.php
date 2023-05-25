@@ -18,13 +18,13 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
         foreach ($plan->getStages() as $stageIndex => $stage) {
             $jobs = [];
 
-            foreach ($stage->getRuns() as $runIndex => $run) {
+            foreach ($stage->getRuns() as $run) {
                 $jobId = $run->getJob()->getId();
                 $jobState = $state->getJobState($jobId);
 
                 $job = [
                     'id' => $jobId,
-                    'name' => $jobId,
+                    'name' => $run->getJob()->getName(),
                     'needs' => array_values($run->getJob()->getNeeds()->getArrayCopy()),
                 ];
 
@@ -33,10 +33,14 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                         'id' => $jobState->getJobId(),
                         'status' => $jobState->getStatus(),
                         'outputs' => $jobState->getOutputs()->getArrayCopy(),
+                        'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
                         'startedAt' => $jobState->getStartedAt()?->formatAtom(),
                         'endedAt' => $jobState->getEndedAt()?->formatAtom(),
                         'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ]);
+                    if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                        $job['errors'] = $jobState->getErrors();
+                    }
                 }
 
                 $jobs[] = $job;
@@ -56,6 +60,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             'endedAt' => $state->getEndedAt()?->formatAtom(),
             'stages' => $stages,
             'duration' => StateUtil::getFormattedDuration($state->getDuration()),
+            'context' => $state->getContext(),
         ]));
     }
 }

@@ -11,28 +11,21 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\File\FileMetadataAccessorWrapper;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use InvalidArgumentException;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 class InitialAttributeValuesResolver
 {
-    private Environment $twig;
-    private EntityManagerInterface $em;
-    private AttributeAssigner $attributeAssigner;
+    private readonly Environment $twig;
 
     public function __construct(
-        EntityManagerInterface $em,
-        AttributeAssigner $attributeAssigner
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeAssigner $attributeAssigner
     ) {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
         ]);
-        $this->em = $em;
-        $this->attributeAssigner = $attributeAssigner;
     }
 
     /**
@@ -62,7 +55,7 @@ class InitialAttributeValuesResolver
                     );
 
                     $position = 0;
-                    $now = new DateTimeImmutable();
+                    $now = new \DateTimeImmutable();
                     foreach ($initialValues as $initialValue) {
                         $input = new AttributeInput();
                         $input->value = $initialValue;
@@ -100,7 +93,6 @@ class InitialAttributeValuesResolver
         string $initializeFormula,
         AttributeDefinition $definition
     ): array {
-
         $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
 
         switch ($initializeFormula['type']) {
@@ -124,7 +116,7 @@ class InitialAttributeValuesResolver
                 break;
 
             default:
-                throw new InvalidArgumentException(sprintf('"%s" is not a valid initialization type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid initialization type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
         }
 
         // remove empty values

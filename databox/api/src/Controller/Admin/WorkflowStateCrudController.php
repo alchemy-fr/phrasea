@@ -5,14 +5,15 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
@@ -29,9 +30,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
             ->setHtmlAttributes(['target' => '_blank'])
-            ->linkToUrl(function (WorkflowState $entity): string {
-                return sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId());
-            });
+            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
@@ -55,6 +54,9 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         $name = TextField::new('name', 'Name');
         $eventName = TextField::new('eventName', 'Event');
         $eventInputs = ArrayObjectField::new('eventInputs', 'Event inputs');
+        $initiator = TextField::new('initiatorId', 'Initiator');
+        $context = ArrayObjectField::new('context', 'Context');
+        $asset = AssociationField::new('asset', 'Asset');
         $duration = TextField::new('durationString', 'Duration');
         $startedAt = DateTimeField::new('startedAt', 'Started At');
         $endedAt = DateTimeField::new('endedAt', 'Ended At');
@@ -70,9 +72,19 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ]);
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $duration, $eventName];
+            return [
+                $id,
+                $status,
+                $name,
+                $eventName,
+                $initiator,
+                $asset,
+                $duration,
+                $startedAt,
+                $endedAt,
+            ];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $startedAt, $status, $endedAt, $duration, $eventName, $eventInputs];
+            return [$id, $asset, $name, $startedAt, $status, $endedAt, $duration, $eventName, $eventInputs, $context];
         }
 
         return [];

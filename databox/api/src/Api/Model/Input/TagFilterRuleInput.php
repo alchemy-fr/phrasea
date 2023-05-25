@@ -31,12 +31,14 @@ class TagFilterRuleInput
 
     /**
      * @var Tag[]
+     *
      * @Groups({"asset:write"})
      */
     public ?array $include = null;
 
     /**
      * @var Tag[]
+     *
      * @Groups({"asset:write"})
      */
     public ?array $exclude = null;

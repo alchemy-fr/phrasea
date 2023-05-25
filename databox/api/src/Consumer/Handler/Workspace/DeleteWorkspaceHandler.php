@@ -12,11 +12,8 @@ class DeleteWorkspaceHandler extends AbstractEntityManagerHandler
 {
     private const EVENT = 'delete_workspace';
 
-    private WorkspaceDelete $workspaceDelete;
-
-    public function __construct(WorkspaceDelete $workspaceDelete)
+    public function __construct(private readonly WorkspaceDelete $workspaceDelete)
     {
-        $this->workspaceDelete = $workspaceDelete;
     }
 
     public function handle(EventMessage $message): void

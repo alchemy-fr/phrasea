@@ -6,6 +6,8 @@ namespace Alchemy\Workflow;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\Model\Job;
+use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Planner\Plan;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
@@ -14,42 +16,67 @@ use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
+use Alchemy\Workflow\Validator\EventValidatorInterface;
 
 class WorkflowOrchestrator
 {
     private WorkflowRepositoryInterface $workflowRepository;
     private StateRepositoryInterface $stateRepository;
     private JobTriggerInterface $trigger;
+    private EventValidatorInterface $eventValidator;
 
     public function __construct(
         WorkflowRepositoryInterface $workflowRepository,
         StateRepositoryInterface $stateRepository,
-        JobTriggerInterface $trigger
+        JobTriggerInterface $trigger,
+        EventValidatorInterface $eventValidator,
     )
     {
         $this->workflowRepository = $workflowRepository;
         $this->stateRepository = $stateRepository;
         $this->trigger = $trigger;
+        $this->eventValidator = $eventValidator;
     }
 
     /**
      * @return int The number of triggered workflows
      */
-    public function dispatchEvent(WorkflowEvent $event): int
+    public function dispatchEvent(WorkflowEvent $event, array $context = []): int
     {
         $workflows = $this->workflowRepository->getWorkflowsByEvent($event);
+        foreach ($workflows as $workflow) {
+            $this->validateEvent($event, $workflow);
+        }
+
         $i = 0;
         foreach ($workflows as $workflow) {
-            $this->startWorkflow($workflow->getName(), $event);
+            $this->startWorkflow($workflow->getName(), $event, $context);
             ++$i;
         }
 
         return $i;
     }
 
-    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null): WorkflowState
+    private function validateEvent(WorkflowEvent $event, Workflow $workflow): void
     {
-        $workflowState = new WorkflowState($this->stateRepository, $workflowName, $event);
+        foreach ($workflow->getOn() as $e => $on) {
+            if ($e === $event->getName()) {
+                $this->eventValidator->validateEvent($on, $event);
+
+                return;
+            }
+        }
+    }
+
+    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, array $context = []): WorkflowState
+    {
+        $workflowState = new WorkflowState(
+            $this->stateRepository,
+            $workflowName,
+            $event,
+            null,
+            $context
+        );
 
         $this->stateRepository->persistWorkflowState($workflowState);
 
@@ -65,7 +92,7 @@ class WorkflowOrchestrator
         }
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+        $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
@@ -91,11 +118,19 @@ class WorkflowOrchestrator
 
     public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
     {
+        $this->rerunJobs($workflowId, $jobIdFilter, JobState::STATUS_FAILURE);
+    }
+
+    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?int $expectedStatus = null): void
+    {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
         $event = $workflowState->getEvent();
-        $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
+
+        $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
+
+        $jobsToTrigger = [];
 
         foreach ($plan->getStages() as $stage) {
             foreach ($stage->getRuns() as $run) {
@@ -106,17 +141,36 @@ class WorkflowOrchestrator
                 }
 
                 $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null !== $jobState && $jobState->getStatus() === JobState::STATUS_FAILURE) {
+                if (null === $expectedStatus || null !== $jobState && $jobState->getStatus() === $expectedStatus) {
                     $this->stateRepository->removeJobState($workflowId, $jobId);
 
-                    $this->triggerJob($workflowState, $jobId);
+                    $jobsToTrigger[] = $jobId;
                 }
 
                 if (null !== $jobIdFilter) {
-                    return;
+                    break 2;
                 }
             }
         }
+
+        if (!empty($jobsToTrigger)) {
+            $workflowState->setStatus(WorkflowState::STATUS_STARTED);
+            $this->stateRepository->persistWorkflowState($workflowState);
+
+            foreach ($jobsToTrigger as $jobId) {
+                $this->triggerJob($workflowState, $jobId);
+            }
+        }
+    }
+
+    private function loadWorkflowByName(string $name): Workflow
+    {
+        $workflow = $this->workflowRepository->loadWorkflowByName($name);
+        if (null === $workflow) {
+            throw new \RuntimeException(sprintf('Workflow "%s" not found', $name));
+        }
+
+        return $workflow;
     }
 
     /**
@@ -124,6 +178,9 @@ class WorkflowOrchestrator
      */
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
+        $statuses = [];
+
+        $workflowComplete = true;
         foreach ($plan->getStages() as $stage) {
             $stageComplete = true;
 
@@ -133,8 +190,14 @@ class WorkflowOrchestrator
 
                 $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
                 if (null === $jobState) {
-                    return [$jobId, null];
+                    if ($this->satisfiesAllNeeds($statuses, $job)) {
+                        return [$jobId, null];
+                    } else {
+                        continue;
+                    }
                 }
+
+                $statuses[$jobId] = $jobState->getStatus();
 
                 if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
                     return [null, WorkflowState::STATUS_FAILURE];
@@ -150,11 +213,22 @@ class WorkflowOrchestrator
             }
 
             if (!$stageComplete) {
-                return [null, null];
+                $workflowComplete = false;
             }
         }
 
-        return [null, WorkflowState::STATUS_SUCCESS];
+        return $workflowComplete ? [null, WorkflowState::STATUS_SUCCESS] : [null, null];
+    }
+
+    private function satisfiesAllNeeds(array $states, Job $job): bool
+    {
+        foreach ($job->getNeeds() as $need) {
+            if (!isset($states[$need]) || $states[$need] !== JobState::STATUS_SUCCESS) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function triggerJob(WorkflowState $state, string $jobId): bool

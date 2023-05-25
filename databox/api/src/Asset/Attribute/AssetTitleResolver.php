@@ -11,12 +11,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AssetTitleResolver
 {
-    private EntityManagerInterface $em;
     private array $cache = [];
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     /**

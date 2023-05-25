@@ -41,13 +41,23 @@ class JobExecutor
         $this->envs = $envs ?? new EnvContainer();;
     }
 
-    public function shouldBeSkipped(JobExecutionContext $context, Job $job): bool
+    private function shouldBeSkipped(JobExecutionContext $context, Job $job): bool
     {
         if (null !== $if = $job->getIf()) {
-            $evaluatedIf = $this->expressionParser->evaluateIf($if, $context);
-            if (!$evaluatedIf) {
-                return true;
+            if (str_contains($if, '::')) {
+               [$class, $method] = explode('::', $if, 2);
+               if (class_exists($class)) {
+                   $action = $this->actionRegistry->getAction($class);
+
+                   return !call_user_func([$action, $method], new JobContext(
+                       $context->getOutput(),
+                       $context->getInputs(),
+                       $context->getEnvs(),
+                   ));
+               }
             }
+
+            return !$this->expressionParser->evaluateIf($if, $context);
         }
 
         return false;
@@ -149,6 +159,13 @@ class JobExecutor
                 $output->writeln(sprintf('<error>Step <info>%s</info> has failed but is set to continue on error</error>', $step->getId()));
             } finally {
                 $stepState->setEndedAt(new MicroDateTime());
+
+                if ($runContext->isRetainJob()) {
+                    $this->extractOutputs($job, $context);
+                    $this->stateRepository->persistJobState($jobState);
+
+                    return;
+                }
             }
         }
 
@@ -178,11 +195,6 @@ class JobExecutor
         }
 
         throw new \InvalidArgumentException('Could not find executor');
-    }
-
-    private function getStepInputs(Step|Job $step, JobExecutionContext $context): array
-    {
-        return $this->expressionParser->evaluateArray($step->getWith(), $context);
     }
 
     private function extractOutputs(Job $job, JobExecutionContext $context): void

@@ -14,13 +14,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private AssetSearch $assetSearch;
-    private Security $security;
-
-    public function __construct(AssetSearch $assetSearch, Security $security)
+    public function __construct(private readonly AssetSearch $assetSearch, private readonly Security $security)
     {
-        $this->assetSearch = $assetSearch;
-        $this->security = $security;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])

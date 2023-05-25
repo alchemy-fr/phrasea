@@ -16,14 +16,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class AssetCopyHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'asset_copy';
-    private IriConverterInterface $iriConverter;
-    private AssetCopier $assetCopier;
+    final public const EVENT = 'asset_copy';
 
-    public function __construct(IriConverterInterface $iriConverter, AssetCopier $assetCopier)
+    public function __construct(private readonly IriConverterInterface $iriConverter, private readonly AssetCopier $assetCopier)
     {
-        $this->iriConverter = $iriConverter;
-        $this->assetCopier = $assetCopier;
     }
 
     public function handle(EventMessage $message): void
@@ -39,7 +35,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         /** @var Collection|Workspace $destination */

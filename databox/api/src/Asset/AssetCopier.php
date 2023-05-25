@@ -17,26 +17,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-
-    public const OPT_WITH_ATTRIBUTES = 'withAttributes';
-    public const OPT_WITH_TAGS = 'withTags';
+    final public const OPT_WITH_ATTRIBUTES = 'withAttributes';
+    final public const OPT_WITH_TAGS = 'withTags';
 
     private array $fileCopies = [];
-    private RenditionPermissionManager $renditionPermissionManager;
-    private FileCopier $fileCopier;
 
-    public function __construct(
-        EventProducer $eventProducer,
-        EntityManagerInterface $em,
-        RenditionPermissionManager $renditionPermissionManager,
-        FileCopier $fileCopier
-    ) {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
-        $this->renditionPermissionManager = $renditionPermissionManager;
-        $this->fileCopier = $fileCopier;
+    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly FileCopier $fileCopier)
+    {
     }
 
     public function copyAsset(

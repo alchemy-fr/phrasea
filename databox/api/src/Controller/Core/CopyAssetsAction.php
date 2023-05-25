@@ -19,18 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CopyAssetsAction extends AbstractController
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-    private IriConverterInterface $iriConverter;
-
-    public function __construct(
-        EventProducer $eventProducer,
-        EntityManagerInterface $em,
-        IriConverterInterface $iriConverter
-    ) {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
-        $this->iriConverter = $iriConverter;
+    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly IriConverterInterface $iriConverter)
+    {
     }
 
     public function __invoke(Asset $data, Request $request)

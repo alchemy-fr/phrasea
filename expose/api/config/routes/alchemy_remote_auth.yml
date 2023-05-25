@@ -1,0 +1,2 @@
+alchemy_remote_auth:
+  resource: "@AlchemyRemoteAuthBundle/Resources/routing/permissions.yaml"

@@ -13,6 +13,7 @@ abstract class AbstractUuidOutput
      * The unique resource ID (UUID form).
      *
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"_"})
      */
     protected string $id;

@@ -8,17 +8,13 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class TagFilterRuleConstraintValidator extends ConstraintValidator
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     /**
@@ -29,7 +25,7 @@ class TagFilterRuleConstraintValidator extends ConstraintValidator
         if (TagFilterRule::TYPE_COLLECTION === $value->getObjectType()) {
             $collection = $this->em->getRepository(Collection::class)->find($value->getObjectId());
             if (!$collection instanceof Collection) {
-                throw new RuntimeException('Collection not found when validating tag filter rule');
+                throw new \RuntimeException('Collection not found when validating tag filter rule');
             }
             $workspaceId = $collection->getWorkspaceId();
         } else {

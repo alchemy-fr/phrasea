@@ -22,7 +22,6 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
-use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -76,7 +75,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         if (isset($options['collectionId'])) {
             $collection = $em->find(Collection::class, $options['collectionId']);
             if (!$collection instanceof Collection) {
-                throw new InvalidArgumentException('Collection not found');
+                throw new \InvalidArgumentException('Collection not found');
             }
             $collectionAsset = $asset->addToCollection($collection);
             $em->persist($collectionAsset);

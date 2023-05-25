@@ -28,6 +28,6 @@ For the uploader application you would have:
 ```bash
 XDEBUG_ENABLED=1 dc run --rm dev
 cd databox/api
-export XDEBUG_CONFIG="remote_enable=1"
+export XDEBUG_SESSION="phpstorm"
 sf app:command
 ```

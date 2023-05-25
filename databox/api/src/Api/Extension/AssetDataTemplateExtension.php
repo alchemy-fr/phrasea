@@ -16,15 +16,8 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetDataTemplateExtension implements ContextAwareQueryCollectionExtensionInterface
 {
-    private Security $security;
-    private ObjectMapping $objectMapping;
-
-    public function __construct(
-        Security $security,
-        ObjectMapping $objectMapping
-    ) {
-        $this->security = $security;
-        $this->objectMapping = $objectMapping;
+    public function __construct(private readonly Security $security, private readonly ObjectMapping $objectMapping)
+    {
     }
 
     public function applyToCollection(

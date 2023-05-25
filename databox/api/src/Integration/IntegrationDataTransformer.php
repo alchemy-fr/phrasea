@@ -9,13 +9,10 @@ use App\Entity\Integration\IntegrationData;
 class IntegrationDataTransformer
 {
     /**
-     * @var IntegrationDataTransformerInterface[]
+     * @param \App\Integration\IntegrationDataTransformerInterface[] $transformers
      */
-    private iterable $transformers;
-
-    public function __construct(iterable $transformers)
+    public function __construct(private readonly iterable $transformers)
     {
-        $this->transformers = $transformers;
     }
 
     public function transformData(IntegrationData $data): void

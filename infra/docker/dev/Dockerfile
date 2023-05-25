@@ -39,7 +39,7 @@ RUN apk add --no-cache \
 
 ENV APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
-    XDEBUG_VERSION=3.1.5 \
+    XDEBUG_VERSION=3.2.1 \
     REDIS_VERSION=5.3.7 \
     APP_ENV=dev
 

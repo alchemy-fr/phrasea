@@ -6,13 +6,8 @@ namespace App\Border\Model;
 
 class FileContent
 {
-    private InputFile $file;
-    private string $path;
-
-    public function __construct(InputFile $file, string $path)
+    public function __construct(private readonly InputFile $file, private readonly string $path)
     {
-        $this->file = $file;
-        $this->path = $path;
     }
 
     public function getFile(): InputFile

@@ -12,18 +12,12 @@ use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class WorkspaceIntegrationExtension implements ContextAwareQueryCollectionExtensionInterface
 {
-    private IntegrationRegistry $integrationRegistry;
-    private EntityManagerInterface $em;
-
-    public function __construct(IntegrationRegistry $integrationRegistry, EntityManagerInterface $em)
+    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly EntityManagerInterface $em)
     {
-        $this->integrationRegistry = $integrationRegistry;
-        $this->em = $em;
     }
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null, array $context = []): void
@@ -47,14 +41,12 @@ class WorkspaceIntegrationExtension implements ContextAwareQueryCollectionExtens
         if (isset($filters['fileId'])) {
             $file = $this->em->find(File::class, $filters['fileId']);
             if (!$file instanceof File) {
-                throw new InvalidArgumentException(sprintf('File "%s" not found', $filters['fileId']));
+                throw new \InvalidArgumentException(sprintf('File "%s" not found', $filters['fileId']));
             }
             $filters['workspace'] = $file->getWorkspaceId();
 
             $supportedIntegrations = array_map(
-                function (FileActionsIntegrationInterface $integration): string {
-                    return $integration::getName();
-                },
+                fn (FileActionsIntegrationInterface $integration): string => $integration::getName(),
                 $this->integrationRegistry->getIntegrationsOfType(FileActionsIntegrationInterface::class)
             );
 

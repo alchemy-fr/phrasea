@@ -12,6 +12,7 @@ class TemplateAttributeInput extends AbstractBaseAttributeInput
 {
     /**
      * @var AssetDataTemplate
+     *
      * @Assert\NotNull()
      */
     public $template;

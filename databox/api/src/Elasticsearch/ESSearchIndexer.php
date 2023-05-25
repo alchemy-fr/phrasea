@@ -17,7 +17,6 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 
 class ESSearchIndexer
 {
@@ -25,32 +24,20 @@ class ESSearchIndexer
     private const BATCH_SIZE = 100;
     private const MAX_PER_MESSAGE = 200;
 
-    public const ACTION_INSERT = 'i';
-    public const ACTION_UPSERT = 'u';
-    public const ACTION_DELETE = 'd';
+    final public const ACTION_INSERT = 'i';
+    final public const ACTION_UPSERT = 'u';
+    final public const ACTION_DELETE = 'd';
 
     /**
      * @var ObjectPersisterInterface[][]
      */
     protected array $objectPersisters = [];
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-    private LoggerInterface $logger;
-    private bool $direct;
 
     private array $dependenciesStack = [];
     private int $dependenciesCount = 0;
 
-    public function __construct(
-        EventProducer $eventProducer,
-        EntityManagerInterface $em,
-        LoggerInterface $logger,
-        bool $direct = false
-    ) {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
-        $this->logger = $logger;
-        $this->direct = $direct;
+    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly LoggerInterface $logger, private readonly bool $direct = false)
+    {
     }
 
     public function addObjectPersister(string $class, ObjectPersisterInterface $objectPersister): void
@@ -97,7 +84,7 @@ class ESSearchIndexer
     public function index(array $objects, int $depth): void
     {
         if ($depth > self::MAX_DEPTH) {
-            $this->logger->emergency(sprintf('%s: Max depth reached', __CLASS__));
+            $this->logger->emergency(sprintf('%s: Max depth reached', self::class));
 
             return;
         }
@@ -147,7 +134,7 @@ class ESSearchIndexer
                     return;
                 }
 
-                if (count($objects) !== count($ids)) {
+                if ((is_countable($objects) ? count($objects) : 0) !== count($ids)) {
                     $this->logger->alert(sprintf('Some %s documents were not found for index', $class));
                 }
 
@@ -197,7 +184,7 @@ class ESSearchIndexer
             ++$i;
 
             if ($i++ > 100) {
-                throw new RuntimeException(sprintf('%s error: Infinite loop detected in flush', __CLASS__));
+                throw new \RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
             }
         }
     }
@@ -211,7 +198,7 @@ class ESSearchIndexer
             if (is_array($entity)) {
                 [$class, $id] = $entity;
             } else {
-                $class = ClassUtils::getRealClass(get_class($entity));
+                $class = ClassUtils::getRealClass($entity::class);
                 $id = $entity->getId();
             }
 

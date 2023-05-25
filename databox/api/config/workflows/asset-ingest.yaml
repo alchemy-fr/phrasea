@@ -1,25 +1,11 @@
 name: asset-ingest
 
 on:
-  workflow_call:
-    inputs:
-      assetId:
-        required: true
   asset_ingest:
     inputs:
       assetId:
         required: true
+      workspaceId:
+        required: true
 
 jobs:
-  read_metadata:
-    steps:
-      - uses: App\Workflow\Action\ReadMetadataAction
-
-  initialize_attributes:
-    needs: [read_metadata]
-    steps:
-      - uses: App\Workflow\Action\InitializeAttributesAction
-
-  integrations:
-    steps:
-      - uses: App\Workflow\Action\TriggerIntegrationsActions

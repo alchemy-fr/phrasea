@@ -12,26 +12,10 @@ use FOS\ElasticaBundle\Elastica\Index;
 
 class IndexMappingUpdater
 {
-    public const NO_LOCALE = '_';
+    final public const NO_LOCALE = '_';
 
-    private ElasticsearchClient $client;
-    private Index $index;
-    private EntityManagerInterface $em;
-    private AttributeTypeRegistry $attributeTypeRegistry;
-    private FieldNameResolver $fieldNameResolver;
-
-    public function __construct(
-        ElasticsearchClient $client,
-        Index $index,
-        EntityManagerInterface $em,
-        AttributeTypeRegistry $attributeTypeRegistry,
-        FieldNameResolver $fieldNameResolver
-    ) {
-        $this->client = $client;
-        $this->index = $index;
-        $this->em = $em;
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->fieldNameResolver = $fieldNameResolver;
+    public function __construct(private readonly ElasticsearchClient $client, private readonly Index $index, private readonly EntityManagerInterface $em, private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly FieldNameResolver $fieldNameResolver)
+    {
     }
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void

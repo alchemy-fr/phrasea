@@ -12,11 +12,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private CollectionSearch $collectionSearch;
-
-    public function __construct(CollectionSearch $collectionSearch)
+    public function __construct(private readonly CollectionSearch $collectionSearch)
     {
-        $this->collectionSearch = $collectionSearch;
     }
 
     /**
@@ -34,7 +31,7 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
 
         if (in_array('collection:include_children', $context['groups'], true)) {
             $maxChildrenLimit = 30;
-            if (preg_match('#(?:&|\?)childrenLimit=(\d+)#', $context['request_uri'], $regs)) {
+            if (preg_match('#(?:&|\?)childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {
                 $childrenLimit = $regs[1];
             } else {
                 $childrenLimit = $maxChildrenLimit;
@@ -43,7 +40,7 @@ class CollectionOutputDataTransformer extends AbstractSecurityDataTransformer
                 $childrenLimit = $maxChildrenLimit;
             }
 
-            $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, get_class($output), 'children');
+            $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, $output::class, 'children');
             $maxDepth = (in_array('collection:2_level_children', $context['groups'], true)) ? 2 : 1;
             $depth = $context[$key] ?? 0;
             if ($depth < $maxDepth) {

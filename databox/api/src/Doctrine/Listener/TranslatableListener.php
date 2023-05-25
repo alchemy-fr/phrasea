@@ -11,11 +11,8 @@ use Doctrine\ORM\Events;
 
 class TranslatableListener implements EventSubscriber
 {
-    private string $defaultLocale;
-
-    public function __construct(string $defaultLocale)
+    public function __construct(private readonly string $defaultLocale)
     {
-        $this->defaultLocale = $defaultLocale;
     }
 
     public function prePersist(LifecycleEventArgs $args): void

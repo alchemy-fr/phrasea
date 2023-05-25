@@ -36,7 +36,7 @@ class FileWorkflowRepository implements WorkflowRepositoryInterface
         }
     }
 
-    public function loadWorkflowByName(string $name): Workflow
+    public function loadWorkflowByName(string $name): ?Workflow
     {
         $this->doLoad();
 

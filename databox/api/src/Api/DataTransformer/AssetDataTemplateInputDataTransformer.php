@@ -16,11 +16,8 @@ class AssetDataTemplateInputDataTransformer extends AbstractInputDataTransformer
     use WithOwnerIdDataTransformerTrait;
     use AttributeInputTrait;
 
-    private TemplateAttributeInputDataTransformer $templateAttributeInputDataTransformer;
-
-    public function __construct(TemplateAttributeInputDataTransformer $templateAttributeInputDataTransformer)
+    public function __construct(private readonly TemplateAttributeInputDataTransformer $templateAttributeInputDataTransformer)
     {
-        $this->templateAttributeInputDataTransformer = $templateAttributeInputDataTransformer;
     }
 
     /**

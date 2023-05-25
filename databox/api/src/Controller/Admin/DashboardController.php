@@ -9,7 +9,6 @@ use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
 use App\Entity\Core\AlternateUrl;
@@ -29,8 +28,10 @@ use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
+use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -88,6 +89,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $submenu4 = [
             MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
+            MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];
 

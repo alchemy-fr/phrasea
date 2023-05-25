@@ -43,12 +43,14 @@ class CollectionOutput extends AbstractUuidOutput
 
     /**
      * @MaxDepth(2)
+     *
      * @Groups({"collection:index", "collection:children", "workspace:index"})
      */
     private $children;
 
     /**
      * @MaxDepth(1)
+     *
      * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
      */
     private $workspace;

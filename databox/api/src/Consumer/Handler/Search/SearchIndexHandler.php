@@ -10,13 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class SearchIndexHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'es_index_doc';
+    final public const EVENT = 'es_index_doc';
 
-    private ESSearchIndexer $searchIndexer;
-
-    public function __construct(ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly ESSearchIndexer $searchIndexer)
     {
-        $this->searchIndexer = $searchIndexer;
     }
 
     public function handle(EventMessage $message): void

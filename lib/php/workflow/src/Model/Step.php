@@ -10,7 +10,6 @@ class Step
     private ?string $name;
 
     private EnvVars $env;
-    private ?string $if = null;
     private string $executor = 'bash';
     private ?string $run = null;
     private ?string $uses = null;
@@ -39,11 +38,6 @@ class Step
         return $this->env;
     }
 
-    public function getIf(): ?string
-    {
-        return $this->if;
-    }
-
     public function getExecutor(): string
     {
         return $this->executor;
@@ -52,11 +46,6 @@ class Step
     public function getRun(): ?string
     {
         return $this->run;
-    }
-
-    public function setIf(?string $if): void
-    {
-        $this->if = $if;
     }
 
     public function setExecutor(string $executor): void

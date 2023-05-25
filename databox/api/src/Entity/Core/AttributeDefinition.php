@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class AttributeDefinition extends AbstractUuidEntity
+class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -42,32 +42,38 @@ class AttributeDefinition extends AbstractUuidEntity
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"attributedef:index"})
      */
     protected ?Workspace $workspace = null;
 
     /**
      * @Groups({"attributedef:index", "attributedef:read", "attributedef:write"})
+     *
      * @ORM\ManyToOne(targetEntity="AttributeClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     protected ?AttributeClass $class = null;
 
     /**
      * @var Attribute[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="definition", cascade={"remove"})
      */
     private ?DoctrineCollection $attributes = null;
 
     /**
      * @Groups({"asset:index", "asset:read", "attributedef:index", "attribute:index"})
+     *
      * @ORM\Column(type="string", length=100, nullable=false)
      */
     private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     *
      * @Gedmo\Slug(fields={"name"}, style="lower", separator="", unique=false)
      */
     private ?string $slug = null;
@@ -77,54 +83,63 @@ class AttributeDefinition extends AbstractUuidEntity
      * If null, applied to all files.
      *
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private ?string $fileType = null;
 
     /**
      * @Groups({"attributedef:index", "asset:index"})
+     *
      * @ORM\Column(type="string", length=50, nullable=false)
      */
     private string $fieldType = TextAttributeType::NAME;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $searchable = true;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $facetEnabled = false;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $sortable = false;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $translatable = false;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $multiple = false;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $allowInvalid = false;
 
     /**
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private ?int $searchBoost = null;
@@ -133,6 +148,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * Initialize attributes after asset creation; key=locale.
      *
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="json", nullable=true)
      */
     private ?array $initialValues = null;
@@ -141,6 +157,7 @@ class AttributeDefinition extends AbstractUuidEntity
      * Resolve this template (TWIG syntax) if no user value provided.
      *
      * @Groups({"attributedef:index"})
+     *
      * @ORM\Column(type="array", nullable=true)
      */
     private ?array $fallback = null;
@@ -154,7 +171,9 @@ class AttributeDefinition extends AbstractUuidEntity
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="smallint", nullable=false)
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private int $position = 0;
@@ -234,7 +253,7 @@ class AttributeDefinition extends AbstractUuidEntity
         return $this->getId();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
     }

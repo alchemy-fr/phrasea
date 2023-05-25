@@ -6,3 +6,9 @@ export async function getWorkflow(id: string): Promise<Workflow> {
 
     return res.data;
 }
+
+export async function rerunJob(workflowId: string, jobId: string): Promise<Workflow> {
+    const res = await apiClient.post(`/workflows/${workflowId}/jobs/${jobId}/rerun`);
+
+    return res.data;
+}

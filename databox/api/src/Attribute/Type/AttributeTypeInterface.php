@@ -24,10 +24,8 @@ interface AttributeTypeInterface
 
     /**
      * Normalize value for database.
-     *
-     * @param mixed $value
      */
-    public function normalizeValue($value): ?string;
+    public function normalizeValue(mixed $value): ?string;
 
     /**
      * De-normalize value from database to PHP.
@@ -38,17 +36,13 @@ interface AttributeTypeInterface
 
     /**
      * Format value for client.
-     *
-     * @param mixed $value
      */
-    public function getGroupValueLabel($value): ?string;
+    public function getGroupValueLabel(mixed $value): ?string;
 
     /**
      * De-normalize value from Elasticsearch to database.
-     *
-     * @param mixed $value
      */
-    public function denormalizeElasticsearchValue($value): ?string;
+    public function denormalizeElasticsearchValue(mixed $value): ?string;
 
     /**
      * Normalize value from database to ES index.

@@ -10,11 +10,8 @@ use Aws\S3\S3Client;
 
 class S3Copier
 {
-    private FileFetcher $fileFetcher;
-
-    public function __construct(FileFetcher $fileFetcher)
+    public function __construct(private readonly FileFetcher $fileFetcher)
     {
-        $this->fileFetcher = $fileFetcher;
     }
 
     public function copyToS3(File $file, string $bucket, string $key, array $options): void

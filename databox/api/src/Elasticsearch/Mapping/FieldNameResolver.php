@@ -8,19 +8,11 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Entity\Core\AttributeDefinition;
-use InvalidArgumentException;
 
 class FieldNameResolver
 {
-    private AttributeTypeRegistry $attributeTypeRegistry;
-    private FacetRegistry $facetRegistry;
-
-    public function __construct(
-        AttributeTypeRegistry $attributeTypeRegistry,
-        FacetRegistry $facetRegistry
-    ) {
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->facetRegistry = $facetRegistry;
+    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly FacetRegistry $facetRegistry)
+    {
     }
 
     public function getFieldName(AttributeDefinition $definition): string
@@ -72,6 +64,6 @@ class FieldNameResolver
             ];
         }
 
-        throw new InvalidArgumentException(sprintf('Cannot parse field "%s"', $fieldName));
+        throw new \InvalidArgumentException(sprintf('Cannot parse field "%s"', $fieldName));
     }
 }

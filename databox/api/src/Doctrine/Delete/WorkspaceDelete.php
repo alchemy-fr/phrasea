@@ -16,36 +16,21 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Throwable;
 
 class WorkspaceDelete
 {
-    private EntityManagerInterface $em;
-    private CollectionDelete $collectionDelete;
-    private IndexCleaner $indexCleaner;
-    private SoftDeleteToggler $softDeleteToggler;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        CollectionDelete $collectionDelete,
-        IndexCleaner $indexCleaner,
-        SoftDeleteToggler $softDeleteToggler
-    ) {
-        $this->em = $em;
-        $this->collectionDelete = $collectionDelete;
-        $this->indexCleaner = $indexCleaner;
-        $this->softDeleteToggler = $softDeleteToggler;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly CollectionDelete $collectionDelete, private readonly IndexCleaner $indexCleaner, private readonly SoftDeleteToggler $softDeleteToggler)
+    {
     }
 
     public function deleteWorkspace(string $workspaceId): void
     {
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found for deletion', $workspaceId));
         }
         if (null === $workspace->getDeletedAt()) {
-            throw new InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
+            throw new \InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
         }
 
         $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
@@ -96,7 +81,7 @@ class WorkspaceDelete
             $this->em->remove($workspace);
             $this->em->flush();
             $this->em->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;
         } finally {

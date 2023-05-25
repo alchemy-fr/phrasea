@@ -6,8 +6,6 @@ namespace App\Tests\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateAttributeType;
-use DateTimeImmutable;
-use DateTimeInterface;
 
 class DateAttributeTypeTest extends AbstractAttributeTypeTest
 {
@@ -43,7 +41,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
             ['2009', null],
             ['foo', null],
             ['1', null],
-            ['2008-01-12T12:13:00Z', DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, '2008-01-12T12:13:00Z')],
+            ['2008-01-12T12:13:00Z', \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, '2008-01-12T12:13:00Z')],
         ];
     }
 }

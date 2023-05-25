@@ -6,9 +6,6 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeDefinition;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\Range;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -28,8 +25,8 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function getGroupValueLabel($value): ?string
     {
-        if ($value instanceof DateTimeInterface) {
-            return $value->format(DateTimeInterface::ATOM);
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
         }
 
         return parent::getGroupValueLabel($value);
@@ -37,10 +34,10 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
-        $startFloor = new DateTime();
+        $startFloor = new \DateTime();
         $startFloor->setTimestamp((int) $value[0]);
 
-        $endCeil = new DateTime();
+        $endCeil = new \DateTime();
         $endCeil->setTimestamp((int) $value[1]);
 
         return new Range($field, [
@@ -72,12 +69,12 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function normalizeValue($value): ?string
     {
-        if (!$value instanceof DateTimeInterface) {
+        if (!$value instanceof \DateTimeInterface) {
             if (empty($value)) {
                 return null;
             }
 
-            $value = trim($value);
+            $value = trim((string) $value);
             if (empty($value)) {
                 return null;
             }
@@ -90,21 +87,21 @@ class DateTimeAttributeType extends AbstractAttributeType
                 $matches = [];
                 if (1 === preg_match($tryout['p'], $value, $matches)) {
                     // m is the mapping from matches[x] to arg[i] for vsprintf(f, args)
-                    $args = array_map(function ($a) use ($matches) {return (int) ($matches[$a]); }, $tryout['m']);
+                    $args = array_map(fn ($a) => (int) $matches[$a], $tryout['m']);
                     $value = vsprintf($tryout['f'], $args);
                     break;
                 }
             }
-            if (false === $value = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value)) {
+            if (false === $value = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value)) {
                 return null;
             }
         }
 
-        return $value->format(DateTimeInterface::ATOM);
+        return $value->format(\DateTimeInterface::ATOM);
     }
 
     /**
-     * @return DateTimeImmutable|null
+     * @return \DateTimeImmutable|null
      */
     public function denormalizeValue(?string $value)
     {
@@ -113,13 +110,13 @@ class DateTimeAttributeType extends AbstractAttributeType
         }
 
         try {
-            $date = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $value);
+            $date = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $value);
             if (false === $date) {
                 return null;
             }
 
             return $date;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -131,8 +128,8 @@ class DateTimeAttributeType extends AbstractAttributeType
         }
 
         try {
-            new DateTimeImmutable($value);
-        } catch (\Exception $e) {
+            new \DateTimeImmutable($value);
+        } catch (\Exception) {
             $context->addViolation('Invalid date');
 
             return;

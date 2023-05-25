@@ -43,12 +43,14 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
      *     }
      * }
      * })
+     *
      * @Groups({"asset-data-template:index"})
      */
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
+     *
      * @Groups({"asset-data-template:read"})
      */
     public ?array $attributes;

@@ -109,6 +109,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "ext-sodium": "*",
         "alchemy/acl-bundle": "dev-main",
         "alchemy/workflow-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",
@@ -162,9 +163,11 @@
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
-        "friendsofphp/php-cs-fixer": "^2.16",
+        "friendsofphp/php-cs-fixer": "^3",
         "justinrainbow/json-schema": "^5.2",
+        "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.15.25",
         "symfony/browser-kit": "^5.2.0",
         "symfony/css-selector": "^5.2.0",
         "symfony/debug-bundle": "^5.2.0",
@@ -215,7 +218,9 @@
             "@cache-clear",
             "@auto-scripts"
         ],
-        "cs": "vendor/bin/php-cs-fixer fix",
+        "rector": "vendor/bin/rector",
+        "stan": "vendor/bin/phpstan analyse --memory-limit 512M src tests --level 1",
+        "cs": "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
     },
     "minimum-stability": "dev",

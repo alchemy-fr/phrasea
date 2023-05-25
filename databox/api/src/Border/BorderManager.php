@@ -15,21 +15,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class BorderManager
 {
-    private EntityManagerInterface $em;
-    private UriDownloader $fileDownloader;
-    private FileStorageManager $storageManager;
-    private FilePathGenerator $pathGenerator;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        UriDownloader $fileDownloader,
-        FileStorageManager $storageManager,
-        FilePathGenerator $pathGenerator
-    ) {
-        $this->em = $em;
-        $this->fileDownloader = $fileDownloader;
-        $this->storageManager = $storageManager;
-        $this->pathGenerator = $pathGenerator;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UriDownloader $fileDownloader, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $pathGenerator)
+    {
     }
 
     public function acceptFile(InputFile $inputFile, Workspace $workspace): ?File
@@ -63,7 +50,7 @@ class BorderManager
             $this->em->flush();
 
             return $file;
-        } catch (FileInputValidationException $e) {
+        } catch (FileInputValidationException) {
             return null;
         }
     }

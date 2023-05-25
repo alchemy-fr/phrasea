@@ -10,28 +10,19 @@ use App\Entity\Core\AttributeDefinition;
 
 class DynamicAttributeBag
 {
-    /**
-     * @var array<string, Attribute>
-     */
-    private array $attributes;
-
-    /**
-     * @var array<string, AttributeDefinition>
-     */
-    private array $definitions;
     private $resolve;
-    private string $locale;
 
+    /**
+     * @param array<string, Attribute>           $attributes
+     * @param array<string, AttributeDefinition> $definitions
+     */
     public function __construct(
-        array $attributesIndex,
-        array $definitionsIndex,
+        private readonly array $attributes,
+        private readonly array $definitions,
         callable $resolve,
-        string $locale
+        private readonly string $locale
     ) {
-        $this->attributes = $attributesIndex;
-        $this->definitions = $definitionsIndex;
         $this->resolve = $resolve;
-        $this->locale = $locale;
     }
 
     public function __call(string $name, $args): ?string

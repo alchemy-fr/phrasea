@@ -8,25 +8,18 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\Outputs;
 use Symfony\Component\Console\Output\OutputInterface;
 
-readonly class RunContext
+class RunContext extends JobContext
 {
+    private bool $retainJob = false;
+
     public function __construct(
-        private OutputInterface $output,
-        private Inputs $inputs,
-        private EnvContainer $envs,
-        private Outputs $outputs,
+        OutputInterface $output,
+        Inputs $inputs,
+        EnvContainer $envs,
+        private readonly Outputs $outputs,
     )
     {
-    }
-
-    public function getInputs(): Inputs
-    {
-        return $this->inputs;
-    }
-
-    public function getOutput(): OutputInterface
-    {
-        return $this->output;
+        parent::__construct($output, $inputs, $envs);
     }
 
     public function setOutput(string $key, $value): void
@@ -34,8 +27,13 @@ readonly class RunContext
         $this->outputs->set($key, $value);
     }
 
-    public function getEnvs(): EnvContainer
+    public function isRetainJob(): bool
     {
-        return $this->envs;
+        return $this->retainJob;
+    }
+
+    public function retainJob(bool $retainJob = true): void
+    {
+        $this->retainJob = $retainJob;
     }
 }

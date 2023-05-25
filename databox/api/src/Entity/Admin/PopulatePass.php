@@ -7,8 +7,6 @@ namespace App\Entity\Admin;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Util\Time;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,7 +20,7 @@ class PopulatePass extends AbstractUuidEntity
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?DateTimeInterface $endedAt = null;
+    protected ?\DateTimeInterface $endedAt = null;
 
     /**
      * @ORM\Column(type="bigint", nullable=false)
@@ -53,7 +51,7 @@ class PopulatePass extends AbstractUuidEntity
     {
         if (null === $this->endedAt) {
             if (null === $this->error) {
-                return (new DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
+                return (new \DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
             }
 
             return null;
@@ -93,12 +91,12 @@ class PopulatePass extends AbstractUuidEntity
         $this->mapping = $mapping;
     }
 
-    public function getEndedAt(): ?DateTimeInterface
+    public function getEndedAt(): ?\DateTimeInterface
     {
         return $this->endedAt;
     }
 
-    public function setEndedAt(?DateTimeInterface $endedAt): void
+    public function setEndedAt(?\DateTimeInterface $endedAt): void
     {
         $this->endedAt = $endedAt;
     }

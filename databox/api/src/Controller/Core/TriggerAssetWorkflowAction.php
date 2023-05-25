@@ -15,13 +15,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class TriggerAssetWorkflowAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private AssetManager $assetManager;
-
-    public function __construct(AssetManager $assetManager, EntityManagerInterface $em)
+    public function __construct(private readonly AssetManager $assetManager, private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
-        $this->assetManager = $assetManager;
     }
 
     public function __invoke(string $id, Request $request)

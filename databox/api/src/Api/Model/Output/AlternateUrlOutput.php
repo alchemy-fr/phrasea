@@ -8,26 +8,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class AlternateUrlOutput extends AbstractUuidOutput
 {
-    /**
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-     */
-    private string $type;
-
-    /**
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-     */
-    private string $url;
-
-    /**
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-     */
-    private ?string $label = null;
-
-    public function __construct(string $type, string $url, ?string $label = null)
-    {
-        $this->type = $type;
-        $this->url = $url;
-        $this->label = $label;
+    public function __construct(
+        /**
+         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+         */
+        private readonly string $type,
+        /**
+         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+         */
+        private readonly string $url,
+        /**
+         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
+         */
+        private readonly ?string $label = null
+    ) {
     }
 
     public function getUrl(): string

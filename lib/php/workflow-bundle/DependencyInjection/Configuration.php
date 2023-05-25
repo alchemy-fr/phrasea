@@ -2,6 +2,8 @@
 
 namespace Alchemy\WorkflowBundle\DependencyInjection;
 
+use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -20,7 +22,20 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_workflow');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('workflows_dirs')->defaultValue(['%kernel.project_dir%/config/workflows'])
+                ->arrayNode('doctrine')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('workflow_state_entity')
+                            ->defaultValue(WorkflowState::class)
+                        ->end()
+                        ->scalarNode('job_state_entity')
+                            ->defaultValue(JobState::class)
+                        ->end()
+                    ->end()
+                ->end()
+                ->scalarNode('workflows_dirs')
+                    ->defaultValue(['%kernel.project_dir%/config/workflows'])
+                ->end()
             ->end()
         ;
 

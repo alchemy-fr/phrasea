@@ -8,11 +8,8 @@ use GuzzleHttp\Client;
 
 class UploaderClient
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function getCommit(string $baseUrl, string $id, string $token): array

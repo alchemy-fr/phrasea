@@ -20,23 +20,18 @@ class AttributeVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
-        switch ($attribute) {
-            case self::READ:
-                return $this->security->isGranted(self::READ, $subject->getAsset())
-                    && (
-                        $subject->getDefinition()->getClass()->isPublic()
-                        || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
-                    );
-            case self::CREATE:
-            case self::EDIT:
-            case self::DELETE:
-                return $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
-                    && (
-                        $subject->getDefinition()->getClass()->isEditable()
-                        || $this->security->isGranted(PermissionInterface::EDIT, $subject->getDefinition()->getClass())
-                    );
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
+                && (
+                    $subject->getDefinition()->getClass()->isPublic()
+                    || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
+                ),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
+                && (
+                    $subject->getDefinition()->getClass()->isEditable()
+                    || $this->security->isGranted(PermissionInterface::EDIT, $subject->getDefinition()->getClass())
+                ),
+            default => false,
+        };
     }
 }

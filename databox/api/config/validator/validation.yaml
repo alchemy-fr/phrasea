@@ -180,6 +180,8 @@ App\Entity\Integration\WorkspaceIntegration:
     optionsJson:
       - Json:
           message: You've entered an invalid Json.
+    optionsYaml:
+      - App\Validator\YamlConstraint: ~
 
 App\Entity\Integration\IntegrationData:
   properties:

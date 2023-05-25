@@ -28,12 +28,12 @@ readonly class AssignSourceFileToAssetAction implements ActionInterface
 
         $file = $this->em->find(File::class, $fileId);
         if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $fileId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(File::class, $fileId, self::class);
         }
 
         $asset = $this->em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
         }
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file);

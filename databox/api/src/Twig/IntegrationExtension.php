@@ -12,18 +12,15 @@ use Twig\TwigFunction;
 
 class IntegrationExtension extends AbstractExtension
 {
-    private IntegrationManager $integrationManager;
-
-    public function __construct(IntegrationManager $integrationManager)
+    public function __construct(private readonly IntegrationManager $integrationManager)
     {
-        $this->integrationManager = $integrationManager;
     }
 
     public function getFunctions()
     {
         return [
-            new TwigFunction('get_integration_options', [$this, 'getIntegrationOptions']),
-            new TwigFunction('get_integration_config_info', [$this, 'getIntegrationConfigInfo']),
+            new TwigFunction('get_integration_options', $this->getIntegrationOptions(...)),
+            new TwigFunction('get_integration_config_info', $this->getIntegrationConfigInfo(...)),
         ];
     }
 
@@ -38,7 +35,7 @@ class IntegrationExtension extends AbstractExtension
     {
         try {
             return $this->integrationManager->getIntegrationConfigInfo($integration);
-        } catch (InvalidConfigurationException $e) {
+        } catch (InvalidConfigurationException) {
             return [];
         }
     }

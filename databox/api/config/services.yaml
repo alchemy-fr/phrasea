@@ -207,3 +207,16 @@ services:
     App\Integration\ApiBudgetLimiter:
         arguments:
             $storage: '@app.budget_limit.cache_storage'
+
+    App\Security\Secrets\SecretsManager:
+        $publicKey: '%env(SECRETS_PUBLIC_KEY)%'
+        $secretKey: '%env(SECRETS_SECRET_KEY)%'
+
+    App\Workflow\IntegrationWorkflowRepository:
+        decorates: 'alchemy.workflow.workflow_repository.default'
+        arguments:
+            $decorated: '@.inner'
+
+    App\Integration\Core\Webhook\WebhookAction:
+        arguments:
+            $client: '@app.integrations.http_client'

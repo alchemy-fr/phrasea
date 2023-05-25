@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
-    public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
-    public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
-    public const SHARE = 'SHARE';
+    final public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
+    final public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
+    final public const SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject)
     {
@@ -44,7 +44,7 @@ class AssetVoter extends AbstractVoter
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->security->isGranted(PermissionInterface::VIEW, $subject)
                     || $this->collectionGrantsAccess($subject)
-                    ;
+                ;
             case self::EDIT:
                 return $isOwner
                     || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)

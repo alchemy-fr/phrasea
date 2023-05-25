@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\Loader;
 
 use Alchemy\Workflow\Exception\ModelException;
 use Alchemy\Workflow\Model\Job;
+use Alchemy\Workflow\Model\OnEvent;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use Symfony\Component\Yaml\Yaml;
@@ -48,16 +49,22 @@ class YamlLoader implements FileLoaderInterface
         if (isset($data['on'])) {
             $onList = $workflow->getOn();
             foreach ($data['on'] as $eventName => $spec) {
-                $onList->offsetSet($eventName, $spec);
+                $onList->offsetSet($eventName, $this->parseOn($eventName, $spec ?? []));
             }
         }
 
         return $workflow;
     }
 
+    private function parseOn(string $eventName, array $spec): OnEvent
+    {
+        return new OnEvent($eventName, $spec['inputs'] ?? []);
+    }
+
     private function parseJob(array $data, string $jobId): Job
     {
         $job = new Job($jobId);
+        $job->setName($data['name'] ?? $jobId);
         $job->setIf($data['if'] ?? null);
         $job->setContinueOnError($data['continue-on-error'] ?? false);
         $job->setOutputs($data['outputs'] ?? []);
@@ -84,7 +91,6 @@ class YamlLoader implements FileLoaderInterface
 
         $step = new Step($id, $data['name'] ?? $id);
         $step->setRun($data['run'] ?? null);
-        $step->setIf($data['if'] ?? null);
         $step->setUses($data['uses'] ?? null);
         $step->setWith($data['with'] ?? []);
         $step->setContinueOnError($data['continue-on-error'] ?? false);

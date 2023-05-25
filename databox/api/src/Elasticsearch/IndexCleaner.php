@@ -9,18 +9,8 @@ use FOS\ElasticaBundle\Elastica\Client;
 
 class IndexCleaner
 {
-    private Client $client;
-    private Index $assetIndex;
-    private Index $collectionIndex;
-
-    public function __construct(
-        Client $client,
-        Index $assetIndex,
-        Index $collectionIndex
-    ) {
-        $this->client = $client;
-        $this->assetIndex = $assetIndex;
-        $this->collectionIndex = $collectionIndex;
+    public function __construct(private readonly Client $client, private readonly Index $assetIndex, private readonly Index $collectionIndex)
+    {
     }
 
     public function removeWorkspaceFromIndex(string $workspaceId): void

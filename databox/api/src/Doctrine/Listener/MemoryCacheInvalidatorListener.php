@@ -11,11 +11,8 @@ use Doctrine\ORM\Events;
 
 class MemoryCacheInvalidatorListener implements EventSubscriber
 {
-    private AttributeDefinitionRepositoryMemoryCachedDecorator $cache;
-
-    public function __construct(AttributeDefinitionRepositoryMemoryCachedDecorator $cache)
+    public function __construct(private readonly AttributeDefinitionRepositoryMemoryCachedDecorator $cache)
     {
-        $this->cache = $cache;
     }
 
     public function onClear(OnClearEventArgs $args): void

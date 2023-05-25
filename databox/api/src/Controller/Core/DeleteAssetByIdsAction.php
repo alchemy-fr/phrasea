@@ -16,13 +16,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class DeleteAssetByIdsAction extends AbstractController
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-
-    public function __construct(EventProducer $eventProducer, EntityManagerInterface $em)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em)
     {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
     }
 
     public function __invoke(Request $request)
