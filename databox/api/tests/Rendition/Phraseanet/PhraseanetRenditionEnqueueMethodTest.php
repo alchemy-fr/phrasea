@@ -101,7 +101,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $eventMessage = $eventProducer->shiftEvent();
         self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        self::assertEquals(PhraseanetRenditionIntegration::getName().'.enqueue', $eventMessage->getPayload()['j']);
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
         $transaction = $clientFactory->shiftHistory();
