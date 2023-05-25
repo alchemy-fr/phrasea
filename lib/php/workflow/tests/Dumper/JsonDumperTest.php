@@ -41,6 +41,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'status' => JobState::STATUS_SUCCESS,
                             'startedAt' => '2000-05-12T12:12:42.424242+00:00',
                             'endedAt' => '2000-05-12T12:12:43.424242+00:00',
+                            'triggeredAt' => $out['stages'][0]['jobs'][0]['triggeredAt'],
                             'outputs' => [],
                             'duration' => '1.000s',
                             'needs' => [],
@@ -54,6 +55,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [],
+                            'triggeredAt' => $out['stages'][0]['jobs'][1]['triggeredAt'],
                         ],
                     ],
                 ],
@@ -65,6 +67,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'name' => 'content',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
+                            'triggeredAt' => $out['stages'][1]['jobs'][0]['triggeredAt'],
                             'endedAt' => null,
                             'outputs' => [],
                             'duration' => '-',
@@ -77,6 +80,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'name' => 'content_bis',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
+                            'triggeredAt' => $out['stages'][1]['jobs'][1]['triggeredAt'],
                             'endedAt' => null,
                             'outputs' => [],
                             'duration' => '-',
@@ -101,6 +105,7 @@ class JsonDumperTest extends AbstractDumperTest
                 ],
             ],
             'duration' => '-',
+            'context' => [],
         ], $out);
     }
 }
