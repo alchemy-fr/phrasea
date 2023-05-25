@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-final class WorkflowState extends BaseWorkflowState
+class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';
 
