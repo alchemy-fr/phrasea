@@ -6,6 +6,7 @@ namespace App\Entity\Workflow;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use App\Border\Consumer\Handler\Uploader\IncomingUploaderFileWorkflowEvent;
 use App\Entity\Core\Asset;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,10 +33,13 @@ class WorkflowState extends BaseWorkflowState
     {
         parent::setState($state, $em);
 
-        $inputs = $state->getEvent()->getInputs();
+        $event = $state->getEvent();
+        if (null !== $event) {
+            $inputs = $event->getInputs();
 
-        if (isset($inputs['assetId'])) {
-            $this->asset = $em->getReference(Asset::class, $inputs['assetId']);
+            if ($event->getName() !== IncomingUploaderFileWorkflowEvent::EVENT && isset($inputs['assetId'])) {
+                $this->asset = $em->getReference(Asset::class, $inputs['assetId']);
+            }
         }
 
         $context = $state->getContext();

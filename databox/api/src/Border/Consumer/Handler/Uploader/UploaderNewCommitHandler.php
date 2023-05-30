@@ -23,13 +23,10 @@ class UploaderNewCommitHandler extends AbstractEntityManagerHandler
         $upload = IncomingUpload::fromArray($message->getPayload());
 
         foreach ($upload->assets as $assetId) {
-            $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent(
-                'incoming_uploader_file',
-                [
-                    'baseUrl' => $upload->base_url,
-                    'assetId' => $assetId,
-                    'token' => $upload->token,
-                ]
+            $this->workflowOrchestrator->dispatchEvent(IncomingUploaderFileWorkflowEvent::createEvent(
+                $upload->base_url,
+                $assetId,
+                $upload->token,
             ));
         }
     }
