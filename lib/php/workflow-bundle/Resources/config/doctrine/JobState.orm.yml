@@ -37,11 +37,3 @@ Alchemy\Workflow\Doctrine\Entity\JobState:
       name: status
       type: smallint
       nullable: false
-  manyToOne:
-    workflow:
-      targetEntity: Alchemy\Workflow\Doctrine\Entity\WorkflowState
-      inversedBy: jobs
-      joinColumn:
-        name: workflow_id
-        referencedColumnName: id
-        onDelete: CASCADE

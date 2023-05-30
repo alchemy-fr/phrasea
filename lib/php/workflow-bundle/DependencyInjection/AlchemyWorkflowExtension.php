@@ -3,7 +3,7 @@
 namespace Alchemy\WorkflowBundle\DependencyInjection;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
-use Alchemy\WorkflowBundle\WorkflowStateEntityLoadListener;
+use Alchemy\WorkflowBundle\Doctrine\EntityLoadListener;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -31,9 +31,11 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
         $loader->load('workflow.yaml');
 
         if ($config['doctrine']['workflow_state_entity'] !== WorkflowState::class) {
-            $def = new Definition(WorkflowStateEntityLoadListener::class);
+            $def = new Definition(EntityLoadListener::class);
+            $def->setArgument('$workflowStateEntity', $config['doctrine']['workflow_state_entity']);
+            $def->setArgument('$jobStateEntity', $config['doctrine']['job_state_entity']);
             $def->addTag('doctrine.event_subscriber');
-            $container->setDefinition(WorkflowStateEntityLoadListener::class, $def);
+            $container->setDefinition(EntityLoadListener::class, $def);
         }
 
         $def = $container->getDefinition('alchemy.workflow.state_repository');
