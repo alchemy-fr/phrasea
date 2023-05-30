@@ -26,37 +26,35 @@ final class EntityLoadListener implements EventSubscriberInterface
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
     {
         $class = $args->getClassMetadata();
+        $name = $class->getName();
 
-        if (WorkflowState::class === $class->getName()) {
+        if (WorkflowState::class === $name) {
             if (WorkflowState::class !== $this->workflowStateEntity) {
                 $class->isMappedSuperclass = true;
             }
         }
 
-        if ($this->workflowStateEntity === $class) {
-            $class->mapOneToMany([
-                'fieldName' => 'jobs',
-                'targetEntity' => $this->jobStateEntity,
-                'mappedBy' => 'workflow',
-            ]);
-        }
-
-        if (JobState::class === $class->getName()) {
+        if (JobState::class === $name) {
             if (JobState::class !== $this->jobStateEntity) {
                 $class->isMappedSuperclass = true;
             }
+        }
 
+        if ($this->jobStateEntity === $name) {
             $class->mapManyToOne([
                 'fieldName' => 'workflow',
                 'targetEntity' => $this->workflowStateEntity,
-                'inversedBy' => 'jobs',
-                'joinColumn' => [
-                    'name' => 'workflow_id',
-                    'referencedColumnName' => 'id',
-                    'onDelete' => 'CASCADE',
+                'joinColumns' => [
+                    [
+                        'name' => 'workflow_id',
+                        'referencedColumnName' => 'id',
+                        'onDelete' => 'CASCADE',
+                        'nullable' => false,
+                    ]
                 ],
             ]);
         }
+
     }
 
     public function getSubscribedEvents()

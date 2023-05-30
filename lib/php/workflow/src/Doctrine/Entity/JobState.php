@@ -14,26 +14,12 @@ class JobState
 {
     protected string $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WorkflowState::class, inversedBy="jobs")
-     * @ORM\JoinColumn(name="workflow_id", nullable=false)
-     */
     protected ?WorkflowState $workflow = null;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(name="job_id", type="string", length=255)
-     */
     protected string $jobId;
 
-    /**
-     * @ORM\Column(type="text")
-     */
     protected ?string $state = null;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=false)
-     */
     protected int $status;
 
     /**
