@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {MouseEventHandler} from 'react';
 import {Asset} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import ContentTab from "../Tabbed/ContentTab";
@@ -6,6 +6,11 @@ import {Button, styled} from "@mui/material";
 import {triggerAssetWorkflow} from "../../../api/asset";
 import {toast} from "react-toastify";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import {Workflow} from "@alchemy/visual-workflow";
+import {getWorkflows} from "../../../api/workflow";
+import {getPath} from "../../../routes";
+import {useNavigate} from "react-router-dom";
+import ModalLink from "../../Routing/ModalLink";
 
 type Props = {
     data: Asset;
@@ -25,11 +30,16 @@ export default function OperationsAsset({
     minHeight,
 }: Props) {
     const [workflowTriggered, setWorkflowTriggered] = React.useState(false);
+    const [workflows, setWorkflows] = React.useState<Workflow[]>();
     const triggerWorkflow = async () => {
         setWorkflowTriggered(true);
         await triggerAssetWorkflow(data.id);
         toast.success('Workflow is starting!');
     }
+
+    React.useEffect(() => {
+        getWorkflows(data.id).then(setWorkflows);
+    }, []);
 
     return <ContentTab
         onClose={onClose}
@@ -47,6 +57,25 @@ export default function OperationsAsset({
             >
                 Trigger workflow again
             </Button>
+        </Section>
+        <Section>
+            <Intro>
+                Last asset workflows
+            </Intro>
+            {workflows?.map(w => <div
+                key={w.id}
+            >
+                {w.name}
+                <Button
+                    component={ModalLink}
+                    routeName={'workflow_view'}
+                    params={{
+                        id: w.id,
+                    }}
+                >
+                    View
+                </Button>
+            </div>)}
         </Section>
     </ContentTab>
 }

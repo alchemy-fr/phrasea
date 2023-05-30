@@ -6,7 +6,9 @@ namespace App\Entity\Workflow;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\Workflow\GetWorkflowAction;
 use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
@@ -38,6 +40,7 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     shortName: 'workflows',
 )]
+#[ApiFilter(SearchFilter::class, properties: ['asset' => 'exact'])]
 class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';
