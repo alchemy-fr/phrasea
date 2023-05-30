@@ -2,35 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Workflow;
 
 use Alchemy\Workflow\Dumper\JsonWorkflowDumper;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
-use Alchemy\Workflow\WorkflowOrchestrator;
+use App\Entity\Workflow\WorkflowState;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
 
-class WorkflowController
+final readonly class GetWorkflowAction
 {
     public function __construct(
-        private readonly StateRepositoryInterface $stateRepository,
-        private readonly WorkflowRepositoryInterface $workflowRepository,
-        private readonly WorkflowOrchestrator $workflowOrchestrator,
+        private StateRepositoryInterface $stateRepository,
+        private WorkflowRepositoryInterface $workflowRepository,
     )
     {
     }
 
-    /**
-     * @Route("/workflows/{id}")
-     */
-    public function getWorkflowAction(string $id): JsonResponse
+    public function __invoke(WorkflowState $data): JsonResponse
     {
         $dumper = new JsonWorkflowDumper();
 
-        $workflowState = $this->stateRepository->getWorkflowState($id);
+        $workflowState = $this->stateRepository->getWorkflowState($data->getId());
 
         $planner = new WorkflowPlanner([$this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName())]);
         $output = new BufferedOutput();
@@ -40,15 +35,5 @@ class WorkflowController
         $dumper->dumpWorkflow($workflowState, $plan, $output);
 
         return new JsonResponse($output->fetch(), 200, [], true);
-    }
-
-    /**
-     * @Route("/workflows/{id}/jobs/{jobId}/rerun", methods={"POST"})
-     */
-    public function rerunJob(string $id, string $jobId): JsonResponse
-    {
-        $this->workflowOrchestrator->rerunJobs($id, $jobId);
-
-        return $this->getWorkflowAction($id);
     }
 }

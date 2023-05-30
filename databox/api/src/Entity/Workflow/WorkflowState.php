@@ -6,14 +6,38 @@ namespace App\Entity\Workflow;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
-use App\Border\Consumer\Handler\Uploader\IncomingUploaderFileWorkflowEvent;
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Controller\Workflow\GetWorkflowAction;
+use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
+use App\Security\Voter\AbstractVoter;
+use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
  */
+#[ApiResource(
+    collectionOperations: [
+        'get'=> [
+            'security' => 'is_granted("ROLE_USER")',
+        ]
+    ],
+    itemOperations: [
+        'get' => [
+            'security' => 'is_granted("'.AbstractVoter::READ.'", object)',
+            'controller' => GetWorkflowAction::class,
+            'output' => false,
+        ],
+        'post_rerun_job' => [
+            'method' => 'POST',
+            'path' => '/workflows/{id}/jobs/{jobId}/rerun',
+            'controller' => RerunJobAction::class,
+        ],
+    ],
+    shortName: 'workflows',
+)]
 class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';
