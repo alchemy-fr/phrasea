@@ -19,7 +19,7 @@ export default function JobDetail({
 }: Props) {
     const [rerunning, setRerunning] = React.useState(false);
     const values: Cells = [
-        [`Status`, job.status ? jobStatuses[job.status] : '-'],
+        [`Status`, undefined !== job.status ? jobStatuses[job.status] : '-'],
         [`Duration`, job.duration ?? '-'],
         [`Started At`, <DateValue date={job.startedAt}/>],
     ];

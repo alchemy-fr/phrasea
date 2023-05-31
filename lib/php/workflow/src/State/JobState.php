@@ -13,6 +13,16 @@ class JobState
     public const STATUS_FAILURE = 2;
     public const STATUS_SKIPPED = 3;
     public const STATUS_RUNNING = 4;
+    public const STATUS_ERROR = 5;
+
+    public const STATUS_LABELS = [
+        self::STATUS_TRIGGERED => 'triggered',
+        self::STATUS_SUCCESS => 'success',
+        self::STATUS_FAILURE => 'failure',
+        self::STATUS_SKIPPED => 'skipped',
+        self::STATUS_RUNNING => 'running',
+        self::STATUS_ERROR => 'error',
+    ];
 
     private string $workflowId;
     private string $jobId;

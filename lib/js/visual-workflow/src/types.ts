@@ -52,6 +52,7 @@ export enum JobStatus {
     Failure = 2,
     Skipped = 3,
     Running = 4,
+    Error = 5,
 }
 
 export enum WorkflowStatus {
