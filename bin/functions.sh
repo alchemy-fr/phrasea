@@ -27,7 +27,7 @@ function load-env {
 
   eval "$(
     while read -r LINE; do
-      if [[ $LINE == *'='* ]] && [[ $LINE != '#'* ]]; then
+      if [[ $LINE =~ ^[A-Za-z0-9]+= ]] && [[ $LINE != '#'* ]]; then
         key=$(printf '%s\n' "$LINE"| sed 's/"/\\"/g' | cut -d '=' -f 1)
         value=$(printf '%s\n' "$LINE" | cut -d '=' -f 2- | sed 's/"/\\\"/g')
         printf '%s\n' "export $key=\"$value\""
