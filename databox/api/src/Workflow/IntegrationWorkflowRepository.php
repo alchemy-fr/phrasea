@@ -55,38 +55,49 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
         /* @var array<string, Job[]> $jobMap */
         $jobMap = [];
+        $integrationConfigs = [];
         foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            $integration = $config['integration'];
 
-            if ($integration instanceof WorkflowIntegrationInterface) {
-                $jobs = [];
-                foreach ($integration->getWorkflowJobDefinitions($config) as $jobDefinition) {
-                    $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
-                    $jobs[] = $jobDefinition;
-                }
-                $jobMap[$workspaceIntegration->getId()] = $jobs;
+            if ($config['integration'] instanceof WorkflowIntegrationInterface) {
+                $integrationConfigs[] = $config;
             }
         }
 
-        foreach ($workspaceIntegrations as $workspaceIntegration) {
-            $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            $integration = $config['integration'];
+        foreach ($integrationConfigs as $config) {
+            $jobs = [];
+            [
+                'integration' => $integration,
+                'workspaceIntegration' => $workspaceIntegration,
+            ] = $config;
 
-            if ($integration instanceof WorkflowIntegrationInterface) {
-                foreach ($workspaceIntegration->getNeeds() as $need) {
-                    foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
-                        $needList = $job->getNeeds();
+            foreach ($integration->getWorkflowJobDefinitions($config) as $jobDefinition) {
+                $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
+                $jobs[] = $jobDefinition;
+            }
+            $jobMap[$workspaceIntegration->getId()] = $jobs;
+        }
 
-                        foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
-                            if ($needList->has($j->getId())) {
-                                continue 2;
-                            }
+        foreach ($integrationConfigs as $config) {
+            $workspaceIntegration = $config['workspaceIntegration'];
+
+            foreach ($workspaceIntegration->getNeeds() as $need) {
+                foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
+                    if (null !== $workspaceIntegration->getIf()) {
+                        $if = $job->getIf() ? sprintf('(%s) and (%s)', $job->getIf(), $workspaceIntegration->getIf()) : $workspaceIntegration->getIf();
+                        $job->setIf($if);
+                    }
+
+                    $needList = $job->getNeeds();
+
+                    foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
+                        if ($needList->has($j->getId())) {
+                            continue 2;
                         }
+                    }
 
-                        foreach ($jobMap[$need->getId()] as $neededJob) {
-                            $needList->append($neededJob->getId());
-                        }
+                    foreach ($jobMap[$need->getId()] as $neededJob) {
+                        $needList->append($neededJob->getId());
                     }
                 }
             }
