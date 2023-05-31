@@ -61,6 +61,13 @@ export const HeaderComplex: Story = {
                     {ID: '2', Name: 'Bob'},
                 ]
             },
+            event: {
+                name: 'trigger',
+                inputs: {
+                    foo: 'bar',
+                    baz: 42,
+                },
+            },
             context: {
                 userId: '42424242',
                 itemId: '987-654-321',

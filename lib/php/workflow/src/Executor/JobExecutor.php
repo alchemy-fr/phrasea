@@ -127,6 +127,7 @@ class JobExecutor
         $endStatus = JobState::STATUS_SUCCESS;
 
         $jobInputs = $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($job->getWith(), $context));
+        $jobState->setInputs($jobInputs);
 
         foreach ($job->getSteps() as $step) {
             $stepState = $jobState->initStep($step->getId());

@@ -33,10 +33,12 @@ export type Job = {
     errors?: JobError[] | undefined;
     duration?: string;
     needs?: string[];
+    if?: string | undefined;
     isDependency?: boolean;
     triggeredAt?: string | undefined;
     startedAt?: string | undefined;
     endedAt?: string | undefined;
+    inputs?: Inputs;
     outputs?: Outputs;
 }
 

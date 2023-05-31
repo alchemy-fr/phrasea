@@ -3,7 +3,7 @@ import {JobStatus, NodeData} from "../types";
 import Modal from "../Modal";
 import JobErrors from "./JobErrors";
 import DetailTitle from "../Ui/DetailTitle";
-import JobOutputs from "./JobOutputs";
+import JobData from "./JobData";
 import HorizontalTable, {Cells} from "../Ui/HorizontalTable";
 import DateValue from "../Ui/DateValue";
 import {jobStatuses} from "../status";
@@ -50,9 +50,17 @@ export default function JobDetail({
         <HorizontalTable
             values={values}
         />
+        {Boolean(job.if) && <section className={'workflow-section'}>
+            <DetailTitle inline>if</DetailTitle>
+            <pre style={{display: 'inline-block'}}>{job.if}</pre>
+        </section>}
+        {Boolean(job.inputs) && <section className={'workflow-section'}>
+            <DetailTitle>Inputs</DetailTitle>
+            <JobData data={job.inputs!}/>
+        </section>}
         {Boolean(job.outputs) && <section className={'workflow-section'}>
             <DetailTitle>Outputs</DetailTitle>
-            <JobOutputs outputs={job.outputs!}/>
+            <JobData data={job.outputs!}/>
         </section>}
         {Boolean(job.errors?.length) && <section className={'workflow-section'}>
             <DetailTitle>Errors</DetailTitle>

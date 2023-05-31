@@ -20,6 +20,7 @@ class JobState
     private int $status;
     private array $errors = [];
     private Outputs $outputs;
+    private ?Inputs $inputs = null;
 
     /**
      * @var array<string, StepState>
@@ -129,6 +130,7 @@ class JobState
             'jobId' => $this->jobId,
             'status' => $this->status,
             'outputs' => $this->outputs,
+            'inputs' => $this->inputs,
             'triggeredAt' => $this->triggeredAt,
             'startedAt' => $this->startedAt,
             'endedAt' => $this->endedAt,
@@ -142,6 +144,7 @@ class JobState
         $this->jobId = $data['jobId'];
         $this->status = $data['status'];
         $this->outputs = $data['outputs'];
+        $this->inputs = $data['inputs'];
         $this->triggeredAt = $data['triggeredAt'];
         $this->startedAt = $data['startedAt'];
         $this->endedAt = $data['endedAt'];
@@ -151,5 +154,17 @@ class JobState
     public function getSteps(): array
     {
         return $this->steps;
+    }
+
+    public function getInputs(): ?Inputs
+    {
+        return $this->inputs;
+    }
+
+    public function setInputs(?Inputs $inputs): JobState
+    {
+        $this->inputs = $inputs;
+
+        return $this;
     }
 }

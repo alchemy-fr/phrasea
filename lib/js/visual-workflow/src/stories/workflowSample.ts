@@ -16,6 +16,10 @@ export const workflowSample: Workflow = {
                     triggeredAt: '2023-05-24T10:22:25.495639+00:00',
                     startedAt: '2023-05-24T10:24:25.495639+00:00',
                     endedAt: '2023-05-24T10:25:25.495639+00:00',
+                    inputs: {
+                        foo: 'bar',
+                        baz: 42,
+                    },
                     outputs: {
                         foo: 'bar',
                         results: [
@@ -51,6 +55,7 @@ export const workflowSample: Workflow = {
                     needs: [
                         'init',
                     ],
+                    if: `env.toto == 42`,
                     triggeredAt: '2023-05-24T10:22:25.495639+00:00',
                     startedAt: '2023-05-24T10:24:25.495639+00:00',
                     endedAt: '2023-05-24T10:25:25.495639+00:00',

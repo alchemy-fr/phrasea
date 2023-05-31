@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State;
 
-class Outputs extends \ArrayObject
+final class Outputs extends RecordObject
 {
     public function set(string $key, $value): void
     {

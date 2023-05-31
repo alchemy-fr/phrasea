@@ -50,12 +50,11 @@ class JsonDumperTest extends AbstractDumperTest
                             'id' => 'never-called',
                             'name' => 'never-called',
                             'status' => JobState::STATUS_SKIPPED,
-                            'startedAt' => null,
-                            'endedAt' => null,
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [],
                             'triggeredAt' => $out['stages'][0]['jobs'][1]['triggeredAt'],
+                            'if' => 'env.WF_TEST == "bar"',
                         ],
                     ],
                 ],
@@ -68,11 +67,14 @@ class JsonDumperTest extends AbstractDumperTest
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
                             'triggeredAt' => $out['stages'][1]['jobs'][0]['triggeredAt'],
-                            'endedAt' => null,
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [
                                 'intro'
+                            ],
+                            'inputs' => [
+                                'foo' => 'bar',
+                                'baz' => 42,
                             ],
                         ],
                         [
@@ -81,12 +83,12 @@ class JsonDumperTest extends AbstractDumperTest
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
                             'triggeredAt' => $out['stages'][1]['jobs'][1]['triggeredAt'],
-                            'endedAt' => null,
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [
                                 'intro'
                             ],
+                            'inputs' => [],
                         ],
                     ],
                 ],
