@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Executor\JobContext;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\FileUrlResolver;
+use App\Entity\Core\Asset;
 use App\External\PhraseanetApiClientFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
@@ -73,9 +75,8 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         }
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

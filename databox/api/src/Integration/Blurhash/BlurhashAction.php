@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Executor\JobContext;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Asset\FileFetcher;
 use App\Attribute\BatchAttributeManager;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Integration\AbstractIntegrationAction;
@@ -71,9 +73,8 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
         return Blurhash::encode($pixels, $components_x, $components_y);
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

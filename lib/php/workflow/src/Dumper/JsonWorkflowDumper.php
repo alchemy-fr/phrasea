@@ -27,6 +27,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                     'name' => $run->getJob()->getName(),
                     'needs' => array_values($run->getJob()->getNeeds()->getArrayCopy()),
                     'if' => $run->getJob()->getIf(),
+                    'with' => $run->getJob()->getWith(),
                 ];
 
                 if ($jobState instanceof JobState) {
@@ -41,7 +42,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                         'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ]);
 
-                    if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                    if (!empty($jobState->getErrors())) {
                         $job['errors'] = $jobState->getErrors();
                     }
                 }

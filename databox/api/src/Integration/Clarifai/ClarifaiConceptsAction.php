@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Integration\Clarifai;
 
 use Alchemy\Workflow\Executor\JobContext;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
+use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Util\FileUtil;
@@ -48,9 +50,8 @@ class ClarifaiConceptsAction extends AbstractIntegrationAction implements IfActi
         );
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

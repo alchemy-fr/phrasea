@@ -19,6 +19,8 @@ jobs:
     steps:
       - run: |
           echo "content_bis"
+    with:
+      foo: bar
 
   outro:
     needs:

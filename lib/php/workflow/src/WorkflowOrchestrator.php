@@ -118,10 +118,13 @@ class WorkflowOrchestrator
 
     public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
     {
-        $this->rerunJobs($workflowId, $jobIdFilter, JobState::STATUS_FAILURE);
+        $this->rerunJobs($workflowId, $jobIdFilter, [
+            JobState::STATUS_FAILURE,
+            JobState::STATUS_ERROR,
+        ]);
     }
 
-    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?int $expectedStatus = null): void
+    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?array $expectedStatuses = null): void
     {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
@@ -141,7 +144,7 @@ class WorkflowOrchestrator
                 }
 
                 $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null === $expectedStatus || null !== $jobState && $jobState->getStatus() === $expectedStatus) {
+                if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
                     $this->stateRepository->removeJobState($workflowId, $jobId);
 
                     $jobsToTrigger[] = $jobId;

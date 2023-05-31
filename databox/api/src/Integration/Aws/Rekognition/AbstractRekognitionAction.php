@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Integration\Aws\Rekognition;
 
 use Alchemy\Workflow\Executor\JobContext;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Attribute\BatchAttributeManager;
+use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Util\FileUtil;
@@ -30,9 +32,8 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
 
     abstract protected function getCategory(): string;
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

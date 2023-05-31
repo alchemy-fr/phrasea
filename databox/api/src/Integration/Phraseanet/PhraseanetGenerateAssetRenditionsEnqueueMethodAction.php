@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Executor\JobContext;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\External\PhraseanetApiClientFactory;
@@ -60,9 +61,8 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
         return sprintf('%s::%s', $asset->getId(), $asset->getCreatedAt()->getTimestamp());
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

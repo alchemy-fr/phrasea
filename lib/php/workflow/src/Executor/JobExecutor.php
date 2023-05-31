@@ -49,11 +49,7 @@ class JobExecutor
                     if (class_exists($class)) {
                         $action = $this->actionRegistry->getAction($class);
 
-                        return call_user_func([$action, $method], new JobContext(
-                            $context->getOutput(),
-                            $context->getInputs(),
-                            $context->getEnvs(),
-                        )) ? 'true' : 'false';
+                        return call_user_func([$action, $method], $context) ? 'true' : 'false';
                     }
 
                     return $regs[0];
@@ -94,11 +90,18 @@ class JobExecutor
             $workflowState->getEvent()?->getInputs() ?? new Inputs()
         );
 
+        $jobInputs = $context->getInputs()
+            ->mergeWith($this->expressionParser->evaluateArray($job->getWith()->getArrayCopy(), $context));
+        $context->replaceInputs($jobInputs);
+
+        $jobState->setInputs($jobInputs);
+
         try {
             $shouldBeSkipped = $this->shouldBeSkipped($context, $job);
         } catch (\Throwable $e) {
-            $this->logger->error(sprintf('Error while evaluating if condition: %s', $e->getMessage()));
-            $jobState->addException($e);
+            $error = sprintf('Error while evaluating if condition: %s', $e->getMessage());
+            $this->logger->error($error);
+            $jobState->addError($error);
             $jobState->setStatus(JobState::STATUS_ERROR);
             $this->persistJobState($jobState);
 
@@ -142,16 +145,13 @@ class JobExecutor
 
         $endStatus = JobState::STATUS_SUCCESS;
 
-        $jobInputs = $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($job->getWith(), $context));
-        $jobState->setInputs($jobInputs);
-
         foreach ($job->getSteps() as $step) {
             $stepState = $jobState->initStep($step->getId());
             $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
 
             $runContext = new RunContext(
                 $output,
-                $jobInputs->mergeWith($this->expressionParser->evaluateArray($step->getWith(), $context)),
+                $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($step->getWith(), $context)),
                 $jobEnvContainer->mergeWith($this->expressionParser->evaluateArray(
                     $step->getEnv()->getArrayCopy(),
                     $context

@@ -45,6 +45,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'outputs' => [],
                             'duration' => '1.000s',
                             'needs' => [],
+                            'with' => [],
                         ],
                         [
                             'id' => 'never-called',
@@ -55,6 +56,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'needs' => [],
                             'triggeredAt' => $out['stages'][0]['jobs'][1]['triggeredAt'],
                             'if' => 'env.WF_TEST == "bar"',
+                            'with' => [],
                         ],
                     ],
                 ],
@@ -76,6 +78,7 @@ class JsonDumperTest extends AbstractDumperTest
                                 'foo' => 'bar',
                                 'baz' => 42,
                             ],
+                            'with' => [],
                         ],
                         [
                             'id' => 'content_bis',
@@ -89,6 +92,9 @@ class JsonDumperTest extends AbstractDumperTest
                                 'intro'
                             ],
                             'inputs' => [],
+                            'with' => [
+                                'foo' => 'bar',
+                            ],
                         ],
                     ],
                 ],
@@ -102,6 +108,7 @@ class JsonDumperTest extends AbstractDumperTest
                                 'content',
                                 'content_bis',
                             ],
+                            'with' => [],
                         ],
                     ],
                 ],
