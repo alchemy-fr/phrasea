@@ -1,16 +1,15 @@
-import React, {MouseEventHandler} from 'react';
+import React from 'react';
 import {Asset} from "../../../types";
 import {DialogTabProps} from "../Tabbed/TabbedDialog";
 import ContentTab from "../Tabbed/ContentTab";
-import {Button, styled} from "@mui/material";
+import {Button, Chip, Stack, styled, Typography} from "@mui/material";
 import {triggerAssetWorkflow} from "../../../api/asset";
 import {toast} from "react-toastify";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import {Workflow} from "@alchemy/visual-workflow";
 import {getWorkflows} from "../../../api/workflow";
-import {getPath} from "../../../routes";
-import {useNavigate} from "react-router-dom";
 import ModalLink from "../../Routing/ModalLink";
+import moment from "moment";
+import {jobStatuses, Workflow} from "@alchemy/visual-workflow";
 
 type Props = {
     data: Asset;
@@ -24,6 +23,16 @@ const Intro = styled('div')(({theme}) => ({
     marginBottom: theme.spacing(2),
 }));
 
+// Importing enum from visual-workflow does not work
+enum JobStatus {
+    Triggered = 0,
+    Success = 1,
+    Failure = 2,
+    Skipped = 3,
+    Running = 4,
+    Error = 5,
+}
+
 export default function OperationsAsset({
     data,
     onClose,
@@ -35,11 +44,22 @@ export default function OperationsAsset({
         setWorkflowTriggered(true);
         await triggerAssetWorkflow(data.id);
         toast.success('Workflow is starting!');
+
+        getWorkflows(data.id).then(setWorkflows);
     }
 
     React.useEffect(() => {
         getWorkflows(data.id).then(setWorkflows);
     }, []);
+
+    const colors: Record<JobStatus, "info" | "success" | "error" | "default" | "warning" | "primary" | "secondary"> = {
+        [JobStatus.Triggered]: 'secondary',
+        [JobStatus.Success]: 'success',
+        [JobStatus.Failure]: 'error',
+        [JobStatus.Skipped]: 'default',
+        [JobStatus.Running]: 'primary',
+        [JobStatus.Error]: 'error',
+    }
 
     return <ContentTab
         onClose={onClose}
@@ -62,10 +82,31 @@ export default function OperationsAsset({
             <Intro>
                 Last asset workflows
             </Intro>
-            {workflows?.map(w => <div
+            {workflows?.map(w => <Stack
                 key={w.id}
+                direction={'row'}
+                alignItems={'center'}
+                spacing={1}
+                sx={theme => ({
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    mt: 1,
+                    pt: 1,
+                })}
             >
-                {w.name}
+                <div>
+                    <Typography variant={'body1'}>
+                        {w.name}
+                    </Typography>
+                    <Typography variant={'body2'}>
+                        {moment(w.startedAt).fromNow()}
+                        {w.status !== undefined && <Chip
+                            color={colors[w.status]}
+                            label={jobStatuses[w.status]}
+                            size={'small'}
+                            sx={{ml: 2}}
+                        />}
+                    </Typography>
+                </div>
                 <Button
                     component={ModalLink}
                     routeName={'workflow_view'}
@@ -75,7 +116,7 @@ export default function OperationsAsset({
                 >
                     View
                 </Button>
-            </div>)}
+            </Stack>)}
         </Section>
     </ContentTab>
 }

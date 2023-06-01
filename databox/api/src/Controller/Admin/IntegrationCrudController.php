@@ -37,7 +37,13 @@ class IntegrationCrudController extends AbstractAdminCrudController
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
         $needs = AssociationField::new('needs');
-        $if = TextField::new('if');
+        $if = TextField::new('if')
+            ->setHelp('Based on Symfony Expression Language.
+<br/>e.g.
+<br/>asset.getSource().getType() matches \'#^image/#\'
+<br/>or
+<br/>asset.getCreatedAt() > date(\'2000-01-01\')
+');
         $integration = $this->integrationChoiceField->create('integration');
         $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');

@@ -110,6 +110,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-sodium": "*",
+        "ext-imagick": "*",
         "alchemy/acl-bundle": "dev-main",
         "alchemy/workflow-bundle": "@dev",
         "alchemy/admin-bundle": "@dev",

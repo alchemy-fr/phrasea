@@ -10,11 +10,16 @@ RUN apk add --no-cache \
 		mysql-dev \
 		postgresql-dev \
 		zlib \
+    	imagemagick \
     	rabbitmq-c-dev \
         bash \
+        freetype \
         g++ \
         gettext \
         jq-dev \
+        libjpeg-turbo \
+        libpng \
+        libwebp \
         linux-headers \
         make \
         nano \
@@ -39,6 +44,7 @@ RUN apk add --no-cache \
 
 ENV APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
+    IMAGICK_VERSION=3.7.0 \
     XDEBUG_VERSION=3.2.1 \
     REDIS_VERSION=5.3.7 \
     APP_ENV=dev
@@ -49,6 +55,15 @@ RUN set -eux; \
 		icu-dev \
 		libzip-dev \
 		zlib-dev \
+        g++ \
+        make \
+        automake \
+        autoconf \
+        libpng-dev \
+        libwebp-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        imagemagick-dev \
 	; \
 	\
 	docker-php-ext-install \
@@ -62,6 +77,7 @@ RUN set -eux; \
 	pecl install \
 		apcu-${APCU_VERSION} \
 		amqp-${AMQP_VERSION} \
+        imagick-${IMAGICK_VERSION} \
 		redis-${REDIS_VERSION} \
 		xdebug-${XDEBUG_VERSION} \
 	; \
@@ -69,6 +85,7 @@ RUN set -eux; \
 	docker-php-ext-enable \
 		apcu \
 		amqp \
+        imagick \
 		opcache \
 		redis \
 	; \

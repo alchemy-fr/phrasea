@@ -74,6 +74,7 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
             /** @var Job $jobDefinition */
             foreach ($integration->getWorkflowJobDefinitions($config) as $jobDefinition) {
                 $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
+                $jobDefinition->setContinueOnError(true);
                 $jobs[] = $jobDefinition;
             }
             $jobMap[$workspaceIntegration->getId()] = $jobs;
