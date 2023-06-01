@@ -27,7 +27,7 @@ use Symfony\Component\DomCrawler\Field\FormField;
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
     public function __construct(
-        private readonly AttributeTypeRegistry $typeRegistry
+        private readonly AttributeTypeRegistry $typeRegistry,
         private readonly MetadataManipulator $metadataManipulator
     )
     {
