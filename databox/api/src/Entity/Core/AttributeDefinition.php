@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -395,5 +396,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setSortable(bool $sortable): void
     {
         $this->sortable = $sortable;
+    }
+
+    public function getTagsList(MetadataManipulator $metadataManipulator)
+    {
+        return $metadataManipulator->getKnownTagGroups();
     }
 }
