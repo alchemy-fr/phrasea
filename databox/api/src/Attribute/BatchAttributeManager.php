@@ -28,8 +28,13 @@ class BatchAttributeManager
     final public const ACTION_REPLACE = 'replace';
     final public const ACTION_ADD = 'add';
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly AttributeAssigner $attributeAssigner, private readonly Security $security, private readonly DeferredIndexListener $deferredIndexListener)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeAssigner $attributeAssigner,
+        private readonly Security $security,
+        private readonly DeferredIndexListener $deferredIndexListener,
+        private readonly AttributeManager $attributeManager,
+    ) {
     }
 
     public function validate(array $assetsId, AssetAttributeBatchUpdateInput $input): ?string
@@ -291,17 +296,10 @@ class BatchAttributeManager
         return $def;
     }
 
-    public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): AttributeDefinition
+    private function getAttributeDefinitionBySlug(string $workspaceId, string $slug): AttributeDefinition
     {
-        $def = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-            'slug' => $slug,
-            'workspace' => $workspaceId,
-        ]);
-        if (!$def instanceof AttributeDefinition) {
-            throw new BadRequestHttpException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $slug, $workspaceId));
-        }
-
-        return $def;
+        return $this->attributeManager->getAttributeDefinitionBySlug($workspaceId, $slug)
+            ?? throw new BadRequestHttpException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $slug, $workspaceId));
     }
 
     private function deleteAttributes(array $assetsId, ?AttributeDefinition $definition, ?RemoteUser $user, array $options = []): void

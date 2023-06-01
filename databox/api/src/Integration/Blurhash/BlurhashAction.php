@@ -41,10 +41,9 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
         $i->originVendorContext = 'v'.BlurhashIntegration::VERSION;
         $i->name = $config['attribute'];
 
-
         $file = !empty($config['rendition']) ? $this->getRenditionFile($asset->getId(), $config['rendition']) : $asset->getSource();
 
-        $i->value = $this->getBlurhash($asset->getSource());
+        $i->value = $this->getBlurhash($file);
         $input->actions[] = $i;
 
         $this->batchAttributeManager->handleBatch(
@@ -72,7 +71,7 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
         $width = $image->width();
         $height = $image->height();
 
-        $maxSize = 30;
+        $maxSize = 100;
         if( $width > $maxSize || $height > $maxSize) {
             $image->resize($maxSize, $maxSize, function ($constraint) {
                 $constraint->aspectRatio();

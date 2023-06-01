@@ -409,6 +409,8 @@ App\Entity\Integration\WorkspaceIntegration:
     workspace: '@w_newspaper'
     config:
       attributeName: watermark
+      applyToRenditions:
+        - thumbnail
     needs:
       - '@wi_renditions'
   wi_blurhash:
