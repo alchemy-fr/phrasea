@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\WebhookBundle\Entity\Webhook;
+use Alchemy\WebhookBundle\Field\EventsChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
@@ -13,6 +14,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class WebhookCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private readonly EventsChoiceField $eventsChoiceField
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Webhook::class;
@@ -28,7 +34,8 @@ class WebhookCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
         $url = TextField::new('url', 'URL');
-        $events = TextField::new('events');
+       // $events = TextField::new('events');
+        $events = $this->eventsChoiceField->create('events');
         $verifySSL = Field::new('verifySSL', 'Verify SSL');
         $secret = TextField::new('secret');
         $timeout = Field::new('timeout');
