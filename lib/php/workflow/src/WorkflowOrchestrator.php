@@ -182,6 +182,7 @@ class WorkflowOrchestrator
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
         $statuses = [];
+        $hasFailedJob = false;
 
         $workflowComplete = true;
         foreach ($plan->getStages() as $stage) {
@@ -202,8 +203,11 @@ class WorkflowOrchestrator
 
                 $statuses[$jobId] = $jobState->getStatus();
 
-                if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
-                    return [null, WorkflowState::STATUS_FAILURE];
+                if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                    $hasFailedJob = true;
+                    if (!$job->isContinueOnError()) {
+                        return [null, WorkflowState::STATUS_FAILURE];
+                    }
                 }
 
                 if (!in_array($jobState->getStatus(), [
@@ -220,7 +224,7 @@ class WorkflowOrchestrator
             }
         }
 
-        return $workflowComplete ? [null, WorkflowState::STATUS_SUCCESS] : [null, null];
+        return $workflowComplete ? [null, $hasFailedJob ? WorkflowState::STATUS_FAILURE : WorkflowState::STATUS_SUCCESS] : [null, null];
     }
 
     private function satisfiesAllNeeds(array $states, Job $job): bool

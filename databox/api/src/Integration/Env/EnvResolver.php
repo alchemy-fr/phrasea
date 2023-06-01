@@ -10,6 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class EnvResolver
 {
+    // Stands for Phrasea Workspace Integration
+    private const ENV_PREFIX = 'PWI_';
+
     public function __construct(
         private SecretsManager $secretsManager,
         private EntityManagerInterface $em,
@@ -36,7 +39,7 @@ final readonly class EnvResolver
      */
     public function resolveArrayNode(array $config, array $secrets): array
     {
-        $replace = fn (array $match): string => isset($secrets[$match[1]]) ? $secrets[$match[1]]->getDecrypted() : '';
+        $replace = fn (array $match): string => isset($secrets[$match[1]]) ? $secrets[$match[1]]?->getDecrypted() : (getenv(self::ENV_PREFIX.$match[1]) ?: '');
 
         foreach ($config as $key => $value) {
             if (is_array($value)) {

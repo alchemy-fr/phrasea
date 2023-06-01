@@ -169,6 +169,18 @@ class WorkspaceIntegration extends AbstractUuidEntity
         return $this->needs;
     }
 
+    public function addNeed(WorkspaceIntegration $need): void
+    {
+        $this->needs->add($need);
+    }
+
+    public function removeNeed(WorkspaceIntegration $need): void
+    {
+        if ($this->needs->contains($need)) {
+            $this->needs->removeElement($need);
+        }
+    }
+
     #[Assert\Callback]
     public function validateNeeds(ExecutionContextInterface $context, $payload): void
     {
