@@ -11,19 +11,19 @@ class EventsDataTransformer implements DataTransformerInterface
 {
     public function transform($value)
     {
-        if (empty($value)) {
-            return [Webhook::ALL_EVENTS];
+        if (null === $value) {
+            return [Webhook::ALL_EVENTS => true];
         }
 
-        return $value;
+        return array_fill_keys($value, true);
     }
 
     public function reverseTransform($value)
     {
-        if (in_array(Webhook::ALL_EVENTS, $value)) {
-            return [];
+        if ($value[Webhook::ALL_EVENTS] ?? false) {
+            return null;
         }
 
-        return array_filter($value);
+        return array_keys(array_filter($value));
     }
 }

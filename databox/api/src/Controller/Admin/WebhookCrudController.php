@@ -14,11 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class WebhookCrudController extends AbstractAdminCrudController
 {
-    public function __construct(
-        private readonly EventsChoiceField $eventsChoiceField
-    ) {
-    }
-
     public static function getEntityFqcn(): string
     {
         return Webhook::class;
@@ -34,7 +29,7 @@ class WebhookCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
         $url = TextField::new('url', 'URL');
-        $events = $this->eventsChoiceField->create('events');
+        $events = eventsChoiceField::new('events');
         $verifySSL = Field::new('verifySSL', 'Verify SSL');
         $secret = TextField::new('secret');
         $timeout = Field::new('timeout');

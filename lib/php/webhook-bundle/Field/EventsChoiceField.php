@@ -4,33 +4,19 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Field;
 
-use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Form\EventsChoiceType;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 
-final class EventsChoiceField
+final class EventsChoiceField implements FieldInterface
 {
-    private array $events;
+    use FieldTrait;
 
-    public function __construct(array $events)
+    public static function new(string $propertyName, $label = null): self
     {
-        $this->events = $events;
-    }
-
-    public function create(string $propertyName, ?string $label = null)
-    {
-
-        $choices = ['All events' => Webhook::ALL_EVENTS];
-        foreach ($this->events as $name => $event) {
-            $label = sprintf("<b>%s</b>&nbsp;&nbsp;&nbsp;<i>%s</i>", htmlentities($name), $event['description'] ?? '');
-            $choices[$label] = $name;
-        }
-
-        return ChoiceField::new($propertyName, $label)
-            ->setChoices($choices)
-            ->escapeHtml(false)->setFormTypeOption('label_html', true)
-            ->allowMultipleChoices()
-            ->renderExpanded()
+        return (new self())
+            ->setProperty($propertyName)
+            ->setLabel($label)
             ->setFormType(EventsChoiceType::class)
             ;
     }
