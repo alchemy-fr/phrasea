@@ -19,15 +19,17 @@ final class EventsChoiceField
 
     public function create(string $propertyName, ?string $label = null)
     {
+
         $choices = ['All events' => Webhook::ALL_EVENTS];
         foreach ($this->events as $name => $event) {
-            $choices[$name] = $name;
+            $label = sprintf("<b>%s</b>&nbsp;&nbsp;&nbsp;<i>%s</i>", htmlentities($name), $event['description']);
+            $choices[$label] = $name;
         }
 
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
+            ->escapeHtml(false)->setFormTypeOption('label_html', true)
             ->allowMultipleChoices()
-            ->renderAsBadges()
             ->renderExpanded()
             ->setFormType(EventsChoiceType::class)
             ;
