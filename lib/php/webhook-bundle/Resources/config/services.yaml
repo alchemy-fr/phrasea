@@ -6,10 +6,6 @@ services:
   alchemy.webhook_client:
     class: GuzzleHttp\Client
 
-#  Alchemy\WebhookBundle\Form\EventsChoiceType:
-#    arguments:
-#      $events: '%alchemy_webhook.events%'
-
   Alchemy\WebhookBundle\Field\EventsChoiceField:
     arguments:
       $events: '%alchemy_webhook.events%'

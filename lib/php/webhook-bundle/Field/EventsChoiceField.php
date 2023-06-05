@@ -22,7 +22,7 @@ final class EventsChoiceField
 
         $choices = ['All events' => Webhook::ALL_EVENTS];
         foreach ($this->events as $name => $event) {
-            $label = sprintf("<b>%s</b>&nbsp;&nbsp;&nbsp;<i>%s</i>", htmlentities($name), $event['description']);
+            $label = sprintf("<b>%s</b>&nbsp;&nbsp;&nbsp;<i>%s</i>", htmlentities($name), $event['description'] ?? '');
             $choices[$label] = $name;
         }
 

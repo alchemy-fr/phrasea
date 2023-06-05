@@ -5,4 +5,3 @@ arthem_rabbit:
   queues:
     event: ~
     workflow: ~
-  direct: false
