@@ -27,6 +27,7 @@ class EventsChoiceType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addModelTransformer(new EventsDataTransformer());
+
         $builder->add(Webhook::ALL_EVENTS, CheckboxType::class, [
             'label' => 'All events',
         ]);
