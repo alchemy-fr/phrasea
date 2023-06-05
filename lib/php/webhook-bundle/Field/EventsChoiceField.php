@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Field;
 
 use Alchemy\WebhookBundle\Entity\Webhook;
+use Alchemy\WebhookBundle\Form\EventsChoiceType;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 final class EventsChoiceField
@@ -28,7 +29,7 @@ final class EventsChoiceField
             ->allowMultipleChoices()
             ->renderAsBadges()
             ->renderExpanded()
-//            ->setFormType(EventsChoiceType::class)
+            ->setFormType(EventsChoiceType::class)
             ;
     }
 }
