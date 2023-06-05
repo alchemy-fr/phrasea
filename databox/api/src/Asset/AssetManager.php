@@ -12,7 +12,6 @@ use App\Entity\Core\File;
 use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 
 readonly class AssetManager
 {
@@ -32,7 +31,7 @@ readonly class AssetManager
         ?string $locale = null
     ): void {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
-            throw new InvalidArgumentException('Asset and File are not in the same workspace');
+            throw new \InvalidArgumentException('Asset and File are not in the same workspace');
         }
 
         $asset->setSource($file);

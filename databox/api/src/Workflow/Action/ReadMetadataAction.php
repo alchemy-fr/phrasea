@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Workflow\Action;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
-use Alchemy\Workflow\Executor\JobContext;
-use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\FileFetcher;
 use App\Entity\Core\Asset;

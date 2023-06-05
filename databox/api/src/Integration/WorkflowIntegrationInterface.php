@@ -10,8 +10,6 @@ use Alchemy\Workflow\Model\Workflow;
 interface WorkflowIntegrationInterface
 {
     /**
-     * @param Workflow $workflow
-     *
      * @return Job[]
      */
     public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable;

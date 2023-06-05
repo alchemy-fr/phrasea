@@ -13,8 +13,7 @@ final class WebhookAction extends AbstractIntegrationAction
     public function __construct(
         private readonly Client $client,
         private readonly string $databoxBaseUrl,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void
@@ -46,7 +45,7 @@ final class WebhookAction extends AbstractIntegrationAction
 
         $response = $this->client->request(
             $config['method'] ?? 'POST',
-                $config['url'],
+            $config['url'],
             $options,
         );
 

@@ -8,7 +8,7 @@ use Alchemy\Workflow\Event\WorkflowEvent;
 
 final class AttributeUpdateWorkflowEvent
 {
-    final public const EVENT = 'attribute_update';
+    final public const EVENT = 'attributes_update';
 
     public static function createEvent(array $attributeDefinitionIds, string $assetId, string $workspaceId): WorkflowEvent
     {

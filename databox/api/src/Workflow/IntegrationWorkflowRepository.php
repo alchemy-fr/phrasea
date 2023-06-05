@@ -49,13 +49,12 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
     public function getWorkflowsByEvent(WorkflowEvent $event): array
     {
         $inputs = $event->getInputs();
-
         $workspaceId = $inputs['workspaceId'] ?? null;
-        if (empty($workspaceId)) {
-            return $this->decorated->getWorkflowsByEvent($event);
-        }
 
         $workflows = $this->decorated->getWorkflowsByEvent($event);
+        if (empty($workspaceId)) {
+            return $workflows;
+        }
 
         foreach ($workflows as $key => $workflow) {
             $workflows[$key] = $this->createIntegrationsToWorkflow($workflow, $workspaceId);

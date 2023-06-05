@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration\Core\Test;
 
-use Alchemy\Workflow\Executor\JobContext;
-use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;

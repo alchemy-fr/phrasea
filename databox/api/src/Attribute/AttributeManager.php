@@ -11,8 +11,7 @@ final readonly class AttributeManager
 {
     public function __construct(
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function getAttributeDefinitionBySlug(string $workspaceId, string $slug): ?AttributeDefinition

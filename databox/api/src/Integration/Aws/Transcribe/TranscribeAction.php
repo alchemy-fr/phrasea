@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
-use Alchemy\Workflow\Executor\JobContext;
-use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;

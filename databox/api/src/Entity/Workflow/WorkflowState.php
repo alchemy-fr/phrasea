@@ -22,9 +22,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ApiResource(
     collectionOperations: [
-        'get'=> [
+        'get' => [
             'security' => 'is_granted("ROLE_USER")',
-        ]
+        ],
     ],
     itemOperations: [
         'get' => [
@@ -64,7 +64,7 @@ class WorkflowState extends BaseWorkflowState
         if (null !== $event) {
             $inputs = $event->getInputs();
 
-            if ($event->getName() !== IncomingUploaderFileWorkflowEvent::EVENT && isset($inputs['assetId'])) {
+            if (IncomingUploaderFileWorkflowEvent::EVENT !== $event->getName() && isset($inputs['assetId'])) {
                 $this->asset = $em->getReference(Asset::class, $inputs['assetId']);
             }
         }

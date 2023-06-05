@@ -12,8 +12,7 @@ final readonly class RerunJobAction
     public function __construct(
         private WorkflowOrchestrator $workflowOrchestrator,
         private GetWorkflowAction $getAction,
-    )
-    {
+    ) {
     }
 
     public function __invoke(WorkflowState $data, string $jobId)

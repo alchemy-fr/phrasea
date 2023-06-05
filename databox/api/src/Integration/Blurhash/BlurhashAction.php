@@ -72,7 +72,7 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
         $height = $image->height();
 
         $maxSize = 100;
-        if( $width > $maxSize || $height > $maxSize) {
+        if ($width > $maxSize || $height > $maxSize) {
             $image->resize($maxSize, $maxSize, function ($constraint) {
                 $constraint->aspectRatio();
             });

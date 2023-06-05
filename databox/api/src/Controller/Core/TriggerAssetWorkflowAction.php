@@ -20,8 +20,7 @@ final class TriggerAssetWorkflowAction extends AbstractController
     public function __construct(
         private readonly WorkflowOrchestrator $workflowOrchestrator,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function __invoke(string $id, Request $request)

@@ -17,8 +17,7 @@ final readonly class GetWorkflowAction
     public function __construct(
         private StateRepositoryInterface $stateRepository,
         private WorkflowRepositoryInterface $workflowRepository,
-    )
-    {
+    ) {
     }
 
     public function __invoke(WorkflowState $data): JsonResponse

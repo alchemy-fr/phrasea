@@ -29,8 +29,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         private readonly AttributeManager $attributeManager,
         private readonly FileManager $fileManager,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function handle(RunContext $context): void
@@ -97,6 +96,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
     {
         if (str_ends_with($pos, '%')) {
             $pos = str_replace('%', '', $pos);
+
             return (int) round($size * $pos * 0.01);
         }
 

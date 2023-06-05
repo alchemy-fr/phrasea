@@ -73,7 +73,7 @@ final readonly class RekognitionAnalyzer
             $attrDef = $this->attributeManager
                 ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name'])
                     ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrConfig['name'], $asset->getWorkspaceId()));
-            ;
+
             $threshold = $attrConfig['threshold'] ?? null;
             if (!$attrDef->isMultiple()) {
                 throw new \InvalidArgumentException(sprintf('Attribute "%s" must be multi-valued', $attrDef->getId()));
