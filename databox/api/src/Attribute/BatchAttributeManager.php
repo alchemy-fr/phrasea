@@ -7,13 +7,16 @@ namespace App\Attribute;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
+use App\Doctrine\Listener\PostFlushStack;
 use App\Elasticsearch\Listener\DeferredIndexListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AssetVoter;
+use App\Workflow\Event\AttributeUpdateWorkflowEvent;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -33,7 +36,9 @@ class BatchAttributeManager
         private readonly AttributeAssigner $attributeAssigner,
         private readonly Security $security,
         private readonly DeferredIndexListener $deferredIndexListener,
+        private readonly PostFlushStack $postFlushStack,
         private readonly AttributeManager $attributeManager,
+        private readonly WorkflowOrchestrator $workflowOrchestrator,
     ) {
     }
 
@@ -61,7 +66,7 @@ class BatchAttributeManager
             ->getQuery()
             ->getResult();
 
-        if ((is_countable($assets) ? count($assets) : 0) !== count($assetsId)) {
+        if (count($assets) !== count($assetsId)) {
             throw new \InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
         }
 
@@ -111,6 +116,8 @@ class BatchAttributeManager
         }
 
         $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId): void {
+            $changedAttributeDefinitions = [];
+
             foreach ($input->actions as $i => $action) {
                 if ($action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
@@ -118,6 +125,12 @@ class BatchAttributeManager
                     $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
                 } else {
                     $definition = null;
+                }
+
+                if ($definition) {
+                    $changedAttributeDefinitions[$definition->getId()] = true;
+                } else {
+                    $changedAttributeDefinitions['*'] = true;
                 }
 
                 switch ($action->action) {
@@ -249,9 +262,19 @@ class BatchAttributeManager
                 ->execute()
             ;
 
-            // Force assets to be re-indexed on terminate
+            $attributes = array_keys($changedAttributeDefinitions);
+
             foreach ($assetsId as $assetId) {
+                // Force assets to be re-indexed on terminate
                 $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
+
+                $this->postFlushStack->addCallback(function () use ($attributes, $assetId, $workspaceId): void {
+                    $this->workflowOrchestrator->dispatchEvent(AttributeUpdateWorkflowEvent::createEvent(
+                        $attributes,
+                        $assetId,
+                        $workspaceId,
+                    ));
+                });
             }
 
             $this->em->flush();

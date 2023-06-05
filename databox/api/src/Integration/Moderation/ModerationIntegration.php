@@ -6,6 +6,7 @@ namespace App\Integration\Moderation;
 
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
+use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -39,7 +40,7 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         ]);
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

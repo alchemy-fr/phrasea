@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
@@ -78,7 +79,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         ];
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

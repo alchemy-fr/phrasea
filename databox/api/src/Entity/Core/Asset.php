@@ -124,10 +124,17 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      * Last update time of attribute.
      *
      * @ORM\Column(type="datetime_immutable")
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
+
+    /**
+     * Last update time of tags.
+     *
+     * @ORM\Column(type="datetime_immutable")
+     */
+    #[Groups(['dates'])]
+    protected ?\DateTimeImmutable $tagsEditedAt = null;
 
     /**
      * @param float $now got from microtime(true)
@@ -354,13 +361,13 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     /**
      * Last update time of any element of the asset.
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     public function getEditedAt(): ?\DateTimeImmutable
     {
         $date = max(
             $this->attributesEditedAt,
+            $this->tagsEditedAt,
             $this->updatedAt,
         );
 
