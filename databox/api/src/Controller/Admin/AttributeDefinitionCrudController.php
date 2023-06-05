@@ -21,7 +21,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
-use Symfony\Component\DomCrawler\Field\FormField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 
 
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
@@ -84,15 +84,35 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $sortable = BooleanField::new('sortable');
         $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
         $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
+
+        $brk = FormField::addRow();
+
         $searchBoost = IntegerField::new('searchBoost');
 
         $tags = array_slice($tags, 0, 100, true);
  //       $tags['template'] = '__template__';
  //       $fieldSource = TagGroupChoiceField::new('fieldSource')
-
+/*
         $initialValuesSource = ChoiceField::new('initialValuesSource')
 //            ->setChoices($tags)
             ->setChoices(static fn (?AttributeDefinition $foo): array => $foo->getTagsList($this->metadataManipulator))
+            ->autocomplete()
+            ->addCssClass("initialValuesSource")
+            //      ->addJsFiles("admin")
+            ->setFormTypeOptions([
+                'mapped' => false,
+                'row_attr' => [
+                    'data-controller' => 'initialValuesSource', // initialValuesAll',
+                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged'
+                ],
+                'attr' => [
+                    'data-initialValuesSource-target' => 'input',
+                    'data-action' => 'initialValuesSource#render',
+                ],
+            ]);
+*/
+        $initialValuesSource = ChoiceField::new('initialValuesSource')
+            ->setChoices($tags)
             ->autocomplete()
             ->addCssClass("initialValuesSource")
             //      ->addJsFiles("admin")
@@ -182,12 +202,16 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost,
+            return [$workspace, $class, $name, $fileType, $fieldType,
+                $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
+                $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost,
+            return [$workspace, $class, $name, $fileType, $fieldType,
+                $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
+                $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
