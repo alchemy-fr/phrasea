@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Consumer\Handler\Uploader;
+namespace App\Workflow\Event;
 
 use Alchemy\Workflow\Event\WorkflowEvent;
 

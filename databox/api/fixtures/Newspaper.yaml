@@ -103,6 +103,14 @@ App\Entity\Core\AttributeDefinition:
     multiple: true
     class: '@n_ac_public'
     position: 9
+  ad_watermark (extends attribute_definition):
+    name: Watermark
+    class: '@n_ac_public'
+    position: 10
+  ad_blurhash (extends attribute_definition):
+    name: Blurhash
+    class: '@n_ac_public'
+    position: 10
 
 App\Entity\Core\RenditionClass:
   rendition_class (template):
@@ -385,7 +393,41 @@ App\Entity\Core\Tag:
     workspace: '@w_newspaper'
 
 App\Entity\Integration\WorkspaceIntegration:
-  toast_ui:
+  wi_toast_ui:
     title: ToastUI
     integration: tui.photo-editor
     workspace: '@w_newspaper'
+  wi_renditions:
+    integration: phraseanet.renditions
+    workspace: '@w_newspaper'
+    config:
+      baseUrl: https://phraseanet.phrasea.local
+      databoxId: 1
+      method: api
+  wi_watermark:
+    integration: core.watermark
+    workspace: '@w_newspaper'
+    config:
+      attributeName: watermark
+      applyToRenditions:
+        - thumbnail
+    needs:
+      - '@wi_renditions'
+  wi_blurhash:
+    integration: blurhash
+    workspace: '@w_newspaper'
+    config:
+      rendition: thumbnail
+    needs:
+      - '@wi_renditions'
+
+App\Entity\Integration\WorkspaceSecret:
+  aws_access_key_id:
+    workspace: '@w_newspaper'
+    name: AWS_ACCESS_KEY_ID
+    plainValue: xxx
+
+  aws_access_key_secret:
+    workspace: '@w_newspaper'
+    name: AWS_ACCESS_KEY_SECRET
+    plainValue: xxx

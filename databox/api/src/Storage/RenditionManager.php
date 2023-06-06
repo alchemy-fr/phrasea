@@ -97,6 +97,23 @@ class RenditionManager
         return $rendition;
     }
 
+    public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('r')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin('r.definition', 'd')
+            ->andWhere('r.asset = :asset')
+            ->andWhere('d.name = :name')
+            ->setParameters([
+                'asset' => $assetId,
+                'name' => $renditionName,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
     {
         $definition = $this

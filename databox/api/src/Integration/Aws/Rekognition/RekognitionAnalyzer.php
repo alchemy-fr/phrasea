@@ -7,6 +7,7 @@ namespace App\Integration\Aws\Rekognition;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Asset\FileFetcher;
+use App\Attribute\AttributeManager;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -23,6 +24,7 @@ final readonly class RekognitionAnalyzer
         private FileFetcher $fileFetcher,
         private ApiBudgetLimiter $apiBudgetLimiter,
         private BatchAttributeManager $batchAttributeManager,
+        private AttributeManager $attributeManager,
     ) {
     }
 
@@ -68,7 +70,10 @@ final readonly class RekognitionAnalyzer
     protected function saveTextsToAttributes(Asset $asset, array $texts, array $attributes): void
     {
         foreach ($attributes as $attrConfig) {
-            $attrDef = $this->batchAttributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name']);
+            $attrDef = $this->attributeManager
+                ->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrConfig['name'])
+                    ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrConfig['name'], $asset->getWorkspaceId()));
+
             $threshold = $attrConfig['threshold'] ?? null;
             if (!$attrDef->isMultiple()) {
                 throw new \InvalidArgumentException(sprintf('Attribute "%s" must be multi-valued', $attrDef->getId()));

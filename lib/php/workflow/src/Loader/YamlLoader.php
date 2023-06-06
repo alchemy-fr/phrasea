@@ -8,6 +8,7 @@ use Alchemy\Workflow\Exception\ModelException;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\OnEvent;
 use Alchemy\Workflow\Model\Step;
+use Alchemy\Workflow\Model\With;
 use Alchemy\Workflow\Model\Workflow;
 use Symfony\Component\Yaml\Yaml;
 
@@ -68,7 +69,7 @@ class YamlLoader implements FileLoaderInterface
         $job->setIf($data['if'] ?? null);
         $job->setContinueOnError($data['continue-on-error'] ?? false);
         $job->setOutputs($data['outputs'] ?? []);
-        $job->setWith($data['with'] ?? []);
+        $job->setWith(new With($data['with'] ?? []));
 
         if (isset($data['steps'])) {
             foreach ($data['steps'] as $i => $step) {

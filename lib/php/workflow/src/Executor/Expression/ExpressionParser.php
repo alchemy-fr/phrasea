@@ -33,6 +33,26 @@ class ExpressionParser extends ExpressionLanguage
         return $this->replaceVars($expression, $variables);
     }
 
+    protected function registerFunctions()
+    {
+        parent::registerFunctions();
+
+        $this->register('date', function ($date) {
+            return sprintf('(new \DateTime(%s))', $date);
+        }, function (array $values, $date) {
+            return new \DateTime($date);
+        });
+
+        $this->register('date_modify', function ($date, $modify) {
+            return sprintf('%s->modify(%s)', $date, $modify);
+        }, function (array $values, $date, $modify) {
+            if (!$date instanceof \DateTime) {
+                throw new \RuntimeException('date_modify() expects parameter 1 to be a Date');
+            }
+            return $date->modify($modify);
+        });
+    }
+
     private function evaluateDynamicExpression(
         mixed $expression,
         array $variables
@@ -55,9 +75,9 @@ class ExpressionParser extends ExpressionLanguage
         return $this->replaceVars($expression, $variables);
     }
 
-    public function evaluateIf(string $expression, JobExecutionContext $context): bool
+    public function evaluateIf(string $expression, JobExecutionContext $context, array $params = []): bool
     {
-        return (bool) $this->evaluate($expression, $this->createJobVariables($context));
+        return (bool) $this->evaluate($expression, array_merge($this->createJobVariables($context), $params));
     }
 
     public function evaluateArray(array $array, JobExecutionContext $context): array
@@ -90,7 +110,7 @@ class ExpressionParser extends ExpressionLanguage
     {
         $workflowState = $context->getWorkflowState();
         $jobState = $context->getJobState();
-        $inputs = $runContext?->getInputs()  ?? $workflowState->getEvent()?->getInputs() ?? new Inputs();
+        $inputs = $runContext?->getInputs() ?? $workflowState->getEvent()?->getInputs() ?? new Inputs();
         $envs = $runContext?->getEnvs() ?? $context->getEnvs();
 
         return [

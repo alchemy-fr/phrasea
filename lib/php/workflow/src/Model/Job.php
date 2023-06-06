@@ -15,7 +15,7 @@ class Job
     private ?string $if = null;
 
     private StepList $steps;
-    private array $with = [];
+    private With $with;
     private array $outputs = [];
     private ?string $result = null;
     private bool $continueOnError = false;
@@ -26,6 +26,7 @@ class Job
         $this->env = new EnvVars();
         $this->steps = new StepList();
         $this->needs = new NeedList();
+        $this->with = new With();
     }
 
     public function getId(): string
@@ -89,12 +90,12 @@ class Job
         $this->outputs = $outputs;
     }
 
-    public function getWith(): array
+    public function getWith(): With
     {
         return $this->with;
     }
 
-    public function setWith(array $with): void
+    public function setWith(With $with): void
     {
         $this->with = $with;
     }

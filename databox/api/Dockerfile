@@ -2,8 +2,31 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
+ENV IMAGICK_VERSION=3.7.0
+
 RUN apk add --no-cache \
-        perl
+        perl \
+        freetype \
+    	imagemagick \
+        libjpeg-turbo \
+        libpng \
+        libwebp \
+    && apk add --no-cache --virtual build-essentials \
+        g++ \
+        make \
+        automake \
+        autoconf \
+        libpng-dev \
+        libwebp-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        imagemagick-dev \
+    && pecl install \
+        imagick-${IMAGICK_VERSION} \
+    && pecl clear-cache \
+    && docker-php-ext-enable \
+        imagick \
+    && apk del build-essentials
 
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./

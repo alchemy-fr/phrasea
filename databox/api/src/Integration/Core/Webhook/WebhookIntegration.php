@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Core\Webhook;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
-use App\Integration\Core\Test\TestAction;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -36,7 +36,7 @@ class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrat
         ;
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

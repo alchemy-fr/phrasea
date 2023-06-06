@@ -25,8 +25,6 @@ class EncryptionManager
             throw new \InvalidArgumentException('Empty public key');
         }
 
-        var_dump($publicKey);
-
         $decodedPK = base64_decode($publicKey);
         if (!$decodedPK) {
             throw new \InvalidArgumentException('Invalid base64 publicKey');

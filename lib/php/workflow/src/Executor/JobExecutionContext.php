@@ -9,13 +9,13 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Symfony\Component\Console\Output\OutputInterface;
 
-readonly class JobExecutionContext
+class JobExecutionContext
 {
     public function __construct(
-        private WorkflowState $workflowState,
-        private JobState $jobState,
-        private OutputInterface $output,
-        private EnvContainer $envs,
+        private readonly WorkflowState $workflowState,
+        private readonly JobState $jobState,
+        private readonly OutputInterface $output,
+        private readonly EnvContainer $envs,
         private Inputs $inputs,
     )
     {
@@ -44,5 +44,10 @@ readonly class JobExecutionContext
     public function getEnvs(): EnvContainer
     {
         return $this->envs;
+    }
+
+    public function replaceInputs(Inputs $inputs): void
+    {
+        $this->inputs = $inputs;
     }
 }

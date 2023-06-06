@@ -33,10 +33,12 @@ export type Job = {
     errors?: JobError[] | undefined;
     duration?: string;
     needs?: string[];
+    if?: string | undefined;
     isDependency?: boolean;
     triggeredAt?: string | undefined;
     startedAt?: string | undefined;
     endedAt?: string | undefined;
+    inputs?: Inputs;
     outputs?: Outputs;
 }
 
@@ -50,6 +52,7 @@ export enum JobStatus {
     Failure = 2,
     Skipped = 3,
     Running = 4,
+    Error = 5,
 }
 
 export enum WorkflowStatus {

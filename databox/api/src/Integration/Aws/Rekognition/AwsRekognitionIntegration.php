@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Aws\AbstractAwsIntegration;
@@ -95,7 +96,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         $builder->append($this->createBudgetLimitConfigNode(true));
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         foreach (self::CATEGORIES as $category => $action) {
             if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {

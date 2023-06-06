@@ -6,6 +6,7 @@ export const jobStatuses = {
     [JobStatus.Failure]: 'Failure',
     [JobStatus.Skipped]: 'Skipped',
     [JobStatus.Running]: 'Running',
+    [JobStatus.Error]: 'Error',
 }
 
 export const workflowStatuses = {

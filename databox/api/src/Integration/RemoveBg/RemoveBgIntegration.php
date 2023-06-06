@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\RemoveBg;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Integration\AbstractFileAction;
 use App\Integration\WorkflowHelper;
@@ -42,7 +43,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         ));
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         if ($config['processIncoming']) {
             yield WorkflowHelper::createIntegrationJob(

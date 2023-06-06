@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Integration\RemoveBg;
 
-use Alchemy\Workflow\Executor\JobContext;
 use Alchemy\Workflow\Executor\RunContext;
+use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
-use App\Integration\IfActionInterface;
 use App\Util\FileUtil;
 
-class RemoveBgAction extends AbstractIntegrationAction implements IfActionInterface
+class RemoveBgAction extends AbstractIntegrationAction
 {
     public function __construct(
         private readonly RemoveBgProcessor $removeBgProcessor,
@@ -25,9 +24,8 @@ class RemoveBgAction extends AbstractIntegrationAction implements IfActionInterf
         $this->removeBgProcessor->process($asset->getSource(), $config);
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

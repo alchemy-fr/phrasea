@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Phraseanet;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -30,7 +31,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
         $builder
             ->scalarNode('baseUrl')
-                ->isRequired()
+                ->defaultValue('${PHRASEANET_BASE_URL}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet base URL')
             ->end()
@@ -80,7 +81,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         return $info;
     }
 
-    public function getWorkflowJobDefinitions(array $config): iterable
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
         $actions = [
             self::METHOD_API => PhraseanetGenerateAssetRenditionsAction::class,

@@ -16,6 +16,12 @@ use Doctrine\ORM\EntityManagerInterface;
 final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 {
     private const ASSET_INGEST_NAME = 'asset-ingest';
+    private const ATTRIBUTES_UPDATE_NAME = 'attributes-update';
+
+    private const ROOT_WORKFLOWS = [
+        self::ATTRIBUTES_UPDATE_NAME,
+        self::ASSET_INGEST_NAME,
+    ];
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -26,20 +32,43 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
     public function loadWorkflowByName(string $name): ?Workflow
     {
-        $prefix = self::ASSET_INGEST_NAME.':';
-        if (!str_starts_with($name, $prefix)) {
-            return $this->decorated->loadWorkflowByName($name);
+        foreach (self::ROOT_WORKFLOWS as $rootName) {
+            $prefix = $rootName.':';
+            if (str_starts_with($name, $prefix)) {
+                $workspaceId = substr($name, strlen($prefix));
+
+                $workflow = $this->decorated->loadWorkflowByName($rootName);
+
+                return $this->createIntegrationsToWorkflow($workflow, $workspaceId);
+            }
         }
 
-        $workspaceId = substr($name, strlen($prefix));
+        return $this->decorated->loadWorkflowByName($name);
+    }
 
-        $workflow = $this->decorated->loadWorkflowByName(self::ASSET_INGEST_NAME);
+    public function getWorkflowsByEvent(WorkflowEvent $event): array
+    {
+        $inputs = $event->getInputs();
+        $workspaceId = $inputs['workspaceId'] ?? null;
 
-        return $this->createIntegrationsToWorkflow($workflow, $workspaceId);
+        $workflows = $this->decorated->getWorkflowsByEvent($event);
+        if (empty($workspaceId)) {
+            return $workflows;
+        }
+
+        foreach ($workflows as $key => $workflow) {
+            $workflows[$key] = $this->createIntegrationsToWorkflow($workflow, $workspaceId);
+        }
+
+        return $workflows;
     }
 
     private function createIntegrationsToWorkflow(Workflow $workflow, string $workspaceId): Workflow
     {
+        if (!in_array($workflow->getName(), self::ROOT_WORKFLOWS, true)) {
+            return $workflow;
+        }
+
         $integrationWorkflow = clone $workflow;
         $integrationWorkflow->rename($workflow->getName().':'.$workspaceId);
         $jobList = $integrationWorkflow->getJobs();
@@ -55,64 +84,52 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
         /* @var array<string, Job[]> $jobMap */
         $jobMap = [];
+        $integrationConfigs = [];
         foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            $integration = $config['integration'];
 
-            if ($integration instanceof WorkflowIntegrationInterface) {
-                $jobs = [];
-                foreach ($integration->getWorkflowJobDefinitions($config) as $jobDefinition) {
-                    $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
-                    $jobs[] = $jobDefinition;
-                }
-                $jobMap[$workspaceIntegration->getId()] = $jobs;
+            if ($config['integration'] instanceof WorkflowIntegrationInterface) {
+                $integrationConfigs[] = $config;
             }
         }
 
-        foreach ($workspaceIntegrations as $workspaceIntegration) {
-            $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            $integration = $config['integration'];
+        foreach ($integrationConfigs as $config) {
+            $jobs = [];
+            [
+                'integration' => $integration,
+                'workspaceIntegration' => $workspaceIntegration,
+            ] = $config;
 
-            if ($integration instanceof WorkflowIntegrationInterface) {
-                foreach ($workspaceIntegration->getNeeds() as $need) {
-                    foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
-                        $needList = $job->getNeeds();
+            /** @var Job $jobDefinition */
+            foreach ($integration->getWorkflowJobDefinitions($config, $workflow) as $jobDefinition) {
+                $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
+                $jobDefinition->setContinueOnError(true);
+                $jobs[] = $jobDefinition;
+            }
+            $jobMap[$workspaceIntegration->getId()] = $jobs;
+        }
 
-                        foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
-                            if ($needList->has($j->getId())) {
-                                continue 2;
-                            }
+        foreach ($integrationConfigs as $config) {
+            $workspaceIntegration = $config['workspaceIntegration'];
+
+            foreach ($workspaceIntegration->getNeeds() as $need) {
+                foreach ($jobMap[$workspaceIntegration->getId()] as $job) {
+                    $needList = $job->getNeeds();
+
+                    foreach ($jobMap[$workspaceIntegration->getId()] as $j) {
+                        if ($needList->has($j->getId())) {
+                            continue 2;
                         }
+                    }
 
-                        foreach ($jobMap[$need->getId()] as $neededJob) {
-                            $needList->append($neededJob->getId());
-                        }
+                    foreach ($jobMap[$need->getId()] as $neededJob) {
+                        $needList->append($neededJob->getId());
                     }
                 }
             }
         }
 
         return $integrationWorkflow;
-    }
-
-    public function getWorkflowsByEvent(WorkflowEvent $event): array
-    {
-        $inputs = $event->getInputs();
-
-        $workspaceId = $inputs['workspaceId'] ?? null;
-        if (empty($workspaceId)) {
-            return $this->decorated->getWorkflowsByEvent($event);
-        }
-
-        $workflows = $this->decorated->getWorkflowsByEvent($event);
-
-        foreach ($workflows as $key => $workflow) {
-            if (self::ASSET_INGEST_NAME === $workflow->getName()) {
-                $workflows[$key] = $this->createIntegrationsToWorkflow($workflow, $workspaceId);
-            }
-        }
-
-        return $workflows;
     }
 
     public function loadAll(): void

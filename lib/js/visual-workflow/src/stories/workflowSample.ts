@@ -16,6 +16,10 @@ export const workflowSample: Workflow = {
                     triggeredAt: '2023-05-24T10:22:25.495639+00:00',
                     startedAt: '2023-05-24T10:24:25.495639+00:00',
                     endedAt: '2023-05-24T10:25:25.495639+00:00',
+                    inputs: {
+                        foo: 'bar',
+                        baz: 42,
+                    },
                     outputs: {
                         foo: 'bar',
                         results: [
@@ -51,13 +55,14 @@ export const workflowSample: Workflow = {
                     needs: [
                         'init',
                     ],
+                    if: `env.toto == 42`,
                     triggeredAt: '2023-05-24T10:22:25.495639+00:00',
                     startedAt: '2023-05-24T10:24:25.495639+00:00',
                     endedAt: '2023-05-24T10:25:25.495639+00:00',
                 },
                 {
-                    name: 'errored',
-                    id: 'errored',
+                    name: 'failed',
+                    id: 'failed',
                     status: JobStatus.Failure,
                     duration: '2.987s',
                     needs: [
@@ -84,6 +89,19 @@ export const workflowSample: Workflow = {
                         '#13 /srv/app/vendor/symfony/console/Application.php(171): Symfony\\Bundle\\FrameworkBundle\\Console\\Application->doRun()\n' +
                         '#14 /srv/app/bin/console(43): Symfony\\Component\\Console\\Application->run()\n' +
                         '#15 {main}',
+                    ]
+                },
+                {
+                    name: 'errored',
+                    id: 'errored',
+                    status: JobStatus.Error,
+                    duration: '-',
+                    needs: [
+                        'init',
+                    ],
+                    triggeredAt: '2023-05-24T10:22:25.495639+00:00',
+                    errors: [
+                        'Error in if condition',
                     ]
                 },
             ],

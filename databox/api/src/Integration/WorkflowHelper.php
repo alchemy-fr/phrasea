@@ -32,11 +32,9 @@ abstract class WorkflowHelper
         $job = new Job($id);
         $job->setName($name);
         if (is_subclass_of($action, IfActionInterface::class)) {
-            $job->setIf($action.'::shouldRun');
+            $job->setIf($action.'::evaluateIf');
         }
-        $job->setWith([
-            'integrationId' => $workspaceIntegration->getId(),
-        ]);
+        $job->getWith()['integrationId'] = $workspaceIntegration->getId();
 
         $step = new Step('_', $name);
         $step->setUses($action);
