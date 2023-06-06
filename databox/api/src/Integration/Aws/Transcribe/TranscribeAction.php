@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
-use Alchemy\Workflow\Executor\JobContext;
 use Alchemy\Workflow\Executor\RunContext;
+use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IfActionInterface;
@@ -42,9 +42,8 @@ final class TranscribeAction extends AbstractIntegrationAction implements IfActi
         $this->client->extractTextFromAudio($asset->getId(), $file->getId(), $s3Uri, $file->getType(), $config);
     }
 
-    public function shouldRun(JobContext $context): bool
+    protected function shouldRun(Asset $asset): bool
     {
-        $asset = $this->getAsset($context);
         if (null === $asset->getSource()) {
             return false;
         }

@@ -2,15 +2,16 @@ $size: 12px;
 $border: 7px;
 
 $statuses: (
-        "failure": #ff4242,
-        "success": #24e834,
-        "running": #ffda72,
-        "triggered": #ff9663,
-        "skipped": #b6b6b6,
-        "none": transparent,
+  "failure": #ff4242,
+  "success": #24e834,
+  "running": #ffda72,
+  "triggered": #ff9663,
+  "skipped": #b6b6b6,
+  "error": #FFF,
+  "none": transparent,
 );
 
-.status {
+.workflow-status {
   position: relative;
   display: block;
   width: $size;
@@ -19,12 +20,16 @@ $statuses: (
   margin: $border;
 
   @each $name, $color in $statuses {
-    &.#{$name}, &.#{$name}:before {
+    &.workflow-#{$name}, &.workflow-#{$name}:before {
       background-color: $color;
     }
   }
 
-  &.pulse:before {
+  &.workflow-error {
+    box-shadow: 0 0 0 2px #ff0000;
+  }
+
+  &.workflow-pulse:before {
     content: '';
     display: block;
     position: absolute;
@@ -33,11 +38,11 @@ $statuses: (
     width: $size + $border;
     height: $size + $border;
     border-radius: 50%;
-    animation: pulse 1.5s infinite ease-in;
+    animation: workflow-pulse 1.5s infinite ease-in;
   }
 }
 
-@keyframes pulse {
+@keyframes workflow-pulse {
   from {
     transform: scale(0.5);
     opacity: 1;

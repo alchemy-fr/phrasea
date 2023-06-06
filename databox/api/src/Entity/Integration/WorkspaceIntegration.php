@@ -53,6 +53,13 @@ class WorkspaceIntegration extends AbstractUuidEntity
     private ?Collection $needs = null;
 
     /**
+     * @ORM\Column(type="string", length=2048, nullable=true)
+     *
+     * @Groups({"integration:index"})
+     */
+    private ?string $if = null;
+
+    /**
      * @ORM\Column(type="boolean", nullable=false)
      *
      * @Groups({"integration:index"})
@@ -162,6 +169,18 @@ class WorkspaceIntegration extends AbstractUuidEntity
         return $this->needs;
     }
 
+    public function addNeed(WorkspaceIntegration $need): void
+    {
+        $this->needs->add($need);
+    }
+
+    public function removeNeed(WorkspaceIntegration $need): void
+    {
+        if ($this->needs->contains($need)) {
+            $this->needs->removeElement($need);
+        }
+    }
+
     #[Assert\Callback]
     public function validateNeeds(ExecutionContextInterface $context, $payload): void
     {
@@ -196,6 +215,16 @@ class WorkspaceIntegration extends AbstractUuidEntity
             $b[] = $need->getId();
             $need->detectCircularNeed($b);
         }
+    }
+
+    public function getIf(): ?string
+    {
+        return $this->if;
+    }
+
+    public function setIf(?string $if): void
+    {
+        $this->if = $if;
     }
 
     public function __toString(): string

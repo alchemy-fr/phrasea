@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State;
 
-final class Inputs extends \ArrayObject
+final class Inputs extends RecordObject
 {
     public function mergeWith(array $inputs): self
     {

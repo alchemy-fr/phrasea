@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Border\Consumer\Handler\Uploader;
 
-use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Border\Model\Upload\IncomingUpload;
+use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 

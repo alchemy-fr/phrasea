@@ -118,10 +118,13 @@ class WorkflowOrchestrator
 
     public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
     {
-        $this->rerunJobs($workflowId, $jobIdFilter, JobState::STATUS_FAILURE);
+        $this->rerunJobs($workflowId, $jobIdFilter, [
+            JobState::STATUS_FAILURE,
+            JobState::STATUS_ERROR,
+        ]);
     }
 
-    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?int $expectedStatus = null): void
+    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?array $expectedStatuses = null): void
     {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
@@ -141,7 +144,7 @@ class WorkflowOrchestrator
                 }
 
                 $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null === $expectedStatus || null !== $jobState && $jobState->getStatus() === $expectedStatus) {
+                if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
                     $this->stateRepository->removeJobState($workflowId, $jobId);
 
                     $jobsToTrigger[] = $jobId;
@@ -179,6 +182,7 @@ class WorkflowOrchestrator
     private function getNextJob(Plan $plan, WorkflowState $state): array
     {
         $statuses = [];
+        $hasFailedJob = false;
 
         $workflowComplete = true;
         foreach ($plan->getStages() as $stage) {
@@ -199,8 +203,11 @@ class WorkflowOrchestrator
 
                 $statuses[$jobId] = $jobState->getStatus();
 
-                if ($jobState->getStatus() === JobState::STATUS_FAILURE && !$job->isContinueOnError()) {
-                    return [null, WorkflowState::STATUS_FAILURE];
+                if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                    $hasFailedJob = true;
+                    if (!$job->isContinueOnError()) {
+                        return [null, WorkflowState::STATUS_FAILURE];
+                    }
                 }
 
                 if (!in_array($jobState->getStatus(), [
@@ -217,7 +224,7 @@ class WorkflowOrchestrator
             }
         }
 
-        return $workflowComplete ? [null, WorkflowState::STATUS_SUCCESS] : [null, null];
+        return $workflowComplete ? [null, $hasFailedJob ? WorkflowState::STATUS_FAILURE : WorkflowState::STATUS_SUCCESS] : [null, null];
     }
 
     private function satisfiesAllNeeds(array $states, Job $job): bool

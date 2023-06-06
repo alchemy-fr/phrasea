@@ -26,22 +26,28 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                     'id' => $jobId,
                     'name' => $run->getJob()->getName(),
                     'needs' => array_values($run->getJob()->getNeeds()->getArrayCopy()),
+                    'if' => $run->getJob()->getIf(),
+                    'with' => $run->getJob()->getWith(),
                 ];
 
                 if ($jobState instanceof JobState) {
                     $job = array_merge($job, [
                         'id' => $jobState->getJobId(),
                         'status' => $jobState->getStatus(),
-                        'outputs' => $jobState->getOutputs()->getArrayCopy(),
+                        'inputs' => $jobState->getInputs(),
+                        'outputs' => $jobState->getOutputs(),
                         'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
                         'startedAt' => $jobState->getStartedAt()?->formatAtom(),
                         'endedAt' => $jobState->getEndedAt()?->formatAtom(),
                         'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
                     ]);
-                    if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+
+                    if (!empty($jobState->getErrors())) {
                         $job['errors'] = $jobState->getErrors();
                     }
                 }
+
+                $job = array_filter($job, fn ($v): bool => null !== $v);
 
                 $jobs[] = $job;
             }
@@ -52,7 +58,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             ];
         }
 
-        $output->write(json_encode([
+        $out = [
             'id' => $state->getId(),
             'name' => $state->getWorkflowName(),
             'status' => $state->getStatus(),
@@ -61,6 +67,16 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             'stages' => $stages,
             'duration' => StateUtil::getFormattedDuration($state->getDuration()),
             'context' => $state->getContext(),
-        ]));
+        ];
+
+        if (null !== $event = $state->getEvent()) {
+            $out['event'] = [
+                'name' => $event->getName(),
+                'inputs' => $event->getInputs(),
+            ];
+        }
+
+
+        $output->write(json_encode($out));
     }
 }

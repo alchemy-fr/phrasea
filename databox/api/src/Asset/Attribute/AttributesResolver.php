@@ -14,10 +14,14 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class AttributesResolver
+readonly class AttributesResolver
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FieldNameResolver $fieldNameResolver, private readonly FallbackResolver $fallbackResolver, private readonly Security $security)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private FieldNameResolver $fieldNameResolver,
+        private FallbackResolver $fallbackResolver,
+        private Security $security
+    ) {
     }
 
     /**

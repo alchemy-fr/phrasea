@@ -221,9 +221,11 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup
+      - name: Pull images
         run: |
           docker compose pull
+      - name: Setup
+        run: |
           docker compose down --volumes
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh

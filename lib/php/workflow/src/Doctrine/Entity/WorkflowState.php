@@ -97,7 +97,7 @@ class WorkflowState
     public function getContext(): ?array
     {
         try {
-            return $this->getWorkflowState()->getContext();
+            return $this->getWorkflowState()->getContext()->getArrayCopy();
         } catch (\Exception $e) {
             return null;
         }

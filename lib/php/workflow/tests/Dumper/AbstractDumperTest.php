@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Tests\Dumper;
 
 use Alchemy\Workflow\Date\MicroDateTime;
+use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
@@ -20,9 +21,14 @@ abstract class AbstractDumperTest extends AbstractWorkflowTest
 
         $content = new JobState($workflowId, 'content', JobState::STATUS_RUNNING);
         $content->setStartedAt(new MicroDateTime('2000-05-12T12:12:44', 424242));
+        $content->setInputs(new Inputs([
+            'foo' => 'bar',
+            'baz' => 42,
+        ]));
 
         $contentBis = new JobState($workflowId, 'content_bis', JobState::STATUS_RUNNING);
         $contentBis->setStartedAt(new MicroDateTime('2000-05-12T12:12:44', 424242));
+        $contentBis->setInputs(new Inputs());
 
         $jobMap = [
             [$workflowId, 'intro', $intro],

@@ -10,7 +10,7 @@ type Props = {
 } & Omit<LinkProps, "to">;
 
 export type StateWithBackground = {
-        background?: Location;
+    background?: Location;
 }
 
 export default React.forwardRef<HTMLAnchorElement, Props>(({
