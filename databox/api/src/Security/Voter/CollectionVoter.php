@@ -14,7 +14,7 @@ class CollectionVoter extends AbstractVoter
 {
     private array $cache = [];
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof Collection;
     }
@@ -22,7 +22,7 @@ class CollectionVoter extends AbstractVoter
     /**
      * @param Collection $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
         if (isset($this->cache[$key])) {

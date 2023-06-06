@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class FileVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof File;
     }
@@ -18,7 +18,7 @@ class FileVoter extends AbstractVoter
     /**
      * @param File $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $assets = $this->em->createQueryBuilder('a')
             ->select('a')

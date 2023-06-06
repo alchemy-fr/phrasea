@@ -87,7 +87,7 @@ abstract class AbstractAdminTest extends WebTestCase
 
     private function logIn()
     {
-        $session = self::$container->get('session');
+        $session = self::getContainer()->get('session');
 
         $user = $this->getAuthAdminUser();
 

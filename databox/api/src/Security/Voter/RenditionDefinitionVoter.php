@@ -12,7 +12,7 @@ class RenditionDefinitionVoter extends AbstractVoter
     final public const READ_ADMIN = 'READ_ADMIN';
     final public const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof RenditionDefinition;
     }
@@ -20,7 +20,7 @@ class RenditionDefinitionVoter extends AbstractVoter
     /**
      * @param RenditionDefinition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
 
