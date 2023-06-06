@@ -27,7 +27,7 @@ readonly class MicroDateTime
             $dateTime = $dateTime->setTime((int) $dateTime->format('G'), (int) $dateTime->format('i'), (int) $dateTime->format('s'), 0);
         } else {
             $dateTime = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
-                ->setTime(0,0,0,0)
+                ->setTime(0, 0, 0, 0)
                 ->setTimestamp((int) ($ts ?? time()));
         }
 

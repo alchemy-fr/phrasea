@@ -14,8 +14,7 @@ final readonly class PlanExecutor
         private WorkflowRepositoryInterface $workflowRepository,
         private JobExecutor $jobExecutor,
         private StateRepositoryInterface $stateRepository,
-    )
-    {
+    ) {
     }
 
     public function executePlan(string $workflowId, string $jobId): void

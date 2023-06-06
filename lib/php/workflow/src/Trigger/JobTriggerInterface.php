@@ -7,7 +7,7 @@ namespace Alchemy\Workflow\Trigger;
 interface JobTriggerInterface
 {
     /**
-     * @return bool If workflow should continue in the process.
+     * @return bool whether workflow should continue in the process
      */
     public function triggerJob(string $workflowId, string $jobId): bool;
 }

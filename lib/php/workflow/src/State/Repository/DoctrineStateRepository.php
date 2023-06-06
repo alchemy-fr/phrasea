@@ -10,8 +10,6 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Throwable;
 
 class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 {
@@ -25,8 +23,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         EntityManagerInterface $em,
         string $workflowStateEntity = null,
         string $jobStateEntity = null,
-    )
-    {
+    ) {
         $this->em = $em;
         $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
         $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;
@@ -36,7 +33,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     {
         $entity = $this->em->getRepository($this->workflowStateEntity)->find($id);
         if (!$entity instanceof WorkflowStateEntity) {
-            throw new InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
+            throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
         }
 
         $state = $entity->getWorkflowState();
@@ -98,7 +95,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             if ($entity instanceof JobStateEntity) {
                 $this->jobs[$workflowId][$jobId] = $entity;
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;
         }

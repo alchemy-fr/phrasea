@@ -6,10 +6,10 @@ namespace Alchemy\Workflow\Doctrine\Entity;
 
 use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\StateUtil;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
-use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 
 class WorkflowState
 {

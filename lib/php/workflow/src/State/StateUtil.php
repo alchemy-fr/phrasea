@@ -16,7 +16,7 @@ class StateUtil
         $duration = abs($duration);
 
         $h = floor($duration / 3600);
-        $m = floor(($duration / 60)) % 60;
+        $m = floor($duration / 60) % 60;
         $s = floor($duration) % 60;
         $micro = floor(($duration - floor($duration)) * 1000);
 

@@ -61,7 +61,7 @@ class MicroDateTimeTest extends TestCase
         $serialized = serialize($dateTime);
         $this->assertEquals(
             sprintf('O:%d:"%s":2:{s:1:"t";i:%d;s:1:"m";i:%d;}',
-            strlen(MicroDateTime::class),
+                strlen(MicroDateTime::class),
                 MicroDateTime::class,
                 $dateTime->getDateTimeObject()->getTimestamp(),
                 $dateTime->getMicroseconds()

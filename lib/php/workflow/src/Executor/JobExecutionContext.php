@@ -17,8 +17,7 @@ class JobExecutionContext
         private readonly OutputInterface $output,
         private readonly EnvContainer $envs,
         private Inputs $inputs,
-    )
-    {
+    ) {
     }
 
     public function getOutput(): OutputInterface

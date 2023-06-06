@@ -30,8 +30,7 @@ class WorkflowState
         ?WorkflowEvent $event,
         ?string $id = null,
         array $context = []
-    )
-    {
+    ) {
         $this->stateRepository = $stateRepository;
         $this->id = $id ?? Uuid::uuid4()->toString();
         $this->startedAt = new MicroDateTime();

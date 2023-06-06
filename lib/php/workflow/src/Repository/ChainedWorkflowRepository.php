@@ -19,8 +19,7 @@ final class ChainedWorkflowRepository implements WorkflowRepositoryInterface
      */
     public function __construct(
         array $repositories,
-    )
-    {
+    ) {
         $this->repositories = $repositories;
     }
 

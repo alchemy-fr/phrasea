@@ -17,8 +17,7 @@ class ExpressionParser extends ExpressionLanguage
         string $expression,
         JobExecutionContext $context,
         ?RunContext $runContext = null
-    ): mixed
-    {
+    ): mixed {
         $count = preg_match_all(self::DYNAMIC_PATTERN, $expression, $matches);
 
         if (0 === $count) {
@@ -49,6 +48,7 @@ class ExpressionParser extends ExpressionLanguage
             if (!$date instanceof \DateTime) {
                 throw new \RuntimeException('date_modify() expects parameter 1 to be a Date');
             }
+
             return $date->modify($modify);
         });
     }
@@ -56,8 +56,7 @@ class ExpressionParser extends ExpressionLanguage
     private function evaluateDynamicExpression(
         mixed $expression,
         array $variables
-    ): mixed
-    {
+    ): mixed {
         if (!is_string($expression)) {
             return $expression;
         }
@@ -106,8 +105,7 @@ class ExpressionParser extends ExpressionLanguage
     private function createJobVariables(
         JobExecutionContext $context,
         ?RunContext $runContext = null
-    ): array
-    {
+    ): array {
         $workflowState = $context->getWorkflowState();
         $jobState = $context->getJobState();
         $inputs = $runContext?->getInputs() ?? $workflowState->getEvent()?->getInputs() ?? new Inputs();

@@ -21,8 +21,7 @@ class DumpWorkflowCommand extends Command
     public function __construct(
         StateRepositoryInterface $stateRepository,
         WorkflowRepositoryInterface $workflowRepository
-    )
-    {
+    ) {
         parent::__construct();
         $this->stateRepository = $stateRepository;
         $this->workflowRepository = $workflowRepository;

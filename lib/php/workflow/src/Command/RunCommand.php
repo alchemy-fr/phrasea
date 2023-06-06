@@ -12,13 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
-
     private WorkflowOrchestrator $orchestrator;
 
     public function __construct(
         WorkflowOrchestrator $orchestrator
-    )
-    {
+    ) {
         parent::__construct();
         $this->orchestrator = $orchestrator;
     }

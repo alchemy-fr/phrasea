@@ -17,7 +17,7 @@ class SerializationStateTest extends TestCase
         $stateRepository = new MemoryStateRepository();
         $state = new WorkflowState($stateRepository, 'foo', new WorkflowEvent('event', [
             'foo' => 'bar',
-            'int' => 1
+            'int' => 1,
         ]), '42');
 
         $unserialized = unserialize(serialize($state));
@@ -29,7 +29,7 @@ class SerializationStateTest extends TestCase
         $this->assertEquals($state->getEvent()->getName(), 'event');
         $this->assertEquals($state->getEvent()->getInputs()->getArrayCopy(), [
             'foo' => 'bar',
-            'int' => 1
+            'int' => 1,
         ]);
         $this->assertNull($unserialized->getEndedAt());
 

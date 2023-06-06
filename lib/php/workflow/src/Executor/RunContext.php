@@ -17,8 +17,7 @@ class RunContext extends JobContext
         Inputs $inputs,
         EnvContainer $envs,
         private readonly Outputs $outputs,
-    )
-    {
+    ) {
         parent::__construct($output, $inputs, $envs);
     }
 
