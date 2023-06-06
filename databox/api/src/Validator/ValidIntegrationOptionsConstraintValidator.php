@@ -12,11 +12,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class ValidIntegrationOptionsConstraintValidator extends ConstraintValidator
 {
-    private IntegrationManager $integrationManager;
-
-    public function __construct(IntegrationManager $integrationManager)
+    public function __construct(private readonly IntegrationManager $integrationManager)
     {
-        $this->integrationManager = $integrationManager;
     }
 
     /**

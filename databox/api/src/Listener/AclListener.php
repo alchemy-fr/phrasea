@@ -19,15 +19,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AclListener implements EventSubscriberInterface
 {
-    private ESSearchIndexer $searchIndexer;
-    private ObjectMapping $objectMapping;
-    private EventProducer $eventProducer;
-
-    public function __construct(ESSearchIndexer $searchIndexer, ObjectMapping $objectMapping, EventProducer $eventProducer)
+    public function __construct(private readonly ESSearchIndexer $searchIndexer, private readonly ObjectMapping $objectMapping, private readonly EventProducer $eventProducer)
     {
-        $this->searchIndexer = $searchIndexer;
-        $this->objectMapping = $objectMapping;
-        $this->eventProducer = $eventProducer;
     }
 
     public function onAclUpsert(AclUpsertEvent $event): void

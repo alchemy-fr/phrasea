@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use InvalidArgumentException;
-
 class IntegrationRegistry
 {
     /**
@@ -26,7 +24,7 @@ class IntegrationRegistry
     public function getStrictIntegration(string $integration): IntegrationInterface
     {
         if (!isset($this->integrations[$integration])) {
-            throw new InvalidArgumentException(sprintf('Integration "%s" not found', $integration));
+            throw new \InvalidArgumentException(sprintf('Integration "%s" not found', $integration));
         }
 
         return $this->getIntegration($integration);

@@ -11,11 +11,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class ValidAttributeConstraintValidator extends ConstraintValidator
 {
-    private AttributeTypeRegistry $typeRegistry;
-
-    public function __construct(AttributeTypeRegistry $typeRegistry)
+    public function __construct(private readonly AttributeTypeRegistry $typeRegistry)
     {
-        $this->typeRegistry = $typeRegistry;
     }
 
     /**

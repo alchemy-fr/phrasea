@@ -28,7 +28,7 @@ class MapOptions extends AbstractOptions
      */
     private ?string $mapLayout = null;
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_filter([
             'lat' => $this->lat,

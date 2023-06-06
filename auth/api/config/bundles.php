@@ -13,7 +13,6 @@ return [
     OldSound\RabbitMqBundle\OldSoundRabbitMqBundle::class => ['all' => true],
     Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class => ['all' => true],
     Http\HttplugBundle\HttplugBundle::class => ['all' => true],
-    Snc\RedisBundle\SncRedisBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],

@@ -7,12 +7,10 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
+use Alchemy\Workflow\Consumer\JobConsumer;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
-use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Controller\Integration\PhraseanetIntegrationController;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -48,9 +46,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $apiClient = static::createClient();
         $apiClient->disableReboot();
 
-        /** @var EventProducerMock $eventProducer */
-        $eventProducer = self::getService(EventProducer::class);
-        $eventProducer->interceptEvents();
+        $eventProducer = self::getEventProducer(true);
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -104,15 +100,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationCollectionHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::EVENT, $eventMessage->getType());
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
         $transaction = $clientFactory->shiftHistory();

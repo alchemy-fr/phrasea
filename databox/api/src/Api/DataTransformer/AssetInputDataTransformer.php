@@ -7,8 +7,8 @@ namespace App\Api\DataTransformer;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
+use App\Asset\AssetManager;
 use App\Asset\OriginalRenditionManager;
-use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
@@ -23,17 +23,13 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
     use WithOwnerIdDataTransformerTrait;
     use AttributeInputTrait;
 
-    public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
-
-    private OriginalRenditionManager $originalRenditionManager;
-    private AttributeInputDataTransformer $attributeInputDataTransformer;
+    final public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
-        OriginalRenditionManager $originalRenditionManager,
-        AttributeInputDataTransformer $attributeInputDataTransformer
+        private readonly OriginalRenditionManager $originalRenditionManager,
+        private readonly AttributeInputDataTransformer $attributeInputDataTransformer,
+        private readonly AssetManager $assetManager,
     ) {
-        $this->originalRenditionManager = $originalRenditionManager;
-        $this->attributeInputDataTransformer = $attributeInputDataTransformer;
     }
 
     /**
@@ -111,12 +107,10 @@ class AssetInputDataTransformer extends AbstractFileInputDataTransformer
             if (null !== $object->getPendingUploadToken()) {
                 throw new BadRequestHttpException(sprintf('Asset "%s" has pending upload, cannot provide file', $object->getId()));
             }
-            $object->setSource($file);
 
             $this->renditionManager->resetAssetRenditions($object);
 
-            $this->originalRenditionManager->assignFileToOriginalRendition($object, $file);
-            $this->postFlushStackListener->addEvent(NewAssetIntegrationCollectionHandler::createEvent($object->getId()));
+            $this->assetManager->assignNewAssetSourceFile($object, $file);
         }
 
         if (!empty($data->renditions)) {

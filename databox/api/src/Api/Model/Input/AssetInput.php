@@ -43,6 +43,7 @@ class AssetInput extends AbstractOwnerIdInput
 
     /**
      * @var AssetSourceInput|null
+     *
      * @Assert\Valid()
      */
     public $sourceFile = null;
@@ -54,6 +55,7 @@ class AssetInput extends AbstractOwnerIdInput
 
     /**
      * @var AssetRelationshipInput|null
+     *
      * @Assert\Valid()
      */
     public $relationship = null;

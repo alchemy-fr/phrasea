@@ -3,6 +3,7 @@ import {assetShape} from "../../props/dataShape";
 import Description from "../shared-components/Description";
 import {PropTypes} from 'prop-types';
 import {Trans} from "react-i18next";
+import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 class DownloadAsset extends React.Component {
     static propTypes = {
@@ -19,7 +20,7 @@ class DownloadAsset extends React.Component {
         } = this.props.data;
 
         return <div className="media">
-            <img src={thumbUrl} alt={originalName}/>
+            <img src={thumbUrl || getThumbPlaceholder(mimeType)} alt={originalName}/>
             <div className="media-body">
                 <h5 className="mt-0">
                     {originalName} - {mimeType}

@@ -21,18 +21,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PopulatePassCrudController extends AbstractAdminCrudController
 {
-    private AdminUrlGenerator $adminUrlGenerator;
-    private EventProducer $eventProducer;
-
     public static function getEntityFqcn(): string
     {
         return PopulatePass::class;
     }
 
-    public function __construct(AdminUrlGenerator $adminUrlGenerator, EventProducer $eventProducer)
+    public function __construct(private readonly AdminUrlGenerator $adminUrlGenerator, private readonly EventProducer $eventProducer)
     {
-        $this->adminUrlGenerator = $adminUrlGenerator;
-        $this->eventProducer = $eventProducer;
     }
 
     public function configureActions(Actions $actions): Actions

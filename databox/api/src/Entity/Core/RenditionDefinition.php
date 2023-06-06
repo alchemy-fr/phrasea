@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity()
  * @ORM\Table(indexes={@ORM\Index(name="rend_def_ws_name", columns={"workspace_id", "name"})})
  */
-class RenditionDefinition extends AbstractUuidEntity
+class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -29,18 +29,21 @@ class RenditionDefinition extends AbstractUuidEntity
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionDefinitions")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"_"})
      */
     protected ?Workspace $workspace = null;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="string", length=80)
      */
     private ?string $name = null;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -48,61 +51,77 @@ class RenditionDefinition extends AbstractUuidEntity
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
      */
     private bool $download = true;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $pickSourceFile = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsOriginal = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsPreview = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsThumbnail = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="boolean")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private bool $useAsThumbnailActive = false;
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="text")
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private ?string $definition = '';
 
     /**
      * @Groups({"renddef:index", "renddef:read", "renddef:write"})
+     *
      * @ORM\Column(type="smallint", nullable=false)
+     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     private int $priority = 0;
 
     /**
      * @var AssetRendition[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="definition", cascade={"remove"})
      */
     protected ?DoctrineCollection $renditions = null;
@@ -194,7 +213,7 @@ class RenditionDefinition extends AbstractUuidEntity
         $this->priority = $priority;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName();
     }

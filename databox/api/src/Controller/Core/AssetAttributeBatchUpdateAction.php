@@ -14,11 +14,8 @@ final class AssetAttributeBatchUpdateAction extends AbstractController
 {
     use UserControllerTrait;
 
-    private BatchAttributeManager $batchAttributeManager;
-
-    public function __construct(BatchAttributeManager $batchAttributeManager)
+    public function __construct(private readonly BatchAttributeManager $batchAttributeManager)
     {
-        $this->batchAttributeManager = $batchAttributeManager;
     }
 
     public function __invoke(string $id, Asset $data, Request $request)

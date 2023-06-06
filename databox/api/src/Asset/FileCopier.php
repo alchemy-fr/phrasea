@@ -13,18 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FileCopier
 {
-    private EntityManagerInterface $em;
-    private FileStorageManager $storageManager;
-    private FilePathGenerator $pathGenerator;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        FileStorageManager $storageManager,
-        FilePathGenerator $pathGenerator
-    ) {
-        $this->em = $em;
-        $this->storageManager = $storageManager;
-        $this->pathGenerator = $pathGenerator;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $pathGenerator)
+    {
     }
 
     public function copyFile(File $file, Workspace $workspace): File

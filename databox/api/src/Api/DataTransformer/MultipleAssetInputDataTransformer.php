@@ -9,12 +9,8 @@ use App\Entity\Core\Asset;
 
 class MultipleAssetInputDataTransformer extends AbstractFileInputDataTransformer
 {
-    private AssetInputDataTransformer $assetInputDataTransformer;
-
-    public function __construct(
-        AssetInputDataTransformer $assetInputDataTransformer
-    ) {
-        $this->assetInputDataTransformer = $assetInputDataTransformer;
+    public function __construct(private readonly AssetInputDataTransformer $assetInputDataTransformer)
+    {
     }
 
     /**

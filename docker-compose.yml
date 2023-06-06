@@ -130,7 +130,7 @@ services:
 
   uploader-worker:
     profiles:
-      - uploader
+      - uploader-worker
     image: ${REGISTRY_NAMESPACE}uploader-worker:${DOCKER_TAG}
     build:
       context: ./uploader/api
@@ -198,13 +198,97 @@ services:
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
+  uploader-client:
+    image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
+    build:
+      context: ./uploader/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - uploader
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  expose-client:
+    image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
+    build:
+      context: ./expose/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - expose
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  databox-client:
+    image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
+    build:
+      context: ./databox/client
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - databox
+    networks:
+      - internal
+    volumes:
+      - ./configs:/configs
+    environment:
+      - DEV_MODE
+      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
+      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
+      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
+      - AUTO_CONNECT_IDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
   auth-worker:
     profiles:
-      - auth
-      - databox
-      - expose
-      - notify
-      - uploader
+      - auth-worker
     image: ${REGISTRY_NAMESPACE}auth-worker:${DOCKER_TAG}
     build:
       context: ./auth/api
@@ -387,7 +471,7 @@ services:
 
   expose-worker:
     profiles:
-      - expose
+      - expose-worker
     image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
     build:
       context: ./expose/api
@@ -509,7 +593,7 @@ services:
 
   notify-worker:
     profiles:
-      - notify
+      - notify-worker
     image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
     build:
       context: ./notify/api
@@ -799,7 +883,6 @@ services:
       - EXPOSE_API_PORT
       - EXPOSE_CLIENT_PORT
       - EXPOSE_STORAGE_BUCKET_NAME
-      - IDE_KEY
       - MAILER_DSN
       - MAILHOG_PORT
       - MATOMO_DATABASE_DBNAME
@@ -869,6 +952,7 @@ services:
       - TRUSTED_PROXIES=${PS_SUBNET}
       - VERIFY_SSL
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -905,6 +989,10 @@ services:
       - CLOUD_FRONT_KEY_PAIR_ID=${DATABOX_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${DATABOX_CLOUD_FRONT_TTL}
       - CLARIFAI_API_KEY
+      - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
+      - SECRETS_SECRET_KEY=not_provided
+      - PWI_PHRASEANET_BASE_URL=${PHRASEANET_BASE_URL}
+      - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
     depends_on:
       - rabbitmq
       - redis
@@ -920,7 +1008,7 @@ services:
 
   databox-worker:
     profiles:
-      - databox
+      - databox-worker
     image: ${REGISTRY_NAMESPACE}databox-worker:${DOCKER_TAG}
     build:
       context: ./databox/api
@@ -941,6 +1029,7 @@ services:
       - APP_ENV
       - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - RABBITMQ_HOST
@@ -972,6 +1061,10 @@ services:
       - CLOUD_FRONT_KEY_PAIR_ID=${DATABOX_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${DATABOX_CLOUD_FRONT_TTL}
       - CLARIFAI_API_KEY
+      - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
+      - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
+      - PWI_PHRASEANET_BASE_URL=${PHRASEANET_BASE_URL}
+      - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
     extra_hosts:
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

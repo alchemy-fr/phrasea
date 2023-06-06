@@ -10,13 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class FileDeleteHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'file_delete';
+    final public const EVENT = 'file_delete';
 
-    private FileStorageManager $storageManager;
-
-    public function __construct(FileStorageManager $storageManager)
+    public function __construct(private readonly FileStorageManager $storageManager)
     {
-        $this->storageManager = $storageManager;
     }
 
     public function handle(EventMessage $message): void

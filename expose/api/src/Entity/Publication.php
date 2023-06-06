@@ -67,7 +67,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *              "normalization_context"=Publication::API_LIST,
  *          },
  *         "post"={
- *             "security"="is_granted('publication:create')"
+ *             "security_post_denormalize"="is_granted('CREATE', object)"
  *         },
  *         "slug_availability"={
  *             "openapi_context"={
@@ -105,12 +105,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
  *                  "output"=false,
  *             },
  *         },
- *     },
- *     subresourceOperations={
- *         "api_publication_assets_get_subresource"={
- *             "method"="GET",
- *             "normalization_context"={"groups"={"foobar"}}
- *         }
  *     }
  * )
  */
@@ -164,19 +158,19 @@ class Publication implements AclObjectInterface
     private ?string $description = null;
 
     /**
-     * @var PublicationAsset[]|Collection
+     * @var Asset[]|Collection
      *
      * @ApiSubresource(maxDepth=1)
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationAsset",
+     *             "$ref"="#/definitions/Asset",
      *         }
      *     }
      * )
      * @Groups({"publication:read"})
      * @MaxDepth(1)
-     * @ORM\OneToMany(targetEntity="PublicationAsset", mappedBy="publication", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity=Asset::class, mappedBy="publication", cascade={"remove"})
      * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
     private Collection $assets;
@@ -242,7 +236,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private bool $authorized = false;
 
@@ -250,13 +244,13 @@ class Publication implements AclObjectInterface
      * Password identifier for the current publication branch.
      *
      * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private ?string $securityContainerId = null;
 
     /**
      * @ApiProperty()
-     * @Groups({"_", "publication:index"})
+     * @Groups({"_", "publication:index", "asset:read"})
      */
     private ?string $authorizationError = null;
 
@@ -338,7 +332,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ApiProperty(writable=false)
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "asset:read"})
      */
     private ?string $cssLink = null;
 
@@ -367,7 +361,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @return PublicationAsset[]
+     * @return Asset[]
      */
     public function getAssets(): Collection
     {
@@ -474,7 +468,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"publication:read"})
+     * @Groups({"publication:read", "asset:read"})
      */
     public function getTheme(): ?string
     {
@@ -482,7 +476,7 @@ class Publication implements AclObjectInterface
     }
 
     /**
-     * @Groups({"_", "publication:index", "publication:read"})
+     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     public function getSecurityMethod(): ?string
     {
@@ -503,18 +497,6 @@ class Publication implements AclObjectInterface
         }
 
         return [];
-    }
-
-    public function addAsset(Asset $asset): void
-    {
-        $asset->getPublications()->add($this);
-        $this->assets->add($asset);
-    }
-
-    public function removeAsset(Asset $asset): void
-    {
-        $asset->getPublications()->removeElement($this);
-        $this->assets->removeElement($asset);
     }
 
     public function getDescription(): ?string

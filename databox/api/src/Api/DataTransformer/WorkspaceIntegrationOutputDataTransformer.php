@@ -13,17 +13,11 @@ use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
-use InvalidArgumentException;
 
 class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private EntityManagerInterface $em;
-    private IntegrationManager $integrationManager;
-
-    public function __construct(EntityManagerInterface $em, IntegrationManager $integrationManager)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IntegrationManager $integrationManager)
     {
-        $this->em = $em;
-        $this->integrationManager = $integrationManager;
     }
 
     /**
@@ -40,7 +34,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         $output->setIntegration($object->getIntegration());
 
         $uri = $context['request_uri'];
-        $qs = parse_url($uri, PHP_URL_QUERY);
+        $qs = parse_url((string) $uri, PHP_URL_QUERY);
         $filters = Query::parse($qs);
 
         $file = null;
@@ -48,7 +42,7 @@ class WorkspaceIntegrationOutputDataTransformer extends AbstractSecurityDataTran
         if (null !== $fileId) {
             $file = $this->em->getRepository(File::class)->find($fileId);
             if (!$file instanceof File) {
-                throw new InvalidArgumentException(sprintf('File "%s" not found', $fileId));
+                throw new \InvalidArgumentException(sprintf('File "%s" not found', $fileId));
             }
         }
 

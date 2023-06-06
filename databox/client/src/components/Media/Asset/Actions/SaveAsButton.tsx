@@ -6,21 +6,25 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import MenuItem from '@mui/material/MenuItem';
+import MenuItem, {MenuItemProps} from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import SaveFileAsNewAssetDialog, {BaseSaveAsProps} from "./SaveFileAsNewAssetDialog";
 import {useModals} from "../../../../hooks/useModalStack";
 import ReplaceAssetWithFileDialog from "./ReplaceAssetWithFileDialog";
 import SaveFileAsRenditionDialog from "./SaveFileAsRenditionDialog";
 import {stopPropagation} from "../../../../lib/stdFuncs";
+import {FC, PropsWithChildren} from "react";
 
-type Props = {
+type Props = PropsWithChildren<{
     variant?: ButtonProps['variant'];
-} & BaseSaveAsProps;
+    Component?: FC<any>;
+}> & BaseSaveAsProps;
 
 export default function SaveAsButton({
     file,
     asset,
+    children,
+    Component = Button,
     variant = 'contained',
     ...saveAsProps
 }: Props) {
@@ -76,32 +80,27 @@ export default function SaveAsButton({
     };
 
     return <>
-        <ButtonGroup
-            variant={variant}
+        <Component
+            onClick={handleToggle}
+            onMouseDown={stopPropagation}
+            aria-controls={open ? 'split-button-menu' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-label="save"
+            aria-haspopup="menu"
+            endIcon={<ArrowDropDownIcon/>}
             ref={anchorRef}
         >
-            <Button
-                onClick={handleToggle}
-                onMouseDown={stopPropagation}
-                aria-controls={open ? 'split-button-menu' : undefined}
-                aria-expanded={open ? 'true' : undefined}
-                aria-label="save"
-                aria-haspopup="menu"
-                endIcon={<ArrowDropDownIcon/>}
-            >
-                Save
-            </Button>
-        </ButtonGroup>
+            {children ?? 'Save'}
+        </Component>
         <Popper
-            sx={{
-                zIndex: 1,
-            }}
+            sx={theme => ({
+                zIndex: theme.zIndex.tooltip,
+            })}
             open={open}
             anchorEl={anchorRef.current}
             placement={'bottom-start'}
             role={undefined}
             transition
-            disablePortal
         >
             {({TransitionProps, placement}) => (
                 <Grow

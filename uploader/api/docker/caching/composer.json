@@ -7,10 +7,6 @@
             "url": "https://github.com/4rthem/RabbitMqBundle.git"
         },
         {
-            "type": "git",
-            "url": "https://github.com/4rthem/psr-http-message-bridge.git"
-        },
-        {
             "type": "path",
             "url": "./__lib/admin-bundle",
             "options": {
@@ -77,7 +73,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4",
+        "php": "^8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/acl-bundle": "dev-main",
@@ -93,7 +89,7 @@
         "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",
-        "doctrine/common": "^2.8",
+        "doctrine/common": "^3",
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
@@ -104,7 +100,6 @@
         "nyholm/psr7": "^1.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
-        "ralouphie/mimey": "^2.1",
         "ramsey/uuid": "^4.2.3",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^5.1",
@@ -120,7 +115,7 @@
         "symfony/process": "^4.4",
         "symfony/property-access": "^4.4",
         "symfony/property-info": "^4.4",
-        "symfony/psr-http-message-bridge": "dev-https-support as 2.0.0",
+        "symfony/psr-http-message-bridge": "^2.1.4",
         "symfony/security-bundle": "^4.4",
         "symfony/serializer": "^4.4",
         "symfony/translation": "^4.4",
@@ -185,6 +180,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },
     "conflict": {

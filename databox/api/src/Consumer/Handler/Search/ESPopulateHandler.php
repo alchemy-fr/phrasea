@@ -15,14 +15,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class ESPopulateHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'es_populate';
-    private KernelInterface $kernel;
-    private EntityManagerInterface $em;
+    final public const EVENT = 'es_populate';
 
-    public function __construct(KernelInterface $kernel, EntityManagerInterface $em)
+    public function __construct(private readonly KernelInterface $kernel, private readonly EntityManagerInterface $em)
     {
-        $this->kernel = $kernel;
-        $this->em = $em;
     }
 
     public function handle(EventMessage $message): void

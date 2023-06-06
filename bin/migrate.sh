@@ -8,10 +8,10 @@ load-env
 
 set -ex
 
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to be ready
-docker-compose run --rm dockerize
+docker compose run --rm dockerize
 
 APPS="
 auth-api-php

@@ -12,18 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class FileManager
 {
-    private EntityManagerInterface $em;
-    private FileStorageManager $storageManager;
-    private FilePathGenerator $filePathGenerator;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        FileStorageManager $storageManager,
-        FilePathGenerator $filePathGenerator
-    ) {
-        $this->em = $em;
-        $this->storageManager = $storageManager;
-        $this->filePathGenerator = $filePathGenerator;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $filePathGenerator)
+    {
     }
 
     public function createFile(

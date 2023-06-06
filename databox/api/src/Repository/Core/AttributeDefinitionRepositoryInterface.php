@@ -9,8 +9,8 @@ use Doctrine\Persistence\ObjectRepository;
 
 interface AttributeDefinitionRepositoryInterface extends ObjectRepository
 {
-    const OPT_TYPES = 'types';
-    const OPT_FACET_ENABLED = 'facet_enabled';
+    public const OPT_TYPES = 'types';
+    public const OPT_FACET_ENABLED = 'facet_enabled';
 
     /**
      * @return AttributeDefinition[]

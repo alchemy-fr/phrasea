@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ChuckNorrisVoter extends AbstractVoter
 {
-    const ROLE = 'ROLE_CHUCK-NORRIS';
+    final public const ROLE = 'ROLE_CHUCK-NORRIS';
 
     protected function supports(string $attribute, $subject)
     {

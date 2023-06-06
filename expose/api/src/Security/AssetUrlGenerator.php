@@ -7,7 +7,6 @@ namespace App\Security;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Asset;
 use App\Entity\MediaInterface;
-use App\Entity\PublicationAsset;
 use App\Entity\SubDefinition;
 
 class AssetUrlGenerator
@@ -19,17 +18,11 @@ class AssetUrlGenerator
         $this->urlSigner = $urlSigner;
     }
 
-    /**
-     * @param PublicationAsset|Asset $publicationAsset
-     */
     public function generateAssetUrl(MediaInterface $media, bool $download = false): string
     {
         return $this->generateUrl($media->getPath(), $download);
     }
 
-    /**
-     * @param PublicationAsset|Asset $publicationAsset
-     */
     public function generateSubDefinitionUrl(SubDefinition $subDefinition, bool $download = false): string
     {
         return $this->generateUrl($subDefinition->getPath(), $download);

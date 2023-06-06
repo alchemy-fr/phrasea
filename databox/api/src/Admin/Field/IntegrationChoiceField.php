@@ -9,11 +9,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class IntegrationChoiceField
 {
-    private IntegrationRegistry $integrationRegistry;
-
-    public function __construct(IntegrationRegistry $integrationRegistry)
+    public function __construct(private readonly IntegrationRegistry $integrationRegistry)
     {
-        $this->integrationRegistry = $integrationRegistry;
     }
 
     public function create(string $propertyName, ?string $label = null)

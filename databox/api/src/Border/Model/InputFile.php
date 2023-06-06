@@ -6,17 +6,8 @@ namespace App\Border\Model;
 
 class InputFile
 {
-    private string $name;
-    private ?string $type;
-    private int $size;
-    private string $url;
-
-    public function __construct(string $name, ?string $type, int $size, string $url)
+    public function __construct(private readonly string $name, private readonly ?string $type, private readonly int $size, private readonly string $url)
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->size = $size;
-        $this->url = $url;
     }
 
     public function getName(): ?string

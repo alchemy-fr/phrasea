@@ -11,15 +11,11 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'aws_transcribe.event';
-    public const DATA_EVENT_MESSAGE = 'event_message';
-    private IntegrationDataManager $integrationDataManager;
-    private EventProducer $eventProducer;
+    final public const EVENT = 'aws_transcribe.event';
+    final public const DATA_EVENT_MESSAGE = 'event_message';
 
-    public function __construct(IntegrationDataManager $integrationDataManager, EventProducer $eventProducer)
+    public function __construct(private readonly IntegrationDataManager $integrationDataManager, private readonly EventProducer $eventProducer)
     {
-        $this->integrationDataManager = $integrationDataManager;
-        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void

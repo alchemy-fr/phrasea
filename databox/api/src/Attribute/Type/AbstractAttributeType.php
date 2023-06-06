@@ -19,7 +19,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
         try {
             return (string) $value;
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return null;
         }
     }

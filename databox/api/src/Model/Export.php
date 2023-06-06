@@ -16,12 +16,14 @@ class Export
 
     /**
      * @var string[]
+     *
      * @Groups("export:input")
      */
     public $assets;
 
     /**
      * @var string[]
+     *
      * @Groups("export:input")
      */
     public $renditions;

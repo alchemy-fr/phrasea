@@ -13,13 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class IntegrationHelpController extends AbstractController
 {
-    private IntegrationRegistry $integrationRegistry;
-    private IntegrationManager $integrationManager;
-
-    public function __construct(IntegrationRegistry $integrationRegistry, IntegrationManager $integrationManager)
+    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly IntegrationManager $integrationManager)
     {
-        $this->integrationRegistry = $integrationRegistry;
-        $this->integrationManager = $integrationManager;
     }
 
     /**
@@ -27,13 +22,11 @@ class IntegrationHelpController extends AbstractController
      */
     public function __invoke(): Response
     {
-        $integrations = array_map(function (IntegrationInterface $integration): array {
-            return [
-                'name' => $integration::getName(),
-                'title' => $integration::getTitle(),
-                'reference' => $this->integrationManager->getIntegrationReference($integration),
-            ];
-        }, $this->integrationRegistry->getIntegrations());
+        $integrations = array_map(fn (IntegrationInterface $integration): array => [
+            'name' => $integration::getName(),
+            'title' => $integration::getTitle(),
+            'reference' => $this->integrationManager->getIntegrationReference($integration),
+        ], $this->integrationRegistry->getIntegrations());
 
         return $this->render('admin/integration_help.html.twig', [
             'integrations' => $integrations,

@@ -27,11 +27,11 @@ class FailedEvent extends BaseFailedEvent
     /**
      * @ORM\Column(type="datetime")
      */
-    private ?DateTime $createdAt = null;
+    private ?\DateTime $createdAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): string
@@ -39,13 +39,13 @@ class FailedEvent extends BaseFailedEvent
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
     public function getPayloadAsJson(): string
     {
-        return json_encode($this->getPayload());
+        return json_encode($this->getPayload(), JSON_THROW_ON_ERROR);
     }
 }

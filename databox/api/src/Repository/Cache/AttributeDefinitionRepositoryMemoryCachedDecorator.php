@@ -15,14 +15,11 @@ class AttributeDefinitionRepositoryMemoryCachedDecorator extends EntityRepositor
 {
     use CacheDecoratorTrait;
 
-    public const LIST_TAG = 'attr_def_list';
+    final public const LIST_TAG = 'attr_def_list';
 
-    private TagAwareCacheInterface $cache;
-
-    public function __construct(ManagerRegistry $registry, AttributeDefinitionRepositoryInterface $decorated, TagAwareCacheInterface $memoryCache)
+    public function __construct(ManagerRegistry $registry, AttributeDefinitionRepositoryInterface $decorated, private readonly TagAwareCacheInterface $cache)
     {
         $this->decorated = $decorated;
-        $this->cache = $memoryCache;
 
         $manager = $registry->getManagerForClass(AttributeDefinition::class);
 

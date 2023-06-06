@@ -18,11 +18,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
 {
-    private UserChoiceField $userChoiceField;
-
-    public function __construct(UserChoiceField $userChoiceField)
+    public function __construct(private readonly UserChoiceField $userChoiceField)
     {
-        $this->userChoiceField = $userChoiceField;
     }
 
     public static function getEntityFqcn(): string

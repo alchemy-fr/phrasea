@@ -11,13 +11,22 @@ import AssetProxy from "../shared-components/AssetProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 import {Trans} from "react-i18next";
 import FullPageLoader from "../../FullPageLoader";
+import {logAssetView} from "../../../lib/log";
+import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 const CustomView = ({data, carouselProps, currentView}) => {
+    const isCurrent = currentView === data;
+
+    React.useEffect(() => {
+        if (isCurrent) {
+            logAssetView(data.id)
+        }
+    }, [isCurrent]);
 
     return <div className={'lb-asset-wrapper'}>
         <div className="asset">
             <AssetProxy
-                isCurrent={currentView === data}
+                isCurrent={isCurrent}
                 magnifier={true}
                 asset={data}
             />
@@ -50,6 +59,18 @@ class GridLayout extends React.Component {
         currentAsset: null,
         showVideo: {},
     };
+
+    static getDerivedStateFromProps(props, state = {}) {
+        if (props.assetId && !state.currentAssetAutoSet) {
+            return {
+                ...state,
+                currentAsset: props.data.assets.findIndex(a => a.id === props.assetId),
+                currentAssetAutoSet: true,
+            };
+        }
+
+        return state;
+    }
 
     componentDidMount() {
         this.loadThumbs();
@@ -96,7 +117,7 @@ class GridLayout extends React.Component {
         const {currentAsset} = this.state;
 
         const images = this.props.data.assets.map(a => ({
-            ...a.asset,
+            ...a,
             downloadEnabled,
         }));
 
@@ -105,17 +126,13 @@ class GridLayout extends React.Component {
                 enableLightbox={false}
                 enableImageSelection={false}
                 onClickThumbnail={this.openAsset}
-                images={this.props.data.assets.map(a => {
-                    const {asset} = a;
-
-                    return {
-                        src: asset.previewUrl,
-                        thumbnail: asset.thumbUrl,
-                        thumbnailWidth: asset.thumbWidth,
-                        thumbnailHeight: asset.thumbHeight,
-                        caption: asset.title,
-                    };
-                })}/>
+                images={this.props.data.assets.map(a => ({
+                    src: a.previewUrl,
+                    thumbnail: a.thumbUrl || getThumbPlaceholder(a.mimeType),
+                    thumbnailWidth: a.thumbWidth,
+                    thumbnailHeight: a.thumbHeight,
+                    caption: a.title,
+                }))}/>
             <ModalGateway>
                 {null !== currentAsset ? (
                     <Modal
@@ -157,24 +174,21 @@ class GridLayout extends React.Component {
 
     async loadThumbs() {
         await Promise.all(this.props.data.assets.map(a => {
-            const {asset} = a;
-
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
-                    asset.thumbWidth = img.width;
-                    asset.thumbHeight = img.height;
+                    a.thumbWidth = img.width;
+                    a.thumbHeight = img.height;
                     resolve();
                 };
                 img.onerror = e => {
                     console.error(e);
-                    asset.thumbUrl = squareImg;
-                    asset.previewUrl = squareImg;
-                    asset.thumbWidth = 100;
-                    asset.thumbHeight = 100;
+                    a.thumbUrl = squareImg;
+                    a.thumbWidth = 100;
+                    a.thumbHeight = 100;
                     resolve();
                 };
-                img.src = asset.thumbUrl;
+                img.src = a.thumbUrl || getThumbPlaceholder(a.mimeType);
             });
         }));
 

@@ -10,13 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class TranscribeJobStatusChangedHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'aws_transcribe.job_status_changed';
-    private IntegrationManager $integrationManager;
+    final public const EVENT = 'aws_transcribe.job_status_changed';
 
-    public function __construct(
-        IntegrationManager $integrationManager
-    ) {
-        $this->integrationManager = $integrationManager;
+    public function __construct(private readonly IntegrationManager $integrationManager)
+    {
     }
 
     public function handle(EventMessage $message): void

@@ -10,12 +10,12 @@ use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractVoter extends Voter
 {
-    const CREATE = 'CREATE';
-    const LIST = 'LIST';
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
-    const EDIT_PERMISSIONS = 'EDIT_PERMISSIONS';
+    final public const CREATE = 'CREATE';
+    final public const LIST = 'LIST';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
+    final public const EDIT_PERMISSIONS = 'EDIT_PERMISSIONS';
 
     protected EntityManagerInterface $em;
     protected Security $security;

@@ -32,6 +32,7 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('MultipartUpload')
             ->setEntityLabelInPlural('MultipartUpload')
+            ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['id', 'filename', 'type', 'sizeAsString', 'uploadId', 'path']);
     }
 

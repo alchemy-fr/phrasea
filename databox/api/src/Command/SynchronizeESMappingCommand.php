@@ -7,7 +7,6 @@ namespace App\Command;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,15 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SynchronizeESMappingCommand extends Command
 {
-    private IndexMappingUpdater $indexMappingUpdater;
-    private EntityManagerInterface $em;
-
-    public function __construct(IndexMappingUpdater $indexMappingUpdater, EntityManagerInterface $em)
+    public function __construct(private readonly IndexMappingUpdater $indexMappingUpdater, private readonly EntityManagerInterface $em)
     {
         parent::__construct();
-
-        $this->indexMappingUpdater = $indexMappingUpdater;
-        $this->em = $em;
     }
 
     /**
@@ -49,7 +42,7 @@ class SynchronizeESMappingCommand extends Command
         $workspace = $this->em->find(Workspace::class, $workspaceId);
 
         if (!$workspace instanceof Workspace) {
-            throw new InvalidArgumentException('Workspace '.$workspaceId.' not found');
+            throw new \InvalidArgumentException('Workspace '.$workspaceId.' not found');
         }
 
         $this->indexMappingUpdater->synchronizeWorkspace($workspace);

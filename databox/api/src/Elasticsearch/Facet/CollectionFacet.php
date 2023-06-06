@@ -13,13 +13,8 @@ use Symfony\Component\Security\Core\Security;
 
 final class CollectionFacet extends AbstractFacet
 {
-    private EntityManagerInterface $em;
-    private Security $security;
-
-    public function __construct(EntityManagerInterface $em, Security $security)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Security $security)
     {
-        $this->em = $em;
-        $this->security = $security;
     }
 
     public function normalizeBucket(array $bucket): ?array
@@ -94,9 +89,7 @@ final class CollectionFacet extends AbstractFacet
         array_shift($ids);
 
         /** @var Collection[] $collections */
-        $collections = array_filter(array_map(function (string $id): ?Collection {
-            return $this->em->find(Collection::class, $id);
-        }, $ids));
+        $collections = array_filter(array_map(fn (string $id): ?Collection => $this->em->find(Collection::class, $id), $ids));
 
         if (empty($collections) || count($collections) < count($ids)) {
             return null;
@@ -106,8 +99,6 @@ final class CollectionFacet extends AbstractFacet
             return null;
         }
 
-        return implode(' / ', array_map(function (Collection $c): ?string {
-            return $c->getTitle() ?? $c->getId();
-        }, $collections));
+        return implode(' / ', array_map(fn (Collection $c): ?string => $c->getTitle() ?? $c->getId(), $collections));
     }
 }

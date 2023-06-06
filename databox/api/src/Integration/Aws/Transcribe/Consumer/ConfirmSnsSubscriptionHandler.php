@@ -10,12 +10,10 @@ use GuzzleHttp\Client;
 
 class ConfirmSnsSubscriptionHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'aws_transcribe.confirm_sns_subscription';
-    private Client $integrationClient;
+    final public const EVENT = 'aws_transcribe.confirm_sns_subscription';
 
-    public function __construct(Client $integrationClient)
+    public function __construct(private readonly Client $integrationClient)
     {
-        $this->integrationClient = $integrationClient;
     }
 
     public function handle(EventMessage $message): void

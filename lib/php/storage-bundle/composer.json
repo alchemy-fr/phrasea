@@ -6,7 +6,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.4",
+    "php": "^7.4 || ^8.0",
     "aws/aws-sdk-php": "^3.20",
     "ramsey/uuid": "^4.2.3",
     "oneup/flysystem-bundle": "^3.1",

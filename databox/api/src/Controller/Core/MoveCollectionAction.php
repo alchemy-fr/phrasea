@@ -13,11 +13,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class MoveCollectionAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function __invoke(Collection $data, string $dest, Request $request): Collection

@@ -7,10 +7,8 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
+use Alchemy\Workflow\Consumer\JobConsumer;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\Asset\NewAssetIntegrationCollectionHandler;
-use App\Consumer\Handler\Asset\NewAssetIntegrationHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsHandler;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;
@@ -100,15 +98,8 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationCollectionHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(NewAssetIntegrationHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(PhraseanetGenerateAssetRenditionsHandler::EVENT, $eventMessage->getType());
+        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
         $transaction = $clientFactory->shiftHistory();

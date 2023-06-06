@@ -35,11 +35,8 @@ class DeferredIndexListener implements EventSubscriber
      */
     private array $scheduledForDeletion = [];
 
-    private ESSearchIndexer $searchIndexer;
-
-    public function __construct(ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly ESSearchIndexer $searchIndexer)
     {
-        $this->searchIndexer = $searchIndexer;
     }
 
     public function scheduleForUpdate(object $entity): void
@@ -56,7 +53,7 @@ class DeferredIndexListener implements EventSubscriber
     {
         return $entity instanceof SearchDependencyInterface
             || $entity instanceof SearchableEntityInterface
-            || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass(get_class($entity)));
+            || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass($entity::class));
     }
 
     /**
@@ -161,7 +158,7 @@ class DeferredIndexListener implements EventSubscriber
 
     private function scheduleForDeletion(object $entity): void
     {
-        $class = ClassUtils::getRealClass(get_class($entity));
+        $class = ClassUtils::getRealClass($entity::class);
         if (!isset($this->scheduledForDeletion[$class])) {
             $this->scheduledForDeletion[$class] = [];
         }

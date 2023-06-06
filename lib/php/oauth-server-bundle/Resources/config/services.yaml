@@ -16,4 +16,3 @@ services:
       - { name: console.command }
 
   Alchemy\OAuthServerBundle\Controller\OAuthClientCrudController:
-

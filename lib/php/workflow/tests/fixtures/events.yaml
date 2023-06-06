@@ -1,0 +1,27 @@
+name: Events
+
+on:
+  copy:
+    inputs:
+      source:
+        required: true
+        type: string
+      target:
+        required: true
+        type: string
+
+  touch:
+    inputs:
+      path:
+        required: true
+        type: string
+
+  echo:
+    inputs:
+      text:
+        required: false
+        type: string
+
+  empty:
+
+jobs:

@@ -13,11 +13,8 @@ class TemplateAttributeInputDataTransformer extends AbstractInputDataTransformer
 {
     use AttributeInputTrait;
 
-    private AttributeAssigner $attributeAssigner;
-
-    public function __construct(AttributeAssigner $attributeAssigner)
+    public function __construct(private readonly AttributeAssigner $attributeAssigner)
     {
-        $this->attributeAssigner = $attributeAssigner;
     }
 
     /**

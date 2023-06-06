@@ -13,11 +13,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class IncomingUploadDataPersister implements DataPersisterInterface
 {
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function supports($data): bool

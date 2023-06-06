@@ -6,6 +6,7 @@ import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 import CollectionDialog from "./components/Dialog/Collection/CollectionDialog";
 import AssetDialog from "./components/Dialog/Asset/AssetDialog";
 import AssetView from "./components/Media/Asset/AssetView";
+import WorkflowView from "./components/Workflow/WorkflowView";
 
 export type RouteDefinition = {
     name: string;
@@ -16,7 +17,7 @@ export type RouteDefinition = {
     public?: boolean;
 }
 
-export const appPathPrefix = '/app';
+export const appPathPrefix = '/';
 
 export const modalRoutes = [
     {
@@ -41,6 +42,12 @@ export const modalRoutes = [
         name: 'asset_view',
         path: '/assets/:assetId/:renditionId',
         component: AssetView,
+        public: false,
+    },
+    {
+        name: 'workflow_view',
+        path: '/workflows/:id',
+        component: WorkflowView,
         public: false,
     },
 ];

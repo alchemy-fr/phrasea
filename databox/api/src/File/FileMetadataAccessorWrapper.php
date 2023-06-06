@@ -13,14 +13,11 @@ use Twig\Error\SyntaxError;
  */
 class FileMetadataAccessorWrapper
 {
-    private ?File $file;
-
     /** @var false|array|null */
     private $meta = false;      // false = initially unknown
 
-    public function __construct(?File $file)
+    public function __construct(private readonly ?File $file)
     {
-        $this->file = $file;
     }
 
     /**
@@ -58,7 +55,7 @@ class FileMetadataAccessorWrapper
 
         // no file or no metadata ? be nice also
         $r = MetadataNormalizer::createBlankMeta();
-        $this->meta[$id]['value'] = null;
+        $this->meta[$id] = $r;
 
         return $r;
     }

@@ -7,8 +7,8 @@ namespace App\Integration\ToastUi;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
+use App\Integration\FileActionsIntegrationInterface;
 use App\Util\FileUtil;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 $data = $this->integrationDataManager->storeData(
                     $wsIntegration,
                     $file,
-                    self::DATA_FILE_ID,
+                    FileActionsIntegrationInterface::DATA_FILE_ID,
                     $newFile->getId(),
                     $request->request->get('name', self::getName()),
                     true
@@ -47,7 +47,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
 
                 return new JsonResponse();
             default:
-                throw new InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
+                throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
     }
 

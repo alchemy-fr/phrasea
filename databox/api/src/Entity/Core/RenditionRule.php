@@ -23,6 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\Core\RenditionRuleRepository")
+ *
  * @ApiFilter(SearchFilter::class, properties={"allowed"="exact", "userType"="exact", "userId"="exact", "objectType"="exact", "objectId"="exact"})
  */
 class RenditionRule extends AbstractUuidEntity
@@ -30,12 +31,12 @@ class RenditionRule extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    const TYPE_USER = 0;
-    const TYPE_GROUP = 1;
-    const TYPE_WORKSPACE = 0;
-    const TYPE_COLLECTION = 1;
+    final public const TYPE_USER = 0;
+    final public const TYPE_GROUP = 1;
+    final public const TYPE_WORKSPACE = 0;
+    final public const TYPE_COLLECTION = 1;
 
-    const OBJECT_CLASSES = [
+    final public const OBJECT_CLASSES = [
         self::TYPE_WORKSPACE => Workspace::class,
         self::TYPE_COLLECTION => Collection::class,
     ];
@@ -62,6 +63,7 @@ class RenditionRule extends AbstractUuidEntity
 
     /**
      * @var RenditionClass[]|Collection
+     *
      * @ORM\ManyToMany(targetEntity="RenditionClass")
      * @ORM\JoinTable(name="sdr_allowed")
      */

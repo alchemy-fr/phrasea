@@ -45,12 +45,11 @@ class ReportUserService
     {
         $token = $this->security->getToken();
 
-        switch (true) {
-            case $token instanceof RemoteAuthToken:
-            case $token instanceof PostAuthenticationGuardToken:
-                return $token->getUser()->getId();
-        }
+        return match (true) {
+            $token instanceof RemoteAuthToken,
+            $token instanceof PostAuthenticationGuardToken => $token->getUser()->getId(),
+            default => null,
+        };
 
-        return null;
     }
 }

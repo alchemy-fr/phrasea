@@ -11,11 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionVoter extends AbstractVoter
 {
-    private RenditionPermissionManager $renditionPermissionManager;
-
-    public function __construct(RenditionPermissionManager $renditionPermissionManager)
+    public function __construct(private readonly RenditionPermissionManager $renditionPermissionManager)
     {
-        $this->renditionPermissionManager = $renditionPermissionManager;
     }
 
     protected function supports(string $attribute, $subject)
@@ -36,20 +33,15 @@ class RenditionVoter extends AbstractVoter
             $groupIds = $user->getGroupIds();
         }
 
-        switch ($attribute) {
-            case self::READ:
-                return $this->renditionPermissionManager->isGranted(
-                    $subject->getAsset(),
-                    $subject->getDefinition()->getClass(),
-                    $userId,
-                    $groupIds
-                );
-            case self::CREATE:
-            case self::EDIT:
-            case self::DELETE:
-                return $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset());
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $this->renditionPermissionManager->isGranted(
+                $subject->getAsset(),
+                $subject->getDefinition()->getClass(),
+                $userId,
+                $groupIds
+            ),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_RENDITIONS, $subject->getAsset()),
+            default => false,
+        };
     }
 }

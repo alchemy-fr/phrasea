@@ -11,9 +11,8 @@ class AssetDeleteTest extends AbstractExposeTestCase
 {
     public function testDeleteAssetOK(): void
     {
-        $id = $this->createPublication();
-        $assetId = $this->createAsset([
-            'publication_id' => $id,
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication, [
             'persist_file' => true,
         ]);
 
@@ -29,32 +28,10 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertAssetFileDoesNotExist($path);
     }
 
-    public function testDeleteAssetWithOwnerOK(): void
-    {
-        $id = $this->createPublication();
-        $assetId = $this->createAsset([
-            'publication_id' => $id,
-            'ownerId' => AuthServiceClientTestMock::USER_UID,
-            'persist_file' => true,
-        ]);
-
-        $asset = $this->assertAssetExist($assetId, true);
-        $path = $asset->getPath();
-        $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
-            'DELETE',
-            '/assets/'.$assetId
-        );
-        $this->assertEquals(204, $response->getStatusCode());
-        $this->assertNotAssetExist($assetId);
-        $this->assertAssetFileDoesNotExist($path);
-    }
-
     public function testDeleteAssetWithAnotherUserWillReturn403(): void
     {
-        $id = $this->createPublication();
-        $assetId = $this->createAsset([
-            'publication_id' => $id,
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication, [
             'ownerId' => '42',
             'persist_file' => true,
         ]);
@@ -73,10 +50,8 @@ class AssetDeleteTest extends AbstractExposeTestCase
 
     public function testDeleteAssetWithSubDefinitionsOK(): void
     {
-        $id = $this->createPublication();
-        $assetId = $this->createAsset([
-            'publication_id' => $id,
-        ]);
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication);
         $subDef1Id = $this->createSubDefinition($assetId, [
             'name' => 'thumb',
         ]);
@@ -114,20 +89,17 @@ class AssetDeleteTest extends AbstractExposeTestCase
 
     public function testDeleteAssetByAssetId(): void
     {
-        $id = $this->createPublication();
+        $publication = $this->createPublication();
         $deletedIds = [];
         $notDeletedIds = [];
 
-        $deletedIds[] = $this->createAsset([
-            'publication_id' => $id,
+        $deletedIds[] = $this->createAsset($publication, [
             'asset_id' => 'foo',
         ]);
-        $deletedIds[] = $this->createAsset([
-            'publication_id' => $id,
+        $deletedIds[] = $this->createAsset($publication, [
             'asset_id' => 'foo',
         ]);
-        $notDeletedIds[] = $this->createAsset([
-            'publication_id' => $id,
+        $notDeletedIds[] = $this->createAsset($publication, [
             'asset_id' => 'bar',
         ]);
 

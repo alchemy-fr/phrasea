@@ -1,0 +1,51 @@
+name: Echo something complex
+
+env:
+  WF_OUTRO: 'outro'
+
+jobs:
+  intro:
+    steps:
+      - run: |
+          echo "intro"
+
+  content:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content"
+
+  content_bis:
+    needs:
+      - intro
+    steps:
+      - id: first
+        run: |
+          echo "content_bis"
+    outputs:
+      foo: bar
+      duration: ${{ steps.first.duration }}
+
+  outro:
+    needs:
+      - content
+      - content_bis
+    steps:
+      - executor: php
+        run: |
+          echo "${{ inputs.var }}".str_repeat('${{ inputs.baz }}', ${{ inputs.n }});
+        with:
+          baz: ${{ jobs.content_bis.outputs.foo }}
+          n: 2
+    with:
+      n: 3
+      var: ${{ env.WF_OUTRO }}
+
+  never-called:
+    if: env.WF_TEST != 'off'
+    steps:
+      - name: Dummy run
+        executor: bash
+        run: |
+          exit 1

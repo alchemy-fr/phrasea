@@ -4,44 +4,29 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
+use Alchemy\Workflow\Model\Workflow;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
-use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\File;
-use App\Integration\ApiBudgetLimiter;
-use App\Integration\AssetOperationIntegrationInterface;
 use App\Integration\Aws\AbstractAwsIntegration;
-use App\Storage\S3Copier;
+use App\Integration\WorkflowHelper;
+use App\Integration\WorkflowIntegrationInterface;
 use App\Util\FileUtil;
 use App\Util\LocaleUtils;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOperationIntegrationInterface
+class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
     private const VERSION = '1.0';
-    public const SNS_PREFIX = 'databox:integration:transcribe:';
-
-    private AwsTranscribeClient $client;
-    private ApiBudgetLimiter $apiBudgetLimiter;
-    private S3Copier $s3Copier;
-    private BatchAttributeManager $batchAttributeManager;
-    private UriDownloader $fileDownloader;
+    final public const SNS_PREFIX = 'databox:integration:transcribe:';
 
     public function __construct(
-        AwsTranscribeClient $client,
-        S3Copier $s3Copier,
-        ApiBudgetLimiter $apiBudgetLimiter,
-        BatchAttributeManager $batchAttributeManager,
-        UriDownloader $fileDownloader
+        private readonly AwsTranscribeClient $client,
+        private readonly BatchAttributeManager $batchAttributeManager,
+        private readonly UriDownloader $fileDownloader
     ) {
-        $this->client = $client;
-        $this->apiBudgetLimiter = $apiBudgetLimiter;
-        $this->batchAttributeManager = $batchAttributeManager;
-        $this->s3Copier = $s3Copier;
-        $this->fileDownloader = $fileDownloader;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -94,28 +79,12 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
         ];
     }
 
-    public function handleAsset(Asset $asset, array $config): void
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
-        $this->transcribe($asset, $asset->getSource(), $config);
-    }
-
-    private function transcribe(Asset $asset, File $file, array $config): void
-    {
-        if ($this->supportFile($file)) {
-            $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
-
-            $key = sprintf('workload/%s-%s%s', $file->getId(), uniqid(), $file->getExtensionWithDot());
-
-            $this->s3Copier->copyToS3($file, $config['workloadS3Bucket'], $key, [
-                'region' => $config['region'],
-                'accessKeyId' => $config['accessKeyId'],
-                'accessKeySecret' => $config['accessKeySecret'],
-            ]);
-
-            $s3Uri = sprintf('s3://%s/%s', $config['workloadS3Bucket'], $key);
-
-            $this->client->extractTextFromAudio($asset->getId(), $file->getId(), $s3Uri, $file->getType(), $config);
-        }
+        yield WorkflowHelper::createIntegrationJob(
+            $config,
+            TranscribeAction::class,
+        );
     }
 
     public function handlePostComplete(array $config, array $args): void
@@ -179,7 +148,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
             $config['workspaceId'],
             [$assetId],
             $input,
-        null
+            null
         );
     }
 
@@ -195,21 +164,6 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements AssetOp
         $i->locale = $locale;
 
         return $i;
-    }
-
-    public function supportsAsset(Asset $asset, array $config): bool
-    {
-        return $asset->getSource() && $this->supportFile($asset->getSource());
-    }
-
-    private function supportFile(File $file): bool
-    {
-        return FileUtil::isVideoType($file->getType());
-    }
-
-    public function supportsFileActions(File $file, array $config): bool
-    {
-        return $this->supportFile($file);
     }
 
     public function getMessageId(string $fileId): string

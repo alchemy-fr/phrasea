@@ -11,11 +11,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class UniqueAttributeConstraintValidator extends ConstraintValidator
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     /**

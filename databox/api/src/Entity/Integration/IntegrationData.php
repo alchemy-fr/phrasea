@@ -34,18 +34,21 @@ class IntegrationData extends AbstractUuidEntity
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
+     *
      * @Groups({"integrationdata:index"})
      */
     private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     *
      * @Groups({"integrationdata:index"})
      */
     private ?string $keyId = null;
 
     /**
      * @ORM\Column(type="text", nullable=false)
+     *
      * @Groups({"integrationdata:index"})
      */
     private $value = null;

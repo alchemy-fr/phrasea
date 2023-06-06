@@ -14,7 +14,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
-use Mimey\MimeTypes;
+use Symfony\Component\Mime\MimeTypes;
 
 class DownloadHandler extends AbstractEntityManagerHandler
 {
@@ -64,7 +64,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $extension = !empty($extension) ? $extension : null;
         if (!$extension && 'application/octet-stream' !== $contentType) {
             $mimes = new MimeTypes();
-            $extension = $mimes->getExtension($contentType);
+            $extension = $mimes->getExtensions($contentType)[0];
             $originalName .= '.'.$extension;
         }
 

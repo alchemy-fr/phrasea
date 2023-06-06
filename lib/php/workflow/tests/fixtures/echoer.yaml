@@ -1,0 +1,40 @@
+name: Echo something
+
+jobs:
+  intro:
+    steps:
+      - run: |
+          echo "intro"
+
+  content:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content"
+
+  content_bis:
+    needs:
+      - intro
+    steps:
+      - run: |
+          echo "content_bis"
+    with:
+      foo: bar
+
+  outro:
+    needs:
+      - content
+      - content_bis
+    steps:
+      - executor: php
+        run: |
+          echo "outro".str_repeat('!', 2);
+
+  never-called:
+    if: env.WF_TEST == "bar"
+    steps:
+      - name: Dummy run
+        executor: bash
+        run: |
+          exit 1

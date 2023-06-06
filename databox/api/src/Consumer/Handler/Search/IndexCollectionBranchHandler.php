@@ -11,13 +11,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'index_collection_branch';
+    final public const EVENT = 'index_collection_branch';
 
-    private ESSearchIndexer $searchIndexer;
-
-    public function __construct(ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly ESSearchIndexer $searchIndexer)
     {
-        $this->searchIndexer = $searchIndexer;
     }
 
     public function handle(EventMessage $message): void

@@ -14,6 +14,7 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {useModals} from "../../../hooks/useModalStack";
 import SaveAsButton from "./Actions/SaveAsButton";
 import {useNavigateToModal} from "../../Routing/ModalLink";
+import SaveIcon from '@mui/icons-material/Save';
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -122,10 +123,16 @@ export default function AssetContextMenu({
                 <ListItemText primary="Open"/>
             </MenuItem>}
             {asset.source && <SaveAsButton
+                Component={MenuItem}
                 asset={asset}
                 file={asset.source}
                 variant={'text'}
-            />}
+            >
+                <ListItemIcon>
+                    <SaveIcon/>
+                </ListItemIcon>
+                <ListItemText primary={'Save as'} />
+            </SaveAsButton>}
             {original?.file?.alternateUrls && original.file.alternateUrls.map(a => <MenuItem
                 key={a.type}
                 onClick={() => openUrl(a.url)}

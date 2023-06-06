@@ -3,6 +3,10 @@ import {useTranslation} from 'react-i18next';
 import '../locales/i18n';
 import {baseUrl} from "../lib/location";
 
+export type PhraseaWindow = {
+    isPhraseaApp?: boolean
+} & Window;
+
 type Provider = {
     name: string,
     title: string,
@@ -29,10 +33,15 @@ export default function IdentityProviders({
                                           }: Props) {
     const {t} = useTranslation();
 
+    React.useEffect(() => {
+        (window as PhraseaWindow).isPhraseaApp = true;
+    }, []);
+
+    const isInIframe = inIframe();
+
     const redirectUriGenerator = useMemo(() => typeof redirectUri === 'function'
         ? redirectUri
         : (provider: Provider) => `${redirectUri || `${baseUrl}/auth`}/${provider.name}`, [redirectUri, baseUrl]);
-
 
     return <div className={'identity-providers'} style={{
         display: 'flex',
@@ -54,7 +63,10 @@ export default function IdentityProviders({
             >
                 <a
                     className={'btn btn-light'}
-                    href={authorizeUrl}
+                    href={isInIframe ? '#' : authorizeUrl}
+                    onClick={isInIframe ? () => {
+                        window.open(authorizeUrl, 'auth',`width=500,height=600`);
+                    } : undefined}
                     title={provider.title}
                 >
                     {provider.logoUrl && <div style={{
@@ -77,4 +89,12 @@ export default function IdentityProviders({
             </div>
         })}
     </div>
+}
+
+function inIframe () {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }

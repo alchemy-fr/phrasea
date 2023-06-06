@@ -1,5 +1,6 @@
 import {ApiHydraObjectResponse} from "./api/hydra";
 import {AttributeType} from "./api/attributes";
+import {VisualWorkflow} from "@alchemy/visual-workflow";
 
 type AlternateUrl = {
     type: string;

@@ -14,7 +14,14 @@ function RouteProxy({
     const {user} = useContext(UserContext);
 
     if (!isPublic && !user) {
-        return <Navigate to={getPath('login')}/>
+        const currentPath = getCurrentPath();
+
+        return <Navigate
+            to={getPath('login')}
+            state={{
+                from: currentPath,
+            }}
+        />
     }
 
     return <Component/>
@@ -60,3 +67,7 @@ export default function createRoute(
         />}
     />
 };
+
+function getCurrentPath(): string {
+    return window.location.href.replace(window.location.origin, '');
+}

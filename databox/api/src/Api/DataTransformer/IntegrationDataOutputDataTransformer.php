@@ -10,11 +10,8 @@ use App\Integration\IntegrationDataTransformer;
 
 class IntegrationDataOutputDataTransformer extends AbstractSecurityDataTransformer
 {
-    private IntegrationDataTransformer $transformer;
-
-    public function __construct(IntegrationDataTransformer $transformer)
+    public function __construct(private readonly IntegrationDataTransformer $transformer)
     {
-        $this->transformer = $transformer;
     }
 
     /**

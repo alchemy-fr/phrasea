@@ -6,27 +6,19 @@ namespace App\Elasticsearch\Listener;
 
 use App\Elasticsearch\Mapping\IndexSyncState;
 use App\Entity\Admin\PopulatePass;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Persister\Event\OnExceptionEvent;
 use FOS\ElasticaBundle\Persister\Event\PostInsertObjectsEvent;
-use RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PopulatePassListener implements EventSubscriberInterface
 {
     private array $pendingPasses = [];
-    private EntityManagerInterface $em;
-    private IndexSyncState $indexSyncState;
 
-    public function __construct(
-        EntityManagerInterface $em,
-        IndexSyncState $indexSyncState
-    ) {
-        $this->em = $em;
-        $this->indexSyncState = $indexSyncState;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexSyncState $indexSyncState)
+    {
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void
@@ -38,7 +30,7 @@ class PopulatePassListener implements EventSubscriberInterface
             'indexName' => $indexName,
         ]);
         if (null !== $currentPopulate) {
-            throw new RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
+            throw new \RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
         }
 
         $populatePass = new PopulatePass();
@@ -67,7 +59,7 @@ class PopulatePassListener implements EventSubscriberInterface
         $indexName = $event->getIndex();
         $populatePass = $this->getPass($indexName);
         $populatePass->setProgress($populatePass->getDocumentCount());
-        $populatePass->setEndedAt(new DateTimeImmutable());
+        $populatePass->setEndedAt(new \DateTimeImmutable());
         $this->em->persist($populatePass);
 
         $this->indexSyncState->snapshotStateMapping($indexName);
@@ -89,7 +81,7 @@ class PopulatePassListener implements EventSubscriberInterface
         $indexName = $event->getOptions()['indexName'];
         $populatePass = $this->getPass($indexName);
         $populatePass->setError(substr($event->getException()->getMessage(), 0, 255));
-        $populatePass->setEndedAt(new DateTimeImmutable());
+        $populatePass->setEndedAt(new \DateTimeImmutable());
         $this->em->persist($populatePass);
         $this->em->flush();
     }
@@ -100,7 +92,7 @@ class PopulatePassListener implements EventSubscriberInterface
         $populatePass = $this->em->find(PopulatePass::class, $this->pendingPasses[$indexName]);
         if (null === $populatePass) {
             // Pass has been deleted/cancelled
-            throw new RuntimeException('Populate cancelled');
+            throw new \RuntimeException('Populate cancelled');
         }
 
         return $populatePass;

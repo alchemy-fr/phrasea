@@ -9,18 +9,16 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Entity\PublicationAsset;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
-use InvalidArgumentException;
 
 abstract class AbstractExposeTestCase extends ApiTestCase
 {
     use ReloadDatabaseTrait;
 
-    protected function createPublication(array $options = []): string
+    protected function createPublication(array $options = []): Publication
     {
         $em = self::getEntityManager();
 
@@ -32,23 +30,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
             $em->flush();
         }
 
-        return $publication->getId();
-    }
-
-    protected function addAssetToPublication(string $publicationId, string $assetId, array $options = []): string
-    {
-        $em = self::getEntityManager();
-
-        $publicationAsset = new PublicationAsset();
-        $publicationAsset->setPublication($em->getReference(Publication::class, $publicationId));
-        $publicationAsset->setAsset($em->getReference(Asset::class, $assetId));
-
-        $em->persist($publicationAsset);
-        if (!($options['no_flush'] ?? false)) {
-            $em->flush();
-        }
-
-        return $publicationAsset->getId();
+        return $publication;
     }
 
     protected function configurePublication(Publication $publication, array $options): void
@@ -237,11 +219,12 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         return self::$container->get(PathGenerator::class);
     }
 
-    protected function createAsset(array $options = []): string
+    protected function createAsset(Publication $publication, array $options = []): string
     {
         $em = self::getEntityManager();
 
         $asset = new Asset();
+        $asset->setPublication($publication);
         if (isset($options['description'])) {
             $asset->setDescription($options['description']);
         }
@@ -254,17 +237,6 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         }
         if (isset($options['ownerId'])) {
             $asset->setOwnerId($options['ownerId']);
-        }
-
-        if (isset($options['publication_id'])) {
-            $pubAsset = new PublicationAsset();
-            $pubAsset->setAsset($asset);
-            $publication = $em->find(Publication::class, $options['publication_id']);
-            if (!$publication instanceof Publication) {
-                throw new InvalidArgumentException('Publication not found');
-            }
-            $pubAsset->setPublication($publication);
-            $em->persist($pubAsset);
         }
 
         $storageManager = self::getStorageManager();

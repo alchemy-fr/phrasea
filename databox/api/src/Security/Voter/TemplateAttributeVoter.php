@@ -20,19 +20,14 @@ class TemplateAttributeVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
     {
-        switch ($attribute) {
-            case self::READ:
-                return $this->security->isGranted(self::READ, $subject->getTemplate())
-                    && (
-                        $subject->getDefinition()->getClass()->isPublic()
-                        || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
-                    );
-            case self::CREATE:
-            case self::EDIT:
-            case self::DELETE:
-                return $this->security->isGranted(AbstractVoter::EDIT, $subject->getTemplate());
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $this->security->isGranted(self::READ, $subject->getTemplate())
+                && (
+                    $subject->getDefinition()->getClass()->isPublic()
+                    || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
+                ),
+            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AbstractVoter::EDIT, $subject->getTemplate()),
+            default => false,
+        };
     }
 }

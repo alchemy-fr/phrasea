@@ -47,7 +47,7 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
      */
     protected function getEntity(string $class, string $id): object
     {
-        if (0 === strpos($id, '/')) {
+        if (str_starts_with($id, '/')) {
             $item = $this->iriConverter->getItemFromIri($id);
         } else {
             $item = $this->em->find($class, $id);

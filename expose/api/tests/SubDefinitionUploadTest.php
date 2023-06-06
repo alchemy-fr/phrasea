@@ -11,8 +11,8 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
 {
     public function testUploadSubDefOK(): void
     {
-        $publicationId = $this->createPublication();
-        $assetId = $this->createAsset(['publication_id' => $publicationId]);
+        $publication = $this->createPublication();
+        $assetId = $this->createAsset($publication);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
             'asset_id' => $assetId,
@@ -26,7 +26,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
         $this->assertArrayHasKey('size', $json);
         $this->assertSame(846, $json['size']);
 

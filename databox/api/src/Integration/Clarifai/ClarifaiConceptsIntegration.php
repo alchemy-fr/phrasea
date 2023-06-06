@@ -4,26 +4,14 @@ declare(strict_types=1);
 
 namespace App\Integration\Clarifai;
 
-use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
-use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Attribute\BatchAttributeManager;
-use App\Entity\Core\Asset;
+use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
-use App\Integration\AssetOperationIntegrationInterface;
-use App\Util\FileUtil;
+use App\Integration\WorkflowHelper;
+use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
-class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOperationIntegrationInterface
+class ClarifaiConceptsIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
-    private BatchAttributeManager $batchAttributeManager;
-    private ClarifaiClient $client;
-
-    public function __construct(BatchAttributeManager $batchAttributeManager, ClarifaiClient $client)
-    {
-        $this->batchAttributeManager = $batchAttributeManager;
-        $this->client = $client;
-    }
-
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
@@ -34,33 +22,12 @@ class ClarifaiConceptsIntegration extends AbstractIntegration implements AssetOp
         ;
     }
 
-    public function handleAsset(Asset $asset, array $config): void
+    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
     {
-        $concepts = $this->client->getImageConcepts($asset->getSource(), $config['apiKey']);
-        if (empty($concepts)) {
-            return;
-        }
-
-        $input = new AssetAttributeBatchUpdateInput();
-        foreach ($concepts as $concept => $confidence) {
-            $i = new AttributeActionInput();
-            $i->name = 'keywords';
-            $i->confidence = $confidence;
-            $i->value = $concept;
-            $input->actions[] = $i;
-        }
-
-        $this->batchAttributeManager->handleBatch(
-            $asset->getWorkspaceId(),
-            [$asset->getId()],
-            $input,
-            null
+        yield WorkflowHelper::createIntegrationJob(
+            $config,
+            ClarifaiConceptsAction::class,
         );
-    }
-
-    public function supportsAsset(Asset $asset, array $config): bool
-    {
-        return $asset->getSource() && FileUtil::isImageType($asset->getSource()->getType());
     }
 
     public static function getName(): string

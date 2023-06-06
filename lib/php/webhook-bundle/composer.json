@@ -8,7 +8,7 @@
   "homepage": "https://www.alchemy.fr/",
   "license": "MIT",
   "require": {
-    "php": "^7.4",
+    "php": "^7.4 || ^8.0",
     "arthem/rabbit-bundle": "@dev",
     "guzzlehttp/guzzle": "^6.3",
     "ramsey/uuid-doctrine": "^1.5",

@@ -1,4 +1,4 @@
-FROM node:14.17.6-alpine3.12
+FROM node:18.15.0-alpine3.17
 
 RUN apk add --no-cache \
         python3 \
@@ -9,6 +9,8 @@ RUN apk add --no-cache \
     && chmod +x /var/docker/generate-env \
     && mkdir -p /usr/src/app
 
-CMD ["/bin/sh", "-c", "/var/docker/generate-env ./public && yarn start"]
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+CMD ["/bin/sh", "-c", "NODE_OPTIONS= /var/docker/generate-env ./public && NODE_OPTIONS=--openssl-legacy-provider yarn start"]
 WORKDIR /usr/src/app
 EXPOSE 3000

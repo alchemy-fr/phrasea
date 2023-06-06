@@ -9,15 +9,11 @@ use App\Api\Model\Input\Attribute\AbstractExtendedAttributeInput;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Util\LocaleUtils;
-use InvalidArgumentException;
 
 class AttributeAssigner
 {
-    private AttributeTypeRegistry $attributeTypeRegistry;
-
-    public function __construct(AttributeTypeRegistry $attributeTypeRegistry)
+    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
     {
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
     }
 
     public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): AbstractBaseAttribute
@@ -28,7 +24,7 @@ class AttributeAssigner
                 if (false !== $k = array_search($data->origin, Attribute::ORIGIN_LABELS, true)) {
                     $attribute->setOrigin($k);
                 } else {
-                    throw new InvalidArgumentException(sprintf('Invalid origin value "%s", allowed ones are: %s', $data->origin, implode(', ', Attribute::ORIGIN_LABELS)));
+                    throw new \InvalidArgumentException(sprintf('Invalid origin value "%s", allowed ones are: %s', $data->origin, implode(', ', Attribute::ORIGIN_LABELS)));
                 }
             } elseif (!$attribute->hasOrigin()) {
                 $attribute->setOrigin(Attribute::ORIGIN_MACHINE);
@@ -38,7 +34,7 @@ class AttributeAssigner
                 if (false !== $k = array_search($data->status, Attribute::STATUS_LABELS, true)) {
                     $attribute->setStatus($k);
                 } else {
-                    throw new InvalidArgumentException(sprintf('Invalid status value "%s", allowed ones are: %s', $data->status, implode(', ', Attribute::STATUS_LABELS)));
+                    throw new \InvalidArgumentException(sprintf('Invalid status value "%s", allowed ones are: %s', $data->status, implode(', ', Attribute::STATUS_LABELS)));
                 }
             }
             $attribute->setOriginUserId($data->originUserId);

@@ -11,11 +11,8 @@ use Ramsey\Uuid\Uuid;
 
 class TagFilterManager
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function updateRule(
@@ -45,12 +42,8 @@ class TagFilterManager
         $filter->setObjectType($objectType);
         $filter->setObjectId($objectId);
 
-        $filter->setInclude(array_map(function (string $id): Tag {
-            return $this->em->getReference(Tag::class, Uuid::fromString($id));
-        }, $include));
-        $filter->setExclude(array_map(function (string $id): Tag {
-            return $this->em->getReference(Tag::class, Uuid::fromString($id));
-        }, $exclude));
+        $filter->setInclude(array_map(fn (string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $include));
+        $filter->setExclude(array_map(fn (string $id): Tag => $this->em->getReference(Tag::class, Uuid::fromString($id)), $exclude));
 
         $this->em->persist($filter);
         $this->em->flush();
@@ -100,12 +93,8 @@ class TagFilterManager
         $exclude = [];
 
         foreach ($rules as $rule) {
-            $include = array_merge($include, $rule->getInclude()->map(function (Tag $tag): string {
-                return $tag->getId();
-            })->getValues());
-            $exclude = array_merge($exclude, $rule->getExclude()->map(function (Tag $tag): string {
-                return $tag->getId();
-            })->getValues());
+            $include = [...$include, ...$rule->getInclude()->map(fn (Tag $tag): string => $tag->getId())->getValues()];
+            $exclude = [...$exclude, ...$rule->getExclude()->map(fn (Tag $tag): string => $tag->getId())->getValues()];
         }
 
         return [

@@ -15,18 +15,8 @@ use Symfony\Component\Security\Core\Security;
 
 class MultipleAssetCreate
 {
-    private EntityManagerInterface $em;
-    private AssetOutputDataTransformer $assetOutputDataTransformer;
-    private Security $security;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        AssetOutputDataTransformer $assetOutputDataTransformer,
-        Security $security
-    ) {
-        $this->em = $em;
-        $this->assetOutputDataTransformer = $assetOutputDataTransformer;
-        $this->security = $security;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly AssetOutputDataTransformer $assetOutputDataTransformer, private readonly Security $security)
+    {
     }
 
     public function __invoke($data)

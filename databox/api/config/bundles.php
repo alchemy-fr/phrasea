@@ -32,4 +32,5 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
     Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
+    Alchemy\WorkflowBundle\AlchemyWorkflowBundle::class => ['all' => true],
 ];

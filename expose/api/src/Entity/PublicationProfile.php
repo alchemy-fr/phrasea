@@ -10,6 +10,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -95,11 +97,18 @@ class PublicationProfile implements AclObjectInterface
      */
     private DateTime $createdAt;
 
+    /**
+     * @var Publication[]|Collection
+     * @ORM\OneToMany(targetEntity="App\Entity\Publication", mappedBy="profile")
+     */
+    private ?Collection $publications = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->config = new PublicationConfig();
         $this->id = Uuid::uuid4();
+        $this->publications = new ArrayCollection();
     }
 
     public function getId(): string
@@ -150,5 +159,13 @@ class PublicationProfile implements AclObjectInterface
     public function getAclOwnerId(): string
     {
         return $this->getOwnerId() ?? '';
+    }
+
+    /**
+     * @return Publication[]
+     */
+    public function getPublications(): ?Collection
+    {
+        return $this->publications;
     }
 }

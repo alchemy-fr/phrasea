@@ -10,15 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class EntityIriConverter
 {
-    private IriConverterInterface $iriConverter;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        IriConverterInterface $iriConverter,
-        EntityManagerInterface $em
-    ) {
-        $this->iriConverter = $iriConverter;
-        $this->em = $em;
+    public function __construct(private readonly IriConverterInterface $iriConverter, private readonly EntityManagerInterface $em)
+    {
     }
 
     /**
@@ -30,7 +23,7 @@ class EntityIriConverter
      */
     public function getItemFromIri(string $class, string $id): object
     {
-        if (0 === strpos($id, '/')) {
+        if (str_starts_with($id, '/')) {
             return $this->iriConverter->getItemFromIri($id);
         }
 

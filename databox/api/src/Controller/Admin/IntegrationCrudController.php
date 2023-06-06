@@ -17,11 +17,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class IntegrationCrudController extends AbstractAdminCrudController
 {
-    private IntegrationChoiceField $integrationChoiceField;
-
-    public function __construct(IntegrationChoiceField $integrationChoiceField)
+    public function __construct(private readonly IntegrationChoiceField $integrationChoiceField)
     {
-        $this->integrationChoiceField = $integrationChoiceField;
     }
 
     public static function getEntityFqcn(): string
@@ -39,6 +36,14 @@ class IntegrationCrudController extends AbstractAdminCrudController
     {
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
+        $needs = AssociationField::new('needs');
+        $if = TextField::new('if')
+            ->setHelp('Based on Symfony Expression Language.
+<br/>e.g.
+<br/>asset.getSource().getType() matches \'#^image/#\'
+<br/>or
+<br/>asset.getCreatedAt() > date(\'2000-01-01\')
+');
         $integration = $this->integrationChoiceField->create('integration');
         $optionsYaml = TextAreaField::new('optionsYaml');
         $enabled = Field::new('enabled');
@@ -51,11 +56,11 @@ class IntegrationCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$enabled, $title, $integration, $workspace, $createdAt, $that, $updatedAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace];
+            return [$id, $title, $integration, $enabled, $config, $createdAt, $updatedAt, $workspace, $needs];
         } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $integration, $optionsYaml, $enabled];
+            return [$title, $workspace, $integration, $optionsYaml, $enabled, $needs, $if];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$title, $workspace, $integration, $optionsYaml, $enabled];
+            return [$title, $workspace, $integration, $optionsYaml, $enabled, $needs, $if];
         }
 
         return [];

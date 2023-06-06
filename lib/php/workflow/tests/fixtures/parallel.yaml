@@ -1,0 +1,42 @@
+name: Echo something
+
+jobs:
+  1-1:
+    steps:
+      - executor: php
+        run: |
+          while (!file_exists('${{ job.id }}.unlock')) {
+            usleep(1000);
+          }
+          echo "${{ job.id }}";
+
+  1-2:
+    steps:
+      - executor: php
+        run: |
+          while (!file_exists('${{ job.id }}.unlock')) {
+            usleep(1000);
+          }
+          echo "${{ job.id }}";
+
+  2-1:
+    needs:
+      - 2-1
+    steps:
+      - executor: php
+        run: |
+          while (!file_exists('${{ job.id }}.unlock')) {
+            usleep(1000);
+          }
+          echo "${{ job.id }}";
+
+  2-2:
+    needs:
+      - 2-2
+    steps:
+      - executor: php
+        run: |
+          while (!file_exists('${{ job.id }}.unlock')) {
+            usleep(1000);
+          }
+          echo "${{ job.id }}";

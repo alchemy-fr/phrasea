@@ -1,104 +1,49 @@
 version: '3.9'
 
 services:
-  uploader-client-dev:
-    profiles:
-      - uploader
+  uploader-client:
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./uploader/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./uploader/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - DEV_MODE
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - CLIENT_ID=${UPLOADER_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  expose-client-dev:
-    profiles:
-      - expose
+  expose-client:
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./expose/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./expose/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
-      - CLIENT_ID=${EXPOSE_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
-      - MATOMO_HOST
       - WDS_SOCKET_PORT=443
-      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  databox-client-dev:
-    profiles:
-      - databox
+  databox-client:
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       context: ./databox/client
       target: client-build
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
     volumes:
       - ./databox/client:/usr/src/app
-      - ./configs:/configs
     environment:
-      - DEV_MODE
-      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - CLIENT_ID=${DATABOX_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
-      - MATOMO_HOST
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - WDS_SOCKET_PORT=443
-      - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   expose-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
@@ -117,13 +62,12 @@ services:
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
 
   uploader-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./uploader/api:/srv/app
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
@@ -133,7 +77,6 @@ services:
       - ./uploader/api/public:/srv/app/public
 
   auth-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./auth/api:/srv/app
       - ./auth/api/docker/supervisor:/etc/supervisor.d
@@ -141,7 +84,7 @@ services:
   auth-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
     volumes:
       - ./auth/api:/srv/app
@@ -153,7 +96,7 @@ services:
   notify-api-php:
     environment:
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
@@ -163,15 +106,15 @@ services:
       - ./notify/api/public:/srv/app/public
 
   notify-worker:
-#    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./notify/api:/srv/app
       - ./notify/api/docker/supervisor:/etc/supervisor.d
 
   databox-api-php:
     environment:
+      - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
       - XDEBUG_ENABLED
-      - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+      - XDEBUG_SESSION
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
@@ -181,7 +124,6 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
-    command: [ "/bin/sh", "-c", "exit" ]
     volumes:
       - ./databox/api:/srv/app
       - ./databox/api/docker/supervisor:/etc/supervisor.d
@@ -226,11 +168,12 @@ services:
       - REPORT_API_BASE_URL
       - MAPBOX_TOKEN
       - XDEBUG_ENABLED
-      - IDE_KEY
-      - XDEBUG_REMOTE_HOST=${PS_GATEWAY_IP}
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}cli
       - VERIFY_SSL
       - CLARIFAI_API_KEY
+      - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
+      - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

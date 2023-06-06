@@ -1,6 +1,6 @@
 
 #sidebar {
-  $width: 290px;
+  $width: $sidebarWidth;
   min-width: $width;
   max-width: $width;
   background: $secondary;
@@ -44,9 +44,9 @@
 .authenticated-user {
   font-size: 13px;
   padding: 10px;
+}
 
-  .btn-logout {
-    margin-top: 5px;
-    background: $danger;
-  }
+.btn-logout {
+  margin-top: 5px;
+  background: $danger;
 }

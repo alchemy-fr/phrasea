@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Security;
 class PublicationVoter extends Voter
 {
     const PUBLISH = 'publication:publish';
-    const CREATE = 'publication:create';
+    const CREATE = 'CREATE';
     const INDEX = 'publication:index';
     const READ = 'READ';
     const READ_DETAILS = 'READ_DETAILS';
@@ -43,7 +43,7 @@ class PublicationVoter extends Voter
 
     protected function supports($attribute, $subject)
     {
-        return $subject instanceof Publication || self::CREATE === $attribute;
+        return $subject instanceof Publication;
     }
 
     private function isValidJWTForRequest(): bool

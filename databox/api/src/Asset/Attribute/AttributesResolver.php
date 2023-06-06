@@ -14,23 +14,14 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class AttributesResolver
+readonly class AttributesResolver
 {
-    private EntityManagerInterface $em;
-    private FieldNameResolver $fieldNameResolver;
-    private FallbackResolver $fallbackResolver;
-    private Security $security;
-
     public function __construct(
-        EntityManagerInterface $em,
-        FieldNameResolver $fieldNameResolver,
-        FallbackResolver $fallbackResolver,
-        Security $security
+        private EntityManagerInterface $em,
+        private FieldNameResolver $fieldNameResolver,
+        private FallbackResolver $fallbackResolver,
+        private Security $security
     ) {
-        $this->em = $em;
-        $this->fieldNameResolver = $fieldNameResolver;
-        $this->fallbackResolver = $fallbackResolver;
-        $this->security = $security;
     }
 
     /**
@@ -90,9 +81,7 @@ class AttributesResolver
         unset($attributes);
 
         if ($applyPermissions) {
-            $disallowedDefinitions = array_filter($disallowedDefinitions, function (bool $v): bool {
-                return $v;
-            });
+            $disallowedDefinitions = array_filter($disallowedDefinitions, fn (bool $v): bool => $v);
             $groupedByDef = array_diff_key($groupedByDef, $disallowedDefinitions);
         }
 
@@ -151,7 +140,7 @@ class AttributesResolver
                         foreach ($values as $v) {
                             $found = false;
                             foreach ($highlights[$fieldName] as $hlValue) {
-                                if (preg_replace('#\[hl](.*)\[/hl]#', '$1', $hlValue) === $v) {
+                                if (preg_replace('#\[hl](.*)\[/hl]#', '$1', (string) $hlValue) === $v) {
                                     $found = true;
                                     $newValues[] = $hlValue;
                                     break;

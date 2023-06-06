@@ -33,6 +33,7 @@ class AssetCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
+            ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['id', 'path', 'size', 'originalName', 'mimeType', 'userId']);
     }
 

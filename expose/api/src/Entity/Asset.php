@@ -16,9 +16,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
+ * @ORM\Table(indexes={@ORM\Index(name="assetId", columns={"asset_id"})})
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
@@ -62,7 +64,7 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(identifier=true)
-     * @Groups({"asset:read", "publication:read"})
+     * @Groups({"_", "asset:read", "publication:read"})
      *
      * @var Uuid
      *
@@ -74,7 +76,7 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty()
      *
-     * @Groups({"asset:read"})
+     * @Groups({"publication:read", "asset:read"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $assetId = null;
@@ -127,18 +129,28 @@ class Asset implements MediaInterface
     private ?string $ownerId = null;
 
     /**
-     * @var PublicationAsset[]|Collection
+     * Direct access to asset.
      *
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationAsset",
-     *         }
-     *     }
-     * )
-     * @ORM\OneToMany(targetEntity="App\Entity\PublicationAsset", mappedBy="asset")
+     * @ApiProperty()
+     * @Groups({"publication:read", "asset:read"})
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?Collection $publications = null;
+    protected ?string $slug = null;
+
+    /**
+     * @ApiProperty()
+     *
+     * @ORM\Column(type="smallint", options={"default": 0})
+     */
+    protected int $position = 0;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Publication::class, inversedBy="assets")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"_", "asset:read"})
+     */
+    private ?Publication $publication = null;
 
     /**
      * @var SubDefinition[]|Collection
@@ -222,6 +234,12 @@ class Asset implements MediaInterface
 
     /**
      * @ApiProperty(writable=false)
+     * @Groups({"asset:read", "publication:read", "publication:index"})
+     */
+    private ?string $posterUrl = null;
+
+    /**
+     * @ApiProperty(writable=false)
      * @Groups({"asset:read"})
      */
     private ?string $uploadURL = null;
@@ -229,7 +247,6 @@ class Asset implements MediaInterface
     public function __construct()
     {
         $this->createdAt = new DateTime();
-        $this->publications = new ArrayCollection();
         $this->subDefinitions = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
@@ -309,22 +326,14 @@ class Asset implements MediaInterface
         $this->mimeType = $mimeType;
     }
 
-    /**
-     * @return PublicationAsset[]|Collection
-     */
-    public function getPublications(): Collection
+    public function getPublication(): Publication
     {
-        return $this->publications;
+        return $this->publication;
     }
 
-    public function addPublication(PublicationAsset $publication): void
+    public function setPublication(?Publication $publication): void
     {
-        $this->publications->add($publication);
-    }
-
-    public function removePublication(PublicationAsset $publication): void
-    {
-        $this->publications->removeElement($publication);
+        $this->publication = $publication;
     }
 
     public function getCreatedAt(): DateTime
@@ -362,6 +371,16 @@ class Asset implements MediaInterface
         $this->previewUrl = $previewUrl;
     }
 
+    public function getPosterUrl(): ?string
+    {
+        return $this->posterUrl;
+    }
+
+    public function setPosterUrl(?string $posterUrl): void
+    {
+        $this->posterUrl = $posterUrl;
+    }
+
     public function getDownloadUrl(): ?string
     {
         return $this->downloadUrl;
@@ -391,10 +410,27 @@ class Asset implements MediaInterface
         return null;
     }
 
+    public function getPosterDefinition(): ?SubDefinition
+    {
+        foreach ($this->getSubDefinitions() as $subDefinition) {
+            if (SubDefinition::POSTER === $subDefinition->getName()) {
+                return $subDefinition;
+            }
+        }
+
+        return null;
+    }
+
     public function setPreviewDefinition(?SubDefinition $previewDefinition): void
     {
         $previewDefinition->setName(SubDefinition::PREVIEW);
         $previewDefinition->setAsset($this);
+    }
+
+    public function setPosterDefinition(?SubDefinition $posterDefinition): void
+    {
+        $posterDefinition->setName(SubDefinition::POSTER);
+        $posterDefinition->setAsset($this);
     }
 
     public function getThumbnailDefinition(): ?SubDefinition
@@ -492,5 +528,25 @@ class Asset implements MediaInterface
     public function __toString()
     {
         return $this->getId().($this->title ? '-'.$this->title : '');
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

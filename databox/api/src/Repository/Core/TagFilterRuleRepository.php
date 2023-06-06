@@ -7,7 +7,6 @@ namespace App\Repository\Core;
 use App\Entity\Core\TagFilterRule;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
 
 class TagFilterRuleRepository extends EntityRepository
 {
@@ -64,7 +63,7 @@ class TagFilterRuleRepository extends EntityRepository
             'userId',
                  ] as $key) {
             if (!array_key_exists($key, $params)) {
-                throw new InvalidArgumentException(sprintf('Missing "%s" key', $key));
+                throw new \InvalidArgumentException(sprintf('Missing "%s" key', $key));
             }
         }
 

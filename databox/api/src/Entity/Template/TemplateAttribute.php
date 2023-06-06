@@ -24,6 +24,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"asset-data-template:read"})
      */
     protected ?AttributeDefinition $definition = null;

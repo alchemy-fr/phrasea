@@ -122,6 +122,7 @@ services:
     App\Http\Cache\ProxyCachePurger:
         arguments:
             $client: '@app.proxy_purge_client'
+            $clientBaseUrl: '%env(EXPOSE_CLIENT_BASE_URL)%'
 
     App\Listener\TerminateStackListener:
         tags:

@@ -23,14 +23,14 @@ class OrderTest extends AbstractExposeTestCase
         $em = self::getEntityManager();
         $em->flush();
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
         foreach (range(1, $nbItems) as $i) {
             $this->assertEquals('Pub '.$this->addZero($i), $json[$i - 1]['title']);
         }
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?order[title]=desc', []);
+        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?order[title]=desc');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true);
         foreach (range(1, $nbItems) as $i) {

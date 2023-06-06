@@ -31,7 +31,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4",
+        "php": "^8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
@@ -39,7 +39,7 @@
         "arthem/rabbit-bundle": "dev-master",
         "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.4",
-        "doctrine/common": "^2",
+        "doctrine/common": "^3",
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
@@ -106,6 +106,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },
     "conflict": {

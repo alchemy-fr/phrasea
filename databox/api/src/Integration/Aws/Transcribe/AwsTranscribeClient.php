@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Integration\Aws\Transcribe;
 
 use Aws\TranscribeService\TranscribeServiceClient;
-use RuntimeException;
 
 class AwsTranscribeClient
 {
@@ -60,11 +59,11 @@ class AwsTranscribeClient
         $status = $job['TranscriptionJobStatus'];
 
         if ('FAILED' === $status) {
-            throw new RuntimeException(sprintf('Transcribe job "%s" has failed', $jobName));
+            throw new \RuntimeException(sprintf('Transcribe job "%s" has failed', $jobName));
         }
 
         if ('COMPLETED' !== $status) {
-            throw new RuntimeException(sprintf('Transcribe job "%s" is not completed', $jobName));
+            throw new \RuntimeException(sprintf('Transcribe job "%s" is not completed', $jobName));
         }
 
         return $job;
@@ -72,24 +71,15 @@ class AwsTranscribeClient
 
     private function getMediaTypeFromMime(string $mimeType): ?string
     {
-        switch ($mimeType) {
-            case 'video/mp4':
-                return 'mp4';
-            case 'audio/mp3':
-                return 'mp3';
-            case 'audio/wav':
-                return 'wav';
-            case 'audio/flac':
-                return 'flac';
-            case 'audio/ogg':
-                return 'ogg';
-            case 'audio/amr':
-                return 'amr';
-            case 'audio/webm':
-            case 'video/webm':
-                return 'webm';
-            default:
-                return null;
-        }
+        return match ($mimeType) {
+            'video/mp4' => 'mp4',
+            'audio/mp3' => 'mp3',
+            'audio/wav' => 'wav',
+            'audio/flac' => 'flac',
+            'audio/ogg' => 'ogg',
+            'audio/amr' => 'amr',
+            'audio/webm', 'video/webm' => 'webm',
+            default => null,
+        };
     }
 }

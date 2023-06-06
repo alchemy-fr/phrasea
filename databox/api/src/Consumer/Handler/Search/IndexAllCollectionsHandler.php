@@ -11,13 +11,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class IndexAllCollectionsHandler extends AbstractBatchHandler
 {
-    const EVENT = 'index_all_collections';
+    final public const EVENT = 'index_all_collections';
 
-    private ESSearchIndexer $searchIndexer;
-
-    public function __construct(ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly ESSearchIndexer $searchIndexer)
     {
-        $this->searchIndexer = $searchIndexer;
     }
 
     protected function getIterator(EventMessage $message): iterable

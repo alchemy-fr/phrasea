@@ -9,8 +9,8 @@ use Doctrine\ORM\EntityRepository;
 
 class AssetRenditionRepository extends EntityRepository
 {
-    public const OPT_DEFINITION_IDS = 'definitionIds';
-    public const WITH_FILE = 'withFile';
+    final public const OPT_DEFINITION_IDS = 'definitionIds';
+    final public const WITH_FILE = 'withFile';
 
     /**
      * @return AssetRendition[]

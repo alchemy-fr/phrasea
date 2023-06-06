@@ -8,22 +8,18 @@ use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 
 class IntegrationDataManager
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function getWorkspaceIntegration(string $id): WorkspaceIntegration
     {
         $workspaceIntegration = $this->em->find(WorkspaceIntegration::class, $id);
         if (!$workspaceIntegration instanceof WorkspaceIntegration) {
-            throw new InvalidArgumentException(sprintf('WorkspaceIntegration %s not found', $id));
+            throw new \InvalidArgumentException(sprintf('WorkspaceIntegration %s not found', $id));
         }
 
         return $workspaceIntegration;
@@ -71,7 +67,7 @@ class IntegrationDataManager
     /**
      * @return IntegrationData|IntegrationData[]|null
      */
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false)
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
     {
         $repository = $this->em->getRepository(IntegrationData::class);
 

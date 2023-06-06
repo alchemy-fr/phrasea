@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use DateInterval;
-use DateTimeImmutable;
-use DateTimeZone;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -17,13 +14,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class JWTTokenManager
 {
-    private string $signingKey;
-    private int $ttl;
-
-    public function __construct(string $signingKey, int $ttl)
+    public function __construct(private readonly string $signingKey, private readonly int $ttl)
     {
-        $this->signingKey = $signingKey;
-        $this->ttl = $ttl;
     }
 
     public function createToken(string $string, ?int $ttl = null): string
@@ -31,8 +23,8 @@ class JWTTokenManager
         $config = $this->getConfig();
         $token = $config->builder()
             ->identifiedBy($string)
-            ->issuedAt(new DateTimeImmutable())
-            ->expiresAt((new DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
+            ->issuedAt(new \DateTimeImmutable())
+            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
             ->getToken($config->signer(), $config->signingKey());
 
         return $token->toString();
@@ -46,8 +38,8 @@ class JWTTokenManager
 
         $config->setValidationConstraints(
             new Constraint\LooseValidAt(
-                new SystemClock(new DateTimeZone('UTC')),
-                new DateInterval('PT30S')
+                new SystemClock(new \DateTimeZone('UTC')),
+                new \DateInterval('PT30S')
             ),
             new Constraint\IdentifiedBy($string),
         );

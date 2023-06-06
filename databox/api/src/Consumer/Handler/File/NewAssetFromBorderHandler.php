@@ -14,13 +14,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'new_asset_from_border';
+    final public const EVENT = 'new_asset_from_border';
 
-    private AssetManager $assetManager;
-
-    public function __construct(AssetManager $assetManager)
+    public function __construct(private readonly AssetManager $assetManager)
     {
-        $this->assetManager = $assetManager;
     }
 
     public function handle(EventMessage $message): void
@@ -34,7 +31,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $file = $em->find(File::class, $id);
         if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(File::class, $id, self::class);
         }
 
         $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
@@ -53,6 +50,7 @@ class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
         }
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file, $formData, $locale);
+        $em->flush();
     }
 
     public static function createEvent(

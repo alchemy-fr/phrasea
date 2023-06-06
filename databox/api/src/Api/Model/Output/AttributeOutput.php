@@ -18,6 +18,7 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var Asset
+     *
      * @Groups({"attribute:index", "attribute:read"})
      */
     public $asset;
@@ -26,6 +27,7 @@ class AttributeOutput extends AbstractUuidOutput
      * Target definition by IRI. Or use $name.
      *
      * @var AttributeDefinition|null
+     *
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $definition;
@@ -37,12 +39,14 @@ class AttributeOutput extends AbstractUuidOutput
      * })
      *
      * @var string|float|int|bool|array|null
+     *
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $value;
 
     /**
      * @var array|string|null
+     *
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $highlight;
@@ -58,6 +62,7 @@ class AttributeOutput extends AbstractUuidOutput
      * "human" or "machine".
      *
      * @var string
+     *
      * @Groups({"attribute:index", "attribute:read"})
      */
     public $origin;
@@ -86,18 +91,21 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var string|null
+     *
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $locale;
 
     /**
      * @var int
+     *
      * @Groups({"attribute:index", "attribute:read", "asset-data-template:read"})
      */
     public $position;
 
     /**
      * @var string
+     *
      * @Groups({"attribute:index", "attribute:read"})
      */
     public $status;
@@ -109,6 +117,7 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var bool
+     *
      * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
     public $multiple;

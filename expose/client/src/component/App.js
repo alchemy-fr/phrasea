@@ -8,6 +8,7 @@ import config from "../lib/config";
 import ErrorPage from "./ErrorPage";
 import OAuthRedirect from "./OAuthRedirect";
 import {DashboardMenu} from "react-ps";
+import EmbeddedAsset from "./EmbeddedAsset";
 
 class App extends PureComponent {
     state = {
@@ -65,18 +66,37 @@ class App extends PureComponent {
                         {...props}
                         oauthClient={oauthClient}
                         successHandler={(history) => {
-                            history.replace(getAuthRedirect());
+                            const redirectUri = getAuthRedirect() || '/';
                             unsetAuthRedirect();
+                            if (window.opener) {
+                                try {
+                                    if (window.opener.isPhraseaApp) {
+                                        window.opener.document.location.href = redirectUri;
+                                        window.close();
+                                    }
+
+                                    return;
+                                } catch (err) {
+                                    console.error(err);
+                                }
+                            }
+
+                            history.replace(redirectUri);
                         }}
                     />
                 }}/>
                 {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
+                <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
+                    id={params.asset}
+                />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}
                     authenticated={this.state.authenticated}
                 />}/>
-                <Route path="/:publication/:asset" exact component={AssetRoute}/>
-                <Route path="/:publication/:asset/:subdef" exact component={AssetRoute}/>
+                <Route path="/:publication/:asset" exact render={props => <AssetRoute
+                    {...props}
+                    authenticated={this.state.authenticated}
+                />}/>
                 <Route path="/" exact render={() => <ErrorPage
                     title={'Not found'}
                     code={404}

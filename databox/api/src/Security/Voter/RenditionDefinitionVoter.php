@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionDefinitionVoter extends AbstractVoter
 {
-    public const READ_ADMIN = 'READ_ADMIN';
-    const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
+    final public const READ_ADMIN = 'READ_ADMIN';
+    final public const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
 
     protected function supports(string $attribute, $subject)
     {
@@ -24,20 +24,14 @@ class RenditionDefinitionVoter extends AbstractVoter
     {
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
 
-        switch ($attribute) {
-            case self::CREATE:
-                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE');
-            case self::EDIT:
-                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT');
-            case self::DELETE:
-                return $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE');
-            case self::READ_ADMIN:
-                return $workspaceEditor
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'READ');
-            case self::READ:
-                return true;
-        }
-
-        return false;
+        return match ($attribute) {
+            self::CREATE => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
+            self::EDIT => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
+            self::DELETE => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
+            self::READ_ADMIN => $workspaceEditor
+                || $this->security->isGranted(self::SCOPE_PREFIX.'READ'),
+            self::READ => true,
+            default => false,
+        };
     }
 }

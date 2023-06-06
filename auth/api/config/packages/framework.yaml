@@ -3,7 +3,7 @@ framework:
     csrf_protection: true
 
     session:
-        handler_id: snc_redis.session.handler
+        handler_id: app.session_handler
         name: auth_sess
         cookie_secure: auto
         cookie_httponly: true

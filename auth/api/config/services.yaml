@@ -78,3 +78,16 @@ services:
 
     security.user_checker:
         alias: "App\\Security\\UserChecker"
+
+    session.redis:
+        factory: [Symfony\Component\Cache\Adapter\RedisAdapter, createConnection]
+        class: Redis
+        arguments:
+            - "%env(REDIS_URL)%"
+
+    app.session_handler:
+        class: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+        arguments:
+            $redis: '@session.redis'
+            $options:
+                ttl: 3600

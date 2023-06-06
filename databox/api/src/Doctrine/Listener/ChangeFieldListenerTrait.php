@@ -19,7 +19,7 @@ trait ChangeFieldListenerTrait
             }
 
             foreach ($fields as $field) {
-                if ('.' === substr($field, -1) && 0 === strpos($propertyPath, $field)) {
+                if (str_ends_with((string) $field, '.') && str_starts_with($propertyPath, (string) $field)) {
                     return true;
                 }
             }

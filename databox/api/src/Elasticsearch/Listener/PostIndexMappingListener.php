@@ -13,15 +13,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PostIndexMappingListener implements EventSubscriberInterface
 {
-    private EntityManagerInterface $em;
-    private IndexMappingUpdater $indexMappingUpdater;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        IndexMappingUpdater $indexMappingUpdater
-    ) {
-        $this->em = $em;
-        $this->indexMappingUpdater = $indexMappingUpdater;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexMappingUpdater $indexMappingUpdater)
+    {
     }
 
     public function configureIndex(PostIndexMappingBuildEvent $event): void

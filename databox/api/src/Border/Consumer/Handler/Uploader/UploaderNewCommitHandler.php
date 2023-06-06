@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Border\Consumer\Handler\Uploader;
 
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Border\Model\Upload\IncomingUpload;
+use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class UploaderNewCommitHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'uploader_new_commit';
+    final public const EVENT = 'uploader_new_commit';
 
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly WorkflowOrchestrator $workflowOrchestrator)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void
@@ -25,7 +23,11 @@ class UploaderNewCommitHandler extends AbstractEntityManagerHandler
         $upload = IncomingUpload::fromArray($message->getPayload());
 
         foreach ($upload->assets as $assetId) {
-            $this->eventProducer->publish(UploaderNewFileHandler::createEvent($assetId, $upload->base_url, $upload->token));
+            $this->workflowOrchestrator->dispatchEvent(IncomingUploaderFileWorkflowEvent::createEvent(
+                $upload->base_url,
+                $assetId,
+                $upload->token,
+            ));
         }
     }
 

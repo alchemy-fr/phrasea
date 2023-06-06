@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Util;
 
-use DateTime;
-
 abstract class Time
 {
     public static function time2string(int $time): string
@@ -14,8 +12,8 @@ abstract class Time
             return '0 seconds';
         }
 
-        $t1 = new DateTime();
-        $t2 = new DateTime("+$time seconds");
+        $t1 = new \DateTime();
+        $t2 = new \DateTime("+$time seconds");
         $diff = $t1->diff($t2);
         $units = [
             'days' => 'day',

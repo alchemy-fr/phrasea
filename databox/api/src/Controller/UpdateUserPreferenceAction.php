@@ -69,7 +69,7 @@ class UpdateUserPreferenceAction extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof RemoteUser) {
-            throw new AccessDeniedHttpException(sprintf('Invalid user %s', get_class($user)));
+            throw new AccessDeniedHttpException(sprintf('Invalid user %s', $user::class));
         }
 
         return $user;

@@ -10,17 +10,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProxyCachePurger
 {
-    private Client $client;
-    private UrlGeneratorInterface $urlGenerator;
-    private TerminateStackListener $terminateStackListener;
-
     private ?array $purgeStack = null;
 
-    public function __construct(Client $client, UrlGeneratorInterface $urlGenerator, TerminateStackListener $terminateStackListener)
+    public function __construct(
+        private readonly Client $client,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly TerminateStackListener $terminateStackListener,
+        private readonly string $clientBaseUrl,
+    )
     {
-        $this->client = $client;
-        $this->urlGenerator = $urlGenerator;
-        $this->terminateStackListener = $terminateStackListener;
     }
 
     public function purgeUri(string $uri): void
@@ -37,11 +35,17 @@ class ProxyCachePurger
                         'application/ld+json',
                         'text/html',
                              ] as $contentType) {
-                        $this->client->get('/purge'.$uri, [
-                            'headers' => [
-                                'Accept' => $contentType,
-                            ],
-                        ]);
+                    foreach ([
+                        $this->clientBaseUrl,
+                        null,
+                             ] as $origin) {
+                            $this->client->get('/purge'.$uri, [
+                                'headers' => [
+                                    'Accept' => $contentType,
+                                    'Origin' => $origin,
+                                ],
+                            ]);
+                        }
                     }
                 }
             });

@@ -13,13 +13,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FieldTypeDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private AttributeTypeRegistry $attributeTypeRegistry;
-    private TranslatorInterface $translator;
-
-    public function __construct(AttributeTypeRegistry $attributeTypeRegistry, TranslatorInterface $translator)
+    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly TranslatorInterface $translator)
     {
-        $this->attributeTypeRegistry = $attributeTypeRegistry;
-        $this->translator = $translator;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
@@ -33,9 +28,7 @@ class FieldTypeDataProvider implements ContextAwareCollectionDataProviderInterfa
             return $t;
         }, $this->attributeTypeRegistry->getTypes());
 
-        usort($results, function (FieldType $a, FieldType $b): int {
-            return $a->getTitle() <=> $b->getTitle();
-        });
+        usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
         return $results;
     }

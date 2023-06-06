@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Asset\AssetManager;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Core\Asset;
+use App\Entity\Workflow\WorkflowState;
 use App\Security\Voter\AbstractVoter;
+use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +17,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class TriggerAssetWorkflowAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private AssetManager $assetManager;
-
-    public function __construct(AssetManager $assetManager, EntityManagerInterface $em)
-    {
-        $this->em = $em;
-        $this->assetManager = $assetManager;
+    public function __construct(
+        private readonly WorkflowOrchestrator $workflowOrchestrator,
+        private readonly EntityManagerInterface $em,
+    ) {
     }
 
     public function __invoke(string $id, Request $request)
@@ -33,7 +32,12 @@ final class TriggerAssetWorkflowAction extends AbstractController
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);
 
-        $this->assetManager->triggerAssetWorkflow($asset);
+        $this->workflowOrchestrator->dispatchEvent(
+            AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()),
+            [
+                WorkflowState::INITIATOR_ID => $this->getUser()->getId(),
+            ]
+        );
 
         return new Response();
     }

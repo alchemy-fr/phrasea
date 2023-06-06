@@ -28,8 +28,8 @@ class CloudFrontUrlGenerator
         $this->cloudFrontUrl = $cloudFrontUrl;
         if ($cloudFrontPrivateKey && strpos($cloudFrontPrivateKey, '-----BEGIN ') === false) {
             $cloudFrontPrivateKey = sprintf("-----BEGIN RSA PRIVATE KEY-----\n%s\n-----END RSA PRIVATE KEY-----\n", $cloudFrontPrivateKey);
+            $cloudFrontPrivateKey = str_replace('\n', "\n", $cloudFrontPrivateKey);
         }
-        $cloudFrontPrivateKey = str_replace('\n', "\n", $cloudFrontPrivateKey);
         $this->cloudFrontPrivateKey = $cloudFrontPrivateKey;
         $this->cloudFrontKeyPairId = $cloudFrontKeyPairId;
         $this->ttl = $ttl;

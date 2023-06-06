@@ -15,13 +15,8 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 class TagAwareQueryResultCache implements CacheItemPoolInterface
 {
-    private TagAwareCacheInterface $cache;
-    private array $tags;
-
-    public function __construct(TagAwareCacheInterface $cache, array $tags)
+    public function __construct(private readonly TagAwareCacheInterface $cache, private readonly array $tags)
     {
-        $this->cache = $cache;
-        $this->tags = $tags;
     }
 
     public function save(CacheItemInterface $item)

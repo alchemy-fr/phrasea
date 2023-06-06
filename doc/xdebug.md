@@ -12,12 +12,12 @@ Remote host is fixed because of the subnet network from compose.
 You need to configure file mapping in your IDE.
 
 Each application should have its server configured in PhpStorm.
-Each server name should follow the following pattern: `docker-server-SERVICE` (i.e. `docker-server-auth`).
+Each server name should follow the following pattern: `docker-server-SERVICE` (e.g. `docker-server-auth`).
 Then you need to enable path mappings for the server. See the example below:
 
 ![PhpStorm mapping](./xdebug-php-storm.png)
 
-> Configure the `Absolute path on the server` to `/srv/app` at the application project path (i.e. `~/projects/phrasea/auth/api` in this case).
+> Configure the `Absolute path on the server` to `/srv/app` at the application project path (e.g. `~/projects/phrasea/auth/api` in this case).
 
 For the uploader application you would have:
 - a server named `docker-server-uploader` in PhpStorm
@@ -28,6 +28,6 @@ For the uploader application you would have:
 ```bash
 XDEBUG_ENABLED=1 dc run --rm dev
 cd databox/api
-export XDEBUG_CONFIG="remote_enable=1"
+export XDEBUG_SESSION="phpstorm"
 sf app:command
 ```

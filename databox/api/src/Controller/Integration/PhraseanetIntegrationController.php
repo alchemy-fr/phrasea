@@ -7,15 +7,14 @@ namespace App\Controller\Integration;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodHandler;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
+use App\Integration\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodAction;
 use App\Security\JWTTokenManager;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -33,7 +32,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PhraseanetIntegrationController extends AbstractController
 {
-    public const ASSET_NAME_PREFIX = 'gen-sub-def-';
+    final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
     /**
      * @Route(path="/{integrationId}/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
@@ -89,7 +88,7 @@ class PhraseanetIntegrationController extends AbstractController
 
         try {
             $definition = $renditionManager->getRenditionDefinitionByName($asset->getWorkspace(), $name);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             throw new BadRequestHttpException(sprintf('Undefined rendition definition "%s"', $name), $e);
         }
 
@@ -125,13 +124,13 @@ class PhraseanetIntegrationController extends AbstractController
         switch ($json['event']) {
             case 'record.subdef.created':
                 $data = $json['data'];
-                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', $data['original_name'], $groups)) {
+                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', (string) $data['original_name'], $groups)) {
                     $assetId = $groups[1];
 
                     $logger->debug(sprintf('Received webhook "%s" for asset "%s"', $json['event'], $assetId));
 
                     // TODO Temporary hack
-                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', $data['permalink']);
+                    $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));
                     $eventProducer->publish(PhraseanetDownloadSubdefHandler::createEvent(
@@ -180,7 +179,7 @@ class PhraseanetIntegrationController extends AbstractController
         if (!$asset instanceof Asset) {
             throw new NotFoundHttpException(sprintf('Asset "%s" not found for Phraseanet enqueue', $id));
         }
-        if ($assetToken !== PhraseanetGenerateAssetRenditionsEnqueueMethodHandler::generateAssetToken($asset)) {
+        if ($assetToken !== PhraseanetGenerateAssetRenditionsEnqueueMethodAction::generateAssetToken($asset)) {
             throw new AccessDeniedHttpException('Invalid Asset token');
         }
 

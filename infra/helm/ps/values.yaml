@@ -72,6 +72,9 @@ databox:
         privateKey:
         keyPairId:
         ttl: 86400
+      secrets:
+        publicKey:
+        secretKey:
   adminOAuthClient:
     externalSecretName:
     id: databox-admin

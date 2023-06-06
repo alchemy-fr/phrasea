@@ -5,32 +5,50 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
-use App\Entity\PublicationAsset;
+use App\Entity\Publication;
+use App\Security\Voter\PublicationVoter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 
 class AssetNormalizer extends AbstractRouterNormalizer
 {
+    public function __construct(private readonly Security $security)
+    {
+    }
     /**
      * @param Asset $object
      */
     public function normalize($object, array &$context = []): void
     {
-        /** @var PublicationAsset|null $publicationAsset */
-        $publicationAsset = $context['publication_asset'] ?? null;
+        if (in_array(Asset::GROUP_READ, $context['groups'])) {
+            $publication = $object->getPublication();
+            $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $publication);
+            $publication->setAuthorized($isAuthorized);
+            if (!$isAuthorized) {
+                $context['groups'] = ['_'];
+            }
+        }
+        
         $downloadViaEmail = $context['download_via_email'] ?? false;
 
-        if ($publicationAsset instanceof PublicationAsset) {
-            if (!$downloadViaEmail) {
-                $object->setDownloadUrl($this
-                    ->generateDownloadAssetTrackerUrl($publicationAsset->getPublication(), $publicationAsset->getAsset()));
-            } else {
-                $object->setDownloadUrl($this->getDownloadViaEmailUrl($publicationAsset));
-            }
+        if (!$downloadViaEmail) {
+            $object->setDownloadUrl($this
+                ->generateDownloadAssetTrackerUrl($object));
+        } else {
+            $object->setDownloadUrl($this->getDownloadViaEmailUrl($object));
         }
 
         $object->setUrl($this->generateAssetUrl($object));
-        $object->setThumbUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getThumbnailDefinition() ?? $object->getPreviewDefinition() ?? $object));
-        $object->setPreviewUrl($this->generateAssetUrlOrVideoPreviewUrl($object->getPreviewDefinition() ?? $object));
+        $poster = $object->getPosterDefinition();
+
+        $thumbObject = $object->getThumbnailDefinition() ?? $poster ?? $object->getPreviewDefinition() ?? $object;
+        if (str_starts_with($thumbObject->getMimeType(), 'image/')) {
+            $object->setThumbUrl($this->generateAssetUrl($thumbObject));
+        }
+        $object->setPreviewUrl($this->generateAssetUrl($object->getPreviewDefinition() ?? $object));
+        if (null !== $poster) {
+            $object->setPosterUrl($this->generateAssetUrl($poster));
+        }
 
         if (!empty($webVTT = $object->getWebVTT())) {
             $object->setWebVTTLink($this->urlGenerator->generate('asset_webvtt', [

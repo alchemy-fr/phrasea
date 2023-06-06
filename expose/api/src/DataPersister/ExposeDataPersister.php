@@ -9,7 +9,6 @@ use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Entity\PublicationAsset;
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,18 +59,6 @@ class ExposeDataPersister implements ContextAwareDataPersisterInterface
             $user = $this->security->getUser();
             if ($user instanceof RemoteUser && !$data->getOwnerId()) {
                 $data->setOwnerId($user->getId());
-            }
-        }
-
-        if ($data instanceof PublicationAsset) {
-            if (
-                !$this->security->isGranted(PublicationVoter::EDIT, $data->getPublication())
-                && !$this->security->isGranted(PublicationVoter::CREATE, $data->getPublication())
-            ) {
-                throw new AccessDeniedHttpException('Cannot edit this publication');
-            }
-            if (!$this->security->isGranted(PublicationVoter::READ, $data->getAsset())) {
-                throw new AccessDeniedHttpException('Cannot edit this asset');
             }
         }
 

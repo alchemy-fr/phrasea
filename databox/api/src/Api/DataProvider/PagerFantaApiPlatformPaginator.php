@@ -9,14 +9,11 @@ use Pagerfanta\Pagerfanta;
 
 class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAggregate
 {
-    private Pagerfanta $pagerfanta;
-
-    public function __construct(Pagerfanta $pagerfanta)
+    public function __construct(private readonly Pagerfanta $pagerfanta)
     {
-        $this->pagerfanta = $pagerfanta;
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->pagerfanta->getIterator()->getArrayCopy());
     }
@@ -41,7 +38,7 @@ class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAgg
         return (float) $this->pagerfanta->getMaxPerPage();
     }
 
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return $this->pagerfanta;
     }

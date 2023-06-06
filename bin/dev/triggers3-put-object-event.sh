@@ -11,7 +11,7 @@ fi
 
 load-env
 
-docker-compose run \
+docker compose run \
   --rm -T \
   --entrypoint "sh -c" minio-mc "\
   set -x; \

@@ -6,7 +6,6 @@ namespace App\DependencyInjection\Compiler;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use ReflectionClass;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -20,7 +19,7 @@ class AttributeTypePass implements CompilerPassInterface
 
         /** @var string|AttributeTypeInterface $id */
         foreach ($taggedServices as $id => $tags) {
-            $refl = new ReflectionClass($id);
+            $refl = new \ReflectionClass($id);
             if ($refl->isAbstract()) {
                 continue;
             }

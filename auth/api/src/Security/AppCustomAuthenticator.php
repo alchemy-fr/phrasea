@@ -95,6 +95,11 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator implements P
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $session = $request->getSession();
+        if ($session->isStarted() && $session->get(OAuthUserProvider::AUTH_ORIGIN)) {
+            $session->remove(OAuthUserProvider::AUTH_ORIGIN);
+        }
+
         if ($redirectUri = $request->query->get('r')) {
             return new RedirectResponse($redirectUri);
         }

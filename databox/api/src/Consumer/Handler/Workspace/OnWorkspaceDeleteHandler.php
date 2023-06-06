@@ -11,7 +11,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class OnWorkspaceDeleteHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'on_workspace_delete';
+    final public const EVENT = 'on_workspace_delete';
 
     public function handle(EventMessage $message): void
     {
