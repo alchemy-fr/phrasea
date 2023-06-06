@@ -16,8 +16,8 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
-    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
+    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
     "alchemy/report-sdk": "@dev"
   },
   "config": {

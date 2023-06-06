@@ -13,7 +13,7 @@ class AttributeClassVoter extends AbstractVoter
 
     final public const SCOPE_PREFIX = 'ROLE_ATTRIBUTE-CLASS:';
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof RenditionClass;
     }
@@ -21,7 +21,7 @@ class AttributeClassVoter extends AbstractVoter
     /**
      * @param RenditionClass $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
 

@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeDefinitionVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof AttributeDefinition;
     }
@@ -17,7 +17,7 @@ class AttributeDefinitionVoter extends AbstractVoter
     /**
      * @param AttributeDefinition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $workspace = $subject->getWorkspace();
 

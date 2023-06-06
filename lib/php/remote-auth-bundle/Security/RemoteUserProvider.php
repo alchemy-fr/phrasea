@@ -57,4 +57,12 @@ class RemoteUserProvider implements UserProviderInterface
     {
         return RemoteUser::class === $class;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        throw new Exception('Not implemented');
+    }
 }

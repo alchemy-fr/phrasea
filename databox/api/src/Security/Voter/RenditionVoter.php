@@ -15,7 +15,7 @@ class RenditionVoter extends AbstractVoter
     {
     }
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject):bool
     {
         return $subject instanceof AssetRendition;
     }
@@ -23,7 +23,7 @@ class RenditionVoter extends AbstractVoter
     /**
      * @param AssetRendition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
     {
         $user = $token->getUser();
         $userId = null;

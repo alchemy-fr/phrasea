@@ -67,6 +67,11 @@ class RemoteUser implements UserInterface, RemoteUserInterface
         return $this->username;
     }
 
+    public function getUserIdentifier()
+    {
+        return $this->username;
+    }
+
     public function getEmail(): string
     {
         return $this->username;

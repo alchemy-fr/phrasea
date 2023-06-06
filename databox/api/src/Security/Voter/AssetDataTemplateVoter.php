@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetDataTemplateVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof AssetDataTemplate;
     }
@@ -19,7 +19,7 @@ class AssetDataTemplateVoter extends AbstractVoter
     /**
      * @param AssetDataTemplate $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token) : bool
     {
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;
