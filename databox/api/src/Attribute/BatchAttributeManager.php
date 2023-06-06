@@ -36,6 +36,7 @@ class BatchAttributeManager
         private readonly Security $security,
         private readonly PostFlushStack $postFlushStack,
         private readonly AttributeManager $attributeManager,
+        private readonly DeferredIndexListener $deferredIndexListener,
     ) {
     }
 
@@ -110,7 +111,8 @@ class BatchAttributeManager
         string $workspaceId,
         array $assetsId,
         AssetAttributeBatchUpdateInput $input,
-        ?RemoteUser $user
+        ?RemoteUser $user,
+        bool $dispatchUpdateEvent = false,
     ): void {
         if (empty($assetsId)) {
             return;
@@ -119,7 +121,7 @@ class BatchAttributeManager
         DeferredIndexListener::disable();
 
         try {
-            $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId): void {
+            $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
                 $changedAttributeDefinitions = [];
 
                 foreach ($input->actions as $i => $action) {
@@ -263,12 +265,16 @@ class BatchAttributeManager
 
                 $attributes = array_keys($changedAttributeDefinitions);
                 foreach ($assetsId as $assetId) {
-                    // Force assets to be re-indexed here
-                    $this->postFlushStack->addEvent(AttributeChangedEventHandler::createEvent(
-                        $attributes,
-                        $assetId,
-                        $user?->getId(),
-                    ));
+                    // Force assets to be re-indexed
+                    $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
+
+                    if ($dispatchUpdateEvent) {
+                        $this->postFlushStack->addEvent(AttributeChangedEventHandler::createEvent(
+                            $attributes,
+                            $assetId,
+                            $user?->getId(),
+                        ));
+                    }
                 }
 
                 $this->em->flush();

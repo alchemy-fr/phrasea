@@ -29,7 +29,8 @@ final class AttributeBatchUpdateAction extends AbstractController
                 $workspaceId,
                 $input->assets,
                 $input,
-                $this->getStrictUser()
+                $this->getStrictUser(),
+                true,
             );
         }
 
