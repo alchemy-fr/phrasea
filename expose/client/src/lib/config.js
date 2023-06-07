@@ -17,6 +17,14 @@ class Config {
         return configData.authBaseUrl;
     }
 
+    getMatomoUrl() {
+        return configData.matomoBaseUrl;
+    }
+
+    getMatomoSiteId() {
+        return configData.matomoSiteId;
+    }
+
     getClientCredential() {
         return {
             clientId: this.get('clientId'),

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mikecousins/react-pdf": "^5.5.1",
     "@types/jest": "^26.0.0",
     "@types/node": "^14.0.13",

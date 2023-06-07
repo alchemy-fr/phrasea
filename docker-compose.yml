@@ -929,6 +929,7 @@ services:
       - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - MATOMO_BASE_URL=https://matomo.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
