@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Asset;
 
 use Alchemy\Workflow\WorkflowOrchestrator;
-use App\Elasticsearch\Listener\DeferredIndexListener;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AttributeUpdateWorkflowEvent;
@@ -19,7 +18,6 @@ final class AttributeChangedEventHandler extends AbstractEntityManagerHandler
 
     public function __construct(
         private readonly WorkflowOrchestrator $workflowOrchestrator,
-        private readonly DeferredIndexListener $deferredIndexListener,
     ) {
     }
 
@@ -33,8 +31,6 @@ final class AttributeChangedEventHandler extends AbstractEntityManagerHandler
         if (!$asset instanceof Asset) {
             throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
-
-        $this->deferredIndexListener->scheduleForUpdate($asset);
 
         $attributes = $payload['attributes'] ?? [];
         $this->workflowOrchestrator->dispatchEvent(AttributeUpdateWorkflowEvent::createEvent(

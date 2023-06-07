@@ -27,6 +27,7 @@ final class AssetAttributeBatchUpdateAction extends AbstractController
             [$data->getId()],
             $data->attributeActions,
             $this->getStrictUser(),
+            true,
         );
 
         return $data;

@@ -6,8 +6,6 @@ namespace Alchemy\Workflow\State\Repository;
 
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
-use InvalidArgumentException;
-use LogicException;
 
 class MemoryStateRepository implements StateRepositoryInterface
 {
@@ -24,7 +22,7 @@ class MemoryStateRepository implements StateRepositoryInterface
     public function getWorkflowState(string $id): WorkflowState
     {
         if (!isset($this->workflows[$id])) {
-            throw new InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
+            throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
         }
 
         return $this->workflows[$id];
@@ -60,7 +58,7 @@ class MemoryStateRepository implements StateRepositoryInterface
     private function ensureWorkflowExists(string $workflowId): void
     {
         if (!isset($this->jobs[$workflowId])) {
-            throw new LogicException(sprintf('Job container for workflow "%s" was not created. Please ensure the WorkflowState is persisted before.', $workflowId));
+            throw new \LogicException(sprintf('Job container for workflow "%s" was not created. Please ensure the WorkflowState is persisted before.', $workflowId));
         }
     }
 }

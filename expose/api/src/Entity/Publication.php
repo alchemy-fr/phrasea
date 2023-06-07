@@ -27,6 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity()
@@ -852,5 +854,33 @@ class Publication implements AclObjectInterface
     public function __sleep()
     {
         return [];
+    }
+
+    /**
+     * @Assert\Callback
+     */
+    public function validateNoParentRecursion(ExecutionContextInterface $context, $payload): void
+    {
+        if ($this->hasRecursiveParent()) {
+            $context
+                ->buildViolation('Publication has circular parenthood')
+                ->atPath('parent')
+                ->addViolation();
+        }
+    }
+
+    private function hasRecursiveParent(): bool
+    {
+        $parents = [];
+        $p = $this;
+        while ($p) {
+            if (isset($parents[$p->getId()])) {
+                return true;
+            }
+            $parents[$p->getId()] = true;
+            $p = $p->getParent();
+        }
+
+        return false;
     }
 }

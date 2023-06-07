@@ -59,8 +59,8 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
                     $jobState = $state->getJobState($jobId);
 
                     $table->addRow([
-                        $runIndex === 0 ? $stageIndex + 1 : '',
-                        $stepIndex === 0 ? $jobId : '',
+                        0 === $runIndex ? $stageIndex + 1 : '',
+                        0 === $stepIndex ? $jobId : '',
                         $step->getName(),
                         $jobState && $jobState->getStatus() ? self::STATUSES[$jobState->getStatus()] : '-',
                     ]);

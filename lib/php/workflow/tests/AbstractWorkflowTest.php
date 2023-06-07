@@ -29,8 +29,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractWorkflowTest extends TestCase
 {
     /**
-     * @param array $workflowFiles
-     *
      * @return array{WorkflowOrchestrator, TestStateStateRepository, TestLogger}
      */
     protected function createOrchestrator(
@@ -38,8 +36,7 @@ abstract class AbstractWorkflowTest extends TestCase
         ?StateRepositoryInterface $stateRepository,
         ?OutputInterface $output = null,
         ?EnvContainer $envs = null,
-    ): array
-    {
+    ): array {
         $actionRegistry = new ArrayActionRegistry();
 
         $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
@@ -61,7 +58,6 @@ abstract class AbstractWorkflowTest extends TestCase
             array_map(fn (string $src) => $loader->load(__DIR__.'/fixtures/'.$src), $workflowFiles)
         ));
 
-
         $planExecutor = new PlanExecutor(
             $workflowRepository,
             $jobExecutor,
@@ -77,6 +73,7 @@ abstract class AbstractWorkflowTest extends TestCase
             new EventValidator(),
         ), $stateRepository, $logger];
     }
+
     protected function createPlanner(array $workflowFiles): WorkflowPlanner
     {
         $loader = new YamlLoader();

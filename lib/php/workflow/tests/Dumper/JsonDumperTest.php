@@ -72,7 +72,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [
-                                'intro'
+                                'intro',
                             ],
                             'inputs' => [
                                 'foo' => 'bar',
@@ -89,7 +89,7 @@ class JsonDumperTest extends AbstractDumperTest
                             'outputs' => [],
                             'duration' => '-',
                             'needs' => [
-                                'intro'
+                                'intro',
                             ],
                             'inputs' => [],
                             'with' => [

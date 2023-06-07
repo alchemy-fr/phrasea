@@ -30,8 +30,7 @@ class WorkflowOrchestrator
         StateRepositoryInterface $stateRepository,
         JobTriggerInterface $trigger,
         EventValidatorInterface $eventValidator,
-    )
-    {
+    ) {
         $this->workflowRepository = $workflowRepository;
         $this->stateRepository = $stateRepository;
         $this->trigger = $trigger;
@@ -203,7 +202,7 @@ class WorkflowOrchestrator
 
                 $statuses[$jobId] = $jobState->getStatus();
 
-                if ($jobState->getStatus() === JobState::STATUS_FAILURE) {
+                if (JobState::STATUS_FAILURE === $jobState->getStatus()) {
                     $hasFailedJob = true;
                     if (!$job->isContinueOnError()) {
                         return [null, WorkflowState::STATUS_FAILURE];
@@ -230,7 +229,7 @@ class WorkflowOrchestrator
     private function satisfiesAllNeeds(array $states, Job $job): bool
     {
         foreach ($job->getNeeds() as $need) {
-            if (!isset($states[$need]) || $states[$need] !== JobState::STATUS_SUCCESS) {
+            if (!isset($states[$need]) || JobState::STATUS_SUCCESS !== $states[$need]) {
                 return false;
             }
         }

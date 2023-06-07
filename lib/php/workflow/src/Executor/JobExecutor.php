@@ -37,7 +37,7 @@ class JobExecutor
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
-        $this->envs = $envs ?? new EnvContainer();;
+        $this->envs = $envs ?? new EnvContainer();
     }
 
     private function shouldBeSkipped(JobExecutionContext $context, Job $job): bool

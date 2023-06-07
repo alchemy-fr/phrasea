@@ -14,7 +14,7 @@ final class EventValidator implements EventValidatorInterface
     {
         $inputs = $event->getInputs();
 
-        foreach ($onEvent->getInputs() as $name => $spec)  {
+        foreach ($onEvent->getInputs() as $name => $spec) {
             if ($spec['required'] ?? false) {
                 if (!isset($inputs[$name])) {
                     throw new InvalidEventException(sprintf('Input "%s" is required for event "%s"', $name, $onEvent->getName()));

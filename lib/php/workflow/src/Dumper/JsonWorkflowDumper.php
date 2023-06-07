@@ -76,7 +76,6 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             ];
         }
 
-
         $output->write(json_encode($out));
     }
 }
