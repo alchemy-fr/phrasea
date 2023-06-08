@@ -115,6 +115,7 @@ services:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
