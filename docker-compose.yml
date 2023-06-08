@@ -251,6 +251,8 @@ services:
       - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
       - AUTO_CONNECT_IDP
+      - MATOMO_BASE_URL
+      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"

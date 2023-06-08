@@ -4,8 +4,11 @@ import './scss/index.scss';
 import ConfigWrapper from './component/ConfigWrapper';
 import * as serviceWorker from './serviceWorker';
 import './i18n/i18n';
+import AnalyticsProvider from "./component/AnalyticsProvider";
 
-ReactDOM.render(<ConfigWrapper />, document.getElementById('root'));
+ReactDOM.render(<AnalyticsProvider>
+    <ConfigWrapper />
+</AnalyticsProvider>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
