@@ -146,13 +146,16 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
-        $this->attributesEditedAt = new \DateTimeImmutable();
 
         /* @var $now float */
         $now ??= microtime(true);
-        $this->createdAt = (new \DateTimeImmutable())->setTimestamp((int) floor($now));
+        $createdAt = new \DateTimeImmutable();
+        $this->createdAt = ($createdAt)->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;
         $this->microseconds = ($now * 1_000_000) % 1_000_000;
+
+        $this->attributesEditedAt = $createdAt;
+        $this->tagsEditedAt = $createdAt;
 
         if (null !== $sequence) {
             $this->sequence = $sequence;
