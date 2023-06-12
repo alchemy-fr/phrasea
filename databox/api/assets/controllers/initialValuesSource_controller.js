@@ -4,9 +4,7 @@ import TomSelect      from "tom-select"
 
 export default class extends Controller {
     static targets = ['input'];
-    static values = {
-        v: String
-    }
+
 
     initialize(e) {
         console.log("initialValuesSource::initialize");
@@ -14,13 +12,12 @@ export default class extends Controller {
 
     connect(e) {
         console.log("initialValuesSource::connect");
-//        this.render();
     }
 
     render(event) {
         console.log("initialValuesSource::render");
-       // this.inputTarget.value = 'Adobe\\Adobe';
-        const tagName = this.inputTarget.value;
+
+        const tagName = event.target.tomselect.getValue();
         let js;
         if(tagName === '') {
             // $('.initialValuesAll TEXTAREA').val('');
@@ -30,24 +27,44 @@ export default class extends Controller {
             js = JSON.stringify(
                 {
                     'type': 'metadata',
-                    'value': this.inputTarget.value
+                    'value': tagName
                 },
                 null,
                 2
             );
-            // $('.initialValuesAll TEXTAREA').val(JSON.stringify(js, null, 2));
         }
-        this.vValue = '';
-        this.inputTarget.value = 'Adobe\\Adobe';
+
         const otherController = this.application.getControllerForElementAndIdentifier($('.initialValuesAll')[0], 'initialValuesAll');
         otherController.tagChanged(js);
+
         // this.dispatch('tagChanged', {detail: js});
     }
 
     jsTagChanged(tagName) {
         console.log('jsTagChanged', tagName);
-        this.inputTarget.value = tagName;
-        this.render();
+        const tom = $('.initialValuesSource SELECT')[0].tomselect;
+
+        // load("") would load 100 first elements, we don't want that
+        if(tagName) {
+            const handler = function (data) {
+                this.off('load', handler)
+                if (data && data[0].entityId === tagName) {
+                    this.setValue(data[0].entityId, true);
+                }
+                else {
+                    this.setValue('', true);    // true (=silent): do NOT generate "changed" event (else it will clear the js)
+                }
+            };
+            // we can update the select value only after load is finished
+            tom.on('load', handler);
+            tom.load(tagName);
+            // tom will NOT call the handler if no need to fetch data (cache ?) so we enforce setValue here in case of...
+            tom.setValue(tagName, true);
+        }
+        else {
+            tom.setValue('', true);
+        }
+ //       tom.setValue(tagName, true);
     }
 
 }

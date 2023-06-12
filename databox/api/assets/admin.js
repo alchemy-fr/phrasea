@@ -9,12 +9,9 @@ import './styles/admin.css';
 
 // start the Stimulus application
 import './bootstrap';
-// import './controllers/taggroupchoice_controller'
+
 import './controllers/initialValuesSource_controller'
 import './controllers/initialValuesAdvanced_controller'
 import './controllers/initialValuesAll_controller'
-//import './controllers/initialValueAll_controller'
-// import './controllers/advancedFieldSource_controller'
 
-console.log("assets/admin.js");
 

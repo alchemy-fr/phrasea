@@ -7,6 +7,9 @@ use Alchemy\AdminBundle\Field\IdField;
 use App\Admin\Field\TagGroupChoiceField;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
+use App\Field\MetadataTagBlockField;
+use App\Field\MetadataTagField;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -28,7 +31,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly AttributeTypeRegistry $typeRegistry,
-        private readonly MetadataManipulator $metadataManipulator
+        // private readonly MetadataManipulator $metadataManipulator
     )
     {
     }
@@ -72,52 +75,36 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             $fileTypeChoices[$name] = $name;
         }
 
-        $tags = $this->metadataManipulator->getKnownTagGroups();
+        // $tags = $this->metadataManipulator->getKnownTagGroups();
 
-        $workspace = AssociationField::new('workspace');
-        $class = AssociationField::new('class');
-        $name = TextField::new('name');
+        $workspace = AssociationField::new('workspace')->setColumns(6);
+        $class = AssociationField::new('class')->setColumns(6);
+        $name = TextField::new('name')->setColumns(6);
+        $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices)->setColumns(6);
         $fileType = TextField::new('fileType');
-        $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices);
-        $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false);
-        $translatable = BooleanField::new('translatable')->renderAsSwitch(false);
-        $sortable = BooleanField::new('sortable');
-        $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
-        $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
+
+        $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false)->setColumns(2);
+        $translatable = BooleanField::new('translatable')->renderAsSwitch(false)->setColumns(2);
+        $sortable = BooleanField::new('sortable')->setColumns(2);
+        $multiple = BooleanField::new('multiple')->renderAsSwitch(false)->setColumns(2);
+        $searchable = BooleanField::new('searchable')->renderAsSwitch(false)->setColumns(2);
 
         $brk = FormField::addRow();
 
         $searchBoost = IntegerField::new('searchBoost');
 
-        $tags = array_slice($tags, 0, 100, true);
- //       $tags['template'] = '__template__';
- //       $fieldSource = TagGroupChoiceField::new('fieldSource')
-/*
-        $initialValuesSource = ChoiceField::new('initialValuesSource')
-//            ->setChoices($tags)
-            ->setChoices(static fn (?AttributeDefinition $foo): array => $foo->getTagsList($this->metadataManipulator))
+        $initialValuesSource = AssociationField::new('initialValuesSource')
+            ->addCssClass('initialValuesSource')
+            ->setQueryBuilder(
+                function (QueryBuilder $queryBuilder) {
+                  $queryBuilder->getQuery();
+                }
+            )
             ->autocomplete()
-            ->addCssClass("initialValuesSource")
-            //      ->addJsFiles("admin")
+            ->setCrudController(MetadataTagController::class)
             ->setFormTypeOptions([
                 'mapped' => false,
-                'row_attr' => [
-                    'data-controller' => 'initialValuesSource', // initialValuesAll',
-                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged'
-                ],
-                'attr' => [
-                    'data-initialValuesSource-target' => 'input',
-                    'data-action' => 'initialValuesSource#render',
-                ],
-            ]);
-*/
-        $initialValuesSource = ChoiceField::new('initialValuesSource')
-            ->setChoices($tags)
-            ->autocomplete()
-            ->addCssClass("initialValuesSource")
-            //      ->addJsFiles("admin")
-            ->setFormTypeOptions([
-                'mapped' => false,
+                'multiple' => false,
                 'row_attr' => [
                     'data-controller' => 'initialValuesSource', // initialValuesAll',
                     'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged'
@@ -142,45 +129,17 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
                 ],
             ]);
 
-//        $truc = TextareaField::new('TRUC')
-//            ->setLabel(false)
-//            ->addCssClass("truc")
-//            ->setFormTypeOptions([
-//                'mapped' => false,
-//                'row_attr' => [
-//                    'data-controller' => 'snarkdown',
-//                ],
-//                'attr' => [
-//                    'data-snarkdown-target' => 'input',
-//                    'data-action' => 'snarkdown#render',
-//                ],
-//            ]);
-
         $initialValuesAll = TextareaField::new('initialValuesAll')
             ->addCssClass("initialValuesAll")
             ->setFormTypeOptions([
-//                'mapped' => false,
                 'row_attr' => [
                     'data-controller' => 'initialValuesAll',
-//                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged'
                 ],
                 'attr' => [
                     'data-initialValuesAll-target' => 'input',
                     'data-action' => 'initialValuesAll#render',
                 ],
             ]);
-
-//        $initialValuesAll = TextareaField::new('initialValuesAll')
-//            ->addCssClass("initialValuesAll")
-//            ->setFormTypeOptions([
-//                'row_attr' => [
-//                    'data-controller' => 'initialValuesAll',
-//                ],
-//                'attr' => [
-//                    'data-initialValuesAll-target' => 'input',
-//                    'data-action' => 'initialValuesAll#render',
-//                ],
-//        ]);
 
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
@@ -196,20 +155,20 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $class, $name, $fileType, $fieldType, $multiple, $facetEnabled, $sortable, $searchable, $createdAt];
+            return [$id, $workspace, $class, $name, $fieldType, $multiple, $facetEnabled, $sortable, $searchable, $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
             return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType,
+            return [$workspace, $class, $name, $fieldType, $fileType,
                 $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
                 $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType,
+            return [$workspace, $class, $name, $fieldType, $fileType,
                 $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
                 $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,

@@ -39,6 +39,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     use WorkspaceTrait;
 
     /**
+     * @var MetadataTag[]
+     *
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\MetadataTag", mappedBy="id")
+     */
+    private ?DoctrineCollection $initialValuesSource = null;
+
+    /**
      * Override trait for annotation.
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")

@@ -24,9 +24,8 @@ export default class extends Controller {
 
     render(event) {
         console.log("initialValuesAdvanced::render");
-        const v = this.inputTarget.value;
 
-        const advanced = event && event.srcElement.checked;
+        const advanced = event && event.target.checked;
         if(advanced) {
         //    $('.fieldSource').hide();
             $('.initialValuesAll').show(); //.prop('disabled', false);
