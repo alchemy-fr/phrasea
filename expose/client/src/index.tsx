@@ -4,7 +4,7 @@ import './scss/index.scss';
 import ConfigWrapper from './component/ConfigWrapper';
 import * as serviceWorker from './serviceWorker';
 import './i18n/i18n';
-import AnalyticsProvider from "./component/AnalyticsProvider";
+import AnalyticsProvider from "./component/anaytics/AnalyticsProvider";
 
 ReactDOM.render(<AnalyticsProvider>
     <ConfigWrapper />

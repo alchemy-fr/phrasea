@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Route, BrowserRouter as Router, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import PublicationRoute from "./routes/PublicationRoute";
 import PublicationIndex from "./index/PublicationIndex";
 import AssetRoute from "./routes/AssetRoute";
@@ -9,6 +9,7 @@ import ErrorPage from "./ErrorPage";
 import OAuthRedirect from "./OAuthRedirect";
 import {DashboardMenu} from "react-ps";
 import EmbeddedAsset from "./EmbeddedAsset";
+import AnalyticsRouterProvider from "./anaytics/AnalyticsRouterProvider";
 
 class App extends PureComponent {
     state = {
@@ -54,54 +55,56 @@ class App extends PureComponent {
         const css = config.get('globalCSS');
 
         return <Router>
-            {css && <style>
-                {css}
-            </style>}
-            {config.get('displayServicesMenu') && <DashboardMenu
-                dashboardBaseUrl={config.get('dashboardBaseUrl')}
-            />}
-            <Switch>
-                <Route path="/auth/:provider" component={props => {
-                    return <OAuthRedirect
-                        {...props}
-                        oauthClient={oauthClient}
-                        successHandler={(history) => {
-                            const redirectUri = getAuthRedirect() || '/';
-                            unsetAuthRedirect();
-                            if (window.opener) {
-                                try {
-                                    if (window.opener.isPhraseaApp) {
-                                        window.opener.document.location.href = redirectUri;
-                                        window.close();
+            <AnalyticsRouterProvider>
+                {css && <style>
+                    {css}
+                </style>}
+                {config.get('displayServicesMenu') && <DashboardMenu
+                    dashboardBaseUrl={config.get('dashboardBaseUrl')}
+                />}
+                <Switch>
+                    <Route path="/auth/:provider" component={props => {
+                        return <OAuthRedirect
+                            {...props}
+                            oauthClient={oauthClient}
+                            successHandler={(history) => {
+                                const redirectUri = getAuthRedirect() || '/';
+                                unsetAuthRedirect();
+                                if (window.opener) {
+                                    try {
+                                        if (window.opener.isPhraseaApp) {
+                                            window.opener.document.location.href = redirectUri;
+                                            window.close();
+                                        }
+
+                                        return;
+                                    } catch (err) {
+                                        console.error(err);
                                     }
-
-                                    return;
-                                } catch (err) {
-                                    console.error(err);
                                 }
-                            }
 
-                            history.replace(redirectUri);
-                        }}
-                    />
-                }}/>
-                {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
-                <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
-                    id={params.asset}
-                />}/>
-                <Route path="/:publication" exact render={props => <PublicationRoute
-                    {...props}
-                    authenticated={this.state.authenticated}
-                />}/>
-                <Route path="/:publication/:asset" exact render={props => <AssetRoute
-                    {...props}
-                    authenticated={this.state.authenticated}
-                />}/>
-                <Route path="/" exact render={() => <ErrorPage
-                    title={'Not found'}
-                    code={404}
-                />}/>
-            </Switch>
+                                history.replace(redirectUri);
+                            }}
+                        />
+                    }}/>
+                    {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex}/>}
+                    <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
+                        id={params.asset}
+                    />}/>
+                    <Route path="/:publication" exact render={props => <PublicationRoute
+                        {...props}
+                        authenticated={this.state.authenticated}
+                    />}/>
+                    <Route path="/:publication/:asset" exact render={props => <AssetRoute
+                        {...props}
+                        authenticated={this.state.authenticated}
+                    />}/>
+                    <Route path="/" exact render={() => <ErrorPage
+                        title={'Not found'}
+                        code={404}
+                    />}/>
+                </Switch>
+            </AnalyticsRouterProvider>
         </Router>
     }
 }

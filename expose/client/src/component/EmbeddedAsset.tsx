@@ -21,7 +21,7 @@ export default function EmbeddedAsset({
         try {
             const asset = await loadAsset(id);
             setData(asset);
-        } catch (e) {
+        } catch (e: any) {
             setError(e.toString());
         }
     }, [id]);
