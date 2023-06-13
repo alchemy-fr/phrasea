@@ -13,9 +13,9 @@ export default class extends Controller {
         console.log("initialValuesAll::connect");
     }
 
-    tagChanged(e) {
-        console.log("initialValuesAll::tagChanged", e);
-        this.inputTarget.value = e;
+    tagChanged(js) {
+        console.log("initialValuesAll::tagChanged", js);
+        this.inputTarget.value = js;
     }
 
     render() {

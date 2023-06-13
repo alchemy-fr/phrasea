@@ -18,11 +18,8 @@ export default class extends Controller {
         console.log("initialValuesSource::render");
 
         const tagName = event.target.tomselect.getValue();
-        let js;
-        if(tagName === '') {
-            js = '';
-        }
-        else {
+        let js = '';
+        if(tagName !== '') {
             js = JSON.stringify(
                 {
                     'type': 'metadata',

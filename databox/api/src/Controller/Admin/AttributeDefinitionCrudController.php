@@ -95,11 +95,11 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 
         $initialValuesSource = AssociationField::new('initialValuesSource')
             ->addCssClass('initialValuesSource')
-            ->setQueryBuilder(
-                function (QueryBuilder $queryBuilder) {
-                  $queryBuilder->getQuery();
-                }
-            )
+//            ->setQueryBuilder(
+//                function (QueryBuilder $queryBuilder) {
+//                  $queryBuilder->getQuery();
+//                }
+//            )
             ->autocomplete()
             ->setCrudController(MetadataTagController::class)
             ->setFormTypeOptions([
@@ -117,7 +117,6 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 
         $initialValuesAdvanced = BooleanField::new('advanced')
             ->renderAsSwitch(false)
-            ->addCssClass('advancedFieldSource')
             ->setFormTypeOptions([
                 'mapped' => false,
                 'row_attr' => [
