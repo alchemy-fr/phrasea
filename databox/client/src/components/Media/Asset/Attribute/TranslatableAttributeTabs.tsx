@@ -3,7 +3,7 @@ import {Alert, Box, Tab, Tabs} from "@mui/material";
 import Flag from "../../../Ui/Flag";
 import MultiAttributeRow from "./MultiAttributeRow";
 import {isRtlLocale} from "../../../../lib/lang";
-import {AttrValue, LocalizedAttributeIndex} from "./AttributesEditor";
+import {AttrValue, LocalizedAttributeIndex, NO_LOCALE} from "./AttributesEditor";
 import AttributeWidget from "./AttributeWidget";
 import {AttributeDefinition} from "../../../../types";
 import {TabPanelProps} from "@mui/lab";
@@ -44,7 +44,16 @@ export default function TranslatableAttributeTabs({
     attributes,
     readOnly,
 }: Props) {
-    const locales = definition.locales!;
+    const locales = React.useMemo<string[]>(() => {
+        const l = [...definition.locales!];
+        const hasUndetermined = attributes.hasOwnProperty(NO_LOCALE);
+
+        if (hasUndetermined) {
+            l.push(NO_LOCALE);
+        }
+
+        return l;
+    }, [definition.locales, attributes]);
 
     if (locales.length === 0) {
         return <Alert
@@ -53,6 +62,8 @@ export default function TranslatableAttributeTabs({
             No locale defined in this workspace
         </Alert>
     }
+
+    const humanLocale = (l: string) => l === NO_LOCALE ? `Untranslated` : l;
 
     return <>
         <Box sx={{
@@ -77,7 +88,7 @@ export default function TranslatableAttributeTabs({
                             locale={l}
                             sx={{mb: 1}}
                         />
-                        {l}
+                        {humanLocale(l)}
                     </>}
                     value={l}
                 />)}
@@ -85,7 +96,7 @@ export default function TranslatableAttributeTabs({
         </Box>
 
         {locales.map((locale) => {
-            const label = `${definition.name} ${locale}`;
+            const label = `${definition.name} ${humanLocale(locale)}`;
 
             return <TabPanel
                 currentValue={currentLocale}
