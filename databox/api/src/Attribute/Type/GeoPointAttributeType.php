@@ -35,10 +35,20 @@ class GeoPointAttributeType extends AbstractAttributeType
     public function normalizeValue($value): ?string
     {
         if (is_array($value)) {
-            return sprintf('%f, %f', $value['lat'], $value['lng']);
+            if (isset($value['lat'], $value['lng'])) {
+                return sprintf('%g,%g', $value['lng'], $value['lat']);
+            } elseif (isset($value[0], $value[1])) {
+                return sprintf('%g,%g', $value[0], $value[1]);
+            } else {
+                return null;
+            }
         }
 
-        return $value;
+        if (!is_string($value) || !str_contains($value, ',')) {
+            return null;
+        }
+
+        return $this->normalizeValue($this->denormalizeValue($value));
     }
 
     public function denormalizeValue(?string $value)
@@ -47,7 +57,11 @@ class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        [$lat, $lng] = explode(',', $value);
+        if (!is_string($value) || !str_contains($value, ',')) {
+            return null;
+        }
+
+        [$lng, $lat] = explode(',', $value);
 
         return [
             'lng' => (float) trim($lng),
