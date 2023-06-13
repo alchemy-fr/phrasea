@@ -76,8 +76,6 @@ export function getBatchActions(
     });
 
     if (remoteAttrs) {
-        console.log('remoteAttrs', remoteAttrs);
-        console.log('attributes', attributes);
         Object.keys(remoteAttrs).forEach((defId): void => {
             Object.keys(remoteAttrs[defId]).forEach((locale): void => {
                 const remoteV = remoteAttrs[defId][locale];
