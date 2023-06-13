@@ -1,13 +1,15 @@
 import {useState} from "react";
 import {AxiosError} from "axios";
 import {UseFormSetError} from "react-hook-form/dist/types/form";
-import {mapApiErrors} from "../lib/form";
+import {ApiErrorMapping, mapApiErrors, NormalizePath} from "../lib/form";
 
 type OnSubmit<T extends object, R> = (data: T) => Promise<R>;
 
 type Props<T extends object, R> = {
     onSubmit: OnSubmit<T, R>;
     onSuccess?: (res: R) => void;
+    mapping?: ApiErrorMapping<T>;
+    normalizePath?: NormalizePath;
 }
 
 export type UseFormHandleSubmit<T extends object> = (setError: UseFormSetError<T>) => (data: T) => Promise<void>;
@@ -15,6 +17,8 @@ export type UseFormHandleSubmit<T extends object> = (setError: UseFormSetError<T
 export default function useFormSubmit<T extends object, R = any>({
     onSubmit,
     onSuccess,
+    mapping,
+    normalizePath,
 }: Props<T, R>) {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -33,7 +37,7 @@ export default function useFormSubmit<T extends object, R = any>({
             if (e.isAxiosError) {
                 const err = e as AxiosError<any>;
                 if (422 === err.response?.status) {
-                    mapApiErrors(err, setError);
+                    mapApiErrors(err, setError, setErrors, undefined, mapping, normalizePath);
                 } else if (err.response && [400, 500].includes(err.response.status)) {
                     setErrors(p => p.concat(err.response!.data['hydra:description'] as string));
                 }

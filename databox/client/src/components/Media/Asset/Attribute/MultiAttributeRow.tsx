@@ -4,6 +4,8 @@ import AttributeWidget from "./AttributeWidget";
 import {AttrValue, createNewValue} from "./AttributesEditor";
 import FormRow from "../../../Form/FormRow";
 import {useTranslation} from 'react-i18next';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type Props = {
     id: string;
@@ -95,10 +97,11 @@ export default function MultiAttributeRow({
                         id={`${id}_${i}`}
                     />
                     <Button
-                        variant="contained"
+                        startIcon={<DeleteIcon/>}
+                        variant="outlined"
                         disabled={readOnly || disabled}
                         onClick={() => remove(i)}
-                        color="secondary">
+                        color="error">
                         {t('form.attribute.collection.item_remove', 'Remove')}
                     </Button>
                 </FormRow>
@@ -106,11 +109,15 @@ export default function MultiAttributeRow({
         })}
 
         <Button
-            variant="contained"
+            startIcon={<AddIcon/>}
+            variant="outlined"
             disabled={readOnly || disabled}
             onClick={add}
-            color="secondary">
-            Add {name}
+            color="secondary"
+        >
+            {t('form.attribute.collection.item_add', 'Add {{name}}', {
+                name,
+            })}
         </Button>
     </FormRow>
 }

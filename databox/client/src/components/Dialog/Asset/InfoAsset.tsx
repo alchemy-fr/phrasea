@@ -29,7 +29,7 @@ export default function InfoAsset({
             />
             <Divider/>
             <InfoRow
-                label={'Creation date'}
+                label={'Date Added'}
                 value={data.createdAt}
                 copyValue={data.createdAt}
                 icon={<EventIcon/>}

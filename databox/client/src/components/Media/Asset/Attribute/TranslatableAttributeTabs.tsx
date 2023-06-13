@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Tab, Tabs} from "@mui/material";
+import {Alert, Box, Tab, Tabs} from "@mui/material";
 import Flag from "../../../Ui/Flag";
 import MultiAttributeRow from "./MultiAttributeRow";
 import {isRtlLocale} from "../../../../lib/lang";
@@ -45,6 +45,14 @@ export default function TranslatableAttributeTabs({
     readOnly,
 }: Props) {
     const locales = definition.locales!;
+
+    if (locales.length === 0) {
+        return <Alert
+            severity={'warning'}
+        >
+            No locale defined in this workspace
+        </Alert>
+    }
 
     return <>
         <Box sx={{

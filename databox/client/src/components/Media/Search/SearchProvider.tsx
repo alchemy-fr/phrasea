@@ -15,7 +15,7 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
         },
         {
             a: BuiltInFilter.CreatedAt,
-            t: 'Creation date',
+            t: 'Date Added',
             w: 1,
             g: false,
         },
