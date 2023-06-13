@@ -404,9 +404,4 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     {
         $this->sortable = $sortable;
     }
-
-    public function getTagsList(MetadataManipulator $metadataManipulator)
-    {
-        return $metadataManipulator->getKnownTagGroups();
-    }
 }

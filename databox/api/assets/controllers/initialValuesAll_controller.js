@@ -26,7 +26,6 @@ export default class extends Controller {
             const js = JSON.parse(this.inputTarget.value);
             if (js.type === 'metadata') {
                 tagName = js.value;
-//                $(".fieldSource input").val(js.value);
             }
         }
         catch (e) {

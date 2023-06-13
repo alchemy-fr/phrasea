@@ -20,7 +20,6 @@ export default class extends Controller {
         const tagName = event.target.tomselect.getValue();
         let js;
         if(tagName === '') {
-            // $('.initialValuesAll TEXTAREA').val('');
             js = '';
         }
         else {
@@ -64,7 +63,6 @@ export default class extends Controller {
         else {
             tom.setValue('', true);
         }
- //       tom.setValue(tagName, true);
     }
 
 }
