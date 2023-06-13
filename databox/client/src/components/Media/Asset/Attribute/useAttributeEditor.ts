@@ -100,6 +100,7 @@ export function useAttributeEditor({
             const attributeIndex = buildAttributeIndex(state!.definitionIndex, res);
 
             setRemoteAttributes(attributeIndex);
+            setAttributes(attributeIndex);
         };
 
         const getActions = () => {

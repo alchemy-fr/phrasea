@@ -22,9 +22,10 @@ export function getBatchActions(
             }
 
             if (currValue) {
-                const removeV = remoteAttrs ? remoteAttrs[defId][locale] as AttrValue[] : undefined;
+                const removeC = remoteAttrs ? remoteAttrs[defId] as { [locale: string]: AttrValue[]} : undefined;
+                const removeV = removeC ? removeC[locale] as AttrValue[] : undefined;
                 if (currValue instanceof Array) {
-                    if (!removeV) {
+                    if (!removeC) {
                         actions.push({
                             action: AttributeBatchActionEnum.Set,
                             definitionId: defId,
@@ -34,7 +35,7 @@ export function getBatchActions(
                     } else {
                         currValue.forEach((v: AttrValue<string | number>) => {
                             if (v.value !== undefined) {
-                                const found = removeV.find(_v => _v.id === v.id);
+                                const found = removeV?.find(_v => _v.id === v.id);
                                 if (!found) {
                                     actions.push({
                                         action: AttributeBatchActionEnum.Add,
@@ -75,7 +76,8 @@ export function getBatchActions(
     });
 
     if (remoteAttrs) {
-
+        console.log('remoteAttrs', remoteAttrs);
+        console.log('attributes', attributes);
         Object.keys(remoteAttrs).forEach((defId): void => {
             Object.keys(remoteAttrs[defId]).forEach((locale): void => {
                 const remoteV = remoteAttrs[defId][locale];
