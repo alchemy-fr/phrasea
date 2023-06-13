@@ -39,19 +39,25 @@ export default class extends Controller {
     jsTagChanged(tagName) {
         console.log('jsTagChanged', tagName);
         const tom = $('.initialValuesSource SELECT')[0].tomselect;
+        let handler;
 
         // load("") would load 100 first elements, we don't want that
         if(tagName) {
-            const handler = function (data) {
-                this.off('load', handler)
-                if (data && data[0].entityId === tagName) {
-                    this.setValue(data[0].entityId, true);
-                }
-                else {
-                    this.setValue('', true);    // true (=silent): do NOT generate "changed" event (else it will clear the js)
-                }
+            // ??? buggy if we declare the callback immediatly (tagName value is one step "old")
+            // solution is to _generate_ the callback, injecting the current tagName value ???
+            const gethandler = function(tn) {
+                return function (data) {
+                    this.off('load', handler)
+                    if (data && data[0].entityId === tn) {
+                        this.setValue(data[0].entityId, true);
+                    }
+                    else {
+                        this.setValue('', true);    // silent=true: do NOT generate "changed" event (else it will clear the js)
+                    }
+                };
             };
             // we can update the select value only after load is finished
+            handler = gethandler(tagName);
             tom.on('load', handler);
             tom.load(tagName);
             // tom will NOT call the handler if no need to fetch data (cache ?) so we enforce setValue here in case of...

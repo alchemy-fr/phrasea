@@ -23,16 +23,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 
 
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
-    public function __construct(
-        private readonly AttributeTypeRegistry $typeRegistry,
-        // private readonly MetadataManipulator $metadataManipulator
-    )
+    public function __construct(private readonly AttributeTypeRegistry $typeRegistry)
     {
     }
 
@@ -75,8 +71,6 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             $fileTypeChoices[$name] = $name;
         }
 
-        // $tags = $this->metadataManipulator->getKnownTagGroups();
-
         $workspace = AssociationField::new('workspace')->setColumns(6);
         $class = AssociationField::new('class')->setColumns(6);
         $name = TextField::new('name')->setColumns(6);
@@ -100,6 +94,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 //                  $queryBuilder->getQuery();
 //                }
 //            )
+            ->setHelp("type \"dic ad dat\" (with SPACES) to find sources like  \"DICOM:AdmittingDate\"")
             ->autocomplete()
             ->setCrudController(MetadataTagController::class)
             ->setFormTypeOptions([
