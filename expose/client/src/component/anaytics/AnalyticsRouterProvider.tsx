@@ -5,7 +5,8 @@ import {useLocation} from 'react-router-dom';
 type Props = PropsWithChildren<{}>;
 
 export default function AnalyticsRouterProvider({children}: Props) {
-    const {trackPageView} = useMatomo();
+    const {trackPageView, enableLinkTracking} = useMatomo();
+    enableLinkTracking();
 
     const location = useLocation();
 

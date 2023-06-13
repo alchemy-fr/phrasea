@@ -64,6 +64,7 @@ export default React.forwardRef(function VideoPlayer({
             <video
                 ref={setRef}
                 className="video-js vjs-big-play-centered"
+                data-matomo-title={title}
             >
                 {webVTTLink && <track
                     kind="captions"

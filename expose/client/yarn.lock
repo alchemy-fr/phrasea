@@ -1778,6 +1778,13 @@
   dependencies:
     "@types/react" "^16"
 
+"@types/react-image-magnifiers@^1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@types/react-image-magnifiers/-/react-image-magnifiers-1.3.2.tgz#7c8f08105ee72b7a306d0d068916a9d53a49e3f9"
+  integrity sha512-hrs+OqwRNEh0gsQgXDvFmZ2xMimXZHSMtprkhxavwmep6iL2OwTPtLugzStj+7MVsfTaT1t8TlHE1jBq4ay9dQ==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^5.3.3":
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.3.3.tgz#e9d6b4a66fcdbd651a5f106c2656a30088cc1e83"

@@ -8,4 +8,5 @@ const matomoConfig = analytics.matomo;
 export const matomo = matomoConfig ? createInstance({
     urlBase: matomoConfig.baseUrl,
     siteId: parseInt(matomoConfig.siteId),
+    linkTracking: false,
 }) : undefined;

@@ -12,6 +12,10 @@ export type TConfig = {
     authBaseUrl: string;
     clientId: string;
     clientSecret: string;
+    globalCSS: string;
+    displayServicesMenu: string;
+    dashboardBaseUrl: string;
+    disableIndexPage: string;
 }
 
 const configData = (globalThis as any as {

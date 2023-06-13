@@ -4,12 +4,12 @@ import CookieStorage from "./cookieStorage";
 const accessTokenStorageKey = 'accessToken';
 const usernameStorageKey = 'username';
 
-type TokenResponse = {
+export type TokenResponse = {
     access_token: string;
     expires_in: number;
 };
 
-type UserInfoResponse = {
+export type UserInfoResponse = {
     username: string;
     email: string;
     groups: Record<string, string>;
@@ -17,21 +17,21 @@ type UserInfoResponse = {
     user_id: string;
 }
 
-type AuthEvent = {
+export type AuthEvent = {
     type: string;
 };
 
-type LoginEvent = {
+export type LoginEvent = {
     accessToken: string;
 } & AuthEvent;
 
-type AuthenticationEvent = {
+export type AuthenticationEvent = {
     user: UserInfoResponse;
 } & AuthEvent;
 
-type LogoutEvent = AuthEvent;
+export type LogoutEvent = AuthEvent;
 
-type AuthEventHandler = (event: AuthEvent) => Promise<void>;
+export type AuthEventHandler = (event: AuthEvent) => Promise<void>;
 
 export const authenticationEventType = 'authentication';
 export const loginEventType = 'login';
