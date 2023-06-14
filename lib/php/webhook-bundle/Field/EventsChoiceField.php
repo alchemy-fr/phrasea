@@ -18,6 +18,6 @@ final class EventsChoiceField implements FieldInterface
             ->setProperty($propertyName)
             ->setLabel($label)
             ->setFormType(EventsChoiceType::class)
-            ;
+        ;
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Health;
 
-use Throwable;
-
 class HealthChecker
 {
     /**
@@ -27,7 +25,7 @@ class HealthChecker
                 $check = [
                     'ok' => $ok,
                 ];
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $check = [
                     'ok' => false,
                     'error' => $e->getMessage(),

@@ -22,9 +22,6 @@ use Symfony\Component\Yaml\Yaml;
  */
 class AlchemyCoreExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();

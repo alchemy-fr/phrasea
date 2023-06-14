@@ -34,8 +34,8 @@ abstract class AbstractWorkflowTest extends TestCase
     protected function createOrchestrator(
         array $workflowFiles,
         ?StateRepositoryInterface $stateRepository,
-        ?OutputInterface $output = null,
-        ?EnvContainer $envs = null,
+        OutputInterface $output = null,
+        EnvContainer $envs = null,
     ): array {
         $actionRegistry = new ArrayActionRegistry();
 

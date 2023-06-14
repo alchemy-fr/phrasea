@@ -39,7 +39,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        return (parent::configureUserMenu($user))
+        return parent::configureUserMenu($user)
             ->displayUserAvatar(false);
     }
 

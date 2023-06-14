@@ -47,7 +47,7 @@ class WebhookTrigger
             return;
         }
 
-        /** @var Webhook[] $webhooks */
+        /* @var Webhook[] $webhooks */
         $this->webhooks = $this->em->getRepository(Webhook::class)->findBy([
             'active' => true,
         ]);

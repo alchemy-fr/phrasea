@@ -6,7 +6,6 @@ namespace Alchemy\RemoteAuthBundle\Security;
 
 use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use Exception;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -25,7 +24,7 @@ class RemoteUserProvider implements UserProviderInterface
 
     public function loadUserByUsername($username)
     {
-        throw new Exception('Not implemented');
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -58,11 +57,8 @@ class RemoteUserProvider implements UserProviderInterface
         return RemoteUser::class === $class;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        throw new Exception('Not implemented');
+        throw new \Exception('Not implemented');
     }
 }

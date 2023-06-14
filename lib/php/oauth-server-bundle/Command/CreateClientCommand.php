@@ -6,7 +6,6 @@ namespace Alchemy\OAuthServerBundle\Command;
 
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use FOS\OAuthServerBundle\Model\ClientManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,9 +27,6 @@ class CreateClientCommand extends Command
         $this->validator = $validator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -104,9 +100,6 @@ EOT
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
@@ -133,7 +126,7 @@ EOT
 
         if ($append = $input->getOption('append-redirect-uri')) {
             if ($input->getOption('redirect-uri')) {
-                throw new InvalidArgumentException('Options append-redirect-uri and redirect-uri cannot be used together');
+                throw new \InvalidArgumentException('Options append-redirect-uri and redirect-uri cannot be used together');
             }
             $client->setRedirectUris(array_unique(array_merge(
                 $client->getRedirectUris(),
@@ -145,7 +138,7 @@ EOT
 
         if ($append = $input->getOption('append-grant-type')) {
             if ($input->getOption('grant-type')) {
-                throw new InvalidArgumentException('Options append-grant-type and grant-type cannot be used together');
+                throw new \InvalidArgumentException('Options append-grant-type and grant-type cannot be used together');
             }
             $client->setAllowedGrantTypes(array_unique(array_merge(
                 $client->getAllowedGrantTypes(),
@@ -157,7 +150,7 @@ EOT
 
         if ($append = $input->getOption('append-scope')) {
             if ($input->getOption('scope')) {
-                throw new InvalidArgumentException('Options append-scope and scope cannot be used together');
+                throw new \InvalidArgumentException('Options append-scope and scope cannot be used together');
             }
             $client->setAllowedScopes(array_unique(array_merge(
                 $client->getAllowedScopes(),
@@ -169,7 +162,7 @@ EOT
 
         $violations = $this->validator->validate($client);
         if ($violations->count() > 0) {
-            throw new InvalidArgumentException(sprintf('Client validation failed: %s', $violations[0]->getMessage()));
+            throw new \InvalidArgumentException(sprintf('Client validation failed: %s', $violations[0]->getMessage()));
         }
 
         $this->clientManager->updateClient($client);

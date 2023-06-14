@@ -63,10 +63,10 @@ class WebhookTriggerHandler extends AbstractEntityManagerHandler
             } else {
                 $res = '';
                 foreach (array_keys($response->getHeaders()) as $h) {
-                    $res .= $h . ': '.$response->getHeaderLine($h)."\n";
+                    $res .= $h.': '.$response->getHeaderLine($h)."\n";
                 }
-                $res.= "\n\n";
-                $res.= $response->getBody()->getContents();
+                $res .= "\n\n";
+                $res .= $response->getBody()->getContents();
                 $log->setResponse($res);
             }
 

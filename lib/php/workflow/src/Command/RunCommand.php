@@ -21,9 +21,6 @@ class RunCommand extends Command
         $this->orchestrator = $orchestrator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -31,9 +28,6 @@ class RunCommand extends Command
         $this->addArgument('name', InputArgument::REQUIRED, 'The workflow name to run');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->orchestrator->startWorkflow($input->getArgument('name'));

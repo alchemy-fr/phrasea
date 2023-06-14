@@ -17,8 +17,11 @@ class AuthCode extends BaseAuthCode
      * @var string
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="uuid", unique=true)
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
     protected $id;
@@ -27,12 +30,13 @@ class AuthCode extends BaseAuthCode
      * @var OAuthClient
      *
      * @ORM\ManyToOne(targetEntity="OAuthClient")
+     *
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $client;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -40,10 +44,10 @@ class AuthCode extends BaseAuthCode
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

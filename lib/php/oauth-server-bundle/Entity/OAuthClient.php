@@ -17,12 +17,13 @@ class OAuthClient extends BaseClient
      * @var string
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="string", length=80, unique=true)
      */
     protected $id;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -37,7 +38,7 @@ class OAuthClient extends BaseClient
     {
         parent::__construct();
         $this->setRandomId(substr($this->getRandomId(), 0, 6));
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
     public function setId(string $id): void
@@ -45,7 +46,7 @@ class OAuthClient extends BaseClient
         $this->id = $id;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

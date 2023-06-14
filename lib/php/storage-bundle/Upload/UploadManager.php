@@ -78,11 +78,11 @@ class UploadManager
 
     public function createPutObjectSignedURL(string $path, string $contentType): string
     {
-        $command = $this->client->getCommand('PutObject', array(
+        $command = $this->client->getCommand('PutObject', [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$path,
             'ContentType' => $contentType,
-        ));
+        ]);
         $request = $this->client->createPresignedRequest($command, '+30 minutes');
 
         return (string) $request->getUri();

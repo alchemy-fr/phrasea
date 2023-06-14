@@ -9,14 +9,14 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 
 class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements UserRepositoryInterface
 {
-    public function getUsers(?int $limit = null, ?int $offset = null): array
+    public function getUsers(int $limit = null, int $offset = null): array
     {
         return $this->executeWithAccessToken(function (string $accessToken) use ($limit, $offset): array {
             return $this->serviceClient->getUsers($accessToken, $limit, $offset);
         });
     }
 
-    public function getAclUsers(?int $limit = null, int $offset = 0): array
+    public function getAclUsers(int $limit = null, int $offset = 0): array
     {
         return $this->getUsers($limit, $offset);
     }

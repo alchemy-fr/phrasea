@@ -18,7 +18,7 @@ final class UserChoiceField
         $this->authServiceClient = $authServiceClient;
     }
 
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         /** @var RemoteUser[] $users */
         $users = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {

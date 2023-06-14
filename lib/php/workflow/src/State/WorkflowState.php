@@ -28,7 +28,7 @@ class WorkflowState
         StateRepositoryInterface $stateRepository,
         string $workflowName,
         ?WorkflowEvent $event,
-        ?string $id = null,
+        string $id = null,
         array $context = []
     ) {
         $this->stateRepository = $stateRepository;

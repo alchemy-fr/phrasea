@@ -21,8 +21,7 @@ class UrlSigner
         int $ttl,
         CloudFrontUrlGenerator $cloudFrontUrlGenerator,
         string $pathPrefix = ''
-    )
-    {
+    ) {
         $this->client = $client;
         $this->bucketName = $bucketName;
         $this->ttl = $ttl;

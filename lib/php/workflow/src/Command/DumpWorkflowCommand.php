@@ -27,9 +27,6 @@ class DumpWorkflowCommand extends Command
         $this->workflowRepository = $workflowRepository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -37,9 +34,6 @@ class DumpWorkflowCommand extends Command
         $this->addArgument('id', InputArgument::REQUIRED, 'The workflow ID');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $workflowState = $this->stateRepository->getWorkflowState($input->getArgument('id'));

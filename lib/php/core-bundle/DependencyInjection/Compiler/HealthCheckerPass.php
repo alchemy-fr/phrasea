@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class HealthCheckerPass implements CompilerPassInterface
 {
-    const TAG = 'alchemy_core.health_checker';
+    public const TAG = 'alchemy_core.health_checker';
 
     public function process(ContainerBuilder $container)
     {

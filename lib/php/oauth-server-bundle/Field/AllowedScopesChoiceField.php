@@ -16,12 +16,12 @@ class AllowedScopesChoiceField
         }
     }
 
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         return ChoiceField::new($propertyName, $label)
             ->setChoices($this->choices)
             ->allowMultipleChoices()
             ->renderExpanded(true)
-            ;
+        ;
     }
 }

@@ -7,7 +7,6 @@ use Alchemy\OAuthServerBundle\Entity\AccessToken;
 use Alchemy\OAuthServerBundle\Entity\AuthCode;
 use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\OAuthServerBundle\Entity\RefreshToken;
-use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -25,9 +24,6 @@ use Symfony\Component\Yaml\Parser as YamlParser;
  */
 class AlchemyOAuthServerExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -50,7 +46,7 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
         }
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'alchemy_oauth_server';
     }
@@ -59,7 +55,7 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
     {
         $bundles = $container->getParameter('kernel.bundles');
         if (!isset($bundles['FOSOAuthServerBundle'])) {
-            throw new RuntimeException('You must enable the "FOSOAuthServerBundle"');
+            throw new \RuntimeException('You must enable the "FOSOAuthServerBundle"');
         }
 
         $configs = $container->getExtensionConfig($this->getAlias());

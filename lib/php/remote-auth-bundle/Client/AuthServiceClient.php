@@ -42,17 +42,17 @@ class AuthServiceClient
         return \GuzzleHttp\json_decode($content, true);
     }
 
-    public function getUsers(string $accessToken, ?int $limit = null, ?int $offset = null): array
+    public function getUsers(string $accessToken, int $limit = null, int $offset = null): array
     {
         return $this->get('/users', $accessToken, $limit, $offset);
     }
 
-    public function getGroups(string $accessToken, ?int $limit = null, ?int $offset = null): array
+    public function getGroups(string $accessToken, int $limit = null, int $offset = null): array
     {
         return $this->get('/groups', $accessToken, $limit, $offset);
     }
 
-    private function get(string $path, string $accessToken, ?int $limit = null, ?int $offset = null): array
+    private function get(string $path, string $accessToken, int $limit = null, int $offset = null): array
     {
         try {
             $response = $this->client->request('GET', $path, [

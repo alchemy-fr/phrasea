@@ -50,11 +50,10 @@ final class EntityLoadListener implements EventSubscriberInterface
                         'referencedColumnName' => 'id',
                         'onDelete' => 'CASCADE',
                         'nullable' => false,
-                    ]
+                    ],
                 ],
             ]);
         }
-
     }
 
     public function getSubscribedEvents()

@@ -14,9 +14,6 @@ class EntityRegistry
     }
 
     /**
-     * @param string $class
-     * @param string $event
-     *
      * @return array{
      *           eventName: string,
      *           event: string,

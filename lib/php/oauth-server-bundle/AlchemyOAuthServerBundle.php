@@ -7,11 +7,12 @@ namespace Alchemy\OAuthServerBundle;
 use Alchemy\OAuthServerBundle\DependencyInjection\AlchemyOAuthServerExtension;
 use Alchemy\OAuthServerBundle\DependencyInjection\Compiler\OverrideOAuthServiceCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class AlchemyOAuthServerBundle extends Bundle
 {
-    public function getContainerExtension()
+    public function getContainerExtension(): ?ExtensionInterface
     {
         return new AlchemyOAuthServerExtension();
     }

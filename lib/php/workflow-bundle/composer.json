@@ -16,9 +16,9 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "symfony/framework-bundle": "^4.0||^5",
+    "symfony/framework-bundle": "^6",
     "symfony/monolog-bundle": "^3.5",
-    "symfony/config": "^5.4",
+    "symfony/config": "^6.3",
     "ramsey/uuid": "^4.2",
     "alchemy/workflow": "@dev"
   },
@@ -43,7 +43,7 @@
     }
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.16",
-    "phpunit/phpunit": "^8.4"
+    "friendsofphp/php-cs-fixer": "^3.17",
+    "phpunit/phpunit": "^10.2"
   }
 }

@@ -26,8 +26,7 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         EntityRegistry $entityRegistry,
         WebhookTrigger $webhookTrigger,
         ObjectNormalizer $objectNormalizer
-    )
-    {
+    ) {
         $this->entitySerializer = $entitySerializer;
         $this->entityRegistry = $entityRegistry;
         $this->webhookTrigger = $webhookTrigger;
@@ -79,7 +78,7 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         return $this->objectNormalizer->normalize($entity, $groups);
     }
 
-    public static function createEvent(string $class, string $event, array $data, ?array $changeSet = null): EventMessage
+    public static function createEvent(string $class, string $event, array $data, array $changeSet = null): EventMessage
     {
         $payload = [
             'event' => $event,

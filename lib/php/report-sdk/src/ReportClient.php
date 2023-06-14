@@ -7,7 +7,6 @@ namespace Alchemy\ReportSDK;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Throwable;
 
 class ReportClient
 {
@@ -21,7 +20,7 @@ class ReportClient
         string $appName,
         string $appId,
         Client $client,
-        ?LogValidator $logValidator = null,
+        LogValidator $logValidator = null,
         LoggerInterface $logger = null
     ) {
         $this->client = $client;
@@ -37,8 +36,8 @@ class ReportClient
 
     public function pushLog(
         string $action,
-        ?string $userId = null,
-        ?string $itemId = null,
+        string $userId = null,
+        string $itemId = null,
         array $payload = []
     ): void {
         $log = [
@@ -64,7 +63,7 @@ class ReportClient
             $this->client->post('/log', [
                 'json' => $log,
             ]);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->alert(sprintf(
                 'Unable to send log to report service: (%s) %s',
                 $e->getMessage(),

@@ -10,13 +10,13 @@ use GuzzleHttp\Psr7\Response;
 
 class AuthServiceClientTestMock extends Client
 {
-    const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
-    const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
+    public const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
+    public const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
 
-    const USER_UID = '123';
-    const ADMIN_UID = '4242';
+    public const USER_UID = '123';
+    public const ADMIN_UID = '4242';
 
-    const USERS_ID = [
+    public const USERS_ID = [
         self::USER_TOKEN => self::USER_UID,
         self::ADMIN_TOKEN => self::ADMIN_UID,
     ];

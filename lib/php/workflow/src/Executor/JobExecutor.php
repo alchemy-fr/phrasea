@@ -31,9 +31,9 @@ class JobExecutor
         private readonly ActionRegistryInterface $actionRegistry,
         private readonly ExpressionParser $expressionParser,
         private readonly StateRepositoryInterface $stateRepository,
-        ?OutputInterface $output = null,
-        ?LoggerInterface $logger = null,
-        ?EnvContainer $envs = null,
+        OutputInterface $output = null,
+        LoggerInterface $logger = null,
+        EnvContainer $envs = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();

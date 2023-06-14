@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\MetadataManipulator;
 
-use Alchemy\MetadataManipulatorBundle\Exception\UnknownTagGroupNameException;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Exception\TagUnknown;
@@ -12,13 +11,13 @@ use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase
 {
-    const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
-    const TEST_IMAGE_WRITABLE_FILE = __DIR__.'/fixtures/image_w.jpg';
+    public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+    public const TEST_IMAGE_WRITABLE_FILE = __DIR__.'/fixtures/image_w.jpg';
 
     private ?MetadataManipulator $service = null;
 
     /**
-     * @covers MetadataManipulator::createMetadata
+     * @covers \MetadataManipulator::createMetadata
      */
     public function testWrite(): void
     {
@@ -43,7 +42,7 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @covers MetadataManipulator::createMetadata
+     * @covers \MetadataManipulator::createMetadata
      */
     public function testWriteUnknown(): void
     {
@@ -63,7 +62,7 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @covers MetadataManipulator::getReader
+     * @covers \MetadataManipulator::getReader
      */
     protected function setup(): void
     {

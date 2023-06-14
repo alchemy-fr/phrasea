@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Entity;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -20,8 +18,11 @@ class Webhook
      * @var Uuid
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="uuid", unique=true)
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
     protected $id;
@@ -61,11 +62,11 @@ class Webhook
     /**
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private DateTimeInterface $createdAt;
+    private \DateTimeInterface $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId()
@@ -73,7 +74,7 @@ class Webhook
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }

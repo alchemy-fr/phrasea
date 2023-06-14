@@ -12,16 +12,16 @@ class MetadataManipulatorTest extends TestCase
     private ?MetadataManipulator $service = null;
 
     /**
-     * @covers MetadataManipulator::getKnownTagGroups
+     * @covers \MetadataManipulator::getKnownTagGroups
      */
     public function testGetKnownTagGroups(): void
     {
-        $this->markTestIncomplete("TODO: re-implement getKnownTagGroups()");
+        $this->markTestIncomplete('TODO: re-implement getKnownTagGroups()');
         // self::assertIsArray($this->service->getKnownTagGroups());
     }
 
     /**
-     * @covers MetadataManipulator::createTagGroup
+     * @covers \MetadataManipulator::createTagGroup
      */
     public function testGroupName(): void
     {
@@ -30,7 +30,7 @@ class MetadataManipulatorTest extends TestCase
     }
 
     /**
-     * @covers MetadataManipulator::getReader
+     * @covers \MetadataManipulator::getReader
      */
     protected function setup(): void
     {

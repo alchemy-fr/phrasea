@@ -20,9 +20,8 @@ class ObjectNormalizer
         NormalizerInterface $normalizer,
         NormalizerContextBuilderInterface $normalizerContextBuilder,
         TokenStorageInterface $tokenStorage,
-        ?array $normalizerRoles = null
-    )
-    {
+        array $normalizerRoles = null
+    ) {
         $this->normalizer = $normalizer;
         $this->normalizerRoles = $normalizerRoles;
         $this->tokenStorage = $tokenStorage;

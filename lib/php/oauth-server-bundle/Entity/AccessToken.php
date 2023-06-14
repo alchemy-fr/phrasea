@@ -11,6 +11,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass="Alchemy\OAuthServerBundle\Entity\AccessTokenRepository")
+ *
  * @ORM\EntityListeners({"Alchemy\OAuthServerBundle\Doctrine\Listener\AccessTokenListener"})
  */
 class AccessToken extends BaseAccessToken
@@ -19,8 +20,11 @@ class AccessToken extends BaseAccessToken
      * @var Uuid
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="uuid", unique=true)
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
     protected $id;
@@ -29,12 +33,13 @@ class AccessToken extends BaseAccessToken
      * @var OAuthClient
      *
      * @ORM\ManyToOne(targetEntity="OAuthClient")
+     *
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $client;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -42,7 +47,7 @@ class AccessToken extends BaseAccessToken
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId()
@@ -50,7 +55,7 @@ class AccessToken extends BaseAccessToken
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

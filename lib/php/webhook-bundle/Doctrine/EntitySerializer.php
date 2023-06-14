@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Doctrine;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\PersistentCollection;
-use Doctrine\Common\Collections\Collection;
 use Gedmo\Tool\Wrapper\EntityWrapper;
 
 class EntitySerializer
@@ -65,6 +65,7 @@ class EntitySerializer
                 if (null !== $value) {
                     return $this->getEntityIdentifier($value);
                 }
+
                 return null;
             case ClassMetadata::MANY_TO_MANY:
                 if ($value instanceof Collection) {
@@ -130,9 +131,11 @@ class EntitySerializer
             return $collection;
         } elseif ($meta->isSingleValuedAssociation($field)) {
             $mapping = $meta->getAssociationMapping($field);
+
             return $value ? $this->em->getReference($mapping['targetEntity'], $value) : null;
         } else {
             $type = Type::getType($meta->getTypeOfField($field));
+
             return $type->convertToPHPValue($value, $this->em->getConnection()->getDatabasePlatform());
         }
     }

@@ -23,9 +23,6 @@ class DumpCommand extends Command
         $this->mm = $mm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -38,9 +35,6 @@ class DumpCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (null === $filter = $input->getOption('filter')) {

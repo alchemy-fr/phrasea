@@ -9,7 +9,7 @@ readonly class MicroDateTime
     private \DateTimeImmutable $dateTime;
     private int $microseconds;
 
-    public function __construct(string $datetime = null, ?int $microseconds = null)
+    public function __construct(string $datetime = null, int $microseconds = null)
     {
         if (null === $microseconds) {
             [$microTime, $ts] = explode(' ', microtime());

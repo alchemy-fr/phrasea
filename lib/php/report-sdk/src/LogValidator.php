@@ -21,7 +21,7 @@ class LogValidator
      */
     private $validator;
 
-    public function __construct(?string $schema = null)
+    public function __construct(string $schema = null)
     {
         $this->schema = Schema::fromJsonString($schema ?? file_get_contents(__DIR__.'/log-schema.json'));
         $this->validator = new Validator();

@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ClientAllowedScopesOAuth2 extends OAuth2
 {
-    const NO_SCOPE_PROVIDED = '__NO_SCOPE_PROVIDED__';
+    public const NO_SCOPE_PROVIDED = '__NO_SCOPE_PROVIDED__';
 
     /**
      * Overrides parent method in order to keep "scope" empty if input param is empty.
@@ -149,9 +149,6 @@ class ClientAllowedScopesOAuth2 extends OAuth2
         return $headers;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createAccessToken(IOAuth2Client $client, $data, $scope = null, $access_token_lifetime = null, $issue_refresh_token = true, $refresh_token_lifetime = null)
     {
         if (!empty(trim((string) $scope))) {
@@ -170,9 +167,6 @@ class ClientAllowedScopesOAuth2 extends OAuth2
         return parent::createAccessToken($client, $data, $scope, $access_token_lifetime, $issue_refresh_token, $refresh_token_lifetime);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function checkScope($requiredScope, $availableScope)
     {
         if (empty($requiredScope)) {

@@ -18,9 +18,6 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AlchemyWorkflowExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -30,7 +27,7 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         $loader->load('workflow.yaml');
 
-        if ($config['doctrine']['workflow_state_entity'] !== WorkflowState::class) {
+        if (WorkflowState::class !== $config['doctrine']['workflow_state_entity']) {
             $def = new Definition(EntityLoadListener::class);
             $def->setArgument('$workflowStateEntity', $config['doctrine']['workflow_state_entity']);
             $def->setArgument('$jobStateEntity', $config['doctrine']['job_state_entity']);
@@ -52,15 +49,15 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         if (isset($bundles['DoctrineBundle'])) {
             $container->prependExtensionConfig('doctrine', [
-                'orm' =>[
+                'orm' => [
                     'mappings' => [
                         'AlchemyWorkflowBundle' => [
                             'type' => 'yml',
                             'is_bundle' => true,
                             'prefix' => 'Alchemy\\Workflow\\Doctrine\\Entity',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
         }
     }

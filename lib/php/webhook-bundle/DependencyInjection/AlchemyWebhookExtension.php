@@ -18,9 +18,6 @@ use Symfony\Component\Yaml\Parser;
  */
 class AlchemyWebhookExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
@@ -73,8 +70,8 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
                     '%kernel.project_dir%/vendor/alchemy/webhook-bundle/Resources' => 'AlchemyWebhookBundle',
                 ],
                 'form_themes' => [
-                    '@AlchemyWebhookBundle/views/form.html.twig'
-                ]
+                    '@AlchemyWebhookBundle/views/form.html.twig',
+                ],
             ]);
         }
     }

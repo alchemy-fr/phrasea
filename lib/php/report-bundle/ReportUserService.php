@@ -23,7 +23,7 @@ class ReportUserService
         $this->enabled = !empty($reportBaseUrl);
     }
 
-    public function pushHttpRequestLog(Request $request, string $action, ?string $itemId = null, array $payload = []): void
+    public function pushHttpRequestLog(Request $request, string $action, string $itemId = null, array $payload = []): void
     {
         $payload['ip'] = $request->getClientIp();
         $payload['user_agent'] = $request->headers->get('User-Agent');
@@ -32,7 +32,7 @@ class ReportUserService
         $this->pushLog($action, $itemId, $payload);
     }
 
-    public function pushLog(string $action, ?string $itemId = null, array $payload = []): void
+    public function pushLog(string $action, string $itemId = null, array $payload = []): void
     {
         if (!$this->enabled) {
             return;
@@ -50,6 +50,5 @@ class ReportUserService
             $token instanceof PostAuthenticationGuardToken => $token->getUser()->getId(),
             default => null,
         };
-
     }
 }

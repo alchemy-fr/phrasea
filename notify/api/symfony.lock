@@ -133,9 +133,6 @@
             ".php_cs.dist"
         ]
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.2"
-    },
     "guzzlehttp/guzzle": {
         "version": "6.3.3"
     },
@@ -144,9 +141,6 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
-    },
-    "laminas/laminas-code": {
-        "version": "3.4.1"
     },
     "monolog/monolog": {
         "version": "1.25.4"
@@ -181,9 +175,6 @@
             "config/packages/old_sound_rabbit_mq.yaml",
             "src/Consumer/.gitignore"
         ]
-    },
-    "php-cs-fixer/diff": {
-        "version": "v1.3.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -306,9 +297,6 @@
     },
     "sebastian/recursion-context": {
         "version": "4.0.4"
-    },
-    "sebastian/resource-operations": {
-        "version": "3.0.3"
     },
     "sebastian/type": {
         "version": "2.3.4"
@@ -531,9 +519,6 @@
     "symfony/polyfill-php72": {
         "version": "v1.12.0"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.12.0"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.20.0"
     },
@@ -582,9 +567,6 @@
     "symfony/security-csrf": {
         "version": "v4.3.4"
     },
-    "symfony/security-guard": {
-        "version": "v4.3.4"
-    },
     "symfony/security-http": {
         "version": "v4.3.4"
     },
@@ -628,6 +610,18 @@
             "config/packages/twig.yaml",
             "config/routes/dev/twig.yaml",
             "templates/base.html.twig"
+        ]
+    },
+    "symfony/uid": {
+        "version": "6.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.2",
+            "ref": "d294ad4add3e15d7eb1bae0221588ca89b38e558"
+        },
+        "files": [
+            "config/packages/uid.yaml"
         ]
     },
     "symfony/validator": {

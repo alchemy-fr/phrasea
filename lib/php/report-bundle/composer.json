@@ -16,8 +16,8 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
-    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
+    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
     "alchemy/report-sdk": "@dev"
   },
   "config": {
@@ -41,6 +41,6 @@
     }
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.16"
+    "friendsofphp/php-cs-fixer": "^3.17"
   }
 }

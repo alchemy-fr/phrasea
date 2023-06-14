@@ -20,8 +20,7 @@ class PermissionsController extends AbstractController
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
         private readonly GroupRepositoryInterface $groupRepository,
-    )
-    {
+    ) {
     }
 
     /**

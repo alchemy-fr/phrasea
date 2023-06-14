@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Storage;
 
 use League\Flysystem\FilesystemInterface;
-use RuntimeException;
 
 class FileStorageManager
 {
@@ -43,7 +42,7 @@ class FileStorageManager
     {
         $resource = $this->filesystem->readStream($path);
         if (false === $resource) {
-            throw new RuntimeException(sprintf('Cannot read at "%s"', $path));
+            throw new \RuntimeException(sprintf('Cannot read at "%s"', $path));
         }
 
         return $resource;

@@ -10,11 +10,11 @@ use Alchemy\WebhookBundle\Consumer\WebhookHandler;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
 use Alchemy\WebhookBundle\Listener\TerminateStackListener;
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\Common\Collections\Collection;
 
 class EntityListener implements EventSubscriber
 {
@@ -79,7 +79,7 @@ class EntityListener implements EventSubscriber
         foreach (array_merge(
             $uow->getScheduledCollectionUpdates(),
             $uow->getScheduledCollectionDeletions()
-         ) as $collectionUpdate) {
+        ) as $collectionUpdate) {
             $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($collectionUpdate->getOwner()), self::EVENT_UPDATE);
             if (null !== $configNode) {
                 $collectionMapping = $collectionUpdate->getMapping();
@@ -106,7 +106,7 @@ class EntityListener implements EventSubscriber
         foreach ($uow->getScheduledEntityDeletions() as $deletedEntity) {
             $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($deletedEntity), self::EVENT_DELETE);
             if (null !== $configNode) {
-                $this->addChange($configNode, $em,$deletedEntity);
+                $this->addChange($configNode, $em, $deletedEntity);
             }
         }
 
@@ -121,12 +121,12 @@ class EntityListener implements EventSubscriber
         return $this->entitySerializer->convertToDatabaseValue($class, $data);
     }
 
-    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, ?array $changeSet = null): void
+    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, array $changeSet = null): void
     {
         $event = $configNode['event'];
         $oid = spl_object_id($entity);
 
-        if ($event === self::EVENT_UPDATE && isset($this->changes[self::EVENT_CREATE][$oid])) {
+        if (self::EVENT_UPDATE === $event && isset($this->changes[self::EVENT_CREATE][$oid])) {
             return;
         }
 
@@ -140,7 +140,7 @@ class EntityListener implements EventSubscriber
             'config' => $configNode,
         ];
 
-        if ($event === self::EVENT_DELETE) {
+        if (self::EVENT_DELETE === $event) {
             $node['data'] = $this->entitySerializer->getEntityIdentifier($entity);
         } elseif (!isset($node['data'])) {
             $node['data'] = $this->snapshotEntityData($em, $entity);
