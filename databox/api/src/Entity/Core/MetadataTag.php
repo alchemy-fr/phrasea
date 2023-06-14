@@ -6,17 +6,8 @@ namespace App\Entity\Core;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- *
- */
 class MetadataTag
 {
-    public function __toString()
-    {
-        return $this->label;
-    }
-
     /**
      *
      * @ORM\Id

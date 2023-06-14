@@ -4,7 +4,6 @@ import $ from 'jquery'
 export default class extends Controller {
     static targets = ['input'];
 
-
     initialize(e) {
     }
 

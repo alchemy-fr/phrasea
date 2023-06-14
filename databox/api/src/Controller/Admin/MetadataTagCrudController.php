@@ -11,13 +11,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class MetadataTagController extends AbstractCrudController
+class MetadataTagCrudController extends AbstractCrudController
 {
     private array $knowTags;
 
-    public function __construct(MetadataManipulator $metadataManipulator)
+    public function __construct(private readonly MetadataManipulator $metadataManipulator)
     {
-        $this->knowTags = array_keys($metadataManipulator->getKnownTagGroups());
     }
 
     public static function getEntityFqcn(): string
@@ -55,7 +54,7 @@ class MetadataTagController extends AbstractCrudController
         $a = array_values(preg_filter(
             "/^" . $q . "/i",
             "$0",
-            $this->knowTags
+            array_keys($this->metadataManipulator->getKnownTagGroups())
         ));
 
         // todo: quick&dirty build of response. We should use paginator etc.

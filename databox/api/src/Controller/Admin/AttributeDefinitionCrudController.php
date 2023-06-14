@@ -81,9 +81,9 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 
         $initialValuesSource = AssociationField::new('initialValuesSource')
             ->addCssClass('initialValuesSource')
-            ->setHelp("type \"dic ad dat\" (with SPACES) to find sources like  \"<b>DI</b>COM:<b>Ad</b>mitting<b>Dat</b>e\"")
+            ->setHelp('type "dic ad dat" (with SPACES) to find sources like  "<b>DI</b>COM:<b>Ad</b>mitting<b>Dat</b>e"')
             ->autocomplete()
-            ->setCrudController(MetadataTagController::class)
+            ->setCrudController(MetadataTagCrudController::class)
             ->setFormTypeOptions([
                 'mapped' => false,
                 'multiple' => false,
@@ -113,12 +113,11 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $initialValuesAll = TextareaField::new('initialValuesAll')
             ->addCssClass("initialValuesAll")
             ->addCssClass("helpAtRight")
-            ->setHelp("<div class='label'>Template example:</div><code>{<br/>
-    &nbsp;&nbsp;\"type\": \"template\",<br/>
-    &nbsp;&nbsp;\"value\": \"{{ file.metadata('Composite:GPSLongitude').value }}, {{ file.metadata('Composite:GPSLatitude').value }}\"<br/>
-}</code>")
+            ->setHelp('<div class="label">Template example:</div><code>{
+    "type": "template",
+    "value": "{{ file.metadata(\'Composite:GPSLongitude\').value }}, {{ file.metadata(\'Composite:GPSLatitude\').value }}"
+}</code>')
             ->setFormTypeOptions([
-//                'block_name' => 'custom_initialValuesAll',
                 'row_attr' => [
                     'data-controller' => 'initialValuesAll',
                 ],
