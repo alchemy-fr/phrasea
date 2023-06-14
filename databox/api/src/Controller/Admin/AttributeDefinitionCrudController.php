@@ -71,30 +71,23 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             $fileTypeChoices[$name] = $name;
         }
 
-        $workspace = AssociationField::new('workspace')->setColumns(6);
-        $class = AssociationField::new('class')->setColumns(6);
-        $name = TextField::new('name')->setColumns(6);
-        $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices)->setColumns(6);
+        $workspace = AssociationField::new('workspace');
+        $class = AssociationField::new('class');
+        $name = TextField::new('name');
+        $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices);
         $fileType = TextField::new('fileType');
 
-        $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false)->setColumns(2);
-        $translatable = BooleanField::new('translatable')->renderAsSwitch(false)->setColumns(2);
-        $sortable = BooleanField::new('sortable')->setColumns(2);
-        $multiple = BooleanField::new('multiple')->renderAsSwitch(false)->setColumns(2);
-        $searchable = BooleanField::new('searchable')->renderAsSwitch(false)->setColumns(2);
-
-        $brk = FormField::addRow();
+        $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false);
+        $translatable = BooleanField::new('translatable')->renderAsSwitch(false);
+        $sortable = BooleanField::new('sortable')->renderAsSwitch(false);
+        $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
+        $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
 
         $searchBoost = IntegerField::new('searchBoost');
 
         $initialValuesSource = AssociationField::new('initialValuesSource')
             ->addCssClass('initialValuesSource')
-//            ->setQueryBuilder(
-//                function (QueryBuilder $queryBuilder) {
-//                  $queryBuilder->getQuery();
-//                }
-//            )
-            ->setHelp("type \"dic ad dat\" (with SPACES) to find sources like  \"DICOM:AdmittingDate\"")
+            ->setHelp("type \"dic ad dat\" (with SPACES) to find sources like  \"<b>DI</b>COM:<b>Ad</b>mitting<b>Dat</b>e\"")
             ->autocomplete()
             ->setCrudController(MetadataTagController::class)
             ->setFormTypeOptions([
@@ -125,7 +118,13 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
 
         $initialValuesAll = TextareaField::new('initialValuesAll')
             ->addCssClass("initialValuesAll")
+            ->addCssClass("helpAtRight")
+            ->setHelp("<div class='label'>Template example:</div><code>{<br/>
+    &nbsp;&nbsp;\"type\": \"template\",<br/>
+    &nbsp;&nbsp;\"value\": \"{{ file.metadata('Composite:GPSLongitude').value }}, {{ file.metadata('Composite:GPSLatitude').value }}\"<br/>
+}</code>")
             ->setFormTypeOptions([
+//                'block_name' => 'custom_initialValuesAll',
                 'row_attr' => [
                     'data-controller' => 'initialValuesAll',
                 ],
@@ -133,14 +132,15 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
                     'data-initialValuesAll-target' => 'input',
                     'data-action' => 'initialValuesAll#render',
                 ],
-            ]);
+            ])
+            ->setColumns(11);
 
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackFR = TextareaField::new('fallbackFR', 'Fallback value template FR')->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
         $id = IdField::new();
         $slug = TextField::new('slug');
-        $facetEnabled = Field::new('facetEnabled');
+        $facetEnabled = BooleanField::new('facetEnabled')->renderAsSwitch(false);
         $fallback = ArrayField::new('fallback');
         $key = TextField::new('key');
         $position = IntegerField::new('position');
@@ -149,21 +149,27 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $class, $name, $fieldType, $multiple, $facetEnabled, $sortable, $searchable, $createdAt];
+            return [$id, $workspace, $class, $name, $fieldType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid,
+                $createdAt];
         }
         elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
+            return [$id, $name, $slug, $fileType, $fieldType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid,
+                $searchBoost,
+                $initialValuesAll,
+                $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
         }
         elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $class, $name, $fieldType, $fileType,
-                $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
                 $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $class, $name, $fieldType, $fileType,
-                $allowInvalid, $sortable, $translatable, $multiple, $searchable, $brk,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
                 $searchBoost,
                 $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];

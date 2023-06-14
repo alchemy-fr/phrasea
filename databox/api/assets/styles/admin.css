@@ -1,0 +1,17 @@
+.form-group.helpAtRight .form-control {
+    width:50%;
+    float: left;
+}
+.form-group.helpAtRight .form-help {
+    padding-left:10px;
+    display: block;
+    width: 50%;
+    float: right;
+}
+.form-group.helpAtRight .form-help .label {
+    font-size: x-small;
+    font-weight: bold;
+}
+.form-group.helpAtRight .form-help CODE {
+    font-size: x-small;
+}
