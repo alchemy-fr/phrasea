@@ -43,11 +43,12 @@ class MetadataTagController extends AbstractCrudController
 
     public function autocomplete(AdminContext $context): JsonResponse
     {
-        // ":" is a special delmiter in tagnames.
-        // searching "dic:da" must find "DICOM:ContentDate"
+        // /!\ The highlight / option-selection upon AssociationField/autocomplete seems done in js, using the passed query.
+        // For multiple word search (AND), this works ONLY if delimiter is SPACE.
+        // searching "dic da" must find "DICOM:ContentDate"
         $q = array_map(
             function($e) { return '.*' . preg_quote($e) . '.*'; },
-            explode(' ', $context->getSearch()->getQuery())
+            explode(' ', $context->getSearch()->getQuery())     // /!\ can't use ":"
         );
         $q = join('', $q);
 

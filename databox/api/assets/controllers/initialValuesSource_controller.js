@@ -7,16 +7,12 @@ export default class extends Controller {
 
 
     initialize(e) {
-        console.log("initialValuesSource::initialize");
     }
 
     connect(e) {
-        console.log("initialValuesSource::connect");
     }
 
     render(event) {
-        console.log("initialValuesSource::render");
-
         const tagName = event.target.tomselect.getValue();
         let js = '';
         if(tagName !== '') {
@@ -37,7 +33,6 @@ export default class extends Controller {
     }
 
     jsTagChanged(tagName) {
-        console.log('jsTagChanged', tagName);
         const tom = $('.initialValuesSource SELECT')[0].tomselect;
         let handler;
 

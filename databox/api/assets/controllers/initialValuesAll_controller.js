@@ -6,21 +6,16 @@ export default class extends Controller {
 
 
     initialize(e) {
-        console.log("initialValuesAll::initialize");
     }
 
     connect(e) {
-        console.log("initialValuesAll::connect");
     }
 
     tagChanged(js) {
-        console.log("initialValuesAll::tagChanged", js);
         this.inputTarget.value = js;
     }
 
     render() {
-        console.log("initialValuesAll::render");
-
         let tagName = '';
         try {
             const js = JSON.parse(this.inputTarget.value);
