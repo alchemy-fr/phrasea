@@ -161,7 +161,7 @@
         "symfony/serializer": "^5.2.0",
         "symfony/twig-bundle": "^5.2.0",
         "symfony/validator": "^5.2.0",
-        "symfony/webpack-encore-bundle": "^1.16",
+        "symfony/webpack-encore-bundle": "^2.0",
         "symfony/yaml": "^5.2.0"
     },
     "require-dev": {
