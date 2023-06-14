@@ -10,7 +10,7 @@ class CreatedAtFacet extends AbstractDateTimeFacet
 {
     protected function getAggregationTitle(): string
     {
-        return 'Creation date';
+        return 'Date Added';
     }
 
     public static function getKey(): string

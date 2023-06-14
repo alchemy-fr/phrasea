@@ -9,6 +9,7 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
+use App\Storage\RenditionManager;
 use App\Util\FileUtil;
 
 abstract class AbstractRekognitionAction extends AbstractIntegrationAction implements IfActionInterface
@@ -16,6 +17,7 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
     public function __construct(
         private readonly RekognitionAnalyzer $analyzer,
         protected readonly BatchAttributeManager $batchAttributeManager,
+        protected readonly RenditionManager $renditionManager,
     ) {
     }
 
@@ -23,8 +25,19 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
     {
         $config = $this->getIntegrationConfig($context);
         $asset = $this->getAsset($context);
-        $file = $asset->getSource();
+
         $category = $this->getCategory();
+        $rendition = $config[$category]['rendition'] ?? null;
+
+        if (null !== $rendition) {
+            $file = $this->renditionManager->getAssetRenditionByName($asset->getId(), $rendition)?->getFile();
+            if (null === $file) {
+                throw new \InvalidArgumentException(sprintf('Rendition "%s" not found for asset "%s". Ensure the rendition creation job was run before!', $rendition, $asset->getId()));
+            }
+        } else {
+            $file = $asset->getSource();
+        }
+
         $this->analyzer->analyze($asset, $file, $category, $config);
     }
 

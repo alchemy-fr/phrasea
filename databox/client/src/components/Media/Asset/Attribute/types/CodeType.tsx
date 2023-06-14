@@ -2,23 +2,30 @@ import React from 'react';
 import {AttributeFormatterProps, AttributeWidgetProps} from "./types";
 import TextareaType from "./TextareaType";
 import CodeEditor from "../../Widgets/CodeEditor";
+import {FormLabel} from "@mui/material";
 
 export default class CodeType extends TextareaType {
     renderWidget({
         value,
+        name,
         onChange,
         id,
         readOnly,
     }: AttributeWidgetProps): React.ReactNode {
-        return <CodeEditor
-            readOnly={readOnly}
-            mode={this.getAceMode()}
-            highlightActiveLine={true}
-            onChange={onChange}
-            name={`code-editor-${id}`}
-            value={value}
-            prettify={this.prettifyCode}
-        />
+        return <>
+            <FormLabel>
+                {name}
+            </FormLabel>
+            <CodeEditor
+                readOnly={readOnly}
+                mode={this.getAceMode()}
+                highlightActiveLine={true}
+                onChange={onChange}
+                name={`code-editor-${id}`}
+                value={value}
+                prettify={this.prettifyCode}
+            />
+        </>
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {

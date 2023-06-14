@@ -1,5 +1,5 @@
 import {AxiosError} from "axios";
-import {UseFormSetError} from "react-hook-form/dist/types/form";
+import {UseFormGetValues, UseFormSetError} from "react-hook-form/dist/types/form";
 import {FieldValues} from "react-hook-form/dist/types/fields";
 import {Path} from "react-hook-form";
 
@@ -9,22 +9,61 @@ type Violation = {
     message: string;
 }
 
+export type NormalizePath = (path: string) => string;
+export type ApiErrorMapping<TFieldValues extends FieldValues> = Record<string, Path<TFieldValues>>;
+
+export function normalizeApiPlatformPath(path: string): string {
+    return path.replace(/\[([^\]]+)]/g, '.$1');
+}
+
 export function mapApiErrors<TFieldValues extends FieldValues>(
-    error: AxiosError<any>,
+    error: AxiosError,
     setError: UseFormSetError<TFieldValues>,
-    mapping: Record<string, Path<TFieldValues>> = {}
+    setRemoteErrors: (handler: (prev: string[]) => string[]) => void,
+    getValues?: UseFormGetValues<TFieldValues> | undefined,
+    mapping: ApiErrorMapping<TFieldValues> = {},
+    normalizePath?: NormalizePath
 ): void {
     const res = error.response;
-    if (res?.status !== 422) {
+    const status = res?.status;
+
+    if (!status || ![422].includes(status)) {
         return;
     }
 
-    if (res.data) {
-        const violations: Violation[] = res.data['violations'] || [];
-        violations.forEach(v => {
-            setError((mapping[v.propertyPath] || v.propertyPath) as Path<TFieldValues>, {
+    const violations: Violation[] = (res!.data as any)['violations'] || [];
+
+    violations.forEach(v => {
+        const p1 = (normalizePath ? normalizePath(v.propertyPath) : v.propertyPath);
+        const p2 = (mapping[p1] || p1) as Path<TFieldValues>;
+
+        if (getValues && objectHasPropertyPath(getValues(), p2)) {
+            setError(p2, {
                 message: v.message,
-            })
-        });
+            });
+        } else {
+            setRemoteErrors(p => p.concat([v.message]));
+        }
+    });
+}
+
+function objectHasPropertyPath(object: Record<string, any>, path: string): boolean {
+    const parts = path.split('.');
+
+    let pointer: Record<string, any> = object;
+    for (let i = 0; i < parts.length; i++) {
+        if (pointer.hasOwnProperty(parts[i])) {
+            if (i === parts.length - 1) {
+                return true;
+            }
+            if (typeof pointer[parts[i]] !== 'object') {
+                return false;
+            }
+            pointer = pointer[parts[i]];
+        } else {
+            return false;
+        }
     }
+
+    return false;
 }
