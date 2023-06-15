@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -18,7 +19,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="`user`")
  * @ORM\EntityListeners({"App\Doctrine\Listener\UserDeleteListener"})
  */
-class User implements UserInterface, UserLocaleInterface, EquatableInterface
+class User implements UserInterface, UserLocaleInterface, EquatableInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @var Uuid
@@ -131,7 +132,12 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         }
     }
 
-    public function getUsername()
+    public function getUserIdentifier(): string
+    {
+        return $this->username;
+    }
+
+    public function getUsername(): string
     {
         return $this->username;
     }
@@ -180,7 +186,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface
         $this->roles = $roles;
     }
 
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }

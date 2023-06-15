@@ -160,12 +160,6 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.2"
     },
-    "friendsofsymfony/oauth-server-bundle": {
-        "version": "1.6.2"
-    },
-    "friendsofsymfony/oauth2-php": {
-        "version": "1.2.3"
-    },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
     },
@@ -201,6 +195,9 @@
             "ref": "20cacc9b2da49d96ea55c8a8dd31324c5be88bc9"
         }
     },
+    "klapaudius/oauth-server-bundle": {
+        "version": "4.0.3"
+    },
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
@@ -209,6 +206,9 @@
     },
     "myclabs/deep-copy": {
         "version": "1.10.2"
+    },
+    "nbgrp/onelogin-saml-bundle": {
+        "version": "v1.3.2"
     },
     "nelmio/alice": {
         "version": "3.2",
@@ -705,6 +705,18 @@
             "config/packages/twig.yaml",
             "config/routes/dev/twig.yaml",
             "templates/base.html.twig"
+        ]
+    },
+    "symfony/uid": {
+        "version": "6.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.2",
+            "ref": "d294ad4add3e15d7eb1bae0221588ca89b38e558"
+        },
+        "files": [
+            "config/packages/uid.yaml"
         ]
     },
     "symfony/validator": {

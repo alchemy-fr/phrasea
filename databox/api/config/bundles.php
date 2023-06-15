@@ -19,7 +19,6 @@ return [
     Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
-    FOS\OAuthServerBundle\FOSOAuthServerBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Arthem\Bundle\RabbitBundle\ArthemRabbitBundle::class => ['all' => true],

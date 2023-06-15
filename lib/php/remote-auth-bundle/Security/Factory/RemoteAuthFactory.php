@@ -6,12 +6,12 @@ namespace Alchemy\RemoteAuthBundle\Security\Factory;
 
 use Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
+use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class RemoteAuthFactory implements SecurityFactoryInterface
+class RemoteAuthFactory implements AuthenticatorFactoryInterface
 {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
@@ -27,7 +27,7 @@ class RemoteAuthFactory implements SecurityFactoryInterface
         return [$providerId, $listenerId, $defaultEntryPoint];
     }
 
-    public function getPosition()
+    public function getPriority()
     {
         return 'pre_auth';
     }

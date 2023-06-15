@@ -225,12 +225,6 @@
             "config/packages/fos_elastica.yaml"
         ]
     },
-    "friendsofsymfony/oauth-server-bundle": {
-        "version": "2.0.x-dev"
-    },
-    "friendsofsymfony/oauth2-php": {
-        "version": "1.3.0"
-    },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.42"
     },
