@@ -88,8 +88,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
                 'mapped' => false,
                 'multiple' => false,
                 'row_attr' => [
-                    'data-controller' => 'initialValuesSource', // initialValuesAll',
-                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged'
+                    'data-controller' => 'initialValuesSource',
+                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged',
                 ],
                 'attr' => [
                     'data-initialValuesSource-target' => 'input',
@@ -97,36 +97,27 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
                 ],
             ]);
 
-        $initialValuesAdvanced = BooleanField::new('advanced')
-            ->renderAsSwitch(false)
-            ->setFormTypeOptions([
-                'mapped' => false,
-                'row_attr' => [
-                    'data-controller' => 'initialValuesAdvanced',
-                ],
-                'attr' => [
-                    'data-initialValuesAdvanced-target' => 'input',
-                    'data-action' => 'initialValuesAdvanced#render',
-                ],
-            ]);
-
         $initialValuesAll = TextareaField::new('initialValuesAll')
             ->addCssClass("initialValuesAll")
             ->addCssClass("helpAtRight")
+            ->setLabel("InitialValues (advanced)")
+            ->setNumOfRows(6)
             ->setHelp('<div class="label">Template example:</div><code>{
     "type": "template",
     "value": "{{ file.metadata(\'Composite:GPSLongitude\').value }}, {{ file.metadata(\'Composite:GPSLatitude\').value }}"
 }</code>')
             ->setFormTypeOptions([
                 'row_attr' => [
-                    'data-controller' => 'initialValuesAll',
+                    'data-controller' => 'initialValuesAll', // initialValuesSource',
+                    'data-action' => "initialValuesAll:jsTagChangedEvt->initialValuesSource#jsTagChangedEvt",
+                    'data-initialValuesAll-initialValuesSource-outlet' => '.initialValuesSource'
                 ],
                 'attr' => [
                     'data-initialValuesAll-target' => 'input',
                     'data-action' => 'initialValuesAll#render',
                 ],
             ])
-            ->setColumns(11);
+            ->setColumns(12);
 
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
@@ -157,14 +148,14 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             return [$workspace, $class, $name, $fieldType, $fileType,
                 $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
                 $searchBoost,
-                $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
+                $initialValuesSource, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
         elseif (Crud::PAGE_EDIT === $pageName) {
             return [$workspace, $class, $name, $fieldType, $fileType,
                 $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
                 $searchBoost,
-                $initialValuesSource, $initialValuesAdvanced, $initialValuesAll,
+                $initialValuesSource, $initialValuesAll,
                 $fallbackAll, $fallbackEN, $fallbackFR];
         }
 

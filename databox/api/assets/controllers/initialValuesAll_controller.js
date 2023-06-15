@@ -3,11 +3,15 @@ import $ from 'jquery'
 
 export default class extends Controller {
     static targets = ['input'];
+    static outlets = ['initialValuesSource'];
 
-    initialize(e) {
-    }
-
-    connect(e) {
+    initialValuesSourceOutletConnected(e) {
+        // tomselect will only be set AFTER connect (?) so we update the select after return (in fact 1 ms is enough...)
+        // https://github.com/hotwired/stimulus/issues/618
+        setTimeout(
+            () => { this.render(); },
+            100
+        );
     }
 
     tagChanged(js) {

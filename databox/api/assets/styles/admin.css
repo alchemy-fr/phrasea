@@ -16,3 +16,8 @@
     font-size: x-small;
     white-space: pre-wrap;
 }
+
+.initialValuesAll TEXTAREA {
+    font-family: monospace;
+    font-size: smaller;
+}
