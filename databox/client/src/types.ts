@@ -82,6 +82,7 @@ export interface AttributeDefinition extends IPermissions {
     multiple: boolean;
     searchable: boolean;
     translatable: boolean;
+    sortable: boolean;
     locales?: string[];
     allowInvalid: boolean;
     canEdit: boolean;

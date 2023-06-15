@@ -26,6 +26,7 @@ class AttributeDefinitionOutputDataTransformer extends AbstractSecurityDataTrans
         $output->fileType = $object->getFileType();
         $output->fieldType = $object->getFieldType();
         $output->searchable = $object->isSearchable();
+        $output->sortable = $object->isSortable();
         $output->facetEnabled = $object->isFacetEnabled();
         $output->translatable = $object->isTranslatable();
         $output->multiple = $object->isMultiple();

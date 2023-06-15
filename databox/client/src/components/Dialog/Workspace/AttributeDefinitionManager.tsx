@@ -157,6 +157,18 @@ function Item({
                 errors={errors}
             />
         </FormRow>
+        <FormRow>
+            <CheckboxWidget
+                label={t('form.attribute_definition.sortable.label', 'Sortable')}
+                control={control}
+                name={'sortable'}
+                disabled={submitting}
+            />
+            <FormFieldErrors
+                field={'sortable'}
+                errors={errors}
+            />
+        </FormRow>
     </form>
 }
 
@@ -185,6 +197,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         translatable: false,
         allowInvalid: false,
         searchable: true,
+        sortable: false,
         fieldType: 'text',
     }
 }

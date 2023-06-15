@@ -69,6 +69,11 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     /**
      * @Groups({"attributedef:index"})
      */
+    public bool $sortable = false;
+
+    /**
+     * @Groups({"attributedef:index"})
+     */
     public bool $multiple = false;
 
     /**
