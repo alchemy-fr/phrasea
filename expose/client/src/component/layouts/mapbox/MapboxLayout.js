@@ -102,7 +102,7 @@ class MapboxLayout extends React.Component {
         }
 
         const {data} = this.props;
-        const locationAsset = data.assets.filter(a => a.asset.lat)[0];
+        const locationAsset = data.assets.filter(a => a.lat)[0];
 
         this.map = initMapbox(this.mapContainer.current, {
             ...this.state,
