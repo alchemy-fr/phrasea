@@ -11,7 +11,7 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 
 class ClarifaiConceptsAction extends AbstractIntegrationAction implements IfActionInterface
 {

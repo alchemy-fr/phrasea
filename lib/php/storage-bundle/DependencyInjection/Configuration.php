@@ -20,6 +20,16 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_storage');
         $treeBuilder->getRootNode()
             ->children()
+                ->arrayNode('upload')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('allowed_types')
+                            ->defaultValue('%env(ALLOWED_FILE_TYPES)%')
+                            ->info('comma separated values of MIME types, optionally including their extensions')
+                            ->example('image/*(jpg,jpeg,png,heic),application/*(pdf,doc,docx),video/*')
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

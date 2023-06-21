@@ -7,7 +7,7 @@ namespace App\Integration\RemoveBg;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 
 class RemoveBgAction extends AbstractIntegrationAction
 {

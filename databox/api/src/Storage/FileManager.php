@@ -7,7 +7,7 @@ namespace App\Storage;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileManager

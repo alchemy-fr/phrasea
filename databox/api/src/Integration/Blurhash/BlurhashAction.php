@@ -16,7 +16,7 @@ use App\Image\ImageManagerFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Storage\RenditionManager;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use kornrunner\Blurhash\Blurhash;
 
 class BlurhashAction extends AbstractIntegrationAction implements IfActionInterface

@@ -11,7 +11,7 @@ use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

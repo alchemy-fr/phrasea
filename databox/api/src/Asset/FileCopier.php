@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Asset;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Storage\FilePathGenerator;
-use App\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileCopier

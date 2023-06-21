@@ -26,6 +26,8 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
         $loader->load('cdn.yaml');
+
+        $container->setParameter('alchemy_storage.upload.allowed_types', $config['upload']['allowed_types']);
     }
 
     public function prepend(ContainerBuilder $container)

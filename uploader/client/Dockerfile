@@ -19,7 +19,7 @@ RUN apk add --no-cache libstdc++ \
     && apk add --virtual .build \
         wget \
     && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env https://github.com/alchemy-fr/config-compiler/releases/download/v2.0.0/generate-env-alpine \
+    && wget -q -O /var/docker/generate-env https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
     && chmod +x /var/docker/generate-env \
     && apk del .build \
     && rm /etc/nginx/conf.d/default.conf

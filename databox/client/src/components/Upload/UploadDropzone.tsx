@@ -1,18 +1,32 @@
 import React from 'react';
-import Dropzone, {DropzoneOptions} from "react-dropzone";
+import Dropzone, {Accept, DropzoneOptions} from "react-dropzone";
 import {Box, Typography} from "@mui/material";
 import {grey} from "@mui/material/colors";
+import config from "../../config";
+
+export function useAccept() {
+    return React.useMemo<Accept | undefined>(() => {
+        const list = [
+            ...(config.get('allowedTypes') as string[]),
+            ...(config.get('allowedExtensions') as string[]).map(e => `.${e}`),
+        ];
+
+        return list.length > 0 ? {'image/*': list} : undefined;
+    }, []);
+}
 
 type Props = {
     onDrop: DropzoneOptions['onDrop'];
 };
 
 export default function UploadDropzone({
-    onDrop
+    onDrop,
 }: Props) {
+    const accept = useAccept();
 
     return <Dropzone
         onDrop={onDrop}
+        accept={accept}
     >
         {({getRootProps, getInputProps, isDragActive}) => (
             <Box

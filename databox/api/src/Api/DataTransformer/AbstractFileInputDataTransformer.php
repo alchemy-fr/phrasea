@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\DataTransformer;
 
 use Alchemy\StorageBundle\Upload\UploadManager;
+use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Doctrine\Listener\PostFlushStack;
@@ -12,7 +13,6 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
 use App\Storage\RenditionManager;
-use App\Util\FileUtil;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

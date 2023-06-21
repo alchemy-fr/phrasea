@@ -6,6 +6,7 @@ parameters:
     env(S3_REQUEST_SIGNATURE_TTL): '3600'
     env(S3_PATH_PREFIX): ''
     env(VERIFY_SSL): true
+    env(ALLOWED_FILE_TYPES): ''
 
 services:
     _defaults:
@@ -56,3 +57,6 @@ services:
         $bucketName: '%env(S3_BUCKET_NAME)%'
         $ttl: '%env(int:S3_REQUEST_SIGNATURE_TTL)%'
         $pathPrefix: '%env(S3_PATH_PREFIX)%'
+
+    Alchemy\StorageBundle\Upload\FileValidator:
+        $allowedTypes: '%alchemy_storage.upload.allowed_types%'

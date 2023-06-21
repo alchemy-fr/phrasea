@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Storage\RenditionManager;
-use App\Util\FileUtil;
 
 abstract class AbstractRekognitionAction extends AbstractIntegrationAction implements IfActionInterface
 {
