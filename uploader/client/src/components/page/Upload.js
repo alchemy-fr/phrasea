@@ -240,7 +240,7 @@ class Upload extends Component {
                 const canSubmit = this.canSubmit(errors);
 
                 const allowedTypes = config.get('allowedTypes');
-                const accept = Object.entries(accept)
+                const accept = Object.entries(allowedTypes)
                     .reduce((a, [mimeType, ext]) => [...a, mimeType, ...ext], [])
                     // Silently discard invalid entries as pickerOptionsFromAccept warns about these
                     .filter((v) => isMIMEType(v) || isExt(v))
@@ -364,11 +364,9 @@ class Upload extends Component {
 export default withRouter(Upload);
 
 export function isMIMEType(v) {
-    return (
-        v === "audio/*" ||
-        v === "video/*" ||
-        v === "image/*" ||
-        v === "text/*" ||
-        /\w+\/[-+.\w]+/g.test(v)
-    );
+    return /\w+\/[*-+.\w]+/g.test(v);
+}
+
+export function isExt(v) {
+    return /^.*\.[\w]+$/.test(v);
 }
