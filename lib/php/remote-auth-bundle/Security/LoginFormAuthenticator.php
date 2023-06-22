@@ -10,29 +10,26 @@ use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
+class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
     private EntityManagerInterface $entityManager;
     private RouterInterface $router;
-    private CsrfTokenManagerInterface $csrfTokenManager;
-    private UserPasswordEncoderInterface $passwordEncoder;
     private AuthServiceClient $client;
     private string $clientId;
     private string $clientSecret;
@@ -44,109 +41,94 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function __construct(
         EntityManagerInterface $entityManager,
         RouterInterface $router,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        UserPasswordEncoderInterface $passwordEncoder,
         AuthServiceClient $client,
         string $clientId,
         string $clientSecret,
         string $routeName,
         string $defaultTargetPath,
-        SessionInterface $session,
+        RequestStack $requestStack,
         RemoteAuthProvider $userProvider
     ) {
         $this->entityManager = $entityManager;
         $this->router = $router;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->passwordEncoder = $passwordEncoder;
         $this->client = $client;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->session = $session;
+        $this->session = $requestStack->getSession();
         $this->userProvider = $userProvider;
         $this->routeName = $routeName;
         $this->defaultTargetPath = $defaultTargetPath;
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         return $this->routeName === $request->attributes->get('_route')
             && $request->isMethod('POST');
     }
 
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): Passport
     {
-        $credentials = [
-            'username' => $request->request->get('username'),
-            'password' => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
-        ];
+        $username = $request->request->get('username');
+        $password = $request->request->get('password');
 
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['username']
+        return new Passport(
+            new UserBadge($username, function($userIdentifier) use ($username, $password) {
+                try {
+                    $response = $this->client->post('oauth/v2/token', [
+                        'json' => [
+                            'username' => $userIdentifier,
+                            'password' => $password,
+                            'grant_type' => 'password',
+                            'client_id' => $this->clientId,
+                            'client_secret' => $this->clientSecret,
+                        ],
+                    ]);
+                } catch (ClientException $e) {
+                    $response = $e->getResponse();
+                    if (401 === $response->getStatusCode()) {
+                        $json = \GuzzleHttp\json_decode($response->getBody()->getContents());
+                        throw new CustomUserMessageAuthenticationException($json['error_description']);
+                    }
+                }
+
+                $content = $response->getBody()->getContents();
+                $data = \GuzzleHttp\json_decode($content, true);
+                if (!isset($data['access_token'])) {
+                    throw new CustomUserMessageAuthenticationException('Invalid credentials');
+                }
+
+                $accessToken = $data['access_token'];
+                $this->session->set('access_token', $data['access_token']);
+
+                $tokenInfo = $this->userProvider->getTokenInfo($accessToken);
+
+                return $this->userProvider->getUserFromToken($tokenInfo);
+            }),
+            new PasswordCredentials($password),
+            [
+                new CsrfTokenBadge(
+                    'authenticate',
+                    $request->request->get('_csrf_token')
+                ),
+//                (new RememberMeBadge())->enable(),
+            ]
         );
-
-        return $credentials;
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
-    {
-        $csrfToken = new CsrfToken('authenticate', $credentials['csrf_token']);
-        if (!$this->csrfTokenManager->isTokenValid($csrfToken)) {
-            throw new InvalidCsrfTokenException();
-        }
-
-        try {
-            $response = $this->client->post('oauth/v2/token', [
-                'json' => [
-                    'username' => $credentials['username'],
-                    'password' => $credentials['password'],
-                    'grant_type' => 'password',
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                ],
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-            if (401 === $response->getStatusCode()) {
-                $json = \GuzzleHttp\json_decode($response->getBody()->getContents());
-                throw new CustomUserMessageAuthenticationException($json['error_description']);
-            }
-        }
-
-        $content = $response->getBody()->getContents();
-        $data = \GuzzleHttp\json_decode($content, true);
-        if (!isset($data['access_token'])) {
-            throw new CustomUserMessageAuthenticationException('Invalid credentials');
-        }
-
-        $accessToken = $data['access_token'];
-        $this->session->set('access_token', $data['access_token']);
-
-        $tokenInfo = $this->userProvider->getTokenInfo($accessToken);
-
-        return $this->userProvider->getUserFromToken($tokenInfo);
-    }
-
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        return true;
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
     {
         if ($redirectUri = $request->query->get('r')) {
             return new RedirectResponse($redirectUri);
         }
 
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
         return new RedirectResponse($this->defaultTargetPath);
     }
 
-    protected function getLoginUrl()
+    protected function getLoginUrl(Request $request): string
     {
         return $this->router->generate($this->routeName);
     }
@@ -157,9 +139,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
      *
      * @return RedirectResponse
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, AuthenticationException $authException = null): Response
     {
-        $url = $this->getLoginUrl().'?r='.urlencode($request->getUri());
+        $url = $this->getLoginUrl($request).'?r='.urlencode($request->getUri());
 
         return new RedirectResponse($url);
     }

@@ -37,7 +37,7 @@ class RemoteAuthAuthenticator
     ): void {
         $securityToken = new RemoteAuthToken($accessToken, $user->getRoles());
         $securityToken->setScopes($tokenInfo['scopes']);
-        $securityToken->setAuthenticated(true);
+//        $securityToken->setAuthenticated(true);
         $securityToken->setUser($user);
 
         $this->tokenStorage->setToken($securityToken);

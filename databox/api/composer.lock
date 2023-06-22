@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d9b7078ffbe97cb965894119361b95c",
+    "content-hash": "c47ac7ade897531fe1021b9f8c9f05f8",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -112,7 +112,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -162,7 +162,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
@@ -213,7 +213,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -331,7 +331,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -383,7 +383,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
@@ -434,7 +434,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/test-bundle",
@@ -482,7 +482,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/webhook-bundle",
@@ -535,7 +535,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow",
@@ -600,7 +600,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow-bundle",
@@ -12885,7 +12885,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-main",
+            "version": "dev-PS-bump-sf",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
@@ -14965,6 +14965,85 @@
                 }
             ],
             "time": "2023-05-23T14:45:45+00:00"
+        },
+        {
+            "name": "symfony/lock",
+            "version": "v6.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/lock.git",
+                "reference": "e7ada2e70316ed784c83f92cea1986546176563b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/lock/zipball/e7ada2e70316ed784c83f92cea1986546176563b",
+                "reference": "e7ada2e70316ed784c83f92cea1986546176563b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "psr/log": "^1|^2|^3",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "doctrine/dbal": "<2.13",
+                "symfony/cache": "<6.2"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^2.13|^3.0",
+                "predis/predis": "^1.1|^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Lock\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jérémy Derussé",
+                    "email": "jeremy@derusse.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Creates and manages locks, a mechanism to provide exclusive access to a shared resource",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cas",
+                "flock",
+                "locking",
+                "mutex",
+                "redlock",
+                "semaphore"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/lock/tree/v6.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-04-21T12:19:45+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",

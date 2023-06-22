@@ -31,7 +31,7 @@ class Kernel extends BaseKernel
         parent::build($container);
 
         $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new AssetTokenFactory());
+        $extension->addAuthenticatorFactory(new AssetTokenFactory());
     }
 
     public function getProjectDir(): string

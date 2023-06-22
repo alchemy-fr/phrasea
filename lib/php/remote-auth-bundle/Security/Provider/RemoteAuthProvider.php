@@ -8,11 +8,10 @@ use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
-use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-class RemoteAuthProvider implements AuthenticationProviderInterface
+class RemoteAuthProvider
 {
     /**
      * @var AuthServiceClient
@@ -46,7 +45,7 @@ class RemoteAuthProvider implements AuthenticationProviderInterface
 
         $authenticatedToken = new RemoteAuthToken($token->getAccessToken(), $roles);
         $authenticatedToken->setScopes($tokenInfo['scopes']);
-        $authenticatedToken->setAuthenticated(true);
+//        $authenticatedToken->setAuthenticated(true);
         if ($user instanceof RemoteUser) {
             $authenticatedToken->setUser($user);
         }

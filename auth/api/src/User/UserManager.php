@@ -10,8 +10,8 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -23,9 +23,9 @@ class UserManager implements UserProviderInterface
     private $em;
 
     /**
-     * @var UserPasswordEncoderInterface
+     * @var UserPasswordHasherInterface
      */
-    private $passwordEncoder;
+    private $passwordHasher;
 
     /**
      * @var bool
@@ -34,11 +34,11 @@ class UserManager implements UserProviderInterface
 
     public function __construct(
         EntityManagerInterface $em,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordHasher,
         bool $validateEmail
     ) {
         $this->em = $em;
-        $this->passwordEncoder = $passwordEncoder;
+        $this->passwordHasher = $passwordHasher;
         $this->validateEmail = $validateEmail;
     }
 
@@ -73,7 +73,7 @@ class UserManager implements UserProviderInterface
 
     public function isPasswordValid(User $user, string $plainPassword): bool
     {
-        return $this->passwordEncoder->isPasswordValid($user, $plainPassword);
+        return $this->passwordHasher->isPasswordValid($user, $plainPassword);
     }
 
     public function encodePassword(User $user): void
@@ -82,7 +82,7 @@ class UserManager implements UserProviderInterface
             throw new InvalidArgumentException('Missing user\'s plain password');
         }
 
-        $hashedPassword = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $user->getPlainPassword());
         $user->setPassword($hashedPassword);
     }
 
@@ -103,7 +103,7 @@ class UserManager implements UserProviderInterface
         $user = $this->findUserByUsername($username);
 
         if (null === $user) {
-            throw new UsernameNotFoundException(sprintf('user "%s" not found', $username));
+            throw new UserNotFoundException(sprintf('user "%s" not found', $username));
         }
 
         return $user;
@@ -147,5 +147,10 @@ class UserManager implements UserProviderInterface
     public function supportsClass($class)
     {
         return User::class === $class;
+    }
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        return $this->loadUserByUsername($identifier);
     }
 }

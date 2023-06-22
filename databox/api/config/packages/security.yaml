@@ -15,18 +15,14 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            anonymous:  ~
             access_denied_handler: alchemy_admin.access_denied_handler
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
-                success_handler: alchemy_admin.logout.success_handler
-            guard:
-                authenticators:
-                    - 'alchemy_remote.login_form.admin'
+            custom_authenticator:
+                - 'alchemy_remote.login_form.admin'
 
         api:
-            anonymous: ~
             stateless: true
             fos_oauth:  true
             remote_auth: true

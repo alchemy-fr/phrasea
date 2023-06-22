@@ -340,7 +340,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
         $this->groups->removeElement($group);
     }
 
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof User
             || $this->getId() !== $user->getId()) {

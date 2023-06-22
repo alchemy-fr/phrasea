@@ -41,7 +41,7 @@ class PublicationVoter extends Voter
         $this->JWTManager = $JWTManager;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Publication;
     }
@@ -71,7 +71,7 @@ class PublicationVoter extends Voter
     /**
      * @param Publication|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();

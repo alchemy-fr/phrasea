@@ -6,8 +6,8 @@ use App\Entity\SamlIdentity;
 use App\Entity\User;
 use App\User\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Nbgrp\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
+use Nbgrp\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
@@ -22,7 +22,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $this->groupManager = $groupManager;
     }
 
-    public function createUser(SamlTokenInterface $token): User
+    public function createUser(SamlToken|string $token, $attributes): User
     {
         $attributes = $token->getAttributes();
 

@@ -46,6 +46,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $loader->load('healthcheck.yaml');
             $this->loadHealthCheckers($container);
         }
+
+        $loader->load('services.yaml');
     }
 
     public function prepend(ContainerBuilder $container)

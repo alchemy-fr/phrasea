@@ -10,4 +10,6 @@ framework:
                 provider: '%env(REDIS_URL)%'
 
             budget_limit.cache:
-                adapter: cache.adapter.pdo
+                adapter: cache.adapter.doctrine_dbal
+
+        default_pdo_provider: 'doctrine.dbal.default_connection'

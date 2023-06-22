@@ -7,6 +7,7 @@ namespace Alchemy\OAuthServerBundle\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\AccessToken as BaseAccessToken;
+use FOS\OAuthServerBundle\Model\ClientInterface;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -36,7 +37,7 @@ class AccessToken extends BaseAccessToken
      *
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    protected $client;
+    protected ClientInterface $client;
 
     /**
      * @var \DateTime

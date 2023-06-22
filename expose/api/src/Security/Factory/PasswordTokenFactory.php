@@ -5,38 +5,36 @@ declare(strict_types=1);
 namespace App\Security\Factory;
 
 use App\Security\Authentication\PasswordTokenProvider;
+use App\Security\Authenticator\PasswordTokenAuthenticator;
 use App\Security\Firewall\PasswordTokenListener;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
+use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class PasswordTokenFactory implements SecurityFactoryInterface
+class PasswordTokenFactory implements AuthenticatorFactoryInterface
 {
-    public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
+    public function createAuthenticator(ContainerBuilder $container, string $firewallName, $config, string $userProviderId): string
     {
-        $providerId = 'security.authentication.provider.password.'.$id;
+        $authenticatorId = 'security.authenticator.password.'.$firewallName;
         $container
-            ->setDefinition($providerId, new ChildDefinition(PasswordTokenProvider::class))
+            ->setDefinition($authenticatorId, new ChildDefinition(PasswordTokenAuthenticator::class))
         ;
 
-        $listenerId = 'security.authentication.listener.password.'.$id;
-        $container->setDefinition($listenerId, new ChildDefinition(PasswordTokenListener::class));
-
-        return [$providerId, $listenerId, $defaultEntryPoint];
+        return $authenticatorId;
     }
 
-    public function getPosition()
-    {
-        return 'http';
-    }
-
-    public function getKey()
+    public function getKey(): string
     {
         return 'password';
     }
 
-    public function addConfiguration(NodeDefinition $node)
+    public function addConfiguration(NodeDefinition $builder)
     {
+    }
+
+    public function getPriority(): int
+    {
+        return 0;
     }
 }

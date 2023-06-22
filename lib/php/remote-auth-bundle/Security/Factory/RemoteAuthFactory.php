@@ -4,40 +4,51 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Security\Factory;
 
-use Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener;
-use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
+use Alchemy\RemoteAuthBundle\Security\RemoteAccessAuthenticator;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 class RemoteAuthFactory implements AuthenticatorFactoryInterface
 {
-    public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
+    public function createAuthenticator(ContainerBuilder $container, $firewallName, $config, $userProviderId): string
     {
-        $providerId = 'security.authentication.provider.remote_auth.'.$id;
+        $authenticatorId = 'security.authenticator.remote_auth.'.$firewallName;
+        $firewallEventDispatcherId = 'security.event_dispatcher.'.$firewallName;
+
         $container
-            ->setDefinition($providerId, new ChildDefinition(RemoteAuthProvider::class))
+            ->setDefinition($authenticatorId, new ChildDefinition(RemoteAccessAuthenticator::class))
         ;
 
-        $listenerId = 'security.authentication.listener.remote_auth.'.$id;
+        // authenticator manager listener
         $container
-            ->setDefinition($listenerId, new ChildDefinition(RemoteAuthListener::class));
+            ->setDefinition('security.firewall.authenticator.'.$firewallName, new ChildDefinition('security.firewall.authenticator'))
+            ->replaceArgument(0, new Reference($authenticatorId))
+        ;
 
-        return [$providerId, $listenerId, $defaultEntryPoint];
+        // user checker listener
+        $container
+            ->setDefinition('security.listener.user_checker.'.$firewallName, new ChildDefinition('security.listener.user_checker'))
+            ->replaceArgument(0, new Reference('security.user_checker.'.$firewallName))
+            ->addTag('kernel.event_subscriber', ['dispatcher' => $firewallEventDispatcherId])
+        ;
+
+        return $authenticatorId;
     }
 
-    public function getPriority()
+    public function getPriority(): int
     {
-        return 'pre_auth';
+        return 0;
     }
 
-    public function getKey()
+    public function getKey(): string
     {
         return 'remote_auth';
     }
 
-    public function addConfiguration(NodeDefinition $node)
+    public function addConfiguration(NodeDefinition $builder)
     {
     }
 }

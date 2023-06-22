@@ -85,4 +85,9 @@ class AuthServiceClient
     {
         return $this->client->post($uri, $options);
     }
+
+    public function request(string $method, string $uri, array $options = [])
+    {
+        return $this->client->request($method, $uri, $options);
+    }
 }

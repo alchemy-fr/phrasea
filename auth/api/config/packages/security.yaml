@@ -1,6 +1,5 @@
 security:
-    always_authenticate_before_granting: true
-    encoders:
+    password_hashers:
         App\Entity\User:
             algorithm: bcrypt
             cost: 12
@@ -26,46 +25,40 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            anonymous:  ~
             user_checker: App\Security\UserChecker
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
-                success_handler: alchemy_admin.logout.success_handler
             provider: user_password
             access_denied_handler: alchemy_admin.access_denied_handler
-            guard:
-                authenticators:
+            custom_authenticator:
                 - App\Security\LoginFormAuthenticator
-        saml:
-            anonymous: ~
-            context: auth
-            pattern: ^/saml/
-            provider: saml_user
-            saml:
-                username_attribute: username
-                user_factory: saml_user_factory
-                check_path: /saml/acs
-            logout:
-                path: /saml/logout
+
+#TODO:
+#        saml:
+#            context: auth
+#            pattern: ^/saml/
+#            provider: saml_user
+#            saml:
+#                identifier_attribute: username
+#                user_factory: saml_user_factory
+#                check_path: /saml/acs
+#            logout:
+#                path: /saml/logout
         auth:
             pattern: ^/(([a-z]{2}(\-[a-zA-Z]{2})?/)?security(/|$)|oauth/)
             provider: user_password
             stateless:  false
-            anonymous: ~
             user_checker: App\Security\UserChecker
-            guard:
-                authenticators:
-                    - App\Security\AppCustomAuthenticator
+            custom_authenticator:
+                - App\Security\AppCustomAuthenticator
             logout:
                 path: security_logout
-                success_handler: App\Listener\LogoutListener
         api:
             pattern:    ^/
             provider: user_password
             fos_oauth:
             stateless:  true
-            anonymous:  false
             user_checker: App\Security\UserChecker
 
     access_control:

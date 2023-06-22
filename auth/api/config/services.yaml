@@ -21,7 +21,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,OAuth/OAuthProviderFactory.php,Saml/SamlGroupManager.php}'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,OAuth/OAuthProviderFactory.php,Saml/SamlGroupManager.php,Listener/SamlAuthenticationListener.php}'
 
     _instanceof:
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
@@ -69,8 +69,9 @@ services:
         arguments:
             $tokenManager: "@fos_oauth_server.access_token_manager.default"
 
-    saml_user_factory:
-        class: App\Saml\SamlUserFactory
+# TODO: SAML
+#    saml_user_factory:
+#        class: App\Saml\SamlUserFactory
 
     App\Admin\AuthCheckController:
         arguments:

@@ -15,7 +15,7 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
     /**
      * {@inheritdoc}
      */
-    protected $paths = [
+    protected array $paths = [
         'identifier' => 'response.user.id',
         'nickname' => 'response.user.email',
         'realname' => 'response.user.email',

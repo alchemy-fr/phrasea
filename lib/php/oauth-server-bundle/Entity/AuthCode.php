@@ -7,6 +7,7 @@ namespace Alchemy\OAuthServerBundle\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\AuthCode as BaseAuthCode;
+use FOS\OAuthServerBundle\Model\ClientInterface;
 
 /**
  * @ORM\Entity
@@ -33,7 +34,7 @@ class AuthCode extends BaseAuthCode
      *
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    protected $client;
+    protected ClientInterface $client;
 
     /**
      * @var \DateTime

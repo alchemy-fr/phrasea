@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\User\GroupMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class SamlGroupManager
 {
@@ -23,7 +24,7 @@ class SamlGroupManager
         $this->groupAttributesName = $groupAttributesName;
     }
 
-    public function updateGroups(string $providerName, User $user, SamlTokenInterface $token)
+    public function updateGroups(string $providerName, User $user, TokenInterface $token)
     {
         $attributes = $token->getAttributes();
 

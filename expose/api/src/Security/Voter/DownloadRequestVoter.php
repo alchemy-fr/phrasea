@@ -28,7 +28,7 @@ class DownloadRequestVoter extends Voter
         $this->em = $em;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof DownloadRequest
             || self::LIST === $attribute;
@@ -37,7 +37,7 @@ class DownloadRequestVoter extends Voter
     /**
      * @param Asset|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $isAuthenticated = $user instanceof RemoteUser;

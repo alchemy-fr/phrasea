@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Storage;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 
 class FileStorageManager
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(FilesystemOperator $filesystem)
     {
         $this->filesystem = $filesystem;
     }

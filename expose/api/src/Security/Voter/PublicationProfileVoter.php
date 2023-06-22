@@ -26,7 +26,7 @@ class PublicationProfileVoter extends Voter
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof PublicationProfile || self::CREATE === $attribute;
     }
@@ -34,7 +34,7 @@ class PublicationProfileVoter extends Voter
     /**
      * @param PublicationProfile|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();

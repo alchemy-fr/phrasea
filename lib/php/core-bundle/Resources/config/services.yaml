@@ -1,0 +1,4 @@
+services:
+  Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker:
+    arguments:
+      - '@service_container'

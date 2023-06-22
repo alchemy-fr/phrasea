@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Listener;
 
 use App\Security\OAuthUserProvider;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
-class LogoutListener implements LogoutSuccessHandlerInterface
+class LogoutListener implements EventSubscriberInterface
 {
     private UrlGeneratorInterface $urlGenerator;
     private array $identityProviders;
@@ -23,11 +23,19 @@ class LogoutListener implements LogoutSuccessHandlerInterface
         $this->identityProviders = $identityProviders;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return [LogoutEvent::class => 'onLogout'];
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function onLogoutSuccess(Request $request)
+    public function onLogout(LogoutEvent $event): void
     {
+        $request = $event->getRequest();
+        $response = null;
+
         if (!($redirectUri = $request->query->get('r'))) {
             $redirectUri = $this->urlGenerator->generate('security_index');
         }
@@ -52,11 +60,15 @@ class LogoutListener implements LogoutSuccessHandlerInterface
                         );
                     }
 
-                    return new RedirectResponse($logoutUrl);
+                    $response =  new RedirectResponse($logoutUrl);
                 }
             }
         }
 
-        return new RedirectResponse($redirectUri);
+        if (empty($response)) {
+            $response =  new RedirectResponse($redirectUri);
+        }
+
+        $event->setResponse($response);
     }
 }

@@ -15,6 +15,7 @@ use HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
@@ -31,13 +32,13 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         UserManager $userManager,
         GroupMapper $groupMapper,
         GroupParser $groupParser,
-        SessionInterface $session
+        RequestStack $requestStack
     ) {
         $this->em = $em;
         $this->userManager = $userManager;
         $this->groupMapper = $groupMapper;
         $this->groupParser = $groupParser;
-        $this->session = $session;
+        $this->session = $requestStack->getSession();
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
