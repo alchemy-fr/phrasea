@@ -24,7 +24,7 @@ class FormDataEditorVoter extends Voter
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return in_array($attribute, [
                 self::EDIT_FORM_SCHEMA,
@@ -32,7 +32,7 @@ class FormDataEditorVoter extends Voter
             ], true);
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
 

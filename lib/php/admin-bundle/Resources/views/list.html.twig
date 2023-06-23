@@ -79,10 +79,10 @@
 
 {% block content_title %}
     {%- apply spaceless -%}
-        {% set custom_page_title = ea.crud.customPageTitle('index') %}
+        {% set custom_page_title = ea.crud.customPageTitle('index', null, ea.i18n.translationParameters) %}
         {{ custom_page_title is null
-        ? (ea.crud.defaultPageTitle('index')|trans(ea.i18n.translationParameters, 'EasyAdminBundle'))|raw
-        : (custom_page_title|trans(ea.i18n.translationParameters))|raw }}
+        ? ea.crud.defaultPageTitle('index', null, ea.i18n.translationParameters)|trans|raw
+        : custom_page_title|trans|raw }}
     {%- endapply -%}
     {{ ' ' }}
     <small>({{ paginator.numResults }})</small>

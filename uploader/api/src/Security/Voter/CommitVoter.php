@@ -22,7 +22,7 @@ class CommitVoter extends Voter
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Commit;
     }
@@ -31,7 +31,7 @@ class CommitVoter extends Voter
      * @param AssetToken $token
      * @param Commit     $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (null === $subject->getToken()) {
             return false;

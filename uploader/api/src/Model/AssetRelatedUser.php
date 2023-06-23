@@ -28,7 +28,7 @@ class AssetRelatedUser implements UserInterface
         return $this->token;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return [];
     }
@@ -50,5 +50,10 @@ class AssetRelatedUser implements UserInterface
 
     public function eraseCredentials()
     {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->assetId;
     }
 }

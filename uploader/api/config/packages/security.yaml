@@ -19,27 +19,23 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            anonymous:  ~
             access_denied_handler: alchemy_admin.access_denied_handler
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
-                success_handler: alchemy_admin.logout.success_handler
-            guard:
-                authenticators:
-                    - 'alchemy_remote.login_form.admin'
+            custom_authenticators:
+                - 'alchemy_remote.login_form.admin'
 
         api:
-            anonymous: ~
             stateless: true
             asset: true
             remote_auth: true
             fos_oauth:  true
 
     access_control:
-        - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/reset-password/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/reset-password/, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/auth/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/_healthcheck, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/_healthcheck, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

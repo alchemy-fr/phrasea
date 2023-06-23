@@ -60,6 +60,15 @@ class LoginController extends AbstractAdminController
         return $this->redirectToRoute('easyadmin');
     }
 
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logout(): never
+    {
+        // controller can be blank: it will never be called!
+        throw new \Exception('Don\'t forget to activate logout in security.yaml');
+    }
+
     private function getRedirectUrl(): string
     {
         return $this->generateUrl('alchemy_admin_auth_check', [], UrlGeneratorInterface::ABSOLUTE_URL);

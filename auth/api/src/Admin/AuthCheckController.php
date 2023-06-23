@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -55,7 +55,7 @@ class AuthCheckController extends AbstractController
         }
 
         $user = $authCode->getData();
-        $token = new PostAuthenticationGuardToken($user, 'admin', $user->getRoles());
+        $token = new PostAuthenticationToken($user, 'admin', $user->getRoles());
         $tokenStorage->setToken($token);
         $session->set('_security_admin', serialize($token));
         $session->save();

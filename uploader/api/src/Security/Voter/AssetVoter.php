@@ -23,7 +23,7 @@ class AssetVoter extends Voter
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Asset;
     }
@@ -32,7 +32,7 @@ class AssetVoter extends Voter
      * @param AssetToken $token
      * @param Asset      $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (null === $subject->getToken()) {
             return false;

@@ -8,6 +8,7 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -20,11 +21,11 @@ class RemoteAuthAuthenticator
 
     public function __construct(
         TokenStorageInterface $tokenStorage,
-        SessionInterface $session,
+        RequestStack $requestStack,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->tokenStorage = $tokenStorage;
-        $this->session = $session;
+        $this->session = $requestStack->getSession();
         $this->eventDispatcher = $eventDispatcher;
     }
 

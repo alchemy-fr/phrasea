@@ -8,9 +8,9 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-#        api_doc:
-#            pattern: ^/$
-#            security: false
+        api_doc:
+            pattern: ^/$
+            security: false
 
         admin:
             pattern:    ^/admin
@@ -20,7 +20,7 @@ security:
             logout:
                 path: alchemy_admin_logout
                 target: easyadmin
-            custom_authenticator:
+            custom_authenticators:
                 - 'alchemy_remote.login_form.admin'
 
         api:

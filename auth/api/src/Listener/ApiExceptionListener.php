@@ -7,7 +7,7 @@ namespace App\Listener;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -30,7 +30,7 @@ class ApiExceptionListener implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    public function onKernelException(GetResponseForExceptionEvent $event): void
+    public function onKernelException(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -39,8 +39,8 @@ class ApiExceptionListener implements EventSubscriberInterface
             return;
         }
 
-        $exception = $event->getException();
-        $class = get_class($event->getException());
+        $exception = $event->getThrowable();
+        $class = get_class($event->getThrowable());
 
         if ($exception instanceof HttpException) {
             $status = $exception->getStatusCode();

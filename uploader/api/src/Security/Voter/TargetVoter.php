@@ -21,7 +21,7 @@ class TargetVoter extends Voter
         $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Target;
     }
@@ -29,7 +29,7 @@ class TargetVoter extends Voter
     /**
      * @param Target $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if ($this->security->isGranted('ROLE_ADMIN')) {
             return true;
