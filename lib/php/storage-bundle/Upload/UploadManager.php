@@ -15,29 +15,21 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UploadManager
 {
-    private S3Client $client;
-    private string $uploadBucket;
-    private EntityManagerInterface $em;
-    private LoggerInterface $logger;
-    private string $pathPrefix;
-
     public function __construct(
-        S3Client $client,
-        string $uploadBucket,
-        EntityManagerInterface $em,
-        LoggerInterface $logger,
-        string $pathPrefix
+        private readonly S3Client $client,
+        private readonly string $uploadBucket,
+        private readonly EntityManagerInterface $em,
+        private readonly LoggerInterface $logger,
+        private readonly FileValidator $fileValidator,
+        private readonly string $pathPrefix
     )
     {
-        $this->uploadBucket = $uploadBucket;
-        $this->client = $client;
-        $this->em = $em;
-        $this->logger = $logger;
-        $this->pathPrefix = $pathPrefix;
     }
 
     public function prepareMultipartUpload(string $path, string $contentType)
     {
+        $this->fileValidator->validateFile($path, $contentType);
+
         return $this->client->createMultipartUpload([
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$path,

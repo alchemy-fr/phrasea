@@ -120,6 +120,7 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=uploader-api
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -168,6 +169,7 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=uploader-worker
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     volumes:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
@@ -221,6 +223,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - AUTO_CONNECT_IDP
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
@@ -281,6 +284,7 @@ services:
       - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
       - AUTO_CONNECT_IDP
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"

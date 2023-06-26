@@ -5,7 +5,7 @@ RUN apk add --no-cache \
         make \
         g++ \
     && mkdir -p /var/docker \
-    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.0.0/generate-env-alpine \
+    && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
     && chmod +x /var/docker/generate-env \
     && mkdir -p /usr/src/app
 

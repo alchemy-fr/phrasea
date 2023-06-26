@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Util;
+namespace Alchemy\StorageBundle\Util;
 
 use Symfony\Component\Mime\MimeTypes;
 
-class FileUtil
+final class FileUtil
 {
     public static function isImageType(?string $mimeType): bool
     {
@@ -20,9 +20,9 @@ class FileUtil
 
     public static function guessExtension(?string $type, ?string $path): ?string
     {
-        $ext = static::getExtensionFromType($type);
+        $ext = self::getExtensionFromType($type);
         if (null === $ext) {
-            $ext = static::getExtensionFromPath($path) ?: null;
+            $ext = self::getExtensionFromPath($path) ?: null;
         }
 
         return $ext;

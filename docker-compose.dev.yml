@@ -175,6 +175,7 @@ services:
       - CLARIFAI_API_KEY
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

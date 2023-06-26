@@ -11,7 +11,8 @@
     "ramsey/uuid": "^4.2.3",
     "oneup/flysystem-bundle": "^3.1",
     "league/flysystem-aws-s3-v3": "^1.0",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0"
+    "symfony/framework-bundle": "^4.0|^5.0",
+    "symfony/mime": "^4|^5|^6|^7"
   },
   "config": {
     "sort-packages": true

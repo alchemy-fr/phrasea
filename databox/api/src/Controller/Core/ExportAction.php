@@ -12,7 +12,7 @@ use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

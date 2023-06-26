@@ -5,6 +5,7 @@ import UploadModal from "../../Upload/UploadModal";
 import {Backdrop, Typography} from "@mui/material";
 import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
 import {useModals} from "../../../hooks/useModalStack";
+import {useAccept} from "../../Upload/UploadDropzone";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
@@ -40,10 +41,13 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         }
     }, []);
 
+    const accept = useAccept();
+
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         noClick: true,
         onDrop,
         noKeyboard: true,
+        accept,
     });
 
     return <div {...getRootProps()}>

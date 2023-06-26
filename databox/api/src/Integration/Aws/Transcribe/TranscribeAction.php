@@ -10,7 +10,7 @@ use App\Integration\AbstractIntegrationAction;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IfActionInterface;
 use App\Storage\S3Copier;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 
 final class TranscribeAction extends AbstractIntegrationAction implements IfActionInterface
 {

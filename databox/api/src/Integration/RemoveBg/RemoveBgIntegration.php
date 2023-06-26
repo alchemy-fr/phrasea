@@ -9,7 +9,7 @@ use App\Entity\Core\File;
 use App\Integration\AbstractFileAction;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use App\Util\FileUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
