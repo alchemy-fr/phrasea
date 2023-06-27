@@ -54,6 +54,7 @@ class RemoteAccessAuthenticator extends AbstractAuthenticator
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $accessTokenBadge = $passport->getBadge(AccessTokenBadge::class);
+
         return new RemoteAuthToken($accessTokenBadge->getAccessToken(), $accessTokenBadge->getRoles());
     }
 

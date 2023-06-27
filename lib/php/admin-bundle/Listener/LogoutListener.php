@@ -11,7 +11,6 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 class LogoutListener implements EventSubscriberInterface
 {
-
     public function __construct(private readonly OAuthClient $client)
     {
     }

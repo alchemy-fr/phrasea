@@ -53,7 +53,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $password = $request->request->get('password');
 
         return new Passport(
-            new UserBadge($username, function($userIdentifier) use ($username, $password) {
+            new UserBadge($username, function ($userIdentifier) use ($password) {
                 try {
                     $response = $this->client->post('oauth/v2/token', [
                         'json' => [

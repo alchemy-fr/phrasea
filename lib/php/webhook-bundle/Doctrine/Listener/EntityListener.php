@@ -72,7 +72,7 @@ class EntityListener implements EventSubscriber
                 $collectionMapping = $collectionUpdate->getMapping();
                 $field = $collectionMapping['fieldName'];
 
-                $mapIds = fn(array $collection): array => array_map(fn(object $o) => $o->getId(), $collection);
+                $mapIds = fn (array $collection): array => array_map(fn (object $o) => $o->getId(), $collection);
 
                 $old = $collectionUpdate->getSnapshot();
                 $new = $collectionUpdate->unwrap()->toArray();

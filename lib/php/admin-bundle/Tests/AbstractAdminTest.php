@@ -7,11 +7,8 @@ namespace Alchemy\AdminBundle\Tests;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 abstract class AbstractAdminTest extends WebTestCase
 {

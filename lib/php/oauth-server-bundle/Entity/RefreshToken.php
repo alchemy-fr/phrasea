@@ -13,10 +13,6 @@ class RefreshToken extends BaseRefreshToken
 {
     /**
      * @var string
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -26,8 +22,6 @@ class RefreshToken extends BaseRefreshToken
 
     /**
      * @var OAuthClient
-     *
-     *
      */
     #[ORM\ManyToOne(targetEntity: 'OAuthClient')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

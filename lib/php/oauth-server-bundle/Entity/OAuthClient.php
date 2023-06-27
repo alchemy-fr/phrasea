@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\OAuthServerBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\Client as BaseClient;
 
@@ -13,8 +12,6 @@ class OAuthClient extends BaseClient
 {
     /**
      * @var string
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 80, unique: true)]

@@ -14,10 +14,6 @@ class Webhook
 
     /**
      * @var Uuid
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]

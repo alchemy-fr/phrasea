@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\OAuthServerBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\AuthCode as BaseAuthCode;
 use FOS\OAuthServerBundle\Model\ClientInterface;
@@ -14,10 +13,6 @@ class AuthCode extends BaseAuthCode
 {
     /**
      * @var string
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -27,8 +22,6 @@ class AuthCode extends BaseAuthCode
 
     /**
      * @var OAuthClient
-     *
-     *
      */
     #[ORM\ManyToOne(targetEntity: 'OAuthClient')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

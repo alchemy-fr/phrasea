@@ -153,7 +153,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
     {
         if (!empty(trim((string) $scope))) {
             $scopes = explode(' ', $scope);
-            $scopes = array_filter($scopes, fn(string $scope): bool => self::NO_SCOPE_PROVIDED !== $scope);
+            $scopes = array_filter($scopes, fn (string $scope): bool => self::NO_SCOPE_PROVIDED !== $scope);
 
             if (!empty($scopes) && $client instanceof OAuthClient) {
                 $this->validateClientAllowedScopes($client, $scopes);

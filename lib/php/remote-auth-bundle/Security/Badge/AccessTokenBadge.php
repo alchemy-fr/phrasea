@@ -15,9 +15,6 @@ class AccessTokenBadge implements BadgeInterface
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isResolved(): bool
     {
         return true;

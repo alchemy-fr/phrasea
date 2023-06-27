@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\OAuthServerBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\AccessToken as BaseAccessToken;
 use FOS\OAuthServerBundle\Model\ClientInterface;
@@ -16,10 +15,6 @@ class AccessToken extends BaseAccessToken
 {
     /**
      * @var Uuid
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -29,8 +24,6 @@ class AccessToken extends BaseAccessToken
 
     /**
      * @var OAuthClient
-     *
-     *
      */
     #[ORM\ManyToOne(targetEntity: 'OAuthClient')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

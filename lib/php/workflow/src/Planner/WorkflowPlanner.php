@@ -15,6 +15,7 @@ final readonly class WorkflowPlanner
     public function __construct(private array $workflows)
     {
     }
+
     public function planEvent(WorkflowEvent $event): Plan
     {
         $stages = new StageList();
@@ -28,6 +29,7 @@ final readonly class WorkflowPlanner
 
         return new Plan($stages);
     }
+
     public function planAll(): Plan
     {
         $stages = new StageList();
@@ -39,6 +41,7 @@ final readonly class WorkflowPlanner
 
         return new Plan($stages);
     }
+
     private function createStages(Workflow $workflow, array $jobIds): StageList
     {
         $jobDependencies = [];
@@ -79,6 +82,7 @@ final readonly class WorkflowPlanner
 
         return $stages;
     }
+
     private function jobsArePresentInStages(StageList $stages, array $jobIds): bool
     {
         foreach ($jobIds as $jobId) {

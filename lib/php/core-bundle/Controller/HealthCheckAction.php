@@ -20,7 +20,7 @@ class HealthCheckAction extends AbstractController
     {
         $checks = $this->healthChecker->getChecks();
 
-        $errored = array_filter($checks, fn(array $check): bool => !$check['ok']);
+        $errored = array_filter($checks, fn (array $check): bool => !$check['ok']);
 
         return new JsonResponse($checks, empty($errored) ? 200 : 503);
     }

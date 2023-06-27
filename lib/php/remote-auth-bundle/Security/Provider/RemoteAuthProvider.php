@@ -40,7 +40,7 @@ class RemoteAuthProvider
 
         $authenticatedToken = new RemoteAuthToken($token->getAccessToken(), $roles);
         $authenticatedToken->setScopes($tokenInfo['scopes']);
-//        $authenticatedToken->setAuthenticated(true);
+        //        $authenticatedToken->setAuthenticated(true);
         if ($user instanceof RemoteUser) {
             $authenticatedToken->setUser($user);
         }

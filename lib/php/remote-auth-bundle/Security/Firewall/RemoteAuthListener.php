@@ -1,18 +1,19 @@
 <?php
+
 //
-//declare(strict_types=1);
+// declare(strict_types=1);
 //
-//namespace Alchemy\RemoteAuthBundle\Security\Firewall;
+// namespace Alchemy\RemoteAuthBundle\Security\Firewall;
 //
-//use Alchemy\RemoteAuthBundle\Security\RequestHelper;
-//use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
-//use Symfony\Component\HttpKernel\Event\RequestEvent;
-//use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-//use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-//use Symfony\Component\Security\Core\Exception\AuthenticationException;
+// use Alchemy\RemoteAuthBundle\Security\RequestHelper;
+// use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
+// use Symfony\Component\HttpKernel\Event\RequestEvent;
+// use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+// use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+// use Symfony\Component\Security\Core\Exception\AuthenticationException;
 //
-//class RemoteAuthListener
-//{
+// class RemoteAuthListener
+// {
 //    public const COOKIE_NAME = 'auth-access-token';
 //    protected $tokenStorage;
 //    protected $authenticationManager;
@@ -53,4 +54,4 @@
 //            return;
 //        }
 //    }
-//}
+// }

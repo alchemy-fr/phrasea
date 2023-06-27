@@ -15,6 +15,7 @@ final readonly class ChainedWorkflowRepository implements WorkflowRepositoryInte
     public function __construct(private array $repositories)
     {
     }
+
     public function loadWorkflowByName(string $name): ?Workflow
     {
         foreach ($this->repositories as $repository) {
@@ -25,6 +26,7 @@ final readonly class ChainedWorkflowRepository implements WorkflowRepositoryInte
 
         return null;
     }
+
     public function getWorkflowsByEvent(WorkflowEvent $event): array
     {
         $workflows = [];
@@ -34,6 +36,7 @@ final readonly class ChainedWorkflowRepository implements WorkflowRepositoryInte
 
         return $workflows;
     }
+
     public function loadAll(): void
     {
         foreach ($this->repositories as $repository) {

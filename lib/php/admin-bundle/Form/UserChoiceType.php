@@ -20,7 +20,7 @@ class UserChoiceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(fn(string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
+        $users = $this->adminClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];

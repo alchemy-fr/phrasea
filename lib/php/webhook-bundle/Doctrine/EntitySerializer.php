@@ -73,7 +73,7 @@ class EntitySerializer
                         return null;
                     }
 
-                    return $value->map(fn(object $object) => $this->getEntityIdentifier($object))->toArray();
+                    return $value->map(fn (object $object) => $this->getEntityIdentifier($object))->toArray();
                 }
 
                 return null;
@@ -120,7 +120,7 @@ class EntitySerializer
 
             $target = $meta->getAssociationTargetClass($field);
             $targetMeta = $this->em->getClassMetadata($target);
-            $collection = new PersistentCollection($this->em, $targetMeta, new ArrayCollection(array_map(fn($id): object => $this->em->getReference($target, $id), $value)));
+            $collection = new PersistentCollection($this->em, $targetMeta, new ArrayCollection(array_map(fn ($id): object => $this->em->getReference($target, $id), $value)));
             $collection->takeSnapshot();
 
             return $collection;

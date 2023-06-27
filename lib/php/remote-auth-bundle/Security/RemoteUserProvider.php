@@ -6,7 +6,6 @@ namespace Alchemy\RemoteAuthBundle\Security;
 
 use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use GuzzleHttp\Client;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -22,9 +21,6 @@ class RemoteUserProvider implements UserProviderInterface
         throw new \Exception('Not implemented');
     }
 
-    /**
-     * @return UserInterface|null
-     */
     public function loadUserFromAccessToken(string $accessToken): ?UserInterface
     {
         try {

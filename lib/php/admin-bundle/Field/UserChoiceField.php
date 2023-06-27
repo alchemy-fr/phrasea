@@ -12,10 +12,11 @@ final readonly class UserChoiceField
     public function __construct(private AdminClient $adminClient, private AuthServiceClient $authServiceClient)
     {
     }
+
     public function create(string $propertyName, string $label = null)
     {
         /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(fn(string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
+        $users = $this->adminClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];

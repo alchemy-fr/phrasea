@@ -18,7 +18,7 @@ class GroupChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $groups = $this->adminClient->executeWithAccessToken(fn(string $accessToken): array => $this->authServiceClient->getGroups($accessToken));
+        $groups = $this->adminClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getGroups($accessToken));
         $choices = [];
         foreach ($groups as $group) {
             $choices[$group['name']] = $group['id'];

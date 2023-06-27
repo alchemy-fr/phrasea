@@ -15,6 +15,7 @@ final readonly class EntityLoadListener implements EventSubscriberInterface
     public function __construct(private string $workflowStateEntity, private string $jobStateEntity)
     {
     }
+
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
     {
         $class = $args->getClassMetadata();
@@ -47,6 +48,7 @@ final readonly class EntityLoadListener implements EventSubscriberInterface
             ]);
         }
     }
+
     public function getSubscribedEvents()
     {
         return [

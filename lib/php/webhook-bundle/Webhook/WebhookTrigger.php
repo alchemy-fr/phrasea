@@ -34,7 +34,7 @@ class WebhookTrigger
     {
         $this->loadWebhooks();
 
-        return array_filter($this->webhooks, fn(Webhook $webhook): bool => $webhook->hasEvent($event));
+        return array_filter($this->webhooks, fn (Webhook $webhook): bool => $webhook->hasEvent($event));
     }
 
     private function loadWebhooks(): void
