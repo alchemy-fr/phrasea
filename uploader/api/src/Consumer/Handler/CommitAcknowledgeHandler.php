@@ -14,7 +14,7 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'commit_ack';
+    public const EVENT = 'commit_ack';
 
     private EventProducer $eventProducer;
     private NotifierInterface $notifier;

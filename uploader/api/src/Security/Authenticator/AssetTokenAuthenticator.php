@@ -20,7 +20,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class AssetTokenAuthenticator extends AbstractAuthenticator
 {
-
     public function supports(Request $request): bool
     {
         return $request->headers->has('Authorization');
@@ -47,6 +46,7 @@ class AssetTokenAuthenticator extends AbstractAuthenticator
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $assetTokenBadge = $passport->getBadge(AssetTokenBadge::class);
+
         return new AssetToken($assetTokenBadge->getAccessToken());
     }
 

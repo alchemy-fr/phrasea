@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use DateTime;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
@@ -24,6 +23,7 @@ class FormSchema implements AclObjectInterface
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
+     *
      * @Groups({"formschema:index"})
      */
     protected $id;
@@ -31,37 +31,44 @@ class FormSchema implements AclObjectInterface
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Assert\NotNull()
+     *
      * @Groups({"formschema:index", "formschema:write"})
      */
     private ?Target $target = null;
 
     /**
      * @ORM\Column(type="string", length=5, nullable=true)
+     *
      * @Groups({"formschema:index", "formschema:write"})
      */
     private ?string $locale = null;
 
     /**
      * @ORM\Column(type="json")
+     *
      * @Groups({"formschema:index", "formschema:write"})
      */
     private array $data = [];
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @Groups({"targetparams:index"})
      */
-    private ?DateTimeInterface $createdAt = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Gedmo\Timestampable(on="update")
      */
-    private ?DateTimeInterface $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
-    public function __construct(?string $id = null)
+    public function __construct(string $id = null)
     {
         $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
@@ -103,12 +110,12 @@ class FormSchema implements AclObjectInterface
         $this->data = $data;
     }
 
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTimeInterface
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }

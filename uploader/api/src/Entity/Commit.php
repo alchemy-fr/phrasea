@@ -23,6 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
  * @ORM\Table(name="asset_commit")
+ *
  * @ApiResource(
  *     order={"acknowledged": "ASC", "createdAt": "ASC"},
  *     shortName="commit",
@@ -53,6 +54,7 @@ class Commit
 {
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"asset:read", "commit:read"})
      *
      * @var Uuid
@@ -64,7 +66,9 @@ class Commit
 
     /**
      * @var Asset[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
+     *
      * @Groups({"commit:read", "commit:write"})
      */
     private ?Collection $assets = null;
@@ -72,48 +76,61 @@ class Commit
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Target")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
+     *
      * @Assert\NotNull()
+     *
      * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?Target $target = null;
 
     /**
      * @Groups({"asset:read", "commit:read"})
+     *
      * @ORM\Column(type="bigint", options={"unsigned"=true})
+     *
      * @ApiProperty(writable=false)
      */
     private ?string $totalSize = null;
 
     /**
      * @ORM\Column(type="json")
+     *
      * @Groups("asset:read", "commit:read", "commit:write")
      */
     private array $formData = [];
 
     /**
      * @Groups({"asset:read", "commit:read", "commit:write"})
+     *
      * @ORM\Column(type="json")
      */
     private array $options = [];
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?string $userId = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      * @ApiProperty(writable=false)
+     *
      * @Groups({"commit:read"})
      */
     private ?string $token = null;
 
     /**
      * @ORM\Column(type="boolean")
+     *
      * @ApiFilter(BooleanFilter::class)
+     *
      * @Groups({"asset:read", "commit:read"})
+     *
      * @ApiProperty(writable=false)
      */
     private bool $acknowledged = false;
@@ -122,29 +139,34 @@ class Commit
      * If set, this email will be notified when asset consumer acknowledges the commit.
      *
      * @ORM\Column(type="string", nullable=true)
+     *
      * @Groups({"commit:read", "commit:write"})
      */
     private ?string $notifyEmail = null;
 
     /**
      * @ORM\Column(type="string", length=5, nullable=true)
+     *
      * @Groups({"asset:read", "commit:read", "commit:write"})
      */
     private ?string $locale = null;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true)
+     *
      * @Groups({"asset:read", "commit:read"})
      */
     private $acknowledgedAt;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
+     *
      * @ApiProperty()
+     *
      * @Groups({"asset:read", "commit:read"})
      */
     private $createdAt;
@@ -159,7 +181,7 @@ class Commit
     public function __construct()
     {
         $this->assets = new ArrayCollection();
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -292,7 +314,7 @@ class Commit
         return $instance;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -305,7 +327,7 @@ class Commit
     public function setAcknowledged(bool $acknowledged): void
     {
         if ($acknowledged) {
-            $this->acknowledgedAt = new DateTime();
+            $this->acknowledgedAt = new \DateTime();
         }
         $this->acknowledged = $acknowledged;
     }

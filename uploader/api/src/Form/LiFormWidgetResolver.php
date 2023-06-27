@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Form\Resolver\WidgetResolverInterface;
-use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LiFormWidgetResolver
@@ -26,7 +25,7 @@ class LiFormWidgetResolver
             return $resolver->getFormType($config);
         }
 
-        throw new InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config)));
+        throw new \InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config)));
     }
 
     public function getFieldOptions(array $fieldConfig): array

@@ -7,7 +7,6 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
@@ -24,6 +23,7 @@ class TargetParams implements AclObjectInterface
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
+     *
      * @Groups({"targetparams:index"})
      */
     protected $id;
@@ -31,30 +31,37 @@ class TargetParams implements AclObjectInterface
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Target", inversedBy="targetParams")
      * @ORM\JoinColumn(nullable=false)
+     *
      * @Groups({"targetparams:index", "targetparams:write"})
+     *
      * @Assert\NotNull()
+     *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
      */
     private ?Target $target = null;
 
     /**
      * @ORM\Column(type="json")
+     *
      * @Groups({"targetparams:index", "targetparams:write"})
      */
     private array $data = [];
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @Groups({"targetparams:index"})
      */
-    private ?DateTimeInterface $createdAt = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Gedmo\Timestampable(on="update")
      */
-    private ?DateTimeInterface $updatedAt = null;
+    private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()
     {
@@ -103,12 +110,12 @@ class TargetParams implements AclObjectInterface
         $this->target = $target;
     }
 
-    public function getCreatedAt(): ?DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTimeInterface
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
     }

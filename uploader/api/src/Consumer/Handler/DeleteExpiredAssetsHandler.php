@@ -8,14 +8,13 @@ use App\Entity\Commit;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use DateTime;
 
 /**
  * Delete acknowledged asset after graceful period.
  */
 class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_expired_assets';
+    public const EVENT = 'delete_expired_assets';
 
     private EventProducer $eventProducer;
     private int $deleteAssetGracefulTime;
@@ -32,7 +31,7 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
             return;
         }
 
-        $date = new DateTime();
+        $date = new \DateTime();
         $date->setTimestamp(time() - $this->deleteAssetGracefulTime);
 
         $em = $this->getEntityManager();

@@ -18,9 +18,6 @@ class AssetTokenBadge implements BadgeInterface
         $this->accessToken = $accessToken;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isResolved(): bool
     {
         return true;

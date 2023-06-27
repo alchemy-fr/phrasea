@@ -17,6 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
+ *
  * @ApiResource(
  *     normalizationContext={
  *         "groups"={"asset:read"},
@@ -48,6 +49,7 @@ class Asset
 {
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups("asset:read")
      *
      * @var Uuid
@@ -59,12 +61,14 @@ class Asset
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $path;
 
     /**
      * @ORM\Column(type="json", nullable=true)
+     *
      * @Groups("asset:read", "asset:write")
      */
     private ?array $data = [];
@@ -73,13 +77,16 @@ class Asset
      * Dynamic signed URL.
      *
      * @ApiProperty()
+     *
      * @Groups({"asset:read"})
      */
     private ?string $url = null;
 
     /**
      * @var int|string
+     *
      * @Groups("asset:read")
+     *
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private $size;
@@ -88,7 +95,9 @@ class Asset
      * @var string
      *
      * @ORM\Column(type="string", length=255)
+     *
      * @ApiProperty(iri="http://schema.org/name")
+     *
      * @Groups("asset:read")
      */
     private $originalName;
@@ -97,7 +106,9 @@ class Asset
      * @var string
      *
      * @ORM\Column(type="string", length=255)
+     *
      * @ApiProperty()
+     *
      * @Groups("asset:read")
      */
     private $mimeType;
@@ -117,30 +128,36 @@ class Asset
 
     /**
      * @var bool
+     *
      * @ORM\Column(type="boolean")
+     *
      * @Groups("asset:read")
+     *
      * @ApiFilter(BooleanFilter::class)
      */
     private $acknowledged = false;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
+     *
      * @ApiProperty()
+     *
      * @Groups("asset:read")
      */
     private $createdAt;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $userId;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -220,7 +237,7 @@ class Asset
         $this->commit = $commit;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

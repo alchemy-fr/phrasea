@@ -12,8 +12,8 @@ use Symfony\Component\Security\Core\Security;
 
 class CommitVoter extends Voter
 {
-    const ACK = 'ACK';
-    const READ = 'READ';
+    public const ACK = 'ACK';
+    public const READ = 'READ';
 
     private Security $security;
 

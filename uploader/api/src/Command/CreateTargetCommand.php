@@ -21,9 +21,6 @@ class CreateTargetCommand extends Command
         $this->em = $em;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -43,9 +40,6 @@ EOT
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $slug = $input->getArgument('slug');

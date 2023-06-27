@@ -11,7 +11,7 @@ use League\Flysystem\FileNotFoundException;
 
 class DeleteAssetFileHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_asset_file';
+    public const EVENT = 'delete_asset_file';
 
     private FileStorageManager $storageManager;
 

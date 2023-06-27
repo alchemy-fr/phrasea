@@ -47,7 +47,7 @@ class CommitHandlerTest extends TestCase
                 $this->callback(function ($subject) {
                     return $subject instanceof EventMessage
                         && is_string($subject->getPayload()['id'])
-                        ;
+                    ;
                 })
             );
 

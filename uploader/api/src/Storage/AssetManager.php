@@ -29,7 +29,7 @@ class AssetManager
         string $originalName,
         int $size,
         string $userId,
-        ?array $data = null
+        array $data = null
     ): Asset {
         $asset = new Asset();
         $asset->setTarget($target);
@@ -63,7 +63,7 @@ class AssetManager
         return $asset;
     }
 
-    public function cleanAssets(?int $assetDaysRetention = null): void
+    public function cleanAssets(int $assetDaysRetention = null): void
     {
         $assets = $this->em->getRepository(Asset::class)->findExpiredAssets($assetDaysRetention ?? $this->assetDaysRetention);
 

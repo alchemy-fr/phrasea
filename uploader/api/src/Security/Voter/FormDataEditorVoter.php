@@ -14,8 +14,8 @@ use Symfony\Component\Security\Core\Security;
 
 class FormDataEditorVoter extends Voter
 {
-    const EDIT_FORM_SCHEMA = 'EDIT_FORM_SCHEMA';
-    const EDIT_TARGET_DATA = 'EDIT_TARGET_DATA';
+    public const EDIT_FORM_SCHEMA = 'EDIT_FORM_SCHEMA';
+    public const EDIT_TARGET_DATA = 'EDIT_TARGET_DATA';
 
     private Security $security;
 
@@ -42,11 +42,11 @@ class FormDataEditorVoter extends Voter
 
         switch ($attribute) {
             case self::EDIT_FORM_SCHEMA:
-                return $this->security->isGranted('ROLE_SUPER_ADMIN') ||
-                    $this->security->isGranted(PermissionInterface::EDIT, new FormSchema());
+                return $this->security->isGranted('ROLE_SUPER_ADMIN')
+                    || $this->security->isGranted(PermissionInterface::EDIT, new FormSchema());
             case self::EDIT_TARGET_DATA:
-                return $this->security->isGranted('ROLE_SUPER_ADMIN') ||
-                    $this->security->isGranted(PermissionInterface::EDIT, new TargetParams());
+                return $this->security->isGranted('ROLE_SUPER_ADMIN')
+                    || $this->security->isGranted(PermissionInterface::EDIT, new TargetParams());
             default:
                 return false;
         }

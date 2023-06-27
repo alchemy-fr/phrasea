@@ -13,12 +13,11 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
-use InvalidArgumentException;
 use Symfony\Component\Mime\MimeTypes;
 
 class DownloadHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'download';
+    public const EVENT = 'download';
 
     private Client $client;
     private FileStorageManager $storageManager;
@@ -75,7 +74,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $target = $em->find(Target::class, $targetId);
         if (!$target instanceof Target) {
-            throw new InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
+            throw new \InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
         }
 
         $size = $response->getBody()->getSize();

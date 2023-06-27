@@ -12,7 +12,7 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class AssetAcknowledgeHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'asset_ack';
+    public const EVENT = 'asset_ack';
 
     private EventProducer $eventProducer;
 

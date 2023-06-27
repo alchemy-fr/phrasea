@@ -26,12 +26,14 @@ final class FormData
 {
     /**
      * @var array
+     *
      * @Assert\NotNull()
      */
     private $data;
 
     /**
      * @var Target
+     *
      * @Assert\NotNull()
      */
     private $target;

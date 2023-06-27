@@ -12,9 +12,9 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    const ACK = 'ACK';
-    const DOWNLOAD = 'DOWNLOAD';
-    const READ_METADATA = 'READ_META';
+    public const ACK = 'ACK';
+    public const DOWNLOAD = 'DOWNLOAD';
+    public const READ_METADATA = 'READ_META';
 
     private Security $security;
 

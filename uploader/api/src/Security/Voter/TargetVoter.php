@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Security;
 
 class TargetVoter extends Voter
 {
-    const READ = 'READ';
+    public const READ = 'READ';
 
     private Security $security;
 

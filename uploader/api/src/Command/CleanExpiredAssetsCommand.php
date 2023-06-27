@@ -20,9 +20,6 @@ class CleanExpiredAssetsCommand extends Command
         $this->assetManager = $assetManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -31,12 +28,9 @@ class CleanExpiredAssetsCommand extends Command
             ->setName('app:asset:clean-expired')
             ->setDescription('Remove old assets')
             ->addOption('days-retention', 'r', InputOption::VALUE_REQUIRED, 'Number of days retention')
-            ;
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $assetDaysRetention = $input->getOption('days-retention');

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,6 +18,7 @@ class Target
 {
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"target:index"})
      *
      * @var Uuid
@@ -31,7 +30,9 @@ class Target
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"target:index"})
+     *
      * @Assert\Regex("/^[a-z][a-z0-9_-]+/")
      *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
@@ -40,51 +41,64 @@ class Target
 
     /**
      * @ORM\Column(type="string", length=1000)
+     *
      * @Assert\Length(max=1000)
      * @Assert\NotBlank
+     *
      * @Groups({"target:index"})
      */
     private ?string $name = null;
 
     /**
      * @ApiProperty()
+     *
      * @ORM\Column(type="boolean", nullable=false)
+     *
      * @Groups({"target:read"})
      */
     private bool $enabled = true;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"target:index"})
      */
     private ?string $description = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      * @Assert\Length(max=255)
      * @Assert\Url()
      * @Assert\NotBlank
+     *
      * @Groups({"target:write"})
      */
     private ?string $targetUrl = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     *
      * @Assert\Length(max=255)
+     *
      * @Groups({"target:write"})
      */
     private ?string $defaultDestination = null;
 
     /**
      * @ORM\Column(type="string", length=2000, nullable=true)
+     *
      * @Assert\Length(max=2000)
+     *
      * @Groups({"target:write"})
      */
     private ?string $targetAccessToken = null;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
+     *
      * @Assert\Length(max=100)
+     *
      * @Groups({"target:write"})
      */
     private ?string $targetTokenType = null;
@@ -93,15 +107,17 @@ class Target
      * Null value allows everyone.
      *
      * @ORM\Column(type="json", nullable=true)
+     *
      * @Groups({"target:write"})
      */
     private ?array $allowedGroups = null;
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Groups({"target:index"})
      */
-    private DateTimeInterface $createdAt;
+    private \DateTimeInterface $createdAt;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\TargetParams", mappedBy="target")
@@ -115,7 +131,7 @@ class Target
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
         $this->id = Uuid::uuid4();
     }
 

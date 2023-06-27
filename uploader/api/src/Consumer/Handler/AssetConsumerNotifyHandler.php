@@ -16,7 +16,7 @@ use GuzzleHttp\Client;
  */
 class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'asset_consumer_notify';
+    public const EVENT = 'asset_consumer_notify';
 
     private Client $client;
     private string $uploadBaseUrl;
