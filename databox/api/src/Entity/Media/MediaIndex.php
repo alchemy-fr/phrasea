@@ -16,7 +16,7 @@ class MediaIndex extends AbstractUuidEntity
 
     #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private readonly Collection $collection;
+    private Collection $collection;
 
     public function getTitle(): ?string
     {

@@ -23,6 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -139,7 +140,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups(['_', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private readonly \Ramsey\Uuid\UuidInterface $id;
+    private UuidInterface $id;
 
     /**
      * @ApiProperty()
@@ -172,7 +173,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[MaxDepth(1)]
     #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'publication', cascade: ['remove'])]
     #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
-    private readonly Collection $assets;
+    private Collection $assets;
 
     /**
      * @ApiProperty(
@@ -317,7 +318,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['publication:read'])]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     /**
      * @ApiProperty(writable=false)

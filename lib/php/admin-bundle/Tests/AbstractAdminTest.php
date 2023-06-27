@@ -16,7 +16,6 @@ abstract class AbstractAdminTest extends WebTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
         $this->client = static::createClient();
     }
 

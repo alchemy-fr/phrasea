@@ -56,7 +56,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
     protected ?string $plainPassword = null;
 
     #[ORM\Column(type: 'datetime')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTime $lastInviteAt = null;

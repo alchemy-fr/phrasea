@@ -18,7 +18,7 @@ class TopicSubscriber
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]

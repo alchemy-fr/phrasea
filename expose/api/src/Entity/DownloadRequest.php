@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -41,7 +42,7 @@ class DownloadRequest
     #[Groups(['publication:index', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private readonly \Ramsey\Uuid\UuidInterface $id;
+    private UuidInterface $id;
 
     /**
      * @ApiProperty()
@@ -92,7 +93,7 @@ class DownloadRequest
     private ?SubDefinition $subDefinition = null;
 
     #[ORM\Column(type: 'datetime')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     public function __construct()
     {

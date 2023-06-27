@@ -58,7 +58,7 @@ class Commit
     #[Groups(['asset:read', 'commit:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private readonly \Ramsey\Uuid\UuidInterface $id;
+    private UuidInterface $id;
 
     /**
      * @var Asset[]|Collection

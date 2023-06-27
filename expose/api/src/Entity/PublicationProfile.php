@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -66,7 +67,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private readonly \Ramsey\Uuid\UuidInterface $id;
+    private UuidInterface $id;
 
     /**
      * @ApiProperty()
@@ -88,7 +89,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['profile:read'])]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     /**
      * @var Publication[]|Collection

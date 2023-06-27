@@ -2,4 +2,4 @@ oneup_flysystem:
     adapters:
         asset:
             local:
-                directory: "%kernel.cache_dir%/storage"
+                location: "%kernel.cache_dir%/storage"

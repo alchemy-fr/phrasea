@@ -36,7 +36,7 @@ class Group implements \Stringable
     protected $users;
 
     #[ORM\Column(type: 'datetime')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     public function __construct()
     {

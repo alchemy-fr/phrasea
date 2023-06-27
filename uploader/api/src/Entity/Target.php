@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -16,20 +17,18 @@ class Target implements \Stringable
 {
     /**
      * @ApiProperty(identifier=true)
-     *
-     * @var Uuid
      */
     #[Groups(['target:index'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private readonly \Ramsey\Uuid\UuidInterface $id;
+    private UuidInterface $id;
 
     /**
      * @ApiProperty()
      */
     #[Groups(['target:index'])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
-    #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
+    #[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: 'string', length: 1000)]

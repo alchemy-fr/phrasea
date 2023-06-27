@@ -24,7 +24,7 @@ class EnvVar
     private string $value = '';
 
     #[ORM\Column(type: 'datetime')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     #[ORM\Column(type: 'datetime')]
     private \DateTime $updatedAt;

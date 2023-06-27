@@ -33,7 +33,7 @@ class SamlIdentity
     protected array $attributes = [];
 
     #[ORM\Column(type: 'datetime')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTime $updatedAt = null;
