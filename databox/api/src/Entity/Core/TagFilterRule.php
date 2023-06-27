@@ -15,15 +15,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="tfr_uniq_ace", columns={"user_type", "user_id", "object_type", "object_id"})},
- *     indexes={
- *         @ORM\Index(name="tfr_user_idx", columns={"user_type", "user_id"}),
- *         @ORM\Index(name="tfr_object_idx", columns={"object_type", "object_id"}),
- *         @ORM\Index(name="tfr_user_type_idx", columns={"user_type"}),
- *     }
- * )
- * @ORM\Entity(repositoryClass="App\Repository\Core\TagFilterRuleRepository")
  *
  * @ApiResource(
  *  shortName="tag-filter-rule",
@@ -42,6 +33,12 @@ use Doctrine\ORM\Mapping as ORM;
  *  input=TagFilterRuleInput::class,
  * )
  */
+#[ORM\Table]
+#[ORM\Index(name: 'tfr_user_idx', columns: ['user_type', 'user_id'])]
+#[ORM\Index(name: 'tfr_object_idx', columns: ['object_type', 'object_id'])]
+#[ORM\Index(name: 'tfr_user_type_idx', columns: ['user_type'])]
+#[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\TagFilterRuleRepository::class)]
 class TagFilterRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -57,36 +54,24 @@ class TagFilterRule extends AbstractUuidEntity
         self::TYPE_COLLECTION => Collection::class,
     ];
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: 'smallint')]
     protected ?int $userType = null;
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
     protected ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: 'smallint')]
     protected int $objectType;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
     protected string $objectId;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     * @ORM\JoinTable(name="tfr_includes")
-     */
+    #[ORM\JoinTable(name: 'tfr_includes')]
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
     protected ?DoctrineCollection $include = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     * @ORM\JoinTable(name="tfr_excludes")
-     */
+    #[ORM\JoinTable(name: 'tfr_excludes')]
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
     protected ?DoctrineCollection $exclude = null;
 
     public function __construct()

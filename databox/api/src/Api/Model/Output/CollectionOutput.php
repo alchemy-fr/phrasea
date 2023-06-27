@@ -16,43 +16,27 @@ class CollectionOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups(['collection:index', 'collection:read', 'workspace:index', 'workspace:read'])]
     protected array $capabilities = [];
 
-    /**
-     * @Groups({"collection:index", "collection:read", "asset:index", "asset:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups(['collection:index', 'collection:read', 'asset:index', 'asset:read', 'workspace:index', 'workspace:read'])]
     private ?string $title = null;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups(['collection:index', 'collection:read', 'workspace:index', 'workspace:read'])]
     private ?string $ownerId = null;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups(['collection:index', 'collection:read', 'workspace:index', 'workspace:read'])]
     private int $privacy;
 
-    /**
-     * @Groups({"collection:parent"})
-     */
+    #[Groups(['collection:parent'])]
     private ?self $parent = null;
 
-    /**
-     * @MaxDepth(2)
-     *
-     * @Groups({"collection:index", "collection:children", "workspace:index"})
-     */
+    #[MaxDepth(2)]
+    #[Groups(['collection:index', 'collection:children', 'workspace:index'])]
     private $children;
 
-    /**
-     * @MaxDepth(1)
-     *
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[MaxDepth(1)]
+    #[Groups(['collection:index', 'collection:read', 'workspace:index', 'workspace:read'])]
     private $workspace;
 
     public function getTitle(): ?string

@@ -11,12 +11,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait CreatedAtTrait
 {
     /**
-     * @ORM\Column(type="datetime")
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @Groups({"dates"})
      */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['dates'])]
     protected ?\DateTimeInterface $createdAt = null;
 
     public function getCreatedAt(): ?\DateTimeInterface

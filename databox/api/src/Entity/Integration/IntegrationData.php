@@ -11,46 +11,32 @@ use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(indexes={@ORM\Index(name="name", columns={"integration_id", "file_id", "name"})})
- */
+#[ORM\Table]
+#[ORM\Index(name: 'name', columns: ['integration_id', 'file_id', 'name'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WorkspaceIntegration::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?WorkspaceIntegration $integration = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=File::class)
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     *
-     * @Groups({"integrationdata:index"})
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[Groups(['integrationdata:index'])]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
-     * @Groups({"integrationdata:index"})
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Groups(['integrationdata:index'])]
     private ?string $keyId = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     *
-     * @Groups({"integrationdata:index"})
-     */
+    #[ORM\Column(type: 'text', nullable: false)]
+    #[Groups(['integrationdata:index'])]
     private $value;
 
     public function getIntegration(): ?WorkspaceIntegration

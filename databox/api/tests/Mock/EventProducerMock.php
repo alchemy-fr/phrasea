@@ -11,11 +11,9 @@ class EventProducerMock extends EventProducer
 {
     private bool $intercept = false;
     private array $events = [];
-    private EventProducer $inner;
 
-    public function __construct(EventProducer $inner)
+    public function __construct(private readonly EventProducer $inner)
     {
-        $this->inner = $inner;
     }
 
     public function publish(

@@ -44,107 +44,74 @@ class AssetOutput extends AbstractUuidOutput
      *     }
      * }
      * })
-     *
-     * @Groups({"asset:index", "asset:read"})
      */
+    #[Groups(['asset:index', 'asset:read'])]
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
-     *
-     * @Groups({"asset:index", "asset:read"})
      */
-    protected ?array $attributes;
+    #[Groups(['asset:index', 'asset:read'])]
+    protected ?array $attributes = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'Webhook'])]
     private ?string $title = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'Webhook'])]
     private ?string $resolvedTitle = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?string $titleHighlight = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'Webhook'])]
     private int $privacy;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private bool $pendingSourceFile = false;
 
-    /**
-     * @Groups({"asset:read"})
-     */
+    #[Groups(['asset:read'])]
     private ?string $pendingUploadToken = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'Webhook'])]
     private $workspace;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private array $tags;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private array $collections;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?File $source = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?AssetRendition $original = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?AssetRendition $preview = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?AssetRendition $thumbnail = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups(['asset:index', 'asset:read'])]
     private ?AssetRendition $thumbnailActive = null;
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     private \DateTimeImmutable $editedAt;
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     private \DateTimeImmutable $attributesEditedAt;
 
     /**
      * Used for result grouping.
-     *
-     * @Groups({"_"})
      */
+    #[Groups(['_'])]
     private ?GroupValue $groupValue = null;
 
     public function getOriginal(): ?AssetRendition

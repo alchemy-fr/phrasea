@@ -6,8 +6,8 @@ namespace App\Api\DataTransformer;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Security\Core\Security;
 
 abstract class AbstractSecurityDataTransformer implements DataTransformerInterface
 {
@@ -34,9 +34,7 @@ abstract class AbstractSecurityDataTransformer implements DataTransformerInterfa
         return 'no_token';
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

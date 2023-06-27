@@ -11,7 +11,7 @@ use GuzzleHttp\Middleware;
 
 class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
 {
-    private MockHandler $mock;
+    private readonly MockHandler $mock;
     private array $container = [];
 
     public function __construct()

@@ -8,14 +8,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class TagOutput extends AbstractUuidOutput
 {
-    /**
-     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'tag:index', 'tag:read'])]
     private string $name;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
-     */
+    #[Groups(['asset:index', 'asset:read', 'tag:index', 'tag:read'])]
     private ?string $color = null;
 
     public function getName(): string

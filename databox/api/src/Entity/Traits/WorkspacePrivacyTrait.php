@@ -9,9 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait WorkspacePrivacyTrait
 {
-    /**
-     * @ORM\Column(type="smallint", nullable=false)
-     */
+    #[ORM\Column(type: 'smallint', nullable: false)]
     private int $privacy = WorkspaceItemPrivacyInterface::SECRET;
 
     public function getPrivacy(): int

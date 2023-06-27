@@ -13,15 +13,10 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(
- *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="uniq_class_ws_name",columns={"workspace_id", "name"}),
- *         @ORM\UniqueConstraint(name="uniq_class_ws_key",columns={"workspace_id", "key"})
- *     }
- * )
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_class_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity]
 class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -30,46 +25,35 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     /**
      * Override trait for annotation.
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace")
-     * @ORM\JoinColumn(nullable=false)
      *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    /**
-     * @Groups({"attributeclass:index", "attributedef:index", "attributedef:read"})
-     *
-     * @ORM\Column(type="string", length=80)
-     */
+    #[Groups(['attributeclass:index', 'attributedef:index', 'attributedef:read'])]
+    #[ORM\Column(type: 'string', length: 80)]
     private ?string $name = null;
 
-    /**
-     * @Groups({"attributeclass:index"})
-     *
-     * @ORM\Column(type="boolean")
-     */
+    #[Groups(['attributeclass:index'])]
+    #[ORM\Column(type: 'boolean')]
     private ?bool $editable = null;
 
-    /**
-     * @Groups({"attributeclass:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributeclass:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private ?bool $public = null;
 
     /**
      * @var AttributeDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="class", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AttributeDefinition::class, mappedBy: 'class', cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=150, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $key = null;
 
     public function __construct()

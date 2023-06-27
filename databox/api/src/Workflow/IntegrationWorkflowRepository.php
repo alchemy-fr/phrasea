@@ -13,23 +13,20 @@ use App\Integration\IntegrationManager;
 use App\Integration\WorkflowIntegrationInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
+final readonly class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 {
     private const ASSET_INGEST_NAME = 'asset-ingest';
     private const ATTRIBUTES_UPDATE_NAME = 'attributes-update';
-
     private const ROOT_WORKFLOWS = [
         self::ATTRIBUTES_UPDATE_NAME,
         self::ASSET_INGEST_NAME,
     ];
-
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly IntegrationManager $integrationManager,
-        private readonly WorkflowRepositoryInterface $decorated,
+        private EntityManagerInterface $em,
+        private IntegrationManager $integrationManager,
+        private WorkflowRepositoryInterface $decorated,
     ) {
     }
-
     public function loadWorkflowByName(string $name): ?Workflow
     {
         foreach (self::ROOT_WORKFLOWS as $rootName) {
@@ -45,7 +42,6 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
         return $this->decorated->loadWorkflowByName($name);
     }
-
     public function getWorkflowsByEvent(WorkflowEvent $event): array
     {
         $inputs = $event->getInputs();
@@ -62,7 +58,6 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
         return $workflows;
     }
-
     private function createIntegrationsToWorkflow(Workflow $workflow, string $workspaceId): Workflow
     {
         if (!in_array($workflow->getName(), self::ROOT_WORKFLOWS, true)) {
@@ -131,7 +126,6 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 
         return $integrationWorkflow;
     }
-
     public function loadAll(): void
     {
     }

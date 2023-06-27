@@ -24,10 +24,9 @@ use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -36,81 +35,58 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     private int $microseconds = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     private int $sequence = 0;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     */
+    #[ORM\Column(type: 'string', length: 36)]
     private ?string $ownerId = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $key = null;
 
     /**
      * Token sent to Uploader.
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $pendingUploadToken = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="asset", cascade={"remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\CollectionAsset::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     */
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $storyCollection = null;
 
     /**
      * Asset will inherit permissions from this collection.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="referenceAssets")
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'referenceAssets')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="asset", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'asset', cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\File::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?File $source = null;
 
     private bool $noFileVersion = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AssetRendition::class, mappedBy: 'asset', cascade: ['remove'])]
     private ?DoctrineCollection $renditions = null;
 
     private ?array $highlights = null;
@@ -122,18 +98,16 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     /**
      * Last update time of attribute.
-     *
-     * @ORM\Column(type="datetime_immutable")
      */
     #[Groups(['dates'])]
+    #[ORM\Column(type: 'datetime_immutable')]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
 
     /**
      * Last update time of tags.
-     *
-     * @ORM\Column(type="datetime_immutable")
      */
     #[Groups(['dates'])]
+    #[ORM\Column(type: 'datetime_immutable')]
     protected ?\DateTimeImmutable $tagsEditedAt = null;
 
     /**

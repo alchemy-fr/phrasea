@@ -16,21 +16,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
- * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
- * @ORM\Table(
- *     uniqueConstraints={
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_name",columns={"workspace_id", "name"}),
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"}),
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_slug",columns={"workspace_id", "slug"})
- *     },
- *     indexes={
- *       @ORM\Index(name="searchable_idx", columns={"searchable"}),
- *       @ORM\Index(name="type_idx", columns={"field_type"}),
- *     }
- * )
- */
+#[ORM\Table]
+#[ORM\Index(name: 'searchable_idx', columns: ['searchable'])]
+#[ORM\Index(name: 'type_idx', columns: ['field_type'])]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
+#[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeDefinitionRepository::class)]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -40,142 +33,112 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     /**
      * Override trait for annotation.
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")
-     * @ORM\JoinColumn(nullable=false)
      *
-     * @Groups({"attributedef:index"})
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'attributeDefinitions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['attributedef:index'])]
     protected ?Workspace $workspace = null;
 
     /**
-     * @Groups({"attributedef:index", "attributedef:read", "attributedef:write"})
      *
-     * @ORM\ManyToOne(targetEntity="AttributeClass", inversedBy="definitions")
-     * @ORM\JoinColumn(nullable=false)
      *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
+    #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
+    #[ORM\ManyToOne(targetEntity: 'AttributeClass', inversedBy: 'definitions')]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeClass $class = null;
 
     /**
      * @var Attribute[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="definition", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'definition', cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "attributedef:index", "attribute:index"})
-     *
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
+    #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private ?string $name = null;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
      * @Gedmo\Slug(fields={"name"}, style="lower", separator="", unique=false)
      */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $slug = null;
 
     /**
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
      *
-     * @Groups({"attributedef:index"})
      *
-     * @ORM\Column(type="string", length=100, nullable=true)
      */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    /**
-     * @Groups({"attributedef:index", "asset:index"})
-     *
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[Groups(['attributedef:index', 'asset:index'])]
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $searchable = true;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $facetEnabled = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $sortable = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $translatable = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $multiple = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $allowInvalid = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $searchBoost = null;
 
     /**
      * Initialize attributes after asset creation; key=locale.
      *
-     * @Groups({"attributedef:index"})
      *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      *
-     * @Groups({"attributedef:index"})
      *
-     * @ORM\Column(type="array", nullable=true)
      */
+    #[Groups(['attributedef:index'])]
+    #[ORM\Column(type: 'array', nullable: true)]
     private ?array $fallback = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=150, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $key = null;
 
     /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
      *
-     * @ORM\Column(type="smallint", nullable=false)
      *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
+    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[ORM\Column(type: 'smallint', nullable: false)]
     private int $position = 0;
 
     public function getName(): ?string

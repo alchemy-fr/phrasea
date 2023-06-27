@@ -12,10 +12,9 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
- *
  * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
  */
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeRepository::class)]
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
     final public const ORIGIN_MACHINE = 0;
@@ -40,49 +39,38 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         self::STATUS_DECLINED => 'declined',
     ];
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="attributes")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'attributes')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $locked = false;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\AttributeDefinition", inversedBy="attributes")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\AttributeDefinition::class, inversedBy: 'attributes')]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeDefinition $definition = null;
 
     /**
      * Unique ID to group translations of the same attribute.
-     *
-     * @ORM\Column(type="uuid", nullable=true)
      */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $translationId = null;
 
     /**
      * Unique ID to group translations of the same attribute.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Attribute", inversedBy="translations")
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Attribute::class, inversedBy: 'translations')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?self $translationOrigin = null;
 
     /**
      * Hashed value of the original translated string.
-     *
-     * @ORM\Column(type="string", length=32, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private ?string $translationOriginHash = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="translationOrigin", cascade={"remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $translations = null;
 
     /**
@@ -95,41 +83,28 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
      */
     private ?array $highlights = null;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=false)
-     */
+    #[ORM\Column(type: 'smallint', nullable: false)]
     private ?int $origin = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $originVendor = null;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=true)
-     */
+    #[ORM\Column(type: 'uuid', nullable: true)]
     private ?string $originUserId = null;
 
     /**
      * Could include vendor version, AI parameters, etc.
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $originVendorContext = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $coordinates = null;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: 'smallint', nullable: true)]
     private int $status = self::STATUS_VALID;
 
-    /**
-     * @ORM\Column(type="float", nullable=false)
-     */
+    #[ORM\Column(type: 'float', nullable: false)]
     private float $confidence = 1.0;
 
     public ?AttributeBatchUpdateInput $batchUpdate = null;

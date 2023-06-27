@@ -110,7 +110,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         self::assertEquals('POST', $trRequest->getMethod());
         self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
         self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', (string) $trRequest->getUri());
-        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
+        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'assets' => [$assetId],
             'publisher' => '4242',

@@ -43,59 +43,43 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
      *     }
      * }
      * })
-     *
-     * @Groups({"asset-data-template:index"})
      */
+    #[Groups(['asset-data-template:index'])]
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
-     *
-     * @Groups({"asset-data-template:read"})
      */
-    public ?array $attributes;
+    #[Groups(['asset-data-template:read'])]
+    public ?array $attributes = null;
 
     /**
      * Template name.
-     *
-     * @Groups({"asset-data-template:index"})
      */
+    #[Groups(['asset-data-template:index'])]
     public ?string $name = null;
 
-    /**
-     * @Groups({"asset-data-template:read"})
-     */
+    #[Groups(['asset-data-template:read'])]
     public bool $public = false;
 
-    /**
-     * @Groups({"asset-data-template:read"})
-     */
+    #[Groups(['asset-data-template:read'])]
     public ?string $ownerId = null;
 
     /**
      * Asset title.
-     *
-     * @Groups({"asset-data-template:read"})
      */
+    #[Groups(['asset-data-template:read'])]
     public ?string $title = null;
 
-    /**
-     * @Groups({"asset-data-template:read"})
-     */
+    #[Groups(['asset-data-template:read'])]
     public ?array $tags = null;
 
-    /**
-     * @Groups({"asset-data-template:index"})
-     */
+    #[Groups(['asset-data-template:index'])]
     public $collection;
 
-    /**
-     * @Groups({"asset-data-template:index"})
-     */
+    #[Groups(['asset-data-template:index'])]
     public ?int $privacy = null;
 
-    /**
-     * @Groups({"asset-data-template:read"})
-     */
+    #[Groups(['asset-data-template:read'])]
     public bool $includeCollectionChildren = false;
 }

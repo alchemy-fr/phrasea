@@ -59,25 +59,19 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
         return $item;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setValidator(ValidatorInterface $validator): void
     {
         $this->validator = $validator;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setIriConverter(IriConverterInterface $iriConverter): void
     {
         $this->iriConverter = $iriConverter;

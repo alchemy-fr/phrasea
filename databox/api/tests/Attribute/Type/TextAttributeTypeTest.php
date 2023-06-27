@@ -7,16 +7,13 @@ namespace App\Tests\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 
-class DummyString
+class DummyString implements \Stringable
 {
-    private string $str;
-
-    public function __construct(string $str)
+    public function __construct(private readonly string $str)
     {
-        $this->str = $str;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->str;
     }

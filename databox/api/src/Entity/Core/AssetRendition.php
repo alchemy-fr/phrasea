@@ -13,38 +13,30 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRenditionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_representation",columns={"definition_id", "asset_id"})})
  *
  * @ApiResource()
  */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRenditionRepository::class)]
 class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    /**
-     * @Groups({"rendition:index", "rendition:read"})
-     *
-     * @ORM\ManyToOne(targetEntity="RenditionDefinition", inversedBy="renditions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[Groups(['rendition:index', 'rendition:read'])]
+    #[ORM\ManyToOne(targetEntity: 'RenditionDefinition', inversedBy: 'renditions')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?RenditionDefinition $definition = null;
 
-    /**
-     * @Groups({"rendition:index", "rendition:read"})
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="renditions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[Groups(['rendition:index', 'rendition:read'])]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'renditions')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
-    /**
-     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\File::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 
     public function getAsset(): Asset
@@ -80,9 +72,8 @@ class AssetRendition extends AbstractUuidEntity
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"rendition:index", "rendition:read", "asset:index", "asset:read"})
      */
+    #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
     public function getName(): string
     {
         return $this->definition->getName();

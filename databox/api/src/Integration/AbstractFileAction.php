@@ -70,49 +70,37 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataKey;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setFileManager(FileManager $fileManager): void
     {
         $this->fileManager = $fileManager;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setIntegrationDataManager(IntegrationDataManager $integrationDataManager): void
     {
         $this->integrationDataManager = $integrationDataManager;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setFileUrlResolver(FileUrlResolver $fileUrlResolver): void
     {
         $this->fileUrlResolver = $fileUrlResolver;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setSerializer(SerializerInterface $serializer): void
     {
         $this->serializer = $serializer;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setFileUploadManager(FileUploadManager $fileUploadManager): void
     {
         $this->fileUploadManager = $fileUploadManager;

@@ -8,19 +8,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class IntegrationDataOutput extends AbstractUuidOutput
 {
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private string $name;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private ?string $keyId = null;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private $value;
 
     public function getName(): string

@@ -18,8 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="ws_name_uniq",columns={"workspace_id", "name"})})
  *
  * @ApiResource(
  *  shortName="tag",
@@ -30,6 +28,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
  */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
+#[ORM\Entity]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -37,24 +38,20 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     use LocaleTrait;
     use WorkspaceTrait;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=6, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 6, nullable: true)]
     private ?string $color = null;
 
     /**
      * Override trait for annotation.
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
-     * @ORM\JoinColumn(nullable=false)
      *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'tags')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     public function getName(): string

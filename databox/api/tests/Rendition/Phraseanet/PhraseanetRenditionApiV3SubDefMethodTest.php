@@ -108,7 +108,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         self::assertEquals('POST', $trRequest->getMethod());
         self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
         self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string) $trRequest->getUri());
-        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
+        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'databoxId' => 2,
             'source' => [],
@@ -142,7 +142,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 ],
             ],
         ]);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertResponseStatusCodeSame(200);
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
@@ -150,7 +150,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
             ],
         ]);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'asset',

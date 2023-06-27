@@ -78,7 +78,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -121,7 +121,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -173,7 +173,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -205,7 +205,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -236,7 +236,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -268,7 +268,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }

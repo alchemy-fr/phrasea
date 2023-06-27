@@ -11,9 +11,8 @@ trait UpdatedAtDTOTrait
 {
     /**
      * @ApiProperty()
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     protected \DateTimeInterface $updatedAt;
 
     public function getUpdatedAt(): \DateTimeInterface

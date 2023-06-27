@@ -16,9 +16,7 @@ abstract class AbstractIntegration implements IntegrationInterface
 {
     private ValidatorInterface $validator;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setValidator(ValidatorInterface $validator): void
     {
         $this->validator = $validator;

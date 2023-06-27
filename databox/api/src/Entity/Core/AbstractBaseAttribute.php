@@ -9,27 +9,19 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\MappedSuperclass()
- */
+#[ORM\MappedSuperclass]
 abstract class AbstractBaseAttribute extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private ?string $locale = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     private int $position = 0;
 
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     */
+    #[ORM\Column(type: 'text', nullable: false)]
     private ?string $value = null;
 
     /**

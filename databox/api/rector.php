@@ -8,7 +8,6 @@ use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
-        __DIR__ . '/__lib',
         __DIR__ . '/config',
         __DIR__ . '/public',
         __DIR__ . '/src',
@@ -24,5 +23,10 @@ return static function (RectorConfig $rectorConfig): void {
         \Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         \Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
+        \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
+    ]);
+
+    $rectorConfig->skip([
+        \Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
     ]);
 };

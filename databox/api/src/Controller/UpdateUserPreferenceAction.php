@@ -17,9 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UpdateUserPreferenceAction extends AbstractController
 {
-    /**
-     * @Route(path="/preferences", methods={"GET"})
-     */
+    #[Route(path: '/preferences', methods: ['GET'])]
     public function getUserPreferences(UserPreferencesManager $userPreferencesManager): Response
     {
         $user = $this->getRemoteUser();
@@ -28,9 +26,7 @@ class UpdateUserPreferenceAction extends AbstractController
         return $this->createResponse($pref);
     }
 
-    /**
-     * @Route(path="/preferences", methods={"PUT"})
-     */
+    #[Route(path: '/preferences', methods: ['PUT'])]
     public function updateUserPreferences(Request $request, UserPreferencesManager $userPreferencesManager): Response
     {
         $user = $this->getRemoteUser();

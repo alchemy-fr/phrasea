@@ -14,38 +14,28 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private ?string $title = null;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private ?string $integration = null;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private bool $enabled = true;
 
-    /**
-     * @Groups({"integration:index"})
-     */
+    #[Groups(['integration:index'])]
     private ?bool $supported = null;
 
     /**
      * @var IntegrationData[]
-     *
-     * @Groups({"integration:index"})
      */
+    #[Groups(['integration:index'])]
     private array $data = [];
 
     /**
      * Client options.
-     *
-     * @Groups({"integration:index"})
      */
+    #[Groups(['integration:index'])]
     private array $config = [];
 
     public function getTitle(): ?string

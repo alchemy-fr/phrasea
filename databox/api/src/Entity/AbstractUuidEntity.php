@@ -8,17 +8,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\MappedSuperclass
- */
+#[ORM\MappedSuperclass]
 abstract class AbstractUuidEntity
 {
-    /**
-     * @Groups({"_"})
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[Groups(['_'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private string $id;
 
     public function __construct()

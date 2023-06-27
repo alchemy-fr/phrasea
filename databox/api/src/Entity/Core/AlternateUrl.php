@@ -9,22 +9,16 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeRepository::class)]
 class AlternateUrl extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $label = null;
 
     public function getType(): ?string

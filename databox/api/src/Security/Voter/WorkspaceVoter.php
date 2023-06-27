@@ -24,11 +24,8 @@ class WorkspaceVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
-        if (isset($this->cache[$key])) {
-            return $this->cache[$key];
-        }
 
-        return $this->cache[$key] = $this->doVote($attribute, $subject, $token);
+        return $this->cache[$key] ?? ($this->cache[$key] = $this->doVote($attribute, $subject, $token));
     }
 
     private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool

@@ -9,18 +9,14 @@ use App\Entity\Core\Collection;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class MediaIndex extends AbstractUuidEntity
 {
     use WorkspaceTrait;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private Collection $collection;
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private readonly Collection $collection;
 
     public function getTitle(): ?string
     {

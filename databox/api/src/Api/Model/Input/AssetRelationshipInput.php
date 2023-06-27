@@ -21,8 +21,7 @@ class AssetRelationshipInput
 
     /**
      * Type of relationship.
-     *
-     * @Assert\NotBlank()
      */
+    #[Assert\NotBlank]
     public ?string $type = null;
 }

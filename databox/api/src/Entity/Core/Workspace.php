@@ -19,90 +19,69 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- *
- * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
  */
+#[ORM\Entity(repositoryClass: \App\Repository\Core\WorkspaceRepository::class)]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use DeletedAtTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private ?string $slug = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $ownerId = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $public = false;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $config = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $enabledLocales = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private ?array $localeFallbacks = ['en'];
 
     /**
      * @var Collection[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Collection::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $collections = null;
 
     /**
      * @var Tag[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Tag::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $tags = null;
 
     /**
      * @var RenditionClass[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\RenditionClass::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
      * @var RenditionDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\RenditionDefinition::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AttributeDefinition::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\File::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $files = null;
 
     public function __construct()

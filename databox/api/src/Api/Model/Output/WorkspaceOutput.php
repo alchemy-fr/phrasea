@@ -21,34 +21,22 @@ class WorkspaceOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
     use CreatedAtDTOTrait;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})
-     */
+    #[Groups(['workspace:index', 'workspace:read', 'collection:index', 'collection:read'])]
     protected array $capabilities = [];
 
-    /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read", "asset:index", "asset:read", "Webhook", "renddef:index"})
-     */
+    #[Groups(['workspace:index', 'workspace:read', 'collection:index', 'collection:read', 'asset:index', 'asset:read', 'Webhook', 'renddef:index'])]
     private string $name;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read"})
-     */
+    #[Groups(['workspace:index', 'workspace:read'])]
     private string $slug;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read"})
-     */
+    #[Groups(['workspace:index', 'workspace:read'])]
     private bool $public;
 
-    /**
-     * @Groups({"workspace:read"})
-     */
+    #[Groups(['workspace:read'])]
     private ?array $enabledLocales = null;
 
-    /**
-     * @Groups({"workspace:read"})
-     */
+    #[Groups(['workspace:read'])]
     private ?array $localeFallbacks = null;
 
     public function getName(): string

@@ -11,29 +11,19 @@ class RenditionRuleOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
 
-    /**
-     * @Groups({"rendrule:index"})
-     */
+    #[Groups(['rendrule:index'])]
     private ?string $userId = null;
 
-    /**
-     * @Groups({"rendrule:index"})
-     */
+    #[Groups(['rendrule:index'])]
     private ?string $groupId = null;
 
-    /**
-     * @Groups({"rendrule:index"})
-     */
+    #[Groups(['rendrule:index'])]
     private ?string $workspaceId = null;
 
-    /**
-     * @Groups({"rendrule:index"})
-     */
+    #[Groups(['rendrule:index'])]
     private ?string $collectionId = null;
 
-    /**
-     * @Groups({"rendrule:index"})
-     */
+    #[Groups(['rendrule:index'])]
     private ?array $allowed = null;
 
     public function getUserId(): ?string

@@ -13,10 +13,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
- *
  * @ApiResource()
  */
+#[ORM\Entity]
 class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -28,67 +27,50 @@ class File extends AbstractUuidEntity implements \Stringable
     /**
      * Override trait for annotation.
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
-     * @ORM\JoinColumn(nullable=false)
      *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'files')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     /**
      * The MIME type.
-     *
-     * @ORM\Column(type="string", length=100, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=true)
-     */
+    #[ORM\Column(type: 'bigint', nullable: true)]
     private ?int $size = null;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     private ?string $checksum = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $path = null;
 
     /**
      * Is path accessible from browser.
-     *
-     * @ORM\Column(type="boolean", nullable=false)
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $pathPublic = true;
 
-    /**
-     * @ORM\Column(type="string", length=150, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 150, nullable: false)]
     private ?string $storage = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $originalName = null;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $extension = null;
 
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
+    #[ORM\Column(type: 'array', nullable: true)]
     private ?array $alternateUrls = null;
 
     /**
      * Normalized metadata.
-     *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $metadata = null;
 
     public function getPath(): ?string

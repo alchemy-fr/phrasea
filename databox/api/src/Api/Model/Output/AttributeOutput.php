@@ -18,18 +18,16 @@ class AttributeOutput extends AbstractUuidOutput
 
     /**
      * @var Asset
-     *
-     * @Groups({"attribute:index", "attribute:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public $asset;
 
     /**
      * Target definition by IRI. Or use $name.
      *
      * @var AttributeDefinition|null
-     *
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
+    #[Groups(['asset:index', 'asset:read', 'attribute:index', 'attribute:read', 'asset-data-template:read'])]
     public $definition;
 
     /**
@@ -39,86 +37,69 @@ class AttributeOutput extends AbstractUuidOutput
      * })
      *
      * @var string|float|int|bool|array|null
-     *
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
+    #[Groups(['asset:index', 'asset:read', 'attribute:index', 'attribute:read', 'asset-data-template:read'])]
     public $value;
 
     /**
      * @var array|string|null
-     *
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
+    #[Groups(['asset:index', 'asset:read', 'attribute:index', 'attribute:read'])]
     public $highlight;
 
     /**
      * Unique ID to group translations of the same attribute.
-     *
-     * @Groups({"attribute:index", "attribute:read", "asset-data-template:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read', 'asset-data-template:read'])]
     public ?string $translationId = null;
 
     /**
      * "human" or "machine".
      *
      * @var string
-     *
-     * @Groups({"attribute:index", "attribute:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public $origin;
 
-    /**
-     * @Groups({"attribute:index", "attribute:read"})
-     */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public ?string $originVendor = null;
 
-    /**
-     * @Groups({"attribute:index", "attribute:read"})
-     */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public ?string $originUserId = null;
 
     /**
      * Could include vendor version, AI parameters, etc.
-     *
-     * @Groups({"attribute:index", "attribute:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public ?string $originVendorContext = null;
 
-    /**
-     * @Groups({"attribute:index", "attribute:read"})
-     */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public ?string $coordinates = null;
 
     /**
      * @var string|null
-     *
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read", "asset-data-template:read"})
      */
+    #[Groups(['asset:index', 'asset:read', 'attribute:index', 'attribute:read', 'asset-data-template:read'])]
     public $locale;
 
     /**
      * @var int
-     *
-     * @Groups({"attribute:index", "attribute:read", "asset-data-template:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read', 'asset-data-template:read'])]
     public $position;
 
     /**
      * @var string
-     *
-     * @Groups({"attribute:index", "attribute:read"})
      */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public $status;
 
-    /**
-     * @Groups({"attribute:index", "attribute:read"})
-     */
+    #[Groups(['attribute:index', 'attribute:read'])]
     public $confidence;
 
     /**
      * @var bool
-     *
-     * @Groups({"asset:index", "asset:read", "attribute:index", "attribute:read"})
      */
+    #[Groups(['asset:index', 'asset:read', 'attribute:index', 'attribute:read'])]
     public $multiple;
 }

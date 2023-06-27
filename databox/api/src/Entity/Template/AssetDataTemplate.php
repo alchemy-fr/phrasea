@@ -19,11 +19,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
- * @ORM\Table()
  *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
+#[ORM\Table]
+#[ORM\Entity]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -32,69 +32,51 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
 
     /**
      * Template name.
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[Groups(['asset-data-template:read'])]
     private bool $public = false;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\Column(type: 'string', length: 36)]
+    #[Groups(['asset-data-template:read'])]
     private ?string $ownerId = null;
 
     /**
      * Asset title.
      *
-     * @ORM\Column(type="string", length=255, nullable=true)
      *
-     * @Groups({"asset-data-template:read"})
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['asset-data-template:read'])]
     private ?string $title = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
+    #[Groups(['asset-data-template:read'])]
     private ?DoctrineCollection $tags = null;
 
     /**
      * @var TemplateAttribute[]
      *
-     * @ORM\OneToMany(targetEntity=TemplateAttribute::class, mappedBy="template", cascade={"persist", "remove"})
      *
-     * @Groups({"asset-data-template:read"})
      */
+    #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'template', cascade: ['persist', 'remove'])]
+    #[Groups(['asset-data-template:read'])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Collection $collection = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $includeCollectionChildren = false;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: 'smallint', nullable: true)]
     private ?int $privacy = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private array $data = [];
 
     public function __construct()

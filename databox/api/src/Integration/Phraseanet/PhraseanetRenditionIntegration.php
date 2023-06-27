@@ -94,7 +94,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
             $config,
             $actions[$method],
             $method,
-            ucfirst($method),
+            ucfirst((string) $method),
         );
     }
 

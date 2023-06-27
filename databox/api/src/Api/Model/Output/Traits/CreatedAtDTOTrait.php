@@ -11,9 +11,8 @@ trait CreatedAtDTOTrait
 {
     /**
      * @ApiProperty()
-     *
-     * @Groups({"dates"})
      */
+    #[Groups(['dates'])]
     protected \DateTimeInterface $createdAt;
 
     public function getCreatedAt(): \DateTimeInterface

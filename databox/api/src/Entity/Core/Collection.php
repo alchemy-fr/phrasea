@@ -31,11 +31,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  *
- * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
  *
  * @ApiResource()
  */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\CollectionRepository::class)]
 class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -45,32 +46,25 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     */
+    #[ORM\Column(type: 'string', length: 36)]
     private ?string $ownerId = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
-     * @ORM\JoinColumn(nullable=true)
-     *
-     * @MaxDepth(1)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[MaxDepth(1)]
     private ?self $parent = null;
 
     /**
      * @var self[]
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent")
-     * @ORM\JoinColumn(nullable=true)
      *
-     * @MaxDepth(1)
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Collection::class, mappedBy: 'parent')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[MaxDepth(1)]
     private ?DoctrineCollection $children = null;
 
     /**
@@ -78,29 +72,21 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
      */
     private ?bool $hasChildren = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist"})
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\CollectionAsset::class, mappedBy: 'collection', cascade: ['persist'])]
     private ?DoctrineCollection $assets = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection")
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Asset::class, mappedBy: 'referenceCollection')]
     private ?DoctrineCollection $referenceAssets = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'collections')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
     private ?string $key = null;
 
     public function __construct()

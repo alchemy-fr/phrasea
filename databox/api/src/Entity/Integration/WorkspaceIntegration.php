@@ -22,53 +22,38 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_integration_key",columns={"workspace_id", "title", "integration"})})
  *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
-class WorkspaceIntegration extends AbstractUuidEntity
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['integration:index'])]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[Groups(['integration:index'])]
     private ?string $integration = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=WorkspaceIntegration::class)
-     */
+    #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
     private ?Collection $needs = null;
 
-    /**
-     * @ORM\Column(type="string", length=2048, nullable=true)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
+    #[Groups(['integration:index'])]
     private ?string $if = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[Groups(['integration:index'])]
     private bool $enabled = true;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $config = [];
 
     private ?string $optionsJson = null;

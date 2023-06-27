@@ -12,9 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AssetDataTemplateInput extends AbstractOwnerIdInput
 {
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     public ?string $name = null;
 
     public ?bool $public = null;
@@ -27,9 +25,8 @@ class AssetDataTemplateInput extends AbstractOwnerIdInput
 
     /**
      * @var Workspace
-     *
-     * @Assert\NotNull()
      */
+    #[Assert\NotNull]
     public $workspace;
 
     /**

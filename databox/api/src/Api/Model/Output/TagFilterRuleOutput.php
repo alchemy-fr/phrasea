@@ -11,34 +11,22 @@ class TagFilterRuleOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?string $userId = null;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?string $groupId = null;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?string $workspaceId = null;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?string $collectionId = null;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?array $include = null;
 
-    /**
-     * @Groups({"tfr:read"})
-     */
+    #[Groups(['tfr:read'])]
     private ?array $exclude = null;
 
     public function getUserId(): ?string

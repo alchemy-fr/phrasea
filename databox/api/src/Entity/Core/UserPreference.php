@@ -9,22 +9,16 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class UserPreference extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=false, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, unique: true)]
     private ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $data = [];
 
     public function getUserId(): ?string

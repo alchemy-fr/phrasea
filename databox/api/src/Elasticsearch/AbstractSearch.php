@@ -85,17 +85,13 @@ abstract class AbstractSearch
         return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

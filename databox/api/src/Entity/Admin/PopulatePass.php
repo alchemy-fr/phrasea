@@ -9,42 +9,28 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Util\Time;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table
- */
+#[ORM\Table]
+#[ORM\Entity]
 class PopulatePass extends AbstractUuidEntity
 {
     use CreatedAtTrait;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTimeInterface $endedAt = null;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=false)
-     */
+    #[ORM\Column(type: 'bigint', nullable: false)]
     private int $documentCount;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=true)
-     */
+    #[ORM\Column(type: 'bigint', nullable: true)]
     private ?int $progress = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private string $indexName;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $mapping;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $error = null;
 
     public function getTimeTaken(): ?int

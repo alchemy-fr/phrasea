@@ -100,41 +100,31 @@ abstract class AbstractFileInputDataTransformer extends AbstractInputDataTransfo
         return $file;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setRenditionManager(RenditionManager $renditionManager): void
     {
         $this->renditionManager = $renditionManager;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setUploadManager(UploadManager $uploadManager): void
     {
         $this->uploadManager = $uploadManager;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setFileUploadManager(FileUploadManager $fileUploadManager): void
     {
         $this->fileUploadManager = $fileUploadManager;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setPostFlushStackListener(PostFlushStack $postFlushStackListener): void
     {
         $this->postFlushStackListener = $postFlushStackListener;

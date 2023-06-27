@@ -10,8 +10,7 @@ class MultipleAssetOutput
 {
     /**
      * @var AssetOutput[]
-     *
-     * @Groups({"asset:read"})
      */
+    #[Groups(['asset:read'])]
     public array $assets = [];
 }

@@ -16,20 +16,16 @@ class Export
 
     /**
      * @var string[]
-     *
-     * @Groups("export:input")
      */
+    #[Groups('export:input')]
     public $assets;
 
     /**
      * @var string[]
-     *
-     * @Groups("export:input")
      */
+    #[Groups('export:input')]
     public $renditions;
 
-    /**
-     * @Groups("export:output")
-     */
+    #[Groups('export:output')]
     public ?string $downloadUrl = null;
 }

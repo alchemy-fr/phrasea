@@ -20,17 +20,13 @@ abstract class AbstractVoter extends Voter
     protected EntityManagerInterface $em;
     protected Security $security;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

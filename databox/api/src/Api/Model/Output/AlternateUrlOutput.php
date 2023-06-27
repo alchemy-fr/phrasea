@@ -9,17 +9,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class AlternateUrlOutput extends AbstractUuidOutput
 {
     public function __construct(
-        /**
-         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-         */
+        #[Groups(['file:index', 'file:read', 'asset:index', 'asset:read'])]
         private readonly string $type,
-        /**
-         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-         */
+        #[Groups(['file:index', 'file:read', 'asset:index', 'asset:read'])]
         private readonly string $url,
-        /**
-         * @Groups({"file:index", "file:read", "asset:index", "asset:read"})
-         */
+        #[Groups(['file:index', 'file:read', 'asset:index', 'asset:read'])]
         private readonly ?string $label = null
     ) {
     }

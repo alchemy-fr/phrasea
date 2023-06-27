@@ -11,25 +11,22 @@ use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionAssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_asset",columns={"collection_id", "asset_id"})})
  *
  * @ApiResource()
  */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
+#[ORM\Entity(repositoryClass: \App\Repository\Core\CollectionAssetRepository::class)]
 class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="assets")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'assets')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Collection $collection = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Asset", inversedBy="collections")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'collections')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
     public function getCollection(): Collection

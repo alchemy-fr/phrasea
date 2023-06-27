@@ -27,16 +27,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/integrations/phraseanet", name="integration_phraseanet_")
- */
+#[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_')]
 class PhraseanetIntegrationController extends AbstractController
 {
     final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
-    /**
-     * @Route(path="/{integrationId}/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
-     */
+    #[Route(path: '/{integrationId}/renditions/incoming/{assetId}', methods: ['POST'], name: 'incoming_rendition')]
     public function incomingRenditionAction(
         string $integrationId,
         string $assetId,
@@ -111,9 +107,7 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    /**
-     * @Route(path="/{integrationId}/events", methods={"POST"}, name="webhook_event")
-     */
+    #[Route(path: '/{integrationId}/events', methods: ['POST'], name: 'webhook_event')]
     public function webhookEventAction(
         Request $request,
         EventProducer $eventProducer,
@@ -152,9 +146,7 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    /**
-     * @Route(path="/{integrationId}/assets/{id}", methods={"GET"}, name="asset")
-     */
+    #[Route(path: '/{integrationId}/assets/{id}', methods: ['GET'], name: 'asset')]
     public function assetAction(
         $integrationId,
         string $id,
@@ -193,9 +185,7 @@ class PhraseanetIntegrationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/{integrationId}/commits/{id}/ack", methods={"POST"}, name="enqueue_ack")
-     */
+    #[Route(path: '/{integrationId}/commits/{id}/ack', methods: ['POST'], name: 'enqueue_ack')]
     public function enqueueAckAction(
         string $integrationId,
         string $id,

@@ -14,9 +14,7 @@ class AppElasticaToModelTransformer extends ElasticaToModelTransformer
 {
     private LoggerInterface $logger;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;

@@ -17,9 +17,6 @@ use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
 #[ApiResource(
     collectionOperations: [
         'get' => [
@@ -41,19 +38,16 @@ use Doctrine\ORM\Mapping as ORM;
     shortName: 'workflows',
 )]
 #[ApiFilter(SearchFilter::class, properties: ['asset' => 'exact'])]
+#[ORM\Entity]
 class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
     private ?string $initiatorId = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Asset::class)
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Asset $asset = null;
 
     public function setState(ModelWorkflowState $state, EntityManagerInterface $em): void
